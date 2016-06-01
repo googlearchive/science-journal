@@ -21,7 +21,6 @@ android {
     sourceSets {
         main {
             proto {
-                srcDir '../../../proto/sensor'
             }
         }
     }
