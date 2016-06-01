@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.google.protobuf'
 
 android {
     compileSdkVersion 23
@@ -16,10 +17,34 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    sourceSets {
+        main {
+            proto {
+                srcDir '../../../proto/sensor'
+            }
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.0.0-alpha-3'
+    }
+    generateProtoTasks {
+        all()*.builtins {
+            javanano {
+                // Options added to --javanano_out
+                option 'java_multiple_files=false'
+                option 'ignore_services=true'
+            }
+        }
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-3.1'
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.3.0'
 }
