@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="action_feedback" msgid="2230997537507885910">"Povratne informacije"</string>
+    <string name="action_settings" msgid="4140514779355685890">"Postavke"</string>
+    <string name="action_save" msgid="7115885253849785049">"Spremi"</string>
+    <string name="action_edit" msgid="2879274643416740117">"Uredi"</string>
+    <string name="action_archive_project" msgid="3984396879969444432">"Arhiviraj projekt"</string>
+    <string name="action_unarchive_project" msgid="2708696233939647946">"Poništi arhiviranje projekta"</string>
+    <string name="action_archive_experiment" msgid="5641733726709708591">"Arhiviranje eksperimenta"</string>
+    <string name="action_unarchive_experiment" msgid="2357913494087884425">"Poništi arhiviranje eksper."</string>
+    <string name="action_archive_run" msgid="439270635088307350">"Arhiviraj pokus"</string>
+    <string name="action_unarchive_run" msgid="5992535261034463728">"Poništi arhiviranje pokusa"</string>
+    <string name="action_delete" msgid="5205384449071348669">"Izbriši"</string>
+    <string name="action_ruler" msgid="3567453615091215971">"Ravnalo"</string>
+    <string name="action_level" msgid="2223203490872051791">"Razina"</string>
+    <string name="sine_wave" msgid="7465850130633241930">"Sinusni val"</string>
+    <string name="acc_x" msgid="6032598557672647110">"Akcelerometar X"</string>
+    <string name="acc_y" msgid="3524690325306070984">"Akcelerometar Y"</string>
+    <string name="acc_z" msgid="4540365462206126342">"Akcelerometar Z"</string>
+    <string name="ambient_light" msgid="3301998123545447671">"Ambijentalno osvjetljenje"</string>
+    <string name="magnetic_rotation" msgid="6643176023260466091">"Rotacija magnetskog polja"</string>
+    <string name="video_stream" msgid="1813984984736617091">"Stream videozapisa"</string>
+    <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
+    <string name="ambient_light_units" msgid="6318282254934724349">"luks"</string>
+    <!-- no translation found for magnetic_rotation_units (5964336522624353252) -->
+    <skip />
+    <string name="decibel_units" msgid="2890849301464041989">"dB"</string>
+    <string name="rpm_units" msgid="897807671511627492">"o/min"</string>
+    <string name="voltage_units" msgid="6411118170860716365">"V"</string>
+    <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
+    <string name="experiment_details" msgid="6814534510464980289">"Pojedinosti eksperimenta"</string>
+    <string name="add_sensor" msgid="96374933560924369">"Dodavanje senzora"</string>
+    <string name="snackbar_source_error" msgid="6054360710842869995">"Došlo je do pogreške pri povezivanju s izvorom: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
+    <string name="action_retry" msgid="7873032739745888974">"Pokušaj ponovo"</string>
+    <string name="decibel" msgid="7425761238029567370">"Intenzitet zvuka"</string>
+    <string name="title_activity_tutorial" msgid="7117023626104839821">"Vodič za Science Journal"</string>
+    <string name="title_activity_age_verifier" msgid="6953483601673982354">"Rođendan"</string>
+    <string name="title_activity_ruler" msgid="4538057504732643762">"Ravnalo"</string>
+    <string name="ruler_label_metric" msgid="8008318703764352929">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
+    <string name="ruler_label_imperial" msgid="2225518554245466626">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> in."</string>
+    <string name="title_activity_level" msgid="7751336762571175981">"Razina"</string>
+    <string name="action_calibrate" msgid="2567237363558254927">"Kalibracija"</string>
+    <string name="action_end_calibrate" msgid="6416011236105220467">"Završi kalibraciju"</string>
+    <string name="title_calibrate" msgid="4425118955292706233">"Način kalibracije…"</string>
+    <string name="calibration_credit_card" msgid="1784606520446558443">"Kreditna kartica (visina)"</string>
+    <string name="calibration_ruler_imperial" msgid="2477725634940053346">"Ravnalo (3 inča)"</string>
+    <string name="calibration_ruler_metric" msgid="1330487431270295597">"Ravnalo (80 mm)"</string>
+    <string name="btn_add_experiment_note_description" msgid="7451384954210671094">"Dodajte napomenu za eksperiment"</string>
+    <string name="btn_add_run_note_description" msgid="3729688760639518856">"Dodavanje bilješke za pokus"</string>
+    <string name="btn_record_description" msgid="6165596989316716650">"Početak snimanja"</string>
+    <string name="btn_stop_description" msgid="5331283967913304386">"Zaustavljanje snimanja"</string>
+    <string name="unknown_sensor" msgid="2253417219024438701">"Nepoznati senzor"</string>
+    <string name="recording_start_failed" msgid="8094130346174113235">"Snimanje nije uspjelo; pokušajte ponovo"</string>
+    <string name="recording_start_failed_disconnected" msgid="2493130069585541040">"Snimanje nije uspjelo; senzor nije spojen. Pokušajte ponovo"</string>
+    <string name="recording_stop_failed_no_data_title" msgid="256592083253381257">"Podaci se ne snimaju"</string>
+    <string name="recording_stop_failed_no_data" msgid="5167111037930589862">"Jedan ili više senzora nije snimilo podatke. Želite li otkazati snimanje?"</string>
+    <string name="recording_stop_failed_continue" msgid="161788317476740066">"Nastavi"</string>
+    <string name="recording_stop_failed_cancel" msgid="9167449814602506726">"Otkaži snimanje"</string>
+    <string name="recording_stop_failed_disconnected" msgid="1409656957401598471">"Zaustavljanje snimanja nije uspjelo; prekinuta je veza sa senzorom. Želite li otkazati snimanje?"</string>
+    <string name="recording_stop_failed_save" msgid="720527628154679503">"Zaustavljanje snimanja nije uspjelo; pokus nije spremljen. Pokušajte ponovo."</string>
+    <!-- no translation found for elapsed_time_short_format (7848904136886917036) -->
+    <skip />
+    <string name="elapsed_time_long_format" msgid="3451516277286685162">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
+    <!-- no translation found for accessible_elapsed_time_short_format (867388448497851890) -->
+    <skip />
+    <string name="accessible_elapsed_time_long_format" msgid="5588697398982936316">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small" msgid="8801162161093675447">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large" msgid="1312366645818667859">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="8665096074255046060">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="picture_note_description" msgid="4617343713156115501">"Slika iz pokusa"</string>
+    <string name="picture_note_preview_content_description" msgid="4160980766022755366">"Pregled bilješke uz sliku"</string>
+    <string name="navigation_item_observe" msgid="6544385569776074166">"Promatranje"</string>
+    <string name="navigation_item_projects" msgid="204705505259389287">"Projekti"</string>
+    <string name="navigation_item_web_link" msgid="1966109305973672752">"Web-mjesto Making &amp; Science"</string>
+    <string name="navigation_item_settings" msgid="1612988756868966834">"Postavke"</string>
+    <string name="navigation_item_testing_options" msgid="8712068439028163725">"Opcije testiranja"</string>
+    <string name="title_activity_main" msgid="8803846504222999093">"Science Journal – <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_add_sensor" msgid="3432276215295606638">"Vanjski uređaji"</string>
+    <string name="external_devices_paired" msgid="460907629018449824">"Upareni uređaji"</string>
+    <string name="external_devices_pairing" msgid="1318140666547340328">"Uparivanje…"</string>
+    <string name="external_devices_available" msgid="4660407499712163232">"Dostupni uređaji"</string>
+    <string name="external_devices_settings_title" msgid="7731073608455634240">"Postavke uređaja"</string>
+    <string name="external_devices_settings_forget" msgid="2280373936547146694">"Zaboravi"</string>
+    <string name="external_devices_settings_ok" msgid="3688835834178014100">"U redu"</string>
+    <string name="progress_scanning" msgid="504228868213512629">"Skeniranje…"</string>
+    <string name="action_refresh" msgid="6449507931372381488">"Osvježi"</string>
+    <string name="no_options_title" msgid="5380361167896386704">"Nema opcija za <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="no_options_message" msgid="3139314286228576248">"Ne mogu se postaviti opcije za <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="options_message" msgid="693169996123125208">"Postavljanje opcija za <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
+    <string name="sine_wave_frequency_option" msgid="3299263567413396079">"Postavite frekvenciju sinusnog vala u milisekundama:"</string>
+    <string name="video_stream_fps_option" msgid="7912973629078331063">"Postavite brzinu snimanja streama videozapisa u obliku broja sličica u sekundi:"</string>
+    <string name="title_activity_project_details" msgid="6738094706468371738">"Eksperimenti projekta"</string>
+    <string name="graph_name" msgid="4051005079264085531">"grafikon"</string>
+    <string name="graph_options" msgid="4225585925400993925">"Opcije grafikona"</string>
+    <string name="graph_options_title" msgid="6860269315108522661">"Opcije grafikona"</string>
+    <string name="graph_options_smoothness_edit" msgid="1885781785347948911">"Glatkoća"</string>
+    <string name="graph_options_window_edit" msgid="8943669029029140826">"Veličina zamućivanja"</string>
+    <string name="graph_options_blur_edit" msgid="6217163217394307677">"Vrsta zamućivanja"</string>
+    <string name="graph_options_gaussian_sigma_edit" msgid="5761710064672068300">"Standardna devijacija"</string>
+    <string name="blur_type_average" msgid="1617413241621655455">"Prosjek"</string>
+    <string name="blur_type_gaussian" msgid="1011871621295653087">"Gaussova krivulja"</string>
+    <string name="graph_options_audio_feedback_enable" msgid="1845200328398473302">"Omogući zvuk"</string>
+    <string name="graph_options_audio_feedback_disable" msgid="5006766005261847317">"Onemogući zvuk"</string>
+    <string name="stat_min" msgid="7907031942382531617">"Minimalno"</string>
+    <string name="stat_max" msgid="8227023306109349391">"Maksimalno"</string>
+    <string name="stat_average" msgid="3601514334204674938">"Prosjek"</string>
+    <string name="stat_min_label" msgid="8763695907241205634">"Min."</string>
+    <string name="stat_max_label" msgid="4173459591223474511">"Maks."</string>
+    <string name="stat_average_label" msgid="7341499679015444245">"Prosjek"</string>
+    <string name="stat_duration" msgid="8999214260188208590">"Trajanje"</string>
+    <string name="stat_unknown" msgid="8543005524144060221">"Nepoznato"</string>
+    <string name="btn_reset_description" msgid="7288391743038780410">"Preskakanje na sadašnjost"</string>
+    <string name="export_action" msgid="3269831142664490446">"Izvoz"</string>
+    <string name="export_run_chooser_title" msgid="6420930071586217884">"Spremi na…"</string>
+    <string name="settings_version_title" msgid="6212827772323334070">"Verzija"</string>
+    <string name="settings_replay_tutorial_title" msgid="3811832513865119930">"Vodič"</string>
+    <string name="settings_open_source_title" msgid="3090096891818776727">"Licence otvorenog koda"</string>
+    <string name="dev_sensors_title" msgid="4583380726898357656">"Omogući senzore eksper."</string>
+    <string name="cannot_scan_message" msgid="8297618436609318137">"Za pristup vanjskim uređajima (\"senzor za Science Journal\") pomoću aplikacije Science Journal najprije morate uključiti Bluetooth. Da bi se omogućilo otkrivanje senzora za Science Journal, Android će zatražiti dopuštenje za pristup vašoj lokaciji jer bi drugi Bluetooth uređaji tijekom postupka otkrivanja uređaja mogli odašiljati svoje informacije o lokaciji. Međutim, Science Journal neće pohraniti niti upotrijebiti te informacije o lokaciji, a senzori za Science Journal neće slati informacije o lokaciji."</string>
+    <string name="btn_request_location" msgid="8197595806751014499">"Uključi pristup lokaciji"</string>
+    <string name="btn_enable_bluetooth" msgid="5357651687998209452">"Uključi Bluetooth"</string>
+    <string name="btn_new_project_content_description" msgid="6932143755645026255">"Novi projekt"</string>
+    <string name="title_activity_new_project" msgid="2838213281488377791">"Novi projekt"</string>
+    <string name="title_activity_update_project" msgid="4441312132900502358">"Ažuriranje projekta"</string>
+    <string name="project_save_failed" msgid="5623422183377416130">"Spremanje projekta nije uspjelo. Pokušajte ponovo."</string>
+    <string name="archived_project_message" msgid="4798618073088509851">"Projekt je arhiviran."</string>
+    <string name="unarchived_project_message" msgid="178393278028428287">"Projekt premješten iz arhive."</string>
+    <string name="action_undo" msgid="3152747614676103846">"Poništi"</string>
+    <string name="project_title_hint" msgid="8228443486075398477">"Naslov projekta"</string>
+    <string name="project_problem_hint" msgid="381678432298729684">"Opis"</string>
+    <string name="project_cover_description" msgid="1534511071097246816">"Odaberite fotografiju za projekt"</string>
+    <string name="choose_photo_button_text" msgid="761066275467820031">"Odabir fotografije"</string>
+    <plurals name="project_experiments_count" formatted="false" msgid="7648457680949535167">
+      <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> eksperiment</item>
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> eksperimenta</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> eksperimenata</item>
+    </plurals>
+    <string name="btn_new_experiment_content_description" msgid="7327973648445064928">"Novi eksperiment"</string>
+    <string name="archived_experiment_message" msgid="6471344531723915995">"Eksperiment je arhiviran."</string>
+    <string name="unarchived_experiment_message" msgid="8059010703916773668">"Eksperiment premješten iz arhive."</string>
+    <string name="archived_run_message" msgid="8095301767431802235">"Pokus je arhiviran."</string>
+    <string name="unarchived_run_message" msgid="471395163511338290">"Pokus je premješten iz arhive."</string>
+    <string name="experiments_toolbar_title" msgid="7336526041603098967">"Eksperimenti"</string>
+    <string name="archived_content_description" msgid="5626832963025103076">"<xliff:g id="ITEM">%1s</xliff:g> (arhivirano)"</string>
+    <plurals name="experiment_run_count" formatted="false" msgid="8354594369372506196">
+      <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> pokus</item>
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> pokusa</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> pokusa</item>
+    </plurals>
+    <plurals name="notes_count" formatted="false" msgid="7949686260707404918">
+      <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> bilješka</item>
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> bilješke</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> bilješki</item>
+    </plurals>
+    <string name="experiment_title_hint" msgid="3508456602523057718">"Naslov eksperimenta"</string>
+    <string name="experiment_description_hint" msgid="3197580737141616333">"Opis eksperimenta"</string>
+    <string name="title_activity_new_experiment" msgid="5681560613521817391">"Novi eksperiment"</string>
+    <string name="title_activity_update_experiment" msgid="681114244731613638">"Ažuriranje eksperimenta"</string>
+    <string name="experiment_save_failed" msgid="5031953807658062748">"Spremanje eksperimenta nije uspjelo. Pokušajte ponovo."</string>
+    <string name="btn_add_sensor_card_description" msgid="4836624546799382073">"Dodavanje nove kartice senzora"</string>
+    <string name="btn_sensor_card_settings" msgid="5722000860549753304">"Postavke senzora"</string>
+    <string name="sensor_options" msgid="7269577762234317911">"Opcije senzora"</string>
+    <string name="btn_sensor_card_expand" msgid="5267003335362502193">"Prikaz popisa senzora"</string>
+    <string name="btn_sensor_card_contract" msgid="4805549352705439024">"Skrivanje popisa senzora"</string>
+    <string name="btn_sensor_card_close" msgid="4964202674700426175">"Zatvori karticu"</string>
+    <string name="learn_more_button" msgid="6562065467901868709">"Saznajte više"</string>
+    <string name="default_experiment_name" msgid="8360979514785269303">"Eksperiment bez naslova"</string>
+    <string name="default_project_name" msgid="5076954632739479626">"Projekt bez naslova"</string>
+    <string name="empty_project_library" msgid="6139693733859042212">"Nemate nijedan projekt"</string>
+    <string name="empty_project" msgid="196070251052121055">"Nemate nijedan eksperiment"</string>
+    <string name="frequency_window_option_label" msgid="4885731738492452610">"Frekvencijski razmak (u ms)"</string>
+    <string name="frequency_filter_option_label" msgid="6322746140513536230">"Frekv. filtar (jedinica senzora)"</string>
+    <string name="enable_frequency_checkbox_label" msgid="7012647084401204497">"Prikaži frekvenciju"</string>
+    <string name="dev_sensors_summary" msgid="3417308653634353239">"Prikaži samo senzore za razvojno testiranje"</string>
+    <string name="options_save_error" msgid="5710202337557612915">"Pogreška spremanja opcija"</string>
+    <string name="options_load_error" msgid="1033189385249714186">"Pogreška učitav. opcija"</string>
+    <string name="dev_tools_title" msgid="413875762004836148">"Omogući alate za eksperimentiranje"</string>
+    <string name="dev_tools_summary" msgid="8602005614020489618">"Prikaži samo alate za razvojno testiranje"</string>
+    <string name="dev_tools_leak_detection_title" msgid="4501895025531999102">"Omogući prepoznavanje curenja memorije"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="6611870647303094340">"Promjene ove postavke stupit će na snagu tek nakon zatvaranja aplikacije."</string>
+    <string name="d2p" msgid="639917686672445089">"Podaci za visinu"</string>
+    <string name="d2a" msgid="1134874560612971036">"Podaci za amplitudu"</string>
+    <string name="d2pe" msgid="3727800647324543645">"Podaci za opseg visine"</string>
+    <string name="d2ps" msgid="7368523482734331024">"Podaci za opseg visine pentatonske ljestvice"</string>
+    <!-- no translation found for sonification_types:0 (3861898414238653003) -->
+    <!-- no translation found for sonification_types:1 (906523180895001108) -->
+    <!-- no translation found for sonification_types:2 (5312779098039590744) -->
+    <!-- no translation found for sonification_types:3 (2613491808468275381) -->
+  <string-array name="sonification_type_aliases">
+    <item msgid="7377813266249747858">"d2p"</item>
+    <item msgid="6906000057586711876">"d2a"</item>
+    <item msgid="1870736636828704674">"d2pe"</item>
+    <item msgid="5674284626652201942">"d2ps"</item>
+  </string-array>
+    <string name="new_experiment_spinner_item" msgid="5833883031740938473">"Novi eksperiment…"</string>
+    <string name="recording_title_label" msgid="5188061176268043052">"Snimanje..."</string>
+    <string name="exp_edit_info_button" msgid="57557261114019563">"Uređivanje informacija"</string>
+    <string name="btn_observe_content_description" msgid="6339279151257255267">"Promatranje"</string>
+    <string name="title_activity_experiment_details" msgid="6104721540075416005">"Pojedinosti eksperimenta"</string>
+    <string name="empty_runs" msgid="2492444523656046772">"Nemate nijedan pokus"</string>
+    <string name="permission_request_write" msgid="7894354232042075113">"Potrebno je dopuštenje za spremanje na vanjsku pohranu."</string>
+    <string name="device_options_sensor_label_text" msgid="4913281182269452551">"Senzor"</string>
+    <string name="external_sensor_appearance_name" msgid="2545762878566289321">"<xliff:g id="SENSOR_NAME">%s</xliff:g> – <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
+    <string name="sensor_rotation_rpm" msgid="7675868077769123026">"Okretaj"</string>
+    <string name="sensor_voltage" msgid="8803070522098118555">"Električni napon"</string>
+    <string name="sensor_raw" msgid="3706079416934145306">"Neobrađeno"</string>
+    <string name="sensor_temperature_fahrenheit" msgid="530709732319662008">"Temperatura u F"</string>
+    <string name="sensor_custom" msgid="6419934674147294928">"Prilagođeno"</string>
+    <string name="device_options_custom_sensor_pin_label_text" msgid="7800969142277212707">"Pin"</string>
+    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="3441420502780409558">"Frekvencija"</string>
+    <string name="feedback_error_message" msgid="6267829056474146185">"Slanje povratnih informacija nije uspjelo."</string>
+    <string name="no_sensor_info_found" msgid="4162175886082619280">"Za ovaj senzor nema dodatnih informacija!"</string>
+    <string name="sensor_desc_short_acc_x" msgid="2894000283386570265">"Ubrzanje telefona lijevo-desno, u m/s²"</string>
+    <string name="sensor_desc_short_acc_y" msgid="6068967454464639546">"Ubrzanje telefona naprijed-natrag, u m/s²"</string>
+    <string name="sensor_desc_short_acc_z" msgid="718984279193417402">"Ubrzanje telefona gore-dolje, u m/s²"</string>
+    <string name="sensor_desc_short_decibel" msgid="6022620562641402361">"Intenzitet zvuka izmjeren u decibelima (dB) koji dopire do senzora zvuka ili mikrofona."</string>
+    <string name="sensor_desc_short_light" msgid="2836912567230826095">"Količina svjetlosti izmjerena u luksima koja dopire do senzora ambijentalnog osvjetljenja."</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="2856177797841108478">"Kut rotacije između telefona i vanjskog magnetskog polja."</string>
+    <string name="sensor_desc_short_bluetooth" msgid="6408146877850831242">"Vanjski senzor ovdje prikazuje podatke na temelju prilagođenih postavki."</string>
+    <string name="sensor_desc_short_rotation" msgid="4005725749913712057">"Broj okretaja u minuti"</string>
+    <string name="sensor_desc_short_raw" msgid="8183752554049502871">"Postotak izravnog neobrađenog očitanja s vanjskog senzora."</string>
+    <string name="sensor_desc_first_paragraph_light" msgid="4109035727606616530">"Senzor ambijentalnog osvjetljenja mjeri svjetlost u luksima, mjernoj jedinici osvjetljenja koja ovisi o količini isijane svjetlosti i površini preko koje se ona širi. \n\nPun mjesec osvjetljava svjetlošću od približno 1 luksa, tipična prostorija osvijetljena svjetiljkom ima približno 50 luksa, osvjetljenje u učionici i svjetlost prilikom izlaska, odnosno zalaska sunca ima približno 400 luksa, dnevna svjetlost (neizravna sunčeva svjetlost) preko 10.000 luksa, a izravna sunčeva svjetlost preko 30.000 luksa. \n\nVećini nas luks je nepoznata mjerna jedinica. Kada kupujemo sijalice, najčešće se orijentiramo prema vatima – ali vati nam ne govore koliko je sijalica svijetla, već samo koliko energije troši. Lumeni su bolja mjera za odabir sijalica; govore nam koliko svjetlosti sijalica daje. Luks, s druge strane, govori kolika količina te svjetlosti dolazi do određene površine."</string>
+    <string name="sensor_desc_second_paragraph_light" msgid="4898255020378037357">"Budući da se svjetlost svojim kretanjem širi, broj luksa smanjuje se kako se udaljavate od izvora svjetlosti, iako on i dalje isijava istu količinu svjetlosti u lumenima. Osim toga, površine koja su u odnosu na izvor nagnute pod određenim kutom primaju manje svjetlosti – zbog toga su ekvatorijalni predjeli Zemlje puno topliji od hladnih polova. \n\nUsput, senzor svjetlosti u telefonu služi za upravljanje razinom osvijetljenosti zaslona koju prilagođava u skladu s osvijetljenošću okruženja. Unutar senzora svjetlosti maleni je poluvodič koji reagira na ulaznu svjetlost i proizvodi malu, ali mjerljivu količinu struje – to nazivamo fotoelektričnim efektom. Slični se senzori koriste u nekim uličnim svjetiljkama te ih uključuju kad se vani dovoljno smrači."</string>
+    <string name="sensor_desc_first_paragraph_acc" msgid="5154591427983319390">"Tijela imaju tendenciju mirovanja, odnosno gibanja ako su u pokretu – tu tendenciju nazivamo inercijom. Prvi Newtonov zakon tu ideju formalizira na sljedeći način: svako tijelo ostaje u stanju mirovanja ili gibanja sve dok neka sila ne dovede do promjene tog stanja. \n\nKad sila uzrokuje pomicanje tijela, kažemo da ono ubrzava: njegova se brzina mijenja, bilo da se radilo o ubrzavanju, usporavanju ili promjeni smjera. Ubrzanje se mjeri kao promjena brzine u jedinici vremena (metri u sekundi), odnosno u metrima u sekundi na kvadrat (m/s²). \n\nVaš telefon ima uređaj koji mjeri te promjene kretanja – akcelerometar. U akcelerometru se nalaze male mase koje se slobodno kreću. Uslijed promjena u gibanju te se mase pomiču, slično kao što se vaša glava pomiče unaprijed ako se nađete u automobilu koji naglo zakoči. Mjereći te suptilne inercijske pomake, akcelerometar u telefonu prepoznaje promjene u pokretima i smjeru, što je korisna značajka prilikom okretanja zaslona iz pejzažnog u portretni način rada, igranja igara na telefonu i prilikom drugih radnji."</string>
+    <string name="sensor_desc_second_paragraph_acc" msgid="8812623507037923651">"Vjerojatno ste primijetili neprekidno ubrzanje po osi Z, čak i kad telefon leži na stolu. To je ubrzanje kojem smo izloženi zbog Zemljine gravitacije koja nas privlači brzinom od približno 9,8 m/s²."</string>
+    <string name="sensor_desc_first_paragraph_decibel" msgid="2782071765610621336">"Vibracije proizvode zvukove. Primjerice, vaš glas nastaje vibriranjem vaših glasnica. Te vibracije stvaraju različite zone visokog i niskog zračnog tlaka koje se šire prema van – slično kružnom širenju valova koji nastaju kada u jezero bacite kamenčić."</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="142151860819231749">"Svi se zvukovi mogu opisati kroz svoju frekvenciju i intenzitet. \n\nPomoću Science Journala mjerite intenzitet u decibelima (dB). Intenzitet, odnosno glasnoća, ovisi o udaljenosti koju tijelo koje vibrira prijeđe prilikom svake vibracije; veći intenzitet doživljavamo kao veću glasnoću. \n\nFrekvencija (ili visina tona) zvučnog vala ekvivalent je brzine vibracije. Što brže tijelo vibrira, to je nastali zvuk viši. Science Journal ne mjeri frekvenciju, već samo glasnoću. \n\nNajtiši zvuk koji prosječno ljudsko uho može čuti definira se kao 0 dB. Uobičajeni razgovor odgovara vrijednosti od približno 60 dB, a zvukovi iznad 140 dB bolni su za ljudsko uho. Međutim, zvukovi ne moraju biti bolni da bi bili štetni. Neprekidna izloženost zvukovima od 90 dB – što otprilike odgovara buci koju proizvodi usisavač – može naposljetku dovesti do gubitka sluha. \n\nLjestvica decibela je logaritamska, zbog čega izvor zvuka od 40 dB nije dvostruko intenzivniji od 20 dB, već 100 puta intenzivniji. Osim toga, ako jedna budilica daje 70 dB, dvije budilice ne daju 140 dB, već 73 dB. Kao što smo rekli, to je osebujna ljestvica. \n\n10 dB: šuštanje lišća \n20 dB: šapat s 1,5 m \n30 dB: tihi šapat \n50 dB: kiša \n60 dB: normalan razgovor \n90 dB: mikser \n100 dB: automobil bez ispušnog prigušivača \n110 dB: vikanje u uho \n120 dB: grmljavina \n130 dB: pneumatska bušilica \n140 dB: uzlijetanje zrakoplova"</string>
+    <string name="sensor_desc_first_paragraph_rotation" msgid="8053108458881116800">"Broj okretaja u minuti (o/min) mjera je frekvencije okretanja oko fiksne osi u jednoj minuti. \n\nKako se okreće, vjetromjer okreće disk kodera:"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="1296904470766613471">"Tako nastaju razdoblja osvijetljenosti i zatamnjenja na senzoru, što Science Journal registrira kao okretaj."</string>
+    <string name="sensor_desc_first_paragraph_raw" msgid="4939612146659644032">"Ovdje prikazani podaci rezultat su komunikacije vanjskog senzora s vašim telefonom putem Bluetooth veze. \n\nVrijednost prikazuje postotak izravnog neobrađenog očitanja s mikrokontrolera. To je obično vrijednost pada napona na senzoru."</string>
+    <string name="sensor_desc_second_paragraph_raw" msgid="8973117353495356394">"Bluetooth je standard za bežični prijenos podataka koji koristi radiovalove za razmjenu podataka između fiksnih i mobilnih uređaja na malim udaljenostima."</string>
+    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="7981623485563854939">"Ovdje prikazani podaci rezultat su komunikacije vanjskog senzora s vašim telefonom putem Bluetooth veze."</string>
+    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="7708856960763941387">"Bluetooth je standard za bežični prijenos podataka koji koristi radiovalove za razmjenu podataka između fiksnih i mobilnih uređaja na malim udaljenostima."</string>
+    <string name="run_review_duration" msgid="7076553835966679478">"Trajanje"</string>
+    <string name="run_review_activity_label" msgid="5276313115461408528">"Pregled"</string>
+    <string name="service_notification_content_title" msgid="409211151396677834">"Science Journal"</string>
+    <string name="service_notification_content_text" msgid="6198486549545279611">"Snimanje..."</string>
+    <string name="live_graph_content_description" msgid="3504419430886261146">"Grafikon senzora uživo. Povucite za pomicanje po osi X."</string>
+    <string name="static_graph_content_description" msgid="5963837267567407006">"Grafikon senzora. Približite prste za zumiranje i povucite za pomicanje osi X."</string>
+    <string name="sensor_card_overflow_menu_content_description" msgid="1847239009701022116">"Opcije kartice"</string>
+    <string name="btn_sensor_flip_info_content_description" msgid="4129040510635338579">"prelazak na informativni način rada"</string>
+    <string name="btn_sensor_flip_graph_content_description" msgid="2500545463691107821">"prelazak na način rada grafikona"</string>
+    <string name="sensor_tab_layout_content_description" msgid="6653074718544676936">"dostupni senzori"</string>
+    <string name="sensor_tab_selected_format" msgid="5189774892597619784">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (odabrano)"</string>
+    <string name="title_activity_sensor_info" msgid="6960039814316283850">"Informacije senzora"</string>
+    <string name="title_activity_sensor_info_format" msgid="9106545676836634722">"Senzor <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="heading_info_section" msgid="3068233297591403258">"Što se događa?"</string>
+    <string name="edit_note_menu_item" msgid="5303280313359136552">"Uredi"</string>
+    <string name="edit_note_time" msgid="2027041230205029461">"Uredite vrijeme bilješke"</string>
+    <string name="delete_note_menu_item" msgid="7908811564743301702">"Izbriši"</string>
+    <string name="delete_run" msgid="103141962786624686">"Brisanje"</string>
+    <string name="crop_run" msgid="1336721925526265401">"Obrezivanje"</string>
+    <string name="add_run_note" msgid="4601243377697085005">"Dodavanje bilješke"</string>
+    <string name="add_experiment_note" msgid="1084637094906153162">"Dodavanje bilješke"</string>
+    <string name="run_label" msgid="7587739695592981023">"Pokus <xliff:g id="RUN_INDEX">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_prev" msgid="1562899512022232138">"prethodni senzor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_next" msgid="5528270146135394657">"sljedeći senzor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="edit_note_hint_text" msgid="7190191469950695769">"Uredite bilješku za pokus"</string>
+    <string name="add_note_hint_text" msgid="4947278182685363439">"Dodajte novu bilješku"</string>
+    <string name="snackbar_note_deleted" msgid="4926151554010737654">"Napomena izbrisana"</string>
+    <string name="snackbar_undo" msgid="488185413692934054">"Poništi"</string>
+    <string name="add_run_note_placeholder_text" msgid="4564897234715127061">"Dodajte bilješku ovom pokusu"</string>
+    <string name="add_experiment_note_placeholder_text" msgid="5668745283017643514">"Dodajte bilješku za eksperiment"</string>
+    <string name="add_note_image_button_content_description" msgid="5956413597980661328">"Snimanje fotografije za bilješku"</string>
+    <string name="pinned_note_placeholder_text" msgid="742162042813125689">"Dodavanje bilješke"</string>
+    <string name="no_notes_text" msgid="1333257200348947043">"Nema bilješki"</string>
+    <string name="indeterminate_value" msgid="6535623633404732608">"--"</string>
+    <string name="project_card_overflow_menu_content_description" msgid="2569345733400148597">"Opcije projekta"</string>
+    <string name="project_active_badge" msgid="8953778683278828884">"Aktivno"</string>
+    <string name="archived_badge" msgid="7204033469949818539">"Arhivirano"</string>
+    <string name="action_include_archived_projects" msgid="1872416419322070603">"Uključi arhivirane projekte"</string>
+    <string name="action_include_archived_experiments" msgid="1368001463798477703">"Uključi arhivirane eksperimente"</string>
+    <string name="action_new_experiment" msgid="3598888962558710132">"Novi eksperiment"</string>
+    <string name="delete_run_dialog_title" msgid="2829473058431908340">"Izbrisati ovaj pokus?"</string>
+    <string name="run_review_delete_confirm" msgid="9216827234502882510">"Jeste li sigurni da želite izbrisati ovaj pokus? Snimljeni podaci i napomene izbrisat će se. Tu radnju ne možete poništiti."</string>
+    <string name="menu_btn_content_description" msgid="4680014704943654954">"izbornik"</string>
+    <string name="age_verifier_header" msgid="9217155512378711429">"Potvrdite svoju dob"</string>
+    <string name="age_verifier_birthday" msgid="2054392341079524729">"Rođendan:"</string>
+    <string name="age_verifier_get_started" msgid="1086024826189816224">"Početak rada"</string>
+    <string name="tutorial_welcome_header" msgid="5596382686735832683">"Istražite svijet oko sebe"</string>
+    <string name="tutorial_welcome_body" msgid="7591843046586427635">"Upotrijebite senzore svog Android telefona za mjerenje zvuka, svjetlosti i još mnogo toga!"</string>
+    <string name="tutorial_setup_header" msgid="7529566316389493918">"Organiziranje projekata"</string>
+    <string name="tutorial_setup_body" msgid="3570507763094472318">"Postavite projekte i eksperimente da biste organizirali podatke i usporedili rezultate."</string>
+    <string name="tutorial_observe_record_header" msgid="3715811468629596336">"Snimanje u stvarnom vremenu"</string>
+    <string name="tutorial_observe_record_body" msgid="6982870167622582123">"Vidite nešto što želite izmjeriti? Snimite svoja opažanja u stvarnom vremenu jednostavnim pritiskom gumba!"</string>
+    <string name="tutorial_take_notes_header" msgid="8271718393020433479">"Dodavanje napomena uz opažanja"</string>
+    <string name="tutorial_take_notes_body" msgid="6597967563928412974">"Tijekom snimanja možete dodavati napomene i slike da biste podacima dali širi kontekst."</string>
+    <string name="btn_previous_label" msgid="2881262882599469727">"Prethodno"</string>
+    <string name="btn_next_label" msgid="1682026626542221420">"Sljedeće"</string>
+    <string name="sensor_card_error_text" msgid="151455534130824363">"Učitavanje podataka senzora nije uspjelo"</string>
+    <string name="bluetooth_not_on_title" msgid="8961840974431817490">"Uspostavite Bluetooth vezu"</string>
+    <string name="bluetooth_not_on_body" msgid="1861412368943739545">"Povezivanje s vanjskim senzorom nije moguće: Bluetooth je isključen. Uključite Bluetooth da bi se uspostavila veza s vanjskim senzorom."</string>
+    <string name="bluetooth_not_on_ok" msgid="3148597353545683264">"Uključi Bluetooth"</string>
+    <string name="sensor_card_loading_text" msgid="8569947135727599414">"Učitavanje podataka senzora…"</string>
+    <string name="graph_loading" msgid="9200302049191996695">"Učitavanje grafikona…"</string>
+    <string name="playback_button_pause" msgid="6025607837788357759">"pauziranje reprodukcije audiozapisa"</string>
+    <string name="playback_button_play" msgid="5739285031289314186">"pokretanje reprodukcije audiozapisa"</string>
+    <string name="sonification_type_card_title" msgid="7315771791094946967">"Vrsta sonifikacije kartice"</string>
+    <string name="sonification_type_title" msgid="271616837832972881">"Zadana vrsta sonifikacije"</string>
+    <string name="title_edit_trial_activity" msgid="3272215900928155534">"Uređivanje pokusa"</string>
+    <string name="edit_trial_title_hint" msgid="3752953269416446342">"Naslov pokusa"</string>
+    <string name="include_archived_trials" msgid="6064586011723883752">"Uključi arhivirane pokuse"</string>
+    <string name="export_error" msgid="8729689368786707247">"Izvoz nije uspio"</string>
+    <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
+    <skip />
+    <string name="listing_title" msgid="6842666752572268412">"Science Journal"</string>
+    <string name="listing_tagline" msgid="6633876313767981347">"Eksperimentirajte sa svijetom oko sebe."</string>
+    <string name="listing_changelog" msgid="5651904379742962668">"Početno izdanje"</string>
+    <string name="listing__description" msgid="7679178857079821372">"Science Journal alat je za provođenje znanstvenih istraživanja pomoću pametnog telefona. Pomoću senzora u svojem telefonu ili kroz povezivanje s vanjskim senzorima možete eksperimentirati sa svijetom oko sebe. Organizirajte svoje ideje u projekte, izrađujte predviđanja, pišite bilješke i prikupite podatke iz više pokusa, a zatim označite i istražite rezultate. Pravi laboratorijski dnevnik koji je uvijek uz vas. \n\n \nPrijedloge aktivnosti za upotrebu aplikacije potražite ovdje: https://makingscience.withgoogle.com/science-journal/activities \nSaznajte više o programu Making &amp; Science: https://makingscience.withgoogle.com \nAko vam je potrebna podrška, potražite je ovdje: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
+    <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
+    <skip />
+    <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_summary (1881741234337323074) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_title (7760095515631648430) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_summary (5446570032717609139) -->
+    <skip />
+</resources>

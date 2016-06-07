@@ -1,0 +1,73 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/update_project_horizontal_padding"
+    android:paddingRight="@dimen/update_project_horizontal_padding"
+    android:paddingTop="@dimen/update_project_vertical_padding"
+    tools:context="com.google.android.apps.forscience.whistlepunk.project.UpdateProjectFragment">
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/project_title_hint"
+        >
+        <EditText
+            android:id="@+id/project_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/accessibility_touch_target_min_size"
+            android:singleLine="true"
+            android:imeOptions="actionNext"
+            android:inputType="textCapSentences"
+            android:contentDescription="@string/project_title_hint"
+            >
+            <requestFocus />
+        </EditText>
+    </android.support.design.widget.TextInputLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp">
+
+        <ImageButton
+            android:id="@+id/project_cover"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/project_image_button_height"
+            android:padding="0dp"
+            android:src="@drawable/add_project_image"
+            android:contentDescription="@string/project_cover_description"
+            />
+
+        <TextView
+            android:id="@+id/project_cover_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/choose_photo_button_text"
+            android:layout_gravity="center|bottom"
+            android:layout_marginBottom="@dimen/project_cover_label_margin_bottom"
+            android:clickable="false"
+            android:textAllCaps="true"
+            android:textStyle="bold"
+            android:textColor="@color/color_primary"/>
+    </FrameLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/project_problem_hint">
+        <EditText
+            android:id="@+id/project_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/accessibility_touch_target_min_size"
+            android:contentDescription="@string/project_problem_hint"
+            android:imeOptions="actionDone"
+            android:inputType="textCapSentences"
+            />
+    </android.support.design.widget.TextInputLayout>
+
+</LinearLayout>

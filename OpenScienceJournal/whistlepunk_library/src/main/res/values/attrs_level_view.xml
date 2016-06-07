@@ -1,0 +1,5 @@
+<resources>
+    <declare-styleable name="LevelView">
+        <attr name="edgeWidth" format="dimension"/>
+    </declare-styleable>
+</resources>

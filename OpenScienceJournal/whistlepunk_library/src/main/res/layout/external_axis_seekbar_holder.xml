@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/run_review_overlay_height"
+    android:layout_marginStart="@dimen/run_review_margin_sides"
+    android:layout_marginEnd="@dimen/run_review_margin_sides"
+    android:paddingBottom="@dimen/run_review_seekbar_holder_padding_bottom"
+    >
+
+    <!-- Here we use left and right instead of start and end because the graph
+         has a handness that does not change in RTL languages -->
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="@dimen/run_review_external_axis_left_padding"
+        >
+
+        <!-- Set seekbar to invisible until it is loaded, so we don't see it change
+             colors or jump around the screen during placement. -->
+        <com.google.android.apps.forscience.whistlepunk.review.GraphExploringSeekBar
+            android:id="@+id/external_axis_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/external_axis_seekbar_size"
+            android:minHeight="@dimen/external_axis_seekbar_size"
+            android:maxHeight="@dimen/external_axis_seekbar_size"
+            android:progressDrawable="@android:color/transparent"
+            android:visibility="invisible"
+            android:indeterminate="false"
+            android:background="@null"
+            android:max="300"
+            android:layout_marginLeft="@dimen/run_review_external_axis_left_margin"
+            android:layout_marginRight="@dimen/run_review_external_axis_right_padding"
+            android:thumb="@drawable/run_review_thumb"
+            android:thumbOffset="@dimen/run_review_half_thumb_inactive_size"
+            />
+
+    </FrameLayout>
+
+    <com.google.android.apps.forscience.whistlepunk.RunReviewOverlay
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="@dimen/run_review_overlay_margin_bottom"
+        android:paddingStart="@dimen/run_review_margin_sides"
+        android:paddingEnd="@dimen/run_review_margin_sides"
+        android:layout_marginLeft="@dimen/run_review_overlay_margin_left"
+        android:layout_marginRight="@dimen/run_review_overlay_margin_right"
+        android:id="@+id/run_review_chart_overlay"
+        android:contentDescription="@null"
+        android:visibility="invisible"
+        />
+
+</RelativeLayout>

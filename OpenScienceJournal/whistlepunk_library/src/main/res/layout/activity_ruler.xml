@@ -1,0 +1,16 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="com.google.android.apps.forscience.whistlepunk.RulerActivity">
+
+    <com.google.android.apps.forscience.whistlepunk.RulerView
+        android:id="@+id/ruler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        app:rulerUnits="metric"
+        />
+
+</RelativeLayout>

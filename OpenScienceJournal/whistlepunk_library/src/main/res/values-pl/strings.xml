@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="action_feedback" msgid="2230997537507885910">"Prześlij opinię"</string>
+    <string name="action_settings" msgid="4140514779355685890">"Ustawienia"</string>
+    <string name="action_save" msgid="7115885253849785049">"Zapisz"</string>
+    <string name="action_edit" msgid="2879274643416740117">"Edytuj"</string>
+    <string name="action_archive_project" msgid="3984396879969444432">"Archiwizuj projekt"</string>
+    <string name="action_unarchive_project" msgid="2708696233939647946">"Przywróć projekt z archiwum"</string>
+    <string name="action_archive_experiment" msgid="5641733726709708591">"Archiwizuj doświadczenie"</string>
+    <string name="action_unarchive_experiment" msgid="2357913494087884425">"Przywróć doświadczenie z archiwum"</string>
+    <string name="action_archive_run" msgid="439270635088307350">"Zarchiwizuj próbę"</string>
+    <string name="action_unarchive_run" msgid="5992535261034463728">"Przywróć próbę z archiwum"</string>
+    <string name="action_delete" msgid="5205384449071348669">"Usuń"</string>
+    <string name="action_ruler" msgid="3567453615091215971">"Linijka"</string>
+    <string name="action_level" msgid="2223203490872051791">"Poziom"</string>
+    <string name="sine_wave" msgid="7465850130633241930">"Fala sinusoidalna"</string>
+    <string name="acc_x" msgid="6032598557672647110">"Przyspieszeniomierz osi X"</string>
+    <string name="acc_y" msgid="3524690325306070984">"Przyspieszeniomierz osi Y"</string>
+    <string name="acc_z" msgid="4540365462206126342">"Przyspieszeniomierz osi Z"</string>
+    <string name="ambient_light" msgid="3301998123545447671">"Światło otoczenia"</string>
+    <string name="magnetic_rotation" msgid="6643176023260466091">"Obroty pola magnetycznego"</string>
+    <string name="video_stream" msgid="1813984984736617091">"Strumień wideo"</string>
+    <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
+    <string name="ambient_light_units" msgid="6318282254934724349">"lx"</string>
+    <!-- no translation found for magnetic_rotation_units (5964336522624353252) -->
+    <skip />
+    <string name="decibel_units" msgid="2890849301464041989">"dB"</string>
+    <string name="rpm_units" msgid="897807671511627492">"obr./min"</string>
+    <string name="voltage_units" msgid="6411118170860716365">"V"</string>
+    <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
+    <string name="experiment_details" msgid="6814534510464980289">"Szczegóły doświadczenia"</string>
+    <string name="add_sensor" msgid="96374933560924369">"Dodaj czujnik"</string>
+    <string name="snackbar_source_error" msgid="6054360710842869995">"Podczas łączenia się z tym źródłem wystąpił błąd: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
+    <string name="action_retry" msgid="7873032739745888974">"Spróbuj jeszcze raz"</string>
+    <string name="decibel" msgid="7425761238029567370">"Natężenie dźwięku"</string>
+    <string name="title_activity_tutorial" msgid="7117023626104839821">"Samouczek Science Journal"</string>
+    <string name="title_activity_age_verifier" msgid="6953483601673982354">"Data urodzenia"</string>
+    <string name="title_activity_ruler" msgid="4538057504732643762">"Linijka"</string>
+    <string name="ruler_label_metric" msgid="8008318703764352929">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
+    <string name="ruler_label_imperial" msgid="2225518554245466626">"cale: <xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g>"</string>
+    <string name="title_activity_level" msgid="7751336762571175981">"Poziom"</string>
+    <string name="action_calibrate" msgid="2567237363558254927">"Przeprowadź kalibrację"</string>
+    <string name="action_end_calibrate" msgid="6416011236105220467">"Zakończ kalibrację"</string>
+    <string name="title_calibrate" msgid="4425118955292706233">"Przeprowadź kalibrację za pomocą..."</string>
+    <string name="calibration_credit_card" msgid="1784606520446558443">"karty kredytowej (wysokość)"</string>
+    <string name="calibration_ruler_imperial" msgid="2477725634940053346">"linijki (3 cale)"</string>
+    <string name="calibration_ruler_metric" msgid="1330487431270295597">"linijki (80 mm)"</string>
+    <string name="btn_add_experiment_note_description" msgid="7451384954210671094">"Dodaj notatkę dotyczącą doświadczenia"</string>
+    <string name="btn_add_run_note_description" msgid="3729688760639518856">"Dodaj notatkę dotyczącą próby"</string>
+    <string name="btn_record_description" msgid="6165596989316716650">"Rozpocznij rejestrowanie"</string>
+    <string name="btn_stop_description" msgid="5331283967913304386">"Zatrzymaj rejestrowanie"</string>
+    <string name="unknown_sensor" msgid="2253417219024438701">"Nieznany czujnik"</string>
+    <string name="recording_start_failed" msgid="8094130346174113235">"Rejestrowanie nie udało się. Spróbuj jeszcze raz."</string>
+    <string name="recording_start_failed_disconnected" msgid="2493130069585541040">"Błąd rejestrowania: czujnik niepodłączony. Spróbuj ponownie."</string>
+    <string name="recording_stop_failed_no_data_title" msgid="256592083253381257">"Dane nie są rejestrowane"</string>
+    <string name="recording_stop_failed_no_data" msgid="5167111037930589862">"Co najmniej jeden czujnik nie zarejestrował żadnych danych. Czy chcesz anulować to rejestrowanie?"</string>
+    <string name="recording_stop_failed_continue" msgid="161788317476740066">"Kontynuuj"</string>
+    <string name="recording_stop_failed_cancel" msgid="9167449814602506726">"Anuluj rejestrowanie"</string>
+    <string name="recording_stop_failed_disconnected" msgid="1409656957401598471">"Nie udało się zatrzymać rejestrowania: czujnik jest odłączony. Anulować to rejestrowanie?"</string>
+    <string name="recording_stop_failed_save" msgid="720527628154679503">"Zatrzymanie rejestrowania nie udało się, ponieważ nie można było zapisać próby. Spróbuj jeszcze raz."</string>
+    <!-- no translation found for elapsed_time_short_format (7848904136886917036) -->
+    <skip />
+    <string name="elapsed_time_long_format" msgid="3451516277286685162">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
+    <!-- no translation found for accessible_elapsed_time_short_format (867388448497851890) -->
+    <skip />
+    <string name="accessible_elapsed_time_long_format" msgid="5588697398982936316">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small" msgid="8801162161093675447">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large" msgid="1312366645818667859">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="8665096074255046060">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="picture_note_description" msgid="4617343713156115501">"Obraz z próby"</string>
+    <string name="picture_note_preview_content_description" msgid="4160980766022755366">"Podgląd notatki w formie obrazu"</string>
+    <string name="navigation_item_observe" msgid="6544385569776074166">"Obserwuj"</string>
+    <string name="navigation_item_projects" msgid="204705505259389287">"Projekty"</string>
+    <string name="navigation_item_web_link" msgid="1966109305973672752">"Witryna Making Science"</string>
+    <string name="navigation_item_settings" msgid="1612988756868966834">"Ustawienia"</string>
+    <string name="navigation_item_testing_options" msgid="8712068439028163725">"Opcje testowania"</string>
+    <string name="title_activity_main" msgid="8803846504222999093">"Science Journal – <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_add_sensor" msgid="3432276215295606638">"Urządzenia zewnętrzne"</string>
+    <string name="external_devices_paired" msgid="460907629018449824">"Sparowane urządzenia"</string>
+    <string name="external_devices_pairing" msgid="1318140666547340328">"Paruję..."</string>
+    <string name="external_devices_available" msgid="4660407499712163232">"Dostępne urządzenia"</string>
+    <string name="external_devices_settings_title" msgid="7731073608455634240">"Ustawienia urządzenia"</string>
+    <string name="external_devices_settings_forget" msgid="2280373936547146694">"Zapomnij"</string>
+    <string name="external_devices_settings_ok" msgid="3688835834178014100">"OK"</string>
+    <string name="progress_scanning" msgid="504228868213512629">"Skanuję..."</string>
+    <string name="action_refresh" msgid="6449507931372381488">"Odśwież"</string>
+    <string name="no_options_title" msgid="5380361167896386704">"Brak opcji dla czujnika <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="no_options_message" msgid="3139314286228576248">"Nie można ustawić opcji dla czujnika <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="options_message" msgid="693169996123125208">"Ustaw opcje dla czujnika <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
+    <string name="sine_wave_frequency_option" msgid="3299263567413396079">"Ustaw częstotliwość fali sinusoidalnej w milisekundach:"</string>
+    <string name="video_stream_fps_option" msgid="7912973629078331063">"Ustaw prędkość zapisu strumienia wideo (w klatkach na sekundę):"</string>
+    <string name="title_activity_project_details" msgid="6738094706468371738">"Doświadczenia w projekcie"</string>
+    <string name="graph_name" msgid="4051005079264085531">"wykres"</string>
+    <string name="graph_options" msgid="4225585925400993925">"Opcje wykresu"</string>
+    <string name="graph_options_title" msgid="6860269315108522661">"Opcje wykresu"</string>
+    <string name="graph_options_smoothness_edit" msgid="1885781785347948911">"Płynność"</string>
+    <string name="graph_options_window_edit" msgid="8943669029029140826">"Wielkość rozmycia"</string>
+    <string name="graph_options_blur_edit" msgid="6217163217394307677">"Typ rozmycia"</string>
+    <string name="graph_options_gaussian_sigma_edit" msgid="5761710064672068300">"Odchylenie standardowe"</string>
+    <string name="blur_type_average" msgid="1617413241621655455">"Średnia"</string>
+    <string name="blur_type_gaussian" msgid="1011871621295653087">"Rozkład Gaussa"</string>
+    <string name="graph_options_audio_feedback_enable" msgid="1845200328398473302">"Włącz dźwięk"</string>
+    <string name="graph_options_audio_feedback_disable" msgid="5006766005261847317">"Wyłącz dźwięk"</string>
+    <string name="stat_min" msgid="7907031942382531617">"Wartość minimalna"</string>
+    <string name="stat_max" msgid="8227023306109349391">"Wartość maksymalna"</string>
+    <string name="stat_average" msgid="3601514334204674938">"Średnia"</string>
+    <string name="stat_min_label" msgid="8763695907241205634">"Min."</string>
+    <string name="stat_max_label" msgid="4173459591223474511">"Maks."</string>
+    <string name="stat_average_label" msgid="7341499679015444245">"Średnia"</string>
+    <string name="stat_duration" msgid="8999214260188208590">"Czas trwania"</string>
+    <string name="stat_unknown" msgid="8543005524144060221">"Nieznane"</string>
+    <string name="btn_reset_description" msgid="7288391743038780410">"Przejdź do bieżącego momentu"</string>
+    <string name="export_action" msgid="3269831142664490446">"Eksportuj"</string>
+    <string name="export_run_chooser_title" msgid="6420930071586217884">"Zapisz w..."</string>
+    <string name="settings_version_title" msgid="6212827772323334070">"Wersja"</string>
+    <string name="settings_replay_tutorial_title" msgid="3811832513865119930">"Samouczek"</string>
+    <string name="settings_open_source_title" msgid="3090096891818776727">"Licencje typu open source"</string>
+    <string name="dev_sensors_title" msgid="4583380726898357656">"Włącz czujniki doświadczalne"</string>
+    <string name="cannot_scan_message" msgid="8297618436609318137">"Aby uzyskać dostęp do urządzeń zewnętrznych („czujnika Science Journal”) za pomocą Science Journal, najpierw włącz Bluetooth. Żeby system Android mógł wykryć czujniki Science Journal, musi on również uzyskać dostęp do Twojej lokalizacji, ponieważ podczas wykrywania czujników inne urządzenia Bluetooth mogą nadawać informacje o swojej lokalizacji. Science Journal nie będzie przechowywać, wykorzystywać ani przekazywać tych informacji o lokalizacji."</string>
+    <string name="btn_request_location" msgid="8197595806751014499">"Włącz dostęp do lokalizacji"</string>
+    <string name="btn_enable_bluetooth" msgid="5357651687998209452">"Włącz Bluetooth"</string>
+    <string name="btn_new_project_content_description" msgid="6932143755645026255">"Nowy projekt"</string>
+    <string name="title_activity_new_project" msgid="2838213281488377791">"Nowy projekt"</string>
+    <string name="title_activity_update_project" msgid="4441312132900502358">"Uaktualnij projekt"</string>
+    <string name="project_save_failed" msgid="5623422183377416130">"Nie udało się zapisać projektu. Spróbuj jeszcze raz."</string>
+    <string name="archived_project_message" msgid="4798618073088509851">"Projekt zarchiwizowany."</string>
+    <string name="unarchived_project_message" msgid="178393278028428287">"Projekt przeniesiony z archiwum."</string>
+    <string name="action_undo" msgid="3152747614676103846">"Cofnij"</string>
+    <string name="project_title_hint" msgid="8228443486075398477">"Tytuł projektu"</string>
+    <string name="project_problem_hint" msgid="381678432298729684">"Opis"</string>
+    <string name="project_cover_description" msgid="1534511071097246816">"Wybierz zdjęcie projektu"</string>
+    <string name="choose_photo_button_text" msgid="761066275467820031">"Wybierz zdjęcie"</string>
+    <plurals name="project_experiments_count" formatted="false" msgid="7648457680949535167">
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> doświadczenia</item>
+      <item quantity="many"><xliff:g id="NUMBER_1">%1d</xliff:g> doświadczeń</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> doświadczenia</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> doświadczenie</item>
+    </plurals>
+    <string name="btn_new_experiment_content_description" msgid="7327973648445064928">"Nowe doświadczenie"</string>
+    <string name="archived_experiment_message" msgid="6471344531723915995">"Doświadczenie zarchiwizowane."</string>
+    <string name="unarchived_experiment_message" msgid="8059010703916773668">"Doświadczenie przeniesione z archiwum."</string>
+    <string name="archived_run_message" msgid="8095301767431802235">"Próba zarchiwizowana."</string>
+    <string name="unarchived_run_message" msgid="471395163511338290">"Próba przeniesiona z archiwum."</string>
+    <string name="experiments_toolbar_title" msgid="7336526041603098967">"Doświadczenia"</string>
+    <string name="archived_content_description" msgid="5626832963025103076">"<xliff:g id="ITEM">%1s</xliff:g> (zarchiwizowano)"</string>
+    <plurals name="experiment_run_count" formatted="false" msgid="8354594369372506196">
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> próby</item>
+      <item quantity="many"><xliff:g id="NUMBER_1">%1d</xliff:g> prób</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> próby</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> próba</item>
+    </plurals>
+    <plurals name="notes_count" formatted="false" msgid="7949686260707404918">
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> notatki</item>
+      <item quantity="many"><xliff:g id="NUMBER_1">%1d</xliff:g> notatek</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> notatki</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> notatka</item>
+    </plurals>
+    <string name="experiment_title_hint" msgid="3508456602523057718">"Tytuł doświadczenia"</string>
+    <string name="experiment_description_hint" msgid="3197580737141616333">"Opis doświadczenia"</string>
+    <string name="title_activity_new_experiment" msgid="5681560613521817391">"Nowe doświadczenie"</string>
+    <string name="title_activity_update_experiment" msgid="681114244731613638">"Uaktualnij doświadczenie"</string>
+    <string name="experiment_save_failed" msgid="5031953807658062748">"Nie udało się zapisać doświadczenia. Spróbuj jeszcze raz."</string>
+    <string name="btn_add_sensor_card_description" msgid="4836624546799382073">"Dodaj nową kartę czujnika"</string>
+    <string name="btn_sensor_card_settings" msgid="5722000860549753304">"Ustawienia czujnika"</string>
+    <string name="sensor_options" msgid="7269577762234317911">"Opcje czujnika"</string>
+    <string name="btn_sensor_card_expand" msgid="5267003335362502193">"Pokaż listę czujników"</string>
+    <string name="btn_sensor_card_contract" msgid="4805549352705439024">"Ukryj listę czujników"</string>
+    <string name="btn_sensor_card_close" msgid="4964202674700426175">"Zamknij kartę"</string>
+    <string name="learn_more_button" msgid="6562065467901868709">"Więcej informacji"</string>
+    <string name="default_experiment_name" msgid="8360979514785269303">"Doświadczenie bez tytułu"</string>
+    <string name="default_project_name" msgid="5076954632739479626">"Projekt bez tytułu"</string>
+    <string name="empty_project_library" msgid="6139693733859042212">"Nie masz żadnych projektów"</string>
+    <string name="empty_project" msgid="196070251052121055">"Nie masz żadnych doświadczeń"</string>
+    <string name="frequency_window_option_label" msgid="4885731738492452610">"Okno częstotliwości (w ms)"</string>
+    <string name="frequency_filter_option_label" msgid="6322746140513536230">"Filtr częstotl. (w jedn. czujników)"</string>
+    <string name="enable_frequency_checkbox_label" msgid="7012647084401204497">"Pokaż częstotliwość"</string>
+    <string name="dev_sensors_summary" msgid="3417308653634353239">"Pokaż czujniki, które są przeznaczone tylko do testowania przez twórcę oprogramowania"</string>
+    <string name="options_save_error" msgid="5710202337557612915">"Błąd zapisywania opcji"</string>
+    <string name="options_load_error" msgid="1033189385249714186">"Błąd ładowania opcji"</string>
+    <string name="dev_tools_title" msgid="413875762004836148">"Włącz narzędzia doświadczalne"</string>
+    <string name="dev_tools_summary" msgid="8602005614020489618">"Pokaż narzędzia, które są przeznaczone tylko do testowania przez twórcę oprogramowania"</string>
+    <string name="dev_tools_leak_detection_title" msgid="4501895025531999102">"Włącz wykrywanie przecieków pamięci"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="6611870647303094340">"Zmiany tego ustawienia zaczną obowiązywać dopiero po zamknięciu aplikacji."</string>
+    <string name="d2p" msgid="639917686672445089">"Dane do wysokości tonu"</string>
+    <string name="d2a" msgid="1134874560612971036">"Dane do amplitudy"</string>
+    <string name="d2pe" msgid="3727800647324543645">"Dane do obwiedni wysokości tonu"</string>
+    <string name="d2ps" msgid="7368523482734331024">"Dane do obwiedni wysokości tonu skali pentatonicznej"</string>
+    <!-- no translation found for sonification_types:0 (3861898414238653003) -->
+    <!-- no translation found for sonification_types:1 (906523180895001108) -->
+    <!-- no translation found for sonification_types:2 (5312779098039590744) -->
+    <!-- no translation found for sonification_types:3 (2613491808468275381) -->
+  <string-array name="sonification_type_aliases">
+    <item msgid="7377813266249747858">"d2p"</item>
+    <item msgid="6906000057586711876">"d2a"</item>
+    <item msgid="1870736636828704674">"d2pe"</item>
+    <item msgid="5674284626652201942">"d2ps"</item>
+  </string-array>
+    <string name="new_experiment_spinner_item" msgid="5833883031740938473">"Nowe doświadczenie..."</string>
+    <string name="recording_title_label" msgid="5188061176268043052">"Rejestruję..."</string>
+    <string name="exp_edit_info_button" msgid="57557261114019563">"Edytuj informacje"</string>
+    <string name="btn_observe_content_description" msgid="6339279151257255267">"Obserwuj"</string>
+    <string name="title_activity_experiment_details" msgid="6104721540075416005">"Szczegóły doświadczenia"</string>
+    <string name="empty_runs" msgid="2492444523656046772">"Nie masz żadnych prób"</string>
+    <string name="permission_request_write" msgid="7894354232042075113">"Do zapisu w pamięci zewnętrznej potrzebne są uprawnienia."</string>
+    <string name="device_options_sensor_label_text" msgid="4913281182269452551">"Czujnik"</string>
+    <string name="external_sensor_appearance_name" msgid="2545762878566289321">"<xliff:g id="SENSOR_NAME">%s</xliff:g> – <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
+    <string name="sensor_rotation_rpm" msgid="7675868077769123026">"Obrót"</string>
+    <string name="sensor_voltage" msgid="8803070522098118555">"Napięcie"</string>
+    <string name="sensor_raw" msgid="3706079416934145306">"Nieprzetworzony"</string>
+    <string name="sensor_temperature_fahrenheit" msgid="530709732319662008">"Temperatura w °F"</string>
+    <string name="sensor_custom" msgid="6419934674147294928">"Własny"</string>
+    <string name="device_options_custom_sensor_pin_label_text" msgid="7800969142277212707">"Wtyczka"</string>
+    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="3441420502780409558">"Częstotliwość"</string>
+    <string name="feedback_error_message" msgid="6267829056474146185">"Nie udało się wysłać opinii."</string>
+    <string name="no_sensor_info_found" msgid="4162175886082619280">"Brak dodatkowych informacji dla tego czujnika."</string>
+    <string name="sensor_desc_short_acc_x" msgid="2894000283386570265">"Przyspieszenie telefonu w lewo i w prawo, w m/s²"</string>
+    <string name="sensor_desc_short_acc_y" msgid="6068967454464639546">"Przyspieszenie telefonu w przód i w tył, w m/s²"</string>
+    <string name="sensor_desc_short_acc_z" msgid="718984279193417402">"Przyspieszenie telefonu w górę i w dół, w m/s²"</string>
+    <string name="sensor_desc_short_decibel" msgid="6022620562641402361">"Natężenie dźwięku docierającego do czujnika dźwięku lub mikrofonu, mierzone w decybelach (dB)."</string>
+    <string name="sensor_desc_short_light" msgid="2836912567230826095">"Ilość światła, mierzona w luksach, padającego na czujnik oświetlenia zewnętrznego."</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="2856177797841108478">"Kąt obrotu między telefonem a zewnętrznym polem magnetycznym."</string>
+    <string name="sensor_desc_short_bluetooth" msgid="6408146877850831242">"Tutaj są wyświetlane dane czujnika zewnętrznego, na podstawie ustawień niestandardowych."</string>
+    <string name="sensor_desc_short_rotation" msgid="4005725749913712057">"Liczba obrotów na minutę"</string>
+    <string name="sensor_desc_short_raw" msgid="8183752554049502871">"Wartość procentowa nieprzetworzonego odczytu z czujnika zewnętrznego."</string>
+    <string name="sensor_desc_first_paragraph_light" msgid="4109035727606616530">"Czujnik oświetlenia zewnętrznego mierzy światło w luksach (lx). Jest to miara natężenia oświetlenia, które zależy od wielkości strumienia świetlnego i powierzchni, na którą ten strumień pada. \n\nNatężenie oświetlenia w nocy, przy księżycu w pełni, wynosi 1 luks, w salonie domowym z typowymi lampami oświetlenie ma natężenie około 50 luksów, oświetlenie sali lekcyjnej i oświetlenie przy wschodzie i zachodzie słońca ma natężenie około 400 luksów, światło słoneczne (pośrednie) ma ponad 10 000 luksów, a światło słoneczne bezpośrednie ponad 30 000 luksów. \n\nDla większości z nas luks jest jednostką nieznaną. Kiedy kupujemy żarówki, często kierujemy się mocą podawaną w watach (W) – ale moc w watach nie określa jasności światła żarówki, a jedynie informuje o tym, ile pobiera ona energii. Przy zakupie żarówki bardziej przydatna jest wielkość mierzona w lumenach, która określa rzeczywistą ilość światła wytwarzaną przez żarówkę. Natomiast wielkość podawana w luksach informuje o tym, ile tego światła pada na daną powierzchnię."</string>
+    <string name="sensor_desc_second_paragraph_light" msgid="4898255020378037357">"Gdy światło się rozchodzi, rozprasza się, więc jeśli oddalasz się od źródła światła, charakteryzująca go liczba luksów (natężenie oświetlenia) maleje, mimo że źródło emituje taką samą ilość światła (strumień świetlny) mierzoną w lumenach. Ponadto powierzchnia odchylona od źródła światła jest słabiej oświetlona – dlatego obszary Ziemi w pobliżu równika są znacznie cieplejsze niż strefy podbiegunowe. \n\nNawiasem mówiąc, celem czujnika światła w telefonie jest regulowanie jasności ekranu w zależności od oświetlenia otoczenia. Znajdujący się w czujniku światła mały półprzewodnik reaguje na padające światło, wytwarzając niewielki, ale mierzalny, prąd – jest to zjawisko znane jako efekt fotoelektryczny. Podobne czujniki są stosowane w niektórych lampach ulicznych, aby je włączać, gdy robi się ciemno."</string>
+    <string name="sensor_desc_first_paragraph_acc" msgid="5154591427983319390">"Obiekty mają tendencję do pozostawania w spoczynku lub w ruchu (jeśli się poruszają) – co określa się mianem bezwładności. Pierwsza zasada dynamiki Newtona wyraża tę myśl w sposób ścisły: obiekt, na który nie działają żadne niezrównoważone siły, pozostaje w spoczynku lub porusza się ruchem jednostajnym prostoliniowym. \n\nGdy na obiekt zadziała niezrównoważona siła, mówimy, że obiekt przyspiesza, czyli jego prędkość zmienia wartość (zwiększa się lub zmniejsza) albo kierunek. Przyspieszenie mierzy się jako zmianę prędkości (w metrach na sekundę) w czasie, czyli w metrach na sekundę do kwadratu (m/s²). \n\nTelefon jest wyposażony w urządzenie do pomiaru tych zmian ruchu – przyspieszeniomierz. W przyspieszeniomierzu zawieszone są niewielkie ciężarki, które mogą się swobodnie poruszać. Zmiany w ruchu powodują przesunięcie tych ciężarków, podobnie jak głowa osoby jadącej samochodem opada do przodu podczas gwałtownego hamowania. Mierząc te nieznaczne przesunięcia spowodowane bezwładnością, przyspieszeniomierz w telefonie może wykryć zmiany w ruchu i zmiany kierunku. Przydaje się to między innymi przy zmianie orientacji ekranu z poziomej na pionową oraz w grach."</string>
+    <string name="sensor_desc_second_paragraph_acc" msgid="8812623507037923651">"Wyraźnie widać stałe przyspieszenie w osi Z, mimo że telefon leży nieruchomo na stole. Jest to przyspieszenie, którego doświadczamy na powierzchni Ziemi z powodu grawitacji. Ma ono wartość około 9,8 m/s²."</string>
+    <string name="sensor_desc_first_paragraph_decibel" msgid="2782071765610621336">"Dźwięki są generowane przez drgania. Na przykład Twój głos wydobywa się z drgających w gardle strun głosowych. Drgania wytwarzają naprzemiennie strefy wysokiego i niskiego ciśnienia powietrza, które przemieszczają się na zewnątrz – podobnie jak kręgi rozchodzące się po wodzie po wrzuceniu kamyka do stawu."</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="142151860819231749">"Każdy dźwięk można opisać za pomocą częstotliwości i natężenia. \n\nNatężenie jest wielkością mierzoną tutaj za pomocą Science Journal w jednostkach nazywanych decybelami (dB). Natężenie, czyli głośność, zależy od odległości, jaką pokonuje drgający obiekt; większe natężenie odczuwamy jako większą głośność. \n\nCzęstotliwość fali dźwiękowej (nazywana również wysokością dźwięku lub tonem) odpowiada szybkości drgań. Im szybciej drga obiekt, tym większa jest wysokość powstającego dźwięku. Science Journal nie mierzy częstotliwości, a jedynie głośność. \n\nNajcichszy dźwięk, jaki może wykryć ucho przeciętnego człowieka, ma głośność zdefiniowaną jako 0 dB. Zwykła rozmowa ma głośność około 60 dB, a dźwięki powyżej około 140 dB są bolesne dla ludzkiego ucha. Jednak dźwięki nie muszą być bolesne, aby szkodzić. Stałe narażenie na hałas o głośności 90 dB – w przybliżeniu dźwięk odkurzacza – może doprowadzić do utraty słuchu. \n\nSkala decybeli jest logarytmiczna, co sprawia pewną trudność: źródło dźwięku 40 dB nie jest dwa razy głośniejsze od źródła 20 dB – jest 100 razy bardziej intensywne. Z drugiej strony, jeśli jeden budzik generuje dźwięk o głośności 70 dB, dwa budziki generują nie 140 dB, a 73 dB. Jak już wspomnieliśmy, jest to osobliwa skala. \n\n10 dB – szelest liści \n20 dB – szept z odległości 1,5 m \n30 dB – cichy szept \n50 dB – deszcz \n60 dB – normalna rozmowa \n90 dB – blender kuchenny \n100 dB – samochód bez tłumika \n110 dB – krzyk do ucha \n120 dB – piorun \n130 dB – młot pneumatyczny \n140 dB – startujący samolot"</string>
+    <string name="sensor_desc_first_paragraph_rotation" msgid="8053108458881116800">"Obroty na minutę (obr./min) są miarą prędkości obrotowej wokół stałej osi. \n\nŁopatki wiatromierza obracają tarczę enkodera:"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="1296904470766613471">"W rezultacie czujnik wykrywa okresy oświetlenia i zaciemnienia, które są rejestrowane w Science Journal jako obrót."</string>
+    <string name="sensor_desc_first_paragraph_raw" msgid="4939612146659644032">"Dane wyświetlane tutaj pochodzą z czujnika zewnętrznego komunikującego się z telefonem za pośrednictwem technologii Bluetooth. \n\nPokazywana jest wartość procentowa nieprzetworzonego bezpośredniego odczytu z mikrokontrolera. Jest to zazwyczaj procentowy spadek napięcia na czujniku."</string>
+    <string name="sensor_desc_second_paragraph_raw" msgid="8973117353495356394">"Bluetooth jest standardem technologii bezprzewodowej wykorzystującym fale radiowe do wymiany danych między urządzeniami stacjonarnymi i mobilnymi, które znajdują się w małej odległości od siebie."</string>
+    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="7981623485563854939">"Dane wyświetlane tutaj pochodzą z czujnika zewnętrznego komunikującego się z telefonem za pośrednictwem technologii Bluetooth."</string>
+    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="7708856960763941387">"Bluetooth jest standardem technologii bezprzewodowej wykorzystującym fale radiowe do wymiany danych między urządzeniami stacjonarnymi i mobilnymi, które znajdują się w małej odległości od siebie."</string>
+    <string name="run_review_duration" msgid="7076553835966679478">"Czas trwania"</string>
+    <string name="run_review_activity_label" msgid="5276313115461408528">"Analiza"</string>
+    <string name="service_notification_content_title" msgid="409211151396677834">"Science Journal"</string>
+    <string name="service_notification_content_text" msgid="6198486549545279611">"Rejestruję..."</string>
+    <string name="live_graph_content_description" msgid="3504419430886261146">"Wykres aktywnego czujnika. Przeciągnij, aby przesunąć oś X."</string>
+    <string name="static_graph_content_description" msgid="5963837267567407006">"Wykres czujnika. Rozsuń lub zsuń palce, aby odpowiednio powiększyć lub pomniejszyć widok. Przeciągnij, aby przesunąć oś X."</string>
+    <string name="sensor_card_overflow_menu_content_description" msgid="1847239009701022116">"Opcje karty"</string>
+    <string name="btn_sensor_flip_info_content_description" msgid="4129040510635338579">"przełącz na tryb informacyjny"</string>
+    <string name="btn_sensor_flip_graph_content_description" msgid="2500545463691107821">"przełącz na tryb wykresu"</string>
+    <string name="sensor_tab_layout_content_description" msgid="6653074718544676936">"dostępne czujniki"</string>
+    <string name="sensor_tab_selected_format" msgid="5189774892597619784">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (wybrano)"</string>
+    <string name="title_activity_sensor_info" msgid="6960039814316283850">"Informacje o czujniku"</string>
+    <string name="title_activity_sensor_info_format" msgid="9106545676836634722">"Czujnik <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="heading_info_section" msgid="3068233297591403258">"Co się dzieje?"</string>
+    <string name="edit_note_menu_item" msgid="5303280313359136552">"Edytuj"</string>
+    <string name="edit_note_time" msgid="2027041230205029461">"Edytuj czas w notatce"</string>
+    <string name="delete_note_menu_item" msgid="7908811564743301702">"Usuń"</string>
+    <string name="delete_run" msgid="103141962786624686">"Usuń"</string>
+    <string name="crop_run" msgid="1336721925526265401">"Przytnij"</string>
+    <string name="add_run_note" msgid="4601243377697085005">"Dodaj notatkę"</string>
+    <string name="add_experiment_note" msgid="1084637094906153162">"Dodaj notatkę"</string>
+    <string name="run_label" msgid="7587739695592981023">"Próba <xliff:g id="RUN_INDEX">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_prev" msgid="1562899512022232138">"Poprzedni czujnik: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_next" msgid="5528270146135394657">"Następny czujnik: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="edit_note_hint_text" msgid="7190191469950695769">"Edytuj notatkę dotyczącą próby"</string>
+    <string name="add_note_hint_text" msgid="4947278182685363439">"Dodaj nową notatkę"</string>
+    <string name="snackbar_note_deleted" msgid="4926151554010737654">"Notatka usunięta"</string>
+    <string name="snackbar_undo" msgid="488185413692934054">"Cofnij"</string>
+    <string name="add_run_note_placeholder_text" msgid="4564897234715127061">"Dodaj notatkę do tej próby"</string>
+    <string name="add_experiment_note_placeholder_text" msgid="5668745283017643514">"Dodaj notatkę dotyczącą doświadczenia"</string>
+    <string name="add_note_image_button_content_description" msgid="5956413597980661328">"Zrób notatkę w formie obrazu"</string>
+    <string name="pinned_note_placeholder_text" msgid="742162042813125689">"Dodaj notatkę"</string>
+    <string name="no_notes_text" msgid="1333257200348947043">"Brak notatek"</string>
+    <string name="indeterminate_value" msgid="6535623633404732608">"--"</string>
+    <string name="project_card_overflow_menu_content_description" msgid="2569345733400148597">"Opcje projektu"</string>
+    <string name="project_active_badge" msgid="8953778683278828884">"Aktywny"</string>
+    <string name="archived_badge" msgid="7204033469949818539">"Zarchiwizowano"</string>
+    <string name="action_include_archived_projects" msgid="1872416419322070603">"Dołącz zarchiwizowane projekty"</string>
+    <string name="action_include_archived_experiments" msgid="1368001463798477703">"Dołącz zarchiwizowane doświadczenia"</string>
+    <string name="action_new_experiment" msgid="3598888962558710132">"Nowe doświadczenie"</string>
+    <string name="delete_run_dialog_title" msgid="2829473058431908340">"Usunąć tę próbę?"</string>
+    <string name="run_review_delete_confirm" msgid="9216827234502882510">"Czy na pewno chcesz usunąć tę próbę? Zarejestrowane dane i notatki zostaną usunięte. Tej czynności nie można cofnąć."</string>
+    <string name="menu_btn_content_description" msgid="4680014704943654954">"menu"</string>
+    <string name="age_verifier_header" msgid="9217155512378711429">"Zweryfikuj swój wiek"</string>
+    <string name="age_verifier_birthday" msgid="2054392341079524729">"Data urodzenia:"</string>
+    <string name="age_verifier_get_started" msgid="1086024826189816224">"Zaczynajmy"</string>
+    <string name="tutorial_welcome_header" msgid="5596382686735832683">"Poznaj swój świat"</string>
+    <string name="tutorial_welcome_body" msgid="7591843046586427635">"Dokonuj pomiarów oświetlenia, dźwięku i innych zjawisk fizycznych za pomocą czujników w Twoim telefonie z Androidem."</string>
+    <string name="tutorial_setup_header" msgid="7529566316389493918">"Uporządkuj projekty"</string>
+    <string name="tutorial_setup_body" msgid="3570507763094472318">"Skonfiguruj projekty i doświadczenia, aby uporządkować dane i porównać wyniki."</string>
+    <string name="tutorial_observe_record_header" msgid="3715811468629596336">"Zarejestruj w czasie rzeczywistym"</string>
+    <string name="tutorial_observe_record_body" msgid="6982870167622582123">"Chcesz coś zmierzyć? Zarejestruj swoje obserwacje w czasie rzeczywistym, naciskając jeden przycisk."</string>
+    <string name="tutorial_take_notes_header" msgid="8271718393020433479">"Dodaj notatki dotyczące obserwacji"</string>
+    <string name="tutorial_take_notes_body" msgid="6597967563928412974">"Podczas rejestrowania możesz dodawać notatki i zdjęcia, aby nadać danym szerszy kontekst."</string>
+    <string name="btn_previous_label" msgid="2881262882599469727">"Wstecz"</string>
+    <string name="btn_next_label" msgid="1682026626542221420">"Dalej"</string>
+    <string name="sensor_card_error_text" msgid="151455534130824363">"Nie można wczytać danych czujnika"</string>
+    <string name="bluetooth_not_on_title" msgid="8961840974431817490">"Połącz z czujnikiem Bluetooth"</string>
+    <string name="bluetooth_not_on_body" msgid="1861412368943739545">"Nie można połączyć się z czujnikiem zewnętrznym. Bluetooth jest wyłączony. Włącz go, aby połączyć się z czujnikiem."</string>
+    <string name="bluetooth_not_on_ok" msgid="3148597353545683264">"Włącz Bluetooth"</string>
+    <string name="sensor_card_loading_text" msgid="8569947135727599414">"Wczytuję dane czujnika..."</string>
+    <string name="graph_loading" msgid="9200302049191996695">"Wczytuję wykres..."</string>
+    <string name="playback_button_pause" msgid="6025607837788357759">"wstrzymaj odtwarzanie dźwięku"</string>
+    <string name="playback_button_play" msgid="5739285031289314186">"rozpocznij odtwarzanie dźwięku"</string>
+    <string name="sonification_type_card_title" msgid="7315771791094946967">"Typ udźwiękowienia karty"</string>
+    <string name="sonification_type_title" msgid="271616837832972881">"Domyślny typ udźwiękowienia"</string>
+    <string name="title_edit_trial_activity" msgid="3272215900928155534">"Edytuj próbę"</string>
+    <string name="edit_trial_title_hint" msgid="3752953269416446342">"Tytuł próby"</string>
+    <string name="include_archived_trials" msgid="6064586011723883752">"Uwzględnij zarchiwizowane próby"</string>
+    <string name="export_error" msgid="8729689368786707247">"Nie udało się wyeksportować."</string>
+    <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
+    <skip />
+    <string name="listing_title" msgid="6842666752572268412">"Science Journal"</string>
+    <string name="listing_tagline" msgid="6633876313767981347">"Eksperymentuj w swoim świecie."</string>
+    <string name="listing_changelog" msgid="5651904379742962668">"Pierwsze wydanie"</string>
+    <string name="listing__description" msgid="7679178857079821372">"Science Journal to narzędzie do prowadzenia badań naukowych za pomocą smartfona. Możesz korzystać z czujników, w które jest wyposażony Twój telefon, albo podłączać czujniki zewnętrzne, by eksperymentować w otaczającym Cię świecie. Możesz gromadzić swoje pomysły w projektach, tworzyć założenia, robić notatki i zbierać dane z różnych prób, a następnie opisywać i oceniać wyniki. Ten program to dziennik laboratoryjny, który masz zawsze przy sobie.\n\n\nPomysły na wykorzystanie aplikacji znajdziesz tutaj: https://makingscience.withgoogle.com/science-journal/activities \nWięcej informacji o Making &amp; Science: https://makingscience.withgoogle.com \nPomoc: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
+    <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
+    <skip />
+    <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_summary (1881741234337323074) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_title (7760095515631648430) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_summary (5446570032717609139) -->
+    <skip />
+</resources>

@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.google.android.apps.forscience.whistlepunk.review.UpdateRunActivity">
+    <item android:id="@+id/action_save" android:title="@string/action_save"
+          android:icon="@drawable/ic_check_white_24dp"
+          android:orderInCategory="100" app:showAsAction="always" />
+</menu>

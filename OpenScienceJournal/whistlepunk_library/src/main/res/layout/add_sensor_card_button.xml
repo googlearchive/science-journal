@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This RelativeLayout allows the ImageButton to be centered in the view it is
+     added to, without needing to expand to fill that view. -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+    <ImageButton
+        android:id="@+id/btn_add_sensor_card"
+        android:layout_width="@dimen/accessibility_touch_target_min_size"
+        android:layout_height="@dimen/accessibility_touch_target_min_size"
+        android:scaleType="center"
+        android:src="@drawable/ic_add_card_black_36dp"
+        android:alpha="@dimen/btn_add_sensor_card_alpha"
+        android:contentDescription="@string/btn_add_sensor_card_description"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        style="?attr/borderlessButtonStyle"
+        android:layout_marginTop="@dimen/cardview_margin"
+        android:layout_marginBottom="@dimen/cardview_margin"
+        />
+
+</RelativeLayout>

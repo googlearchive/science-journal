@@ -1,0 +1,218 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">0dp</dimen>
+    <dimen name="activity_vertical_margin">0dp</dimen>
+    <dimen name="chart_labels_text_size">14sp</dimen>
+    <dimen name="ruler_hash_size">16dp</dimen>
+    <dimen name="ruler_label_offset">4dp</dimen>
+    <dimen name="label_dot_size">8dp</dimen>
+    <dimen name="label_dot_outline">11dp</dimen>
+    <dimen name="chart_leading_dot_size">10dp</dimen>
+    <dimen name="graph_line_width">2dp</dimen>
+
+    <dimen name="stream_presenter_padding_sides">16dp</dimen>
+    <dimen name="stream_presenter_padding_top_bottom">24dp</dimen>
+
+    <!-- The margin between the left edge of the graph and the left edge of the chart.
+         The Y axis labels will be drawn in this space. -->
+    <dimen name="chart_margin_size_left">38dp</dimen>
+    <dimen name="chart_labels_padding">22dp</dimen>
+    <dimen name="chart_labels_vertical_padding">-5dp</dimen>
+    <dimen name="chart_grid_line_width">1dp</dimen>
+
+    <dimen name="options_padding_sides">24dp</dimen>
+    <dimen name="options_padding_top_bottom">20dp</dimen>
+    <dimen name="graph_options_item_height">36dp</dimen>
+
+    <dimen name="fab_margin_right">16dp</dimen>
+    <dimen name="fab_margin_bottom">16dp</dimen>
+    <dimen name="fab_elevation">6dp</dimen>
+
+    <dimen name="reset_btn_holder_width">64dp</dimen>
+    <dimen name="reset_btn_holder_height">56dp</dimen>
+    <dimen name="reset_btn_margin_bottom">8dp</dimen>
+    <dimen name="reset_btn_margin_end">16dp</dimen>
+
+    <dimen name="cardview_content_margin">16dp</dimen>
+    <dimen name="cardview_margin">8dp</dimen>
+    <dimen name="cardview_radius">2dp</dimen>
+
+    <dimen name="age_verifier_padding">16dp</dimen>
+
+    <dimen name="list_bottom_padding">48dp</dimen>
+
+    <dimen name="update_project_horizontal_padding">24dp</dimen>
+    <dimen name="update_project_vertical_padding">16dp</dimen>
+    <dimen name="project_image_button_height">200dp</dimen>
+    <dimen name="project_cover_label_margin_bottom">30dp</dimen>
+
+    <dimen name="toolbar_image_cover_height">250dp</dimen>
+    <dimen name="appbar_subtitle_text_size">14sp</dimen>
+
+    <dimen name="project_card_margin">5dp</dimen>
+    <dimen name="project_card_content_padding">20dp</dimen>
+    <dimen name="project_card_title_text_size">24sp</dimen>
+    <item name="metadata_card_alpha" type="fraction">100%</item>
+    <item name="metadata_card_archived_alpha" type="fraction">60%</item>
+
+    <dimen name="experiment_layout_padding">16dp</dimen>
+    <dimen name="experiment_overview_image_size">48dp</dimen>
+
+    <dimen name="sensor_card_header_padding">16dp</dimen>
+    <dimen name="sensor_card_header_text_size">16sp</dimen>
+    <dimen name="sensor_card_header_text_padding">16dp</dimen>
+
+    <dimen name="sensor_card_header_btn_margin">4dp</dimen>
+
+    <dimen name="toggle_btn_delegate_add">12dp</dimen>
+
+    <!-- The full sensor card header height is used to calculate how large the sensor
+         presenter view should be. It is not used in any layout xml files. -->
+    <dimen name="sensor_card_header_height">84dp</dimen>
+    <dimen name="sensor_card_content_height_min">240dp</dimen>
+
+    <dimen name="sensor_card_meter_units_text_size">14sp</dimen>
+    <dimen name="sensor_card_live_value_text_size">64sp</dimen>
+    <dimen name="sensor_card_back_learn_more_text_size">14sp</dimen>
+    <dimen name="sensor_card_back_info_text_size">13sp</dimen>
+    <dimen name="sensor_card_back_text_margin_top">16dp</dimen>
+    <dimen name="sensor_card_back_padding">24dp</dimen>
+    <dimen name="sensor_card_back_icon_size">110dp</dimen>
+    <dimen name="sensor_card_back_info_section_margin_botton">6dp</dimen>
+
+    <dimen name="project_thumb_height">150dp</dimen>
+
+    <dimen name="sensor_tablayout_height">40dp</dimen>
+    <dimen name="sensor_tablayout_margin_side">16dp</dimen>
+    <dimen name="sensor_tab_indicator_height">4dp</dimen>
+    <dimen name="sensor_tab_padding">6dp</dimen>
+    <dimen name="sensor_tab_padding_bottom">10dp</dimen>
+    <dimen name="sensor_tab_width">52dp</dimen>
+
+    <dimen name="title_spinner_text_size">20sp</dimen>
+    <dimen name="title_spinner_padding">16dp</dimen>
+    <dimen name="title_spinner_arrow_padding">8dp</dimen>
+
+    <dimen name="stats_drawer_margin">4dp</dimen>
+    <dimen name="stats_drawer_small_icon_padding">4dp</dimen>
+    <dimen name="stats_drawer_large_icon_padding">4dp</dimen>
+    <dimen name="stats_drawer_item_width">50dp</dimen>
+    <dimen name="stats_drawer_large_height">36dp</dimen>
+    <dimen name="stats_back_text_size">24sp</dimen>
+    <dimen name="stats_view_small_text_size">12sp</dimen>
+    <dimen name="small_stat_icon_size">12dp</dimen>
+
+    <dimen name="observe_control_panel_bottom_height">62dp</dimen>
+
+    <!-- The external axis side margins must be the cardview_margin plus
+         stream_presenter_padding_sides plus chart_margin_size_left -->
+    <dimen name="external_axis_left_padding">64dp</dimen>
+    <dimen name="external_axis_right_padding">26dp</dimen>
+    <dimen name="external_axis_note_dot_size">16dp</dimen>
+    <dimen name="external_axis_recording_dot_size">10dp</dimen>
+    <dimen name="external_axis_label_dot_size">10dp</dimen>
+    <dimen name="external_axis_point_outline_width">4dp</dimen>
+    <dimen name="external_axis_note_outline_width">3dp</dimen>
+
+    <dimen name="external_axis_height">50dp</dimen>
+    <dimen name="external_axis_text_size">12sp</dimen>
+    <dimen name="external_axis_stroke_width">1dp</dimen>
+    <dimen name="external_axis_short_tick_height">3dp</dimen>
+    <dimen name="external_axis_long_tick_height">6dp</dimen>
+    <dimen name="external_axis_tick_padding_top">2dp</dimen>
+    <dimen name="external_axis_tick_padding_bottom">4dp</dimen>
+
+    <dimen name="record_external_axis_background_height">35dp</dimen>
+    <dimen name="record_external_axis_tick_padding_top">5dp</dimen>
+    <dimen name="record_external_axis_indicator_width">4dp</dimen>
+
+    <dimen name="recording_overlay_bar_width">1dp</dimen>
+    <dimen name="recording_overlay_dash_size">4dp</dimen>
+
+    <dimen name="experiment_description_padding">16dp</dimen>
+
+    <item name="icon_active_alpha" format="float" type="dimen">.87</item>
+    <item name="icon_inactive_alpha" format="float" type="dimen">.54</item>
+
+    <item name="btn_add_sensor_card_alpha" format="float" type="dimen">.55</item>
+
+    <dimen name="run_review_section_margin">16dp</dimen>
+    <dimen name="run_review_divider_thickness">1dp</dimen>
+    <dimen name="run_review_run_name_text_size">24sp</dimen>
+    <dimen name="run_review_label_text_size">14sp</dimen>
+    <dimen name="run_review_stat_size">34sp</dimen>
+    <dimen name="run_review_sensor_name_text_size">16sp</dimen>
+    <dimen name="run_review_chart_height">160dp</dimen>
+    <dimen name="run_review_margin_sides">8dp</dimen>
+    <dimen name="run_review_header_text_margin_top">8dp</dimen>
+    <dimen name="run_review_external_axis_left_margin">48dp</dimen>
+    <dimen name="run_review_external_axis_left_padding">8dp</dimen>
+    <dimen name="run_review_external_axis_right_padding">18dp</dimen>
+    <dimen name="run_review_divider_margin">8dp</dimen>
+    <dimen name="run_review_sensor_section_margin_top_bottom">4dp</dimen>
+    <dimen name="run_review_duration_text_height">30dp</dimen>
+
+    <dimen name="run_review_notes_text_size">16sp</dimen>
+    <dimen name="run_review_notes_timestamp_text_size">14sp</dimen>
+    <dimen name="run_review_note_content_margin_start">80dp</dimen>
+    <dimen name="run_review_note_text_margin_end">48dp</dimen>
+    <dimen name="run_review_note_icon_size">24dp</dimen>
+    <dimen name="run_review_note_duration_drawable_padding">8dp</dimen>
+    <dimen name="run_review_image_note_preview_size">100dp</dimen>
+    <dimen name="run_review_duration_text_margin_top">8dp</dimen>
+    <dimen name="run_review_section_margin_notes">24dp</dimen>
+
+    <dimen name="run_review_seekbar_holder_padding_bottom">18dp</dimen>
+    <dimen name="run_review_seekbar_label_text_size_small">12sp</dimen>
+    <dimen name="run_review_seekbar_label_text_size_large">16sp</dimen>
+    <dimen name="external_axis_seekbar_size">48dp</dimen>
+    <dimen name="run_review_thumb_center_size">8dp</dimen>
+    <dimen name="run_review_thumb_center_padding">20dp</dimen>
+    <dimen name="run_review_thumb_inactive_size">24dp</dimen>
+    <dimen name="run_review_half_thumb_inactive_size">12dp</dimen>
+    <dimen name="run_review_thumb_inactive_padding">12dp</dimen>
+    <dimen name="run_review_value_label_text_size_large">18sp</dimen>
+    <dimen name="run_review_value_label_text_size_small">14sp</dimen>
+    <dimen name="run_review_bubble_diameter">52dp</dimen>
+    <dimen name="run_review_inactive_bubble_radius">36dp</dimen>
+    <dimen name="run_review_value_label_dot_radius">3dp</dimen>
+    <dimen name="run_review_value_label_dot_background_radius">5dp</dimen>
+
+
+    <dimen name="run_review_overlay_height">280dp</dimen>
+    <dimen name="run_review_overlay_margin_bottom">32dp</dimen>
+    <!-- The left padding matches run_review_external_axis_left_margin, and the right matches the right -->
+    <dimen name="run_review_overlay_margin_left">56dp</dimen>
+    <dimen name="run_review_overlay_margin_right">18dp</dimen>
+
+    <dimen name="picture_note_preview_size">300dp</dimen>
+
+    <dimen name="edit_note_bottom_time_height">48dp</dimen>
+    <dimen name="edit_note_dialog_margin">24dp</dimen>
+    <dimen name="edit_note_textedit_margin_bottom">8dp</dimen>
+    <dimen name="edit_note_time_drawable_padding">8dp</dimen>
+    <dimen name="edit_note_image_button_margin">16dp</dimen>
+
+    <dimen name="edit_time_dialog_height">52dp</dimen>
+    <dimen name="edit_time_dialog_margin">8dp</dimen>
+    <dimen name="edit_time_select_buton_size">36dp</dimen>
+    <!-- The edit time dialog is shown anchored to the bottom of the app bar layout.
+         To position it, we need to lower it 52 dp for the height of the dialog,
+         plus 8dp for top margin, then some padding so it is below the app bar layout -->
+    <dimen name="edit_time_dialog_margin_top">82dp</dimen>
+
+    <dimen name="endpoints_label_dot_outline">12dp</dimen>
+    <dimen name="endpoints_label_fill_size">8dp</dimen>
+
+    <dimen name="info_paragraph_text_size">16sp</dimen>
+    <dimen name="info_header_text_size">24sp</dimen>
+    <dimen name="info_page_margin">24dp</dimen>
+    <dimen name="info_paragraph_margin_top">18dp</dimen>
+
+    <dimen name="device_type_drawable_padding">8dp</dimen>
+
+    <!-- Buttons and touch targets should be at least 48x48dp to meet GAR standards. -->
+    <dimen name="accessibility_touch_target_min_size">48dp</dimen>
+
+    <dimen name="archive_badge_margin">12dp</dimen>
+</resources>

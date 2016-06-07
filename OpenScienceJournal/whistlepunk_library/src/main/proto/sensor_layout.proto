@@ -1,0 +1,49 @@
+syntax = "proto2";
+
+package goosci;
+option java_package = "com.google.android.apps.forscience.whistlepunk.data";
+option java_outer_classname = "GoosciSensorLayout";
+option optimize_for = LITE_RUNTIME;
+
+message SensorLayout {
+  optional string sensorId = 1;
+
+  enum CardView {
+    METER = 1; // For scalar sensors: show an icon and current reading as a large number
+               // For all cards: show a description of what's going on with this sensor, with
+               //   affordance for "more info"
+    GRAPH = 2; // For scalar sensors: show an evolving line graph of the value
+               // For all cards: show a "live preview" of what the graph would record, with
+               //   appropriate density for someone who understands the sensor's purpose.
+  }
+  optional CardView cardView = 2 [default = METER];
+
+  // TODO: these should be extras
+  // If you add additional top-level options here, they should apply to all possible sensors,
+  // including non-scalar ones.  These are included for legacy, but it's not clear how, for example,
+  // a video sensor would have audio enabled or a stats overlay.
+  //
+  // If you want to add options that only make sense for a subset of possible sensors, just
+  // use 'extras' below, rather than adding additional fields here.
+  optional bool audioEnabled = 3 [default = false];
+  optional bool showStatsOverlay = 4 [default = false];
+
+  // Color, as a packed int as described in android.graphics.Color
+  //
+  // Default is 0 (transparent).  We will interpret this as unset in code and replace with a
+  // more appropriate default.
+  optional int32 color = 5 [default = 0];
+
+  // Extra options for this card, which can be used by individual selected sensors.
+  // Keys in this map should begin with some fully-qualified package name that the adding code
+  // belongs to.  For example, keys added by code written at google will begin with "com.google."
+  // This map will be made available as-is to SensorChoice implementations, which will interpret
+  // them as desired.
+  map<string, string> extras = 6;
+
+  // The minimum value shown on the Y axis.
+  optional double minimumYAxisValue = 7;
+
+  // The maximum value shown on the Y axis.
+  optional double maximumYAxisValue = 8;
+};

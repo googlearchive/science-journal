@@ -1,0 +1,15 @@
+/*
+ * Sensor Value protobuf definition
+ */
+
+syntax = "proto2";
+
+option java_package = "com.google.android.apps.forscience.whistlepunk.data";
+option java_outer_classname = "GoosciSensorValue";
+option optimize_for = LITE_RUNTIME;
+
+
+message SensorValue {
+  required int32 timestamp = 1;
+  required int32 value = 2;
+}

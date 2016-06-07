@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="run_review_chart_height">100dp</dimen>
+    <dimen name="picture_note_preview_size">145dp</dimen>
+</resources>

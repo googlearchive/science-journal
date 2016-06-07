@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/placeholder_experiment_background"
+        />
+    <item>
+        <bitmap android:src="@drawable/ic_experiment_white_24dp"
+                android:gravity="center"
+            />
+    </item>
+</layer-list>

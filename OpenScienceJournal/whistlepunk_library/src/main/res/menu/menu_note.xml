@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <item
+        android:title="@string/edit_note_menu_item"
+        android:id="@+id/btn_edit_note"
+        />
+
+    <item
+        android:title="@string/delete_note_menu_item"
+        android:id="@+id/btn_delete_note"
+        />
+
+</menu>

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="action_feedback" msgid="2230997537507885910">"Zpětná vazba"</string>
+    <string name="action_settings" msgid="4140514779355685890">"Nastavení"</string>
+    <string name="action_save" msgid="7115885253849785049">"Uložit"</string>
+    <string name="action_edit" msgid="2879274643416740117">"Upravit"</string>
+    <string name="action_archive_project" msgid="3984396879969444432">"Archivovat projekt"</string>
+    <string name="action_unarchive_project" msgid="2708696233939647946">"Obnovit projekt z archivu"</string>
+    <string name="action_archive_experiment" msgid="5641733726709708591">"Archivovat experiment"</string>
+    <string name="action_unarchive_experiment" msgid="2357913494087884425">"Obnovit experiment z archivu"</string>
+    <string name="action_archive_run" msgid="439270635088307350">"Archivovat pokus"</string>
+    <string name="action_unarchive_run" msgid="5992535261034463728">"Obnovit pokus z archivu"</string>
+    <string name="action_delete" msgid="5205384449071348669">"Smazat"</string>
+    <string name="action_ruler" msgid="3567453615091215971">"Pravítko"</string>
+    <string name="action_level" msgid="2223203490872051791">"Úroveň"</string>
+    <string name="sine_wave" msgid="7465850130633241930">"Sinusoida"</string>
+    <string name="acc_x" msgid="6032598557672647110">"Akcelerometr (osa X)"</string>
+    <string name="acc_y" msgid="3524690325306070984">"Akcelerometr (osa Y)"</string>
+    <string name="acc_z" msgid="4540365462206126342">"Akcelerometr (osa Z)"</string>
+    <string name="ambient_light" msgid="3301998123545447671">"Okolní světlo"</string>
+    <string name="magnetic_rotation" msgid="6643176023260466091">"Magnetická rotace"</string>
+    <string name="video_stream" msgid="1813984984736617091">"Stream videa"</string>
+    <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
+    <string name="ambient_light_units" msgid="6318282254934724349">"lx"</string>
+    <!-- no translation found for magnetic_rotation_units (5964336522624353252) -->
+    <skip />
+    <string name="decibel_units" msgid="2890849301464041989">"dB"</string>
+    <string name="rpm_units" msgid="897807671511627492">"ot./min"</string>
+    <string name="voltage_units" msgid="6411118170860716365">"V"</string>
+    <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
+    <string name="experiment_details" msgid="6814534510464980289">"Podrobnosti o experimentu"</string>
+    <string name="add_sensor" msgid="96374933560924369">"Přidat senzor"</string>
+    <string name="snackbar_source_error" msgid="6054360710842869995">"Během připojování k tomuto zdroji došlo k chybě: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
+    <string name="action_retry" msgid="7873032739745888974">"Zkusit znovu"</string>
+    <string name="decibel" msgid="7425761238029567370">"Intenzita zvuku"</string>
+    <string name="title_activity_tutorial" msgid="7117023626104839821">"Návod k Vědeckému žurnálu"</string>
+    <string name="title_activity_age_verifier" msgid="6953483601673982354">"Narozeniny"</string>
+    <string name="title_activity_ruler" msgid="4538057504732643762">"Pravítko"</string>
+    <string name="ruler_label_metric" msgid="8008318703764352929">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
+    <string name="ruler_label_imperial" msgid="2225518554245466626">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g>\""</string>
+    <string name="title_activity_level" msgid="7751336762571175981">"Úroveň"</string>
+    <string name="action_calibrate" msgid="2567237363558254927">"Kalibrovat"</string>
+    <string name="action_end_calibrate" msgid="6416011236105220467">"Ukončit kalibraci"</string>
+    <string name="title_calibrate" msgid="4425118955292706233">"Kalibrovat pomocí…"</string>
+    <string name="calibration_credit_card" msgid="1784606520446558443">"Platební karta (výška)"</string>
+    <string name="calibration_ruler_imperial" msgid="2477725634940053346">"Pravítko (3\")"</string>
+    <string name="calibration_ruler_metric" msgid="1330487431270295597">"Pravítko (80 mm)"</string>
+    <string name="btn_add_experiment_note_description" msgid="7451384954210671094">"Přidat poznámku k experimentu"</string>
+    <string name="btn_add_run_note_description" msgid="3729688760639518856">"Přidat poznámku k pokusu"</string>
+    <string name="btn_record_description" msgid="6165596989316716650">"Začněte nahrávat"</string>
+    <string name="btn_stop_description" msgid="5331283967913304386">"Zastavit nahrávání"</string>
+    <string name="unknown_sensor" msgid="2253417219024438701">"Neznámý senzor"</string>
+    <string name="recording_start_failed" msgid="8094130346174113235">"Nahrávání se nezdařilo. Zkuste to znovu."</string>
+    <string name="recording_start_failed_disconnected" msgid="2493130069585541040">"Nahrávání selhalo, chybí senzor. Zkuste to znovu."</string>
+    <string name="recording_stop_failed_no_data_title" msgid="256592083253381257">"Data nejsou zaznamenávána."</string>
+    <string name="recording_stop_failed_no_data" msgid="5167111037930589862">"Některý ze senzorů nezaznamenal žádná data. Chcete toto nahrávání zrušit?"</string>
+    <string name="recording_stop_failed_continue" msgid="161788317476740066">"Pokračovat"</string>
+    <string name="recording_stop_failed_cancel" msgid="9167449814602506726">"Zrušit nahrávání"</string>
+    <string name="recording_stop_failed_disconnected" msgid="1409656957401598471">"Zastavení nahrávání selhalo: senzor byl odpojen. Chcete toto nahrávání zrušit?"</string>
+    <string name="recording_stop_failed_save" msgid="720527628154679503">"Ukončení nahrávání selhalo. Pokus se nepodařilo uložit. Zkuste to znovu."</string>
+    <!-- no translation found for elapsed_time_short_format (7848904136886917036) -->
+    <skip />
+    <string name="elapsed_time_long_format" msgid="3451516277286685162">"<xliff:g id="MINUTES">%1dmin</xliff:g>:<xliff:g id="SECONDS">%2ds</xliff:g>"</string>
+    <!-- no translation found for accessible_elapsed_time_short_format (867388448497851890) -->
+    <skip />
+    <string name="accessible_elapsed_time_long_format" msgid="5588697398982936316">"<xliff:g id="MINUTES">%1d minutes</xliff:g>:<xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small" msgid="8801162161093675447">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large" msgid="1312366645818667859">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="8665096074255046060">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>"</string>
+    <string name="picture_note_description" msgid="4617343713156115501">"Obrázek z pokusu"</string>
+    <string name="picture_note_preview_content_description" msgid="4160980766022755366">"Náhled snímku poznámky"</string>
+    <string name="navigation_item_observe" msgid="6544385569776074166">"Pozorovat"</string>
+    <string name="navigation_item_projects" msgid="204705505259389287">"Projekty"</string>
+    <string name="navigation_item_web_link" msgid="1966109305973672752">"Web Making &amp; Science"</string>
+    <string name="navigation_item_settings" msgid="1612988756868966834">"Nastavení"</string>
+    <string name="navigation_item_testing_options" msgid="8712068439028163725">"Možnosti testování"</string>
+    <string name="title_activity_main" msgid="8803846504222999093">"Vědecký žurnál – <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_add_sensor" msgid="3432276215295606638">"Externí zařízení"</string>
+    <string name="external_devices_paired" msgid="460907629018449824">"Spárovaná zařízení"</string>
+    <string name="external_devices_pairing" msgid="1318140666547340328">"Párování…"</string>
+    <string name="external_devices_available" msgid="4660407499712163232">"Dostupná zařízení"</string>
+    <string name="external_devices_settings_title" msgid="7731073608455634240">"Nastavení zařízení"</string>
+    <string name="external_devices_settings_forget" msgid="2280373936547146694">"Zapomenout"</string>
+    <string name="external_devices_settings_ok" msgid="3688835834178014100">"OK"</string>
+    <string name="progress_scanning" msgid="504228868213512629">"Vyhledávání…"</string>
+    <string name="action_refresh" msgid="6449507931372381488">"Obnovit"</string>
+    <string name="no_options_title" msgid="5380361167896386704">"Žádné možnosti senzoru <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="no_options_message" msgid="3139314286228576248">"U senzoru <xliff:g id="NAME">%1$s</xliff:g> nelze nastavit žádné možnosti."</string>
+    <string name="options_message" msgid="693169996123125208">"Nastavit možnosti senzoru <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
+    <string name="sine_wave_frequency_option" msgid="3299263567413396079">"Nastavení frekvence sinusoidy v milisekundách:"</string>
+    <string name="video_stream_fps_option" msgid="7912973629078331063">"Nastavení frekvence záznamu streamu videa ve snímcích za sekundu:"</string>
+    <string name="title_activity_project_details" msgid="6738094706468371738">"Experimenty projektu"</string>
+    <string name="graph_name" msgid="4051005079264085531">"graf"</string>
+    <string name="graph_options" msgid="4225585925400993925">"Možnosti grafu"</string>
+    <string name="graph_options_title" msgid="6860269315108522661">"Možnosti grafu"</string>
+    <string name="graph_options_smoothness_edit" msgid="1885781785347948911">"Hladkost"</string>
+    <string name="graph_options_window_edit" msgid="8943669029029140826">"Velikost rozostření"</string>
+    <string name="graph_options_blur_edit" msgid="6217163217394307677">"Typ rozostření"</string>
+    <string name="graph_options_gaussian_sigma_edit" msgid="5761710064672068300">"Standardní odchylka"</string>
+    <string name="blur_type_average" msgid="1617413241621655455">"Průměr"</string>
+    <string name="blur_type_gaussian" msgid="1011871621295653087">"Gaussova metoda"</string>
+    <string name="graph_options_audio_feedback_enable" msgid="1845200328398473302">"Zapnout zvuk"</string>
+    <string name="graph_options_audio_feedback_disable" msgid="5006766005261847317">"Vypnout zvuk"</string>
+    <string name="stat_min" msgid="7907031942382531617">"Minimum"</string>
+    <string name="stat_max" msgid="8227023306109349391">"Maximum"</string>
+    <string name="stat_average" msgid="3601514334204674938">"Průměr"</string>
+    <string name="stat_min_label" msgid="8763695907241205634">"Minimum"</string>
+    <string name="stat_max_label" msgid="4173459591223474511">"Maximum"</string>
+    <string name="stat_average_label" msgid="7341499679015444245">"Průměr"</string>
+    <string name="stat_duration" msgid="8999214260188208590">"Doba trvání"</string>
+    <string name="stat_unknown" msgid="8543005524144060221">"Neznámé"</string>
+    <string name="btn_reset_description" msgid="7288391743038780410">"Přeskočit na současnost"</string>
+    <string name="export_action" msgid="3269831142664490446">"Exportovat"</string>
+    <string name="export_run_chooser_title" msgid="6420930071586217884">"Uložit do…"</string>
+    <string name="settings_version_title" msgid="6212827772323334070">"Verze"</string>
+    <string name="settings_replay_tutorial_title" msgid="3811832513865119930">"Návod"</string>
+    <string name="settings_open_source_title" msgid="3090096891818776727">"Licence open source"</string>
+    <string name="dev_sensors_title" msgid="4583380726898357656">"Zapnout experimentální senzory"</string>
+    <string name="cannot_scan_message" msgid="8297618436609318137">"Pokud chcete aplikaci Vědecký žurnál umožnit přístup k externím zařízením (senzorům Vědeckého žurnálu), musíte nejprve zapnout Bluetooth. Aby mohl systém Android senzory Vědeckého žurnálu vyhledat, musíte mu také udělit právo přístupu k vaší poloze, neboť během vyhledávání mohou tato zařízení vysílat i údaje o své poloze. Vědecký žurnál údaje o poloze neukládá ani nevyužívá a senzory Vědeckého žurnálu údaje o poloze nepřenášejí."</string>
+    <string name="btn_request_location" msgid="8197595806751014499">"Zapnout přístup k poloze"</string>
+    <string name="btn_enable_bluetooth" msgid="5357651687998209452">"Zapnout Bluetooth"</string>
+    <string name="btn_new_project_content_description" msgid="6932143755645026255">"Nový projekt"</string>
+    <string name="title_activity_new_project" msgid="2838213281488377791">"Nový projekt"</string>
+    <string name="title_activity_update_project" msgid="4441312132900502358">"Aktualizovat projekt"</string>
+    <string name="project_save_failed" msgid="5623422183377416130">"Projekt se nepodařilo uložit. Zkuste to znovu."</string>
+    <string name="archived_project_message" msgid="4798618073088509851">"Projekt archivován."</string>
+    <string name="unarchived_project_message" msgid="178393278028428287">"Projekt byl přesunut z archivu."</string>
+    <string name="action_undo" msgid="3152747614676103846">"Vrátit zpět"</string>
+    <string name="project_title_hint" msgid="8228443486075398477">"Název projektu"</string>
+    <string name="project_problem_hint" msgid="381678432298729684">"Popis"</string>
+    <string name="project_cover_description" msgid="1534511071097246816">"Vyberte snímek projektu"</string>
+    <string name="choose_photo_button_text" msgid="761066275467820031">"Vybrat fotku"</string>
+    <plurals name="project_experiments_count" formatted="false" msgid="7648457680949535167">
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> experimenty</item>
+      <item quantity="many"><xliff:g id="NUMBER_1">%1d</xliff:g> experimentu</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> experimentů</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> experiment</item>
+    </plurals>
+    <string name="btn_new_experiment_content_description" msgid="7327973648445064928">"Nový experiment"</string>
+    <string name="archived_experiment_message" msgid="6471344531723915995">"Experiment archivován."</string>
+    <string name="unarchived_experiment_message" msgid="8059010703916773668">"Experiment byl přesunut z archivu."</string>
+    <string name="archived_run_message" msgid="8095301767431802235">"Pokus byl archivován."</string>
+    <string name="unarchived_run_message" msgid="471395163511338290">"Pokus byl přesunut z archivu."</string>
+    <string name="experiments_toolbar_title" msgid="7336526041603098967">"Experimenty"</string>
+    <string name="archived_content_description" msgid="5626832963025103076">"<xliff:g id="ITEM">%1s</xliff:g> (archivováno)"</string>
+    <plurals name="experiment_run_count" formatted="false" msgid="8354594369372506196">
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> pokusy</item>
+      <item quantity="many"><xliff:g id="NUMBER_1">%1d</xliff:g> pokusu</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> pokusů</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> pokus</item>
+    </plurals>
+    <plurals name="notes_count" formatted="false" msgid="7949686260707404918">
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> poznámky</item>
+      <item quantity="many"><xliff:g id="NUMBER_1">%1d</xliff:g> poznámky</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> poznámek</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> poznámka</item>
+    </plurals>
+    <string name="experiment_title_hint" msgid="3508456602523057718">"Název experimentu"</string>
+    <string name="experiment_description_hint" msgid="3197580737141616333">"Popis experimentu"</string>
+    <string name="title_activity_new_experiment" msgid="5681560613521817391">"Nový experiment"</string>
+    <string name="title_activity_update_experiment" msgid="681114244731613638">"Aktualizovat experiment"</string>
+    <string name="experiment_save_failed" msgid="5031953807658062748">"Experiment se nepodařilo uložit. Zkuste to znovu."</string>
+    <string name="btn_add_sensor_card_description" msgid="4836624546799382073">"Přidat novou kartu senzoru"</string>
+    <string name="btn_sensor_card_settings" msgid="5722000860549753304">"Nastavení senzoru"</string>
+    <string name="sensor_options" msgid="7269577762234317911">"Možnosti senzoru"</string>
+    <string name="btn_sensor_card_expand" msgid="5267003335362502193">"Zobrazit seznam senzorů"</string>
+    <string name="btn_sensor_card_contract" msgid="4805549352705439024">"Skrýt seznam senzorů"</string>
+    <string name="btn_sensor_card_close" msgid="4964202674700426175">"Zavřít kartu"</string>
+    <string name="learn_more_button" msgid="6562065467901868709">"Další informace"</string>
+    <string name="default_experiment_name" msgid="8360979514785269303">"Experiment bez názvu"</string>
+    <string name="default_project_name" msgid="5076954632739479626">"Projekt bez názvu"</string>
+    <string name="empty_project_library" msgid="6139693733859042212">"Nemáte žádné projekty"</string>
+    <string name="empty_project" msgid="196070251052121055">"Nemáte žádné experimenty"</string>
+    <string name="frequency_window_option_label" msgid="4885731738492452610">"Okno frekvence (v ms)"</string>
+    <string name="frequency_filter_option_label" msgid="6322746140513536230">"Filtr frekvence (v jednotkách senzoru)"</string>
+    <string name="enable_frequency_checkbox_label" msgid="7012647084401204497">"Zobrazit frekvenci"</string>
+    <string name="dev_sensors_summary" msgid="3417308653634353239">"Zobrazit senzory určené pouze pro vývojářské testování"</string>
+    <string name="options_save_error" msgid="5710202337557612915">"Chyba ukládání možností"</string>
+    <string name="options_load_error" msgid="1033189385249714186">"Chyba při načítání možností"</string>
+    <string name="dev_tools_title" msgid="413875762004836148">"Zapnout experimentální nástroje"</string>
+    <string name="dev_tools_summary" msgid="8602005614020489618">"Zobrazit nástroje určené pouze pro vývojářské testování"</string>
+    <string name="dev_tools_leak_detection_title" msgid="4501895025531999102">"Zapnout detekci úniků paměti"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="6611870647303094340">"Úpravy tohoto nastavení se projeví až po zavření aplikace."</string>
+    <string name="d2p" msgid="639917686672445089">"Data na výšku tónu"</string>
+    <string name="d2a" msgid="1134874560612971036">"Data na amplitudu"</string>
+    <string name="d2pe" msgid="3727800647324543645">"Data na obálku výšky tónu"</string>
+    <string name="d2ps" msgid="7368523482734331024">"Data na obálku pentatonické výšky tónu"</string>
+    <!-- no translation found for sonification_types:0 (3861898414238653003) -->
+    <!-- no translation found for sonification_types:1 (906523180895001108) -->
+    <!-- no translation found for sonification_types:2 (5312779098039590744) -->
+    <!-- no translation found for sonification_types:3 (2613491808468275381) -->
+  <string-array name="sonification_type_aliases">
+    <item msgid="7377813266249747858">"d2p"</item>
+    <item msgid="6906000057586711876">"d2a"</item>
+    <item msgid="1870736636828704674">"d2pe"</item>
+    <item msgid="5674284626652201942">"d2ps"</item>
+  </string-array>
+    <string name="new_experiment_spinner_item" msgid="5833883031740938473">"Nový experiment…"</string>
+    <string name="recording_title_label" msgid="5188061176268043052">"Nahrávání…"</string>
+    <string name="exp_edit_info_button" msgid="57557261114019563">"Upravit informace"</string>
+    <string name="btn_observe_content_description" msgid="6339279151257255267">"Pozorovat"</string>
+    <string name="title_activity_experiment_details" msgid="6104721540075416005">"Podrobnosti experimentu"</string>
+    <string name="empty_runs" msgid="2492444523656046772">"Nemáte žádné pokusy"</string>
+    <string name="permission_request_write" msgid="7894354232042075113">"Je třeba oprávnění pro zápis do externího úložiště."</string>
+    <string name="device_options_sensor_label_text" msgid="4913281182269452551">"Senzor"</string>
+    <string name="external_sensor_appearance_name" msgid="2545762878566289321">"<xliff:g id="SENSOR_NAME">%s</xliff:g> – <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
+    <string name="sensor_rotation_rpm" msgid="7675868077769123026">"Otáčení"</string>
+    <string name="sensor_voltage" msgid="8803070522098118555">"Napětí"</string>
+    <string name="sensor_raw" msgid="3706079416934145306">"Nezpracováno"</string>
+    <string name="sensor_temperature_fahrenheit" msgid="530709732319662008">"Teplota ve °F"</string>
+    <string name="sensor_custom" msgid="6419934674147294928">"Vlastní"</string>
+    <string name="device_options_custom_sensor_pin_label_text" msgid="7800969142277212707">"Připnout"</string>
+    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="3441420502780409558">"Frekvence"</string>
+    <string name="feedback_error_message" msgid="6267829056474146185">"Nelze poslat zpětnou vazbu."</string>
+    <string name="no_sensor_info_found" msgid="4162175886082619280">"Tento senzor nemá žádné další informace."</string>
+    <string name="sensor_desc_short_acc_x" msgid="2894000283386570265">"Zrychlení telefonu směrem doleva a doprava, v m/s²"</string>
+    <string name="sensor_desc_short_acc_y" msgid="6068967454464639546">"Zrychlení telefonu směrem dopředu a dozadu, v m/s²"</string>
+    <string name="sensor_desc_short_acc_z" msgid="718984279193417402">"Zrychlení telefonu směrem nahoru a dolů, v m/s²"</string>
+    <string name="sensor_desc_short_decibel" msgid="6022620562641402361">"Intenzita zvuku měřená v decibelech (dB), v místě senzoru zvuku nebo mikrofonu."</string>
+    <string name="sensor_desc_short_light" msgid="2836912567230826095">"Množství světla měřené v luxech, v místě senzoru okolního světla."</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="2856177797841108478">"Úhel natočení mezi telefonem a vnějším magnetickým polem."</string>
+    <string name="sensor_desc_short_bluetooth" msgid="6408146877850831242">"Zde se zobrazují data z externího senzoru (podle vlastního nastavení)."</string>
+    <string name="sensor_desc_short_rotation" msgid="4005725749913712057">"Počet otáček za minutu"</string>
+    <string name="sensor_desc_short_raw" msgid="8183752554049502871">"Nezpracovaný odečet z externího senzoru v procentech."</string>
+    <string name="sensor_desc_first_paragraph_light" msgid="4109035727606616530">"Senzor okolního světla měří intenzitu světla v luxech. Jedná se o množství světla dopadajícího na určitou plochu. \n\nMěsíc v úplňku poskytuje přibližně 1 lux světla, v průměrně osvětleném pokoji je přibližně 50 luxů, ve školní třídě a při západu či východu slunce 400 luxů, denní světlo (mimo přímé slunce) má přes 10 000 luxů a přímé sluneční světlo více než 30 000 luxů. \n\nLux obvykle nepatří mezi běžně známé jednotky. Když kupujeme žárovky, většinou se řídíme podle počtu wattů. Tato hodnota ale nevypovídá o tom, jak moc bude žárovka svítit, ale pouze o tom, kolik energie spotřebuje. Je proto lepší sledovat počet lumenů – tento údaj lépe popisuje, kolik světla žárovka skutečně vydá. Luxy pak označují, kolik tohoto světla dopadne na určitou plochu."</string>
+    <string name="sensor_desc_second_paragraph_light" msgid="4898255020378037357">"Kužel světla z běžných světelných zdrojů se s rostoucí vzdáleností rozšiřuje. Čím je tedy vzdálenost od zdroje větší, tím je počet luxů nižší, i když zdroj vyzařuje stále stejné množství světla v lumenech. Na oblast, která je vzhledem ke zdroji položena šikmo, také dopadá méně světla (můžeme to vidět například na Zemi, kde jsou rovníkové oblasti mnohem teplejší než póly). \n\nVáš telefon je vybaven senzorem světla, který pomáhá nastavit jas obrazovky podle toho, zda je v okolí světlo nebo tma. Uvnitř senzoru se nacházejí drobné polovodiče, které reagují na dopadající světlo produkcí malého množství elektrického proudu (takzvaný fotoelektrický jev). Podobné senzory se používají v některých venkovních lampách a zapínají je, když se setmí."</string>
+    <string name="sensor_desc_first_paragraph_acc" msgid="5154591427983319390">"Tělesa mají tendenci zůstávat v klidu, případně pokračovat v započatém pohybu. Tuto skutečnost nazýváme setrvačností. Popisuje ji první Newtonův zákon: Těleso zůstává v klidu nebo rovnoměrném přímočarém pohybu, není-li nuceno vnějšími silami tento stav změnit. \n\nPokud je těleso uvedeno do pohybu vnější silou, mluvíme o zrychlení – mění se rychlost pohybu (zvyšuje se, snižuje nebo mění směr). Zrychlení se měří jako změna rychlosti (metry za sekundu) v čase nebo v metrech na druhou mocninu sekundy (m/s²). \n\nVáš telefon je vybaven zařízením, které dokáže změny pohybu měřit – takzvaným akcelerometrem. Uvnitř akcelerometru je drobné zavěšené těleso, které se může volně pohybovat. Při změně pohybu se toto těleso posune, podobně jako se například posune vaše tělo, když při jízdě autem náhle zabrzdíte. Měřením těchto nepatrných posunů dokáže akcelerometr v telefonu sledovat změny pohybu a směru náklonu. Tato funkce je užitečná například při přepínání obrazovky na výšku a na šířku nebo při hraní her."</string>
+    <string name="sensor_desc_second_paragraph_acc" msgid="8812623507037923651">"Možná jste si všimli trvalého zrychlení naměřeného na ose Z, a to i v době, kdy telefon leží v klidu na stole. Jedná se o zrychlení, kterému jsme trvale vystaveni na povrchu Země z důvodu působení gravitace. Přibližná hodnota tohoto zrychlení je 9,8 m/s²."</string>
+    <string name="sensor_desc_first_paragraph_decibel" msgid="2782071765610621336">"Zvuky jsou tvořeny vibracemi. Váš hlas například vzniká vibracemi hlasivek ve vašem hrdle. Tyto vibrace vytvářejí střídající se pole vysokého a nízkého tlaku vzduchu, které se šíří směrem od zdroje – podobně jako se šíří kruhy na vodě, když do ní hodíte kámen."</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="142151860819231749">"Všechny zvuky lze popsat hodnotou frekvence a intenzity. \n\nIntenzitu lze měřit zde ve Vědeckém žurnálu; její jednotkou jsou decibely (dB). Intenzita neboli hlasitost závisí na tom, jak velký pohyb vibrující objekt během vibrace vykonává. Vyšší intenzitu vnímáme jako větší hlasitost. \n\nFrekvence (a také výška, tón) zvukové vlny odpovídá rychlosti vibrací. Čím rychleji objekt vibruje, tím vyšší je výsledný zvuk. Náš Vědecký žurnál nedokáže změřit frekvenci, ale měří pouze hlasitost. \n\nNejtišší zvuk, jaký je lidské ucho průměrně schopno zaslechnout, je definován jako 0 dB. Běžná konverzace odpovídá přibližně 60 dB a zvuky nad 140 dB jsou pro ucho bolestivé. Škodlivý zvuk ale nemusí být nutně bolestivý. Dlouhodobé vystavení zvuku o síle 90 dB (přibližně hlasitost vysavače) může vést k trvalé ztrátě sluchu. \n\nDecibelová stupnice je logaritmická, což může být trochu matoucí. Zvuk o síle 40 dB není dvojnásobkem 20 dB – jedná se o stonásobnou hodnotu. Podobně když jeden budík vydává 70 decibelů, dva budíky dohromady nedávají 140, ale 73 decibelů. Jak už jsme říkali, tato stupnice je poněkud složitá. \n\n10 dB má šumění listí \n20 dB šepot na vzdálenost 1,5 metru \n30 dB tichý šepot \n50 dB déšť \n60 dB běžná konverzace \n90 dB mixér \n100 dB automobil bez tlumiče \n110 dB křik do ucha \n120 dB hrom \n130 dB sbíječka \n140 dB startující letadlo"</string>
+    <string name="sensor_desc_first_paragraph_rotation" msgid="8053108458881116800">"Otáčivý pohyb měříme počtem otočení kolem dané osy za minutu. \n\nJak se otáčí větrník, otáčí se také disk kodéru:"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="1296904470766613471">"Dochází ke střídání světla a tmy, což senzor ve Vědeckém žurnálu vyhodnotí jako rotaci."</string>
+    <string name="sensor_desc_first_paragraph_raw" msgid="4939612146659644032">"Zde zobrazená data pocházejí z externího senzoru, který s vaším telefonem komunikuje přes Bluetooth. \n\nHodnota uvádí nezpracovaný odečet přímo z mikrořadiče. Jedná se obvykle o pokles napětí na senzoru vyjádřený v procentech."</string>
+    <string name="sensor_desc_second_paragraph_raw" msgid="8973117353495356394">"Bluetooth je standard bezdrátové technologie, která využívá rádiové vlny k přenosu dat na krátké vzdálenosti z přenosných a dalších zařízení."</string>
+    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="7981623485563854939">"Zde zobrazená data pocházejí z externího senzoru, který s vaším telefonem komunikuje přes Bluetooth."</string>
+    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="7708856960763941387">"Bluetooth je standard bezdrátové technologie, která využívá rádiové vlny k přenosu dat na krátké vzdálenosti z přenosných a dalších zařízení."</string>
+    <string name="run_review_duration" msgid="7076553835966679478">"Doba trvání"</string>
+    <string name="run_review_activity_label" msgid="5276313115461408528">"Kontrola"</string>
+    <string name="service_notification_content_title" msgid="409211151396677834">"Vědecký žurnál"</string>
+    <string name="service_notification_content_text" msgid="6198486549545279611">"Nahrávání…"</string>
+    <string name="live_graph_content_description" msgid="3504419430886261146">"Živý graf senzoru. Posunutím můžete sledovat osu X."</string>
+    <string name="static_graph_content_description" msgid="5963837267567407006">"Graf senzoru. Dvěma prsty zobrazení přiblížíte a posunutím můžete sledovat osu X."</string>
+    <string name="sensor_card_overflow_menu_content_description" msgid="1847239009701022116">"Možnosti karty"</string>
+    <string name="btn_sensor_flip_info_content_description" msgid="4129040510635338579">"přepnout do režimu informací"</string>
+    <string name="btn_sensor_flip_graph_content_description" msgid="2500545463691107821">"přepnout do režimu grafu"</string>
+    <string name="sensor_tab_layout_content_description" msgid="6653074718544676936">"dostupné senzory"</string>
+    <string name="sensor_tab_selected_format" msgid="5189774892597619784">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (vybráno)"</string>
+    <string name="title_activity_sensor_info" msgid="6960039814316283850">"Informace o senzoru"</string>
+    <string name="title_activity_sensor_info_format" msgid="9106545676836634722">"Senzor <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="heading_info_section" msgid="3068233297591403258">"Co se děje?"</string>
+    <string name="edit_note_menu_item" msgid="5303280313359136552">"Upravit"</string>
+    <string name="edit_note_time" msgid="2027041230205029461">"Upravit čas poznámky"</string>
+    <string name="delete_note_menu_item" msgid="7908811564743301702">"Smazat"</string>
+    <string name="delete_run" msgid="103141962786624686">"Smazat"</string>
+    <string name="crop_run" msgid="1336721925526265401">"Oříznout"</string>
+    <string name="add_run_note" msgid="4601243377697085005">"Přidat poznámku"</string>
+    <string name="add_experiment_note" msgid="1084637094906153162">"Přidat poznámku"</string>
+    <string name="run_label" msgid="7587739695592981023">"Pokus <xliff:g id="RUN_INDEX">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_prev" msgid="1562899512022232138">"předchozí senzor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_next" msgid="5528270146135394657">"další senzor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="edit_note_hint_text" msgid="7190191469950695769">"Upravit poznámku k pokusu"</string>
+    <string name="add_note_hint_text" msgid="4947278182685363439">"Přidat novou poznámku"</string>
+    <string name="snackbar_note_deleted" msgid="4926151554010737654">"Poznámka smazána"</string>
+    <string name="snackbar_undo" msgid="488185413692934054">"Vrátit zpět"</string>
+    <string name="add_run_note_placeholder_text" msgid="4564897234715127061">"Přidat poznámku k tomuto pokusu"</string>
+    <string name="add_experiment_note_placeholder_text" msgid="5668745283017643514">"Přidat poznámku k experimentu"</string>
+    <string name="add_note_image_button_content_description" msgid="5956413597980661328">"Přidat fotografickou poznámku"</string>
+    <string name="pinned_note_placeholder_text" msgid="742162042813125689">"Přidat poznámku"</string>
+    <string name="no_notes_text" msgid="1333257200348947043">"Žádné poznámky"</string>
+    <string name="indeterminate_value" msgid="6535623633404732608">"–"</string>
+    <string name="project_card_overflow_menu_content_description" msgid="2569345733400148597">"Možnosti projektu"</string>
+    <string name="project_active_badge" msgid="8953778683278828884">"Aktivní"</string>
+    <string name="archived_badge" msgid="7204033469949818539">"Archivováno"</string>
+    <string name="action_include_archived_projects" msgid="1872416419322070603">"Zahrnout archivované projekty"</string>
+    <string name="action_include_archived_experiments" msgid="1368001463798477703">"Zahrnout archivované experimenty"</string>
+    <string name="action_new_experiment" msgid="3598888962558710132">"Nový experiment"</string>
+    <string name="delete_run_dialog_title" msgid="2829473058431908340">"Smazat tento pokus?"</string>
+    <string name="run_review_delete_confirm" msgid="9216827234502882510">"Opravdu si přejete smazat tento pokus? Zaznamenaná data a poznámky budou odstraněny. Tento krok nelze vzít zpět."</string>
+    <string name="menu_btn_content_description" msgid="4680014704943654954">"nabídka"</string>
+    <string name="age_verifier_header" msgid="9217155512378711429">"Ověření věku"</string>
+    <string name="age_verifier_birthday" msgid="2054392341079524729">"Narozeniny:"</string>
+    <string name="age_verifier_get_started" msgid="1086024826189816224">"Začínáme"</string>
+    <string name="tutorial_welcome_header" msgid="5596382686735832683">"Objevujte svůj svět"</string>
+    <string name="tutorial_welcome_body" msgid="7591843046586427635">"Pomocí senzorů, kterými je váš telefon se systémem Android vybaven, můžete měřit zvuk, světlo a další veličiny."</string>
+    <string name="tutorial_setup_header" msgid="7529566316389493918">"Uspořádání projektů"</string>
+    <string name="tutorial_setup_body" msgid="3570507763094472318">"Můžete si vytvořit projekty a experimenty, uspořádat získaná data a porovnávat výsledky."</string>
+    <string name="tutorial_observe_record_header" msgid="3715811468629596336">"Záznam v reálném čase"</string>
+    <string name="tutorial_observe_record_body" msgid="6982870167622582123">"Narazili jste na něco, co byste chtěli změřit? Svá pozorování můžete zaznamenávat v reálném čase pouhým stisknutím tlačítka."</string>
+    <string name="tutorial_take_notes_header" msgid="8271718393020433479">"Přidávání poznámek s pozorováním"</string>
+    <string name="tutorial_take_notes_body" msgid="6597967563928412974">"Během pořizování záznamu dat můžete přidávat poznámky a obrázky, které vám získaná data pomohou lépe pochopit."</string>
+    <string name="btn_previous_label" msgid="2881262882599469727">"Předchozí"</string>
+    <string name="btn_next_label" msgid="1682026626542221420">"Další"</string>
+    <string name="sensor_card_error_text" msgid="151455534130824363">"Nepodařilo se načíst data senzoru."</string>
+    <string name="bluetooth_not_on_title" msgid="8961840974431817490">"Připojit k Bluetooth"</string>
+    <string name="bluetooth_not_on_body" msgid="1861412368943739545">"Nelze se připojit k externímu senzoru: Rozhraní Bluetooth je vypnuté. Zapněte je."</string>
+    <string name="bluetooth_not_on_ok" msgid="3148597353545683264">"Zapnout Bluetooth"</string>
+    <string name="sensor_card_loading_text" msgid="8569947135727599414">"Načítání dat senzoru…"</string>
+    <string name="graph_loading" msgid="9200302049191996695">"Načítání grafu…"</string>
+    <string name="playback_button_pause" msgid="6025607837788357759">"pozastavit přehrávání zvuku"</string>
+    <string name="playback_button_play" msgid="5739285031289314186">"spustit přehrávání zvuku"</string>
+    <string name="sonification_type_card_title" msgid="7315771791094946967">"Typ sonifikace karty"</string>
+    <string name="sonification_type_title" msgid="271616837832972881">"Výchozí typ sonifikace"</string>
+    <string name="title_edit_trial_activity" msgid="3272215900928155534">"Upravit pokus"</string>
+    <string name="edit_trial_title_hint" msgid="3752953269416446342">"Název pokusu"</string>
+    <string name="include_archived_trials" msgid="6064586011723883752">"Zahrnout archivované pokusy"</string>
+    <string name="export_error" msgid="8729689368786707247">"Export se nezdařil."</string>
+    <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
+    <skip />
+    <string name="listing_title" msgid="6842666752572268412">"Vědecký žurnál"</string>
+    <string name="listing_tagline" msgid="6633876313767981347">"Experimentujte se světem kolem vás."</string>
+    <string name="listing_changelog" msgid="5651904379742962668">"První vydání"</string>
+    <string name="listing__description" msgid="7679178857079821372">"Vědecký žurnál je nástroj pro využívání chytrého telefonu při vědeckém bádání. Použitím senzorů vašeho telefonu nebo připojením k externím senzorům můžete provádět experimenty se světem kolem vás. Své nápady si můžete uspořádat do projektů, můžete vytvářet odhady, dělat si poznámky a shromažďovat data více pokusů a poté hodnotit výsledky a přidávat k nim popisy. Je to jako váš pracovní zápisník, který máte stále po ruce. \n\n \nNápady na způsoby využití této aplikace najdete zde: https://makingscience.withgoogle.com/science-journal/activities \nDalší informace o Making &amp; Science: https://makingscience.withgoogle.com \nPodpora: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
+    <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
+    <skip />
+    <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_summary (1881741234337323074) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_title (7760095515631648430) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_summary (5446570032717609139) -->
+    <skip />
+</resources>

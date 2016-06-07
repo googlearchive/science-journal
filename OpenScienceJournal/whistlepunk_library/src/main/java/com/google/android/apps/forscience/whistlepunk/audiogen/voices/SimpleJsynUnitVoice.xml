@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<syntona version="0.5.8">
+<module bundle="jsyn" id="0" name="voice" type="voice">
+<view height="128" width="96" xpos="302" ypos="201"/>
+<modules>
+<module bundle="jsyn" id="0" name="frequency" type="aInput">
+<view height="48" width="96" xpos="30" ypos="20"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="1" name="amplitude" type="aInput">
+<view height="48" width="96" xpos="30" ypos="100"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="2" name="output" type="aOutput">
+<view height="48" width="96" xpos="650" ypos="20"/>
+<jack max="1.0" min="0.0" name="input" value="0.0"/>
+</module>
+<module bundle="jsyn" id="3" name="sineOsc" type="sineOsc">
+<view height="88" width="96" xpos="426" ypos="77"/>
+<jack max="8000.0" min="40.0" name="frequency" value="440.0"/>
+<jack max="1.0" min="0.0" name="amplitude" value="0.999969482421875"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="4" name="rampLin" type="rampLin">
+<view height="88" width="96" xpos="295" ypos="18"/>
+<jack max="1.0" min="0.0" name="input" value="0.0"/>
+<jack max="1.0" min="0.0" name="time" value="0.0"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="5" name="rampLin2" type="rampLin">
+<view height="88" width="96" xpos="287" ypos="178"/>
+<jack max="1.0" min="0.0" name="input" value="0.0"/>
+<jack max="1.0" min="0.0" name="time" value="0.0"/>
+<jack name="output"/>
+</module>
+</modules>
+<connections>
+<output id="0" jack="output">
+<input id="4" jack="input"/>
+</output>
+<output id="1" jack="output">
+<input id="5" jack="input"/>
+</output>
+<output id="3" jack="output">
+<input id="2" jack="input"/>
+</output>
+<output id="4" jack="output">
+<input id="3" jack="frequency"/>
+</output>
+<output id="5" jack="output">
+<input id="3" jack="amplitude"/>
+</output>
+</connections>
+<jack name="on"/>
+<jack name="off"/>
+<jack max="1.0" min="0.0" name="frequency" value="0.0"/>
+<jack max="1.0" min="0.0" name="amplitude" value="0.0"/>
+<jack name="output"/>
+</module>
+</syntona>

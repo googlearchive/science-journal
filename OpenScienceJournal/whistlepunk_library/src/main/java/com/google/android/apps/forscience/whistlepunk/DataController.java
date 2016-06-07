@@ -1,0 +1,151 @@
+package com.google.android.apps.forscience.whistlepunk;
+
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.Project;
+import com.google.android.apps.forscience.whistlepunk.metadata.Run;
+import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
+import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Provides access to any data outside of the UI.  All methods should be called from the UI thread;
+ * callers can expect that methods will return quickly, and the provided callback will be called
+ * later on the UI thread.
+ */
+public interface DataController {
+    void getScalarReadings(String databaseTag, final int resolutionTier, TimeRange timeRange,
+            int maxRecords, MaybeConsumer<ScalarReadingList> onSuccess);
+
+    void addLabel(Label label, MaybeConsumer<Label> onSuccess);
+
+    void startRun(Experiment experiment, MaybeConsumer<ApplicationLabel> onSuccess);
+
+    void stopRun(Experiment experiment, String runId,
+            List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+            MaybeConsumer<ApplicationLabel> onSuccess);
+
+    void updateRun(final Run run, MaybeConsumer<Success> onSuccess);
+
+    void deleteRun(String runId, MaybeConsumer<Success> onSuccess);
+
+    void createExperiment(Project project, MaybeConsumer<Experiment> onSuccess);
+
+    void deleteExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
+
+    void getExperimentById(String experimentId,
+                           MaybeConsumer<Experiment> onSuccess);
+
+    void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
+
+    void getExperimentRun(String startLabelId, MaybeConsumer<ExperimentRun> onSuccess);
+
+    void getExperimentRuns(String experiment, boolean includeArchived,
+            MaybeConsumer<List<ExperimentRun>> onSuccess);
+
+    void createProject(MaybeConsumer<Project> onSuccess);
+
+    void updateProject(Project project, MaybeConsumer<Success> onSuccess);
+
+    void deleteProject(Project project, MaybeConsumer<Success> onSuccess);
+
+    void getProjects(int maxNumber, boolean includeArchived,
+                     MaybeConsumer<List<Project>> onSuccess);
+
+    void editLabel(Label updatedLabel, MaybeConsumer<Label> onSuccess);
+
+    void deleteLabel(Label label, MaybeConsumer<Success> onSuccess);
+
+    String generateNewLabelId();
+
+    void getLastUsedProject(MaybeConsumer<Project> onSuccess);
+
+    void getExperimentsForProject(Project project, boolean includeArchived,
+                                  MaybeConsumer<List<Experiment>> onSuccess);
+
+    void getProjectById(String projectId, MaybeConsumer<Project> onSuccess);
+
+    void getExternalSensors(MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess);
+
+    /**
+     * Passes to onSuccess a map from sensor ids to external sensor specs
+     */
+    void getExternalSensorsByExperiment(final String experimentId,
+            MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess);
+
+    /**
+     * Passes to onSuccess a map from sensor ids to external sensor specs
+     */
+    void getExternalSensorById(String id, MaybeConsumer<ExternalSensorSpec> onSuccess);
+
+    /**
+     * Adds the external sensor to the experiment.
+     *
+     * @return {@code true} to the consumer if the sensor was added, {@code false} if the sensor
+     * was already present.
+     */
+    void addSensorToExperiment(final String experimentId, String sensorId,
+            MaybeConsumer<Success> onSuccess);
+
+    /**
+     * Removes the external sensor from the experiment.
+     *
+     * @return {@code true} to the consumer if the sensor needed to be removed, {@code false} if
+     * the sensor was not already present.
+     */
+    void removeSensorFromExperiment(final String experimentId, final String sensorId,
+            MaybeConsumer<Success> onSuccess);
+
+    void getLabelsForExperiment(Experiment experiment, MaybeConsumer<List<Label>> onSuccess);
+
+    void updateLastUsedExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
+
+    /**
+     * Get the statistics for the given run and sensor
+     *
+     * @param runId (previously startLabelId) identifies the run
+     */
+    void getStats(String runId, String sensorId, MaybeConsumer<RunStats> onSuccess);
+
+    /**
+     * Get the aggregated stats for an entire experiment for all sensors.
+     *
+     * @return a Map of sensor ID to run stats
+     */
+    void getExperimentStats(String experimentId, MaybeConsumer<Map<String,RunStats>> onSuccess);
+
+    /**
+     * Set the sensor selection and layout for an experiment
+     */
+    void setSensorLayouts(String experimentId, List<GoosciSensorLayout.SensorLayout> layouts,
+            MaybeConsumer<Success> onSuccess);
+
+    /**
+     * Retrieve the sensor selection and layout for an experiment
+     */
+    void getSensorLayouts(String experimentId,
+            MaybeConsumer<List<GoosciSensorLayout.SensorLayout>> onSuccess);
+
+    /**
+     * Makes sure there is an external sensor already registered in the database with the given
+     * spec, and returns its id to {@code onSensorId}
+     */
+    void addOrGetExternalSensor(ExternalSensorSpec sensor, MaybeConsumer<String> onSensorId);
+
+    // TODO: layout and external sensor storage is redundant
+    /**
+     * Replace oldSensorId with newSensorId in experiment.  All cards that were showing oldSensorId
+     * will now show newSensorId
+     */
+    void replaceSensorInExperiment(String experimentId, String oldSensorId, String newSensorId,
+            final MaybeConsumer<Success> onSuccess);
+}

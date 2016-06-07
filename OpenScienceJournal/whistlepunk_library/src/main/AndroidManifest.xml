@@ -1,11 +1,188 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.whistlepunklibrary">
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.google.android.apps.forscience.whistlepunk"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Necessary to scan for BLE devices. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <!-- Necessary to connect to BLE devices. -->
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <!-- Necessary to do decibel sensor. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- Necessary to do camera source. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- Necessary to write out data. -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true"/>
 
     <application
         android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true">
+        android:theme="@style/AppTheme"
+        >
+        <service
+            android:name="com.google.android.apps.forscience.ble.MyBleService"
+            android:enabled="true"
+            android:exported="false"/>
+        <service
+            android:name=".RecorderService"
+            android:enabled="true"
+            android:exported="false"/>
+        <service
+            android:name=".PublicRecorderService"
+            android:enabled="true"
+            android:exported="true"
+        >
+            <intent-filter>
+                <action android:name="com.google.android.apps.forscience.whistlepunk.OBSERVER" />
+            </intent-filter>
+        </service>
 
+
+        <!-- TODO(saff): handle rotation gracefully, enable it here -->
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/NoBarTheme"
+            android:launchMode = "singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RulerActivity"
+            android:exported="false"
+            android:label="@string/title_activity_ruler"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
+        </activity>
+        <activity
+            android:name=".LevelActivity"
+            android:exported="false"
+            android:label="@string/title_activity_level"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
+        </activity>
+        <activity
+            android:name=".SensorInfoActivity"
+            android:exported="false"
+            android:label="@string/title_activity_sensor_info"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
+        </activity>
+        <activity
+            android:name=".review.RunReviewActivity"
+            android:exported="false"
+            android:label="@string/run_review_activity_label"
+            android:theme="@style/AppTheme.RunReview"
+            android:parentActivityName=".project.experiment.ExperimentDetailsActivity"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity"/>
+        </activity>
+        <activity
+            android:name=".devicemanager.ManageDevicesActivity"
+            android:exported="false"
+            android:label="@string/title_activity_add_sensor"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
+        </activity>
+        <activity
+            android:name=".project.ProjectDetailsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_project_details"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/NoBarTheme.TranslucentStatusBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
+        </activity>
+        <activity
+            android:name=".project.UpdateProjectActivity"
+            android:label="@string/title_activity_update_project"
+            android:parentActivityName=".project.ProjectDetailsActivity"
+            android:theme="@style/AppTheme.UpdateMetadata"
+            android:windowSoftInputMode="stateVisible|adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.project.ProjectDetailsActivity"/>
+        </activity>
+        <activity
+            android:name=".project.experiment.UpdateExperimentActivity"
+            android:label="@string/title_activity_update_experiment"
+            android:parentActivityName=".project.experiment.ExperimentDetailsActivity"
+            android:theme="@style/AppTheme.UpdateMetadata"
+            android:windowSoftInputMode="stateVisible|adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity"/>
+        </activity>
+        <activity
+            android:name=".review.UpdateRunActivity"
+            android:label="@string/title_edit_trial_activity"
+            android:parentActivityName=".review.RunReviewActivity"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="stateVisible|adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity"/>
+        </activity>
+        <activity
+            android:name=".project.experiment.ExperimentDetailsActivity"
+            android:label="@string/title_activity_experiment_details"
+            android:parentActivityName=".project.ProjectDetailsActivity"
+            android:theme="@style/NoBarTheme.Experiment">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.project.ProjectDetailsActivity"/>
+        </activity>
+        <activity
+            android:name=".intro.AgeVerifier"
+            android:label="@string/title_activity_age_verifier"
+            android:theme="@style/AppTheme.AgeVerifier">
+        </activity>
+        <activity
+            android:name=".intro.TutorialActivity"
+            android:label="@string/title_activity_tutorial"
+            android:theme="@style/NoBarTheme.Experiment"
+            android:launchMode="singleTop">
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/navigation_item_settings">
+        </activity>
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.google.android.apps.forscience.whistlepunk"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

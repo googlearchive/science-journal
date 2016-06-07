@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:minHeight="@dimen/sensor_card_content_height_min"
+    android:background="@color/sensor_card_meter_view_color"
+    android:id="@+id/back_view_content_group"
+    android:layout_below="@id/sensor_selection_area"
+    android:paddingStart="@dimen/sensor_card_back_padding"
+    android:paddingEnd="@dimen/sensor_card_back_padding"
+    android:paddingTop="@dimen/sensor_card_back_padding"
+    >
+
+    <!-- TODO: When the spec is available, update the spacing and sizes here. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/sensor_card_meter_footer"
+        >
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/sensor_card_back_icon_size"
+            android:scaleType="center"
+            android:id="@+id/card_meter_sensor_icon"
+            android:contentDescription="@null"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center"
+            />
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/live_sensor_value"
+                android:textColor="@color/text_color_dark_grey"
+                android:textSize="@dimen/sensor_card_live_value_text_size"
+                android:gravity="center_horizontal"
+                android:focusable="true"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/live_sensor_units"
+                android:textColor="@color/text_color_light_grey"
+                android:textSize="@dimen/sensor_card_meter_units_text_size"
+                android:layout_below="@id/live_sensor_value"
+                android:textAllCaps="false"
+                android:layout_centerHorizontal="true"
+                android:focusable="false"
+                android:importantForAccessibility="no"
+                />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@id/sensor_card_meter_footer"
+        >
+
+        <include layout="@layout/sensor_card_meter_view_info_section"></include>
+
+        <com.google.android.apps.forscience.whistlepunk.StatsList
+            android:id="@+id/stats_view_meter"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/stats_drawer_large_height"
+            app:statsLayout="@layout/stats_view_large"
+            android:layout_marginBottom="@dimen/sensor_card_back_padding"
+            />
+
+    </FrameLayout>
+
+</RelativeLayout>

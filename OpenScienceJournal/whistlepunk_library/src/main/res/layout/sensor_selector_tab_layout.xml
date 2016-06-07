@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NOTE: If any changes are made to ancestry of the TabLayout, compensating changes
+            must be made in AccessibilityUtils.setTouchDelegateForSensorTabs, which assumes
+            ancestry information. -->
+<com.google.android.apps.forscience.whistlepunk.ScrollListenerTabLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="@dimen/sensor_tablayout_height"
+    android:id="@+id/sensor_selector_tab_layout"
+    app:tabMode="scrollable"
+    app:tabIndicatorColor="@color/sensor_tab_indicator_color"
+    app:tabIndicatorHeight="@dimen/sensor_tab_indicator_height"
+    android:layout_marginEnd="@dimen/sensor_tablayout_margin_side"
+    style="@style/Widget.Design.TabLayout.SensorSelector"
+    android:contentDescription="@string/sensor_tab_layout_content_description"
+    >
+
+</com.google.android.apps.forscience.whistlepunk.ScrollListenerTabLayout>

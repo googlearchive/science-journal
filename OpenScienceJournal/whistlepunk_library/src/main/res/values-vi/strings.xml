@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="action_feedback" msgid="2230997537507885910">"Phản hồi"</string>
+    <string name="action_settings" msgid="4140514779355685890">"Cài đặt"</string>
+    <string name="action_save" msgid="7115885253849785049">"Lưu"</string>
+    <string name="action_edit" msgid="2879274643416740117">"Chỉnh sửa"</string>
+    <string name="action_archive_project" msgid="3984396879969444432">"Lưu trữ dự án"</string>
+    <string name="action_unarchive_project" msgid="2708696233939647946">"Không lưu trữ dự án"</string>
+    <string name="action_archive_experiment" msgid="5641733726709708591">"Lưu trữ thí nghiệm"</string>
+    <string name="action_unarchive_experiment" msgid="2357913494087884425">"Không lưu trữ thí nghiệm"</string>
+    <string name="action_archive_run" msgid="439270635088307350">"Lưu trữ lượt thử"</string>
+    <string name="action_unarchive_run" msgid="5992535261034463728">"Hủy lưu trữ lượt thử"</string>
+    <string name="action_delete" msgid="5205384449071348669">"Xóa"</string>
+    <string name="action_ruler" msgid="3567453615091215971">"Thước đo"</string>
+    <string name="action_level" msgid="2223203490872051791">"Cấp độ"</string>
+    <string name="sine_wave" msgid="7465850130633241930">"Sóng hình sin"</string>
+    <string name="acc_x" msgid="6032598557672647110">"Gia tốc kế X"</string>
+    <string name="acc_y" msgid="3524690325306070984">"Gia tốc kế Y"</string>
+    <string name="acc_z" msgid="4540365462206126342">"Gia tốc kế Z"</string>
+    <string name="ambient_light" msgid="3301998123545447671">"Ánh sáng môi trường xung quanh"</string>
+    <string name="magnetic_rotation" msgid="6643176023260466091">"Vòng quay từ trường"</string>
+    <string name="video_stream" msgid="1813984984736617091">"Luồng video"</string>
+    <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
+    <string name="ambient_light_units" msgid="6318282254934724349">"lux"</string>
+    <!-- no translation found for magnetic_rotation_units (5964336522624353252) -->
+    <skip />
+    <string name="decibel_units" msgid="2890849301464041989">"dB"</string>
+    <string name="rpm_units" msgid="897807671511627492">"RPM"</string>
+    <string name="voltage_units" msgid="6411118170860716365">"V"</string>
+    <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
+    <string name="experiment_details" msgid="6814534510464980289">"Chi tiết thí nghiệm"</string>
+    <string name="add_sensor" msgid="96374933560924369">"Thêm cảm biến"</string>
+    <string name="snackbar_source_error" msgid="6054360710842869995">"Đã xảy ra lỗi khi kết nối với nguồn này: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
+    <string name="action_retry" msgid="7873032739745888974">"Thử lại"</string>
+    <string name="decibel" msgid="7425761238029567370">"Cường độ âm thanh"</string>
+    <string name="title_activity_tutorial" msgid="7117023626104839821">"Hướng dẫn Science Journal"</string>
+    <string name="title_activity_age_verifier" msgid="6953483601673982354">"Sinh nhật"</string>
+    <string name="title_activity_ruler" msgid="4538057504732643762">"Thước đo"</string>
+    <string name="ruler_label_metric" msgid="8008318703764352929">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
+    <string name="ruler_label_imperial" msgid="2225518554245466626">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> in"</string>
+    <string name="title_activity_level" msgid="7751336762571175981">"Cấp độ"</string>
+    <string name="action_calibrate" msgid="2567237363558254927">"Hiệu chỉnh"</string>
+    <string name="action_end_calibrate" msgid="6416011236105220467">"Kết thúc hiệu chỉnh"</string>
+    <string name="title_calibrate" msgid="4425118955292706233">"Hiệu chỉnh với…"</string>
+    <string name="calibration_credit_card" msgid="1784606520446558443">"Thẻ tín dụng (chiều cao)"</string>
+    <string name="calibration_ruler_imperial" msgid="2477725634940053346">"Thước đo (3 in)"</string>
+    <string name="calibration_ruler_metric" msgid="1330487431270295597">"Thước đo (80 mm)"</string>
+    <string name="btn_add_experiment_note_description" msgid="7451384954210671094">"Thêm ghí chú thí nghiệm"</string>
+    <string name="btn_add_run_note_description" msgid="3729688760639518856">"Thêm ghi chú lượt thử"</string>
+    <string name="btn_record_description" msgid="6165596989316716650">"Bắt đầu ghi"</string>
+    <string name="btn_stop_description" msgid="5331283967913304386">"Dừng ghi"</string>
+    <string name="unknown_sensor" msgid="2253417219024438701">"Cảm biến không xác định"</string>
+    <string name="recording_start_failed" msgid="8094130346174113235">"Không ghi được, vui lòng thử lại"</string>
+    <string name="recording_start_failed_disconnected" msgid="2493130069585541040">"Không ghi được: cảm biến không được kết nối. Vui lòng thử lại"</string>
+    <string name="recording_stop_failed_no_data_title" msgid="256592083253381257">"Dữ liệu hiện không được ghi"</string>
+    <string name="recording_stop_failed_no_data" msgid="5167111037930589862">"Một hoặc nhiều cảm biến của bạn không ghi bất kỳ dữ liệu nào. Bạn có muốn hủy quá trình ghi này không?"</string>
+    <string name="recording_stop_failed_continue" msgid="161788317476740066">"Tiếp tục"</string>
+    <string name="recording_stop_failed_cancel" msgid="9167449814602506726">"Hủy ghi"</string>
+    <string name="recording_stop_failed_disconnected" msgid="1409656957401598471">"Dừng ghi không thành công: cảm biến bị ngắt kết nối. Bạn có muốn hủy quá trình ghi này không?"</string>
+    <string name="recording_stop_failed_save" msgid="720527628154679503">"Dừng ghi không thành công: không lưu lượt thử được. Vui lòng thử lại."</string>
+    <!-- no translation found for elapsed_time_short_format (7848904136886917036) -->
+    <skip />
+    <string name="elapsed_time_long_format" msgid="3451516277286685162">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
+    <!-- no translation found for accessible_elapsed_time_short_format (867388448497851890) -->
+    <skip />
+    <string name="accessible_elapsed_time_long_format" msgid="5588697398982936316">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small" msgid="8801162161093675447">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large" msgid="1312366645818667859">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="8665096074255046060">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="picture_note_description" msgid="4617343713156115501">"Hình ảnh từ lượt thử"</string>
+    <string name="picture_note_preview_content_description" msgid="4160980766022755366">"Xem trước ghi chú ảnh"</string>
+    <string name="navigation_item_observe" msgid="6544385569776074166">"Quan sát"</string>
+    <string name="navigation_item_projects" msgid="204705505259389287">"Dự án"</string>
+    <string name="navigation_item_web_link" msgid="1966109305973672752">"Trang web Sáng tạo và Khoa học"</string>
+    <string name="navigation_item_settings" msgid="1612988756868966834">"Cài đặt"</string>
+    <string name="navigation_item_testing_options" msgid="8712068439028163725">"Tùy chọn thử nghiệm"</string>
+    <string name="title_activity_main" msgid="8803846504222999093">"Science Journal - <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_add_sensor" msgid="3432276215295606638">"Thiết bị bên ngoài"</string>
+    <string name="external_devices_paired" msgid="460907629018449824">"Thiết bị ghép nối"</string>
+    <string name="external_devices_pairing" msgid="1318140666547340328">"Đang ghép nối…"</string>
+    <string name="external_devices_available" msgid="4660407499712163232">"Thiết bị hiện có"</string>
+    <string name="external_devices_settings_title" msgid="7731073608455634240">"Cài đặt thiết bị"</string>
+    <string name="external_devices_settings_forget" msgid="2280373936547146694">"Quên"</string>
+    <string name="external_devices_settings_ok" msgid="3688835834178014100">"OK"</string>
+    <string name="progress_scanning" msgid="504228868213512629">"Đang quét…"</string>
+    <string name="action_refresh" msgid="6449507931372381488">"Làm mới"</string>
+    <string name="no_options_title" msgid="5380361167896386704">"Không có tùy chọn cho <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="no_options_message" msgid="3139314286228576248">"Không có tùy chọn nào có thể đặt cho <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="options_message" msgid="693169996123125208">"Đặt tùy chọn cho <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
+    <string name="sine_wave_frequency_option" msgid="3299263567413396079">"Đặt tần số sóng hình sin theo mili giây:"</string>
+    <string name="video_stream_fps_option" msgid="7912973629078331063">"Đặt tốc độ ghi luồng video theo khung hình trên giây:"</string>
+    <string name="title_activity_project_details" msgid="6738094706468371738">"Các thí nghiệm dự án"</string>
+    <string name="graph_name" msgid="4051005079264085531">"biểu đồ"</string>
+    <string name="graph_options" msgid="4225585925400993925">"Tùy chọn biểu đồ"</string>
+    <string name="graph_options_title" msgid="6860269315108522661">"Tùy chọn biểu đồ"</string>
+    <string name="graph_options_smoothness_edit" msgid="1885781785347948911">"Độ mượt"</string>
+    <string name="graph_options_window_edit" msgid="8943669029029140826">"Kích thước làm mờ"</string>
+    <string name="graph_options_blur_edit" msgid="6217163217394307677">"Loại làm mờ"</string>
+    <string name="graph_options_gaussian_sigma_edit" msgid="5761710064672068300">"Độ lệch chuẩn"</string>
+    <string name="blur_type_average" msgid="1617413241621655455">"Trung bình"</string>
+    <string name="blur_type_gaussian" msgid="1011871621295653087">"Biểu đồ Gauss"</string>
+    <string name="graph_options_audio_feedback_enable" msgid="1845200328398473302">"Bật âm thanh"</string>
+    <string name="graph_options_audio_feedback_disable" msgid="5006766005261847317">"Tắt âm thanh"</string>
+    <string name="stat_min" msgid="7907031942382531617">"Tối thiểu"</string>
+    <string name="stat_max" msgid="8227023306109349391">"Tối đa"</string>
+    <string name="stat_average" msgid="3601514334204674938">"Trung bình"</string>
+    <string name="stat_min_label" msgid="8763695907241205634">"Tối thiểu"</string>
+    <string name="stat_max_label" msgid="4173459591223474511">"Tối đa"</string>
+    <string name="stat_average_label" msgid="7341499679015444245">"Trung bình"</string>
+    <string name="stat_duration" msgid="8999214260188208590">"Thời lượng"</string>
+    <string name="stat_unknown" msgid="8543005524144060221">"Không xác định"</string>
+    <string name="btn_reset_description" msgid="7288391743038780410">"Chuyển đến hiện tại"</string>
+    <string name="export_action" msgid="3269831142664490446">"Xuất"</string>
+    <string name="export_run_chooser_title" msgid="6420930071586217884">"Lưu vào…"</string>
+    <string name="settings_version_title" msgid="6212827772323334070">"Phiên bản"</string>
+    <string name="settings_replay_tutorial_title" msgid="3811832513865119930">"Hướng dẫn"</string>
+    <string name="settings_open_source_title" msgid="3090096891818776727">"Giấy phép nguồn mở"</string>
+    <string name="dev_sensors_title" msgid="4583380726898357656">"Bật các cảm biến thí nghiệm"</string>
+    <string name="cannot_scan_message" msgid="8297618436609318137">"Để truy cập thiết bị bên ngoài (“Cảm biến Science Journal”) bằng Science Journal, trước tiên bạn phải bật Bluetooth. Để khám phá Cảm biến Science Journal, Android cũng yêu cầu bạn cấp quyền truy cập vào vị trí của bạn vì các thiết bị Bluetooth khác có thể truyền thông tin vị trí của chúng trong khi khám phá thiết bị. Tuy nhiên, Science Journal sẽ lưu trữ hoặc sử dụng thông tin vị trí này và Cảm biến Science Journal không truyền thông tin vị trí."</string>
+    <string name="btn_request_location" msgid="8197595806751014499">"Bật truy cập vị trí"</string>
+    <string name="btn_enable_bluetooth" msgid="5357651687998209452">"Bật Bluetooth"</string>
+    <string name="btn_new_project_content_description" msgid="6932143755645026255">"Dự án mới"</string>
+    <string name="title_activity_new_project" msgid="2838213281488377791">"Dự án mới"</string>
+    <string name="title_activity_update_project" msgid="4441312132900502358">"Cập nhật dự án"</string>
+    <string name="project_save_failed" msgid="5623422183377416130">"Không thể lưu dự án. Vui lòng thử lại."</string>
+    <string name="archived_project_message" msgid="4798618073088509851">"Dự án được lưu trữ."</string>
+    <string name="unarchived_project_message" msgid="178393278028428287">"Dự án đã chuyển ra khỏi mục lưu trữ."</string>
+    <string name="action_undo" msgid="3152747614676103846">"Hoàn tác"</string>
+    <string name="project_title_hint" msgid="8228443486075398477">"Tiêu đề dự án"</string>
+    <string name="project_problem_hint" msgid="381678432298729684">"Mô tả"</string>
+    <string name="project_cover_description" msgid="1534511071097246816">"Chọn ảnh dự án"</string>
+    <string name="choose_photo_button_text" msgid="761066275467820031">"Chọn ảnh"</string>
+    <plurals name="project_experiments_count" formatted="false" msgid="7648457680949535167">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> thí nghiệm</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> thí nghiệm</item>
+    </plurals>
+    <string name="btn_new_experiment_content_description" msgid="7327973648445064928">"Thí nghiệm mới"</string>
+    <string name="archived_experiment_message" msgid="6471344531723915995">"Thí nghiệm được lưu trữ."</string>
+    <string name="unarchived_experiment_message" msgid="8059010703916773668">"Thí nghiệm đã chuyển ra khỏi mục lưu trữ."</string>
+    <string name="archived_run_message" msgid="8095301767431802235">"Lượt thử được lưu trữ."</string>
+    <string name="unarchived_run_message" msgid="471395163511338290">"Đã chuyển lượt thử ra khỏi mục lưu trữ."</string>
+    <string name="experiments_toolbar_title" msgid="7336526041603098967">"Các thí nghiệm"</string>
+    <string name="archived_content_description" msgid="5626832963025103076">"<xliff:g id="ITEM">%1s</xliff:g> (được lưu trữ)"</string>
+    <plurals name="experiment_run_count" formatted="false" msgid="8354594369372506196">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> lượt thử</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> lượt thử</item>
+    </plurals>
+    <plurals name="notes_count" formatted="false" msgid="7949686260707404918">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> ghi chú</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> ghi chú</item>
+    </plurals>
+    <string name="experiment_title_hint" msgid="3508456602523057718">"Tiêu đề thí nghiệm"</string>
+    <string name="experiment_description_hint" msgid="3197580737141616333">"Mô tả thí nghiệm"</string>
+    <string name="title_activity_new_experiment" msgid="5681560613521817391">"Thí nghiệm mới"</string>
+    <string name="title_activity_update_experiment" msgid="681114244731613638">"Cập nhật thí nghiệm"</string>
+    <string name="experiment_save_failed" msgid="5031953807658062748">"Không lưu được thí nghiệm. Vui lòng thử lại."</string>
+    <string name="btn_add_sensor_card_description" msgid="4836624546799382073">"Thêm thẻ cảm biến mới"</string>
+    <string name="btn_sensor_card_settings" msgid="5722000860549753304">"Cài đặt cảm biến"</string>
+    <string name="sensor_options" msgid="7269577762234317911">"Tùy chọn cảm biến"</string>
+    <string name="btn_sensor_card_expand" msgid="5267003335362502193">"Hiển thị danh sách cảm biến"</string>
+    <string name="btn_sensor_card_contract" msgid="4805549352705439024">"Ẩn danh sách cảm biến"</string>
+    <string name="btn_sensor_card_close" msgid="4964202674700426175">"Đóng thẻ"</string>
+    <string name="learn_more_button" msgid="6562065467901868709">"Tìm hiểu thêm"</string>
+    <string name="default_experiment_name" msgid="8360979514785269303">"Thí nghiệm chưa đặt tên"</string>
+    <string name="default_project_name" msgid="5076954632739479626">"Dự án chưa đặt tên"</string>
+    <string name="empty_project_library" msgid="6139693733859042212">"Bạn không có dự án nào"</string>
+    <string name="empty_project" msgid="196070251052121055">"Bạn không có thí nghiệm nào"</string>
+    <string name="frequency_window_option_label" msgid="4885731738492452610">"Khoảng thời gian tần số (theo mili giây)"</string>
+    <string name="frequency_filter_option_label" msgid="6322746140513536230">"Bộ lọc tần số (theo đơn vị cảm biến)"</string>
+    <string name="enable_frequency_checkbox_label" msgid="7012647084401204497">"Hiển thị tần số"</string>
+    <string name="dev_sensors_summary" msgid="3417308653634353239">"Hiển thị các cảm biến chỉ dành cho thử nghiệm của nhà phát triển"</string>
+    <string name="options_save_error" msgid="5710202337557612915">"Lỗi lưu tùy chọn"</string>
+    <string name="options_load_error" msgid="1033189385249714186">"Lỗi tải tùy chọn"</string>
+    <string name="dev_tools_title" msgid="413875762004836148">"Bật công cụ thí nghiệm"</string>
+    <string name="dev_tools_summary" msgid="8602005614020489618">"Hiển thị các công cụ chỉ dành cho thử nghiệm của nhà phát triển"</string>
+    <string name="dev_tools_leak_detection_title" msgid="4501895025531999102">"Bật phát hiện rò rỉ bộ nhớ"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="6611870647303094340">"Thay đổi cho cài đặt này chỉ có hiệu lực sau khi đóng ứng dụng."</string>
+    <string name="d2p" msgid="639917686672445089">"Dữ liệu cho khoảng bước"</string>
+    <string name="d2a" msgid="1134874560612971036">"Dữ liệu cho biên độ"</string>
+    <string name="d2pe" msgid="3727800647324543645">"Dữ liệu cho đường bao khoảng bước"</string>
+    <string name="d2ps" msgid="7368523482734331024">"Dữ liệu cho đường bao khoảng bước theo thang ngũ âm"</string>
+    <!-- no translation found for sonification_types:0 (3861898414238653003) -->
+    <!-- no translation found for sonification_types:1 (906523180895001108) -->
+    <!-- no translation found for sonification_types:2 (5312779098039590744) -->
+    <!-- no translation found for sonification_types:3 (2613491808468275381) -->
+  <string-array name="sonification_type_aliases">
+    <item msgid="7377813266249747858">"d2p"</item>
+    <item msgid="6906000057586711876">"d2a"</item>
+    <item msgid="1870736636828704674">"d2pe"</item>
+    <item msgid="5674284626652201942">"d2ps"</item>
+  </string-array>
+    <string name="new_experiment_spinner_item" msgid="5833883031740938473">"Thí nghiệm mới…"</string>
+    <string name="recording_title_label" msgid="5188061176268043052">"Đang ghi…"</string>
+    <string name="exp_edit_info_button" msgid="57557261114019563">"Chỉnh sửa thông tin"</string>
+    <string name="btn_observe_content_description" msgid="6339279151257255267">"Quan sát"</string>
+    <string name="title_activity_experiment_details" msgid="6104721540075416005">"Chi tiết thí nghiệm"</string>
+    <string name="empty_runs" msgid="2492444523656046772">"Bạn không có lượt thử nào"</string>
+    <string name="permission_request_write" msgid="7894354232042075113">"Cần có quyền để ghi vào bộ nhớ ngoài."</string>
+    <string name="device_options_sensor_label_text" msgid="4913281182269452551">"Cảm biến"</string>
+    <string name="external_sensor_appearance_name" msgid="2545762878566289321">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
+    <string name="sensor_rotation_rpm" msgid="7675868077769123026">"Vòng quay"</string>
+    <string name="sensor_voltage" msgid="8803070522098118555">"Vôn"</string>
+    <string name="sensor_raw" msgid="3706079416934145306">"Thô"</string>
+    <string name="sensor_temperature_fahrenheit" msgid="530709732319662008">"Nhiệt độ theo độ F"</string>
+    <string name="sensor_custom" msgid="6419934674147294928">"Tùy chỉnh"</string>
+    <string name="device_options_custom_sensor_pin_label_text" msgid="7800969142277212707">"Ghim"</string>
+    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="3441420502780409558">"Tần số"</string>
+    <string name="feedback_error_message" msgid="6267829056474146185">"Không thể gửi phản hồi."</string>
+    <string name="no_sensor_info_found" msgid="4162175886082619280">"Cảm biến này không có thông tin bổ sung!"</string>
+    <string name="sensor_desc_short_acc_x" msgid="2894000283386570265">"Gia tốc của điện thoại chuyển động trái phải tính theo m/s²"</string>
+    <string name="sensor_desc_short_acc_y" msgid="6068967454464639546">"Gia tốc của điện thoại chuyển động tiến lùi theo m/s²"</string>
+    <string name="sensor_desc_short_acc_z" msgid="718984279193417402">"Gia tốc của điện thoại chuyển động lên xuống theo m/s²"</string>
+    <string name="sensor_desc_short_decibel" msgid="6022620562641402361">"Cường độ âm thanh được đo bằng decibel (dB) nối với cảm biến âm thanh hoặc micrô."</string>
+    <string name="sensor_desc_short_light" msgid="2836912567230826095">"Lượng ánh sáng, đo bằng lux nối với cảm biến ánh sáng môi trường xung quanh."</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="2856177797841108478">"Góc quay giữa điện thoại và từ trường bên ngoài."</string>
+    <string name="sensor_desc_short_bluetooth" msgid="6408146877850831242">"Một cảm biến bên ngoài đang hiển thị dữ liệu ở đây dựa trên cài đặt tùy chỉnh."</string>
+    <string name="sensor_desc_short_rotation" msgid="4005725749913712057">"Số vòng quay trên phút"</string>
+    <string name="sensor_desc_short_raw" msgid="8183752554049502871">"Phần trăm chỉ số đọc thô từ cảm biến bên ngoài."</string>
+    <string name="sensor_desc_first_paragraph_light" msgid="4109035727606616530">"Cảm biến ánh sáng môi trường xung quanh đo ánh sáng theo đơn vị lux, một số đo chiếu sáng phụ thuộc vào lượng ánh sáng đi vào và vùng trải sáng. \n\nMột tuần trăng tròn cung cấp khoảng 1 lux ánh sáng, một phòng khách thông thường được chiếu đèn khoảng 50 lux, chiếu sáng lớp học, bình minh và hoàng hôn khoảng 400 lux, ánh sáng hàng ngày (ánh sáng gián tiếp) trên 10.000 lux và ánh sáng trực tiếp trên 30.000 lux. \n\nLux là đơn vị mà hầu hết chúng ta đều không quen. Khi chúng ta mua bóng đèn, chúng ta thường mua theo watt—nhưng công suất của bóng đèn không cho biết độ sáng của bóng đèn mà chỉ cho biết mức năng lượng mà bóng đèn sử dụng. Lumen là đơn vị đo ánh sáng tốt hơn giúp chúng ta khi mua bóng đèn; đơn vị này sẽ cho bạn biết bóng đèn thực sự tạo ra mức sáng là bao nhiêu. Trong khi đó, lux cho bạn biết lượng ánh sáng đến một vùng cụ thể."</string>
+    <string name="sensor_desc_second_paragraph_light" msgid="4898255020378037357">"Vì ánh sáng khuếch tán khi di chuyển nên số lux giảm xuống khi bạn tránh xa nguồn sáng, mặc dù nguồn sáng đó vẫn phát ra cùng một lượng ánh sáng theo đơn vị lumen. Một vùng nghiêng khỏi nguồn sáng cũng nhận được ít ánh sáng hơn—đây là lý do các vùng xích đạo lại ấm hơn nhiều so với các cực lạnh giá. \n\nTheo cách này, mục đích của cảm biến ánh sáng trong điện thoại là kiểm soát mức sáng của màn hình, điều chỉnh thích hợp với môi trường tối và sáng. Bên trong cảm biến ánh sáng, một bán dẫn nhỏ phản hồi ánh sáng đi vào bằng cách tạo ra một dòng điện nhỏ nhưng có thể đo được—một hiện tượng được biết đến là hiệu ứng điện quang. Các cảm biến tương tự được dùng trong một số đèn đường để bật chúng khi trời tối."</string>
+    <string name="sensor_desc_first_paragraph_acc" msgid="5154591427983319390">"Các đối tượng có xu hướng đứng yên hay tiếp tục di chuyển nếu chúng đang di chuyển—chúng tôi gọi xu hướng này là quán tính. Định luật thứ nhất của Newton chính thức thể hiện ý tưởng này: Một đối tượng tiếp tục trạng thái chuyển động hoặc đứng yên của mình trừ khi có lực không cân bằng tác động lên. \n\nKhi một lực không cân bằng khiến đối tượng chuyển động, chúng ta nói đối tượng đó có gia tốc: vận tốc hay tốc độ thay đổi—bằng cách tăng tốc, giảm tốc hay thay đổi hướng. Gia tốc được đo dưới dạng thay đổi vận tốc (m/s) theo thời gian hoặc mét trên giây bình phương (m/s²). \n\nĐiện thoại của bạn có thiết bị để đo những thay đổi về chuyển động này—gọi là gia tốc kế. Bên trong một gia tốc kế, các khối lượng treo nhỏ chuyển động tự do. Thay đổi về chuyển động khiến những khối lượng này thay đổi mặc dù đầu bạn luôn có xu hướng gập về phía trước khi ngồi trong một chiếc xe dừng đột ngột. Khi đo những thay đổi quán tính tinh tế này, một gia tốc kế trong điện thoại có thể phát hiện thay đổi về chuyển động và hướng, hữu ích để chuyển màn hình từ chế độ ngang sang chế độ dọc để phát trò chơi trên điện thoại của bạn và hơn thế nữa."</string>
+    <string name="sensor_desc_second_paragraph_acc" msgid="8812623507037923651">"Bạn có thể nhận thấy gia tốc liên tục ở trục Z, ngay cả khi điện thoại nằm yên trên bàn. Đây là gia tốc chúng ta gặp ở bề mặt trái đất do sức hút của trọng lực, khoảng 9,8 m/s²."</string>
+    <string name="sensor_desc_first_paragraph_decibel" msgid="2782071765610621336">"Âm thanh do sự rung động tạo ra. Chẳng hạn, giọng nói của bạn  là do các dây thanh âm của cổ họng rung lên. Những rung động này tạo nên các vùng áp lực không khí cao và thấp thay thế di chuyển ra bên ngoài—gần giống với việc mở rộng gợn sóng hình tròn do ném một viên sỏi vào ao."</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="142151860819231749">"Tất cả âm thanh đều có thể diễn tả được về tần số và cường độ. \n\nCường độ là chỉ số bạn đo được ở đây bằng Science Journal theo đơn vị decibel (dB). Cường độ hay âm lượng phụ thuộc vào khoảng cách mà đối tượng rung di chuyển mỗi lần rung; chúng ta nghe thấy cường độ lớn hơn khi âm lượng tăng lên. \n\nTần số (còn gọi là khoảng bước hoặc quãng âm) của sóng âm thanh tương đương với tốc độ rung của nó. Đối tượng rung càng nhanh thì khoảng bước của âm thanh thu được càng cao. Science Journal không đo tần số, chỉ đo âm lượng. \n\nÂm thanh yên tĩnh nhất mà tai của một người bình thường có thể phát hiện được xác định là 0 dB. Một cuộc trò chuyện bình thường tương tứng với khoảng 60 dB và âm thanh trên mức 140 dB sẽ gây đau cho tai người. Tuy nhiên, không phải âm thanh gây đau là âm thanh có hại. Liên tục tiếp xúc với âm thanh 90 dB—khoảng âm lượng của máy hút bụi—rốt cuộc cũng có thể làm giảm thính lực. \n\nThang đo decibel là lôgarít với một vài điểm phức tạp: Nguồn âm thanh 40 dB không mạnh gấp hai lần nguồn âm thanh 20 dB mà mạnh hơn gấp 100 lần. Trong khi đó, nếu một chiếc đồng hồ báo thức đang reo tạo ra 70 dB thì hai chiếc đồng hồ báo thức đang reo không tạo ra 140 dB mà tạo ra 73 dB. Như chúng tôi đã nói, đó là một thang đo lạ. \n\n10 dB là tiếng lá rơi xào xạc \n20 dB là tiếng thầm thì ở 5 feet \n30 dB là tiếng thì thầm nhẹ \n50 dB là tiếng mưa rơi \n60 dB là tiếng nói chuyện bình thường \n90 dB là tiếng máy trộn \n100 dB là tiếng xe hơi không có bộ giảm thanh \n110 dB là tiếng hét vào tai \n120 dB là tiếng sấm \n130 dB là tiếng búa khoan \n140 dB là tiếng máy bay cất cánh"</string>
+    <string name="sensor_desc_first_paragraph_rotation" msgid="8053108458881116800">"Số vòng trên phút (RPM) là đơn vị đo tần suất quay xung quanh một trục cố định trong một phút. \n\nKhi máy quay gió xoay, nó sẽ xoay quanh đĩa bộ mã hóa:"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="1296904470766613471">"Điều này tạo ra các kỳ sáng tối trên cảm biến đăng ký trong Science Journal dưới dạng chuyển động quay."</string>
+    <string name="sensor_desc_first_paragraph_raw" msgid="4939612146659644032">"Dữ liệu hiển thị ở đây là từ cảm biến bên ngoài giao tiếp với điện thoại thông qua Bluetooth. \n\nGiá trị này cho biết phần trăm chỉ số đọc thô ngay từ bộ vi điều khiển. Đây thường là phần trăm sụt áp trên cảm biến."</string>
+    <string name="sensor_desc_second_paragraph_raw" msgid="8973117353495356394">"Bluetooth là chuẩn công nghệ không dây dùng sóng radio để trao đổi dữ liệu qua khoảng cách ngắn từ thiết bị cố định và thiết bị di động."</string>
+    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="7981623485563854939">"Dữ liệu hiển thị ở đây là từ cảm biến bên ngoài giao tiếp với điện thoại thông qua Bluetooth."</string>
+    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="7708856960763941387">"Bluetooth là chuẩn công nghệ không dây dùng sóng radio để trao đổi dữ liệu qua khoảng cách ngắn từ thiết bị cố định và thiết bị di động."</string>
+    <string name="run_review_duration" msgid="7076553835966679478">"Thời lượng"</string>
+    <string name="run_review_activity_label" msgid="5276313115461408528">"Đánh giá"</string>
+    <string name="service_notification_content_title" msgid="409211151396677834">"Science Journal"</string>
+    <string name="service_notification_content_text" msgid="6198486549545279611">"Đang ghi…"</string>
+    <string name="live_graph_content_description" msgid="3504419430886261146">"Biểu đồ cảm biến trực tiếp. Kéo để di chuyển trục X."</string>
+    <string name="static_graph_content_description" msgid="5963837267567407006">"Đồ thị cảm biến. Chụm ngón tay để thu phóng và kéo để di chuyển trục X."</string>
+    <string name="sensor_card_overflow_menu_content_description" msgid="1847239009701022116">"Tùy chọn thẻ"</string>
+    <string name="btn_sensor_flip_info_content_description" msgid="4129040510635338579">"chuyển sang chế độ thông tin"</string>
+    <string name="btn_sensor_flip_graph_content_description" msgid="2500545463691107821">"chuyển sang chế độ đồ thị"</string>
+    <string name="sensor_tab_layout_content_description" msgid="6653074718544676936">"các cảm biến hiện có"</string>
+    <string name="sensor_tab_selected_format" msgid="5189774892597619784">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (được chọn)"</string>
+    <string name="title_activity_sensor_info" msgid="6960039814316283850">"Thông tin cảm biến"</string>
+    <string name="title_activity_sensor_info_format" msgid="9106545676836634722">"Cảm biến <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="heading_info_section" msgid="3068233297591403258">"Điều gì đang diễn ra?"</string>
+    <string name="edit_note_menu_item" msgid="5303280313359136552">"Chỉnh sửa"</string>
+    <string name="edit_note_time" msgid="2027041230205029461">"Chỉnh sửa thời gian ghi chú"</string>
+    <string name="delete_note_menu_item" msgid="7908811564743301702">"Xóa"</string>
+    <string name="delete_run" msgid="103141962786624686">"Xóa"</string>
+    <string name="crop_run" msgid="1336721925526265401">"Cắt"</string>
+    <string name="add_run_note" msgid="4601243377697085005">"Thêm ghi chú"</string>
+    <string name="add_experiment_note" msgid="1084637094906153162">"Thêm ghi chú"</string>
+    <string name="run_label" msgid="7587739695592981023">"Lượt thử <xliff:g id="RUN_INDEX">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_prev" msgid="1562899512022232138">"cảm biến trước: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_next" msgid="5528270146135394657">"cảm biến tiếp theo: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="edit_note_hint_text" msgid="7190191469950695769">"Chỉnh sửa chú thích lượt thử"</string>
+    <string name="add_note_hint_text" msgid="4947278182685363439">"Thêm một ghi chú mới"</string>
+    <string name="snackbar_note_deleted" msgid="4926151554010737654">"Đã xóa ghi chú"</string>
+    <string name="snackbar_undo" msgid="488185413692934054">"Hoàn tác"</string>
+    <string name="add_run_note_placeholder_text" msgid="4564897234715127061">"Thêm ghi chú vào lượt thử này"</string>
+    <string name="add_experiment_note_placeholder_text" msgid="5668745283017643514">"Thêm ghí chú thí nghiệm"</string>
+    <string name="add_note_image_button_content_description" msgid="5956413597980661328">"Chụp ảnh ghi chú"</string>
+    <string name="pinned_note_placeholder_text" msgid="742162042813125689">"Thêm ghi chú"</string>
+    <string name="no_notes_text" msgid="1333257200348947043">"Không có ghi chú"</string>
+    <string name="indeterminate_value" msgid="6535623633404732608">"--"</string>
+    <string name="project_card_overflow_menu_content_description" msgid="2569345733400148597">"Tùy chọn dự án"</string>
+    <string name="project_active_badge" msgid="8953778683278828884">"Đang hoạt động"</string>
+    <string name="archived_badge" msgid="7204033469949818539">"Đã lưu trữ"</string>
+    <string name="action_include_archived_projects" msgid="1872416419322070603">"Bao gồm các dự án được lưu trữ"</string>
+    <string name="action_include_archived_experiments" msgid="1368001463798477703">"Bao gồm các thí nghiệm được lưu trữ"</string>
+    <string name="action_new_experiment" msgid="3598888962558710132">"Thí nghiệm mới"</string>
+    <string name="delete_run_dialog_title" msgid="2829473058431908340">"Xóa lượt thử này?"</string>
+    <string name="run_review_delete_confirm" msgid="9216827234502882510">"Bạn có chắc chắn muốn xóa lượt thử này không? Dữ liệu và ghi chú đã ghi sẽ bị xóa. Hành động này không thể hoàn tác được."</string>
+    <string name="menu_btn_content_description" msgid="4680014704943654954">"menu"</string>
+    <string name="age_verifier_header" msgid="9217155512378711429">"Xác minh tuổi của bạn"</string>
+    <string name="age_verifier_birthday" msgid="2054392341079524729">"Ngày sinh:"</string>
+    <string name="age_verifier_get_started" msgid="1086024826189816224">"Bắt đầu"</string>
+    <string name="tutorial_welcome_header" msgid="5596382686735832683">"Khám phá thế giới của bạn"</string>
+    <string name="tutorial_welcome_body" msgid="7591843046586427635">"Sử dụng cảm biến trong điện thoại Android để đo âm thanh, ánh sáng và hơn thế nữa!"</string>
+    <string name="tutorial_setup_header" msgid="7529566316389493918">"Tổ chức dự án"</string>
+    <string name="tutorial_setup_body" msgid="3570507763094472318">"Thiết lập dự án và thí nghiệm để sắp xếp dữ liệu của bạn và so sánh kết quả."</string>
+    <string name="tutorial_observe_record_header" msgid="3715811468629596336">"Ghi theo thời gian thực"</string>
+    <string name="tutorial_observe_record_body" msgid="6982870167622582123">"Xem có gì bạn muốn đo? Hãy ghi lại quan sát của bạn theo thời gian thực khi nhấn nút!"</string>
+    <string name="tutorial_take_notes_header" msgid="8271718393020433479">"Thêm ghi chú quan sát"</string>
+    <string name="tutorial_take_notes_body" msgid="6597967563928412974">"Trong khi bạn đang ghi, bạn có thể thêm ghi chú và ảnh để cung cấp thêm ngữ cảnh cho dữ liệu."</string>
+    <string name="btn_previous_label" msgid="2881262882599469727">"Trước"</string>
+    <string name="btn_next_label" msgid="1682026626542221420">"Tiếp theo"</string>
+    <string name="sensor_card_error_text" msgid="151455534130824363">"Không tải được dữ liệu cảm biến"</string>
+    <string name="bluetooth_not_on_title" msgid="8961840974431817490">"Kết nối với Bluetooth"</string>
+    <string name="bluetooth_not_on_body" msgid="1861412368943739545">"Không thể kết nối với cảm biến bên ngoài: Bluetooth đã bị tắt. Hãy bật Bluetooth để kết nối với cảm biến bên ngoài."</string>
+    <string name="bluetooth_not_on_ok" msgid="3148597353545683264">"Bật Bluetooth"</string>
+    <string name="sensor_card_loading_text" msgid="8569947135727599414">"Đang tải dữ liệu cảm biến…"</string>
+    <string name="graph_loading" msgid="9200302049191996695">"Đang tải biểu đồ…"</string>
+    <string name="playback_button_pause" msgid="6025607837788357759">"tạm dừng phát lại âm thanh"</string>
+    <string name="playback_button_play" msgid="5739285031289314186">"bắt đầu phát lại âm thanh"</string>
+    <string name="sonification_type_card_title" msgid="7315771791094946967">"Loại truyền thông tin thẻ qua âm thanh"</string>
+    <string name="sonification_type_title" msgid="271616837832972881">"Loại truyền thông tin qua âm thanh mặc định"</string>
+    <string name="title_edit_trial_activity" msgid="3272215900928155534">"Chỉnh sửa lượt thử"</string>
+    <string name="edit_trial_title_hint" msgid="3752953269416446342">"Tiêu đề lượt thử"</string>
+    <string name="include_archived_trials" msgid="6064586011723883752">"Bao gồm các lượt thử đã lưu trữ"</string>
+    <string name="export_error" msgid="8729689368786707247">"Không xuất được."</string>
+    <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
+    <skip />
+    <string name="listing_title" msgid="6842666752572268412">"Science Journal"</string>
+    <string name="listing_tagline" msgid="6633876313767981347">"Thí nghiệm trong thế giới của bạn."</string>
+    <string name="listing_changelog" msgid="5651904379742962668">"Phát hành lần đầu"</string>
+    <string name="listing__description" msgid="7679178857079821372">"Science Journal là một công cụ làm khoa học bằng điện thoại thông minh của bạn. Bạn có thể sử dụng các cảm biến trong điện thoại hoặc kết nối với các cảm biến bên ngoài để tiến hành các thí nghiệm trong thế giới xung quanh bạn. Sắp xếp ý tưởng của bạn thành các dự án, đưa ra dự đoán, ghi chú và thu thập dữ liệu trong nhiều lượt thử, sau đó chú thích và khám phá kết quả của bạn. Đó là cuốn sổ ghi chép phòng thí nghiệm bạn luôn mang theo bên mình. \n\n \nXem các ý tưởng hoạt động để sử dụng cùng ứng dụng ở đây: https://makingscience.withgoogle.com/science-journal/activities \nTìm hiểu thêm về Sáng tạo và Khoa học: https://makingscience.withgoogle.com \nĐể được hỗ trợ: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
+    <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
+    <skip />
+    <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_summary (1881741234337323074) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_title (7760095515631648430) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_summary (5446570032717609139) -->
+    <skip />
+</resources>

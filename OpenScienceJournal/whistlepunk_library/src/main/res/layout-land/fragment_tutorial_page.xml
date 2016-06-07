@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    >
+
+    <!-- VideoView is instantiated in code to work around bug
+      https://code.google.com/p/android/issues/detail?id=152173 -->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/video_container"/>
+
+
+    <TextView
+        android:id="@+id/tutorial_header"
+        android:layout_toEndOf="@id/video_container"
+        android:layout_alignParentEnd="true"
+        android:layout_height="wrap_content"
+        app:layout_marginTopPercent="10%"
+        app:layout_marginLeftPercent="10%"
+        app:layout_marginRightPercent="10%"
+        android:gravity="center_horizontal"
+        android:paddingTop="8dp"
+        android:textColor="@android:color/white"
+        style="@style/TextAppearance.AppCompat.Title"
+        />
+
+    <TextView
+        android:id="@+id/tutorial_body"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/video_container"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/tutorial_header"
+        app:layout_marginLeftPercent="10%"
+        app:layout_marginRightPercent="10%"
+        android:padding="16dp"
+        android:gravity="center_horizontal"
+        android:textColor="@android:color/white"
+        style="@style/TextAppearance.AppCompat.Body1"
+        />
+
+</android.support.percent.PercentRelativeLayout>

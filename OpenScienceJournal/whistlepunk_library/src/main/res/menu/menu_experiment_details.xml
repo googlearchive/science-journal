@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity">
+    <item android:id="@+id/action_experiment_add_note" android:title="@string/add_experiment_note"
+        android:icon="@drawable/ic_notes_white_24dp"
+        android:orderInCategory="99" app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_edit_experiment" android:title="@string/action_edit"
+          android:icon="@drawable/ic_mode_edit_white_24dp"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_archive_experiment"
+          android:title="@string/action_archive_experiment"
+          android:icon="@drawable/ic_archive_white_24dp"
+          android:orderInCategory="101" app:showAsAction="never" />
+    <item android:id="@+id/action_unarchive_experiment"
+          android:title="@string/action_unarchive_experiment"
+          android:orderInCategory="102" app:showAsAction="never" />
+    <item android:id="@+id/action_include_archived"
+          android:title="@string/include_archived_trials"
+          android:orderInCategory="100" app:showAsAction="never" android:checkable="true"/>
+</menu>

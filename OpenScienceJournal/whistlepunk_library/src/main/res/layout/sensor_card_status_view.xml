@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:minHeight="@dimen/sensor_card_content_height_min"
+    android:background="@color/card_background_color"
+    android:id="@+id/status_view_content_group"
+    android:layout_below="@id/sensor_selection_area"
+    android:paddingStart="@dimen/sensor_card_back_padding"
+    android:paddingEnd="@dimen/sensor_card_back_padding"
+    android:paddingTop="@dimen/sensor_card_back_padding"
+    >
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        >
+
+        <ImageView
+            android:layout_width="@dimen/sensor_card_back_icon_size"
+            android:layout_height="@dimen/sensor_card_back_icon_size"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:scaleType="center"
+            android:id="@+id/error_icon"
+            android:src="@drawable/sensorcard_error"
+            android:tint="@color/text_color_dark_grey"
+            />
+
+        <ProgressBar
+            android:layout_width="@dimen/sensor_card_back_icon_size"
+            android:layout_height="@dimen/sensor_card_back_icon_size"
+            android:id="@+id/progress_bar"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:indeterminateOnly="true"
+            android:indeterminateBehavior="cycle"
+            android:background="@color/card_background_color"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/status_message"
+            android:layout_below="@id/error_icon"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:textColor="@color/text_color_dark_grey"
+            android:text="@string/sensor_card_loading_text"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/accessibility_touch_target_min_size"
+            android:id="@+id/status_retry_button"
+            android:text="@string/action_retry"
+            android:background="@android:color/transparent"
+            android:layout_below="@id/status_message"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"
+            android:textColor="@color/text_color_link"
+            />
+
+    </RelativeLayout>
+
+</RelativeLayout>

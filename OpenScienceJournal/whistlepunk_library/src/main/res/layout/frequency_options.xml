@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TOOD: When we have a spec for options, consider using gridlayout or tablelayout
+     to create this options view. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/options_padding_sides"
+    android:paddingRight="@dimen/options_padding_sides"
+    android:paddingTop="@dimen/options_padding_top_bottom"
+    android:paddingBottom="@dimen/options_padding_top_bottom"
+    >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/additional_options"
+        android:visibility="gone">
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/frequency_enable_checkbox"
+            android:checked="true"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/enable_frequency_checkbox_label"
+            android:labelFor="@id/frequency_enable_checkbox"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/frequency_window_option_label"
+            android:labelFor="@+id/frequency_window_edit"
+            />
+
+        <EditText
+            android:id="@id/frequency_window_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/frequency_filter_option_label"
+            android:labelFor="@+id/frequency_filter_edit"
+            />
+
+        <EditText
+            android:id="@id/frequency_filter_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"/>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package goosci;
+option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
+option java_outer_classname = "GoosciLabelValue";
+option optimize_for = LITE_RUNTIME;
+
+message LabelValue {
+    // Data can be used to store a diverse set of label values. Each label type should have its
+    // own set of keys into this map to store required information. For example, a text label might
+    // have a key for the text field, and the value would be the text itself. A captioned picture
+    // label might have a key/value pair for the caption, and another key/value pair for the URI
+    // of the picture.
+    // This storage flexibility enables future types of labels to store many different formats of
+    // information without the programmer knowing ahead of time which label types might exist.
+    map<string, string> data = 1;
+};

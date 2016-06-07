@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/run_review_section_margin"
+    >
+
+    <View
+        android:layout_height="@dimen/run_review_divider_thickness"
+        android:layout_width="match_parent"
+        android:background="@color/run_review_divider_color"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/run_review_note_divider"
+        />
+
+    <ImageView
+        android:layout_width="@dimen/run_review_note_icon_size"
+        android:layout_height="@dimen/run_review_note_icon_size"
+        android:id="@+id/note_icon"
+        android:src="@drawable/ic_notes_white_24dp"
+        android:contentDescription="@null"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/run_review_note_divider"
+        android:tint="@color/pinned_note_icon_color"
+        android:layout_marginTop="@dimen/run_review_section_margin"
+        android:layout_marginStart="@dimen/run_review_section_margin_notes"
+        />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/note_contents"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="@dimen/run_review_note_content_margin_start"
+        >
+
+        <ImageView
+            android:id="@+id/note_image"
+            android:scaleType="centerCrop"
+            android:layout_width="@dimen/run_review_image_note_preview_size"
+            android:layout_height="@dimen/run_review_image_note_preview_size"
+            android:contentDescription="@string/picture_note_description"
+            android:layout_marginTop="@dimen/run_review_section_margin"
+            android:visibility="gone"
+            android:layout_marginBottom="-8dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/note_text"
+            android:textColor="@color/text_color_light_grey"
+            android:textSize="@dimen/run_review_notes_text_size"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/note_image"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_marginEnd="@dimen/run_review_note_text_margin_end"
+            android:text="@string/pinned_note_placeholder_text"
+            android:layout_marginTop="@dimen/run_review_section_margin"
+            />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:id="@+id/duration_text"
+        android:textColor="@color/text_color_dark_grey"
+        android:textSize="@dimen/run_review_notes_timestamp_text_size"
+        android:layout_marginStart="@dimen/run_review_note_content_margin_start"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="@dimen/run_review_duration_text_margin_top"
+        android:layout_below="@id/note_contents"
+        android:drawableStart="@drawable/ic_schedule_grey600_18dp"
+        android:drawablePadding="@dimen/run_review_note_duration_drawable_padding"
+        />
+
+    <ImageButton
+        android:layout_width="@dimen/accessibility_touch_target_min_size"
+        android:layout_height="@dimen/accessibility_touch_target_min_size"
+        android:id="@+id/note_menu_button"
+        android:src="@drawable/abc_ic_menu_moreoverflow_mtrl_alpha"
+        android:contentDescription="@string/menu_btn_content_description"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/run_review_note_divider"
+        android:background="@color/run_review_background_color"
+        android:scaleType="center"
+        android:layout_marginEnd="@dimen/run_review_margin_sides"
+        />
+
+</RelativeLayout>

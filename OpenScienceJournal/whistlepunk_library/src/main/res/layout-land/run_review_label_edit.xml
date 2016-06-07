@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- There is a portrait version of this file. Please update both this file
+     and the portrait version with new changes. -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/edit_note_dialog_margin"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/accessibility_touch_target_min_size"
+            android:layout_marginStart="@dimen/edit_note_dialog_margin"
+            android:layout_marginEnd="@dimen/edit_note_dialog_margin"
+            android:layout_marginBottom="@dimen/edit_note_textedit_margin_bottom"
+            android:id="@+id/edit_note_text"
+            android:hint="@string/edit_note_hint_text"
+            android:textColor="@color/text_color_dark_grey"
+            android:textCursorDrawable="@null"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@id/picture_note_preview_image"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_centerVertical="true"
+            />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxHeight="@dimen/picture_note_preview_size"
+            android:maxWidth="@dimen/picture_note_preview_size"
+            android:id="@+id/picture_note_preview_image"
+            android:layout_marginEnd="@dimen/edit_note_dialog_margin"
+            android:layout_marginBottom="@dimen/edit_note_dialog_margin"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/picture_note_preview_content_description"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:adjustViewBounds="true"
+            />
+
+    </RelativeLayout>
+
+    <include layout="@layout/label_dialog_timestamp_section"/>
+
+</LinearLayout>

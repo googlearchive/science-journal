@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="action_feedback" msgid="2230997537507885910">"Оставить отзыв"</string>
+    <string name="action_settings" msgid="4140514779355685890">"Настройки"</string>
+    <string name="action_save" msgid="7115885253849785049">"Сохранить"</string>
+    <string name="action_edit" msgid="2879274643416740117">"Изменить"</string>
+    <string name="action_archive_project" msgid="3984396879969444432">"Добавить проект в архив"</string>
+    <string name="action_unarchive_project" msgid="2708696233939647946">"Извлечь проект из архива"</string>
+    <string name="action_archive_experiment" msgid="5641733726709708591">"Добавить эксперимент в архив"</string>
+    <string name="action_unarchive_experiment" msgid="2357913494087884425">"Извлечь эксперимент из архива"</string>
+    <string name="action_archive_run" msgid="439270635088307350">"Добавить в архив"</string>
+    <string name="action_unarchive_run" msgid="5992535261034463728">"Извлечь из архива"</string>
+    <string name="action_delete" msgid="5205384449071348669">"Удалить"</string>
+    <string name="action_ruler" msgid="3567453615091215971">"Линейка"</string>
+    <string name="action_level" msgid="2223203490872051791">"Уровень"</string>
+    <string name="sine_wave" msgid="7465850130633241930">"Синусоида"</string>
+    <string name="acc_x" msgid="6032598557672647110">"Ускорение по оси X"</string>
+    <string name="acc_y" msgid="3524690325306070984">"Ускорение по оси Y"</string>
+    <string name="acc_z" msgid="4540365462206126342">"Ускорение по оси Z"</string>
+    <string name="ambient_light" msgid="3301998123545447671">"Освещенность"</string>
+    <string name="magnetic_rotation" msgid="6643176023260466091">"Магнитное вращение"</string>
+    <string name="video_stream" msgid="1813984984736617091">"Видео"</string>
+    <string name="acc_units" msgid="335053831539850606">"м/с²"</string>
+    <string name="ambient_light_units" msgid="6318282254934724349">"люксы"</string>
+    <!-- no translation found for magnetic_rotation_units (5964336522624353252) -->
+    <skip />
+    <string name="decibel_units" msgid="2890849301464041989">"децибелы"</string>
+    <string name="rpm_units" msgid="897807671511627492">"об/мин"</string>
+    <string name="voltage_units" msgid="6411118170860716365">"В"</string>
+    <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
+    <string name="experiment_details" msgid="6814534510464980289">"Сведения об эксперименте"</string>
+    <string name="add_sensor" msgid="96374933560924369">"Добавить датчик"</string>
+    <string name="snackbar_source_error" msgid="6054360710842869995">"Ошибка. <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
+    <string name="action_retry" msgid="7873032739745888974">"Повторить попытку"</string>
+    <string name="decibel" msgid="7425761238029567370">"Сила звука"</string>
+    <string name="title_activity_tutorial" msgid="7117023626104839821">"Руководство по работе с приложением"</string>
+    <string name="title_activity_age_verifier" msgid="6953483601673982354">"День рождения"</string>
+    <string name="title_activity_ruler" msgid="4538057504732643762">"Линейка"</string>
+    <string name="ruler_label_metric" msgid="8008318703764352929">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> мм"</string>
+    <string name="ruler_label_imperial" msgid="2225518554245466626">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> д"</string>
+    <string name="title_activity_level" msgid="7751336762571175981">"Уровень"</string>
+    <string name="action_calibrate" msgid="2567237363558254927">"Калибровать"</string>
+    <string name="action_end_calibrate" msgid="6416011236105220467">"Завершить калибровку"</string>
+    <string name="title_calibrate" msgid="4425118955292706233">"Выберите инструмент калибрования"</string>
+    <string name="calibration_credit_card" msgid="1784606520446558443">"Банковская карта"</string>
+    <string name="calibration_ruler_imperial" msgid="2477725634940053346">"Линейка (3 дюйма)"</string>
+    <string name="calibration_ruler_metric" msgid="1330487431270295597">"Линейка (80 мм)"</string>
+    <string name="btn_add_experiment_note_description" msgid="7451384954210671094">"Введите текст комментария"</string>
+    <string name="btn_add_run_note_description" msgid="3729688760639518856">"Добавить комментарий к тестированию"</string>
+    <string name="btn_record_description" msgid="6165596989316716650">"Начать запись"</string>
+    <string name="btn_stop_description" msgid="5331283967913304386">"Остановить запись"</string>
+    <string name="unknown_sensor" msgid="2253417219024438701">"Неизвестный датчик"</string>
+    <string name="recording_start_failed" msgid="8094130346174113235">"Не удалось начать запись. Повторите попытку."</string>
+    <string name="recording_start_failed_disconnected" msgid="2493130069585541040">"Не удалось начать запись, так как датчик не подключен. Повторите попытку."</string>
+    <string name="recording_stop_failed_no_data_title" msgid="256592083253381257">"Данные не записываются"</string>
+    <string name="recording_stop_failed_no_data" msgid="5167111037930589862">"Некоторые из подключенных датчиков не записали данные. Отменить запись?"</string>
+    <string name="recording_stop_failed_continue" msgid="161788317476740066">"Продолжить"</string>
+    <string name="recording_stop_failed_cancel" msgid="9167449814602506726">"Отменить запись"</string>
+    <string name="recording_stop_failed_disconnected" msgid="1409656957401598471">"Не удалось остановить запись, так как соединение с датчиком прервано. Отменить запись?"</string>
+    <string name="recording_stop_failed_save" msgid="720527628154679503">"Не удалось остановить запись и сохранить результаты тестирования. Повторите попытку."</string>
+    <!-- no translation found for elapsed_time_short_format (7848904136886917036) -->
+    <skip />
+    <string name="elapsed_time_long_format" msgid="3451516277286685162">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
+    <!-- no translation found for accessible_elapsed_time_short_format (867388448497851890) -->
+    <skip />
+    <string name="accessible_elapsed_time_long_format" msgid="5588697398982936316">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small" msgid="8801162161093675447">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large" msgid="1312366645818667859">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="8665096074255046060">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="picture_note_description" msgid="4617343713156115501">"Снимок тестирования"</string>
+    <string name="picture_note_preview_content_description" msgid="4160980766022755366">"Предварительный просмотр снимка тестирования"</string>
+    <string name="navigation_item_observe" msgid="6544385569776074166">"Исследования"</string>
+    <string name="navigation_item_projects" msgid="204705505259389287">"Проекты"</string>
+    <string name="navigation_item_web_link" msgid="1966109305973672752">"Веб-сайт Making Science"</string>
+    <string name="navigation_item_settings" msgid="1612988756868966834">"Настройки"</string>
+    <string name="navigation_item_testing_options" msgid="8712068439028163725">"Параметры тестирования"</string>
+    <string name="title_activity_main" msgid="8803846504222999093">"Научный журнал – <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_add_sensor" msgid="3432276215295606638">"Внешние датчики"</string>
+    <string name="external_devices_paired" msgid="460907629018449824">"Подключенные устройства"</string>
+    <string name="external_devices_pairing" msgid="1318140666547340328">"Подключение..."</string>
+    <string name="external_devices_available" msgid="4660407499712163232">"Доступные устройства"</string>
+    <string name="external_devices_settings_title" msgid="7731073608455634240">"Настройки устройства"</string>
+    <string name="external_devices_settings_forget" msgid="2280373936547146694">"Удалить"</string>
+    <string name="external_devices_settings_ok" msgid="3688835834178014100">"ОК"</string>
+    <string name="progress_scanning" msgid="504228868213512629">"Сканирование..."</string>
+    <string name="action_refresh" msgid="6449507931372381488">"Обновить"</string>
+    <string name="no_options_title" msgid="5380361167896386704">"Нельзя настроить датчик \"<xliff:g id="NAME">%1$s</xliff:g>\""</string>
+    <string name="no_options_message" msgid="3139314286228576248">"Для датчика \"<xliff:g id="NAME">%1$s</xliff:g>\" невозможно задать параметры."</string>
+    <string name="options_message" msgid="693169996123125208">"Параметры для датчика \"<xliff:g id="SENSOR_NAME">%1$s</xliff:g>\""</string>
+    <string name="sine_wave_frequency_option" msgid="3299263567413396079">"Задайте период колебаний синусоиды в миллисекундах:"</string>
+    <string name="video_stream_fps_option" msgid="7912973629078331063">"Укажите частоту (количество кадров в секунду)"</string>
+    <string name="title_activity_project_details" msgid="6738094706468371738">"Эксперименты в проекте"</string>
+    <string name="graph_name" msgid="4051005079264085531">"график"</string>
+    <string name="graph_options" msgid="4225585925400993925">"Настройки графика"</string>
+    <string name="graph_options_title" msgid="6860269315108522661">"Настройки графика"</string>
+    <string name="graph_options_smoothness_edit" msgid="1885781785347948911">"Сглаживание"</string>
+    <string name="graph_options_window_edit" msgid="8943669029029140826">"Область размытия"</string>
+    <string name="graph_options_blur_edit" msgid="6217163217394307677">"Размытие"</string>
+    <string name="graph_options_gaussian_sigma_edit" msgid="5761710064672068300">"Степень размытия"</string>
+    <string name="blur_type_average" msgid="1617413241621655455">"Среднее"</string>
+    <string name="blur_type_gaussian" msgid="1011871621295653087">"По Гауссу"</string>
+    <string name="graph_options_audio_feedback_enable" msgid="1845200328398473302">"Включить звук"</string>
+    <string name="graph_options_audio_feedback_disable" msgid="5006766005261847317">"Отключить звук"</string>
+    <string name="stat_min" msgid="7907031942382531617">"Наименьшее значение"</string>
+    <string name="stat_max" msgid="8227023306109349391">"Наибольшее значение"</string>
+    <string name="stat_average" msgid="3601514334204674938">"Среднее значение"</string>
+    <string name="stat_min_label" msgid="8763695907241205634">"Минимум"</string>
+    <string name="stat_max_label" msgid="4173459591223474511">"Максимум"</string>
+    <string name="stat_average_label" msgid="7341499679015444245">"В среднем"</string>
+    <string name="stat_duration" msgid="8999214260188208590">"Продолжительность"</string>
+    <string name="stat_unknown" msgid="8543005524144060221">"Неизвестно"</string>
+    <string name="btn_reset_description" msgid="7288391743038780410">"Перейти к текущим данным"</string>
+    <string name="export_action" msgid="3269831142664490446">"Экспортировать"</string>
+    <string name="export_run_chooser_title" msgid="6420930071586217884">"Выберите, куда сохранить данные"</string>
+    <string name="settings_version_title" msgid="6212827772323334070">"Версия приложения"</string>
+    <string name="settings_replay_tutorial_title" msgid="3811832513865119930">"Руководство"</string>
+    <string name="settings_open_source_title" msgid="3090096891818776727">"Лицензии открытого ПО"</string>
+    <string name="dev_sensors_title" msgid="4583380726898357656">"Датчики для разработчиков"</string>
+    <string name="cannot_scan_message" msgid="8297618436609318137">"В приложение можно добавлять внешние датчики. Для этого включите Bluetooth и разрешите определять ваше местоположение. Это нужно для того, чтобы обнаруживать устройства, обмениваться с ними информацией и устанавливать соединение. Данные о местоположении не хранятся в приложении, не используются им и никому не передаются."</string>
+    <string name="btn_request_location" msgid="8197595806751014499">"Разрешить доступ к местоположению"</string>
+    <string name="btn_enable_bluetooth" msgid="5357651687998209452">"Включить Bluetooth"</string>
+    <string name="btn_new_project_content_description" msgid="6932143755645026255">"Создать проект"</string>
+    <string name="title_activity_new_project" msgid="2838213281488377791">"Сведения о проекте"</string>
+    <string name="title_activity_update_project" msgid="4441312132900502358">"Сведения о проекте"</string>
+    <string name="project_save_failed" msgid="5623422183377416130">"Не удалось сохранить проект. Повторите попытку."</string>
+    <string name="archived_project_message" msgid="4798618073088509851">"Проект добавлен в архив."</string>
+    <string name="unarchived_project_message" msgid="178393278028428287">"Проект извлечен из архива."</string>
+    <string name="action_undo" msgid="3152747614676103846">"Отменить"</string>
+    <string name="project_title_hint" msgid="8228443486075398477">"Название проекта"</string>
+    <string name="project_problem_hint" msgid="381678432298729684">"Введите описание"</string>
+    <string name="project_cover_description" msgid="1534511071097246816">"Выберите изображение для проекта"</string>
+    <string name="choose_photo_button_text" msgid="761066275467820031">"Выбрать изображение"</string>
+    <plurals name="project_experiments_count" formatted="false" msgid="7648457680949535167">
+      <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> эксперимент</item>
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> эксперимента</item>
+      <item quantity="many"><xliff:g id="NUMBER_1">%1d</xliff:g> экспериментов</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> эксперимента</item>
+    </plurals>
+    <string name="btn_new_experiment_content_description" msgid="7327973648445064928">"Создать эксперимент"</string>
+    <string name="archived_experiment_message" msgid="6471344531723915995">"Эксперимент добавлен в архив."</string>
+    <string name="unarchived_experiment_message" msgid="8059010703916773668">"Эксперимент извлечен из архива."</string>
+    <string name="archived_run_message" msgid="8095301767431802235">"Тестирование добавлено в архив."</string>
+    <string name="unarchived_run_message" msgid="471395163511338290">"Тестирование извлечено из архива."</string>
+    <string name="experiments_toolbar_title" msgid="7336526041603098967">"Эксперименты"</string>
+    <string name="archived_content_description" msgid="5626832963025103076">"<xliff:g id="ITEM">%1s</xliff:g> (в архиве)"</string>
+    <plurals name="experiment_run_count" formatted="false" msgid="8354594369372506196">
+      <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> тестирование</item>
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> тестирования</item>
+      <item quantity="many"><xliff:g id="NUMBER_1">%1d</xliff:g> тестирований</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> тестирования</item>
+    </plurals>
+    <plurals name="notes_count" formatted="false" msgid="7949686260707404918">
+      <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> комментарий</item>
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> комментария</item>
+      <item quantity="many"><xliff:g id="NUMBER_1">%1d</xliff:g> комментариев</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> комментария</item>
+    </plurals>
+    <string name="experiment_title_hint" msgid="3508456602523057718">"Введите название эксперимента"</string>
+    <string name="experiment_description_hint" msgid="3197580737141616333">"Введите описание эксперимента"</string>
+    <string name="title_activity_new_experiment" msgid="5681560613521817391">"Сведения об эксперименте"</string>
+    <string name="title_activity_update_experiment" msgid="681114244731613638">"Сведения об эксперименте"</string>
+    <string name="experiment_save_failed" msgid="5031953807658062748">"Изменения не сохранены. Повторите попытку."</string>
+    <string name="btn_add_sensor_card_description" msgid="4836624546799382073">"Добавить ещё одну карточку датчика"</string>
+    <string name="btn_sensor_card_settings" msgid="5722000860549753304">"Настройки датчика"</string>
+    <string name="sensor_options" msgid="7269577762234317911">"Параметры датчика"</string>
+    <string name="btn_sensor_card_expand" msgid="5267003335362502193">"Показать список датчиков"</string>
+    <string name="btn_sensor_card_contract" msgid="4805549352705439024">"Скрыть список датчиков"</string>
+    <string name="btn_sensor_card_close" msgid="4964202674700426175">"Закрыть карточку"</string>
+    <string name="learn_more_button" msgid="6562065467901868709">"Подробнее"</string>
+    <string name="default_experiment_name" msgid="8360979514785269303">"Эксперимент без названия"</string>
+    <string name="default_project_name" msgid="5076954632739479626">"Проект без названия"</string>
+    <string name="empty_project_library" msgid="6139693733859042212">"У вас нет проектов."</string>
+    <string name="empty_project" msgid="196070251052121055">"У вас нет экспериментов."</string>
+    <string name="frequency_window_option_label" msgid="4885731738492452610">"Частотное окно (в миллисекундах)"</string>
+    <string name="frequency_filter_option_label" msgid="6322746140513536230">"Частотный фильтр (в единицах измерения датчика)"</string>
+    <string name="enable_frequency_checkbox_label" msgid="7012647084401204497">"Показывать частоту"</string>
+    <string name="dev_sensors_summary" msgid="3417308653634353239">"При поиске устройство будет обнаруживать и те датчики, проводить тестирования с которыми могут только разработчики"</string>
+    <string name="options_save_error" msgid="5710202337557612915">"Не удалось сохранить настройки."</string>
+    <string name="options_load_error" msgid="1033189385249714186">"Не удалось загрузить настройки."</string>
+    <string name="dev_tools_title" msgid="413875762004836148">"Инструменты для разработчиков"</string>
+    <string name="dev_tools_summary" msgid="8602005614020489618">"В списке инструментов будут указаны и те, проводить тестирования с которыми могут только разработчики"</string>
+    <string name="dev_tools_leak_detection_title" msgid="4501895025531999102">"Отслеживать утечки памяти"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="6611870647303094340">"Если вы измените эту настройку, то, чтобы новые параметры вступили в силу, нужно будет перезапустить приложение"</string>
+    <string name="d2p" msgid="639917686672445089">"Показания датчика – звуки разной высоты"</string>
+    <string name="d2a" msgid="1134874560612971036">"Показания датчика – амплитуда"</string>
+    <string name="d2pe" msgid="3727800647324543645">"Показания датчика – огибающая высоты звука"</string>
+    <string name="d2ps" msgid="7368523482734331024">"Показания датчика – огибающая высоты звука в пентатонике"</string>
+    <!-- no translation found for sonification_types:0 (3861898414238653003) -->
+    <!-- no translation found for sonification_types:1 (906523180895001108) -->
+    <!-- no translation found for sonification_types:2 (5312779098039590744) -->
+    <!-- no translation found for sonification_types:3 (2613491808468275381) -->
+  <string-array name="sonification_type_aliases">
+    <item msgid="7377813266249747858">"d2p"</item>
+    <item msgid="6906000057586711876">"d2a"</item>
+    <item msgid="1870736636828704674">"d2pe"</item>
+    <item msgid="5674284626652201942">"d2ps"</item>
+  </string-array>
+    <string name="new_experiment_spinner_item" msgid="5833883031740938473">"Новый эксперимент"</string>
+    <string name="recording_title_label" msgid="5188061176268043052">"Идет запись..."</string>
+    <string name="exp_edit_info_button" msgid="57557261114019563">"Добавить"</string>
+    <string name="btn_observe_content_description" msgid="6339279151257255267">"Перейти в раздел \"Исследования\""</string>
+    <string name="title_activity_experiment_details" msgid="6104721540075416005">"Сведения об эксперименте"</string>
+    <string name="empty_runs" msgid="2492444523656046772">"У вас нет тестирований."</string>
+    <string name="permission_request_write" msgid="7894354232042075113">"Для записи данных на внешнее устройство необходимо разрешение."</string>
+    <string name="device_options_sensor_label_text" msgid="4913281182269452551">"Тип датчика"</string>
+    <string name="external_sensor_appearance_name" msgid="2545762878566289321">"<xliff:g id="SENSOR_NAME">%s</xliff:g> – <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
+    <string name="sensor_rotation_rpm" msgid="7675868077769123026">"Частота вращения"</string>
+    <string name="sensor_voltage" msgid="8803070522098118555">"Напряжение в вольтах"</string>
+    <string name="sensor_raw" msgid="3706079416934145306">"Данные в процентах"</string>
+    <string name="sensor_temperature_fahrenheit" msgid="530709732319662008">"Температура в градусах по Фаренгейту"</string>
+    <string name="sensor_custom" msgid="6419934674147294928">"Пользовательский"</string>
+    <string name="device_options_custom_sensor_pin_label_text" msgid="7800969142277212707">"Закрепить"</string>
+    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="3441420502780409558">"Показывать частоту"</string>
+    <string name="feedback_error_message" msgid="6267829056474146185">"Не удалось отправить отзыв."</string>
+    <string name="no_sensor_info_found" msgid="4162175886082619280">"Дополнительная информация об этом датчике не найдена."</string>
+    <string name="sensor_desc_short_acc_x" msgid="2894000283386570265">"Ускорение телефона при движении влево и вправо. Измеряется в м/с²."</string>
+    <string name="sensor_desc_short_acc_y" msgid="6068967454464639546">"Ускорение телефона при движении вперед и назад. Измеряется в м/с²."</string>
+    <string name="sensor_desc_short_acc_z" msgid="718984279193417402">"Ускорение телефона при движении вверх и вниз. Измеряется в м/с²."</string>
+    <string name="sensor_desc_short_decibel" msgid="6022620562641402361">"Сила звука, достигшего датчика. Измеряется в децибелах."</string>
+    <string name="sensor_desc_short_light" msgid="2836912567230826095">"Количество света, достигшего датчика. Измеряется в люксах."</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="2856177797841108478">"Угол вращения между телефоном и внешним магнитным полем."</string>
+    <string name="sensor_desc_short_bluetooth" msgid="6408146877850831242">"Представленные здесь данные получены от внешнего датчика, для которого вы задали собственные настройки."</string>
+    <string name="sensor_desc_short_rotation" msgid="4005725749913712057">"Число оборотов в минуту"</string>
+    <string name="sensor_desc_short_raw" msgid="8183752554049502871">"Показания внешнего датчика в процентах"</string>
+    <string name="sensor_desc_first_paragraph_light" msgid="4109035727606616530">"Датчик освещенности измеряет степень освещения в люксах. Освещенность определяется как отношение света, падающего на участок поверхности, к его площади. \n\nВот несколько примеров: полная луна дает 1 лк света, лампа в обычной комнате – 50 лк, освещение класса, закат или рассвет – 400 лк, дневной свет – 10 000 лк, а прямые лучи солнца – более 30 000 лк. \n\nДля большинства из нас люкс – незнакомая единица измерения. Покупая лампочки, мы смотрим на ватты – меру мощности, а не световую величину. Чтобы выяснить, сколько света может дать лампа, нужно обращать внимание на люмены."</string>
+    <string name="sensor_desc_second_paragraph_light" msgid="4898255020378037357">"При постоянном световом потоке освещенность определенной области может изменяться в зависимости от ее расстояния до источника света. Угол падения световых лучей также играет роль. Хороший пример этого – неравномерное распределение света и тепла на Земле.\n\nДатчик освещенности в телефоне предназначен для того, чтобы регулировать подсветку экрана в зависимости от уровня внешнего освещения. Это возможно благодаря тому, что в датчике расположен небольшой полупроводник, который под воздействием света способен создавать электрический ток в небольшом количестве. Это явление называют фотоэлектрическим эффектом. Фотоэлектрические датчики также используются для автоматического освещения улиц в темное время суток."</string>
+    <string name="sensor_desc_first_paragraph_acc" msgid="5154591427983319390">"Как известно из первого закона Ньютона, объекты находятся в состоянии покоя или равномерного движения, если на них не действует сила других тел. Это свойство называется инерцией. \n\nЕсли же на объект действует другое тело, скорость его движения меняется. Величиной, которая характеризует быстроту изменения скорости, является ускорение. Оно измеряется в м/с или в м/с². \n\nВ современных смартфонах есть датчик, который отслеживает эти изменения. Он называется акселерометр. Внутри акселерометра есть подвижный груз, который перемещается при изменении положения телефона. Данные, которые акселерометр получает в результате этих передвижений, используются, например, для смены ориентации экрана."</string>
+    <string name="sensor_desc_second_paragraph_acc" msgid="8812623507037923651">"Возможно, вы заметили постоянное ускорение по оси Z, даже если телефон просто лежит на столе. Это ускорение силы тяжести, равное примерно 9,8 м/с²."</string>
+    <string name="sensor_desc_first_paragraph_decibel" msgid="2782071765610621336">"Любой звук образуется в результате колебаний, например голос – в результате колебаний голосовых связок. Благодаря этим колебаниям создается повышенное или пониженное давление воздуха, которое распространяется в виде волн – как круги на воде от брошенного камня."</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="142151860819231749">"Каждый звук обладает такими свойствами, как сила и частота. \n\nСила звука, или его громкость, измеряется в децибелах и зависит от расстояния, которое источник звука преодолевает при колебании. \n\nОт частоты звуковой волны зависит высота звука: чем быстрее колебания, тем выше звук. В приложении \"Научный журнал\" можно определить только силу звука. \n\nСамый тихий звук, который может уловить человеческое ухо, – 0 дБ. При этом в разговорной речи – 60 дБ, а все звуки свыше 140 дБ считаются опасными для человеческого слуха. Опасным для здоровья также является продолжительный шум в 90 дБ. То есть, даже шум от работающего пылесоса при длительном воздействии может привести к потере слуха. \n\nДецибелы – это необычные единицы, поскольку для их измерения используется логарифмическая шкала. Это значит, что мощность одного источника с силой звука в 40 дБ может быть в 100 раз интенсивнее, чем мощность двух источников по 20 дБ. К примеру, если звук будильника равен 70 дБ, звук двух будильников будет не 140 дБ, а только 73 дБ. \n\n10 дБ – шелест листьев \n20 дБ – шепот на расстоянии 1,5 м \n30 дБ – тихий шепот \n50 дБ – дождь\n60 дБ – разговорная речь \n90 дБ – шум работающего блендера \n100 дБ – звук машины без глушителя \n110 дБ – громкий крик \n120 дБ – гром\n130 дБ – звук работающего молоткового перфоратора \n140 дБ – шум при взлете самолета"</string>
+    <string name="sensor_desc_first_paragraph_rotation" msgid="8053108458881116800">"Количество оборотов в минуту – это единица измерения частоты вращения объекта вокруг оси за одну минуту. \n\nИндикатор движется, и в соответствии с этим вращается диск датчика:"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="1296904470766613471">"В результате движения диска на датчик периодически попадает свет. Благодаря этому регистрируется вращение."</string>
+    <string name="sensor_desc_first_paragraph_raw" msgid="4939612146659644032">"Представленные здесь данные получены в результате подключения к вашему телефону внешнего датчика через Bluetooth. \n\nЗначение представляет из себя процент необработанных данных, которые были считаны с вашего микроконтроллера. Обычно эти данные связаны с перепадами напряжения в датчике."</string>
+    <string name="sensor_desc_second_paragraph_raw" msgid="8973117353495356394">"Bluetooth – это беспроводная технология, позволяющая установить связь между устройствами, которые находятся на небольшом расстоянии друг от друга. Передача данных осуществляется по радиоканалам."</string>
+    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="7981623485563854939">"Представленные здесь данные получены в результате подключения к вашему телефону внешнего датчика через Bluetooth."</string>
+    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="7708856960763941387">"Bluetooth – это беспроводная технология, позволяющая установить связь между устройствами, которые находятся на небольшом расстоянии друг от друга. Передача данных осуществляется по радиоканалам."</string>
+    <string name="run_review_duration" msgid="7076553835966679478">"Продолжительность"</string>
+    <string name="run_review_activity_label" msgid="5276313115461408528">"Информация о тестировании"</string>
+    <string name="service_notification_content_title" msgid="409211151396677834">"Научный журнал"</string>
+    <string name="service_notification_content_text" msgid="6198486549545279611">"Идет запись..."</string>
+    <string name="live_graph_content_description" msgid="3504419430886261146">"График работы датчика в реальном времени. Чтобы сдвинуть ось X, перетащите ее."</string>
+    <string name="static_graph_content_description" msgid="5963837267567407006">"График работы датчика. Чтобы сдвинуть ось X, перетащите ее."</string>
+    <string name="sensor_card_overflow_menu_content_description" msgid="1847239009701022116">"Настройки карточки датчика"</string>
+    <string name="btn_sensor_flip_info_content_description" msgid="4129040510635338579">"показать сведения о датчике"</string>
+    <string name="btn_sensor_flip_graph_content_description" msgid="2500545463691107821">"показать график"</string>
+    <string name="sensor_tab_layout_content_description" msgid="6653074718544676936">"доступные датчики"</string>
+    <string name="sensor_tab_selected_format" msgid="5189774892597619784">"Вы выбрали датчик \"<xliff:g id="SENSOR_NAME">%s</xliff:g>\""</string>
+    <string name="title_activity_sensor_info" msgid="6960039814316283850">"Сведения о датчике"</string>
+    <string name="title_activity_sensor_info_format" msgid="9106545676836634722">"Датчик \"<xliff:g id="SENSOR_NAME">%s</xliff:g>\""</string>
+    <string name="heading_info_section" msgid="3068233297591403258">"Сведения о датчике"</string>
+    <string name="edit_note_menu_item" msgid="5303280313359136552">"Изменить"</string>
+    <string name="edit_note_time" msgid="2027041230205029461">"Изменение временного кода"</string>
+    <string name="delete_note_menu_item" msgid="7908811564743301702">"Удалить"</string>
+    <string name="delete_run" msgid="103141962786624686">"Удалить"</string>
+    <string name="crop_run" msgid="1336721925526265401">"Установить ограничения"</string>
+    <string name="add_run_note" msgid="4601243377697085005">"Добавить комментарий"</string>
+    <string name="add_experiment_note" msgid="1084637094906153162">"Добавить комментарий"</string>
+    <string name="run_label" msgid="7587739695592981023">"Тест <xliff:g id="RUN_INDEX">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_prev" msgid="1562899512022232138">"предыдущий датчик: \"<xliff:g id="SENSOR_NAME">%s</xliff:g>\""</string>
+    <string name="run_review_switch_sensor_btn_next" msgid="5528270146135394657">"следующий датчик: \"<xliff:g id="SENSOR_NAME">%s</xliff:g>\""</string>
+    <string name="edit_note_hint_text" msgid="7190191469950695769">"Измените текст комментария"</string>
+    <string name="add_note_hint_text" msgid="4947278182685363439">"Введите текст комментария"</string>
+    <string name="snackbar_note_deleted" msgid="4926151554010737654">"Комментарий удален"</string>
+    <string name="snackbar_undo" msgid="488185413692934054">"Отменить"</string>
+    <string name="add_run_note_placeholder_text" msgid="4564897234715127061">"Введите текст комментария"</string>
+    <string name="add_experiment_note_placeholder_text" msgid="5668745283017643514">"Введите текст комментария"</string>
+    <string name="add_note_image_button_content_description" msgid="5956413597980661328">"Сделать снимок"</string>
+    <string name="pinned_note_placeholder_text" msgid="742162042813125689">"Добавить комментарий"</string>
+    <string name="no_notes_text" msgid="1333257200348947043">"Комментариев нет."</string>
+    <string name="indeterminate_value" msgid="6535623633404732608">"--"</string>
+    <string name="project_card_overflow_menu_content_description" msgid="2569345733400148597">"Настройки проекта"</string>
+    <string name="project_active_badge" msgid="8953778683278828884">"Активен"</string>
+    <string name="archived_badge" msgid="7204033469949818539">"В архиве"</string>
+    <string name="action_include_archived_projects" msgid="1872416419322070603">"Показать проекты из архива"</string>
+    <string name="action_include_archived_experiments" msgid="1368001463798477703">"Показать эксперименты из архива"</string>
+    <string name="action_new_experiment" msgid="3598888962558710132">"Создать эксперимент"</string>
+    <string name="delete_run_dialog_title" msgid="2829473058431908340">"Удаление тестирования"</string>
+    <string name="run_review_delete_confirm" msgid="9216827234502882510">"Все записанные данные и комментарии будут удалены без возможности восстановления."</string>
+    <string name="menu_btn_content_description" msgid="4680014704943654954">"меню"</string>
+    <string name="age_verifier_header" msgid="9217155512378711429">"Подтвердите свой возраст"</string>
+    <string name="age_verifier_birthday" msgid="2054392341079524729">"Укажите, когда вы родились:"</string>
+    <string name="age_verifier_get_started" msgid="1086024826189816224">"Начать работу"</string>
+    <string name="tutorial_welcome_header" msgid="5596382686735832683">"Проводите эксперименты"</string>
+    <string name="tutorial_welcome_body" msgid="7591843046586427635">"С помощью датчиков телефона можно измерить силу звука, освещенность и многое другое."</string>
+    <string name="tutorial_setup_header" msgid="7529566316389493918">"Создавайте проекты"</string>
+    <string name="tutorial_setup_body" msgid="3570507763094472318">"Объединяйте разные эксперименты в один проект. Так вам будет проще находить нужные сведения и сравнивать данные разных исследований."</string>
+    <string name="tutorial_observe_record_header" msgid="3715811468629596336">"Записывайте данные тестирований на видео"</string>
+    <string name="tutorial_observe_record_body" msgid="6982870167622582123">"Записать свои наблюдения очень просто: нужно только нажать кнопку."</string>
+    <string name="tutorial_take_notes_header" msgid="8271718393020433479">"Комментируйте данные"</string>
+    <string name="tutorial_take_notes_body" msgid="6597967563928412974">"Чтобы картина исследования получилась более полной, фиксируйте важные детали в текстовых комментариях и изображениях."</string>
+    <string name="btn_previous_label" msgid="2881262882599469727">"Назад"</string>
+    <string name="btn_next_label" msgid="1682026626542221420">"Далее"</string>
+    <string name="sensor_card_error_text" msgid="151455534130824363">"Не удалось загрузить данные о датчике."</string>
+    <string name="bluetooth_not_on_title" msgid="8961840974431817490">"Bluetooth отключен"</string>
+    <string name="bluetooth_not_on_body" msgid="1861412368943739545">"Включите его, чтобы установить соединение с внешним датчиком."</string>
+    <string name="bluetooth_not_on_ok" msgid="3148597353545683264">"Включить Bluetooth"</string>
+    <string name="sensor_card_loading_text" msgid="8569947135727599414">"Загрузка данных о датчике..."</string>
+    <string name="graph_loading" msgid="9200302049191996695">"Загрузка графика…"</string>
+    <string name="playback_button_pause" msgid="6025607837788357759">"приостановить воспроизведение аудио"</string>
+    <string name="playback_button_play" msgid="5739285031289314186">"воспроизвести аудио"</string>
+    <string name="sonification_type_card_title" msgid="7315771791094946967">"Тип сонификации"</string>
+    <string name="sonification_type_title" msgid="271616837832972881">"Тип сонификации по умолчанию"</string>
+    <string name="title_edit_trial_activity" msgid="3272215900928155534">"Редактирование тестирования"</string>
+    <string name="edit_trial_title_hint" msgid="3752953269416446342">"Название тестирования"</string>
+    <string name="include_archived_trials" msgid="6064586011723883752">"Показать тесты из архива"</string>
+    <string name="export_error" msgid="8729689368786707247">"Не удалось выполнить экспорт."</string>
+    <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
+    <skip />
+    <string name="listing_title" msgid="6842666752572268412">"Научный журнал"</string>
+    <string name="listing_tagline" msgid="6633876313767981347">"Мир вокруг глазами науки"</string>
+    <string name="listing_changelog" msgid="5651904379742962668">"Начальная версия"</string>
+    <string name="listing__description" msgid="7679178857079821372">"В приложении \"Научный журнал\" можно проводить настоящие научные эксперименты с помощью датчиков смартфона и внешних устройств. Создавайте проекты, составляйте прогнозы, проводите тестирования и анализируйте полученные данные. \n\n \nПодробнее о том, какие эксперименты можно проводить в приложении, читайте на странице https://makingscience.withgoogle.com/science-journal/activities. \nВот сайт нашего сервиса: https://makingscience.withgoogle.com. \nЕсли у вас возникнут вопросы о работе с приложением, посетите форум https://productforums.google.com/forum/#!forum/sciencejournal."</string>
+    <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
+    <skip />
+    <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_summary (1881741234337323074) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_title (7760095515631648430) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_summary (5446570032717609139) -->
+    <skip />
+</resources>

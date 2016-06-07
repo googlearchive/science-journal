@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardCornerRadius="@dimen/cardview_radius"
+    android:elevation="@dimen/cardview_default_elevation"
+    android:layout_margin="@dimen/cardview_margin"
+    card_view:cardPreventCornerOverlap="false"
+    >
+    <!-- TODO: In KitKat, the CornerRadius is lost with cardPreventCornerOverlap=false. -->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <!-- NOTE: If any changes are made to ancestry of the TabLayout, compensating changes
+            must be made in AccessibilityUtils.setTouchDelegateForSensorTabs, which assumes
+            ancestry information. -->
+        <RelativeLayout
+            android:id="@+id/sensor_selection_area"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/sensor_card_header"
+            android:paddingStart="@dimen/sensor_card_header_padding"
+            android:paddingEnd="@dimen/sensor_card_header_padding"
+            >
+
+            <!-- The TabLayout twitches when switching tabs unless wrapped in another view.
+                 See b/24580903. -->
+            <FrameLayout
+                android:id="@+id/sensor_selection_tab_holder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                tools:ignore="UselessParent">
+
+                <include layout="@layout/sensor_selector_tab_layout"/>
+
+            </FrameLayout>
+
+        </RelativeLayout>
+
+        <com.google.android.apps.forscience.whistlepunk.SensorCardHeader
+            android:id="@id/sensor_card_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            >
+
+            <TextView
+                android:id="@+id/sensor_card_header_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/sensor_card_toggle_spacer"
+                android:layout_toStartOf="@+id/btn_sensor_card_flip"
+                android:textColor="@color/text_color_white"
+                android:textSize="@dimen/sensor_card_header_text_size"
+                android:textStyle="bold"
+                android:paddingTop="@dimen/sensor_card_header_text_padding"
+                android:paddingBottom="@dimen/sensor_card_header_text_padding"
+                android:ellipsize="end"
+                android:maxLines="1"
+                />
+
+            <ImageButton
+                android:id="@+id/btn_sensor_card_toggle"
+                android:layout_width="@dimen/accessibility_touch_target_min_size"
+                android:layout_height="@dimen/accessibility_touch_target_min_size"
+                android:contentDescription="@string/btn_sensor_card_expand"
+                android:src="@drawable/ic_expand_more_white_24dp"
+                android:layout_alignParentStart="true"
+                android:scaleType="center"
+                android:layout_marginTop="@dimen/sensor_card_header_btn_margin"
+                android:background="@android:color/transparent"
+                android:visibility="visible"
+                />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:id="@+id/sensor_card_toggle_spacer"
+                android:layout_toEndOf="@id/btn_sensor_card_toggle"
+                android:layout_alignWithParentIfMissing="true"
+                />
+
+            <ImageButton
+                android:id="@+id/btn_sensor_card_flip"
+                android:layout_width="@dimen/accessibility_touch_target_min_size"
+                android:layout_height="@dimen/accessibility_touch_target_min_size"
+                android:src="@drawable/sensorcard_toggle_info_24"
+                android:layout_toStartOf="@+id/btn_sensor_card_overflow_menu"
+                android:scaleType="center"
+                android:layout_marginTop="@dimen/sensor_card_header_btn_margin"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/btn_sensor_flip_info_content_description"
+                />
+
+            <ImageButton
+                android:layout_width="@dimen/accessibility_touch_target_min_size"
+                android:layout_height="@dimen/accessibility_touch_target_min_size"
+                android:id="@id/btn_sensor_card_overflow_menu"
+                android:src="@drawable/ic_menu_moreoverflow_mtrl_alpha"
+                android:tint="@android:color/white"
+                android:background="@android:color/transparent"
+                android:layout_alignParentEnd="true"
+                android:scaleType="center"
+                android:layout_marginTop="@dimen/sensor_card_header_btn_margin"
+                android:contentDescription="@string/sensor_card_overflow_menu_content_description"
+                />
+
+        </com.google.android.apps.forscience.whistlepunk.SensorCardHeader>
+
+        <include layout="@layout/sensor_card_graph_view"/>
+        <include layout="@layout/sensor_card_meter_view"/>
+        <include layout="@layout/sensor_card_status_view"/>
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>

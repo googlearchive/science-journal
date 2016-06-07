@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.apps.forscience.whistlepunk.StatsList
+        app:statsLayout="@layout/stats_view_run_review"
+        android:id="@+id/stats_drawer"
+        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/run_review_margin_sides"
+        android:layout_marginStart="@dimen/run_review_margin_sides"
+        android:layout_width="match_parent"
+    />
+
+    <FrameLayout
+        android:background="@color/card_background_color"
+        android:id="@+id/chart_content_area"
+        android:layout_below="@id/stats_drawer"
+        android:layout_height="@dimen/run_review_chart_height"
+        android:layout_marginEnd="@dimen/run_review_margin_sides"
+        android:layout_marginStart="@dimen/run_review_margin_sides"
+        android:layout_width="match_parent"
+        android:paddingEnd="@dimen/stream_presenter_padding_sides"
+        android:paddingStart="@dimen/stream_presenter_padding_sides"
+        android:paddingTop="@dimen/run_review_section_margin"
+    >
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/external_axis_holder"
+        android:layout_below="@id/chart_content_area"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/run_review_margin_sides"
+        android:layout_marginStart="@dimen/run_review_margin_sides"
+        android:layout_width="match_parent"
+    >
+
+        <com.google.android.apps.forscience.whistlepunk.ReviewExternalAxisView
+            app:mainColor="@color/text_color_dark_grey"
+            android:background="@color/run_review_background_color"
+            android:id="@+id/external_x_axis"
+            android:layout_height="@dimen/external_axis_height"
+            android:paddingRight="@dimen/run_review_external_axis_right_padding"
+            android:paddingLeft="@dimen/run_review_external_axis_left_padding"
+            android:layout_marginStart="@dimen/run_review_external_axis_left_margin"
+            android:layout_width="match_parent"
+        />
+
+    </FrameLayout>
+
+    <include layout="@layout/external_axis_seekbar_holder"
+             android:layout_alignBottom="@id/external_axis_holder"
+             android:layout_height="@dimen/run_review_overlay_height"
+             android:layout_width="match_parent"
+    />
+
+    <FrameLayout
+        android:id="@+id/run_review_playback_button_holder"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/chart_content_area"
+        android:layout_height="@dimen/accessibility_touch_target_min_size"
+        android:layout_width="@dimen/accessibility_touch_target_min_size"
+    >
+
+        <ImageButton
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/playback_button_play"
+            android:id="@+id/run_review_playback_button"
+            android:layout_gravity="right|top"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_play_arrow_black_24dp"
+            android:tint="@color/graph_line_color_blue"
+            android:visibility="visible"
+        />
+
+    </FrameLayout>
+</merge>

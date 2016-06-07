@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_height="@dimen/accessibility_touch_target_min_size"
+    android:layout_width="wrap_content"
+    android:layout_gravity="top"
+    >
+
+    <TextView
+        android:id="@+id/stats_view_min"
+        android:layout_width="@dimen/stats_drawer_item_width"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_color_light_grey"
+        android:textSize="@dimen/stats_view_small_text_size"
+        android:textAlignment="textStart"
+        android:drawableStart="@drawable/ic_data_min_color_12dpm"
+        android:drawablePadding="@dimen/stats_drawer_small_icon_padding"
+        />
+
+    <TextView
+        android:id="@+id/stats_view_avg"
+        android:layout_width="@dimen/stats_drawer_item_width"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_color_light_grey"
+        android:textSize="@dimen/stats_view_small_text_size"
+        android:textAlignment="textStart"
+        android:drawableStart="@drawable/ic_data_average_color_12dp"
+        android:drawablePadding="@dimen/stats_drawer_small_icon_padding"
+        />
+
+    <TextView
+        android:id="@+id/stats_view_max"
+        android:layout_width="@dimen/stats_drawer_item_width"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_color_light_grey"
+        android:textSize="@dimen/stats_view_small_text_size"
+        android:textAlignment="textStart"
+        android:drawableStart="@drawable/ic_data_max_color_12dpm"
+        android:drawablePadding="@dimen/stats_drawer_small_icon_padding"
+        />
+
+</LinearLayout>

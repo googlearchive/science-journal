@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="action_feedback" msgid="2230997537507885910">"Povratne informacije"</string>
+    <string name="action_settings" msgid="4140514779355685890">"Nastavitve"</string>
+    <string name="action_save" msgid="7115885253849785049">"Shrani"</string>
+    <string name="action_edit" msgid="2879274643416740117">"Uredi"</string>
+    <string name="action_archive_project" msgid="3984396879969444432">"Arhiviraj projekt"</string>
+    <string name="action_unarchive_project" msgid="2708696233939647946">"Odarhiviraj projekt"</string>
+    <string name="action_archive_experiment" msgid="5641733726709708591">"Arhiviraj poskus"</string>
+    <string name="action_unarchive_experiment" msgid="2357913494087884425">"Odarhiviraj poskus"</string>
+    <string name="action_archive_run" msgid="439270635088307350">"Arhiviraj izvedbo"</string>
+    <string name="action_unarchive_run" msgid="5992535261034463728">"Odarhiviraj izvedbo"</string>
+    <string name="action_delete" msgid="5205384449071348669">"Izbriši"</string>
+    <string name="action_ruler" msgid="3567453615091215971">"Ravnilo"</string>
+    <string name="action_level" msgid="2223203490872051791">"Izravnaj"</string>
+    <string name="sine_wave" msgid="7465850130633241930">"Sinusna krivulja"</string>
+    <string name="acc_x" msgid="6032598557672647110">"Merilnik pospeška X"</string>
+    <string name="acc_y" msgid="3524690325306070984">"Merilnik pospeška Y"</string>
+    <string name="acc_z" msgid="4540365462206126342">"Merilnih pospeška Z"</string>
+    <string name="ambient_light" msgid="3301998123545447671">"Svetloba v okolju"</string>
+    <string name="magnetic_rotation" msgid="6643176023260466091">"Magnetno vrtenje"</string>
+    <string name="video_stream" msgid="1813984984736617091">"Videotok"</string>
+    <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
+    <string name="ambient_light_units" msgid="6318282254934724349">"luksov"</string>
+    <!-- no translation found for magnetic_rotation_units (5964336522624353252) -->
+    <skip />
+    <string name="decibel_units" msgid="2890849301464041989">"dB"</string>
+    <string name="rpm_units" msgid="897807671511627492">"Vrt./min"</string>
+    <string name="voltage_units" msgid="6411118170860716365">"V"</string>
+    <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
+    <string name="experiment_details" msgid="6814534510464980289">"Podrobnosti o poskusu"</string>
+    <string name="add_sensor" msgid="96374933560924369">"Dodajte tipalo"</string>
+    <string name="snackbar_source_error" msgid="6054360710842869995">"Pri povezovanju s tem virom je prišlo do napake: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
+    <string name="action_retry" msgid="7873032739745888974">"Poskusi znova"</string>
+    <string name="decibel" msgid="7425761238029567370">"Jakost zvoka"</string>
+    <string name="title_activity_tutorial" msgid="7117023626104839821">"Vadnica Science Journala"</string>
+    <string name="title_activity_age_verifier" msgid="6953483601673982354">"Rojstni dan"</string>
+    <string name="title_activity_ruler" msgid="4538057504732643762">"Ravnilo"</string>
+    <string name="ruler_label_metric" msgid="8008318703764352929">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
+    <string name="ruler_label_imperial" msgid="2225518554245466626">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> in"</string>
+    <string name="title_activity_level" msgid="7751336762571175981">"Izravnavanje"</string>
+    <string name="action_calibrate" msgid="2567237363558254927">"Umeri"</string>
+    <string name="action_end_calibrate" msgid="6416011236105220467">"Končaj umerjanje"</string>
+    <string name="title_calibrate" msgid="4425118955292706233">"Umerjanje z …"</string>
+    <string name="calibration_credit_card" msgid="1784606520446558443">"Kreditna kartica (višina)"</string>
+    <string name="calibration_ruler_imperial" msgid="2477725634940053346">"Ravnilo (3 palci)"</string>
+    <string name="calibration_ruler_metric" msgid="1330487431270295597">"Ravnilo (80 mm)"</string>
+    <string name="btn_add_experiment_note_description" msgid="7451384954210671094">"Dodajte opombo o poskusu"</string>
+    <string name="btn_add_run_note_description" msgid="3729688760639518856">"Dodaj opombo o izvedbi"</string>
+    <string name="btn_record_description" msgid="6165596989316716650">"Začni beležiti"</string>
+    <string name="btn_stop_description" msgid="5331283967913304386">"Ustavi beleženje"</string>
+    <string name="unknown_sensor" msgid="2253417219024438701">"Neznano tipalo"</string>
+    <string name="recording_start_failed" msgid="8094130346174113235">"Beleženje ni uspelo, poskusite znova."</string>
+    <string name="recording_start_failed_disconnected" msgid="2493130069585541040">"Beleženje ni uspelo: tipalo ni povezano. Poskusite znova."</string>
+    <string name="recording_stop_failed_no_data_title" msgid="256592083253381257">"Podatki se ne beležijo"</string>
+    <string name="recording_stop_failed_no_data" msgid="5167111037930589862">"Eno ali več tipal ni zabeležilo podatkov. Želite preklicati to beleženje?"</string>
+    <string name="recording_stop_failed_continue" msgid="161788317476740066">"Nadaljuj"</string>
+    <string name="recording_stop_failed_cancel" msgid="9167449814602506726">"Prekliči beleženje"</string>
+    <string name="recording_stop_failed_disconnected" msgid="1409656957401598471">"Ustavitev beleženja ni uspela: tipalo ni povezano. Želite preklicati beleženje?"</string>
+    <string name="recording_stop_failed_save" msgid="720527628154679503">"Ustavitev beleženja ni uspela: izvedbe ni bilo mogoče shraniti. Poskusite znova."</string>
+    <!-- no translation found for elapsed_time_short_format (7848904136886917036) -->
+    <skip />
+    <string name="elapsed_time_long_format" msgid="3451516277286685162">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
+    <!-- no translation found for accessible_elapsed_time_short_format (867388448497851890) -->
+    <skip />
+    <string name="accessible_elapsed_time_long_format" msgid="5588697398982936316">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small" msgid="8801162161093675447">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large" msgid="1312366645818667859">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="8665096074255046060">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="picture_note_description" msgid="4617343713156115501">"Slikovna opomba izvedbe"</string>
+    <string name="picture_note_preview_content_description" msgid="4160980766022755366">"Predogled slikovne opombe"</string>
+    <string name="navigation_item_observe" msgid="6544385569776074166">"Opazovanje"</string>
+    <string name="navigation_item_projects" msgid="204705505259389287">"Projekti"</string>
+    <string name="navigation_item_web_link" msgid="1966109305973672752">"Ustvarjanje in znanost"</string>
+    <string name="navigation_item_settings" msgid="1612988756868966834">"Nastavitve"</string>
+    <string name="navigation_item_testing_options" msgid="8712068439028163725">"Možnosti preskušanja"</string>
+    <string name="title_activity_main" msgid="8803846504222999093">"Science Journal – <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_add_sensor" msgid="3432276215295606638">"Zunanje naprave"</string>
+    <string name="external_devices_paired" msgid="460907629018449824">"Seznanjene naprave"</string>
+    <string name="external_devices_pairing" msgid="1318140666547340328">"Seznanjanje ..."</string>
+    <string name="external_devices_available" msgid="4660407499712163232">"Razpoložljive naprave"</string>
+    <string name="external_devices_settings_title" msgid="7731073608455634240">"Nastavitve naprave"</string>
+    <string name="external_devices_settings_forget" msgid="2280373936547146694">"Pozabi"</string>
+    <string name="external_devices_settings_ok" msgid="3688835834178014100">"V redu"</string>
+    <string name="progress_scanning" msgid="504228868213512629">"Iskanje ..."</string>
+    <string name="action_refresh" msgid="6449507931372381488">"Osveži"</string>
+    <string name="no_options_title" msgid="5380361167896386704">"Ni možnosti za tipalo <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="no_options_message" msgid="3139314286228576248">"Za tipalo <xliff:g id="NAME">%1$s</xliff:g> ni mogoče nastaviti nobene možnosti"</string>
+    <string name="options_message" msgid="693169996123125208">"Nastavitev možnosti za tipalo <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
+    <string name="sine_wave_frequency_option" msgid="3299263567413396079">"Nastavite frekvenco sinusne krivulje v milisekundah:"</string>
+    <string name="video_stream_fps_option" msgid="7912973629078331063">"Nastavite hitrost snemanja videotoka v sličicah na sekundo:"</string>
+    <string name="title_activity_project_details" msgid="6738094706468371738">"Poskusi v projektu"</string>
+    <string name="graph_name" msgid="4051005079264085531">"grafikon"</string>
+    <string name="graph_options" msgid="4225585925400993925">"Možnosti grafikona"</string>
+    <string name="graph_options_title" msgid="6860269315108522661">"Možnosti grafikona"</string>
+    <string name="graph_options_smoothness_edit" msgid="1885781785347948911">"Gladkost"</string>
+    <string name="graph_options_window_edit" msgid="8943669029029140826">"Velikost zamegljevanja"</string>
+    <string name="graph_options_blur_edit" msgid="6217163217394307677">"Vrsta zamegljevanja"</string>
+    <string name="graph_options_gaussian_sigma_edit" msgid="5761710064672068300">"Standardni odklon"</string>
+    <string name="blur_type_average" msgid="1617413241621655455">"Povprečje"</string>
+    <string name="blur_type_gaussian" msgid="1011871621295653087">"Gaussovo"</string>
+    <string name="graph_options_audio_feedback_enable" msgid="1845200328398473302">"Omogoči zvok"</string>
+    <string name="graph_options_audio_feedback_disable" msgid="5006766005261847317">"Onemogoči zvok"</string>
+    <string name="stat_min" msgid="7907031942382531617">"Najmanj"</string>
+    <string name="stat_max" msgid="8227023306109349391">"Največ"</string>
+    <string name="stat_average" msgid="3601514334204674938">"Povprečje"</string>
+    <string name="stat_min_label" msgid="8763695907241205634">"Najmanj"</string>
+    <string name="stat_max_label" msgid="4173459591223474511">"Največ"</string>
+    <string name="stat_average_label" msgid="7341499679015444245">"Povprečje"</string>
+    <string name="stat_duration" msgid="8999214260188208590">"Trajanje"</string>
+    <string name="stat_unknown" msgid="8543005524144060221">"Neznano"</string>
+    <string name="btn_reset_description" msgid="7288391743038780410">"Premik na trenutni čas"</string>
+    <string name="export_action" msgid="3269831142664490446">"Izvozi"</string>
+    <string name="export_run_chooser_title" msgid="6420930071586217884">"Shrani v ..."</string>
+    <string name="settings_version_title" msgid="6212827772323334070">"Različica"</string>
+    <string name="settings_replay_tutorial_title" msgid="3811832513865119930">"Vadnica"</string>
+    <string name="settings_open_source_title" msgid="3090096891818776727">"Odprtokodne licence"</string>
+    <string name="dev_sensors_title" msgid="4583380726898357656">"Omogoči eksperimentalna tipala"</string>
+    <string name="cannot_scan_message" msgid="8297618436609318137">"Če želite z aplikacijo Science Journal dostopati do zunanje naprave (»tipalo aplikacije Science Journal«), morate najprej vklopiti Bluetooth. Za odkrivanje tipal aplikacije Science Journal zahteva naprava Android tudi, da ji dovolite dostop do svoje lokacije, saj lahko med odkrivanjem naprave lokacijske podatke oddajajo tudi druge naprave Bluetooth. Aplikacija Science Journal teh lokacijskih podatkov ne bo shranjevala ali uporabljala. Tipala aplikacije Science Journal ne oddajajo lokacijskih podatkov."</string>
+    <string name="btn_request_location" msgid="8197595806751014499">"Vklopi dostop do lokacije"</string>
+    <string name="btn_enable_bluetooth" msgid="5357651687998209452">"Vklopi Bluetooth"</string>
+    <string name="btn_new_project_content_description" msgid="6932143755645026255">"Nov projekt"</string>
+    <string name="title_activity_new_project" msgid="2838213281488377791">"Nov projekt"</string>
+    <string name="title_activity_update_project" msgid="4441312132900502358">"Posodabljanje projekta"</string>
+    <string name="project_save_failed" msgid="5623422183377416130">"Projekta ni bilo mogoče shraniti. Poskusite znova."</string>
+    <string name="archived_project_message" msgid="4798618073088509851">"Projekt je arhiviran."</string>
+    <string name="unarchived_project_message" msgid="178393278028428287">"Projekt je premaknjen iz arhiva."</string>
+    <string name="action_undo" msgid="3152747614676103846">"Razveljavi"</string>
+    <string name="project_title_hint" msgid="8228443486075398477">"Naslov projekta"</string>
+    <string name="project_problem_hint" msgid="381678432298729684">"Opis"</string>
+    <string name="project_cover_description" msgid="1534511071097246816">"Izberite fotografijo za projekt"</string>
+    <string name="choose_photo_button_text" msgid="761066275467820031">"Izberite fotografijo"</string>
+    <plurals name="project_experiments_count" formatted="false" msgid="7648457680949535167">
+      <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> poskus</item>
+      <item quantity="two"><xliff:g id="NUMBER_1">%1d</xliff:g> poskusa</item>
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> poskusi</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> poskusov</item>
+    </plurals>
+    <string name="btn_new_experiment_content_description" msgid="7327973648445064928">"Nov poskus"</string>
+    <string name="archived_experiment_message" msgid="6471344531723915995">"Poskus je arhiviran."</string>
+    <string name="unarchived_experiment_message" msgid="8059010703916773668">"Poskus je premaknjen iz arhiva."</string>
+    <string name="archived_run_message" msgid="8095301767431802235">"Izvedba je arhivirana."</string>
+    <string name="unarchived_run_message" msgid="471395163511338290">"Izvedba je premaknjena iz arhiva."</string>
+    <string name="experiments_toolbar_title" msgid="7336526041603098967">"Poskusi"</string>
+    <string name="archived_content_description" msgid="5626832963025103076">"<xliff:g id="ITEM">%1s</xliff:g> (arhivirano)"</string>
+    <plurals name="experiment_run_count" formatted="false" msgid="8354594369372506196">
+      <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> izvedba</item>
+      <item quantity="two"><xliff:g id="NUMBER_1">%1d</xliff:g> izvedbi</item>
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> izvedbe</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> izvedb</item>
+    </plurals>
+    <plurals name="notes_count" formatted="false" msgid="7949686260707404918">
+      <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> opomba</item>
+      <item quantity="two"><xliff:g id="NUMBER_1">%1d</xliff:g> opombi</item>
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> opombe</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> opomb</item>
+    </plurals>
+    <string name="experiment_title_hint" msgid="3508456602523057718">"Naslov poskusa"</string>
+    <string name="experiment_description_hint" msgid="3197580737141616333">"Opis poskusa"</string>
+    <string name="title_activity_new_experiment" msgid="5681560613521817391">"Nov poskus"</string>
+    <string name="title_activity_update_experiment" msgid="681114244731613638">"Posodabljanje poskusa"</string>
+    <string name="experiment_save_failed" msgid="5031953807658062748">"Poskusa ni bilo mogoče shraniti. Poskusite znova."</string>
+    <string name="btn_add_sensor_card_description" msgid="4836624546799382073">"Dodaj novo kartico tipala"</string>
+    <string name="btn_sensor_card_settings" msgid="5722000860549753304">"Nastavitve tipala"</string>
+    <string name="sensor_options" msgid="7269577762234317911">"Možnosti tipala"</string>
+    <string name="btn_sensor_card_expand" msgid="5267003335362502193">"Pokaži seznam tipal"</string>
+    <string name="btn_sensor_card_contract" msgid="4805549352705439024">"Skrij seznam tipal"</string>
+    <string name="btn_sensor_card_close" msgid="4964202674700426175">"Zapri kartico"</string>
+    <string name="learn_more_button" msgid="6562065467901868709">"Več o tem"</string>
+    <string name="default_experiment_name" msgid="8360979514785269303">"Poskus brez naslova"</string>
+    <string name="default_project_name" msgid="5076954632739479626">"Projekt brez naslova"</string>
+    <string name="empty_project_library" msgid="6139693733859042212">"Nimate projektov"</string>
+    <string name="empty_project" msgid="196070251052121055">"Nimate poskusov"</string>
+    <string name="frequency_window_option_label" msgid="4885731738492452610">"Frekvenčno okno (v ms)"</string>
+    <string name="frequency_filter_option_label" msgid="6322746140513536230">"Frekvenčni filter (v enotah tipala)"</string>
+    <string name="enable_frequency_checkbox_label" msgid="7012647084401204497">"Pokaži frekvenco"</string>
+    <string name="dev_sensors_summary" msgid="3417308653634353239">"Pokaži tipala, namenjena samo preskušanju, ki ga opravljajo razvijalci"</string>
+    <string name="options_save_error" msgid="5710202337557612915">"Napaka shranjev. možnosti"</string>
+    <string name="options_load_error" msgid="1033189385249714186">"Napaka nalaganja možnosti"</string>
+    <string name="dev_tools_title" msgid="413875762004836148">"Omogoči eksperimentalna orodja"</string>
+    <string name="dev_tools_summary" msgid="8602005614020489618">"Pokaži orodja, namenjena samo preskušanju, ki ga opravljajo razvijalci"</string>
+    <string name="dev_tools_leak_detection_title" msgid="4501895025531999102">"Omogoči zaznavanje puščanja pomnilnika"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="6611870647303094340">"Spremembe te nastavitve začnejo veljati šele, ko zaprete aplikacijo."</string>
+    <string name="d2p" msgid="639917686672445089">"Podatki v višino"</string>
+    <string name="d2a" msgid="1134874560612971036">"Podatki v amplitudo"</string>
+    <string name="d2pe" msgid="3727800647324543645">"Podatki v ovojnico višine"</string>
+    <string name="d2ps" msgid="7368523482734331024">"Podatki v ovojnico višine petnotne lestvice"</string>
+    <!-- no translation found for sonification_types:0 (3861898414238653003) -->
+    <!-- no translation found for sonification_types:1 (906523180895001108) -->
+    <!-- no translation found for sonification_types:2 (5312779098039590744) -->
+    <!-- no translation found for sonification_types:3 (2613491808468275381) -->
+  <string-array name="sonification_type_aliases">
+    <item msgid="7377813266249747858">"d2p"</item>
+    <item msgid="6906000057586711876">"d2a"</item>
+    <item msgid="1870736636828704674">"d2pe"</item>
+    <item msgid="5674284626652201942">"d2ps"</item>
+  </string-array>
+    <string name="new_experiment_spinner_item" msgid="5833883031740938473">"Nov poskus ..."</string>
+    <string name="recording_title_label" msgid="5188061176268043052">"Beleženje …"</string>
+    <string name="exp_edit_info_button" msgid="57557261114019563">"Urejanje informacij"</string>
+    <string name="btn_observe_content_description" msgid="6339279151257255267">"Opazujte"</string>
+    <string name="title_activity_experiment_details" msgid="6104721540075416005">"Podrobnosti o poskusu"</string>
+    <string name="empty_runs" msgid="2492444523656046772">"Nimate izvedb"</string>
+    <string name="permission_request_write" msgid="7894354232042075113">"Za zapisovanje v zunanjo shrambo je potrebno dovoljenje."</string>
+    <string name="device_options_sensor_label_text" msgid="4913281182269452551">"Tipalo"</string>
+    <string name="external_sensor_appearance_name" msgid="2545762878566289321">"<xliff:g id="SENSOR_NAME">%s</xliff:g> – <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
+    <string name="sensor_rotation_rpm" msgid="7675868077769123026">"Vrtenje"</string>
+    <string name="sensor_voltage" msgid="8803070522098118555">"Napetost"</string>
+    <string name="sensor_raw" msgid="3706079416934145306">"Neobdelano"</string>
+    <string name="sensor_temperature_fahrenheit" msgid="530709732319662008">"Temperatura v F"</string>
+    <string name="sensor_custom" msgid="6419934674147294928">"Po meri"</string>
+    <string name="device_options_custom_sensor_pin_label_text" msgid="7800969142277212707">"Nožica"</string>
+    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="3441420502780409558">"Frekvenca"</string>
+    <string name="feedback_error_message" msgid="6267829056474146185">"Povratnih informacij ni bilo mogoče poslati."</string>
+    <string name="no_sensor_info_found" msgid="4162175886082619280">"Ni dodatnih informacij o tipalu."</string>
+    <string name="sensor_desc_short_acc_x" msgid="2894000283386570265">"Pospešek telefona v levo in desno v m/s²"</string>
+    <string name="sensor_desc_short_acc_y" msgid="6068967454464639546">"Pospešek telefona naprej in nazaj v m/s²"</string>
+    <string name="sensor_desc_short_acc_z" msgid="718984279193417402">"Pospešek telefona navzgor in navzdol v m/s²"</string>
+    <string name="sensor_desc_short_decibel" msgid="6022620562641402361">"Jakost zvoka, ki doseže tipalo ali mikrofon, merjena v decibelih (dB)."</string>
+    <string name="sensor_desc_short_light" msgid="2836912567230826095">"Količina svetlobe, ki doseže tipalo svetlobe v okolju, merjena v luksih."</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="2856177797841108478">"Kot vrtenja med telefonom in zunanjim magnetnim poljem."</string>
+    <string name="sensor_desc_short_bluetooth" msgid="6408146877850831242">"Zunanje tipalo prikazuje podatke tukaj glede na nastavitve po meri."</string>
+    <string name="sensor_desc_short_rotation" msgid="4005725749913712057">"Število vrtljajev na minuto"</string>
+    <string name="sensor_desc_short_raw" msgid="8183752554049502871">"Odstotek neobdelanih podatkov, prebranih iz zunanjega tipala."</string>
+    <string name="sensor_desc_first_paragraph_light" msgid="4109035727606616530">"Tipalo svetlobe v okolju meri svetlobo v luksih, enoti za osvetlitev, ki je odvisna od količine dohodne svetlobe in območja, po katerem je razporejena. \n\nPolna luna ustvarja približno 1 luks osvetlitve, običajna luč, ki osvetljuje dnevno sobo, približno 50 luksov, osvetlitev učilnice in sončni vzhod ter zahod približno 400 luksov, dnevna svetloba (posredna sončna svetloba) več kot 10.000 luksov, neposredna sončna svetloba pa več kot 30.000 luksov. \n\nLuks je enota, ki je večina od nas ne pozna. Pri kupovanju žarnic uporabljamo vate, vendar nam ti ne povejo, kako svetla je žarnica, pač pa samo, koliko energije porablja. Boljša enota za kupovanje žarnic so lumni, ki povejo, koliko svetlobe bo žarnica dejansko ustvarila, luksi pa povejo, koliko svetlobe bo padlo na določeno območje."</string>
+    <string name="sensor_desc_second_paragraph_light" msgid="4898255020378037357">"Svetloba se med potovanjem širi navzven, zato se število luksov pri odmikanju od vira svetlobe zmanjšuje, čeprav vir še vedno oddaja enako količino svetlobe v lumnih. Tudi območje, ki je nagnjeno stran od virov svetlobe, je manj osvetljeno. Zaradi tega so ekvatorialna območja Zemlje toliko toplejša od mrzlih tečajev. \n\nMimogrede, naloga tipala svetlobe v telefonu je, da nadzoruje osvetlitev zaslona in jo prilagaja temnim in svetlim okoljem. Znotraj svetlobnega tipala se majhen polprevodnik odziva na dohodno svetlobo z ustvarjanjem šibkega, vendar merljivega električnega toka – temu pojavu pravimo fotoelektrični učinek. Podobna tipala se uporabljajo v nekaterih uličnih svetilkah, da se vklopijo, ko se zunaj stemni."</string>
+    <string name="sensor_desc_first_paragraph_acc" msgid="5154591427983319390">"Predmeti so nagnjeni k temu, da ostanejo na svojem mestu ali da nadaljujejo z gibanjem, če se gibljejo – temu pravimo vztrajnost. Formalno jo opisuje Newtonov prvi zakon: predmet nadaljuje z gibanjem ali ostane na svojem mestu, razen če nanj deluje neizenačena sila. \n\nKo neizenačena sila povzroči, da se predmet premakne, pravimo, da predmet pospešuje: njegova hitrost se spremeni – predmet pospeši, upočasni ali spremeni smer gibanja. Pospeševanje se meri kot sprememba hitrosti (ta se meri v metrih na sekundo) v času ali v metrih na kvadratno sekundo (m/s²). \n\nV telefonu je naprava, ki meri te spremembe gibanja – merilnik pospeška. Znotraj merilnika pospeška se prosto gibljejo majhne viseče uteži. Spremembe v gibanju povzročijo, da se te uteži premaknejo, podobno kot se vaša glava v avtomobilu, ki nenadoma zavre, premakne naprej. Merilnik pospeška v telefonu meri te majhne vztrajnostne premike in tako zazna spremembe v gibanju in usmerjenosti. To je uporabno za preklapljanje zaslona iz ležeče usmeritve v pokončno, igranje iger na telefonu in drugo."</string>
+    <string name="sensor_desc_second_paragraph_acc" msgid="8812623507037923651">"Verjetno ste opazili nenehen pospešek v smeri osi Z, tudi ko telefon odložite na mizo. To je pospešek, ki zaradi gravitacijskega privlaka deluje na nas na površini Zemlje, in znaša približno 9,8 m/s²."</string>
+    <string name="sensor_desc_first_paragraph_decibel" msgid="2782071765610621336">"Vibracije ustvarjajo zvoke. Vaš glas na primer ustvarjajo vibracije glasilk v vašem grlu. Te vibracije ustvarjajo izmenjujoča se območja visokega in nizkega zračnega tlaka, ki potujejo navzven, podobno kot okrogli valovi, ki se širijo navzven, ko v jezero vržete kamen."</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="142151860819231749">"Vse zvoke je mogoče opisati z njihovo frekvenco in jakostjo. \n\nZ aplikacijo Science Journal tukaj merite jakost v decibelih (dB). Jakost, ali glasnost, je odvisna od razdalje, za katero se predmet premakne ob vsaki vibraciji. Večjo jakost slišimo kot višjo glasnost. \n\nFrekvenca (tudi višina ali ton) zvočnega vala je enakovredna njegovi hitrosti vibriranja. Hitreje kot predmet vibrira, višji bo ustvarjen zvok. Aplikacija Science Journal ne meri frekvence, pač pa le glasnost. \n\nGlasnost najtišjega zvoka, ki ga lahko zazna uho povprečnega človeka, je 0 dB. Glasnost običajnega pogovora je okrog 60 dB, zvoki nad 140 dB pa so za človeško uho boleči. Škodljivi so lahko tudi neboleči zvoki. Neprekinjena izpostavljenost zvokom glasnosti 90 dB, kar približno ustreza glasnosti sesalnika, lahko sčasoma povzroči izgubo sluha. \n\nMerilna lestvica za decibele je logaritemska, zaradi česar je merjenje nekoliko zapleteno: vir zvoka glasnosti 40 dB ni dvakrat močnejši kot vir zvoka glasnosti 20 dB – je stokrat močnejši. Če ena zvoneča budilka ustvari zvok z glasnostjo 70 dB, dve budilki ne ustvarita zvoka glasnosti 140, pač pa 73 dB. Kot smo omenili, je merilna lestvica nenavadna. \n\nŠumenje listov – 10 dB \nŠepetanje z razdalje 1,5 m – 20 dB \nTiho šepetanje – 30 dB \nDež – 50 dB \nObičajni pogovor – 60 dB \nMešalnik – 90 dB \nAvtomobil brez dušilca – 100 dB \nVpitje v uho – 110 dB \nGrmenje – 120 dB \nPnevmatsko kladivo – 130 dB \nVzlet letala – 140 dB"</string>
+    <string name="sensor_desc_first_paragraph_rotation" msgid="8053108458881116800">"Vrtljaji na minuto (vrt./min) so meritev frekvence vrtenja okoli nepremične osi v eni minuti. \n\nKo se vetrnica vrti, poganja tudi disk kodirnika:"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="1296904470766613471">"To ustvarja obdobja svetlobe in teme na tipalu, kar se v aplikaciji Science Journal zazna kot vrtljaj."</string>
+    <string name="sensor_desc_first_paragraph_raw" msgid="4939612146659644032">"Tukaj prikazani podatki prihajajo iz komunikacije zunanjega tipala s telefonom prek povezave Bluetooth. \n\nVrednost prikazuje odstotek neobdelanih podatkov, odčitanih neposredno iz mikrokrmilnika. To je običajno odstotek padca napetosti prek tipala."</string>
+    <string name="sensor_desc_second_paragraph_raw" msgid="8973117353495356394">"Bluetooth je standard za brezžično tehnologijo, s katero nepremične in mobilne naprave z radijskimi valovi izmenjujejo podatke na kratkih razdaljah."</string>
+    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="7981623485563854939">"Tukaj prikazani podatki prihajajo iz komunikacije zunanjega tipala s telefonom prek povezave Bluetooth."</string>
+    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="7708856960763941387">"Bluetooth je standard za brezžično tehnologijo, s katero nepremične in mobilne naprave z radijskimi valovi izmenjujejo podatke na kratkih razdaljah."</string>
+    <string name="run_review_duration" msgid="7076553835966679478">"Trajanje"</string>
+    <string name="run_review_activity_label" msgid="5276313115461408528">"Pregled"</string>
+    <string name="service_notification_content_title" msgid="409211151396677834">"Science Journal"</string>
+    <string name="service_notification_content_text" msgid="6198486549545279611">"Beleženje …"</string>
+    <string name="live_graph_content_description" msgid="3504419430886261146">"Grafikon tipala v živo. Povlecite po zaslonu za pomikanje po osi X."</string>
+    <string name="static_graph_content_description" msgid="5963837267567407006">"Grafikon tipala. Povlecite prsta skupaj ali ju razmaknite za spreminjanje povečave in povlecite po zaslonu za pomikanje po osi X."</string>
+    <string name="sensor_card_overflow_menu_content_description" msgid="1847239009701022116">"Možnosti kartice"</string>
+    <string name="btn_sensor_flip_info_content_description" msgid="4129040510635338579">"preklopi v način informacij"</string>
+    <string name="btn_sensor_flip_graph_content_description" msgid="2500545463691107821">"preklopi v način grafikona"</string>
+    <string name="sensor_tab_layout_content_description" msgid="6653074718544676936">"razpoložljiva tipala"</string>
+    <string name="sensor_tab_selected_format" msgid="5189774892597619784">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (izbrano)"</string>
+    <string name="title_activity_sensor_info" msgid="6960039814316283850">"Informacije o tipalu"</string>
+    <string name="title_activity_sensor_info_format" msgid="9106545676836634722">"Tipalo <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="heading_info_section" msgid="3068233297591403258">"Kaj se dogaja?"</string>
+    <string name="edit_note_menu_item" msgid="5303280313359136552">"Uredi"</string>
+    <string name="edit_note_time" msgid="2027041230205029461">"Urejanje časa opombe"</string>
+    <string name="delete_note_menu_item" msgid="7908811564743301702">"Izbriši"</string>
+    <string name="delete_run" msgid="103141962786624686">"Izbriši"</string>
+    <string name="crop_run" msgid="1336721925526265401">"Obrezovanje"</string>
+    <string name="add_run_note" msgid="4601243377697085005">"Dodaj opombo"</string>
+    <string name="add_experiment_note" msgid="1084637094906153162">"Dodaj opombo"</string>
+    <string name="run_label" msgid="7587739695592981023">"<xliff:g id="RUN_INDEX">%s</xliff:g>. izvedba"</string>
+    <string name="run_review_switch_sensor_btn_prev" msgid="1562899512022232138">"prejšnje tipalo: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_next" msgid="5528270146135394657">"naslednje tipalo: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="edit_note_hint_text" msgid="7190191469950695769">"Uredite opombo za izvedbo"</string>
+    <string name="add_note_hint_text" msgid="4947278182685363439">"Dodajte novo opombo"</string>
+    <string name="snackbar_note_deleted" msgid="4926151554010737654">"Opomba je izbrisana"</string>
+    <string name="snackbar_undo" msgid="488185413692934054">"Razveljavi"</string>
+    <string name="add_run_note_placeholder_text" msgid="4564897234715127061">"Dodajte opombo izvedbi"</string>
+    <string name="add_experiment_note_placeholder_text" msgid="5668745283017643514">"Dodajte opombo o poskusu"</string>
+    <string name="add_note_image_button_content_description" msgid="5956413597980661328">"Zajemi slikovno opombo"</string>
+    <string name="pinned_note_placeholder_text" msgid="742162042813125689">"Dodajte opombo"</string>
+    <string name="no_notes_text" msgid="1333257200348947043">"Ni opomb"</string>
+    <string name="indeterminate_value" msgid="6535623633404732608">"--"</string>
+    <string name="project_card_overflow_menu_content_description" msgid="2569345733400148597">"Možnosti projekta"</string>
+    <string name="project_active_badge" msgid="8953778683278828884">"Aktivno"</string>
+    <string name="archived_badge" msgid="7204033469949818539">"Arhivirano"</string>
+    <string name="action_include_archived_projects" msgid="1872416419322070603">"Vključi arhivirane projekte"</string>
+    <string name="action_include_archived_experiments" msgid="1368001463798477703">"Vključi arhivirane poskuse"</string>
+    <string name="action_new_experiment" msgid="3598888962558710132">"Nov poskus"</string>
+    <string name="delete_run_dialog_title" msgid="2829473058431908340">"Želite izbrisati to izvedbo?"</string>
+    <string name="run_review_delete_confirm" msgid="9216827234502882510">"Ali ste prepričani, da želite izbrisati to izvedbo? Zabeleženi podatki in opombe bodo izbrisani. Tega dejanja ni mogoče razveljaviti."</string>
+    <string name="menu_btn_content_description" msgid="4680014704943654954">"meni"</string>
+    <string name="age_verifier_header" msgid="9217155512378711429">"Potrdite svojo starost"</string>
+    <string name="age_verifier_birthday" msgid="2054392341079524729">"Rojstni dan:"</string>
+    <string name="age_verifier_get_started" msgid="1086024826189816224">"Začnite"</string>
+    <string name="tutorial_welcome_header" msgid="5596382686735832683">"Raziščite svet"</string>
+    <string name="tutorial_welcome_body" msgid="7591843046586427635">"S tipali v svojem telefonu Android lahko izmerite zvok, svetlobo in še več."</string>
+    <string name="tutorial_setup_header" msgid="7529566316389493918">"Organiziranje projektov"</string>
+    <string name="tutorial_setup_body" msgid="3570507763094472318">"Nastavite projekte in poskuse, da razvrstite podatke in primerjate rezultate."</string>
+    <string name="tutorial_observe_record_header" msgid="3715811468629596336">"Beleženje v realnem času"</string>
+    <string name="tutorial_observe_record_body" msgid="6982870167622582123">"Ste opazili nekaj, kar želite izmeriti? Zabeležite ugotovitve v realnem času z enim pritiskom gumba."</string>
+    <string name="tutorial_take_notes_header" msgid="8271718393020433479">"Dodajanje opomb med opazovanjem"</string>
+    <string name="tutorial_take_notes_body" msgid="6597967563928412974">"Med beleženjem lahko dodajate opombe in slike, da bodo imeli podatki več konteksta."</string>
+    <string name="btn_previous_label" msgid="2881262882599469727">"Nazaj"</string>
+    <string name="btn_next_label" msgid="1682026626542221420">"Naprej"</string>
+    <string name="sensor_card_error_text" msgid="151455534130824363">"Podatkov tipala ni bilo mogoče naložiti"</string>
+    <string name="bluetooth_not_on_title" msgid="8961840974431817490">"Vklopite Bluetooth"</string>
+    <string name="bluetooth_not_on_body" msgid="1861412368943739545">"Ni povezave z zunanjim tipalom: Bluetooth je izklopljen. Za povezavo s tipalom vklopite Bluetooth."</string>
+    <string name="bluetooth_not_on_ok" msgid="3148597353545683264">"Vklopi Bluetooth"</string>
+    <string name="sensor_card_loading_text" msgid="8569947135727599414">"Nalaganje podatkov tipala …"</string>
+    <string name="graph_loading" msgid="9200302049191996695">"Nalaganje grafikona …"</string>
+    <string name="playback_button_pause" msgid="6025607837788357759">"začasno ustavi predvajanje zvoka"</string>
+    <string name="playback_button_play" msgid="5739285031289314186">"začni predvajanje zvoka"</string>
+    <string name="sonification_type_card_title" msgid="7315771791094946967">"Vrsta sonifikacije za kartico"</string>
+    <string name="sonification_type_title" msgid="271616837832972881">"Privzeta vrsta sonifikacije"</string>
+    <string name="title_edit_trial_activity" msgid="3272215900928155534">"Urejanje izvedbe"</string>
+    <string name="edit_trial_title_hint" msgid="3752953269416446342">"Naslov izvedbe"</string>
+    <string name="include_archived_trials" msgid="6064586011723883752">"Vključi arhivirane izvedbe"</string>
+    <string name="export_error" msgid="8729689368786707247">"Izvoz ni uspel."</string>
+    <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
+    <skip />
+    <string name="listing_title" msgid="6842666752572268412">"Science Journal"</string>
+    <string name="listing_tagline" msgid="6633876313767981347">"Poskusi v vašem svetu."</string>
+    <string name="listing_changelog" msgid="5651904379742962668">"Prva izdaja"</string>
+    <string name="listing__description" msgid="7679178857079821372">"Science Journal je orodje, ki omogoča, da s svojim pametnim telefonom postanete znanstvenik. Uporabite tipala v telefonu ali vzpostavite povezavo z zunanjimi tipali in izvajajte poskuse v svetu okoli sebe. Razvrstite zamisli v projekte, postavite napovedi, napravite zapiske, zberite podatke z več izvedbami poskusa, nato pa označite in raziščite svoje rezultate. Aplikacija je laboratorijska beležka, ki jo boste imeli vedno pri roki. \n\n \nTukaj so vam na voljo zamisli o uporabi aplikacije: https://makingscience.withgoogle.com/science-journal/activities \nVeč o programu Making &amp; Science: https://makingscience.withgoogle.com \nZa podporo obiščite: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
+    <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
+    <skip />
+    <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_summary (1881741234337323074) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_title (7760095515631648430) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_summary (5446570032717609139) -->
+    <skip />
+</resources>

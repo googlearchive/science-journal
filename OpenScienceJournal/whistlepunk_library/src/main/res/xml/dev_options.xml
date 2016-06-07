@@ -1,0 +1,67 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:key="enable_magnetometer_sensor"
+        android:defaultValue="false"
+        android:title="@string/enable_magnetometer_sensor_title"
+        android:summary="@string/enable_magnetometer_sensor_summary"
+    />
+
+    <CheckBoxPreference
+        android:key="enable_barometer_sensor"
+        android:defaultValue="false"
+        android:title="@string/enable_barometer_sensor_title"
+        android:summary="@string/enable_barometer_sensor_summary"
+        />
+
+    <CheckBoxPreference
+        android:key="enable_ambient_temp_sensor"
+        android:defaultValue="false"
+        android:title="@string/enable_temperature_sensor_title"
+        android:summary="@string/enable_temperature_sensor_summary"
+        />
+
+    <CheckBoxPreference
+        android:key="enable_sine_wave_sensor"
+        android:defaultValue="false"
+        android:title="@string/enable_sine_wave_sensor_title"
+        android:summary="@string/enable_sine_wave_sensor_summary"
+    />
+
+    <CheckBoxPreference
+        android:key="enable_video_sensor"
+        android:defaultValue="false"
+        android:title="@string/enable_video_sensor_title"
+        android:summary="@string/enable_video_sensor_summary"
+    />
+
+    <CheckBoxPreference
+        android:key="dev_tools"
+        android:defaultValue="false"
+        android:title="@string/dev_tools_title"
+        android:summary="@string/dev_tools_summary"
+        />
+
+    <CheckBoxPreference
+        android:key="leak_canary"
+        android:defaultValue="false"
+        android:title="@string/dev_tools_leak_detection_title"
+        android:summary="@string/dev_tools_leak_detection_summary"
+        />
+
+    <ListPreference
+        android:key="sonification_type"
+        android:title="@string/sonification_type_title"
+        android:entries="@array/sonification_types"
+        android:entryValues="@array/sonification_type_aliases"/>
+    />
+
+    <CheckBoxPreference
+        android:key="live_zoom_type"
+        android:defaultValue="false"
+        android:title="@string/live_zoom_type_option_title"
+        android:summary="@string/live_zoom_type_option_summary"
+        />
+
+</PreferenceScreen>

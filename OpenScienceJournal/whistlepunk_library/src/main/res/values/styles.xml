@@ -1,0 +1,87 @@
+<resources>
+
+    <!-- For activities without toolbar or implementing their own toolbar. e.g. MainActivity. -->
+    <style name="NoBarTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorAccent">@color/color_accent_dark</item>
+
+        <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+    </style>
+
+    <style name="NoBarTheme.TranslucentStatusBar" parent="NoBarTheme">
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorAccent">@color/color_accent_dark</item>
+        <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+    </style>
+
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/color_accent</item>
+    </style>
+
+    <!-- For activities that deal with experiments. Different primary color. -->
+    <style name="NoBarTheme.Experiment">
+        <item name="colorPrimaryDark">@color/color_accent_dark</item>
+        <item name="colorPrimary">@color/color_accent</item>
+    </style>
+
+    <!-- Metadata update activities for projects and experiments have a different primary color. -->
+    <style name="AppTheme.UpdateMetadata">
+        <item name="colorPrimaryDark">@color/color_accent_dark</item>
+        <item name="colorPrimary">@color/color_accent</item>
+    </style>
+
+    <style name="AppTheme.RunReview">
+        <item name="android:actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
+        <item name="android:actionModeBackground">@null</item>
+    </style>
+
+    <!-- Subtitle style -->
+    <style name="NoBarTheme.ActionBar.SubtitleTextStyle"
+        parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Subtitle">
+        <item name="android:textSize">@dimen/appbar_subtitle_text_size</item>
+        <item name="android:textColor">@color/text_color_white</item>
+    </style>
+
+    <!-- Sensor selector tab layout. -->
+    <style name="Widget.Design.TabLayout.SensorSelector" parent="Widget.Design.TabLayout">
+        <item name="tabPaddingStart">@dimen/sensor_tab_padding</item>
+        <item name="tabPaddingEnd">@dimen/sensor_tab_padding</item>
+        <item name="tabPaddingTop">@dimen/sensor_tab_padding</item>
+        <item name="tabPaddingBottom">@dimen/sensor_tab_padding_bottom</item>
+        <item name="tabMaxWidth">@dimen/sensor_tab_width</item>
+        <item name="tabMinWidth">@dimen/sensor_tab_width</item>
+    </style>
+
+    <!-- Buttons -->
+    <style name="ExperimentButton" parent="@style/Widget.AppCompat.Button.Colored">
+    </style>
+
+    <style name="ExperimentButton.EditInfo">
+        <item name="colorButtonNormal">@color/color_accent</item>
+    </style>
+
+    <style name="ExperimentButton.RecordPrompt">
+        <item name="colorButtonNormal">@color/color_accent</item>
+    </style>
+
+    <!-- Age verifier -->
+    <style name="AppTheme.AgeVerifier" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimaryDark">@color/color_accent_dark</item>
+        <item name="colorPrimary">@color/color_accent</item>
+        <item name="colorButtonNormal">@color/color_accent</item>
+    </style>
+
+    <style name="NavigationView" parent="NoBarTheme">
+        <item name="colorControlHighlight">@color/background_color</item>
+        <item name="colorPrimary">@color/color_primary</item>
+    </style>
+
+</resources>

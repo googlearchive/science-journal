@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="action_feedback" msgid="2230997537507885910">"Palaute"</string>
+    <string name="action_settings" msgid="4140514779355685890">"Asetukset"</string>
+    <string name="action_save" msgid="7115885253849785049">"Tallenna"</string>
+    <string name="action_edit" msgid="2879274643416740117">"Muokkaa"</string>
+    <string name="action_archive_project" msgid="3984396879969444432">"Arkistoi projekti"</string>
+    <string name="action_unarchive_project" msgid="2708696233939647946">"Palauta projekti arkistosta"</string>
+    <string name="action_archive_experiment" msgid="5641733726709708591">"Arkistoi koe"</string>
+    <string name="action_unarchive_experiment" msgid="2357913494087884425">"Palauta koe arkistosta"</string>
+    <string name="action_archive_run" msgid="439270635088307350">"Arkistoi mittaus"</string>
+    <string name="action_unarchive_run" msgid="5992535261034463728">"Palauta mittaus arkistosta"</string>
+    <string name="action_delete" msgid="5205384449071348669">"Poista"</string>
+    <string name="action_ruler" msgid="3567453615091215971">"Viivain"</string>
+    <string name="action_level" msgid="2223203490872051791">"Vesivaaka"</string>
+    <string name="sine_wave" msgid="7465850130633241930">"Siniaalto"</string>
+    <string name="acc_x" msgid="6032598557672647110">"Kiihtyvyysmittari X"</string>
+    <string name="acc_y" msgid="3524690325306070984">"Kiihtyvyysmittari Y"</string>
+    <string name="acc_z" msgid="4540365462206126342">"Kiihtyvyysmittari Z"</string>
+    <string name="ambient_light" msgid="3301998123545447671">"Ympäristön valo"</string>
+    <string name="magnetic_rotation" msgid="6643176023260466091">"Magneettinen pyöriminen"</string>
+    <string name="video_stream" msgid="1813984984736617091">"Videotoisto"</string>
+    <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
+    <string name="ambient_light_units" msgid="6318282254934724349">"lx"</string>
+    <!-- no translation found for magnetic_rotation_units (5964336522624353252) -->
+    <skip />
+    <string name="decibel_units" msgid="2890849301464041989">"dB"</string>
+    <string name="rpm_units" msgid="897807671511627492">"kierr./min"</string>
+    <string name="voltage_units" msgid="6411118170860716365">"V"</string>
+    <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
+    <string name="experiment_details" msgid="6814534510464980289">"Kokeen tiedot"</string>
+    <string name="add_sensor" msgid="96374933560924369">"Lisää anturi"</string>
+    <string name="snackbar_source_error" msgid="6054360710842869995">"Virhe yhteydessä seuraavaan laitteeseen: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
+    <string name="action_retry" msgid="7873032739745888974">"Yritä uudelleen"</string>
+    <string name="decibel" msgid="7425761238029567370">"Äänen intensiteetti"</string>
+    <string name="title_activity_tutorial" msgid="7117023626104839821">"Science Journal ‑esittely"</string>
+    <string name="title_activity_age_verifier" msgid="6953483601673982354">"Syntymäpäivä"</string>
+    <string name="title_activity_ruler" msgid="4538057504732643762">"Viivain"</string>
+    <string name="ruler_label_metric" msgid="8008318703764352929">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
+    <string name="ruler_label_imperial" msgid="2225518554245466626">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> tuumaa"</string>
+    <string name="title_activity_level" msgid="7751336762571175981">"Vesivaaka"</string>
+    <string name="action_calibrate" msgid="2567237363558254927">"Kalibroi"</string>
+    <string name="action_end_calibrate" msgid="6416011236105220467">"Lopeta kalibrointi"</string>
+    <string name="title_calibrate" msgid="4425118955292706233">"Kalibroi käyttämällä seuraavaa…"</string>
+    <string name="calibration_credit_card" msgid="1784606520446558443">"Luottokortti (korkeus)"</string>
+    <string name="calibration_ruler_imperial" msgid="2477725634940053346">"Viivain (3\")"</string>
+    <string name="calibration_ruler_metric" msgid="1330487431270295597">"Viivain (80 mm)"</string>
+    <string name="btn_add_experiment_note_description" msgid="7451384954210671094">"Lisää kokeeseen muistiinpano"</string>
+    <string name="btn_add_run_note_description" msgid="3729688760639518856">"Lisää mittaukseen muistiinpano"</string>
+    <string name="btn_record_description" msgid="6165596989316716650">"Aloita tallennus"</string>
+    <string name="btn_stop_description" msgid="5331283967913304386">"Lopeta tallennus"</string>
+    <string name="unknown_sensor" msgid="2253417219024438701">"Tuntematon anturi"</string>
+    <string name="recording_start_failed" msgid="8094130346174113235">"Tallennus epäonnistui, yritä uudelleen."</string>
+    <string name="recording_start_failed_disconnected" msgid="2493130069585541040">"Tallennus epäonnistui, sillä anturia ei ole yhdistetty. Yritä uudelleen."</string>
+    <string name="recording_stop_failed_no_data_title" msgid="256592083253381257">"Tietoja ei tallenneta"</string>
+    <string name="recording_stop_failed_no_data" msgid="5167111037930589862">"Yksi tai useampi anturi ei tallentanut lainkaan tietoa. Haluatko peruuttaa tallennuksen?"</string>
+    <string name="recording_stop_failed_continue" msgid="161788317476740066">"Jatka"</string>
+    <string name="recording_stop_failed_cancel" msgid="9167449814602506726">"Peruuta tallennus"</string>
+    <string name="recording_stop_failed_disconnected" msgid="1409656957401598471">"Tallennuksen lopetus epäonnistui, sillä yhteys anturiin katkesi. Haluatko peruuttaa tallennuksen?"</string>
+    <string name="recording_stop_failed_save" msgid="720527628154679503">"Tallennuksen lopetus epäonnistui, sillä mittauksen tallennus ei onnistunut. Yritä uudelleen."</string>
+    <!-- no translation found for elapsed_time_short_format (7848904136886917036) -->
+    <skip />
+    <string name="elapsed_time_long_format" msgid="3451516277286685162">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
+    <!-- no translation found for accessible_elapsed_time_short_format (867388448497851890) -->
+    <skip />
+    <string name="accessible_elapsed_time_long_format" msgid="5588697398982936316">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small" msgid="8801162161093675447">"<xliff:g id="MINUTES">%1d</xliff:g>.<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large" msgid="1312366645818667859">"<xliff:g id="HOURS">%1d</xliff:g>.<xliff:g id="MINUTES">%02d</xliff:g>.<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="8665096074255046060">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="picture_note_description" msgid="4617343713156115501">"Kuva mittauksesta"</string>
+    <string name="picture_note_preview_content_description" msgid="4160980766022755366">"Kuvamuistiinpanon esikatselu"</string>
+    <string name="navigation_item_observe" msgid="6544385569776074166">"Havainnointi"</string>
+    <string name="navigation_item_projects" msgid="204705505259389287">"Projektit"</string>
+    <string name="navigation_item_web_link" msgid="1966109305973672752">"Making &amp; Science ‑sivusto"</string>
+    <string name="navigation_item_settings" msgid="1612988756868966834">"Asetukset"</string>
+    <string name="navigation_item_testing_options" msgid="8712068439028163725">"Testausasetukset"</string>
+    <string name="title_activity_main" msgid="8803846504222999093">"Science Journal – <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_add_sensor" msgid="3432276215295606638">"Ulkoiset laitteet"</string>
+    <string name="external_devices_paired" msgid="460907629018449824">"Pariliitetyt laitteet"</string>
+    <string name="external_devices_pairing" msgid="1318140666547340328">"Muodostetaan pariliitosta…"</string>
+    <string name="external_devices_available" msgid="4660407499712163232">"Käytettävissä olevat laitteet"</string>
+    <string name="external_devices_settings_title" msgid="7731073608455634240">"Laiteasetukset"</string>
+    <string name="external_devices_settings_forget" msgid="2280373936547146694">"Poista laite"</string>
+    <string name="external_devices_settings_ok" msgid="3688835834178014100">"OK"</string>
+    <string name="progress_scanning" msgid="504228868213512629">"Skannataan…"</string>
+    <string name="action_refresh" msgid="6449507931372381488">"Päivitä"</string>
+    <string name="no_options_title" msgid="5380361167896386704">"Ei asetuksia anturille <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="no_options_message" msgid="3139314286228576248">"Anturilla <xliff:g id="NAME">%1$s</xliff:g> ei ole määritettäviä asetuksia."</string>
+    <string name="options_message" msgid="693169996123125208">"Valitse astetukset anturille <xliff:g id="SENSOR_NAME">%1$s</xliff:g>."</string>
+    <string name="sine_wave_frequency_option" msgid="3299263567413396079">"Määritä siniaallon taajuus millisekunteina:"</string>
+    <string name="video_stream_fps_option" msgid="7912973629078331063">"Määritä videotoiston tallennuksen kuvataajuus (kuvaa/s):"</string>
+    <string name="title_activity_project_details" msgid="6738094706468371738">"Projektin kokeet"</string>
+    <string name="graph_name" msgid="4051005079264085531">"graafi"</string>
+    <string name="graph_options" msgid="4225585925400993925">"Graafiasetukset"</string>
+    <string name="graph_options_title" msgid="6860269315108522661">"Graafiasetukset"</string>
+    <string name="graph_options_smoothness_edit" msgid="1885781785347948911">"Sulavuus"</string>
+    <string name="graph_options_window_edit" msgid="8943669029029140826">"Sumennuksen koko"</string>
+    <string name="graph_options_blur_edit" msgid="6217163217394307677">"Sumennuksen tyyppi"</string>
+    <string name="graph_options_gaussian_sigma_edit" msgid="5761710064672068300">"Keskihajonta"</string>
+    <string name="blur_type_average" msgid="1617413241621655455">"Keskiarvo"</string>
+    <string name="blur_type_gaussian" msgid="1011871621295653087">"Gaussin jakauma"</string>
+    <string name="graph_options_audio_feedback_enable" msgid="1845200328398473302">"Ota ääni käyttöön"</string>
+    <string name="graph_options_audio_feedback_disable" msgid="5006766005261847317">"Poista ääni käytöstä"</string>
+    <string name="stat_min" msgid="7907031942382531617">"Pienin"</string>
+    <string name="stat_max" msgid="8227023306109349391">"Suurin"</string>
+    <string name="stat_average" msgid="3601514334204674938">"Keskiarvo"</string>
+    <string name="stat_min_label" msgid="8763695907241205634">"Pienin"</string>
+    <string name="stat_max_label" msgid="4173459591223474511">"Suurin"</string>
+    <string name="stat_average_label" msgid="7341499679015444245">"Keskiarvo"</string>
+    <string name="stat_duration" msgid="8999214260188208590">"Kesto"</string>
+    <string name="stat_unknown" msgid="8543005524144060221">"Tuntematon"</string>
+    <string name="btn_reset_description" msgid="7288391743038780410">"Siirry nykyhetkeen"</string>
+    <string name="export_action" msgid="3269831142664490446">"Vie"</string>
+    <string name="export_run_chooser_title" msgid="6420930071586217884">"Tallennussijainti…"</string>
+    <string name="settings_version_title" msgid="6212827772323334070">"Versio"</string>
+    <string name="settings_replay_tutorial_title" msgid="3811832513865119930">"Sovelluksen esittely"</string>
+    <string name="settings_open_source_title" msgid="3090096891818776727">"Avoimen lähdekoodin käyttöluvat"</string>
+    <string name="dev_sensors_title" msgid="4583380726898357656">"Ota testausanturit käyttöön"</string>
+    <string name="cannot_scan_message" msgid="8297618436609318137">"Ulkoisten laitteiden eli Science Journal ‑antureiden käyttäminen Science Journalissa vaatii Bluetooth-yhteyden. Lisäksi Android-laitteissa on annettava sovellukselle oikeus käyttää sijaintitietoja, jotta se pystyy tunnistamaan Science Journal ‑anturit. Tämä johtuu siitä, että jotkin Bluetooth-laitteet lähettävät sijaintietoja tunnistamisen aikana. Science Journal ei kuitenkaan tallenna eikä käytä sijaintitietojasi, eivätkä Science Journal ‑anturit lähetä sijaintitietoja."</string>
+    <string name="btn_request_location" msgid="8197595806751014499">"Salli sijaintitietojen käyttö"</string>
+    <string name="btn_enable_bluetooth" msgid="5357651687998209452">"Ota Bluetooth käyttöön"</string>
+    <string name="btn_new_project_content_description" msgid="6932143755645026255">"Uusi projekti"</string>
+    <string name="title_activity_new_project" msgid="2838213281488377791">"Uusi projekti"</string>
+    <string name="title_activity_update_project" msgid="4441312132900502358">"Muuta projektin tietoja"</string>
+    <string name="project_save_failed" msgid="5623422183377416130">"Projektin tallennus epäonnistui. Yritä uudelleen."</string>
+    <string name="archived_project_message" msgid="4798618073088509851">"Projekti on arkistoitu."</string>
+    <string name="unarchived_project_message" msgid="178393278028428287">"Projekti palautettiin arkistosta."</string>
+    <string name="action_undo" msgid="3152747614676103846">"Kumoa"</string>
+    <string name="project_title_hint" msgid="8228443486075398477">"Projektin nimi"</string>
+    <string name="project_problem_hint" msgid="381678432298729684">"Kuvaus"</string>
+    <string name="project_cover_description" msgid="1534511071097246816">"Valitse projektin kuva"</string>
+    <string name="choose_photo_button_text" msgid="761066275467820031">"Valitse valokuva"</string>
+    <plurals name="project_experiments_count" formatted="false" msgid="7648457680949535167">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> koetta</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> koe</item>
+    </plurals>
+    <string name="btn_new_experiment_content_description" msgid="7327973648445064928">"Uusi koe"</string>
+    <string name="archived_experiment_message" msgid="6471344531723915995">"Koe on arkistoitu."</string>
+    <string name="unarchived_experiment_message" msgid="8059010703916773668">"Koe palautettiin arkistosta."</string>
+    <string name="archived_run_message" msgid="8095301767431802235">"Mittaus arkistoitu"</string>
+    <string name="unarchived_run_message" msgid="471395163511338290">"Mittaus palautettiin arkistosta."</string>
+    <string name="experiments_toolbar_title" msgid="7336526041603098967">"Kokeet"</string>
+    <string name="archived_content_description" msgid="5626832963025103076">"<xliff:g id="ITEM">%1s</xliff:g> (arkistoitu)"</string>
+    <plurals name="experiment_run_count" formatted="false" msgid="8354594369372506196">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> mittausta</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> mittaus</item>
+    </plurals>
+    <plurals name="notes_count" formatted="false" msgid="7949686260707404918">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> muistiinpanoa</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> muistiinpano</item>
+    </plurals>
+    <string name="experiment_title_hint" msgid="3508456602523057718">"Kokeen nimi"</string>
+    <string name="experiment_description_hint" msgid="3197580737141616333">"Kokeen kuvaus"</string>
+    <string name="title_activity_new_experiment" msgid="5681560613521817391">"Uusi koe"</string>
+    <string name="title_activity_update_experiment" msgid="681114244731613638">"Muuta kokeen tietoja"</string>
+    <string name="experiment_save_failed" msgid="5031953807658062748">"Kokeen tallennus epäonnistui. Yritä uudelleen."</string>
+    <string name="btn_add_sensor_card_description" msgid="4836624546799382073">"Lisää uusi anturikortti"</string>
+    <string name="btn_sensor_card_settings" msgid="5722000860549753304">"Anturin asetukset"</string>
+    <string name="sensor_options" msgid="7269577762234317911">"Anturin asetukset"</string>
+    <string name="btn_sensor_card_expand" msgid="5267003335362502193">"Näytä anturiluettelo"</string>
+    <string name="btn_sensor_card_contract" msgid="4805549352705439024">"Piilota anturiluettelo"</string>
+    <string name="btn_sensor_card_close" msgid="4964202674700426175">"Sulje kortti"</string>
+    <string name="learn_more_button" msgid="6562065467901868709">"Lisätietoja"</string>
+    <string name="default_experiment_name" msgid="8360979514785269303">"Nimetön koe"</string>
+    <string name="default_project_name" msgid="5076954632739479626">"Nimetön projekti"</string>
+    <string name="empty_project_library" msgid="6139693733859042212">"Sinulla ei ole projekteja."</string>
+    <string name="empty_project" msgid="196070251052121055">"Sinulla ei ole kokeita."</string>
+    <string name="frequency_window_option_label" msgid="4885731738492452610">"Taajuusikkuna (millisekunneissa)"</string>
+    <string name="frequency_filter_option_label" msgid="6322746140513536230">"Taajuussuodin (anturiyksiköissä)"</string>
+    <string name="enable_frequency_checkbox_label" msgid="7012647084401204497">"Näytä taajuus"</string>
+    <string name="dev_sensors_summary" msgid="3417308653634353239">"Näytä kehittäjien testauskäyttöön tarkoitetut anturit."</string>
+    <string name="options_save_error" msgid="5710202337557612915">"Asetusten tallennusvirhe"</string>
+    <string name="options_load_error" msgid="1033189385249714186">"Asetusten latausvirhe"</string>
+    <string name="dev_tools_title" msgid="413875762004836148">"Ota testaustyökalut käyttöön"</string>
+    <string name="dev_tools_summary" msgid="8602005614020489618">"Näytä kehittäjien testauskäyttöön tarkoitetut työkalut."</string>
+    <string name="dev_tools_leak_detection_title" msgid="4501895025531999102">"Ota muistivuodon tunnistus käyttöön"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="6611870647303094340">"Tämän asetuksen muutos astuu voimaan vasta sovelluksen sulkemisen jälkeen."</string>
+    <string name="d2p" msgid="639917686672445089">"Tiedot säveltasoksi"</string>
+    <string name="d2a" msgid="1134874560612971036">"Tiedot amplitudiksi"</string>
+    <string name="d2pe" msgid="3727800647324543645">"Tiedot säveltason verhokäyräksi"</string>
+    <string name="d2ps" msgid="7368523482734331024">"Tiedot säveltason verhokäyräksi pentatonisella asteikolla"</string>
+    <!-- no translation found for sonification_types:0 (3861898414238653003) -->
+    <!-- no translation found for sonification_types:1 (906523180895001108) -->
+    <!-- no translation found for sonification_types:2 (5312779098039590744) -->
+    <!-- no translation found for sonification_types:3 (2613491808468275381) -->
+  <string-array name="sonification_type_aliases">
+    <item msgid="7377813266249747858">"d2p"</item>
+    <item msgid="6906000057586711876">"d2a"</item>
+    <item msgid="1870736636828704674">"d2pe"</item>
+    <item msgid="5674284626652201942">"d2ps"</item>
+  </string-array>
+    <string name="new_experiment_spinner_item" msgid="5833883031740938473">"Uusi koe…"</string>
+    <string name="recording_title_label" msgid="5188061176268043052">"Tallennetaan…"</string>
+    <string name="exp_edit_info_button" msgid="57557261114019563">"Muokkaa tietoja"</string>
+    <string name="btn_observe_content_description" msgid="6339279151257255267">"Havainnointi"</string>
+    <string name="title_activity_experiment_details" msgid="6104721540075416005">"Kokeen tiedot"</string>
+    <string name="empty_runs" msgid="2492444523656046772">"Sinulla ei ole mittauksia."</string>
+    <string name="permission_request_write" msgid="7894354232042075113">"Ei lupaa kirjoittaa ulkoiseen tallennustilaan"</string>
+    <string name="device_options_sensor_label_text" msgid="4913281182269452551">"Anturi"</string>
+    <string name="external_sensor_appearance_name" msgid="2545762878566289321">"<xliff:g id="SENSOR_NAME">%s</xliff:g> – <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
+    <string name="sensor_rotation_rpm" msgid="7675868077769123026">"Pyörimisliike"</string>
+    <string name="sensor_voltage" msgid="8803070522098118555">"Jännite (V)"</string>
+    <!-- String.format failed for translation -->
+    <!-- no translation found for sensor_raw (3706079416934145306) -->
+    <skip />
+    <string name="sensor_temperature_fahrenheit" msgid="530709732319662008">"Lämpötila (F)"</string>
+    <string name="sensor_custom" msgid="6419934674147294928">"Muokattu"</string>
+    <string name="device_options_custom_sensor_pin_label_text" msgid="7800969142277212707">"Kiinnitä"</string>
+    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="3441420502780409558">"Taajuus"</string>
+    <string name="feedback_error_message" msgid="6267829056474146185">"Palautteen lähettäminen ei onnistunut."</string>
+    <string name="no_sensor_info_found" msgid="4162175886082619280">"Tästä anturista ei ole saatavilla lisätietoja."</string>
+    <string name="sensor_desc_short_acc_x" msgid="2894000283386570265">"Puhelimen kiihtyvyys vasemmalle ja oikealle, m/s²"</string>
+    <string name="sensor_desc_short_acc_y" msgid="6068967454464639546">"Puhelimen kiihtyvyys eteen- ja taaksepäin, m/s²"</string>
+    <string name="sensor_desc_short_acc_z" msgid="718984279193417402">"Puhelimen kiihtyvyys ylös- ja alaspäin, m/s²"</string>
+    <string name="sensor_desc_short_decibel" msgid="6022620562641402361">"Äänianturin tai mikrofonin rekisteröimän äänen intensiteetti desibeleinä (dB)"</string>
+    <string name="sensor_desc_short_light" msgid="2836912567230826095">"Ympäristön valoa mittaavan anturin rekisteröimä valo lukseina"</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="2856177797841108478">"Osoittaa puhelimen ja ulkoisen magneettikentän välisen pyörimiskulman."</string>
+    <string name="sensor_desc_short_bluetooth" msgid="6408146877850831242">"Tässä näkyvät tiedot ovat peräisin ulkoisesta anturista määrittämiesi asetusten perusteella."</string>
+    <string name="sensor_desc_short_rotation" msgid="4005725749913712057">"Kierroksia minuutissa"</string>
+    <string name="sensor_desc_short_raw" msgid="8183752554049502871">"Ulkoisen anturin raakalukeman prosentti"</string>
+    <string name="sensor_desc_first_paragraph_light" msgid="4109035727606616530">"Ympäristön valoa mittaava anturi mittaa valoa lukseissa (lx). Luksi on mittayksikkö, joka kuvaa valolähteen voimakkuutta valaistavalla pinnalla. \n\nTäysikuun valo on noin 1 lx, tyypillinen olohuoneen valaistus noin 50 lx, auringon nousu ja lasku ja luokkavalaistus noin 400 lx, epäsuora auringonvalo yli 10 000 lx ja suora auringonvalo yli 30 000 lx. \n\nLuksi on useimmille meistä vieraampi mittayksikkö kuin esimerkiksi watti, jota käytetään usein lamppujen valinnassa. Watti ei kuitenkaan kerro lampun valaisutehosta vaan sen kuluttamasta energiasta. Luumenit ovat watteja parempi apu lamppukaupassa, sillä luumenit kertovat, kuinka paljon valoa lamppu tuottaa. Luksit puolestaan kertovat, kuinka paljon tästä valosta yltää tietylle alueelle."</string>
+    <string name="sensor_desc_second_paragraph_light" msgid="4898255020378037357">"Koska valo hajaantuu kulkiessaan eteenpäin, luksien määrä pienenee sitä mukaa, mitä kauemmas valonlähteestä mennään. Valonlähteen luumenien määrä ei kuitenkaan muutu. Suoraan kohti valonlähdettä olevat alueet saavat enemmän valoa kuin siihen nähden vinossa olevat – tästä syystä esimerkiksi päiväntasaajalla on paljon lämpimämpää kuin napa-alueilla. \n\nPuhelimesi valoanturin tarkoituksena on säätää näytön kirkkautta ympäristön mukaan. Anturin sisällä on pienenpieni puolijohde, joka reagoi siihen osuvaan valoon tuottamalla pienen, mitattavissa olevan sähkövirran – tätä kutsutaan valosähköilmiöksi. Vastaavia antureita käytetään esimerkiksi katuvaloissa, jotka syttyvät itsestään pimeän tullen."</string>
+    <string name="sensor_desc_first_paragraph_acc" msgid="5154591427983319390">"Paikallaan olevalla kappaleella on taipumus pysyä paikallaan ja liikkuvalla kappaleella taipumus jatkaa liikettään tasaisesti. Tätä kutsutaan jatkavuudeksi, ja se on määritelty virallisesti Newtonin I laissa eli mekaniikan I peruslaissa: Kappale säilyttää liiketilansa, ellei mikään ulkoinen voima muuta sitä. \n\nKun jokin ulkoinen voima vaikuttaa kappaleen liiketilaan, sanotaan, että kappaleen vauhti kiihtyy eli sen nopeus muuttuu: kappaleen vauhti joko nopeutuu tai hidastuu tai kappale vaihtaa suuntaa. Kiihtyvyyttä mitataan nopeuden muutoksena tietyssä ajassa (metriä sekunnissa) tai metreinä neliösekunnissa (m/s²). \n\nPuhelimessasi on kiihtyvyysmittari, jolla voi mitata nopeuden muutoksia. Kiihtyvyysmittarin sisällä on pieniä painoja, jotka liikkuvat vapaasti nopeuden muutosten mukaan – vähän samaan tapaan kuin matkustajan pää heilahtaa eteenpäin, kun auto jarruttaa äkillisesti. Puhelimen kiihtyvyysmittari tunnistaa pienetkin liikkeet ja puhelimen asennon, mitä hyödynnetään esimerkiksi ruudun kääntämisessä vaakasuunnasta pystysuuntaan ja takaisin sekä mobiilipelien pelaamisessa."</string>
+    <string name="sensor_desc_second_paragraph_acc" msgid="8812623507037923651">"Huomasit varmaankin, että anturi rekisteröi kiihtyvyyttä Z-akselilla, vaikka puhelin olisi liikkumatta pöydällä. Kyseessä on Maapallon painovoiman aiheuttama vetokiihtyvyys, joka on noin 9,8 m/s²."</string>
+    <string name="sensor_desc_first_paragraph_decibel" msgid="2782071765610621336">"Ääni muodostuu värähdysliikkeistä. Esimerkiksi oma puheesi syntyy kurkussa sijaitsevien äänihuulien värähtelystä, joka synnyttää vuorotellen korkeita ja matalia paineaaltoja. Nämä paineaallot leviävät ympäristöön kuin järveen heitetyn kiven aiheuttamat renkaat."</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="142151860819231749">"Kaikille äänille voidaan määrittää taajuus ja intensiteetti. \n\nScience Journalissa voit mitata äänen intensiteettiä desibeleinä (dB). Äänen intensiteetti eli voimakkuus riippuu etäisyydestä, jonka värisevä kappale liikkuu väristessään; mitä suurempi intensiteetti, sitä kovempi ääni. \n\nÄäniaallon taajuus (eli säveltaso tai äänen sävy) vastaa sen synnyttävän värinän taajuutta. Mitä nopeammin kappale värisee, sitä korkeampi ääni siitä syntyy. Science Journalissa ei voi mitata äänen taajuutta vaan vain sen voimakkuutta. \n\nHiljaisin ääni, jonka keskiverto ihmiskorva erottaa, on 0 dB. Normaali keskustelu on voimakkuudeltaan noin 60 dB. Yli 140 dB:n äänet aiheuttavat ihmisille kipua, mutta jo sitä alempi melu voi vaurioittaa kuuloa. Jatkuva altistuminen vähintään 90 dB:n melulle (vastaa pölynimurin käyntiääntä) voi aiheuttaa kuulovamman. \n\nKannattaa kiinnittää huomiota siihen, että desibeliasteikko on logaritminen: 40 dB ei ole kaksi kertaa voimakkaampi kuin 20 dB – se on 100 kertaa voimakkaampi. Jos yksi herätyskello tuottaa 70 dB, kaksi herätyskelloa ei tuota 140 dB vaan 73 dB. Asteikko ei siis ole täysin suoraviivainen. \n\n10 dB: lehtien kahina \n20 dB: kuiskaus 1,5 metrin päästä \n30 dB: pehmeä kuiskaus \n50 dB: sade \n60 dB: normaali keskustelu \n90 dB: tehosekoitin \n100 dB: auto ilman äänenvaimenninta \n110 dB: huutaminen korvan juuressa \n120 dB: ukkonen \n130 dB: paineilmavasara \n140 dB: lentokoneen nousukiito"</string>
+    <string name="sensor_desc_first_paragraph_rotation" msgid="8053108458881116800">"Kierr./min on pyörimisnopeuden yksikkö, joka kertoo, kuinka monta kierrosta kappale pyörähtää akselinsa ympäri minuutissa \n\nKun hyrrä pyörii, se pyörittää enkooderilevyä:"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="1296904470766613471">"Näin valo ja varjo vuorottelevat joka kierroksella, ja anturi muuttaa tämän tiedon kierr./min-arvoksi Science Journalissa."</string>
+    <string name="sensor_desc_first_paragraph_raw" msgid="4939612146659644032">"Tässä näkyvät tiedot ovat peräisin ulkoisesta anturista, joka on yhteydessä puhelimeen Bluetoothin kautta. \n\nArvo kertoo suoraan mikro-ohjaimesta saadun raakalukeman prosenttiluvun. Tämä on yleensä anturin jännitehäviön prosenttiosuus."</string>
+    <string name="sensor_desc_second_paragraph_raw" msgid="8973117353495356394">"Bluetooth on radioaaltoja käyttävä langaton yhteysstandardi lähietäisyyden tiedonsiirtoon johdollisten laitteiden ja mobiililaitteiden välillä."</string>
+    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="7981623485563854939">"Tässä näkyvät tiedot ovat peräisin ulkoisesta anturista, joka on yhteydessä puhelimeen Bluetoothin kautta."</string>
+    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="7708856960763941387">"Bluetooth on radioaaltoja käyttävä langaton yhteysstandardi lähietäisyyden tiedonsiirtoon johdollisten laitteiden ja mobiililaitteiden välillä."</string>
+    <string name="run_review_duration" msgid="7076553835966679478">"Kesto"</string>
+    <string name="run_review_activity_label" msgid="5276313115461408528">"Tiedot"</string>
+    <string name="service_notification_content_title" msgid="409211151396677834">"Science Journal"</string>
+    <string name="service_notification_content_text" msgid="6198486549545279611">"Tallennetaan…"</string>
+    <string name="live_graph_content_description" msgid="3504419430886261146">"Anturin live-graafi. Liiku X-akselilla vetämällä näkymää."</string>
+    <string name="static_graph_content_description" msgid="5963837267567407006">"Anturin graafi – zoomaa nipistämällä ja liiku X-akselilla vetämällä näkymää."</string>
+    <string name="sensor_card_overflow_menu_content_description" msgid="1847239009701022116">"Kortin asetukset"</string>
+    <string name="btn_sensor_flip_info_content_description" msgid="4129040510635338579">"Vaihda tietoihin"</string>
+    <string name="btn_sensor_flip_graph_content_description" msgid="2500545463691107821">"Vaihda graafiseen esitykseen"</string>
+    <string name="sensor_tab_layout_content_description" msgid="6653074718544676936">"Käytettävissä olevat anturit"</string>
+    <string name="sensor_tab_selected_format" msgid="5189774892597619784">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (valittu)"</string>
+    <string name="title_activity_sensor_info" msgid="6960039814316283850">"Anturin tiedot"</string>
+    <string name="title_activity_sensor_info_format" msgid="9106545676836634722">"Anturi: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="heading_info_section" msgid="3068233297591403258">"Lisätietoja"</string>
+    <string name="edit_note_menu_item" msgid="5303280313359136552">"Muokkaa"</string>
+    <string name="edit_note_time" msgid="2027041230205029461">"Muokkaa muistiinpanoaikaa"</string>
+    <string name="delete_note_menu_item" msgid="7908811564743301702">"Poista"</string>
+    <string name="delete_run" msgid="103141962786624686">"Poista"</string>
+    <string name="crop_run" msgid="1336721925526265401">"Rajaa"</string>
+    <string name="add_run_note" msgid="4601243377697085005">"Lisää muistiinpano"</string>
+    <string name="add_experiment_note" msgid="1084637094906153162">"Lisää muistiinpano"</string>
+    <string name="run_label" msgid="7587739695592981023">"Mittaus <xliff:g id="RUN_INDEX">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_prev" msgid="1562899512022232138">"Edellinen anturi: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_next" msgid="5528270146135394657">"Seuraava anturi: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="edit_note_hint_text" msgid="7190191469950695769">"Muokkaa mittauksen muistiinpanoja"</string>
+    <string name="add_note_hint_text" msgid="4947278182685363439">"Lisää uusi muistiinpano"</string>
+    <string name="snackbar_note_deleted" msgid="4926151554010737654">"Muistiinpano poistettu"</string>
+    <string name="snackbar_undo" msgid="488185413692934054">"Kumoa"</string>
+    <string name="add_run_note_placeholder_text" msgid="4564897234715127061">"Lisää muistiinpano tähän mittaukseen"</string>
+    <string name="add_experiment_note_placeholder_text" msgid="5668745283017643514">"Lisää kokeeseen muistiinpano"</string>
+    <string name="add_note_image_button_content_description" msgid="5956413597980661328">"Luo kuvamuistiinpano"</string>
+    <string name="pinned_note_placeholder_text" msgid="742162042813125689">"Lisää muistiinpano"</string>
+    <string name="no_notes_text" msgid="1333257200348947043">"Ei muistiinpanoja"</string>
+    <string name="indeterminate_value" msgid="6535623633404732608">"--"</string>
+    <string name="project_card_overflow_menu_content_description" msgid="2569345733400148597">"Projektiasetukset"</string>
+    <string name="project_active_badge" msgid="8953778683278828884">"Aktiivinen"</string>
+    <string name="archived_badge" msgid="7204033469949818539">"Arkistoitu"</string>
+    <string name="action_include_archived_projects" msgid="1872416419322070603">"Myös arkistoidut projektit"</string>
+    <string name="action_include_archived_experiments" msgid="1368001463798477703">"Myös arkistoidut kokeet"</string>
+    <string name="action_new_experiment" msgid="3598888962558710132">"Uusi koe"</string>
+    <string name="delete_run_dialog_title" msgid="2829473058431908340">"Poistetaanko tämä mittaus?"</string>
+    <string name="run_review_delete_confirm" msgid="9216827234502882510">"Haluatko varmasti poistaa tämän mittauksen? Tallennetut tiedot ja muistiinpanot menetetään, eikä toimintoa voi perua."</string>
+    <string name="menu_btn_content_description" msgid="4680014704943654954">"Valikko"</string>
+    <string name="age_verifier_header" msgid="9217155512378711429">"Vahvista ikäsi"</string>
+    <string name="age_verifier_birthday" msgid="2054392341079524729">"Syntymäpäivä:"</string>
+    <string name="age_verifier_get_started" msgid="1086024826189816224">"Aloita"</string>
+    <string name="tutorial_welcome_header" msgid="5596382686735832683">"Tutki maailmaa uudella tavalla"</string>
+    <string name="tutorial_welcome_body" msgid="7591843046586427635">"Mittaa ääntä, valoa ja muita ominaisuuksia Android-puhelimesi antureilla."</string>
+    <string name="tutorial_setup_header" msgid="7529566316389493918">"Pidä tiedot järjestyksessä"</string>
+    <string name="tutorial_setup_body" msgid="3570507763094472318">"Luo projekteja ja kokeita, järjestä tiedot niiden mukaan ja vertaa tuloksia."</string>
+    <string name="tutorial_observe_record_header" msgid="3715811468629596336">"Tallenna reaaliajassa"</string>
+    <string name="tutorial_observe_record_body" msgid="6982870167622582123">"Törmäsitkö johonkin kiinnostavaan? Tee siitä mittaus ja tallenna havaintosi reaaliajassa yhdellä painalluksella!"</string>
+    <string name="tutorial_take_notes_header" msgid="8271718393020433479">"Tee muistiinpanoja"</string>
+    <string name="tutorial_take_notes_body" msgid="6597967563928412974">"Voit lisätä mittauksiin muistiinpanoja ja valokuvia tallennuksen olosuhteista ja ajankohdasta."</string>
+    <string name="btn_previous_label" msgid="2881262882599469727">"Edellinen"</string>
+    <string name="btn_next_label" msgid="1682026626542221420">"Seuraava"</string>
+    <string name="sensor_card_error_text" msgid="151455534130824363">"Anturitietojen lataaminen epäonnistui."</string>
+    <string name="bluetooth_not_on_title" msgid="8961840974431817490">"Muodosta Bluetooth-yhteys"</string>
+    <string name="bluetooth_not_on_body" msgid="1861412368943739545">"Yhteyttä ulkoiseen anturiin ei voi muodostaa, sillä Bluetooth ei ole käytössä."</string>
+    <string name="bluetooth_not_on_ok" msgid="3148597353545683264">"Ota Bluetooth käyttöön"</string>
+    <string name="sensor_card_loading_text" msgid="8569947135727599414">"Ladataan anturitietoja…"</string>
+    <string name="graph_loading" msgid="9200302049191996695">"Graafia ladataan…"</string>
+    <string name="playback_button_pause" msgid="6025607837788357759">"Keskeytä äänentoisto"</string>
+    <string name="playback_button_play" msgid="5739285031289314186">"Käynnistä äänentoisto"</string>
+    <string name="sonification_type_card_title" msgid="7315771791094946967">"Kortin sonifikaation tyyppi"</string>
+    <string name="sonification_type_title" msgid="271616837832972881">"Sonifikaation oletustyyppi"</string>
+    <string name="title_edit_trial_activity" msgid="3272215900928155534">"Muokkaa mittausta"</string>
+    <string name="edit_trial_title_hint" msgid="3752953269416446342">"Mittauksen nimi"</string>
+    <string name="include_archived_trials" msgid="6064586011723883752">"Myös arkistoidut mittaukset"</string>
+    <string name="export_error" msgid="8729689368786707247">"Vienti epäonnistui."</string>
+    <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
+    <skip />
+    <string name="listing_title" msgid="6842666752572268412">"Science Journal"</string>
+    <string name="listing_tagline" msgid="6633876313767981347">"Tutki ympäröivää maailmaa."</string>
+    <string name="listing_changelog" msgid="5651904379742962668">"Alkuperäinen julkaisu"</string>
+    <string name="listing__description" msgid="7679178857079821372">"Science Journal on työkalu, jolla voit tehdä tieteellisiä kokeita älypuhelimellasi. Voit mitata ympärilläsi olevia asioita ja ilmiöitä puhelimen antureilla tai yhdistää puhelimeen ulkoisia antureita. Voit järjestää ideasi projekteihin, tehdä hypoteeseja ja muistiinpanoja sekä kerätä tietoa eri mittauksista. Tämän jälkeen voit lisätä kommentteja ja arvioida tuloksia. Science Journal on aina mukanasi oleva tutkimusvihko. \n\n \nTutustu sovelluksen käyttöideoihin täällä: https://makingscience.withgoogle.com/science-journal/activities \nLue lisää Making &amp; Sciencesta: https://makingscience.withgoogle.com \nTuki: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
+    <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
+    <skip />
+    <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_summary (1881741234337323074) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_title (7760095515631648430) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_summary (5446570032717609139) -->
+    <skip />
+</resources>

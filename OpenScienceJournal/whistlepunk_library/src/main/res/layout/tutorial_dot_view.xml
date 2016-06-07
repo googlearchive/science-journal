@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: Don't have a spec, so hardcoding paddings for now. -->
+<ImageView
+   xmlns:android="http://schemas.android.com/apk/res/android"
+   android:layout_width="wrap_content"
+   android:layout_height="wrap_content"
+   android:src="@drawable/tutorial_dot"
+   android:foregroundGravity="center"
+   android:paddingStart="4dp"
+   android:paddingEnd="4dp"
+   android:contentDescription="@null"
+   />

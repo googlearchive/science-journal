@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- There is a portrait version of this file. Please update both this file
+     and the landscape version with new changes. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        >
+
+        <EditText
+            android:id="@+id/edit_note_text"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/accessibility_touch_target_min_size"
+            android:layout_marginStart="@dimen/edit_note_dialog_margin"
+            android:layout_marginTop="@dimen/edit_note_image_button_margin"
+            android:layout_marginBottom="@dimen/edit_note_textedit_margin_bottom"
+            android:hint="@string/add_run_note_placeholder_text"
+            />
+
+        <ImageButton
+            android:layout_width="@dimen/accessibility_touch_target_min_size"
+            android:layout_height="@dimen/accessibility_touch_target_min_size"
+            android:id="@+id/add_label_picture_btn"
+            android:src="@drawable/ic_camera_white_24dp"
+            android:scaleType="center"
+            android:contentDescription="@string/add_note_image_button_content_description"
+            android:layout_gravity="top"
+            android:layout_marginEnd="@dimen/edit_note_image_button_margin"
+            android:layout_marginTop="@dimen/edit_note_image_button_margin"
+            android:background="@android:color/transparent"
+            android:tint="@color/add_note_image_button_tint"
+            />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:maxHeight="@dimen/picture_note_preview_size"
+            android:id="@+id/picture_note_preview_image"
+            android:layout_margin="@dimen/edit_note_dialog_margin"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            android:contentDescription="@string/picture_note_preview_content_description"
+            android:adjustViewBounds="true"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/label_dialog_timestamp_section"
+        android:orientation="vertical">
+
+        <include layout="@layout/label_dialog_timestamp_section" />
+
+    </LinearLayout>
+
+</LinearLayout>

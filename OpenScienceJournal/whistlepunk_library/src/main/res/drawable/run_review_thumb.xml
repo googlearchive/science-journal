@@ -1,0 +1,7 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:constantSize="true">
+    <item android:state_enabled="false" android:state_pressed="true" android:drawable="@drawable/run_review_thumb_active"/>
+    <item android:state_enabled="false" android:drawable="@drawable/run_review_thumb_inactive"/>
+    <item android:state_pressed="true" android:drawable="@drawable/run_review_thumb_active"/>
+    <item android:drawable="@drawable/run_review_thumb_inactive"/>
+</selector>

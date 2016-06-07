@@ -1,0 +1,112 @@
+<com.google.android.apps.forscience.whistlepunk.review.FreezeableCoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/run_review_background_color"
+    android:id="@+id/run_review_coordinator_layout"
+    >
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/run_review_background_color"
+        android:id="@+id/app_bar_layout"
+        >
+
+        <include
+            layout="@layout/run_review_overview"
+            android:id="@+id/run_review_overview"
+            />
+
+        <View
+            android:layout_height="@dimen/run_review_divider_thickness"
+            android:layout_width="match_parent"
+            android:background="@color/run_review_divider_color"
+            app:layout_scrollFlags="scroll"
+            />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/run_review_section_margin"
+            android:layout_marginRight="@dimen/run_review_section_margin"
+            android:layout_marginTop="@dimen/run_review_sensor_section_margin_top_bottom"
+            android:layout_marginBottom="@dimen/run_review_sensor_section_margin_top_bottom"
+            android:paddingStart="@dimen/run_review_margin_sides"
+            android:paddingEnd="@dimen/run_review_margin_sides"
+            app:layout_scrollFlags="scroll|enterAlways"
+            >
+
+            <include layout="@layout/run_review_sensor_selector_section"/>
+
+        </RelativeLayout>
+
+        <View
+            android:layout_height="@dimen/run_review_divider_thickness"
+            android:layout_width="match_parent"
+            android:background="@color/run_review_divider_color"
+            app:layout_scrollFlags="scroll"
+            />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="150dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            >
+
+            <include layout="@layout/run_review_data_section"/>
+
+        </RelativeLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/pinned_note_list"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_marginStart="@dimen/run_review_margin_sides"
+        android:layout_marginEnd="@dimen/run_review_margin_sides"
+        >
+    </android.support.v7.widget.RecyclerView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/pinned_note_overlay"
+        android:background="@color/run_review_notes_overlay"
+        android:visibility="gone"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no"
+        />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/embedded"
+        android:layout_alignParentBottom="true"
+        app:layout_anchor="@id/app_bar_layout"
+        app:layout_anchorGravity="bottom"
+        android:visibility="gone"
+        >
+
+    </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/export_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:max="100"
+        android:progress="0"
+        android:indeterminate="false"
+        android:visibility="invisible"
+        android:elevation="16dp"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+
+</com.google.android.apps.forscience.whistlepunk.review.FreezeableCoordinatorLayout>

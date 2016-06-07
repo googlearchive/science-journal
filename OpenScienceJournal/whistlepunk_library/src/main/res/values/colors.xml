@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- All non-colored text should be one of the four following colors. -->
+    <color name="text_color_white">#FFFFFF</color>
+    <color name="text_color_black">#000000</color>
+    <color name="text_color_dark_grey">#DE000000</color>
+    <color name="text_color_light_grey">#8A000000</color>
+    <color name="text_color_link">@color/color_accent_dark</color>
+
+    <color name="chart_background_color">#00FFFFFF</color>
+    <color name="chart_margins_color">#FFFFFF</color>
+    <color name="card_background_color">#FFFFFF</color>
+    <color name="chart_grid_color">#CCCCCC</color>
+    <color name="level_background_color">#8BC34A</color>
+    <color name="level_mark_color">#7CB342</color>
+    <color name="level_edge_color">#AED581</color>
+    <color name="level_bubble_color">#FFC107</color>
+    <color name="level_bubble_color_centered">#FFA000</color>
+    <color name="capture_bottom_panel">#424242</color>
+    <color name="observe_external_axis_color">#CCFFFFFF</color>
+    <color name="recording_axis_bar_color">#FFDB4437</color>
+    <color name="recording_axis_overlay_color">#1ADB4437</color>
+    <color name="note_overlay_line_color">#9E9E9E</color>
+    <color name="run_review_divider_color">#E0E0E0</color>
+    <color name="run_review_duration_text_color">@color/color_primary</color>
+    <color name="run_review_background_color">#FFFFFF</color>
+    <color name="run_review_graph_label_fill_color">#9E9E9E</color>
+    <color name="run_review_notes_overlay">#77000000</color>
+    <color name="graph_line_color_blue">#4285F4</color>
+    <color name="graph_line_color_green">#0F9D58</color>
+    <color name="graph_line_color_red">#DB4437</color>
+    <color name="graph_line_color_yellow">#FF5722</color>
+    <color name="graph_line_color_grey">#757575</color>
+    <color name="graph_line_color_overlay_blue">#DD4285F4</color>
+    <color name="graph_label_fill_color">#F8E71C</color>
+    <color name="stats_max_color">#DB4437</color>
+    <color name="stats_min_color">#0F9D58</color>
+    <color name="stats_average_color">#9E9E9E</color>
+    <color name="color_primary">#673ab7</color>
+    <color name="color_primary_dark">#4A148C</color>
+    <color name="color_accent">#4285F4</color>
+    <color name="color_accent_dark">#3367D6</color>
+    <color name="background_color">#ebebeb</color>
+    <color name="sensor_tab_indicator_color">#fff8f081</color>
+    <color name="sensor_card_meter_view_color">#f0f0f0</color>
+    <color name="recording_toolbar_color">#d9453d</color>
+    <color name="recording_status_bar_color">#b73328</color>
+    <color name="pinned_note_icon_color">@color/text_color_light_grey</color>
+    <color name="add_note_image_button_tint">#727272</color>
+    <color name="age_verifier_header_background">#bbdefb</color>
+    <color name="tutorial_background_welcome">#039BE5</color>
+    <color name="tutorial_background_setup">#E64A19</color>
+    <color name="tutorial_background_observe_record">#7B1FA2</color>
+    <color name="tutorial_background_take_notes">#C2185B</color>
+    <color name="thumb_color_transparent">#57000000</color>
+    <color name="snackbar_action_color">#f8f081</color>
+</resources>

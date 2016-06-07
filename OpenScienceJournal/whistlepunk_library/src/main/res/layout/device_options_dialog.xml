@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/options_padding_top_bottom"
+    android:paddingBottom="@dimen/options_padding_top_bottom"
+    android:paddingStart="@dimen/options_padding_sides"
+    android:paddingEnd="@dimen/options_padding_sides">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/device_options_sensor_label_text"
+        android:id="@+id/sensor_label"
+        android:labelFor="@+id/sensor_type_spinner"/>
+
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/accessibility_touch_target_min_size"
+        android:id="@+id/sensor_type_spinner"
+        android:spinnerMode="dropdown" />
+
+    <LinearLayout
+        android:id="@+id/spinner_custom_layout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/device_options_custom_sensor_pin_label_text"
+            android:id="@+id/spinner_custom_pin_label"
+            android:labelFor="@+id/spinner_custom_pin"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/accessibility_touch_target_min_size"
+            android:id="@+id/spinner_custom_pin" />
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/accessibility_touch_target_min_size"
+            android:text="@string/device_options_custom_sensor_frequency_checkbox_text"
+            android:id="@+id/spinner_custom_frequency_checkbox"
+            android:checked="true" />
+    </LinearLayout>
+
+</LinearLayout>

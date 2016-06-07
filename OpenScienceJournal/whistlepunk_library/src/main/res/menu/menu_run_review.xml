@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <item android:id="@+id/action_run_review_add_note"
+        android:title="@string/add_run_note"
+        android:icon="@drawable/ic_notes_white_24dp"
+        app:showAsAction="always"
+        />
+    <item android:id="@+id/action_run_review_edit"
+          android:title="@string/title_edit_trial_activity"
+          android:icon="@drawable/ic_mode_edit_white_24dp"
+          app:showAsAction="always"
+    />
+    <item android:id="@+id/action_run_review_crop"
+          android:title="@string/crop_run"
+          android:icon="@drawable/ic_crop_white_24dp"
+          app:showAsAction="ifRoom"
+    />
+    <item android:id="@+id/action_run_review_delete"
+        android:title="@string/delete_run"
+        android:icon="@drawable/ic_delete_white_24dp"
+        app:showAsAction="ifRoom"
+        />
+    <item android:id="@+id/action_run_review_archive"
+        android:title="@string/action_archive_run"
+        android:icon="@drawable/ic_archive_white_24dp"
+        app:showAsAction="ifRoom"
+        />
+    <item android:id="@+id/action_run_review_unarchive"
+          android:title="@string/action_unarchive_run"
+          android:icon="@drawable/ic_archive_white_24dp"
+          app:showAsAction="never"
+    />
+    <item android:id="@+id/action_graph_options"
+        android:title="@string/graph_options"
+        />
+    <item android:id="@+id/action_export"
+        android:title="@string/export_action"
+        app:showAsAction="never"
+        />
+</menu>

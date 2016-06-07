@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- There is a landscape version of this file. Please update both this file
+     and the landscape version with new changes. -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/edit_note_dialog_margin"
+    >
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="@dimen/picture_note_preview_size"
+        android:id="@+id/picture_note_preview_image"
+        android:layout_marginStart="@dimen/edit_note_dialog_margin"
+        android:layout_marginEnd="@dimen/edit_note_dialog_margin"
+        android:layout_marginBottom="@dimen/edit_note_dialog_margin"
+        android:layout_gravity="center"
+        android:contentDescription="@string/picture_note_preview_content_description"
+        android:adjustViewBounds="true"
+        />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/accessibility_touch_target_min_size"
+        android:layout_marginStart="@dimen/edit_note_dialog_margin"
+        android:layout_marginEnd="@dimen/edit_note_dialog_margin"
+        android:layout_marginBottom="@dimen/edit_note_textedit_margin_bottom"
+        android:id="@+id/edit_note_text"
+        android:hint="@string/edit_note_hint_text"
+        android:textColor="@color/text_color_dark_grey"
+        android:textCursorDrawable="@null"
+        />
+
+    <include layout="@layout/label_dialog_timestamp_section"/>
+
+</LinearLayout>

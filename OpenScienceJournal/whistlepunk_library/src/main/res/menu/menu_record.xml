@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      tools:context=".MainActivity">
+    <item android:icon="@drawable/ic_experiment_white_24dp"
+          android:title="@string/experiment_details"
+          android:id="@+id/btn_experiment_details"
+          app:showAsAction="ifRoom"
+        />
+    <item android:icon="@drawable/ic_add_sensor_white_24dp"
+        android:title="@string/add_sensor"
+        android:id="@+id/btn_add_sensors"
+        app:showAsAction="ifRoom"
+        />
+    <item android:id="@+id/action_graph_options"
+        android:title="@string/graph_options"
+        android:icon="@android:drawable/ic_menu_preferences"
+        />
+    <item
+        android:id="@+id/action_ruler"
+        android:title="@string/action_ruler"
+        android:orderInCategory="90"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_level"
+        android:title="@string/action_level"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+</menu>

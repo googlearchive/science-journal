@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="action_feedback" msgid="2230997537507885910">"Feedback"</string>
+    <string name="action_settings" msgid="4140514779355685890">"Settings"</string>
+    <string name="action_save" msgid="7115885253849785049">"Save"</string>
+    <string name="action_edit" msgid="2879274643416740117">"Edit"</string>
+    <string name="action_archive_project" msgid="3984396879969444432">"Archive project"</string>
+    <string name="action_unarchive_project" msgid="2708696233939647946">"Unarchive project"</string>
+    <string name="action_archive_experiment" msgid="5641733726709708591">"Archive experiment"</string>
+    <string name="action_unarchive_experiment" msgid="2357913494087884425">"Unarchive experiment"</string>
+    <string name="action_archive_run" msgid="439270635088307350">"Archive trial"</string>
+    <string name="action_unarchive_run" msgid="5992535261034463728">"Unarchive trial"</string>
+    <string name="action_delete" msgid="5205384449071348669">"Delete"</string>
+    <string name="action_ruler" msgid="3567453615091215971">"Ruler"</string>
+    <string name="action_level" msgid="2223203490872051791">"Level"</string>
+    <string name="sine_wave" msgid="7465850130633241930">"Sine wave"</string>
+    <string name="acc_x" msgid="6032598557672647110">"Accelerometer X"</string>
+    <string name="acc_y" msgid="3524690325306070984">"Accelerometer Y"</string>
+    <string name="acc_z" msgid="4540365462206126342">"Accelerometer Z"</string>
+    <string name="ambient_light" msgid="3301998123545447671">"Ambient Light"</string>
+    <string name="magnetic_rotation" msgid="6643176023260466091">"Magnetic rotation"</string>
+    <string name="video_stream" msgid="1813984984736617091">"Video Stream"</string>
+    <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
+    <string name="ambient_light_units" msgid="6318282254934724349">"lux"</string>
+    <!-- no translation found for magnetic_rotation_units (5964336522624353252) -->
+    <skip />
+    <string name="decibel_units" msgid="2890849301464041989">"dB"</string>
+    <string name="rpm_units" msgid="897807671511627492">"RPM"</string>
+    <string name="voltage_units" msgid="6411118170860716365">"V"</string>
+    <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
+    <string name="experiment_details" msgid="6814534510464980289">"Experiment details"</string>
+    <string name="add_sensor" msgid="96374933560924369">"Add Sensor"</string>
+    <string name="snackbar_source_error" msgid="6054360710842869995">"Error occurred when connecting to this source: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
+    <string name="action_retry" msgid="7873032739745888974">"Retry"</string>
+    <string name="decibel" msgid="7425761238029567370">"Sound Intensity"</string>
+    <string name="title_activity_tutorial" msgid="7117023626104839821">"Science Journal Tutorial"</string>
+    <string name="title_activity_age_verifier" msgid="6953483601673982354">"Birthday"</string>
+    <string name="title_activity_ruler" msgid="4538057504732643762">"Ruler"</string>
+    <string name="ruler_label_metric" msgid="8008318703764352929">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
+    <string name="ruler_label_imperial" msgid="2225518554245466626">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> in"</string>
+    <string name="title_activity_level" msgid="7751336762571175981">"Level"</string>
+    <string name="action_calibrate" msgid="2567237363558254927">"Calibrate"</string>
+    <string name="action_end_calibrate" msgid="6416011236105220467">"End calibration"</string>
+    <string name="title_calibrate" msgid="4425118955292706233">"Calibrate with…"</string>
+    <string name="calibration_credit_card" msgid="1784606520446558443">"Credit card (height)"</string>
+    <string name="calibration_ruler_imperial" msgid="2477725634940053346">"Ruler (3 in)"</string>
+    <string name="calibration_ruler_metric" msgid="1330487431270295597">"Ruler (80 mm)"</string>
+    <string name="btn_add_experiment_note_description" msgid="7451384954210671094">"Add experiment note"</string>
+    <string name="btn_add_run_note_description" msgid="3729688760639518856">"Add trial note"</string>
+    <string name="btn_record_description" msgid="6165596989316716650">"Start recording"</string>
+    <string name="btn_stop_description" msgid="5331283967913304386">"Stop recording"</string>
+    <string name="unknown_sensor" msgid="2253417219024438701">"Unknown sensor"</string>
+    <string name="recording_start_failed" msgid="8094130346174113235">"Recording failed, please try again"</string>
+    <string name="recording_start_failed_disconnected" msgid="2493130069585541040">"Recording failed: a sensor is not connected. Please try again"</string>
+    <string name="recording_stop_failed_no_data_title" msgid="256592083253381257">"Data is not being recorded"</string>
+    <string name="recording_stop_failed_no_data" msgid="5167111037930589862">"One or more of your sensors did not record any data. Would you like to cancel this recording?"</string>
+    <string name="recording_stop_failed_continue" msgid="161788317476740066">"Continue"</string>
+    <string name="recording_stop_failed_cancel" msgid="9167449814602506726">"Cancel recording"</string>
+    <string name="recording_stop_failed_disconnected" msgid="1409656957401598471">"Stop recording failed: a sensor is disconnected. Would you like to cancel this recording?"</string>
+    <string name="recording_stop_failed_save" msgid="720527628154679503">"Stop recording failed: failed to save trial. Please try again."</string>
+    <!-- no translation found for elapsed_time_short_format (7848904136886917036) -->
+    <skip />
+    <string name="elapsed_time_long_format" msgid="3451516277286685162">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
+    <!-- no translation found for accessible_elapsed_time_short_format (867388448497851890) -->
+    <skip />
+    <string name="accessible_elapsed_time_long_format" msgid="5588697398982936316">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small" msgid="8801162161093675447">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large" msgid="1312366645818667859">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="8665096074255046060">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="picture_note_description" msgid="4617343713156115501">"Picture from trial"</string>
+    <string name="picture_note_preview_content_description" msgid="4160980766022755366">"Picture note preview"</string>
+    <string name="navigation_item_observe" msgid="6544385569776074166">"Observe"</string>
+    <string name="navigation_item_projects" msgid="204705505259389287">"Projects"</string>
+    <string name="navigation_item_web_link" msgid="1966109305973672752">"Making &amp; Science website"</string>
+    <string name="navigation_item_settings" msgid="1612988756868966834">"Settings"</string>
+    <string name="navigation_item_testing_options" msgid="8712068439028163725">"Testing options"</string>
+    <string name="title_activity_main" msgid="8803846504222999093">"Science Journal - <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_add_sensor" msgid="3432276215295606638">"External devices"</string>
+    <string name="external_devices_paired" msgid="460907629018449824">"Paired devices"</string>
+    <string name="external_devices_pairing" msgid="1318140666547340328">"Pairing…"</string>
+    <string name="external_devices_available" msgid="4660407499712163232">"Available devices"</string>
+    <string name="external_devices_settings_title" msgid="7731073608455634240">"Device settings"</string>
+    <string name="external_devices_settings_forget" msgid="2280373936547146694">"Forget"</string>
+    <string name="external_devices_settings_ok" msgid="3688835834178014100">"OK"</string>
+    <string name="progress_scanning" msgid="504228868213512629">"Scanning…"</string>
+    <string name="action_refresh" msgid="6449507931372381488">"Refresh"</string>
+    <string name="no_options_title" msgid="5380361167896386704">"No options for <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="no_options_message" msgid="3139314286228576248">"No options can be set for <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="options_message" msgid="693169996123125208">"Set options for <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
+    <string name="sine_wave_frequency_option" msgid="3299263567413396079">"Set sine wave frequency in milliseconds:"</string>
+    <string name="video_stream_fps_option" msgid="7912973629078331063">"Set video stream recording rate in frames per second:"</string>
+    <string name="title_activity_project_details" msgid="6738094706468371738">"Project Experiments"</string>
+    <string name="graph_name" msgid="4051005079264085531">"the graph"</string>
+    <string name="graph_options" msgid="4225585925400993925">"Graph options"</string>
+    <string name="graph_options_title" msgid="6860269315108522661">"Graph options"</string>
+    <string name="graph_options_smoothness_edit" msgid="1885781785347948911">"Smoothness"</string>
+    <string name="graph_options_window_edit" msgid="8943669029029140826">"Blur size"</string>
+    <string name="graph_options_blur_edit" msgid="6217163217394307677">"Blur type"</string>
+    <string name="graph_options_gaussian_sigma_edit" msgid="5761710064672068300">"Standard deviation"</string>
+    <string name="blur_type_average" msgid="1617413241621655455">"Average"</string>
+    <string name="blur_type_gaussian" msgid="1011871621295653087">"Gaussian"</string>
+    <string name="graph_options_audio_feedback_enable" msgid="1845200328398473302">"Enable audio"</string>
+    <string name="graph_options_audio_feedback_disable" msgid="5006766005261847317">"Disable audio"</string>
+    <string name="stat_min" msgid="7907031942382531617">"Minimum"</string>
+    <string name="stat_max" msgid="8227023306109349391">"Maximum"</string>
+    <string name="stat_average" msgid="3601514334204674938">"Average"</string>
+    <string name="stat_min_label" msgid="8763695907241205634">"Min"</string>
+    <string name="stat_max_label" msgid="4173459591223474511">"Max"</string>
+    <string name="stat_average_label" msgid="7341499679015444245">"Average"</string>
+    <string name="stat_duration" msgid="8999214260188208590">"Duration"</string>
+    <string name="stat_unknown" msgid="8543005524144060221">"Unknown"</string>
+    <string name="btn_reset_description" msgid="7288391743038780410">"Jump to now"</string>
+    <string name="export_action" msgid="3269831142664490446">"Export"</string>
+    <string name="export_run_chooser_title" msgid="6420930071586217884">"Save to…"</string>
+    <string name="settings_version_title" msgid="6212827772323334070">"Version"</string>
+    <string name="settings_replay_tutorial_title" msgid="3811832513865119930">"Tutorial"</string>
+    <string name="settings_open_source_title" msgid="3090096891818776727">"Open-source licences"</string>
+    <string name="dev_sensors_title" msgid="4583380726898357656">"Enable experimental sensors"</string>
+    <string name="cannot_scan_message" msgid="8297618436609318137">"To access external devices (“Science Journal Sensor”) using Science Journal, you must first turn on Bluetooth. In order to discover Science Journal Sensors, Android requires you to also grant permission to access your location because other Bluetooth devices may broadcast their location information during device discovery. However, Science Journal will not store or use this location information, and Science Journal Sensors do not transmit location information."</string>
+    <string name="btn_request_location" msgid="8197595806751014499">"Turn on location access"</string>
+    <string name="btn_enable_bluetooth" msgid="5357651687998209452">"Turn on Bluetooth"</string>
+    <string name="btn_new_project_content_description" msgid="6932143755645026255">"New project"</string>
+    <string name="title_activity_new_project" msgid="2838213281488377791">"New project"</string>
+    <string name="title_activity_update_project" msgid="4441312132900502358">"Update project"</string>
+    <string name="project_save_failed" msgid="5623422183377416130">"Could not save the project. Please try again."</string>
+    <string name="archived_project_message" msgid="4798618073088509851">"Project archived."</string>
+    <string name="unarchived_project_message" msgid="178393278028428287">"Project moved out of archive."</string>
+    <string name="action_undo" msgid="3152747614676103846">"Undo"</string>
+    <string name="project_title_hint" msgid="8228443486075398477">"Project title"</string>
+    <string name="project_problem_hint" msgid="381678432298729684">"Description"</string>
+    <string name="project_cover_description" msgid="1534511071097246816">"Choose a project photo"</string>
+    <string name="choose_photo_button_text" msgid="761066275467820031">"Choose a photo"</string>
+    <plurals name="project_experiments_count" formatted="false" msgid="7648457680949535167">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> experiments</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> experiment</item>
+    </plurals>
+    <string name="btn_new_experiment_content_description" msgid="7327973648445064928">"New experiment"</string>
+    <string name="archived_experiment_message" msgid="6471344531723915995">"Experiment archived."</string>
+    <string name="unarchived_experiment_message" msgid="8059010703916773668">"Experiment moved out of archive."</string>
+    <string name="archived_run_message" msgid="8095301767431802235">"Trial archived."</string>
+    <string name="unarchived_run_message" msgid="471395163511338290">"Trial moved out of archive."</string>
+    <string name="experiments_toolbar_title" msgid="7336526041603098967">"Experiments"</string>
+    <string name="archived_content_description" msgid="5626832963025103076">"<xliff:g id="ITEM">%1s</xliff:g> (archived)"</string>
+    <plurals name="experiment_run_count" formatted="false" msgid="8354594369372506196">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> trials</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> trial</item>
+    </plurals>
+    <plurals name="notes_count" formatted="false" msgid="7949686260707404918">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> notes</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> note</item>
+    </plurals>
+    <string name="experiment_title_hint" msgid="3508456602523057718">"Experiment title"</string>
+    <string name="experiment_description_hint" msgid="3197580737141616333">"Experiment description"</string>
+    <string name="title_activity_new_experiment" msgid="5681560613521817391">"New experiment"</string>
+    <string name="title_activity_update_experiment" msgid="681114244731613638">"Update experiment"</string>
+    <string name="experiment_save_failed" msgid="5031953807658062748">"Experiment failed to save. Please try again."</string>
+    <string name="btn_add_sensor_card_description" msgid="4836624546799382073">"Add new sensor card"</string>
+    <string name="btn_sensor_card_settings" msgid="5722000860549753304">"Sensor settings"</string>
+    <string name="sensor_options" msgid="7269577762234317911">"Sensor options"</string>
+    <string name="btn_sensor_card_expand" msgid="5267003335362502193">"Show sensor list"</string>
+    <string name="btn_sensor_card_contract" msgid="4805549352705439024">"Hide sensor list"</string>
+    <string name="btn_sensor_card_close" msgid="4964202674700426175">"Close card"</string>
+    <string name="learn_more_button" msgid="6562065467901868709">"Learn More"</string>
+    <string name="default_experiment_name" msgid="8360979514785269303">"Untitled Experiment"</string>
+    <string name="default_project_name" msgid="5076954632739479626">"Untitled Project"</string>
+    <string name="empty_project_library" msgid="6139693733859042212">"You have no projects"</string>
+    <string name="empty_project" msgid="196070251052121055">"You have no experiments"</string>
+    <string name="frequency_window_option_label" msgid="4885731738492452610">"Frequency window (in millis)"</string>
+    <string name="frequency_filter_option_label" msgid="6322746140513536230">"Frequency filter (in sensor units)"</string>
+    <string name="enable_frequency_checkbox_label" msgid="7012647084401204497">"Show frequency"</string>
+    <string name="dev_sensors_summary" msgid="3417308653634353239">"Show sensors that are only for developer testing"</string>
+    <string name="options_save_error" msgid="5710202337557612915">"Error saving options"</string>
+    <string name="options_load_error" msgid="1033189385249714186">"Error loading options"</string>
+    <string name="dev_tools_title" msgid="413875762004836148">"Enable experimental tools"</string>
+    <string name="dev_tools_summary" msgid="8602005614020489618">"Show tools that are only for developer testing"</string>
+    <string name="dev_tools_leak_detection_title" msgid="4501895025531999102">"Enable memory leak detection"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="6611870647303094340">"Changes to this setting only take affect after closing the application."</string>
+    <string name="d2p" msgid="639917686672445089">"Data to pitch"</string>
+    <string name="d2a" msgid="1134874560612971036">"Data to amplitude"</string>
+    <string name="d2pe" msgid="3727800647324543645">"Data to pitch envelope"</string>
+    <string name="d2ps" msgid="7368523482734331024">"Data to pentatonic scale pitch envelope"</string>
+    <!-- no translation found for sonification_types:0 (3861898414238653003) -->
+    <!-- no translation found for sonification_types:1 (906523180895001108) -->
+    <!-- no translation found for sonification_types:2 (5312779098039590744) -->
+    <!-- no translation found for sonification_types:3 (2613491808468275381) -->
+  <string-array name="sonification_type_aliases">
+    <item msgid="7377813266249747858">"d2p"</item>
+    <item msgid="6906000057586711876">"d2a"</item>
+    <item msgid="1870736636828704674">"d2pe"</item>
+    <item msgid="5674284626652201942">"d2ps"</item>
+  </string-array>
+    <string name="new_experiment_spinner_item" msgid="5833883031740938473">"New experiment…"</string>
+    <string name="recording_title_label" msgid="5188061176268043052">"Recording…"</string>
+    <string name="exp_edit_info_button" msgid="57557261114019563">"Edit info"</string>
+    <string name="btn_observe_content_description" msgid="6339279151257255267">"Observe"</string>
+    <string name="title_activity_experiment_details" msgid="6104721540075416005">"Experiment Details"</string>
+    <string name="empty_runs" msgid="2492444523656046772">"You have no trials"</string>
+    <string name="permission_request_write" msgid="7894354232042075113">"Permission needed to write to external storage."</string>
+    <string name="device_options_sensor_label_text" msgid="4913281182269452551">"Sensor"</string>
+    <string name="external_sensor_appearance_name" msgid="2545762878566289321">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
+    <string name="sensor_rotation_rpm" msgid="7675868077769123026">"Rotation"</string>
+    <string name="sensor_voltage" msgid="8803070522098118555">"Voltage"</string>
+    <string name="sensor_raw" msgid="3706079416934145306">"Raw"</string>
+    <string name="sensor_temperature_fahrenheit" msgid="530709732319662008">"Temperature in F"</string>
+    <string name="sensor_custom" msgid="6419934674147294928">"Custom"</string>
+    <string name="device_options_custom_sensor_pin_label_text" msgid="7800969142277212707">"Pin"</string>
+    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="3441420502780409558">"Frequency"</string>
+    <string name="feedback_error_message" msgid="6267829056474146185">"Could not send feedback."</string>
+    <string name="no_sensor_info_found" msgid="4162175886082619280">"This sensor has no additional information!"</string>
+    <string name="sensor_desc_short_acc_x" msgid="2894000283386570265">"The acceleration of the phone to the left and right, in m/s²"</string>
+    <string name="sensor_desc_short_acc_y" msgid="6068967454464639546">"The acceleration of the phone forwards and back, in m/s²"</string>
+    <string name="sensor_desc_short_acc_z" msgid="718984279193417402">"The acceleration of the phone up and down, in m/s²"</string>
+    <string name="sensor_desc_short_decibel" msgid="6022620562641402361">"The intensity of the sound, measured in decibels (dB), reaching the sound sensor or microphone."</string>
+    <string name="sensor_desc_short_light" msgid="2836912567230826095">"The amount of light, measured in lux, reaching the ambient light sensor."</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="2856177797841108478">"The angle of rotation between the phone and the external magnetic field."</string>
+    <string name="sensor_desc_short_bluetooth" msgid="6408146877850831242">"An external sensor is displaying its data here, based on custom settings."</string>
+    <string name="sensor_desc_short_rotation" msgid="4005725749913712057">"The number of rotations per minute"</string>
+    <string name="sensor_desc_short_raw" msgid="8183752554049502871">"The percentage of the raw reading from an external sensor."</string>
+    <string name="sensor_desc_first_paragraph_light" msgid="4109035727606616530">"The ambient light sensor measures light in lux, a measure of illumination that depends on the amount of incoming light and the area over which it is spread. \n\nA full moon provides about 1 lux of illumination, a typical lamp-lit living room about 50 lux, classroom lighting and sunrise and sunset about 400 lux, daylight (indirect sun) over 10,000 lux, and direct sun over 30,000 lux. \n\nLux is an unfamiliar unit for most of us. When we buy lightbulbs, we often shop by watts, but the wattage of a bulb doesn\'t tell you how bright a bulb is, only how much energy it uses. Lumens are a better measure for light shopping; they tell you how much light a bulb will actually produce. Lux, meanwhile, tells you how much of that light arrives at a particular area."</string>
+    <string name="sensor_desc_second_paragraph_light" msgid="4898255020378037357">"Since light spreads out as it travels, the number of lux dwindles as you back away from a light source, even though the source is still emitting the same amount of light in lumens. An area that is tilted away from a light sources also receives less illumination, which happens to be why the equatorial regions here on Earth are so much warmer than the chilly poles. \n\nBy the way, the purpose of the light sensor in your phone is to control the light level of the screen, adjusting accordingly to dim and bright environments. Inside the light sensor, a tiny semiconductor responds to incoming light by producing a small but measurable electrical current, a phenomenon known as the photoelectric effect. Similar sensors are used in some street lights to turn them on when it gets dark outside."</string>
+    <string name="sensor_desc_first_paragraph_acc" msgid="5154591427983319390">"Objects have a tendency to stay put, or to keep moving if they\'re moving – we call this tendency inertia. Newton\'s First Law expresses this idea formally: An object continues in its state of motion or rest unless acted on by an unbalanced force. \n\nWhen an unbalanced force does cause an object to budge, we say the object accelerates: its velocity, or speed, changes – either by speeding up, slowing down, or changing direction. Acceleration is measured as a change of velocity (metres per second) in time, or metres per second squared (m/s²). \n\nYour phone has a device to measure these changes in motion – an accelerometer. Inside an accelerometer, small suspended masses are free to move. Changes in motion cause these masses to shift, much as your own head tends to flop forward when you\'re in a car that stops suddenly. Measuring these subtle inertial shifts, an accelerometer in a phone can detect changes in motion and orientation, useful for switching the screen from landscape to portrait mode, for playing games on your phone and more."</string>
+    <string name="sensor_desc_second_paragraph_acc" msgid="8812623507037923651">"You probably noticed a persistent acceleration in the Z axis, even with the phone sitting still on a table. This is the acceleration we experience here at the Earth\'s surface due to the pull of gravity, approximately 9.8 m/s²."</string>
+    <string name="sensor_desc_first_paragraph_decibel" msgid="2782071765610621336">"Sounds are made by vibration. Your voice, for example, comes from vibrations in your throat\'s vocal chords. These vibrations create alternating zones of high and low air pressure that travel outward, much like the expanding circular ripple made by a pebble thrown into a pond."</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="142151860819231749">"All sounds can be described in terms of their frequency and intensity. \n\nIntensity is what you measure here with the Science Journal, in units of decibels (dB). Intensity, or loudness, depends on the distance that a vibrating object moves each time it vibrates; we hear greater intensity as increased loudness. \n\nThe frequency (also, pitch or tone) of a sound wave is equivalent to its rate of vibration. The faster an object vibrates, the higher the pitch of the resulting sound. The Science Journal does not measure frequency, only loudness. \n\nThe quietest sound that the average human ear can detect is defined as 0 dB. Ordinary conversation corresponds to about 60 dB, and sounds above about 140 dB are painful to the human ear. But sounds don\'t have to be painful to be harmful. Continued exposure to sounds of 90 dB – about the loudness of a vacuum cleaner – can eventually cause hearing loss. \n\nThe decibel scale is logarithmic, which makes for some trickiness: A sound source of 40 dB isn\'t twice as intense as one with 20 dB – it\'s 100 times more intense. Meanwhile, if one ringing alarm clock produces 70 dB, two ringing alarm clocks produce not 140 dB, but 73 dB. Like we said, it\'s a strange scale. \n\n10 dB rustling leaves \n20 dB whispering at 1.5 metres \n30 dB soft whisper \n50 dB rainfall \n60 dB normal conversation \n90 dB blender \n100 dB car without silencer \n110 dB shouting in ear \n120 dB thunder \n130 dB jackhammer \n140 dB aeroplane taking off"</string>
+    <string name="sensor_desc_first_paragraph_rotation" msgid="8053108458881116800">"Rotations per minute (RPM) is a measure of the frequency of rotation around a fixed axis in one minute. \n\nAs your wind spinner turns, it rotates the encoder disc:"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="1296904470766613471">"This creates periods of light and dark on the sensor that register in the Science Journal as a rotation."</string>
+    <string name="sensor_desc_first_paragraph_raw" msgid="4939612146659644032">"The data displayed here is coming from an external sensor communication with your phone via Bluetooth. \n\nThe value shows the percentage of the raw reading directly from your microcontroller. This is usually the percentage of a voltage drop across a sensor."</string>
+    <string name="sensor_desc_second_paragraph_raw" msgid="8973117353495356394">"Bluetooth is a wireless technology standard using radio waves to exchange data over short distances from fixed and mobile devices."</string>
+    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="7981623485563854939">"The data displayed here is coming from an external sensor communication with your phone via Bluetooth."</string>
+    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="7708856960763941387">"Bluetooth is a wireless technology standard using radio waves to exchange data over short distances from fixed and mobile devices."</string>
+    <string name="run_review_duration" msgid="7076553835966679478">"Duration"</string>
+    <string name="run_review_activity_label" msgid="5276313115461408528">"Review"</string>
+    <string name="service_notification_content_title" msgid="409211151396677834">"Science Journal"</string>
+    <string name="service_notification_content_text" msgid="6198486549545279611">"Recording…"</string>
+    <string name="live_graph_content_description" msgid="3504419430886261146">"Live sensor graph. Drag to pan X axis."</string>
+    <string name="static_graph_content_description" msgid="5963837267567407006">"Sensor graph. Pinch to zoom and drag to pan X axis."</string>
+    <string name="sensor_card_overflow_menu_content_description" msgid="1847239009701022116">"Card options"</string>
+    <string name="btn_sensor_flip_info_content_description" msgid="4129040510635338579">"switch to info mode"</string>
+    <string name="btn_sensor_flip_graph_content_description" msgid="2500545463691107821">"switch to graph mode"</string>
+    <string name="sensor_tab_layout_content_description" msgid="6653074718544676936">"available sensors"</string>
+    <string name="sensor_tab_selected_format" msgid="5189774892597619784">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (selected)"</string>
+    <string name="title_activity_sensor_info" msgid="6960039814316283850">"Sensor Information"</string>
+    <string name="title_activity_sensor_info_format" msgid="9106545676836634722">"<xliff:g id="SENSOR_NAME">%s</xliff:g> Sensor"</string>
+    <string name="heading_info_section" msgid="3068233297591403258">"What\'s Going On?"</string>
+    <string name="edit_note_menu_item" msgid="5303280313359136552">"Edit"</string>
+    <string name="edit_note_time" msgid="2027041230205029461">"Edit note time"</string>
+    <string name="delete_note_menu_item" msgid="7908811564743301702">"Delete"</string>
+    <string name="delete_run" msgid="103141962786624686">"Delete"</string>
+    <string name="crop_run" msgid="1336721925526265401">"Crop"</string>
+    <string name="add_run_note" msgid="4601243377697085005">"Add note"</string>
+    <string name="add_experiment_note" msgid="1084637094906153162">"Add note"</string>
+    <string name="run_label" msgid="7587739695592981023">"Trial <xliff:g id="RUN_INDEX">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_prev" msgid="1562899512022232138">"previous sensor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_next" msgid="5528270146135394657">"next sensor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="edit_note_hint_text" msgid="7190191469950695769">"Edit trial note"</string>
+    <string name="add_note_hint_text" msgid="4947278182685363439">"Add a new note"</string>
+    <string name="snackbar_note_deleted" msgid="4926151554010737654">"Note deleted"</string>
+    <string name="snackbar_undo" msgid="488185413692934054">"Undo"</string>
+    <string name="add_run_note_placeholder_text" msgid="4564897234715127061">"Add note to this trial"</string>
+    <string name="add_experiment_note_placeholder_text" msgid="5668745283017643514">"Add experiment note"</string>
+    <string name="add_note_image_button_content_description" msgid="5956413597980661328">"Take picture note"</string>
+    <string name="pinned_note_placeholder_text" msgid="742162042813125689">"Add note"</string>
+    <string name="no_notes_text" msgid="1333257200348947043">"No notes"</string>
+    <string name="indeterminate_value" msgid="6535623633404732608">"--"</string>
+    <string name="project_card_overflow_menu_content_description" msgid="2569345733400148597">"Project options"</string>
+    <string name="project_active_badge" msgid="8953778683278828884">"Active"</string>
+    <string name="archived_badge" msgid="7204033469949818539">"Archived"</string>
+    <string name="action_include_archived_projects" msgid="1872416419322070603">"Include archived projects"</string>
+    <string name="action_include_archived_experiments" msgid="1368001463798477703">"Include archived experiments"</string>
+    <string name="action_new_experiment" msgid="3598888962558710132">"New experiment"</string>
+    <string name="delete_run_dialog_title" msgid="2829473058431908340">"Delete this trial?"</string>
+    <string name="run_review_delete_confirm" msgid="9216827234502882510">"Are you sure you want to delete this trial? The recorded data and notes will be deleted. This action cannot be undone."</string>
+    <string name="menu_btn_content_description" msgid="4680014704943654954">"menu"</string>
+    <string name="age_verifier_header" msgid="9217155512378711429">"Verify your age"</string>
+    <string name="age_verifier_birthday" msgid="2054392341079524729">"Birthday:"</string>
+    <string name="age_verifier_get_started" msgid="1086024826189816224">"Get started"</string>
+    <string name="tutorial_welcome_header" msgid="5596382686735832683">"Explore your world"</string>
+    <string name="tutorial_welcome_body" msgid="7591843046586427635">"Use the sensors in your Android phone to measure sound, light and more!"</string>
+    <string name="tutorial_setup_header" msgid="7529566316389493918">"Organise projects"</string>
+    <string name="tutorial_setup_body" msgid="3570507763094472318">"Set up projects and experiments to organise your data and compare your results."</string>
+    <string name="tutorial_observe_record_header" msgid="3715811468629596336">"Record in real time"</string>
+    <string name="tutorial_observe_record_body" msgid="6982870167622582123">"See something you want to measure? Record your observations in real time at the press of a button!"</string>
+    <string name="tutorial_take_notes_header" msgid="8271718393020433479">"Add observational notes"</string>
+    <string name="tutorial_take_notes_body" msgid="6597967563928412974">"While you\'re recording, you can add notes and pictures to give more context to the data."</string>
+    <string name="btn_previous_label" msgid="2881262882599469727">"Prev"</string>
+    <string name="btn_next_label" msgid="1682026626542221420">"Next"</string>
+    <string name="sensor_card_error_text" msgid="151455534130824363">"Failed to load sensor data"</string>
+    <string name="bluetooth_not_on_title" msgid="8961840974431817490">"Connect to Bluetooth"</string>
+    <string name="bluetooth_not_on_body" msgid="1861412368943739545">"Cannot connect to external sensor: Bluetooth is disabled. Turn on Bluetooth to connect to your external sensor."</string>
+    <string name="bluetooth_not_on_ok" msgid="3148597353545683264">"Turn on Bluetooth"</string>
+    <string name="sensor_card_loading_text" msgid="8569947135727599414">"Loading sensor data…"</string>
+    <string name="graph_loading" msgid="9200302049191996695">"Graph loading…"</string>
+    <string name="playback_button_pause" msgid="6025607837788357759">"pause audio playback"</string>
+    <string name="playback_button_play" msgid="5739285031289314186">"start audio playback"</string>
+    <string name="sonification_type_card_title" msgid="7315771791094946967">"Card sonification type"</string>
+    <string name="sonification_type_title" msgid="271616837832972881">"Default sonification type"</string>
+    <string name="title_edit_trial_activity" msgid="3272215900928155534">"Edit Trial"</string>
+    <string name="edit_trial_title_hint" msgid="3752953269416446342">"Trial title"</string>
+    <string name="include_archived_trials" msgid="6064586011723883752">"Include archived trials"</string>
+    <string name="export_error" msgid="8729689368786707247">"Export failed."</string>
+    <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
+    <skip />
+    <string name="listing_title" msgid="6842666752572268412">"Science Journal"</string>
+    <string name="listing_tagline" msgid="6633876313767981347">"Experiment on your world."</string>
+    <string name="listing_changelog" msgid="5651904379742962668">"Initial release"</string>
+    <string name="listing__description" msgid="7679178857079821372">"Science Journal is a tool for doing science with your smartphone. You can use the sensors in your phone or connect to external sensors to conduct experiments on the world around you. Organise your ideas into projects, make predictions, take notes and collect data in multiple trials, then annotate and explore your results. It\'s the lab notebook you always have with you. \n\n \nGet activity ideas to use with the app here: https://makingscience.withgoogle.com/science-journal/activities \nLearn more about Making &amp; Science: https://makingscience.withgoogle.com \nFor support: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
+    <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
+    <skip />
+    <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_summary (1881741234337323074) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_title (7760095515631648430) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_summary (5446570032717609139) -->
+    <skip />
+</resources>

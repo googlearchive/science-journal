@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+        <!-- VideoView is instantiated in code to work around bug
+          https://code.google.com/p/android/issues/detail?id=152173 -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/video_container"/>
+
+        <android.support.percent.PercentRelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            >
+            <TextView
+                android:id="@+id/tutorial_header"
+                app:layout_widthPercent="70%"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
+                android:paddingTop="8dp"
+                android:textColor="@android:color/white"
+                style="@style/TextAppearance.AppCompat.Title"
+                />
+
+            <TextView
+                android:id="@+id/tutorial_body"
+                app:layout_widthPercent="70%"
+                android:layout_centerHorizontal="true"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tutorial_header"
+                android:padding="16dp"
+                android:gravity="center_horizontal"
+                android:textColor="@android:color/white"
+                style="@style/TextAppearance.AppCompat.Body1"
+                />
+        </android.support.percent.PercentRelativeLayout>
+    </LinearLayout>
+</ScrollView>

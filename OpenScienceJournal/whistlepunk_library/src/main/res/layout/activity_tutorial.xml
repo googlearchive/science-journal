@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.google.android.apps.forscience.whistlepunk.intro.TutorialActivity"
+    >
+
+    <Button
+        android:id="@+id/btn_prev"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:text="@string/btn_previous_label"
+        android:drawableStart="@drawable/ic_keyboard_arrow_left_black_24dp"
+        android:visibility="invisible"
+        style="?attr/borderlessButtonStyle"
+        />
+
+    <LinearLayout
+        android:id="@+id/dot_holder"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/accessibility_touch_target_min_size"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_vertical|center_horizontal">
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:drawableEnd="@drawable/ic_keyboard_arrow_right_black_24dp"
+        android:text="@string/btn_next_label"
+        style="?attr/borderlessButtonStyle"
+        />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/tutorial_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@id/btn_prev"
+        >
+    </android.support.v4.view.ViewPager>
+
+
+</RelativeLayout>

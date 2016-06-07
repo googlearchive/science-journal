@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="action_feedback" msgid="2230997537507885910">"Visszajelzés"</string>
+    <string name="action_settings" msgid="4140514779355685890">"Beállítások"</string>
+    <string name="action_save" msgid="7115885253849785049">"Mentés"</string>
+    <string name="action_edit" msgid="2879274643416740117">"Szerkesztés"</string>
+    <string name="action_archive_project" msgid="3984396879969444432">"Projekt archiválása"</string>
+    <string name="action_unarchive_project" msgid="2708696233939647946">"Projekt archiválásának visszavonása"</string>
+    <string name="action_archive_experiment" msgid="5641733726709708591">"Kísérlet archiválása"</string>
+    <string name="action_unarchive_experiment" msgid="2357913494087884425">"Kísérlet archiválásának visszavonása"</string>
+    <string name="action_archive_run" msgid="439270635088307350">"Vizsgálat archiválása"</string>
+    <string name="action_unarchive_run" msgid="5992535261034463728">"Vizsg. archiválását megszüntet"</string>
+    <string name="action_delete" msgid="5205384449071348669">"Törlés"</string>
+    <string name="action_ruler" msgid="3567453615091215971">"Vonalzó"</string>
+    <string name="action_level" msgid="2223203490872051791">"Vízmérték"</string>
+    <string name="sine_wave" msgid="7465850130633241930">"Szinuszhullám"</string>
+    <string name="acc_x" msgid="6032598557672647110">"Gyorsulásmérő X"</string>
+    <string name="acc_y" msgid="3524690325306070984">"Gyorsulásmérő Y"</string>
+    <string name="acc_z" msgid="4540365462206126342">"Gyorsulásmérő Z"</string>
+    <string name="ambient_light" msgid="3301998123545447671">"Környezeti fény"</string>
+    <string name="magnetic_rotation" msgid="6643176023260466091">"Mágneses forgás"</string>
+    <string name="video_stream" msgid="1813984984736617091">"Video-adatfolyam"</string>
+    <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
+    <string name="ambient_light_units" msgid="6318282254934724349">"lux"</string>
+    <!-- no translation found for magnetic_rotation_units (5964336522624353252) -->
+    <skip />
+    <string name="decibel_units" msgid="2890849301464041989">"dB"</string>
+    <string name="rpm_units" msgid="897807671511627492">"ford./perc"</string>
+    <string name="voltage_units" msgid="6411118170860716365">"V"</string>
+    <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
+    <string name="experiment_details" msgid="6814534510464980289">"Kísérlet részletei"</string>
+    <string name="add_sensor" msgid="96374933560924369">"Érzékelő hozzáadása"</string>
+    <string name="snackbar_source_error" msgid="6054360710842869995">"Hiba a következő forráshoz való kapcsolódáskor: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
+    <string name="action_retry" msgid="7873032739745888974">"Újra"</string>
+    <string name="decibel" msgid="7425761238029567370">"Hangintenzitás"</string>
+    <string name="title_activity_tutorial" msgid="7117023626104839821">"Science Journal-útmutató"</string>
+    <string name="title_activity_age_verifier" msgid="6953483601673982354">"Születési dátum"</string>
+    <string name="title_activity_ruler" msgid="4538057504732643762">"Vonalzó"</string>
+    <string name="ruler_label_metric" msgid="8008318703764352929">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
+    <string name="ruler_label_imperial" msgid="2225518554245466626">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> hüvelyk"</string>
+    <string name="title_activity_level" msgid="7751336762571175981">"Vízmérték"</string>
+    <string name="action_calibrate" msgid="2567237363558254927">"Kalibrálás"</string>
+    <string name="action_end_calibrate" msgid="6416011236105220467">"Kalibrálás befejezése"</string>
+    <string name="title_calibrate" msgid="4425118955292706233">"Kalibrálás a következővel:"</string>
+    <string name="calibration_credit_card" msgid="1784606520446558443">"Hitelkártya (magasság)"</string>
+    <string name="calibration_ruler_imperial" msgid="2477725634940053346">"Vonalzó (3 hüvelyk)"</string>
+    <string name="calibration_ruler_metric" msgid="1330487431270295597">"Vonalzó (80 mm)"</string>
+    <string name="btn_add_experiment_note_description" msgid="7451384954210671094">"Adjon hozzá kísérletjegyzetet"</string>
+    <string name="btn_add_run_note_description" msgid="3729688760639518856">"Vizsgálatjegyzet hozzáadása"</string>
+    <string name="btn_record_description" msgid="6165596989316716650">"Rögzítés indítása"</string>
+    <string name="btn_stop_description" msgid="5331283967913304386">"Rögzítés leállítása"</string>
+    <string name="unknown_sensor" msgid="2253417219024438701">"Ismeretlen érzékelő"</string>
+    <string name="recording_start_failed" msgid="8094130346174113235">"A rögzítés nem sikerült, próbálkozz újra."</string>
+    <string name="recording_start_failed_disconnected" msgid="2493130069585541040">"A rögzítés nem sikerült: egy érzékelő nincs csatlakoztatva. Próbálkozz újra."</string>
+    <string name="recording_stop_failed_no_data_title" msgid="256592083253381257">"Nincs adatrögzítés"</string>
+    <string name="recording_stop_failed_no_data" msgid="5167111037930589862">"Egy vagy több érzékelőd egyáltalán nem rögzített adatot. Szeretnéd megszakítani ezt a rögzítést?"</string>
+    <string name="recording_stop_failed_continue" msgid="161788317476740066">"Folytatás"</string>
+    <string name="recording_stop_failed_cancel" msgid="9167449814602506726">"Rögzítés elvetése"</string>
+    <string name="recording_stop_failed_disconnected" msgid="1409656957401598471">"A rögzítés leállítása nem sikerült: egy érzékelő le van választva. Szeretnéd megszakítani ezt a rögzítést?"</string>
+    <string name="recording_stop_failed_save" msgid="720527628154679503">"A rögzítés leállítása nem sikerült: a vizsgálat mentése sikertelen. Próbálkozz újra."</string>
+    <!-- no translation found for elapsed_time_short_format (7848904136886917036) -->
+    <skip />
+    <string name="elapsed_time_long_format" msgid="3451516277286685162">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
+    <!-- no translation found for accessible_elapsed_time_short_format (867388448497851890) -->
+    <skip />
+    <string name="accessible_elapsed_time_long_format" msgid="5588697398982936316">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small" msgid="8801162161093675447">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large" msgid="1312366645818667859">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="8665096074255046060">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="picture_note_description" msgid="4617343713156115501">"Vizsgálatból származó kép"</string>
+    <string name="picture_note_preview_content_description" msgid="4160980766022755366">"Képjegyzet előnézete"</string>
+    <string name="navigation_item_observe" msgid="6544385569776074166">"Megfigyelés"</string>
+    <string name="navigation_item_projects" msgid="204705505259389287">"Projektek"</string>
+    <string name="navigation_item_web_link" msgid="1966109305973672752">"Making &amp; Science webhely"</string>
+    <string name="navigation_item_settings" msgid="1612988756868966834">"Beállítások"</string>
+    <string name="navigation_item_testing_options" msgid="8712068439028163725">"Tesztelési opciók"</string>
+    <string name="title_activity_main" msgid="8803846504222999093">"Science Journal – <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_add_sensor" msgid="3432276215295606638">"Külső eszközök"</string>
+    <string name="external_devices_paired" msgid="460907629018449824">"Párosított eszközök"</string>
+    <string name="external_devices_pairing" msgid="1318140666547340328">"Párosítás…"</string>
+    <string name="external_devices_available" msgid="4660407499712163232">"Rendelkezésre álló eszközök"</string>
+    <string name="external_devices_settings_title" msgid="7731073608455634240">"Eszközbeállítások"</string>
+    <string name="external_devices_settings_forget" msgid="2280373936547146694">"Elfelejtés"</string>
+    <string name="external_devices_settings_ok" msgid="3688835834178014100">"OK"</string>
+    <string name="progress_scanning" msgid="504228868213512629">"Keresés…"</string>
+    <string name="action_refresh" msgid="6449507931372381488">"Frissítés"</string>
+    <string name="no_options_title" msgid="5380361167896386704">"Nincsenek opciók ehhez: <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="no_options_message" msgid="3139314286228576248">"Nem lehet opciókat beállítani a következőhöz: <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="options_message" msgid="693169996123125208">"Opciók beállítása a következőhöz: <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
+    <string name="sine_wave_frequency_option" msgid="3299263567413396079">"Szinuszhullám frekvenciájának beállítása ezredmásodpercben:"</string>
+    <string name="video_stream_fps_option" msgid="7912973629078331063">"Video-adatfolyam rögzítési sebességének megadása képkocka per másodpercben:"</string>
+    <string name="title_activity_project_details" msgid="6738094706468371738">"Projekt kísérletei"</string>
+    <string name="graph_name" msgid="4051005079264085531">"a diagram"</string>
+    <string name="graph_options" msgid="4225585925400993925">"Diagramopciók"</string>
+    <string name="graph_options_title" msgid="6860269315108522661">"Diagramopciók"</string>
+    <string name="graph_options_smoothness_edit" msgid="1885781785347948911">"Folytonosan deriválhatóság mértéke"</string>
+    <string name="graph_options_window_edit" msgid="8943669029029140826">"Elhomályosítása mérete"</string>
+    <string name="graph_options_blur_edit" msgid="6217163217394307677">"Elhomályosítás típusa"</string>
+    <string name="graph_options_gaussian_sigma_edit" msgid="5761710064672068300">"Szórás"</string>
+    <string name="blur_type_average" msgid="1617413241621655455">"Átlag"</string>
+    <string name="blur_type_gaussian" msgid="1011871621295653087">"Gauss"</string>
+    <string name="graph_options_audio_feedback_enable" msgid="1845200328398473302">"Hang aktiválása"</string>
+    <string name="graph_options_audio_feedback_disable" msgid="5006766005261847317">"Hang kikapcsolása"</string>
+    <string name="stat_min" msgid="7907031942382531617">"Minimum"</string>
+    <string name="stat_max" msgid="8227023306109349391">"Maximum"</string>
+    <string name="stat_average" msgid="3601514334204674938">"Átlag"</string>
+    <string name="stat_min_label" msgid="8763695907241205634">"Min."</string>
+    <string name="stat_max_label" msgid="4173459591223474511">"Max."</string>
+    <string name="stat_average_label" msgid="7341499679015444245">"Átlag"</string>
+    <string name="stat_duration" msgid="8999214260188208590">"Időtartam"</string>
+    <string name="stat_unknown" msgid="8543005524144060221">"Ismeretlen"</string>
+    <string name="btn_reset_description" msgid="7288391743038780410">"Ugrás mostanra"</string>
+    <string name="export_action" msgid="3269831142664490446">"Exportálás"</string>
+    <string name="export_run_chooser_title" msgid="6420930071586217884">"Mentés a következőbe:"</string>
+    <string name="settings_version_title" msgid="6212827772323334070">"Verzió"</string>
+    <string name="settings_replay_tutorial_title" msgid="3811832513865119930">"Útmutató"</string>
+    <string name="settings_open_source_title" msgid="3090096891818776727">"Nyílt forráskódú licencek"</string>
+    <string name="dev_sensors_title" msgid="4583380726898357656">"Kísérleti érzékelők aktiválása"</string>
+    <string name="cannot_scan_message" msgid="8297618436609318137">"Ahhoz, hogy külső eszközökhöz („Science Journal Sensors”) férhess hozzá a Science Journal használatával, először be kell kapcsolnod a Bluetooth-t. A Science Journal érzékelők felfedezéséhez továbbá engedélyezned kell az Android operációs rendszernek, hogy hozzáférjen a tartózkodási helyedhez, mivel az eszközök felfedezése során más Bluetooth-eszközök is sugározhatják a helyadataikat. A Science Journal azonban nem tárolja és nem használja ezeket a helyadatokat, a Science Journal Sensors pedig nem küld helyadatokat."</string>
+    <string name="btn_request_location" msgid="8197595806751014499">"Helyhozzáférés bekapcsolása"</string>
+    <string name="btn_enable_bluetooth" msgid="5357651687998209452">"Bluetooth bekapcsolása"</string>
+    <string name="btn_new_project_content_description" msgid="6932143755645026255">"Új projekt"</string>
+    <string name="title_activity_new_project" msgid="2838213281488377791">"Új projekt"</string>
+    <string name="title_activity_update_project" msgid="4441312132900502358">"Projekt frissítése"</string>
+    <string name="project_save_failed" msgid="5623422183377416130">"A projekt mentése nem sikerült. Próbálkozz újra."</string>
+    <string name="archived_project_message" msgid="4798618073088509851">"Projekt archiválva."</string>
+    <string name="unarchived_project_message" msgid="178393278028428287">"Projekt áthelyezve az archívumból."</string>
+    <string name="action_undo" msgid="3152747614676103846">"Visszavonás"</string>
+    <string name="project_title_hint" msgid="8228443486075398477">"Projekt címe"</string>
+    <string name="project_problem_hint" msgid="381678432298729684">"Leírás"</string>
+    <string name="project_cover_description" msgid="1534511071097246816">"Válassz ki egy projektfotót"</string>
+    <string name="choose_photo_button_text" msgid="761066275467820031">"Válassz ki egy fotót"</string>
+    <plurals name="project_experiments_count" formatted="false" msgid="7648457680949535167">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> kísérlet</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> kísérlet</item>
+    </plurals>
+    <string name="btn_new_experiment_content_description" msgid="7327973648445064928">"Új kísérlet"</string>
+    <string name="archived_experiment_message" msgid="6471344531723915995">"Kísérlet archiválva."</string>
+    <string name="unarchived_experiment_message" msgid="8059010703916773668">"Kísérlet áthelyezve az archívumból."</string>
+    <string name="archived_run_message" msgid="8095301767431802235">"Vizsgálat sikeresen archiválva."</string>
+    <string name="unarchived_run_message" msgid="471395163511338290">"A vizsgálat áthelyezve az archívumból."</string>
+    <string name="experiments_toolbar_title" msgid="7336526041603098967">"Kísérletek"</string>
+    <string name="archived_content_description" msgid="5626832963025103076">"<xliff:g id="ITEM">%1s</xliff:g> (archiválva)"</string>
+    <plurals name="experiment_run_count" formatted="false" msgid="8354594369372506196">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> vizsgálat</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> vizsgálat</item>
+    </plurals>
+    <plurals name="notes_count" formatted="false" msgid="7949686260707404918">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> megjegyzés</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> megjegyzés</item>
+    </plurals>
+    <string name="experiment_title_hint" msgid="3508456602523057718">"Kísérlet címe"</string>
+    <string name="experiment_description_hint" msgid="3197580737141616333">"Kísérlet leírása"</string>
+    <string name="title_activity_new_experiment" msgid="5681560613521817391">"Új kísérlet"</string>
+    <string name="title_activity_update_experiment" msgid="681114244731613638">"Kísérlet frissítése"</string>
+    <string name="experiment_save_failed" msgid="5031953807658062748">"A kísérlet mentése nem sikerült. Próbálkozz újra."</string>
+    <string name="btn_add_sensor_card_description" msgid="4836624546799382073">"Új érzékelőkártya hozzáadása"</string>
+    <string name="btn_sensor_card_settings" msgid="5722000860549753304">"Érzékelőbeállítások"</string>
+    <string name="sensor_options" msgid="7269577762234317911">"Érzékelőopciók"</string>
+    <string name="btn_sensor_card_expand" msgid="5267003335362502193">"Érzékelőlista mutatása"</string>
+    <string name="btn_sensor_card_contract" msgid="4805549352705439024">"Érzékelőlista elrejtése"</string>
+    <string name="btn_sensor_card_close" msgid="4964202674700426175">"Kártya bezárása"</string>
+    <string name="learn_more_button" msgid="6562065467901868709">"További információ"</string>
+    <string name="default_experiment_name" msgid="8360979514785269303">"Cím nélküli kísérlet"</string>
+    <string name="default_project_name" msgid="5076954632739479626">"Cím nélküli projekt"</string>
+    <string name="empty_project_library" msgid="6139693733859042212">"Nincs projekt"</string>
+    <string name="empty_project" msgid="196070251052121055">"Nincs kísérlet"</string>
+    <string name="frequency_window_option_label" msgid="4885731738492452610">"Frekvenciaablak (ms-ban)"</string>
+    <string name="frequency_filter_option_label" msgid="6322746140513536230">"Frekvenciaszűrő (az érzékelőegységekben)"</string>
+    <string name="enable_frequency_checkbox_label" msgid="7012647084401204497">"Frekvencia mutatása"</string>
+    <string name="dev_sensors_summary" msgid="3417308653634353239">"Kizárólag fejlesztői tesztelésre szolgáló érzékelők mutatása"</string>
+    <string name="options_save_error" msgid="5710202337557612915">"Hiba az opciók mentésekor"</string>
+    <string name="options_load_error" msgid="1033189385249714186">"Hiba az opciók betöltésekor"</string>
+    <string name="dev_tools_title" msgid="413875762004836148">"Kísérleti eszközök aktiválása"</string>
+    <string name="dev_tools_summary" msgid="8602005614020489618">"Kizárólag fejlesztői tesztelésre szolgáló eszközök mutatása"</string>
+    <string name="dev_tools_leak_detection_title" msgid="4501895025531999102">"Memóriavesztés észlelésének aktiválása"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="6611870647303094340">"A beállítás módosításai csak az alkalmazás bezárását követően lépnek életbe."</string>
+    <string name="d2p" msgid="639917686672445089">"Adat hangmagasságként"</string>
+    <string name="d2a" msgid="1134874560612971036">"Adat amplitúdóként"</string>
+    <string name="d2pe" msgid="3727800647324543645">"Adat hangmagasság-burkológörbeként"</string>
+    <string name="d2ps" msgid="7368523482734331024">"Adat pentaton skála szerinti hangmagasság-burkológörbeként"</string>
+    <!-- no translation found for sonification_types:0 (3861898414238653003) -->
+    <!-- no translation found for sonification_types:1 (906523180895001108) -->
+    <!-- no translation found for sonification_types:2 (5312779098039590744) -->
+    <!-- no translation found for sonification_types:3 (2613491808468275381) -->
+  <string-array name="sonification_type_aliases">
+    <item msgid="7377813266249747858">"d2p"</item>
+    <item msgid="6906000057586711876">"d2a"</item>
+    <item msgid="1870736636828704674">"d2pe"</item>
+    <item msgid="5674284626652201942">"d2ps"</item>
+  </string-array>
+    <string name="new_experiment_spinner_item" msgid="5833883031740938473">"Új kísérlet…"</string>
+    <string name="recording_title_label" msgid="5188061176268043052">"Rögzítés…"</string>
+    <string name="exp_edit_info_button" msgid="57557261114019563">"Információk szerkesztése"</string>
+    <string name="btn_observe_content_description" msgid="6339279151257255267">"Megfigyelés"</string>
+    <string name="title_activity_experiment_details" msgid="6104721540075416005">"Kísérlet részletei"</string>
+    <string name="empty_runs" msgid="2492444523656046772">"Nincs vizsgálat"</string>
+    <string name="permission_request_write" msgid="7894354232042075113">"A külső tárhely írásához engedély szükséges."</string>
+    <string name="device_options_sensor_label_text" msgid="4913281182269452551">"Érzékelő"</string>
+    <string name="external_sensor_appearance_name" msgid="2545762878566289321">"<xliff:g id="SENSOR_NAME">%s</xliff:g> – <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
+    <string name="sensor_rotation_rpm" msgid="7675868077769123026">"Fordulatszám"</string>
+    <string name="sensor_voltage" msgid="8803070522098118555">"Feszültség V-ban"</string>
+    <string name="sensor_raw" msgid="3706079416934145306">"Nyers"</string>
+    <string name="sensor_temperature_fahrenheit" msgid="530709732319662008">"Hőmérséklet °F-ben"</string>
+    <string name="sensor_custom" msgid="6419934674147294928">"Egyéni"</string>
+    <string name="device_options_custom_sensor_pin_label_text" msgid="7800969142277212707">"Érintkező"</string>
+    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="3441420502780409558">"Frekvencia"</string>
+    <string name="feedback_error_message" msgid="6267829056474146185">"A visszajelzés küldése nem sikerült."</string>
+    <string name="no_sensor_info_found" msgid="4162175886082619280">"Ez az érzékelő nem rendelkezik kiegészítő információkkal!"</string>
+    <string name="sensor_desc_short_acc_x" msgid="2894000283386570265">"A telefon gyorsulása balra és jobbra m/s²-ben"</string>
+    <string name="sensor_desc_short_acc_y" msgid="6068967454464639546">"A telefon gyorsulása előre és hátra m/s²-ben"</string>
+    <string name="sensor_desc_short_acc_z" msgid="718984279193417402">"A telefon gyorsulása felfelé és lefelé m/s²-ben"</string>
+    <string name="sensor_desc_short_decibel" msgid="6022620562641402361">"A hangérzékelőbe vagy mikrofonba érkező hang intenzitása decibelben (dB)."</string>
+    <string name="sensor_desc_short_light" msgid="2836912567230826095">"A környezeti fény érzékelőjébe érkező fény mennyisége luxban."</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="2856177797841108478">"Az elforgatási szög a telefon és a külső mágneses tér között."</string>
+    <string name="sensor_desc_short_bluetooth" msgid="6408146877850831242">"Itt egy külső érzékelő adatai láthatók, egyéni beállítások szerint."</string>
+    <string name="sensor_desc_short_rotation" msgid="4005725749913712057">"Fordulatok száma percenként"</string>
+    <string name="sensor_desc_short_raw" msgid="8183752554049502871">"Külső érzékelőből származó nyers mért adat százaléka."</string>
+    <string name="sensor_desc_first_paragraph_light" msgid="4109035727606616530">"A környezeti fény érzékelője luxban méri a fényt – ez a megvilágítás mértékegysége, amelynek értéke az egységnyi felületre beeső fény mennyiségének függvénye. \n\nA telihold nagyjából 1 lux, egy lámpával megvilágított átlagos nappali nagyjából 50 lux, egy tanterem világítása, a napfelkelte és a naplemente nagyjából 400 lux, a nappali (szórt) fény több mint 10 000 lux, a közvetlen napfény pedig több mint 30 000 lux megvilágítást biztosít. \n\nA luxot a mindennapi életben a legtöbben nem használjuk. Izzóvásárláskor legtöbbször a wattban megadott teljesítményt nézzük – pedig ez a jellemző nem ad tájékoztatást az izzó fényerejéről, csak arról, hogy mennyi energiát használ fel. A lumen már pontosabb képet ad, ha világítási beszerzésről van szó, azt adja meg ugyanis, hogy az izzó ténylegesen mennyi fényt bocsát ki. A lux ezzel szemben azt, hogy ebből a fényből mennyi érkezik be egy adott felületre."</string>
+    <string name="sensor_desc_second_paragraph_light" msgid="4898255020378037357">"Mivel a fény, ahogy halad, egyre jobban szétoszlik, a luxban mért érték egyre kisebb, ahogy a fényforrástól távolodunk – annak ellenére, hogy a forrás lumenben mérve továbbra is ugyanazt a fénymennyiséget bocsátja ki. A fényforráshoz képest ferdén álló felületek szintén kisebb megvilágítást kapnak – ez az oka például annak is, hogy Földünkön az egyenlítői területek annyival melegebbek a fagyos pólusoknál. \n\nA telefonodban található fényérzékelő feladata egyébként az, hogy a képernyő fényerejét a automatikusan a sötétebb vagy világosabb környezeti fényviszonyokhoz igazítsa. A fényérzékelőben egy apró félvezető reagál a beeső fényre azáltal, hogy kicsiny, de mérhető elektromos áramot gerjeszt – ezt fotoelektromos hatásnak hívjuk. Hasonló érzékelők működnek egyes utcalámpákban is: ha odakint besötétedik, a lámpák felkapcsolódnak."</string>
+    <string name="sensor_desc_first_paragraph_acc" msgid="5154591427983319390">"A tárgyak egy helyben, vagy ha mozognak, mozgásban maradnak – ezt tehetetlenségnek hívjuk. Newton első törvénye formálisan is megfogalmazza ezt a tételt: minden test megmarad a mozgás állapotában, vagy megtartja nyugalmi állapotát, míg valamilyen kiegyenlítetlen erő nem hat rá. \n\nHa valamilyen kiegyenlítetlen erő kimozdítja a testet ebből az állapotából, akkor a test gyorsulásáról beszélünk: a sebessége változik – vagy nagyobb, vagy kisebb lesz, vagy megváltozik az iránya. A gyorsulást a sebesség (méter per szekundum) időbeli változásaként, vagyis méter per szekundumnégyzet (m/s²) mértékegységben határozzuk meg. \n\nA telefonodban működik egy olyan eszköz, amellyel a mozgásnak ezek a változásai mérhetők: ez a gyorsulásmérő. Ebben a szerkezetben kis felfüggesztett tömegek szabad mozgásra képesek. A mozgásban bekövetkező változások ezeket a tömegeket elmozdulásra késztetik, hasonlóképpen ahhoz, mint amikor a fejünk egy hirtelen fékező autóban előrebillen. Ezeknek a tehetetlenségből adódó apró kis elmozdulásoknak a mérésével a telefonban működő gyorsulásmérő képes a mozgás gyorsaságában és irányában bekövetkező változások észlelésére, amelynek segítségével például fekvőből állóra tudja állítani a képernyőt, vagy különféle telefonos játékokat tesz lehetővé."</string>
+    <string name="sensor_desc_second_paragraph_acc" msgid="8812623507037923651">"Valószínűleg neked is feltűnt, hogy a Z-tengely irányában egy állandó gyorsulás mutatkozik, még akkor is, ha a telefonod le van rakva az asztalra. Ez a Föld felszínén érzékelhető nehézségi gyorsulás, amit a gravitáció okoz, nagysága körülbelül 9,8 m/s²."</string>
+    <string name="sensor_desc_first_paragraph_decibel" msgid="2782071765610621336">"A hangokat rezgések okozzák. Az emberi hang például a torkunkban lévő hangszálak rezgése révén keletkezik. Ezek a rezgések váltakozóan nagyobb és kisebb nyomású rétegeket hoznak létre a levegőben, amely nyomáseltérés a forrástól távolodik – nagyon hasonlóan ahhoz, mint amikor a tóba dobott kavics egyre táguló körkörös hullámokat képez."</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="142151860819231749">"Minden hang leírható a frekvenciájával és az intenzitásával. \n\nA Science Journal alkalmazással az intenzitást mérjük decibelben (dB). Az intenzitás vagy hangosság a rezgő test által az egyes rezgések során megtett távolság függvénye – a nagyobb intenzitást hangosabbnak észleljük. \n\nA hanghullám frekvenciája (más néven hangmagassága) a rezgése gyorsaságának felel meg. Minél gyorsabban rezeg egy test, annál magasabb, vagyis nagyobb frekvenciájú hangot képez. A Science Journal frekvenciát nem mér, csak hangosságot. \n\nAz átlagos emberi fül által észlelhető leghalkabb hang meghatározás szerint 0 dB. A mindennapi beszélgetések nagyjából 60 dB-nek felelnek meg, és körülbelül 140 dB az a határ, amelynél erősebb hangok már fájdalmat okoznak az emberi fülnek. De nem csak a fájdalmas hangok lehetnek károsak. Már az is halláskárosodást okozhat, ha valaki folyamatosan 90 dB-es – körülbelül egy porszívó hangosságának megfelelő – hangoknak van kitéve. \n\nA decibel-skála logaritmikus, ami egy kicsit megbonyolítja a dolgokat: egy 40 dB-es hangforrás nem kétszer olyan erős, mint egy 20 dB-es – hanem 100-szor. Ugyanakkor ha egy csörgő ébresztőóra intenzitása 70 dB, akkor két csörgő ébresztőóráé nem 140 dB, hanem 73 dB. Amint említettük, fura egy skála. \n\n10 dB zörgő avar \n20 dB suttogás 1,5 méterről \n30 dB halk suttogás \n50 dB zivatar \n60 dB átlagos beszélgetés \n90 dB turmixgép \n100 dB autó kipufogódob nélkül \n110 dB fülbekiabálás \n120 dB mennydörgés \n130 dB légkalapács \n140 dB felszálló repülőgép"</string>
+    <string name="sensor_desc_first_paragraph_rotation" msgid="8053108458881116800">"A percenkénti fordulatszám (ford./perc) a fix tengely körüli forgások egy perc alatti gyakoriságának mértékegysége. \n\nA szélforgód a forgómozgásával megforgatja a kódolótárcsát:"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="1296904470766613471">"Az érzékelő ezt fényes és sötét periódusok sorozataként észleli, amit a Science Journal forgásként rögzít."</string>
+    <string name="sensor_desc_first_paragraph_raw" msgid="4939612146659644032">"Az itt megjelenített adatok egy olyan külső érzékelőtől érkeznek, amelyik Bluetooth-on keresztül kommunikál a telefonoddal. \n\nAz érték a mikrokontrolleredről származó nyers adat százalékos értékét mutatja. Ez általában az érzékelő feszültségesésének százalékát jelenti."</string>
+    <string name="sensor_desc_second_paragraph_raw" msgid="8973117353495356394">"A Bluetooth egy vezeték nélkül technológiai szabvány, amelynek révén rádióhullámok segítségével kis távolságban adatcsere bonyolítható le fix és mobileszközök között."</string>
+    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="7981623485563854939">"Az itt megjelenített adatok egy olyan külső érzékelőtől érkeznek, amelyik Bluetooth-on keresztül kommunikál a telefonoddal."</string>
+    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="7708856960763941387">"A Bluetooth egy vezeték nélkül technológiai szabvány, amelynek révén rádióhullámok segítségével kis távolságban adatcsere bonyolítható le fix és mobileszközök között."</string>
+    <string name="run_review_duration" msgid="7076553835966679478">"Időtartam"</string>
+    <string name="run_review_activity_label" msgid="5276313115461408528">"Ellenőrzés"</string>
+    <string name="service_notification_content_title" msgid="409211151396677834">"Science Journal"</string>
+    <string name="service_notification_content_text" msgid="6198486549545279611">"Rögzítés…"</string>
+    <string name="live_graph_content_description" msgid="3504419430886261146">"Élő érzékelődiagram. Az X-tengely húzással mozgatható."</string>
+    <string name="static_graph_content_description" msgid="5963837267567407006">"Érzékelődiagram. A nagyítás és kicsinyítés az ujjak összehúzásával végehúzd össze az ujjaidat. Az X-tengely húzással mozgatható."</string>
+    <string name="sensor_card_overflow_menu_content_description" msgid="1847239009701022116">"Kártyaopciók"</string>
+    <string name="btn_sensor_flip_info_content_description" msgid="4129040510635338579">"váltás információs üzemmódra"</string>
+    <string name="btn_sensor_flip_graph_content_description" msgid="2500545463691107821">"váltás diagram-üzemmódra"</string>
+    <string name="sensor_tab_layout_content_description" msgid="6653074718544676936">"rendelkezésre álló érékelők"</string>
+    <string name="sensor_tab_selected_format" msgid="5189774892597619784">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (kiválasztva)"</string>
+    <string name="title_activity_sensor_info" msgid="6960039814316283850">"Érzékelőadatok"</string>
+    <string name="title_activity_sensor_info_format" msgid="9106545676836634722">"<xliff:g id="SENSOR_NAME">%s</xliff:g> érzékelő"</string>
+    <string name="heading_info_section" msgid="3068233297591403258">"Mi történik itt?"</string>
+    <string name="edit_note_menu_item" msgid="5303280313359136552">"Szerkesztés"</string>
+    <string name="edit_note_time" msgid="2027041230205029461">"Megjegyzés idejének szerkesztése"</string>
+    <string name="delete_note_menu_item" msgid="7908811564743301702">"Törlés"</string>
+    <string name="delete_run" msgid="103141962786624686">"Törlés"</string>
+    <string name="crop_run" msgid="1336721925526265401">"Levágás"</string>
+    <string name="add_run_note" msgid="4601243377697085005">"Jegyzet hozzáadása"</string>
+    <string name="add_experiment_note" msgid="1084637094906153162">"Jegyzet hozzáadása"</string>
+    <string name="run_label" msgid="7587739695592981023">"<xliff:g id="RUN_INDEX">%s</xliff:g>. vizsgálat"</string>
+    <string name="run_review_switch_sensor_btn_prev" msgid="1562899512022232138">"előző érzékelő: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_next" msgid="5528270146135394657">"következő érzékelő: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="edit_note_hint_text" msgid="7190191469950695769">"Vizsgálatjegyzet szerkesztése"</string>
+    <string name="add_note_hint_text" msgid="4947278182685363439">"Adjon hozzá új jegyzetet"</string>
+    <string name="snackbar_note_deleted" msgid="4926151554010737654">"Jegyzet törölve"</string>
+    <string name="snackbar_undo" msgid="488185413692934054">"Visszavonás"</string>
+    <string name="add_run_note_placeholder_text" msgid="4564897234715127061">"Adjon hozzá jegyzetet ehhez a kísérlethez"</string>
+    <string name="add_experiment_note_placeholder_text" msgid="5668745283017643514">"Adjon hozzá kísérletjegyzetet"</string>
+    <string name="add_note_image_button_content_description" msgid="5956413597980661328">"Képjegyzet készítése"</string>
+    <string name="pinned_note_placeholder_text" msgid="742162042813125689">"Jegyzet hozzáadása"</string>
+    <string name="no_notes_text" msgid="1333257200348947043">"Nincsenek jegyzetek"</string>
+    <string name="indeterminate_value" msgid="6535623633404732608">"–"</string>
+    <string name="project_card_overflow_menu_content_description" msgid="2569345733400148597">"Projektopciók"</string>
+    <string name="project_active_badge" msgid="8953778683278828884">"Aktív"</string>
+    <string name="archived_badge" msgid="7204033469949818539">"Archiválva"</string>
+    <string name="action_include_archived_projects" msgid="1872416419322070603">"Archivált projektek szerepeltetése"</string>
+    <string name="action_include_archived_experiments" msgid="1368001463798477703">"Archivált kísérletek szerepeltetése"</string>
+    <string name="action_new_experiment" msgid="3598888962558710132">"Új kísérlet"</string>
+    <string name="delete_run_dialog_title" msgid="2829473058431908340">"Törlöd ezt a vizsgálatot?"</string>
+    <string name="run_review_delete_confirm" msgid="9216827234502882510">"Biztosan törlöd ezt a vizsgálatot? A művelet nem vonható vissza."</string>
+    <string name="menu_btn_content_description" msgid="4680014704943654954">"menü"</string>
+    <string name="age_verifier_header" msgid="9217155512378711429">"Igazold az életkorodat"</string>
+    <string name="age_verifier_birthday" msgid="2054392341079524729">"Születési dátum:"</string>
+    <string name="age_verifier_get_started" msgid="1086024826189816224">"Kezdő lépések"</string>
+    <string name="tutorial_welcome_header" msgid="5596382686735832683">"Fedezd fel a világot"</string>
+    <string name="tutorial_welcome_body" msgid="7591843046586427635">"Android-rendszerű telefonod érzékelőivel mérhetsz hangot, fényt és sok minden mást!"</string>
+    <string name="tutorial_setup_header" msgid="7529566316389493918">"Projektek rendszerezése"</string>
+    <string name="tutorial_setup_body" msgid="3570507763094472318">"Hozz létre projekteket és kísérleteket, hogy a segítségükkel rendszerezhesd az adataidat és összehasonlíthasd az eredményeidet."</string>
+    <string name="tutorial_observe_record_header" msgid="3715811468629596336">"Rögzítés valós időben"</string>
+    <string name="tutorial_observe_record_body" msgid="6982870167622582123">"Szeretnél megmérni valamit? Rögzítsd megfigyeléseidet valós időben egyetlen gombnyomással!"</string>
+    <string name="tutorial_take_notes_header" msgid="8271718393020433479">"Megfigyelési jegyzetek hozzáadása"</string>
+    <string name="tutorial_take_notes_body" msgid="6597967563928412974">"Rögzítés közben jegyzeteket és képeket adhatsz az adatokhoz, amivel jobban kontextusba helyezheted őket."</string>
+    <string name="btn_previous_label" msgid="2881262882599469727">"Előző"</string>
+    <string name="btn_next_label" msgid="1682026626542221420">"Következő"</string>
+    <string name="sensor_card_error_text" msgid="151455534130824363">"Az érzékelő adatainak betöltése nem sikerült"</string>
+    <string name="bluetooth_not_on_title" msgid="8961840974431817490">"Csatlakozás a Bluetooth-hoz"</string>
+    <string name="bluetooth_not_on_body" msgid="1861412368943739545">"A Bluetooth ki van kapcsolva. Külső érzékelőhöz való csatlakozáshoz be kell kapcsolni a Bluetooth-t."</string>
+    <string name="bluetooth_not_on_ok" msgid="3148597353545683264">"Bluetooth bekapcsolása"</string>
+    <string name="sensor_card_loading_text" msgid="8569947135727599414">"Érzékelő adatainak betöltése…"</string>
+    <string name="graph_loading" msgid="9200302049191996695">"Diagram betöltése…"</string>
+    <string name="playback_button_pause" msgid="6025607837788357759">"hanglejátszás szüneteltetése"</string>
+    <string name="playback_button_play" msgid="5739285031289314186">"hanglejátszás indítása"</string>
+    <string name="sonification_type_card_title" msgid="7315771791094946967">"A kártya szonifikációs típusa"</string>
+    <string name="sonification_type_title" msgid="271616837832972881">"Alapértelm. szonifikációtípus"</string>
+    <string name="title_edit_trial_activity" msgid="3272215900928155534">"A vizsgálat szerkesztése"</string>
+    <string name="edit_trial_title_hint" msgid="3752953269416446342">"A vizsgálat megnevezése"</string>
+    <string name="include_archived_trials" msgid="6064586011723883752">"Archivált vizsgálatok is"</string>
+    <string name="export_error" msgid="8729689368786707247">"Sikertelen exportálás."</string>
+    <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
+    <skip />
+    <string name="listing_title" msgid="6842666752572268412">"Science Journal"</string>
+    <string name="listing_tagline" msgid="6633876313767981347">"Tárd fel a környező világot."</string>
+    <string name="listing_changelog" msgid="5651904379742962668">"Első kiadás"</string>
+    <string name="listing__description" msgid="7679178857079821372">"A Science Journal alkalmazással tudományos célokra használhatod az okostelefonodat. A telefonodban lévő vagy külső, csatlakoztatott érzékelőkkel kísérleteket végezhetsz a téged körülvevő világ alaposabb megismerésére. Elképzeléseidet projektekbe szervezheted, hipotéziseket állíthatsz fel, jegyzeteket készíthetsz, és adatokat gyűjthetsz egyszerre több vizsgálatban, a kapott eredményeket pedig kommentálhatod és kielemezheted. Mintha csak mindig nálad lenne a kutató-számítógéped. \n\n \nAz alkalmazással használható tevékenységekre itt találsz ötleteket: https://makingscience.withgoogle.com/science-journal/activities \nTovábbi információ a Making &amp; Science programról: https://makingscience.withgoogle.com \nTámogatás: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
+    <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
+    <skip />
+    <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_summary (1881741234337323074) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_title (7760095515631648430) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_summary (5446570032717609139) -->
+    <skip />
+</resources>

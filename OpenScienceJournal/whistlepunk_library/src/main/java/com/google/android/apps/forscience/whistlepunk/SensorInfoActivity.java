@@ -1,0 +1,77 @@
+package com.google.android.apps.forscience.whistlepunk;
+
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+/**
+ * Activity to display static information about a sensor.
+ */
+public class SensorInfoActivity extends AppCompatActivity {
+
+    public static final String EXTRA_SENSOR_ID = "sensor_id";
+    public static final String EXTRA_COLOR_ID = "color_id";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        final String sensorId = getIntent().getStringExtra(EXTRA_SENSOR_ID);
+        final int color = getIntent().getIntExtra(EXTRA_COLOR_ID, R.color.color_primary);
+        setContentView(R.layout.activity_sensor_info);
+
+        // TODO: Set the action bar and window status bar colors. Need to get the darker color
+        // for the window status bar first (b/26827677)
+        /*
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(color);
+        }
+        */
+
+        TextView firstParagraph = (TextView) findViewById(R.id.info_first_paragraph);
+        TextView secondParagraph = (TextView) findViewById(R.id.info_second_paragraph);
+        ImageView imageView = (ImageView) findViewById(R.id.info_image);
+
+        SensorAppearance appearance = AppSingleton.getInstance(this)
+                .getSensorAppearanceProvider().getAppearance(sensorId);
+        if (appearance == null) {
+            firstParagraph.setText(getResources().getString(R.string.unknown_sensor));
+            secondParagraph.setText("");
+            imageView.setVisibility(View.GONE);
+            return;
+        }
+        getSupportActionBar().setTitle(String.format(
+                getResources().getString(R.string.title_activity_sensor_info_format),
+                appearance.getName(this)));
+
+        firstParagraph.setText(appearance.getFirstLearnMoreParagraph(this));
+        secondParagraph.setText(appearance.getSecondLearnMoreParagraph(this));
+        Drawable drawable = appearance.getLearnMoreDrawable(this);
+        if (drawable != null) {
+            ViewGroup.LayoutParams params = imageView.getLayoutParams();
+            params.width = drawable.getIntrinsicWidth();
+            params.height = drawable.getIntrinsicHeight();
+            imageView.setLayoutParams(params);
+            imageView.setImageDrawable(drawable);
+        } else {
+            imageView.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+}

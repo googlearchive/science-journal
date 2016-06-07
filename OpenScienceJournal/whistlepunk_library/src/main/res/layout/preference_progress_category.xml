@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              style="?android:attr/listSeparatorTextViewStyle"
+              android:background="@null"
+              android:gravity="center_vertical"
+              android:orientation="horizontal"
+              android:layout_height="wrap_content"
+              android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+              android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" >
+
+    <!-- This text view has the style of the list separator text view without the background and padding. -->
+    <!-- TODO: fix theme up later. -->
+    <TextView
+        android:textSize="14sp"
+        android:textColor="@color/color_accent"
+        android:textStyle="normal"
+        android:fontFamily="sans-serif-medium"
+        android:background="@null"
+        android:id="@+android:id/title"
+        android:paddingStart="0dp"
+        android:paddingTop="6dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="start|center"
+        />
+
+    <ProgressBar
+        android:id="@+id/scanning_progress"
+        android:text="@string/progress_scanning"
+        android:paddingTop="6dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="16dip"
+        style="?android:attr/progressBarStyleSmallTitle"
+        />
+
+</LinearLayout>

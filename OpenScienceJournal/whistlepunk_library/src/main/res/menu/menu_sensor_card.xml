@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:showAsAction="always"
+    >
+
+    <item
+        android:title="@string/graph_options_audio_feedback_enable"
+        android:id="@+id/btn_sensor_card_audio_toggle"
+        />
+
+    <item
+        android:title="@string/btn_sensor_card_settings"
+        android:id="@+id/btn_sensor_card_settings"
+        />
+
+    <item
+        android:title="@string/btn_sensor_card_close"
+        android:id="@+id/btn_sensor_card_close"
+        />
+</menu>

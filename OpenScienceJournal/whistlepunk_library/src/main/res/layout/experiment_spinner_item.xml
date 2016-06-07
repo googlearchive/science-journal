@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/experiment_title"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textColor="@android:color/white"
+    android:textSize="@dimen/title_spinner_text_size"
+    android:drawablePadding="@dimen/title_spinner_arrow_padding"
+    android:drawableEnd="@drawable/ic_arrow_drop_down_white_18dp"
+    android:singleLine="true"
+    />

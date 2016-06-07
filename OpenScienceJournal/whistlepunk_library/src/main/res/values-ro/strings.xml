@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="action_feedback" msgid="2230997537507885910">"Feedback"</string>
+    <string name="action_settings" msgid="4140514779355685890">"Setări"</string>
+    <string name="action_save" msgid="7115885253849785049">"Salvați"</string>
+    <string name="action_edit" msgid="2879274643416740117">"Editați"</string>
+    <string name="action_archive_project" msgid="3984396879969444432">"Arhivați proiectul"</string>
+    <string name="action_unarchive_project" msgid="2708696233939647946">"Dezarhivați proiectul"</string>
+    <string name="action_archive_experiment" msgid="5641733726709708591">"Arhivați experimentul"</string>
+    <string name="action_unarchive_experiment" msgid="2357913494087884425">"Dezarhivați experimentul"</string>
+    <string name="action_archive_run" msgid="439270635088307350">"Arhivați testul"</string>
+    <string name="action_unarchive_run" msgid="5992535261034463728">"Dezarhivați testul"</string>
+    <string name="action_delete" msgid="5205384449071348669">"Ștergeți"</string>
+    <string name="action_ruler" msgid="3567453615091215971">"Riglă"</string>
+    <string name="action_level" msgid="2223203490872051791">"Nivelă"</string>
+    <string name="sine_wave" msgid="7465850130633241930">"Undă sinusoidală"</string>
+    <string name="acc_x" msgid="6032598557672647110">"Accelerometrul X"</string>
+    <string name="acc_y" msgid="3524690325306070984">"Accelerometrul Y"</string>
+    <string name="acc_z" msgid="4540365462206126342">"Accelerometrul Z"</string>
+    <string name="ambient_light" msgid="3301998123545447671">"Lumină ambientală"</string>
+    <string name="magnetic_rotation" msgid="6643176023260466091">"Rotație magnetică"</string>
+    <string name="video_stream" msgid="1813984984736617091">"Flux video"</string>
+    <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
+    <string name="ambient_light_units" msgid="6318282254934724349">"lucși"</string>
+    <!-- no translation found for magnetic_rotation_units (5964336522624353252) -->
+    <skip />
+    <string name="decibel_units" msgid="2890849301464041989">"dB"</string>
+    <string name="rpm_units" msgid="897807671511627492">"rpm"</string>
+    <string name="voltage_units" msgid="6411118170860716365">"V"</string>
+    <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
+    <string name="experiment_details" msgid="6814534510464980289">"Detalii despre experiment"</string>
+    <string name="add_sensor" msgid="96374933560924369">"Adăugați senzorul"</string>
+    <string name="snackbar_source_error" msgid="6054360710842869995">"Eroare la conectarea la această sursă: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
+    <string name="action_retry" msgid="7873032739745888974">"Încercați din nou"</string>
+    <string name="decibel" msgid="7425761238029567370">"Intensitatea sunetului"</string>
+    <string name="title_activity_tutorial" msgid="7117023626104839821">"Tutorial Science Journal"</string>
+    <string name="title_activity_age_verifier" msgid="6953483601673982354">"Ziua de naștere"</string>
+    <string name="title_activity_ruler" msgid="4538057504732643762">"Riglă"</string>
+    <string name="ruler_label_metric" msgid="8008318703764352929">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
+    <string name="ruler_label_imperial" msgid="2225518554245466626">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> inchi"</string>
+    <string name="title_activity_level" msgid="7751336762571175981">"Nivelă"</string>
+    <string name="action_calibrate" msgid="2567237363558254927">"Calibrați"</string>
+    <string name="action_end_calibrate" msgid="6416011236105220467">"Opriți calibrarea"</string>
+    <string name="title_calibrate" msgid="4425118955292706233">"Calibrați cu…"</string>
+    <string name="calibration_credit_card" msgid="1784606520446558443">"Card de credit (lungime)"</string>
+    <string name="calibration_ruler_imperial" msgid="2477725634940053346">"Riglă (3 inchi)"</string>
+    <string name="calibration_ruler_metric" msgid="1330487431270295597">"Riglă (80 mm)"</string>
+    <string name="btn_add_experiment_note_description" msgid="7451384954210671094">"Adăugați o notă la experiment"</string>
+    <string name="btn_add_run_note_description" msgid="3729688760639518856">"Adăugați o notă la test"</string>
+    <string name="btn_record_description" msgid="6165596989316716650">"Începeți înregistrarea"</string>
+    <string name="btn_stop_description" msgid="5331283967913304386">"Opriți înregistrarea"</string>
+    <string name="unknown_sensor" msgid="2253417219024438701">"Senzor necunoscut"</string>
+    <string name="recording_start_failed" msgid="8094130346174113235">"Nu s-a înregistrat. Încercați din nou."</string>
+    <string name="recording_start_failed_disconnected" msgid="2493130069585541040">"Nu s-a înregistrat: senzor neconectat. Încercați din nou"</string>
+    <string name="recording_stop_failed_no_data_title" msgid="256592083253381257">"Nu se înregistrează date"</string>
+    <string name="recording_stop_failed_no_data" msgid="5167111037930589862">"Unul sau mai mulți senzori nu au înregistrat date. Doriți să anulați înregistrarea?"</string>
+    <string name="recording_stop_failed_continue" msgid="161788317476740066">"Continuați"</string>
+    <string name="recording_stop_failed_cancel" msgid="9167449814602506726">"Anulați înregistrarea"</string>
+    <string name="recording_stop_failed_disconnected" msgid="1409656957401598471">"Înregistrarea nu s-a oprit: senzor deconectat. Anulați înregistrarea?"</string>
+    <string name="recording_stop_failed_save" msgid="720527628154679503">"Înregistrarea nu s-a oprit: testul nu s-a salvat. Încercați din nou."</string>
+    <!-- no translation found for elapsed_time_short_format (7848904136886917036) -->
+    <skip />
+    <string name="elapsed_time_long_format" msgid="3451516277286685162">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
+    <!-- no translation found for accessible_elapsed_time_short_format (867388448497851890) -->
+    <skip />
+    <string name="accessible_elapsed_time_long_format" msgid="5588697398982936316">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small" msgid="8801162161093675447">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large" msgid="1312366645818667859">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="8665096074255046060">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="picture_note_description" msgid="4617343713156115501">"Fotografie din test"</string>
+    <string name="picture_note_preview_content_description" msgid="4160980766022755366">"Previzualizați nota foto"</string>
+    <string name="navigation_item_observe" msgid="6544385569776074166">"Constatări"</string>
+    <string name="navigation_item_projects" msgid="204705505259389287">"Proiecte"</string>
+    <string name="navigation_item_web_link" msgid="1966109305973672752">"Site-ul Making Science"</string>
+    <string name="navigation_item_settings" msgid="1612988756868966834">"Setări"</string>
+    <string name="navigation_item_testing_options" msgid="8712068439028163725">"Opțiuni de testare"</string>
+    <string name="title_activity_main" msgid="8803846504222999093">"Science Journal - <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_add_sensor" msgid="3432276215295606638">"Dispozitive externe"</string>
+    <string name="external_devices_paired" msgid="460907629018449824">"Dispozitive asociate"</string>
+    <string name="external_devices_pairing" msgid="1318140666547340328">"Se asociază..."</string>
+    <string name="external_devices_available" msgid="4660407499712163232">"Dispozitive disponibile"</string>
+    <string name="external_devices_settings_title" msgid="7731073608455634240">"Setările dispozitivului"</string>
+    <string name="external_devices_settings_forget" msgid="2280373936547146694">"Eliminați"</string>
+    <string name="external_devices_settings_ok" msgid="3688835834178014100">"Bine"</string>
+    <string name="progress_scanning" msgid="504228868213512629">"Se scanează…"</string>
+    <string name="action_refresh" msgid="6449507931372381488">"Actualizați"</string>
+    <string name="no_options_title" msgid="5380361167896386704">"Nicio opțiune pentru <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="no_options_message" msgid="3139314286228576248">"Nu poate fi setată nicio opțiune pentru <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="options_message" msgid="693169996123125208">"Setați opțiunile pentru <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
+    <string name="sine_wave_frequency_option" msgid="3299263567413396079">"Setați frecvența undei sinusoidale în milisecunde:"</string>
+    <string name="video_stream_fps_option" msgid="7912973629078331063">"Setați rata de înregistrare pentru fluxul video în cadre pe secundă:"</string>
+    <string name="title_activity_project_details" msgid="6738094706468371738">"Experimentele proiectului"</string>
+    <string name="graph_name" msgid="4051005079264085531">"graficul"</string>
+    <string name="graph_options" msgid="4225585925400993925">"Opțiuni pentru grafic"</string>
+    <string name="graph_options_title" msgid="6860269315108522661">"Opțiuni pentru grafic"</string>
+    <string name="graph_options_smoothness_edit" msgid="1885781785347948911">"Netezime"</string>
+    <string name="graph_options_window_edit" msgid="8943669029029140826">"Dimensiunea încețoșării"</string>
+    <string name="graph_options_blur_edit" msgid="6217163217394307677">"Tip de încețoșare"</string>
+    <string name="graph_options_gaussian_sigma_edit" msgid="5761710064672068300">"Deviație standard"</string>
+    <string name="blur_type_average" msgid="1617413241621655455">"Mediu"</string>
+    <string name="blur_type_gaussian" msgid="1011871621295653087">"Gaussian"</string>
+    <string name="graph_options_audio_feedback_enable" msgid="1845200328398473302">"Activați sunetul"</string>
+    <string name="graph_options_audio_feedback_disable" msgid="5006766005261847317">"Dezactivați sunetul"</string>
+    <string name="stat_min" msgid="7907031942382531617">"Minimă"</string>
+    <string name="stat_max" msgid="8227023306109349391">"Maximă"</string>
+    <string name="stat_average" msgid="3601514334204674938">"Medie"</string>
+    <string name="stat_min_label" msgid="8763695907241205634">"Min."</string>
+    <string name="stat_max_label" msgid="4173459591223474511">"Max."</string>
+    <string name="stat_average_label" msgid="7341499679015444245">"Medie"</string>
+    <string name="stat_duration" msgid="8999214260188208590">"Durată"</string>
+    <string name="stat_unknown" msgid="8543005524144060221">"Necunoscută"</string>
+    <string name="btn_reset_description" msgid="7288391743038780410">"Reveniți la momentul curent"</string>
+    <string name="export_action" msgid="3269831142664490446">"Exportați"</string>
+    <string name="export_run_chooser_title" msgid="6420930071586217884">"Salvați în…"</string>
+    <string name="settings_version_title" msgid="6212827772323334070">"Versiunea"</string>
+    <string name="settings_replay_tutorial_title" msgid="3811832513865119930">"Tutorial"</string>
+    <string name="settings_open_source_title" msgid="3090096891818776727">"Licențe open source"</string>
+    <string name="dev_sensors_title" msgid="4583380726898357656">"Activați senzorii de experimentare"</string>
+    <string name="cannot_scan_message" msgid="8297618436609318137">"Pentru a accesa dispozitive externe („Senzor Science Journal”) prin aplicația Science Journal, trebuie mai întâi să activați funcția Bluetooth. Pentru a descoperi senzorii Science Journal trebuie să acordați sistemului Android permisiunea de a vă accesa locația, deoarece s-ar putea ca alte dispozitive Bluetooth să transmită informații privind locația în procesul de descoperire a dispozitivelor. Totuși, aplicația Science Journal nu va stoca sau utiliza informațiile privind locația. Senzorii Science Journal nu transmit informații privind locația."</string>
+    <string name="btn_request_location" msgid="8197595806751014499">"Activați accesul la locație"</string>
+    <string name="btn_enable_bluetooth" msgid="5357651687998209452">"Activați funcția Bluetooth"</string>
+    <string name="btn_new_project_content_description" msgid="6932143755645026255">"Proiect nou"</string>
+    <string name="title_activity_new_project" msgid="2838213281488377791">"Proiect nou"</string>
+    <string name="title_activity_update_project" msgid="4441312132900502358">"Actualizați proiectul"</string>
+    <string name="project_save_failed" msgid="5623422183377416130">"Proiectul nu s-a salvat. Încercați din nou."</string>
+    <string name="archived_project_message" msgid="4798618073088509851">"Proiectul a fost arhivat."</string>
+    <string name="unarchived_project_message" msgid="178393278028428287">"Proiectul a fost mutat din arhivă."</string>
+    <string name="action_undo" msgid="3152747614676103846">"Anulați"</string>
+    <string name="project_title_hint" msgid="8228443486075398477">"Titlul proiectului"</string>
+    <string name="project_problem_hint" msgid="381678432298729684">"Descriere"</string>
+    <string name="project_cover_description" msgid="1534511071097246816">"Alegeți o fotografie pentru proiect"</string>
+    <string name="choose_photo_button_text" msgid="761066275467820031">"Alegeți o fotografie"</string>
+    <plurals name="project_experiments_count" formatted="false" msgid="7648457680949535167">
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> experimente</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> de experimente</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> experiment</item>
+    </plurals>
+    <string name="btn_new_experiment_content_description" msgid="7327973648445064928">"Experiment nou"</string>
+    <string name="archived_experiment_message" msgid="6471344531723915995">"Experimentul a fost arhivat."</string>
+    <string name="unarchived_experiment_message" msgid="8059010703916773668">"Experimentul a fost mutat din arhivă."</string>
+    <string name="archived_run_message" msgid="8095301767431802235">"Test arhivat."</string>
+    <string name="unarchived_run_message" msgid="471395163511338290">"Test scos din arhivă."</string>
+    <string name="experiments_toolbar_title" msgid="7336526041603098967">"Experimente"</string>
+    <string name="archived_content_description" msgid="5626832963025103076">"<xliff:g id="ITEM">%1s</xliff:g> (arhivat)"</string>
+    <plurals name="experiment_run_count" formatted="false" msgid="8354594369372506196">
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> teste</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> de teste</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> test</item>
+    </plurals>
+    <plurals name="notes_count" formatted="false" msgid="7949686260707404918">
+      <item quantity="few"><xliff:g id="NUMBER_1">%1d</xliff:g> note</item>
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> de note</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> notă</item>
+    </plurals>
+    <string name="experiment_title_hint" msgid="3508456602523057718">"Titlul experimentului"</string>
+    <string name="experiment_description_hint" msgid="3197580737141616333">"Descrierea experimentului"</string>
+    <string name="title_activity_new_experiment" msgid="5681560613521817391">"Experiment nou"</string>
+    <string name="title_activity_update_experiment" msgid="681114244731613638">"Actualizați experimentul"</string>
+    <string name="experiment_save_failed" msgid="5031953807658062748">"Experimentul nu s-a salvat. Încercați din nou."</string>
+    <string name="btn_add_sensor_card_description" msgid="4836624546799382073">"Adăugați un card nou pentru senzor"</string>
+    <string name="btn_sensor_card_settings" msgid="5722000860549753304">"Setările senzorului"</string>
+    <string name="sensor_options" msgid="7269577762234317911">"Opțiuni pentru senzor"</string>
+    <string name="btn_sensor_card_expand" msgid="5267003335362502193">"Afișați lista de senzori"</string>
+    <string name="btn_sensor_card_contract" msgid="4805549352705439024">"Ascundeți lista de senzori"</string>
+    <string name="btn_sensor_card_close" msgid="4964202674700426175">"Închideți cardul"</string>
+    <string name="learn_more_button" msgid="6562065467901868709">"Aflați mai multe"</string>
+    <string name="default_experiment_name" msgid="8360979514785269303">"Experiment fără titlu"</string>
+    <string name="default_project_name" msgid="5076954632739479626">"Proiect fără titlu"</string>
+    <string name="empty_project_library" msgid="6139693733859042212">"Nu aveți proiecte"</string>
+    <string name="empty_project" msgid="196070251052121055">"Nu aveți experimente"</string>
+    <string name="frequency_window_option_label" msgid="4885731738492452610">"Fereastră frecvență (milisecunde)"</string>
+    <string name="frequency_filter_option_label" msgid="6322746140513536230">"Filtru frecvență (unități senzor)"</string>
+    <string name="enable_frequency_checkbox_label" msgid="7012647084401204497">"Afișați frecvența"</string>
+    <string name="dev_sensors_summary" msgid="3417308653634353239">"Afișați numai senzorii pentru testările pentru dezvoltatori"</string>
+    <string name="options_save_error" msgid="5710202337557612915">"Eroare la salvarea opțiunilor"</string>
+    <string name="options_load_error" msgid="1033189385249714186">"Eroare la încărcarea opțiunilor"</string>
+    <string name="dev_tools_title" msgid="413875762004836148">"Activați instrumentele de experimentare"</string>
+    <string name="dev_tools_summary" msgid="8602005614020489618">"Afișați numai instrumentele pentru testările pentru dezvoltatori"</string>
+    <string name="dev_tools_leak_detection_title" msgid="4501895025531999102">"Activați detectarea pierderilor de memorie"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="6611870647303094340">"Modificările aduse acestei setări vor fi aplicate numai după închiderea aplicației."</string>
+    <string name="d2p" msgid="639917686672445089">"Date în înălțime a sunetului"</string>
+    <string name="d2a" msgid="1134874560612971036">"Date în amplitudine"</string>
+    <string name="d2pe" msgid="3727800647324543645">"Date în sistemul de modulare a înălțimii sunetului"</string>
+    <string name="d2ps" msgid="7368523482734331024">"Date în sistemul de modulare a înălțimii sunetului pentru gama pentatonică"</string>
+    <!-- no translation found for sonification_types:0 (3861898414238653003) -->
+    <!-- no translation found for sonification_types:1 (906523180895001108) -->
+    <!-- no translation found for sonification_types:2 (5312779098039590744) -->
+    <!-- no translation found for sonification_types:3 (2613491808468275381) -->
+  <string-array name="sonification_type_aliases">
+    <item msgid="7377813266249747858">"d2p"</item>
+    <item msgid="6906000057586711876">"d2a"</item>
+    <item msgid="1870736636828704674">"d2pe"</item>
+    <item msgid="5674284626652201942">"d2ps"</item>
+  </string-array>
+    <string name="new_experiment_spinner_item" msgid="5833883031740938473">"Experiment nou…"</string>
+    <string name="recording_title_label" msgid="5188061176268043052">"Se înregistrează..."</string>
+    <string name="exp_edit_info_button" msgid="57557261114019563">"Editați informațiile"</string>
+    <string name="btn_observe_content_description" msgid="6339279151257255267">"Constatări"</string>
+    <string name="title_activity_experiment_details" msgid="6104721540075416005">"Detalii despre experiment"</string>
+    <string name="empty_runs" msgid="2492444523656046772">"Nu aveți teste"</string>
+    <string name="permission_request_write" msgid="7894354232042075113">"Aveți nevoie de permisiune pentru a scrie pe spațiul de stocare extern."</string>
+    <string name="device_options_sensor_label_text" msgid="4913281182269452551">"Senzor"</string>
+    <string name="external_sensor_appearance_name" msgid="2545762878566289321">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
+    <string name="sensor_rotation_rpm" msgid="7675868077769123026">"Rotație"</string>
+    <string name="sensor_voltage" msgid="8803070522098118555">"Tensiunea"</string>
+    <string name="sensor_raw" msgid="3706079416934145306">"Brut"</string>
+    <string name="sensor_temperature_fahrenheit" msgid="530709732319662008">"Temperatura în F"</string>
+    <string name="sensor_custom" msgid="6419934674147294928">"Personalizat"</string>
+    <string name="device_options_custom_sensor_pin_label_text" msgid="7800969142277212707">"Pin"</string>
+    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="3441420502780409558">"Frecvență"</string>
+    <string name="feedback_error_message" msgid="6267829056474146185">"Feedbackul nu s-a trimis."</string>
+    <string name="no_sensor_info_found" msgid="4162175886082619280">"Acest senzor nu are informații suplimentare."</string>
+    <string name="sensor_desc_short_acc_x" msgid="2894000283386570265">"Accelerația telefonului spre stânga și spre dreapta, în m/s²"</string>
+    <string name="sensor_desc_short_acc_y" msgid="6068967454464639546">"Accelerația telefononului înainte și înapoi, în m/s²"</string>
+    <string name="sensor_desc_short_acc_z" msgid="718984279193417402">"Accelerația telefonului în sus și în jos, în m/s²"</string>
+    <string name="sensor_desc_short_decibel" msgid="6022620562641402361">"Intensitatea sunetului, măsurată în decibeli (dB), care ajunge la senzorul de sunet sau la microfon."</string>
+    <string name="sensor_desc_short_light" msgid="2836912567230826095">"Cantitatea de lumină, măsurată în lucși, care ajunge la senzorul de lumină ambientală."</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="2856177797841108478">"Unghiul de rotație între telefon și câmpul magnetic exterior."</string>
+    <string name="sensor_desc_short_bluetooth" msgid="6408146877850831242">"Un senzor extern își afișează datele aici, în funcție de setări personalizate."</string>
+    <string name="sensor_desc_short_rotation" msgid="4005725749913712057">"Numărul de rotații pe minut"</string>
+    <string name="sensor_desc_short_raw" msgid="8183752554049502871">"Procentul citirii brute de la un senzor extern."</string>
+    <string name="sensor_desc_first_paragraph_light" msgid="4109035727606616530">"Senzorul de lumină ambientală măsoară lumina în lucși, o măsură a iluminării determinată de cantitatea de lumină primită și de suprafața pe care este răspândită. \n\nO lună plină oferă o iluminare de aproximativ 1 lux, lumina dintr-o sufragerie de aproximativ 50 de lucși, lumina dintr-o sală de clasă, răsăritul și apusul de aproximativ 400 de lucși, lumina zilei (lumina indirectă a soarelui) de peste 10.000 de lucși, iar lumina directă a soarelui de peste 30.000 de lucși. \n\nLuxul este o unitate neobișnuită pentru majoritatea dintre noi. Atunci când cumpărăm becuri, le alegem în general în funcție de wați, dar wații unui bec nu ne spun cât este de strălucitor, ci doar câtă energie consumă. Lumenul este o unitate de măsură mai potrivită pentru atunci când cumpărați becuri, deoarece acesta ne spune câtă lumină va produce efectiv un bec. În schimb, luxul ne spune ce cantitate din lumina respectivă va ajunge pe o anumită suprafață."</string>
+    <string name="sensor_desc_second_paragraph_light" msgid="4898255020378037357">"Numărul de lucși scade pe măsură ce vă îndepărtați de o sursă de lumină, chiar dacă sursa emite în continuare aceeași cantitate de lumină în lumeni, deoarece lumina se răspândește. O suprafața care este înclinată în direcția opusă sursei de lumină primește mai puțină lumină; de aceea, zonele ecuatoriale ale Pământului sunt mai calde decât polii geroși.\n\nApropo, scopul senzorului de lumină al telefonului dvs. este de a controla nivelul de lumină al ecranului, reglându-l în funcție de mediu: întunecat sau luminos. În interiorul senzorului de lumină, un mic semiconductor răspunde la lumina primită producând un curent electric redus, dar măsurabil. Acest fenomen este denumit efect fotoelectric. Senzori similari sunt utilizați la unele felinare stradale, pentru a le aprinde atunci când se întunecă afară."</string>
+    <string name="sensor_desc_first_paragraph_acc" msgid="5154591427983319390">"Obiectele tind să rămână pe loc sau, dacă sunt în mișcare, să se miște în continuare. Această tendință se numește inerție. Principiul I al mecanicii al lui Newton exprimă formal această idee: Un corp își menține starea de repaus sau de mișcare rectilinie uniformă atât timp cât asupra sa nu acționează alte forțe sau suma forțelor care acționează asupra sa este nulă. \n\nAtunci când o forță neechilibrată determină mișcarea unui obiect, spunem că obiectul accelerează: viteza acestuia se schimbă (scade, crește sau obiectul își schimbă direcția). Accelerația este măsurată ca o schimbare a vitezei (metri pe secundă) în timp sau metri pe secundă la pătrat (m/s²). \n\nTelefonul dvs. are un dispozitiv care măsoară aceste schimbări de mișcare, un accelerometru. În interiorul unui accelerometru există mase suspendate mici, în mișcare liberă. Schimbarea mișcării duce la deplasarea maselor, așa cum capul dvs. tinde să se încline în față când vă aflați într-o mașină care se oprește brusc. Prin măsurarea acestor deplasări subtile, un accelerometru dintr-un telefon poate să detecteze schimbări de mișcare și orientare, lucru util pentru comutarea ecranului din modul peisaj în modul portret, pentru jocuri video și altele."</string>
+    <string name="sensor_desc_second_paragraph_acc" msgid="8812623507037923651">"Ați observat probabil o accelerație persistentă pe axa Z, chiar și cu telefonul așezat nemișcat pe masă. Aceasta este accelerația la care suntem supuși aici, pe suprafața Pământului, din cauza atracției gravitaționale de aproximativ 9,8 m/s²."</string>
+    <string name="sensor_desc_first_paragraph_decibel" msgid="2782071765610621336">"Sunetele sunt generate prin vibrații. De exemplu, vocea dvs. apare ca urmare a vibrațiilor corzilor vocale. Aceste vibrații creează zone alternante cu presiune ridicată și scăzută a aerului care se deplasează spre exterior, la fel ca undele circulare în expansiune generate prin aruncarea unei pietre într-un iaz."</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="142151860819231749">"Toate sunetele pot fi descrise din punct de vedere al frecvenței și al intensității. \n\nIntensitatea este cea măsurată cu aplicația Science Journal, în decibeli (dB). Intensitatea sau volumul depind de distanța parcursă de un obiect care vibrează, de fiecare dată când vibrează. O intensitate mai mare este percepută ca un volum mai ridicat. \n\nFrecvența (înălțimea sau tonalitatea) unei unde sonore este echivalentă cu ritmul vibrației. Cu cât un obiect vibrează mai rapid, cu atât înălțimea sunetului rezultat va fi mai mare. Aplicația Science Journal nu măsoară frecvența, doar intensitatea. \n\nCel mai încet sunet pe care îl poate detecta urechea umană este definit ca fiind de 0 dB. O conversație obișnuită corespunde cu aproximativ 60 dB, iar sunetele de peste 140 dB sunt dureroase pentru urechea umană. Dar sunetele nu trebuie să fie dureroase pentru a fi nocive. Expunerea continuă la sunete de 90 dB, aproximativ volumul unui aspirator, poate duce într-un final la pierderea auzului. \n\nScara decibelilor este logaritmică, ceea ce complică lucrurile, de exemplu, o sursă sonoră de 40 dB nu este de două ori mai intensă decât una de 20 dB, este de 100 de ori mai intensă. În schimb, dacă alarma unui ceas produce 70 dB, două alarme de ceas nu produc 140 dB, ci 73 dB. După cum spuneam, este o scară ciudată. \n\n10 dB foșnitul frunzelor \n20 dB vorbitul încet de la 1,5 m \n30 dB vorbitul în șoaptă \n50 dB ploaia \n60 dB conversația normală \n90 dB blenderul \n100 dB mașina fără tobă \n110 dB țipatul în ureche \n120 dB tunetul \n130 dB pichamerul \n140 dB avionul la decolare"</string>
+    <string name="sensor_desc_first_paragraph_rotation" msgid="8053108458881116800">"Rotații pe minut (rpm) este o măsură a frecvenței de rotație în jurul unei axe fixe, într-un minut. \n\nPe măsură ce se rotește, elicea rotește și discul de codificare:"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="1296904470766613471">"Acest lucru creează perioade de lumină și întuneric pe senzor, care sunt înregistrate de aplicația Science Journal ca o rotație."</string>
+    <string name="sensor_desc_first_paragraph_raw" msgid="4939612146659644032">"Datele afișate aici provin de la comunicarea prin Bluetooth dintre un senzor extern și telefonul dvs. \n\nValoarea indică procentul citirii brute direct de pe microcontroler. Acesta este în general procentul unei căderi de tensiune în senzor."</string>
+    <string name="sensor_desc_second_paragraph_raw" msgid="8973117353495356394">"Bluetooth este un standard de tehnologie wireless, care utilizează unde radio pentru a face schimb de date pe distanțe mici, între dispozitive fixe și mobile."</string>
+    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="7981623485563854939">"Datele afișate aici provin de la comunicarea prin Bluetooth dintre un senzor extern și telefonul dvs."</string>
+    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="7708856960763941387">"Bluetooth este un standard de tehnologie wireless, care utilizează unde radio pentru a face schimb de date pe distanțe mici, între dispozitive fixe și mobile."</string>
+    <string name="run_review_duration" msgid="7076553835966679478">"Durată"</string>
+    <string name="run_review_activity_label" msgid="5276313115461408528">"Examinați"</string>
+    <string name="service_notification_content_title" msgid="409211151396677834">"Science Journal"</string>
+    <string name="service_notification_content_text" msgid="6198486549545279611">"Se înregistrează..."</string>
+    <string name="live_graph_content_description" msgid="3504419430886261146">"Grafic live pentru senzor. Trageți pentru a vă deplasa pe axa X."</string>
+    <string name="static_graph_content_description" msgid="5963837267567407006">"Grafic pentru senzor. Ciupiți pentru a mări sau a micșora și trageți pentru a vă deplasa pe axa X."</string>
+    <string name="sensor_card_overflow_menu_content_description" msgid="1847239009701022116">"Opțiuni pentru card"</string>
+    <string name="btn_sensor_flip_info_content_description" msgid="4129040510635338579">"comutați la modul informații"</string>
+    <string name="btn_sensor_flip_graph_content_description" msgid="2500545463691107821">"comutați la modul grafic"</string>
+    <string name="sensor_tab_layout_content_description" msgid="6653074718544676936">"senzori disponibili"</string>
+    <string name="sensor_tab_selected_format" msgid="5189774892597619784">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (selectat)"</string>
+    <string name="title_activity_sensor_info" msgid="6960039814316283850">"Informațiile senzorului"</string>
+    <string name="title_activity_sensor_info_format" msgid="9106545676836634722">"Senzorul <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="heading_info_section" msgid="3068233297591403258">"Ce înseamnă?"</string>
+    <string name="edit_note_menu_item" msgid="5303280313359136552">"Editați"</string>
+    <string name="edit_note_time" msgid="2027041230205029461">"Editați ora notei"</string>
+    <string name="delete_note_menu_item" msgid="7908811564743301702">"Ștergeți"</string>
+    <string name="delete_run" msgid="103141962786624686">"Ștergeți"</string>
+    <string name="crop_run" msgid="1336721925526265401">"Decupați"</string>
+    <string name="add_run_note" msgid="4601243377697085005">"Adăugați o notă"</string>
+    <string name="add_experiment_note" msgid="1084637094906153162">"Adăugați o notă"</string>
+    <string name="run_label" msgid="7587739695592981023">"Testul <xliff:g id="RUN_INDEX">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_prev" msgid="1562899512022232138">"senzorul anterior: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_next" msgid="5528270146135394657">"senzorul următor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="edit_note_hint_text" msgid="7190191469950695769">"Editați nota testului"</string>
+    <string name="add_note_hint_text" msgid="4947278182685363439">"Adăugați o notă nouă"</string>
+    <string name="snackbar_note_deleted" msgid="4926151554010737654">"Nota a fost ștearsă"</string>
+    <string name="snackbar_undo" msgid="488185413692934054">"Anulați"</string>
+    <string name="add_run_note_placeholder_text" msgid="4564897234715127061">"Adăugați o notă la acest test"</string>
+    <string name="add_experiment_note_placeholder_text" msgid="5668745283017643514">"Adăugați o notă la experiment"</string>
+    <string name="add_note_image_button_content_description" msgid="5956413597980661328">"Adăugați o notă foto"</string>
+    <string name="pinned_note_placeholder_text" msgid="742162042813125689">"Adăugați o notă"</string>
+    <string name="no_notes_text" msgid="1333257200348947043">"Nicio notă"</string>
+    <string name="indeterminate_value" msgid="6535623633404732608">"--"</string>
+    <string name="project_card_overflow_menu_content_description" msgid="2569345733400148597">"Opțiuni pentru proiect"</string>
+    <string name="project_active_badge" msgid="8953778683278828884">"Activ"</string>
+    <string name="archived_badge" msgid="7204033469949818539">"Arhivat"</string>
+    <string name="action_include_archived_projects" msgid="1872416419322070603">"Includeți proiectele arhivate"</string>
+    <string name="action_include_archived_experiments" msgid="1368001463798477703">"Includeți experimentele arhivate"</string>
+    <string name="action_new_experiment" msgid="3598888962558710132">"Experiment nou"</string>
+    <string name="delete_run_dialog_title" msgid="2829473058431908340">"Ștergeți acest test?"</string>
+    <string name="run_review_delete_confirm" msgid="9216827234502882510">"Sigur doriți să ștergeți acest test? Datele și notele înregistrate vor fi șterse. Această acțiune nu poate fi anulată."</string>
+    <string name="menu_btn_content_description" msgid="4680014704943654954">"meniu"</string>
+    <string name="age_verifier_header" msgid="9217155512378711429">"Confirmați vârsta"</string>
+    <string name="age_verifier_birthday" msgid="2054392341079524729">"Ziua de naștere:"</string>
+    <string name="age_verifier_get_started" msgid="1086024826189816224">"Începeți"</string>
+    <string name="tutorial_welcome_header" msgid="5596382686735832683">"Explorați lumea din jur"</string>
+    <string name="tutorial_welcome_body" msgid="7591843046586427635">"Utilizați senzorii din telefonul Android pentru a măsura sunetul, lumina și multe altele!"</string>
+    <string name="tutorial_setup_header" msgid="7529566316389493918">"Organizați proiecte"</string>
+    <string name="tutorial_setup_body" msgid="3570507763094472318">"Creați proiecte și experimente pentru a organiza date și a compara rezultate."</string>
+    <string name="tutorial_observe_record_header" msgid="3715811468629596336">"Înregistrați în timp real"</string>
+    <string name="tutorial_observe_record_body" msgid="6982870167622582123">"Vreți să măsurați ceva? Înregistrați constatările în timp real prin apăsarea unui buton."</string>
+    <string name="tutorial_take_notes_header" msgid="8271718393020433479">"Adăugați constatări"</string>
+    <string name="tutorial_take_notes_body" msgid="6597967563928412974">"În timp ce înregistrați, puteți să adăugați note și fotografii pentru a oferi un context suplimentar."</string>
+    <string name="btn_previous_label" msgid="2881262882599469727">"Înapoi"</string>
+    <string name="btn_next_label" msgid="1682026626542221420">"Înainte"</string>
+    <string name="sensor_card_error_text" msgid="151455534130824363">"Datele senzorului nu s-au încărcat"</string>
+    <string name="bluetooth_not_on_title" msgid="8961840974431817490">"Conectați-vă la Bluetooth"</string>
+    <string name="bluetooth_not_on_body" msgid="1861412368943739545">"Conectare imposibilă senzor extern: Bluetooth dezactivat. Porniți-l pentru conectare senzor extern."</string>
+    <string name="bluetooth_not_on_ok" msgid="3148597353545683264">"Activați Bluetooth"</string>
+    <string name="sensor_card_loading_text" msgid="8569947135727599414">"Se încarcă datele senzorului…"</string>
+    <string name="graph_loading" msgid="9200302049191996695">"Se încarcă graficul…"</string>
+    <string name="playback_button_pause" msgid="6025607837788357759">"întrerupeți redarea audio"</string>
+    <string name="playback_button_play" msgid="5739285031289314186">"porniți redarea audio"</string>
+    <string name="sonification_type_card_title" msgid="7315771791094946967">"Tipul sonificării cardului"</string>
+    <string name="sonification_type_title" msgid="271616837832972881">"Tip de sonificare implicit"</string>
+    <string name="title_edit_trial_activity" msgid="3272215900928155534">"Editați testul"</string>
+    <string name="edit_trial_title_hint" msgid="3752953269416446342">"Titlu test"</string>
+    <string name="include_archived_trials" msgid="6064586011723883752">"Includeți testele arhivate"</string>
+    <string name="export_error" msgid="8729689368786707247">"Exportul nu a reușit."</string>
+    <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
+    <skip />
+    <string name="listing_title" msgid="6842666752572268412">"Science Journal"</string>
+    <string name="listing_tagline" msgid="6633876313767981347">"Experimentați pe mediul din jur."</string>
+    <string name="listing_changelog" msgid="5651904379742962668">"Lansare ințială"</string>
+    <string name="listing__description" msgid="7679178857079821372">"Science Journal este un instrument care vă ajută să realizați experimente cu smartphone-ul. Puteți să folosiți senzorii telefonului sau să vă conectați la senzori externi pentru a realiza experimente pe mediul înconjurător. Organizați-vă ideile în proiecte, estimați, luați notițe și colectați date prin teste multiple, apoi adnotați și explorați rezultatele. Este un caiet de notițe de laborator mereu la îndemână. \n\n \nObțineți idei de activități pe care le puteți realiza în aplicație: https://makingscience.withgoogle.com/science-journal/activities \nAflați mai multe despre Making Science: https://makingscience.withgoogle.com \nPentru asistență: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
+    <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
+    <skip />
+    <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_summary (1881741234337323074) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_title (7760095515631648430) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_summary (5446570032717609139) -->
+    <skip />
+</resources>

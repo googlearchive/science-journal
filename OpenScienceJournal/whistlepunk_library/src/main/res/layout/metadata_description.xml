@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+    <TextView
+        android:id="@+id/metadata_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/experiment_description_padding"
+        android:textColor="@color/text_color_white"
+        style="@style/TextAppearance.AppCompat.Medium">
+    </TextView>
+    <include layout="@layout/archived_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/cardview_margin"
+        android:layout_marginTop="@dimen/cardview_margin"
+        />
+</LinearLayout>

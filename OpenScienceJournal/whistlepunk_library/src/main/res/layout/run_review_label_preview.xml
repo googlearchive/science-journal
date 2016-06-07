@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/edit_note_dialog_margin"
+        android:layout_marginEnd="@dimen/edit_note_dialog_margin"
+        android:layout_marginTop="@dimen/edit_note_dialog_margin"
+        android:layout_marginBottom="@dimen/edit_note_textedit_margin_bottom"
+        android:id="@+id/preview_note_text"
+        android:textColor="@color/text_color_dark_grey"
+        android:visibility="gone"
+        />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="@dimen/picture_note_preview_size"
+        android:id="@+id/picture_note_preview_image"
+        android:layout_margin="@dimen/edit_note_dialog_margin"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:contentDescription="@string/picture_note_preview_content_description"
+        />
+
+</LinearLayout>

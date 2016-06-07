@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:gravity="center">
+            <size
+                android:height="@dimen/accessibility_touch_target_min_size"
+                android:width="@dimen/accessibility_touch_target_min_size"/>
+            <solid android:color="@android:color/transparent"></solid>
+        </shape>
+    </item>
+    <item
+        android:top="@dimen/run_review_thumb_inactive_padding"
+        android:bottom="@dimen/run_review_thumb_inactive_padding"
+        android:left="@dimen/run_review_thumb_inactive_padding"
+        android:right="@dimen/run_review_thumb_inactive_padding">
+        <shape
+            android:gravity="center" android:shape="oval">
+            <size
+                android:height="@dimen/run_review_thumb_inactive_size"
+                android:width="@dimen/run_review_thumb_inactive_size"/>
+            <solid android:color="@color/thumb_color_transparent"/>
+        </shape>
+    </item>
+    <item
+        android:top="@dimen/run_review_thumb_center_padding"
+        android:bottom="@dimen/run_review_thumb_center_padding"
+        android:left="@dimen/run_review_thumb_center_padding"
+        android:right="@dimen/run_review_thumb_center_padding">
+        <shape
+            android:gravity="center" android:shape="oval">
+            <size
+                android:height="@dimen/run_review_thumb_center_size"
+                android:width="@dimen/run_review_thumb_center_size"/>
+            <solid android:color="@android:color/black"/>
+        </shape>
+    </item>
+</layer-list>

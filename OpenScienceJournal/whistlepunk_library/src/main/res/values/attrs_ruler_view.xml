@@ -1,0 +1,12 @@
+<resources>
+    <declare-styleable name="RulerView">
+        <attr name="rulerUnits" format="enum">
+            <enum name="metric" value="0"/>
+            <enum name="imperial" value="1"/>
+        </attr>
+        <attr name="rulerColor" format="color"/>
+        <attr name="rulerTextSize" format="dimension" />
+        <attr name="touchLabelColor" format="color" />
+        <attr name="touchLabelTextSize" format="dimension" />
+    </declare-styleable>
+</resources>

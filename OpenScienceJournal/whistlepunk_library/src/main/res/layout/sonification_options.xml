@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/options_padding_sides"
+    android:paddingRight="@dimen/options_padding_sides"
+    android:paddingTop="@dimen/options_padding_top_bottom"
+    android:paddingBottom="@dimen/options_padding_top_bottom"
+    >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sonification_type_card_title"
+        android:labelFor="@+id/sonification_type_spinner"
+    />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/accessibility_touch_target_min_size"
+        android:id="@+id/sonification_type_spinner"
+        android:spinnerMode="dropdown" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/options_after_sonification"
+        android:visibility="gone">
+    </FrameLayout>
+</LinearLayout>

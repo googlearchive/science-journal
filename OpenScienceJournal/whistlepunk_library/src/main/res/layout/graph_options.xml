@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TOOD: When we have a spec for options, consider using gridlayout or tablelayout
+     to create this options view. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/options_padding_sides"
+    android:paddingRight="@dimen/options_padding_sides"
+    android:paddingTop="@dimen/options_padding_top_bottom"
+    android:paddingBottom="@dimen/options_padding_top_bottom"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/graph_options_item_height"
+            android:text="@string/graph_options_smoothness_edit"
+            android:labelFor="@+id/graph_options_smoothness_edit"
+            android:gravity="center_vertical"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/graph_options_item_height"
+            android:text="@string/graph_options_window_edit"
+            android:labelFor="@+id/graph_options_window_edit"
+            android:id="@+id/graph_options_window_label"
+            android:gravity="center_vertical"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/graph_options_item_height"
+            android:text="@string/graph_options_blur_edit"
+            android:labelFor="@+id/graph_options_blur_edit"
+            android:id="@+id/graph_options_blur_type_label"
+            android:gravity="center_vertical"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/graph_options_item_height"
+            android:id="@+id/graph_options_standard_deviation_label"
+            android:text="@string/graph_options_gaussian_sigma_edit"
+            android:labelFor="@+id/graph_options_gaussian_sigma_edit"
+            android:gravity="center_vertical"
+            />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+        <SeekBar
+            android:id="@id/graph_options_smoothness_edit"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/graph_options_item_height"
+            android:maxHeight="@dimen/graph_options_item_height"
+            android:gravity="center_vertical"
+            />
+
+        <SeekBar
+            android:id="@id/graph_options_window_edit"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/graph_options_item_height"
+            android:maxHeight="@dimen/graph_options_item_height"
+            android:gravity="center_vertical"
+            />
+
+        <Spinner
+            android:id="@id/graph_options_blur_edit"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/graph_options_item_height"
+            android:gravity="center_vertical"
+            />
+
+        <SeekBar
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/graph_options_item_height"
+            android:id="@id/graph_options_gaussian_sigma_edit"
+            android:maxHeight="@dimen/graph_options_item_height"
+            android:gravity="center_vertical"
+            />
+    </LinearLayout>
+
+
+</LinearLayout>

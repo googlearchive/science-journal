@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="action_feedback" msgid="2230997537507885910">"Feedback"</string>
+    <string name="action_settings" msgid="4140514779355685890">"Instell."</string>
+    <string name="action_save" msgid="7115885253849785049">"Opslaan"</string>
+    <string name="action_edit" msgid="2879274643416740117">"Bewerken"</string>
+    <string name="action_archive_project" msgid="3984396879969444432">"Project archiveren"</string>
+    <string name="action_unarchive_project" msgid="2708696233939647946">"Project terugzetten"</string>
+    <string name="action_archive_experiment" msgid="5641733726709708591">"Experiment archiveren"</string>
+    <string name="action_unarchive_experiment" msgid="2357913494087884425">"Experiment terugzetten"</string>
+    <string name="action_archive_run" msgid="439270635088307350">"Proef archiveren"</string>
+    <string name="action_unarchive_run" msgid="5992535261034463728">"Proef terugzetten"</string>
+    <string name="action_delete" msgid="5205384449071348669">"Verwijderen"</string>
+    <string name="action_ruler" msgid="3567453615091215971">"Liniaal"</string>
+    <string name="action_level" msgid="2223203490872051791">"Waterpas"</string>
+    <string name="sine_wave" msgid="7465850130633241930">"Sinusgolf"</string>
+    <string name="acc_x" msgid="6032598557672647110">"Accelerometer X"</string>
+    <string name="acc_y" msgid="3524690325306070984">"Accelerometer Y"</string>
+    <string name="acc_z" msgid="4540365462206126342">"Accelerometer Z"</string>
+    <string name="ambient_light" msgid="3301998123545447671">"Omgevingslicht"</string>
+    <string name="magnetic_rotation" msgid="6643176023260466091">"Magnetische rotatie"</string>
+    <string name="video_stream" msgid="1813984984736617091">"Videostream"</string>
+    <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
+    <string name="ambient_light_units" msgid="6318282254934724349">"lux"</string>
+    <!-- no translation found for magnetic_rotation_units (5964336522624353252) -->
+    <skip />
+    <string name="decibel_units" msgid="2890849301464041989">"dB"</string>
+    <string name="rpm_units" msgid="897807671511627492">"RPM"</string>
+    <string name="voltage_units" msgid="6411118170860716365">"V"</string>
+    <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
+    <string name="experiment_details" msgid="6814534510464980289">"Details experiment"</string>
+    <string name="add_sensor" msgid="96374933560924369">"Sensor toevoegen"</string>
+    <string name="snackbar_source_error" msgid="6054360710842869995">"Fout opgetreden bij het verbinden met deze bron: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
+    <string name="action_retry" msgid="7873032739745888974">"Opnieuw proberen"</string>
+    <string name="decibel" msgid="7425761238029567370">"Geluidsintensiteit"</string>
+    <string name="title_activity_tutorial" msgid="7117023626104839821">"Tutorial Science-journal"</string>
+    <string name="title_activity_age_verifier" msgid="6953483601673982354">"Verjaardag"</string>
+    <string name="title_activity_ruler" msgid="4538057504732643762">"Liniaal"</string>
+    <string name="ruler_label_metric" msgid="8008318703764352929">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
+    <string name="ruler_label_imperial" msgid="2225518554245466626">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> in"</string>
+    <string name="title_activity_level" msgid="7751336762571175981">"Waterpas"</string>
+    <string name="action_calibrate" msgid="2567237363558254927">"Kalibreren"</string>
+    <string name="action_end_calibrate" msgid="6416011236105220467">"Kalibratie beëindigen"</string>
+    <string name="title_calibrate" msgid="4425118955292706233">"Kalibreren met..."</string>
+    <string name="calibration_credit_card" msgid="1784606520446558443">"Creditcard (hoogte)"</string>
+    <string name="calibration_ruler_imperial" msgid="2477725634940053346">"Liniaal (3 in)"</string>
+    <string name="calibration_ruler_metric" msgid="1330487431270295597">"Liniaal (80 mm)"</string>
+    <string name="btn_add_experiment_note_description" msgid="7451384954210671094">"Experimentnotitie toevoegen"</string>
+    <string name="btn_add_run_note_description" msgid="3729688760639518856">"Proefnotitie toevoegen"</string>
+    <string name="btn_record_description" msgid="6165596989316716650">"Begin met opnemen"</string>
+    <string name="btn_stop_description" msgid="5331283967913304386">"Opname stoppen"</string>
+    <string name="unknown_sensor" msgid="2253417219024438701">"Onbekende sensor"</string>
+    <string name="recording_start_failed" msgid="8094130346174113235">"Opname mislukt. Probeer het opnieuw."</string>
+    <string name="recording_start_failed_disconnected" msgid="2493130069585541040">"Opname mislukt: er is geen sensor aangesloten. Probeer het opnieuw"</string>
+    <string name="recording_stop_failed_no_data_title" msgid="256592083253381257">"Gegevens worden niet opgenomen"</string>
+    <string name="recording_stop_failed_no_data" msgid="5167111037930589862">"Een of meer sensoren hebben geen gegevens opgenomen. Wilt u deze opname annuleren?"</string>
+    <string name="recording_stop_failed_continue" msgid="161788317476740066">"Doorgaan"</string>
+    <string name="recording_stop_failed_cancel" msgid="9167449814602506726">"Opname annuleren"</string>
+    <string name="recording_stop_failed_disconnected" msgid="1409656957401598471">"Opname beëindigen mislukt: de verbinding met een sensor is verbroken. Wilt u deze opname annuleren?"</string>
+    <string name="recording_stop_failed_save" msgid="720527628154679503">"Opname beëindigen mislukt: kan proef niet opslaan. Probeer het opnieuw."</string>
+    <!-- no translation found for elapsed_time_short_format (7848904136886917036) -->
+    <skip />
+    <string name="elapsed_time_long_format" msgid="3451516277286685162">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
+    <!-- no translation found for accessible_elapsed_time_short_format (867388448497851890) -->
+    <skip />
+    <string name="accessible_elapsed_time_long_format" msgid="5588697398982936316">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small" msgid="8801162161093675447">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large" msgid="1312366645818667859">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="8665096074255046060">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="picture_note_description" msgid="4617343713156115501">"Foto van proef"</string>
+    <string name="picture_note_preview_content_description" msgid="4160980766022755366">"Voorbeeld fotonotitie"</string>
+    <string name="navigation_item_observe" msgid="6544385569776074166">"Waarnemen"</string>
+    <string name="navigation_item_projects" msgid="204705505259389287">"Projecten"</string>
+    <string name="navigation_item_web_link" msgid="1966109305973672752">"Making &amp; Science-website"</string>
+    <string name="navigation_item_settings" msgid="1612988756868966834">"Instell."</string>
+    <string name="navigation_item_testing_options" msgid="8712068439028163725">"Testopties"</string>
+    <string name="title_activity_main" msgid="8803846504222999093">"Science-journal - <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_add_sensor" msgid="3432276215295606638">"Externe apparaten"</string>
+    <string name="external_devices_paired" msgid="460907629018449824">"Gekoppelde apparaten"</string>
+    <string name="external_devices_pairing" msgid="1318140666547340328">"Koppelen..."</string>
+    <string name="external_devices_available" msgid="4660407499712163232">"Beschikbare apparaten"</string>
+    <string name="external_devices_settings_title" msgid="7731073608455634240">"Apparaatinstellingen"</string>
+    <string name="external_devices_settings_forget" msgid="2280373936547146694">"Vergeten"</string>
+    <string name="external_devices_settings_ok" msgid="3688835834178014100">"OK"</string>
+    <string name="progress_scanning" msgid="504228868213512629">"Scannen..."</string>
+    <string name="action_refresh" msgid="6449507931372381488">"Vernieuwen"</string>
+    <string name="no_options_title" msgid="5380361167896386704">"Geen opties voor <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="no_options_message" msgid="3139314286228576248">"Er kunnen geen opties worden ingesteld voor <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="options_message" msgid="693169996123125208">"Opties instellen voor <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
+    <string name="sine_wave_frequency_option" msgid="3299263567413396079">"Stel sinusgolffrequentie in milliseconden in:"</string>
+    <string name="video_stream_fps_option" msgid="7912973629078331063">"Stel opnamesnelheid videostream in frames per seconde in:"</string>
+    <string name="title_activity_project_details" msgid="6738094706468371738">"Projectexperimenten"</string>
+    <string name="graph_name" msgid="4051005079264085531">"de grafiek"</string>
+    <string name="graph_options" msgid="4225585925400993925">"Opties grafiek"</string>
+    <string name="graph_options_title" msgid="6860269315108522661">"Opties grafiek"</string>
+    <string name="graph_options_smoothness_edit" msgid="1885781785347948911">"Vloeiendheid"</string>
+    <string name="graph_options_window_edit" msgid="8943669029029140826">"Grootte vervaging"</string>
+    <string name="graph_options_blur_edit" msgid="6217163217394307677">"Type vervaging:"</string>
+    <string name="graph_options_gaussian_sigma_edit" msgid="5761710064672068300">"Standaardafwijking"</string>
+    <string name="blur_type_average" msgid="1617413241621655455">"Gemiddeld"</string>
+    <string name="blur_type_gaussian" msgid="1011871621295653087">"Gaussiaans"</string>
+    <string name="graph_options_audio_feedback_enable" msgid="1845200328398473302">"Audio inschakelen"</string>
+    <string name="graph_options_audio_feedback_disable" msgid="5006766005261847317">"Audio uitschakelen"</string>
+    <string name="stat_min" msgid="7907031942382531617">"Minimum"</string>
+    <string name="stat_max" msgid="8227023306109349391">"Maximum"</string>
+    <string name="stat_average" msgid="3601514334204674938">"Gemiddeld"</string>
+    <string name="stat_min_label" msgid="8763695907241205634">"Min"</string>
+    <string name="stat_max_label" msgid="4173459591223474511">"Max"</string>
+    <string name="stat_average_label" msgid="7341499679015444245">"Gemiddeld"</string>
+    <string name="stat_duration" msgid="8999214260188208590">"Duur"</string>
+    <string name="stat_unknown" msgid="8543005524144060221">"Onbekend"</string>
+    <string name="btn_reset_description" msgid="7288391743038780410">"Ga naar nu"</string>
+    <string name="export_action" msgid="3269831142664490446">"Exporteren"</string>
+    <string name="export_run_chooser_title" msgid="6420930071586217884">"Opslaan naar..."</string>
+    <string name="settings_version_title" msgid="6212827772323334070">"Versie"</string>
+    <string name="settings_replay_tutorial_title" msgid="3811832513865119930">"Tutorial"</string>
+    <string name="settings_open_source_title" msgid="3090096891818776727">"Open source-licenties"</string>
+    <string name="dev_sensors_title" msgid="4583380726898357656">"Experimentele sensoren inschakelen"</string>
+    <string name="cannot_scan_message" msgid="8297618436609318137">"Om toegang te krijgen tot externe apparaten (\'Science-journal-sensor\') moet u eerst Bluetooth inschakelen. Om Science-journal-sensoren te vinden, moet u Android ook toegang tot uw locatie geven, omdat andere Bluetooth-apparaten hun locatie-informatie tijdens de apparaatdetectie kunnen uitzenden. Science-journal zal deze locatie-informatie niet opslaan of gebruiken en de Science-journal-sensoren verzenden de locatie-informatie niet."</string>
+    <string name="btn_request_location" msgid="8197595806751014499">"Locatietoegang inschakelen"</string>
+    <string name="btn_enable_bluetooth" msgid="5357651687998209452">"Bluetooth inschakelen"</string>
+    <string name="btn_new_project_content_description" msgid="6932143755645026255">"Nieuw project"</string>
+    <string name="title_activity_new_project" msgid="2838213281488377791">"Nieuw project"</string>
+    <string name="title_activity_update_project" msgid="4441312132900502358">"Project bijwerken"</string>
+    <string name="project_save_failed" msgid="5623422183377416130">"Kan het project niet opslaan. Probeer het opnieuw."</string>
+    <string name="archived_project_message" msgid="4798618073088509851">"Project gearchiveerd."</string>
+    <string name="unarchived_project_message" msgid="178393278028428287">"Project uit archief gehaald."</string>
+    <string name="action_undo" msgid="3152747614676103846">"Ongedaan maken"</string>
+    <string name="project_title_hint" msgid="8228443486075398477">"Naam project"</string>
+    <string name="project_problem_hint" msgid="381678432298729684">"Beschrijving"</string>
+    <string name="project_cover_description" msgid="1534511071097246816">"Kies een projectfoto"</string>
+    <string name="choose_photo_button_text" msgid="761066275467820031">"Kies een foto"</string>
+    <plurals name="project_experiments_count" formatted="false" msgid="7648457680949535167">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> experimenten</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> experiment</item>
+    </plurals>
+    <string name="btn_new_experiment_content_description" msgid="7327973648445064928">"Nieuw experiment"</string>
+    <string name="archived_experiment_message" msgid="6471344531723915995">"Experiment gearchiveerd."</string>
+    <string name="unarchived_experiment_message" msgid="8059010703916773668">"Experiment uit archief gehaald."</string>
+    <string name="archived_run_message" msgid="8095301767431802235">"Proef gearchiveerd"</string>
+    <string name="unarchived_run_message" msgid="471395163511338290">"Proef is uit het archief gehaald."</string>
+    <string name="experiments_toolbar_title" msgid="7336526041603098967">"Experimenten"</string>
+    <string name="archived_content_description" msgid="5626832963025103076">"<xliff:g id="ITEM">%1s</xliff:g> (gearchiveerd)"</string>
+    <plurals name="experiment_run_count" formatted="false" msgid="8354594369372506196">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> proeven</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> proef</item>
+    </plurals>
+    <plurals name="notes_count" formatted="false" msgid="7949686260707404918">
+      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> notities</item>
+      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> notitie</item>
+    </plurals>
+    <string name="experiment_title_hint" msgid="3508456602523057718">"Naam experiment"</string>
+    <string name="experiment_description_hint" msgid="3197580737141616333">"Beschrijving experiment"</string>
+    <string name="title_activity_new_experiment" msgid="5681560613521817391">"Nieuw experiment"</string>
+    <string name="title_activity_update_experiment" msgid="681114244731613638">"Experiment bijwerken"</string>
+    <string name="experiment_save_failed" msgid="5031953807658062748">"Het opslaan van het experiment is mislukt. Probeer het opnieuw."</string>
+    <string name="btn_add_sensor_card_description" msgid="4836624546799382073">"Nieuwe sensorkaart toevoegen"</string>
+    <string name="btn_sensor_card_settings" msgid="5722000860549753304">"Sensorinstellingen"</string>
+    <string name="sensor_options" msgid="7269577762234317911">"Sensoropties"</string>
+    <string name="btn_sensor_card_expand" msgid="5267003335362502193">"Sensorlijst tonen"</string>
+    <string name="btn_sensor_card_contract" msgid="4805549352705439024">"Sensorlijst verbergen"</string>
+    <string name="btn_sensor_card_close" msgid="4964202674700426175">"Kaart sluiten"</string>
+    <string name="learn_more_button" msgid="6562065467901868709">"Meer informatie"</string>
+    <string name="default_experiment_name" msgid="8360979514785269303">"Naamloos experiment"</string>
+    <string name="default_project_name" msgid="5076954632739479626">"Naamloos project"</string>
+    <string name="empty_project_library" msgid="6139693733859042212">"U hebt geen projecten"</string>
+    <string name="empty_project" msgid="196070251052121055">"U hebt geen experimenten"</string>
+    <string name="frequency_window_option_label" msgid="4885731738492452610">"Frequentievenster (millis)"</string>
+    <string name="frequency_filter_option_label" msgid="6322746140513536230">"Frequentiefilter (sensoreenheden)"</string>
+    <string name="enable_frequency_checkbox_label" msgid="7012647084401204497">"Frequentie tonen"</string>
+    <string name="dev_sensors_summary" msgid="3417308653634353239">"Toon sensoren die alleen voor ontwikkelaarstesten zijn"</string>
+    <string name="options_save_error" msgid="5710202337557612915">"Fout bij opslaan opties"</string>
+    <string name="options_load_error" msgid="1033189385249714186">"Fout bij laden opties"</string>
+    <string name="dev_tools_title" msgid="413875762004836148">"Experimentele tools inschakelen"</string>
+    <string name="dev_tools_summary" msgid="8602005614020489618">"Toon tools die alleen voor ontwikkelaarstesten zijn bedoeld"</string>
+    <string name="dev_tools_leak_detection_title" msgid="4501895025531999102">"Geheugenlekdetectie inschakelen"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="6611870647303094340">"Wijzigingen aan deze instelling treden pas in werking nadat u de app heeft gesloten."</string>
+    <string name="d2p" msgid="639917686672445089">"Gegevens naar toonhoogte"</string>
+    <string name="d2a" msgid="1134874560612971036">"Gegevens naar amplitude"</string>
+    <string name="d2pe" msgid="3727800647324543645">"Gegevens naar pitch envelop"</string>
+    <string name="d2ps" msgid="7368523482734331024">"Gegevens naar pitch envelop pentatonische toonladder"</string>
+    <!-- no translation found for sonification_types:0 (3861898414238653003) -->
+    <!-- no translation found for sonification_types:1 (906523180895001108) -->
+    <!-- no translation found for sonification_types:2 (5312779098039590744) -->
+    <!-- no translation found for sonification_types:3 (2613491808468275381) -->
+  <string-array name="sonification_type_aliases">
+    <item msgid="7377813266249747858">"d2p"</item>
+    <item msgid="6906000057586711876">"d2a"</item>
+    <item msgid="1870736636828704674">"d2pe"</item>
+    <item msgid="5674284626652201942">"d2ps"</item>
+  </string-array>
+    <string name="new_experiment_spinner_item" msgid="5833883031740938473">"Nieuw experiment..."</string>
+    <string name="recording_title_label" msgid="5188061176268043052">"Opnemen..."</string>
+    <string name="exp_edit_info_button" msgid="57557261114019563">"Info bewerken"</string>
+    <string name="btn_observe_content_description" msgid="6339279151257255267">"Waarnemen"</string>
+    <string name="title_activity_experiment_details" msgid="6104721540075416005">"Details experiment"</string>
+    <string name="empty_runs" msgid="2492444523656046772">"U hebt geen proeven"</string>
+    <string name="permission_request_write" msgid="7894354232042075113">"Toestemming nodig om naar externe opslag te schrijven."</string>
+    <string name="device_options_sensor_label_text" msgid="4913281182269452551">"Sensor"</string>
+    <string name="external_sensor_appearance_name" msgid="2545762878566289321">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
+    <string name="sensor_rotation_rpm" msgid="7675868077769123026">"Rotatie"</string>
+    <string name="sensor_voltage" msgid="8803070522098118555">"Voltage"</string>
+    <string name="sensor_raw" msgid="3706079416934145306">"Onbewerkt"</string>
+    <string name="sensor_temperature_fahrenheit" msgid="530709732319662008">"Temperatuur in F"</string>
+    <string name="sensor_custom" msgid="6419934674147294928">"Aangepast"</string>
+    <string name="device_options_custom_sensor_pin_label_text" msgid="7800969142277212707">"Toevoegen"</string>
+    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="3441420502780409558">"Frequentie"</string>
+    <string name="feedback_error_message" msgid="6267829056474146185">"Kan feedback niet verzenden."</string>
+    <string name="no_sensor_info_found" msgid="4162175886082619280">"Deze sensor heeft geen aanvullende informatie!"</string>
+    <string name="sensor_desc_short_acc_x" msgid="2894000283386570265">"De versnelling van de telefoon naar links en rechts, in m/s²"</string>
+    <string name="sensor_desc_short_acc_y" msgid="6068967454464639546">"De versnelling van de telefoon naar voren en achteren, in m/s²"</string>
+    <string name="sensor_desc_short_acc_z" msgid="718984279193417402">"De versnelling van de telefoon omhoog en omlaag, in m/s²"</string>
+    <string name="sensor_desc_short_decibel" msgid="6022620562641402361">"De intensiteit van het geluid, gemeten in decibel (dB), dat de geluidssensor of microfoon bereikt."</string>
+    <string name="sensor_desc_short_light" msgid="2836912567230826095">"De hoeveelheid licht, gemeten in lux, dat de omgevingslichtsensor bereikt."</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="2856177797841108478">"De rotatiehoek tussen de telefoon en het magnetisch veld daarbuiten."</string>
+    <string name="sensor_desc_short_bluetooth" msgid="6408146877850831242">"De gegevens van een externe sensor worden hier weergegeven, op basis van de aangepaste instellingen."</string>
+    <string name="sensor_desc_short_rotation" msgid="4005725749913712057">"Het aantal rotaties per minuut"</string>
+    <string name="sensor_desc_short_raw" msgid="8183752554049502871">"Het percentage van de onbewerkte lezing van een externe sensor."</string>
+    <string name="sensor_desc_first_paragraph_light" msgid="4109035727606616530">"De omgevingslichtsensor meet het licht in lux, een eenheid van verlichtingssterkte. 1 lux is de verlichtingssterkte voortgebracht door 1 candela op een oppervlak loodrecht op de lichtstralen op een afstand van 1 meter van de bron. \n\n Een volle maan levert ongeveer 1 lux verlichting, een gewone lamp in de kamer ongeveer 50 lux, de verlichting in een klaslokaal en een zonsopgang of zonsondergang ongeveer 400 lux, daglicht (indirect zonlicht) meer dan 10.000 lux en direct zonlicht meer dan 30.000 lux. \n\nVeel mensen kennen de eenheid lux eigenlijk niet. Als we een lamp kopen, kijken we naar de hoeveelheid watt. Maar de wattage van een lamp zegt niets over de helderheid, alleen over het energieverbruik. U kunt beter naar de lumina kijken als u een lamp koopt. Deze geven aan hoe helder de lamp is. Lux geeft de hoeveelheid licht aan die een bepaalde plek bereikt."</string>
+    <string name="sensor_desc_second_paragraph_light" msgid="4898255020378037357">"Aangezien licht zich verspreidt als het zich verplaatst, neemt het aantal lux af als je je van een lichtbron verwijdert, ook al straalt de bron dezelfde hoeveelheid licht uit in lumina. Een gebied dat van een lichtbron is afgekanteld, krijgt ook minder verlichting. Daarom zijn de tropen hier op aarde ook warmer dan de polen. \n\nHet doel van de lichtsensor in uw telefoon is trouwens om het lichtniveau van het scherm te regelen en aan te passen aan donkere en lichte omgevingen. In de lichtsensor zit een piepkleine halfgeleider die op licht reageert door een kleine, maar meetbare elektrische stroom te produceren. Dit noemen we het foto-elektrische effect. Soortgelijke sensoren worden ook gebruikt om straatverlichting in te schakelen als het buiten donker wordt."</string>
+    <string name="sensor_desc_first_paragraph_acc" msgid="5154591427983319390">"Objecten hebben de neiging om op hun plek te blijven, of om te blijven bewegen als ze al in beweging zijn. Dit noemen we inertie. In de eerste wet van Newton wordt dit als volgt beschreven: een object blijft in zijn staat van beweging of rust, tenzij er een onevenwichtige kracht op wordt uitgeoefend. \n\nWanneer een onevenwichtige kracht een object verplaatst, zeggen we dat het object versnelt: de snelheid verandert, hetzij door sneller of langzamer te gaan, hetzij door een richtingsverandering. Versnelling wordt gemeten als verandering van snelheid (meter per seconde) in tijd, of in meter per seconde kwadraat (m/s²). \n\nIn uw telefoon zit een apparaatje waarmee u deze bewegingsveranderingen kunt meten: een accelerometer. Deze meter bevat kleine zwevende massa\'s die vrij bewegen. Bij een verandering in beweging verschuiven deze massa\'s, net zoals uw hoofd naar voren klapt als u in een auto zit die plotseling stopt. Door deze subtiele verschuivingen te meten, kan de accelerometer in uw telefoon veranderingen in beweging en richting waarnemen. Dat is handig bij het schakelen van de verticale naar de horizontale schermmodus, bij het spelen van games op uw telefoon en nog veel meer."</string>
+    <string name="sensor_desc_second_paragraph_acc" msgid="8812623507037923651">"U heeft waarschijnlijk al opgemerkt dat er een constante versnelling op de Z-as is, zelfs als uw telefoon op tafel ligt. Deze versnelling is het gevolg van de zwaartekracht hier op het aardoppervlak en bedraagt ongeveer 9,8 m/s²."</string>
+    <string name="sensor_desc_first_paragraph_decibel" msgid="2782071765610621336">"Geluiden worden gemaakt door trillingen. Uw stem is bijvoorbeeld afkomstig van trillingen in de stembanden van uw keel. Deze trillingen maken gebiedjes met hoge en lage luchtdruk die naar buiten bewegen, net als de rimpelingen die ontstaan als u een steentje in een vijver gooit."</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="142151860819231749">"Alle geluiden kunnen worden beschreven in termen van frequentie en intensiteit. \n\nIntensiteit is wat u hier met de Science-journal meet in decibellen (dB). Intensiteit of geluidssterkte, is afhankelijk van de afstand die een trillend object aflegt bij elke trilling; hoe hoger de intensiteit, hoe harder het geluid. \n\nDe frequentie (ook wel toonhoogte of toon genoemd) van een geluidsgolf is gelijk aan de trillingssnelheid. Hoe sneller een object trilt, hoe hoger de toonhoogte van het resulterende geluid. De Science-journal meet de frequentie niet, alleen de geluidssterkte. \n\nHet zachtste geluid dat het gemiddelde menselijke oor kan detecteren, is gedefinieerd als 0 dB. Een normaal gesprek komt overeen met ongeveer 60 dB en geluiden boven ongeveer 140 dB zijn pijnlijk voor het menselijk oor. Maar geluiden hoeven niet pijnlijk te zijn om ook schadelijk te zijn. Voortdurende blootstelling aan geluid van 90 dB - ongeveer de geluidssterkte van een stofzuiger - kan uiteindelijk leiden tot gehoorverlies. \n\nDe decibelschaal is logaritmisch, en dat maakt het lastig: een geluidsbron van 40 dB is niet twee keer zo intens als een geluidsbron van 20 dB - het is 100 keer intenser. Als één wekker 70 dB produceert, produceren twee wekkers niet 140 dB, maar 73 dB. We zeiden het al: het is een vreemde schaal. \n\n10 dB ritselende bladeren \n20 dB gefluister op 1,5 meter \n30 dB zacht gefluister \n50 dB regen\n60 dB normaal gesprek \n90 dB blender \n100 dB auto zonder uitlaat \n110 dB geschreeuw in oor \n120 dB donder \n130 dB drilboor \n140 dB opstijgend vliegtuig"</string>
+    <string name="sensor_desc_first_paragraph_rotation" msgid="8053108458881116800">"Rotaties per minuut (RPM) is een maateenheid voor de rotatiefrequentie om een ​​vaste as in één minuut. \n\nUw windmolentje laat de encoderschijf draaien:"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="1296904470766613471">"Dit zorgt voor lichte en donkere perioden op de sensor die in de Science-journal als rotatie worden geregistreerd."</string>
+    <string name="sensor_desc_first_paragraph_raw" msgid="4939612146659644032">"De hier getoonde gegevens zijn afkomstig van een externe sensorcommunicatie met uw telefoon via Bluetooth. \n\nDe waarde geeft het percentage weer van de onbewerkte lezing van uw microcontroller. Dit is meestal het percentage van een spanningsdaling over een sensor."</string>
+    <string name="sensor_desc_second_paragraph_raw" msgid="8973117353495356394">"Bluetooth is een draadloze technologiestandaard die met behulp van radiogolven gegevens over korte afstanden vanaf vaste en mobiele apparaten uitwisselt."</string>
+    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="7981623485563854939">"De hier getoonde gegevens zijn afkomstig van een externe sensorcommunicatie met uw telefoon via Bluetooth."</string>
+    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="7708856960763941387">"Bluetooth is een standaard voor draadloze technologie die met behulp van radiogolven gegevens over korte afstanden vanaf vaste en mobiele apparaten uitwisselt."</string>
+    <string name="run_review_duration" msgid="7076553835966679478">"Duur"</string>
+    <string name="run_review_activity_label" msgid="5276313115461408528">"Beoordelen"</string>
+    <string name="service_notification_content_title" msgid="409211151396677834">"Science-journal"</string>
+    <string name="service_notification_content_text" msgid="6198486549545279611">"Opnemen..."</string>
+    <string name="live_graph_content_description" msgid="3504419430886261146">"Live sensorgrafiek. Sleep om X-as te verschuiven."</string>
+    <string name="static_graph_content_description" msgid="5963837267567407006">"Sensorgrafiek. Knijp om te zoomen en sleep om X-as te verschuiven."</string>
+    <string name="sensor_card_overflow_menu_content_description" msgid="1847239009701022116">"Kaartopties"</string>
+    <string name="btn_sensor_flip_info_content_description" msgid="4129040510635338579">"naar info-modus"</string>
+    <string name="btn_sensor_flip_graph_content_description" msgid="2500545463691107821">"naar grafiekmodus"</string>
+    <string name="sensor_tab_layout_content_description" msgid="6653074718544676936">"beschikbare sensoren"</string>
+    <string name="sensor_tab_selected_format" msgid="5189774892597619784">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (geselecteerd)"</string>
+    <string name="title_activity_sensor_info" msgid="6960039814316283850">"Sensorinformatie"</string>
+    <string name="title_activity_sensor_info_format" msgid="9106545676836634722">"<xliff:g id="SENSOR_NAME">%s</xliff:g>-sensor"</string>
+    <string name="heading_info_section" msgid="3068233297591403258">"Wat gebeurt er?"</string>
+    <string name="edit_note_menu_item" msgid="5303280313359136552">"Bewerken"</string>
+    <string name="edit_note_time" msgid="2027041230205029461">"Tijd notitie bewerken"</string>
+    <string name="delete_note_menu_item" msgid="7908811564743301702">"Verwijderen"</string>
+    <string name="delete_run" msgid="103141962786624686">"Verwijderen"</string>
+    <string name="crop_run" msgid="1336721925526265401">"Bijsnijden"</string>
+    <string name="add_run_note" msgid="4601243377697085005">"Notitie toevoegen"</string>
+    <string name="add_experiment_note" msgid="1084637094906153162">"Notitie toevoegen"</string>
+    <string name="run_label" msgid="7587739695592981023">"Proef <xliff:g id="RUN_INDEX">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_prev" msgid="1562899512022232138">"vorige sensor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_next" msgid="5528270146135394657">"volgende sensor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="edit_note_hint_text" msgid="7190191469950695769">"Proefnotitie bewerken"</string>
+    <string name="add_note_hint_text" msgid="4947278182685363439">"Voeg een nieuwe notitie toe"</string>
+    <string name="snackbar_note_deleted" msgid="4926151554010737654">"Opmerking verwijderd"</string>
+    <string name="snackbar_undo" msgid="488185413692934054">"Ongedaan maken"</string>
+    <string name="add_run_note_placeholder_text" msgid="4564897234715127061">"Notitie toevoegen aan deze proef"</string>
+    <string name="add_experiment_note_placeholder_text" msgid="5668745283017643514">"Experimentnotitie toevoegen"</string>
+    <string name="add_note_image_button_content_description" msgid="5956413597980661328">"Fotonotitie maken"</string>
+    <string name="pinned_note_placeholder_text" msgid="742162042813125689">"Notitie toevoegen"</string>
+    <string name="no_notes_text" msgid="1333257200348947043">"Geen notities"</string>
+    <string name="indeterminate_value" msgid="6535623633404732608">"--"</string>
+    <string name="project_card_overflow_menu_content_description" msgid="2569345733400148597">"Projectopties"</string>
+    <string name="project_active_badge" msgid="8953778683278828884">"Actief"</string>
+    <string name="archived_badge" msgid="7204033469949818539">"Gearchiveerd"</string>
+    <string name="action_include_archived_projects" msgid="1872416419322070603">"Inclusief gearchiveerde projecten"</string>
+    <string name="action_include_archived_experiments" msgid="1368001463798477703">"Inclusief gearchiveerde experimenten"</string>
+    <string name="action_new_experiment" msgid="3598888962558710132">"Nieuw experiment"</string>
+    <string name="delete_run_dialog_title" msgid="2829473058431908340">"Deze proef verwijderen?"</string>
+    <string name="run_review_delete_confirm" msgid="9216827234502882510">"Weet u zeker dat u deze proef wilt verwijderen? De opgenomen gegevens en notities worden verwijderd. Deze actie kan niet ongedaan worden gemaakt."</string>
+    <string name="menu_btn_content_description" msgid="4680014704943654954">"menu"</string>
+    <string name="age_verifier_header" msgid="9217155512378711429">"Uw leeftijd controleren"</string>
+    <string name="age_verifier_birthday" msgid="2054392341079524729">"Verjaardag:"</string>
+    <string name="age_verifier_get_started" msgid="1086024826189816224">"Aan de slag"</string>
+    <string name="tutorial_welcome_header" msgid="5596382686735832683">"Verken uw wereld"</string>
+    <string name="tutorial_welcome_body" msgid="7591843046586427635">"Gebruik de sensoren in uw Android-telefoon om geluid, licht en meer te meten."</string>
+    <string name="tutorial_setup_header" msgid="7529566316389493918">"Projecten ordenen"</string>
+    <string name="tutorial_setup_body" msgid="3570507763094472318">"Projecten en experimenten opzetten om uw gegevens te ordenen en uw resultaten te vergelijken."</string>
+    <string name="tutorial_observe_record_header" msgid="3715811468629596336">"Opnemen in realtime"</string>
+    <string name="tutorial_observe_record_body" msgid="6982870167622582123">"Ziet u iets dat u wilt meten? Neem uw waarnemingen realtime en met één druk op de knop op!"</string>
+    <string name="tutorial_take_notes_header" msgid="8271718393020433479">"Waarnemingsnotities toevoegen"</string>
+    <string name="tutorial_take_notes_body" msgid="6597967563928412974">"U kunt terwijl u opneemt notities en foto\'s toevoegen om uw gegevens meer context te geven."</string>
+    <string name="btn_previous_label" msgid="2881262882599469727">"Vorige"</string>
+    <string name="btn_next_label" msgid="1682026626542221420">"Volgende"</string>
+    <string name="sensor_card_error_text" msgid="151455534130824363">"Sensorgegevens laden mislukt"</string>
+    <string name="bluetooth_not_on_title" msgid="8961840974431817490">"Verbinden met Bluetooth"</string>
+    <string name="bluetooth_not_on_body" msgid="1861412368943739545">"Geen verbinding met externe sensor: Bluetooth is uitgeschakeld. Schakel Bluetooth in om verbinding te maken met de externe sensor."</string>
+    <string name="bluetooth_not_on_ok" msgid="3148597353545683264">"Bluetooth inschakelen"</string>
+    <string name="sensor_card_loading_text" msgid="8569947135727599414">"Sensorgegevens laden..."</string>
+    <string name="graph_loading" msgid="9200302049191996695">"Grafiek laden..."</string>
+    <string name="playback_button_pause" msgid="6025607837788357759">"Audio afspelen onderbreken"</string>
+    <string name="playback_button_play" msgid="5739285031289314186">"Audio afspelen starten"</string>
+    <string name="sonification_type_card_title" msgid="7315771791094946967">"Sonificatietype kaart"</string>
+    <string name="sonification_type_title" msgid="271616837832972881">"Standaardsonificatietype"</string>
+    <string name="title_edit_trial_activity" msgid="3272215900928155534">"Proef bewerken"</string>
+    <string name="edit_trial_title_hint" msgid="3752953269416446342">"Naam proef"</string>
+    <string name="include_archived_trials" msgid="6064586011723883752">"Inclusief gearchiveerde proeven"</string>
+    <string name="export_error" msgid="8729689368786707247">"Export mislukt"</string>
+    <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
+    <skip />
+    <string name="listing_title" msgid="6842666752572268412">"Science-journal"</string>
+    <string name="listing_tagline" msgid="6633876313767981347">"Experimenteer met uw wereld."</string>
+    <string name="listing_changelog" msgid="5651904379742962668">"Oorspronkelijke release"</string>
+    <string name="listing__description" msgid="7679178857079821372">"Science-journal is een tool waarmee u wetenschappelijke experimenten kunt uitvoeren met uw smartphone. Gebruik de sensoren in de telefoon of maak verbinding met externe sensoren om te experimenteren met de wereld om u heen. Orden uw ideeën in projecten, doe voorspellingen, maak notities en verzamel gegevens voor meerdere proeven. Annoteer en bestudeer daarna uw resultaten. Dit notitieblok heeft u altijd bij zich. \n\n \nNieuwe ideeën voor activiteiten vindt u hier: https://makingscience.withgoogle.com/science-journal/activities \nMeer informatie over Making &amp; Science: https://makingscience.withgoogle.com \nGa voor ondersteuning naar: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
+    <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
+    <skip />
+    <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
+    <skip />
+    <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
+    <skip />
+    <!-- no translation found for enable_sine_wave_sensor_summary (1881741234337323074) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_title (7760095515631648430) -->
+    <skip />
+    <!-- no translation found for enable_video_sensor_summary (5446570032717609139) -->
+    <skip />
+</resources>
