@@ -2,6 +2,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.google.protobuf'
 apply plugin: 'com.neenbedankt.android-apt'
 
+apply from: 'version.gradle'
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
@@ -9,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode buildVersionCode()
+        versionName buildVersionName()
     }
     buildTypes {
         release {

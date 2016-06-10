@@ -1,0 +1,19 @@
+ext.majorVersionNumber = 1
+ext.minorVersionNumber = 1
+// Continuous integration sets this variable to the current build number
+// Otherwise for developer builds, this is 0.
+ext.buildNumber = System.getenv("BUILD_NUMBER") ?: 0
+// Continuous integration sets the name, otherwise for developer builds, this is "dev"
+// Normalize this string to lowercase and remove whitespace for version name display.
+ext.buildJob = (System.getenv("JOB_NAME") ?: "dev").toLowerCase().replace(" ", "-")
+ext.releaseVersionNumber = System.getenv("BUILD_NUMBER") ?: 50000
+
+ext.buildVersionCode = {
+    def vCode = (majorVersionNumber * 10000000) + (minorVersionNumber * 100000) + releaseVersionNumber.toInteger();
+    logger.info("Version code = " + vCode);
+    return vCode.toInteger();
+}
+
+ext.buildVersionName = {
+    return "$majorVersionNumber.$minorVersionNumber.$buildNumber"
+}

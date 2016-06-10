@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 
+apply from: project(':whistlepunk_library').projectDir.absolutePath + '/version.gradle'
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
@@ -9,10 +11,15 @@ android {
         applicationId "com.google.android.apps.forscience.whistlepunk.opensource"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode buildVersionCode()
+        versionName buildVersionName()
     }
     buildTypes {
+        debug {
+            // For debug builds, include the job name and the string "debug"
+            versionNameSuffix ".$buildJob-debug" 
+            pseudoLocalesEnabled true
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
