@@ -58,7 +58,7 @@ public class ElapsedTimeAxisFormatter {
             result = String.format(mLargeFormatTenths, mTempHours, mTempMins, mTempSecs,
                     mTempTenthsOfSecs);
         } else {
-            result = String.format(mSmallFormatTenths, mTempHours, mTempMins, mTempSecs);
+            result = String.format(mSmallFormatTenths, mTempMins, mTempSecs, mTempTenthsOfSecs);
         }
         boolean isNegative = elapsedTimeMs < 0;
         return (isNegative ? "-" : "") + result;
