@@ -25,8 +25,7 @@ public class RelativeTimeFormat extends NumberFormat {
 
     @Override
     public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
-        long timeSeconds = (value - mZeroTimestamp) / 1000;
-        return buffer.append(mElapsedTimeFormatter.format(timeSeconds));
+        return buffer.append(mElapsedTimeFormatter.format(value - mZeroTimestamp));
     }
 
     @Override

@@ -22,8 +22,7 @@ public class SecondsAgoFormat extends NumberFormat {
 
     @Override
     public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
-        long timeSeconds = (value - mClock.getNow()) / 1000;
-        return buffer.append(mElapsedTimeFormatter.format(timeSeconds));
+        return buffer.append(mElapsedTimeFormatter.format(value - mClock.getNow()));
     }
 
     @Override

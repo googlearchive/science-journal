@@ -63,6 +63,7 @@ public class RunReviewOverlay extends View {
     private GraphExploringSeekBar mSeekbar;
     private ExternalAxisController mExternalAxis;
     private NumberFormat mYAxisNumberFormat;
+    private ElapsedTimeAxisFormatter mTimeFormat;
     private float mActiveTextHeight;
     private float mInactiveTextHeight;
     private RectF mTopRect;
@@ -133,6 +134,7 @@ public class RunReviewOverlay extends View {
         mTopRect = new RectF();
 
         mYAxisNumberFormat = new AxisNumberFormat();
+        mTimeFormat = ElapsedTimeAxisFormatter.getInstance(getContext());
     }
 
     @Override
@@ -196,7 +198,8 @@ public class RunReviewOverlay extends View {
         float labelWidth = textPaint.measureText(label);
         canvas.drawText(label, cx - labelWidth / 2, cy + textHeight / 2, textPaint);
 
-        String timeLabel = mExternalAxis.formatTimestamp(mSelectedTimestamp);
+        String timeLabel = mTimeFormat.formatToTenths(mSelectedTimestamp -
+                mExternalAxis.getRecordingStartTime());
         Paint timePaint = mIsActive ? mTimePaintActive : mTimePaintInactive;
         float textWidth = timePaint.measureText(timeLabel);
         // Since there is no spec for where to put this text, use the dot background radius as a
@@ -208,8 +211,8 @@ public class RunReviewOverlay extends View {
             canvas.drawText(timeLabel, cx + buffer, mHeight - buffer, timePaint);
         }
 
-        mSeekbar.updateValuesForAccessibility(
-                mExternalAxis.formatElapsedTimeForAccessibility(mSelectedTimestamp, getContext()), label);
+        mSeekbar.updateValuesForAccessibility(mExternalAxis.formatElapsedTimeForAccessibility(
+                mSelectedTimestamp, getContext()), label);
     }
 
     public void setLineGraphPresenter(LineGraphPresenter presenter) {
