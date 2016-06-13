@@ -118,7 +118,6 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final NoteHolder noteHolder = (NoteHolder) holder;
         final Label label = mPinnedNotes.get(position);
         noteHolder.mDurationText.setText(getNoteTimeText(label, mStartTimestamp));
-        boolean canEditTimeOnly = false;
         String text = "";
         if (label instanceof TextLabel) {
             text = ((TextLabel) label).getText();
@@ -135,7 +134,6 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     mClickListener.onListItemClicked(label);
                 }
             });
-            canEditTimeOnly = true;
         }
         if (!TextUtils.isEmpty(text)) {
             noteHolder.mText.setText(text);

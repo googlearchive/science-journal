@@ -399,10 +399,6 @@ public class ExternalAxisController {
         mAxisView.setRecordingStart(RecordingMetadata.NOT_RECORDING);
     }
 
-    public String formatTimestamp(long timestamp) {
-        return mAxisView.formatTimestamp(timestamp);
-    }
-
     // Returns an elapsed time for RunReview data. Will return the empty string otherwise.
     public String formatElapsedTimeForAccessibility(long timestamp, Context context) {
         if (mReviewXMin == RUN_REVIEW_DATA_NOT_INITIALIZED) {
