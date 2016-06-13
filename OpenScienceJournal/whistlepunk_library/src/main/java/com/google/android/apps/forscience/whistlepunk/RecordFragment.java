@@ -309,6 +309,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                 // The recording UI shows the current experiment in the toolbar,
                                 // so it cannot be set up until experiments are loaded.
                                 setRecordingMetadata(mCurrentRecording);
+                                updateRecordingUIState();
                             }
                         });
 
