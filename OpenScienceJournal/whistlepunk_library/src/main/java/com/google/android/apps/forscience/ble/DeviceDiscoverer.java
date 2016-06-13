@@ -70,26 +70,21 @@ public abstract class DeviceDiscoverer {
     private final ArrayMap<String, DeviceRecord> mDevices;
     private Callback mCallback;
 
-    public static DeviceDiscoverer getNewInstance(Context context, Callback callback) {
-        if (callback == null) {
-            throw new IllegalArgumentException("Callback must not be null");
-        }
-
+    public static DeviceDiscoverer getNewInstance(Context context) {
         DeviceDiscoverer discoverer;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            discoverer = new DeviceDiscovererV21(context, callback);
+            discoverer = new DeviceDiscovererV21(context);
         } else {
-            discoverer = new DeviceDiscovererLegacy(context, callback);
+            discoverer = new DeviceDiscovererLegacy(context);
         }
         return discoverer;
     }
 
-    protected DeviceDiscoverer(Context context, Callback callback) {
+    protected DeviceDiscoverer(Context context) {
         mContext = context.getApplicationContext();
         BluetoothManager manager = (BluetoothManager) mContext.getSystemService(
                 Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = manager.getAdapter();
-        mCallback = callback;
         mDevices = new ArrayMap<>();
     }
 
@@ -97,7 +92,12 @@ public abstract class DeviceDiscoverer {
         return mBluetoothAdapter;
     }
 
-    public void startScanning() {
+    public void startScanning(Callback callback) {
+        if (callback == null) {
+            throw new IllegalArgumentException("Callback must not be null");
+        }
+
+        mCallback = callback;
         // Clear out the older devices so we don't think they're still there.
         mDevices.clear();
         onStartScanning();
@@ -107,6 +107,7 @@ public abstract class DeviceDiscoverer {
 
     public void stopScanning() {
         onStopScanning();
+        mCallback = null;
     }
 
     public abstract void onStopScanning();

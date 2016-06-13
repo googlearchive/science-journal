@@ -26,8 +26,8 @@ import java.util.UUID;
         }
     };
 
-    DeviceDiscovererLegacy(Context context, Callback callback) {
-        super(context, callback);
+    DeviceDiscovererLegacy(Context context) {
+        super(context);
     }
 
     @Override
