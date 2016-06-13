@@ -7,6 +7,8 @@
     <dimen name="ruler_label_offset">4dp</dimen>
     <dimen name="label_dot_size">8dp</dimen>
     <dimen name="label_dot_outline">11dp</dimen>
+    <dimen name="label_dot_radius">4dp</dimen>
+    <dimen name="label_dot_outline_radius">6dp</dimen>
     <dimen name="chart_leading_dot_size">10dp</dimen>
     <dimen name="graph_line_width">2dp</dimen>
 
@@ -215,4 +217,5 @@
     <dimen name="accessibility_touch_target_min_size">48dp</dimen>
 
     <dimen name="archive_badge_margin">12dp</dimen>
+    <dimen name="path_corner_radius">3dp</dimen>
 </resources>
