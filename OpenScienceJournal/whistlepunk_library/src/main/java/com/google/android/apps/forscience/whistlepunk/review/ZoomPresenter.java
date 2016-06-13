@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.LineGraphPresenter;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.ScalarDataLoader;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
@@ -55,7 +55,7 @@ public class ZoomPresenter {
     };
     private static final String TAG = "ZoomPresenter";
 
-    private final LineGraphPresenter mLineGraphPresenter;
+    private final ChartController mChartController;
     private final DataController mDataController;
     private final int mIdealNumberOfDisplayedDatapoints;
     private final FailureListener mFailureListener;
@@ -65,15 +65,15 @@ public class ZoomPresenter {
     private Runnable mOnLoadFinish;
     private IncrementalLoader mIncrementalLoader;
 
-    public ZoomPresenter(LineGraphPresenter lineGraphPresenter, DataController dataController) {
-        this(lineGraphPresenter, dataController, IDEAL_NUMBER_OF_DISPLAYED_DATAPOINTS,
+    public ZoomPresenter(ChartController chartController, DataController dataController) {
+        this(chartController, dataController, IDEAL_NUMBER_OF_DISPLAYED_DATAPOINTS,
                 LoggingConsumer.expectSuccess(TAG, "loading readings"));
     }
 
     @VisibleForTesting
-    public ZoomPresenter(LineGraphPresenter lineGraphPresenter, DataController dataController,
+    public ZoomPresenter(ChartController chartController, DataController dataController,
             int idealNumberOfDisplayedDatapoints, FailureListener failureListener) {
-        mLineGraphPresenter = Preconditions.checkNotNull(lineGraphPresenter);
+        mChartController = Preconditions.checkNotNull(chartController);
         mDataController = dataController;
         mIdealNumberOfDisplayedDatapoints = idealNumberOfDisplayedDatapoints;
         mFailureListener = failureListener;
@@ -187,11 +187,11 @@ public class ZoomPresenter {
         if (mSensorId != null) {
             getIncrementalLoader().loadIn(xMin, xMax);
         }
-        mLineGraphPresenter.setXAxis(xMin, xMax);
+        mChartController.setXAxis(xMin, xMax);
     }
 
     public void clearLineData(boolean resetYAxis) {
-        mLineGraphPresenter.clearData(resetYAxis);
+        mChartController.clearData();
         mIncrementalLoader = null;
     }
 
@@ -222,10 +222,10 @@ public class ZoomPresenter {
         }
 
         private void loadSensorReadings(long firstTimestamp, long lastTimestamp) {
-            mLineGraphPresenter.setShowProgress(true);
+            mChartController.setShowProgress(true);
             ScalarDataLoader.loadSensorReadings(mSensorId, mDataController, firstTimestamp,
                     lastTimestamp, mCurrentTier, mOnLoadFinish, mFailureListener,
-                    mLineGraphPresenter);
+                    mChartController);
         }
     }
 }

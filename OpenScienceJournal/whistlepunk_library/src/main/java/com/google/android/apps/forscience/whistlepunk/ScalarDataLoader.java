@@ -21,16 +21,19 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.LineGraphPresenter;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.collect.Range;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * A helper class to load scalar data into a LineGraphPresenter.
+ * A helper class to load scalar data into a scalar chart.
  */
 // TODO: Consider moving stateful loading into this class to avoid redundancy
 // in loading code in ExperimentDetailsFragment and RunReviewFragment.
@@ -46,31 +49,33 @@ public class ScalarDataLoader {
     public static void loadSensorReadings(final String sensorId,
             final DataController dataController, final long firstTimestamp,
             final long lastTimestamp, final int resolutionTier, final Runnable onLoadFinish,
-            final FailureListener failureListener, final LineGraphPresenter lineGraphPresenter) {
+            final FailureListener failureListener, final ChartController chartController) {
         final GraphPopulator.ObservationStore<ScalarReading> observationStore =
                 makeObservationStore(sensorId, dataController, resolutionTier, failureListener);
 
         final GraphPopulator.ObservationDisplay<ScalarReading> observationDisplay =
                 new GraphPopulator.ObservationDisplay<ScalarReading>() {
+                    private List<ChartData.DataPoint> mPoints = new ArrayList<>();
+
                     @Override
                     public void add(ScalarReading reading) {
                         long timestamp = reading.getCollectedTimeMillis();
                         double value = reading.getValue();
-
-                        lineGraphPresenter.addToGraph(timestamp, value);
+                        mPoints.add(new ChartData.DataPoint(timestamp, value));
                     }
 
                     @Override
                     public void commit(Range<Long> range) {
+                        chartController.addOrderedGroupOfPoints(mPoints);
+                        mPoints.clear();
                     }
 
                     @Override
                     public void onFinish() {
-                        lineGraphPresenter.setShowProgress(false);
+                        chartController.setShowProgress(false);
                         if (onLoadFinish != null) {
                             onLoadFinish.run();
                         }
-                        lineGraphPresenter.refreshLabels();
                     }
                 };
 

@@ -20,7 +20,6 @@ import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.audiogen.SimpleJsynAudioGenerator;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.TestData;
@@ -95,7 +94,7 @@ public class ScalarSensorTest extends AndroidTestCase {
         sensor.pushValue(40, 40);
 
         DataController dc = db.makeSimpleController(mmm);
-        presenter.onXAxisChanged(35, 45, true, dc);
+        presenter.onGlobalXAxisChanged(45, 55, true, dc);
 
         TestData expectedLive = new TestData();
         expectedLive.addPoint(30, 30);
@@ -104,7 +103,7 @@ public class ScalarSensorTest extends AndroidTestCase {
         assertLineData(expectedLive, sensor);
 
         // Scroll back, make sure values load in (we are recording)
-        presenter.onXAxisChanged(15, 25, false, dc);
+        presenter.onGlobalXAxisChanged(15, 25, false, dc);
         TestData expectedScrollback = new TestData();
         expectedScrollback.addPoint(20, 20);
         expectedScrollback.addPoint(30, 30);
@@ -123,9 +122,9 @@ public class ScalarSensorTest extends AndroidTestCase {
                 /* graph data throwaway threshold size of 3 */ 3);
         DataController dc = db.makeSimpleController(mmm);
 
-        // This is a work-around for onXAxisChanged doing double-loading in tests, because
-        // mAnythingLoaded is false and the LineGraphPresenter already has data.
-        presenter.onXAxisChanged(-20, 0, true, dc);
+        // This is a work-around for onGlobalXAxisChanged doing double-loading in tests, because
+        // mAnythingLoaded is false and the chart already has data.
+        presenter.onGlobalXAxisChanged(-20, 0, true, dc);
 
         sensor.pushValue(0, 0);
         sensor.pushValue(5, 5);
@@ -133,7 +132,7 @@ public class ScalarSensorTest extends AndroidTestCase {
         sensor.pushValue(15, 15);
         sensor.pushValue(20, 20);
 
-        presenter.onXAxisChanged(17, 27, true, dc);
+        presenter.onGlobalXAxisChanged(17, 27, true, dc);
 
         // Don't expect any data removal yet as we are still under the data threshold.
         TestData expectedLive = new TestData();
@@ -146,13 +145,13 @@ public class ScalarSensorTest extends AndroidTestCase {
         assertLineData(expectedLive, sensor);
 
         // Scroll back, but without adding new data points we don't expect data removal.
-        presenter.onXAxisChanged(7, 17, false, dc);
+        presenter.onGlobalXAxisChanged(7, 17, false, dc);
         assertLineData(expectedLive, sensor);
 
         // Now push the number of data points above the threshold and outside of the window.
         sensor.pushValue(25, 25);
         sensor.pushValue(30, 30);
-        presenter.onXAxisChanged(27, 37, false, dc);
+        presenter.onGlobalXAxisChanged(37, 47, false, dc);
 
         // Now the number of data points is above threshold and truncating should occur.
         TestData expectedUpdated = new TestData();
@@ -179,7 +178,7 @@ public class ScalarSensorTest extends AndroidTestCase {
 
         // Scroll back
         DataController dc = db.makeSimpleController(mmm);
-        presenter.onXAxisChanged(35, 45, false, dc);
+        presenter.onGlobalXAxisChanged(45, 55, false, dc);
 
         // New data keeps coming off-screen
         sensor.pushValue(60, 60);
@@ -187,6 +186,7 @@ public class ScalarSensorTest extends AndroidTestCase {
         sensor.pushValue(80, 80);
         sensor.pushValue(90, 90);
         sensor.pushValue(100, 100);
+        sensor.pushValue(110, 110);
 
         TestData expectedLive = new TestData();
         // Currently-shown data
@@ -200,13 +200,13 @@ public class ScalarSensorTest extends AndroidTestCase {
         expectedLive.addPoint(80, 80);
         expectedLive.addPoint(90, 90);
         expectedLive.addPoint(100, 100);
+        expectedLive.addPoint(110, 110);
 
         assertLineData(expectedLive, sensor);
     }
 
     protected void assertLineData(TestData testData, ManualSensor sensor) {
         testData.checkRawData(sensor.getRawData());
-        testData.checkContents(sensor.getLineData().getRange(0, Double.MAX_VALUE, false));
     }
 
     public void testComputeFilterOnlyScale() {

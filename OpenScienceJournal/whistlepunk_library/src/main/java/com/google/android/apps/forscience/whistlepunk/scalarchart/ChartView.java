@@ -780,21 +780,17 @@ public class ChartView extends View {
             return;
         }
         int sizeShown = mYAxisPoints.size();
-        if (sizeShown > 0) {
-            int startIndex = 0;
-            int endIndex = mYAxisPoints.size() - 1;
-            for (int i = 1; i < endIndex; i++) {
-                if (mYAxisPoints.get(i) < yMin) {
-                    startIndex = i;
-                }
-                if (mYAxisPoints.get(i) > yMax) {
-                    endIndex = i;
-                    break;
-                }
-            }
+        if (sizeShown >= 2) {
+            // If we are already labeling points on the Y axis, count how many labels would be
+            // drawn if we keep the same points labeled but used the new range. This tells us if we
+            // need to recalculate labeled points or not.
+            double increment = (mYAxisPoints.get(1) - mYAxisPoints.get(0));
+            int startIndex = (int) ((yMin - mYAxisPoints.get(0)) / increment);
+            int endIndex = (int) ((mYAxisPoints.get(mYAxisPoints.size() - 1) - yMax) / increment)
+                    + mYAxisPoints.size();
             sizeShown = endIndex - startIndex;
         }
-        if (sizeShown <= MINIMUM_NUM_LABELS || sizeShown > MAXIMUM_NUM_LABELS) {
+        if (sizeShown < MINIMUM_NUM_LABELS || sizeShown > MAXIMUM_NUM_LABELS) {
             double range = yMax - yMin;
             if (range == 0) {
                 return;

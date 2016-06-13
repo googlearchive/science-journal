@@ -18,7 +18,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/run_review_overlay_height"
-    android:layout_marginStart="@dimen/run_review_margin_sides"
+    android:layout_marginStart="8dp"
     android:layout_marginEnd="@dimen/run_review_margin_sides"
     android:paddingBottom="@dimen/run_review_seekbar_holder_padding_bottom"
     >
@@ -47,8 +47,8 @@
             android:indeterminate="false"
             android:background="@null"
             android:max="300"
-            android:layout_marginLeft="@dimen/run_review_external_axis_left_margin"
-            android:layout_marginRight="@dimen/run_review_external_axis_right_padding"
+            android:layout_marginLeft="42dp"
+            android:layout_marginRight="8dp"
             android:thumb="@drawable/run_review_thumb"
             android:thumbOffset="@dimen/run_review_half_thumb_inactive_size"
             />

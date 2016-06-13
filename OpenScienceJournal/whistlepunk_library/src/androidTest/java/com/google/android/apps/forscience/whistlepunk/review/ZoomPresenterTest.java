@@ -20,10 +20,10 @@ import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.LineGraphPresenter;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.TestData;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
@@ -61,11 +61,11 @@ public class ZoomPresenterTest extends AndroidTestCase {
         stats.putStat(ZoomRecorder.STATS_KEY_TIER_COUNT, 2);
         stats.putStat(ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS, perZoomLevel);
 
-        LineGraphPresenter lgp = sensor.getLineGraphPresenter();
-        ZoomPresenter zp = new ZoomPresenter(lgp, mDatabase.makeSimpleController(mMetadataManager),
+        ChartController ctrl = sensor.getChartController();
+        ZoomPresenter zp = new ZoomPresenter(ctrl, mDatabase.makeSimpleController(mMetadataManager),
                 200, makeFailureListener());
         zp.loadInitialReadings(0, 100, stats, NOOP, NOOP, "test");
-        assertEquals(100, sensor.getLineData().getItemCount());
+        assertEquals(100, sensor.getLineData().size());
     }
 
     public void testTierTwoWhenLotsOfDataPoints() {
@@ -78,11 +78,11 @@ public class ZoomPresenterTest extends AndroidTestCase {
 
         int howManyDesiredDataPoints = 4;
 
-        ZoomPresenter zp = new ZoomPresenter(sensor.getLineGraphPresenter(),
+        ZoomPresenter zp = new ZoomPresenter(sensor.getChartController(),
                 mDatabase.makeSimpleController(mMetadataManager), howManyDesiredDataPoints,
                 makeFailureListener());
         zp.loadInitialReadings(0, 100, stats, NOOP, NOOP, "test");
-        assertEquals(4, sensor.getLineData().getItemCount());
+        assertEquals(4, sensor.getLineData().size());
     }
 
     public void testTierZeroWhenNoTierStats() {
@@ -96,13 +96,13 @@ public class ZoomPresenterTest extends AndroidTestCase {
 
         int howManyDesiredDataPoints = 4;
 
-        ZoomPresenter zp = new ZoomPresenter(sensor.getLineGraphPresenter(),
+        ZoomPresenter zp = new ZoomPresenter(sensor.getChartController(),
                 mDatabase.makeSimpleController(mMetadataManager), howManyDesiredDataPoints,
                 makeFailureListener());
 
         // While we're here, check that null == NOOP
         zp.loadInitialReadings(0, 100, stats, null, null, "test");
-        assertEquals(100, sensor.getLineData().getItemCount());
+        assertEquals(100, sensor.getLineData().size());
     }
 
     public void testWantMoreTiersThanWeHave() {
@@ -133,7 +133,7 @@ public class ZoomPresenterTest extends AndroidTestCase {
         stats.putStat(ZoomRecorder.STATS_KEY_TIER_COUNT, 5);
         stats.putStat(ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS, 5);
 
-        ZoomPresenter zp = new ZoomPresenter(sensor.getLineGraphPresenter(),
+        ZoomPresenter zp = new ZoomPresenter(sensor.getChartController(),
                 mDatabase.makeSimpleController(mMetadataManager), 20,
                 makeFailureListener());
 
@@ -173,25 +173,25 @@ public class ZoomPresenterTest extends AndroidTestCase {
 
         int howManyDesiredDataPoints = 20;
 
-        ZoomPresenter zp = new ZoomPresenter(sensor.getLineGraphPresenter(),
+        ZoomPresenter zp = new ZoomPresenter(sensor.getChartController(),
                 mDatabase.makeSimpleController(mMetadataManager), howManyDesiredDataPoints,
                 makeFailureListener());
         zp.loadInitialReadings(0, 100, stats, NOOP, NOOP, "test");
-        assertEquals(20, sensor.getLineData().getItemCount());
+        assertEquals(20, sensor.getLineData().size());
 
         // Rescale a little bit, just re-use current data
         zp.setXAxis(0, 80);
-        assertEquals(20, sensor.getLineData().getItemCount());
+        assertEquals(20, sensor.getLineData().size());
 
         // Rescale a lot, load at new resolution
         zp.setXAxis(0, 20);
 
         TestData data = TestData.allPointsBetween(0, 20, 1);
-        data.checkContents(sensor.getLineData().getXYMap());
+        data.checkRawData(sensor.getLineData());
 
         // Pan a bit, load some more data
         zp.setXAxis(10, 30);
-        TestData.allPointsBetween(0, 30, 1).checkContents(sensor.getLineData().getXYMap());
+        TestData.allPointsBetween(0, 30, 1).checkRawData(sensor.getLineData());
 
         // Zoom back out, reload again
         zp.setXAxis(0, 80);
@@ -201,7 +201,7 @@ public class ZoomPresenterTest extends AndroidTestCase {
             data2.addPoint(i + 9, i + 9);
         }
         data2.addPoint(80, 80);
-        data2.checkContents(sensor.getLineData().getXYMap());
+        data2.checkRawData(sensor.getLineData());
     }
 
     public void testDontCrashIfXAxisSetBeforeLoad() {
@@ -211,7 +211,7 @@ public class ZoomPresenterTest extends AndroidTestCase {
         sensor.pushDataPoints(recorder, 100);
 
         int howManyDesiredDataPoints = 20;
-        ZoomPresenter zp = new ZoomPresenter(sensor.getLineGraphPresenter(),
+        ZoomPresenter zp = new ZoomPresenter(sensor.getChartController(),
                 mDatabase.makeSimpleController(mMetadataManager), howManyDesiredDataPoints,
                 makeFailureListener());
         zp.setXAxis(0, 100);

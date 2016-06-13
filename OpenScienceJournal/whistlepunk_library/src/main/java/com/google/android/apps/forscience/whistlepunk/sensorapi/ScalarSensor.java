@@ -32,11 +32,12 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioGenerator;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SimpleJsynAudioGenerator;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.LineGraphPresenter;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
-import com.google.android.apps.forscience.whistlepunk.ScalarDataLoader;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
@@ -44,7 +45,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FrequencyOptionsPresenter
         .FilterChangeListener;
-import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.util.List;
@@ -65,23 +65,13 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     protected static final double DENOMINATOR_FOR_RPMS = 60 * 1000.0;
     private static final String BUNDLE_KEY_SENSOR_VALUE = "key_sensor_value";
 
-    /**
-     * how many (minimum) screenfuls of data should we keep in memory?
-     */
-    private static final int KEEP_THIS_MANY_SCREENS = 2;
-
-    /**
-     * How long can the screen be off before we forget old data?
-     */
-    private static final long MAX_BLACKOUT_MILLIS_BEFORE_CLEARING = 5000;
-
     private final FailureListener mDataFailureListener;
     private final int mZoomLevelBetweenTiers;
 
     private final long mDefaultGraphRange;
     private Executor mUiThreadExecutor;
     private ValueFilter mValueFilter = null;
-    private LineGraphPresenter mLineGraphPresenter;
+    private ChartController mChartController;
     private AudioGenerator mAudioGenerator;
 
     public ScalarSensor(String id) {
@@ -115,8 +105,9 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     public SensorPresenter createPresenter(final DataViewOptions dataViewOptions,
             StatsListener statsListener,
             final ExternalAxisController.InteractionListener interactionListener) {
-        final LineGraphPresenter lineGraphPresenter =
-                getLineGraphPresenter(dataViewOptions, interactionListener);
+        final ChartController chartController =
+                getChartController(dataViewOptions, interactionListener, getId(),
+                        mDefaultGraphRange);
 
         final AudioGenerator audioGenerator = getAudioGenerator();
         final SensorPresenter.OptionsPresenter optionsPresenter = createOptionsPresenter();
@@ -124,16 +115,11 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         statsDisplay.addStatsListener(statsListener);
 
         return new SensorPresenter() {
-            private long mResetTime = -1;
-            private long mRecordingStartTime = RecordingMetadata.NOT_RECORDING;
-            private boolean mAnythingLoaded = false;
-            private long mMinLoadedX = Long.MAX_VALUE;
-            private long mMaxLoadedX = Long.MIN_VALUE;
             private boolean mAudioEnabled;
 
             @Override
-            public void startShowing(ViewGroup contentView) {
-                lineGraphPresenter.populateContentView(contentView);
+            public void startShowing(View contentView) {
+                chartController.setChartView((ChartView) contentView);
                 if (mAudioEnabled) {
                     audioGenerator.startPlaying();
                 }
@@ -146,124 +132,50 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
             @Override
             public void onResume(long resetTime) {
-                mResetTime = resetTime;
                 setAudioEnabled(mAudioEnabled);
-                if (resetTime > mMaxLoadedX + MAX_BLACKOUT_MILLIS_BEFORE_CLEARING) {
-                    // TODO: test this behavior
-                    lineGraphPresenter.clearData(true);
-                }
+                chartController.onResume(resetTime);
             }
 
             @Override
             public void onNewData(long timestamp, Bundle bundle) {
-                // TODO: test this behavior
-                if (mResetTime != -1) {
-                    if (timestamp < mResetTime) {
-                        // straggling datapoint from before the reset, ignore
-                        return;
-                    } else {
-                        mResetTime = -1;
-                    }
-                }
-                // TODO: extract as a testable object
-                if (timestamp > mMaxLoadedX) {
-                    mMaxLoadedX = timestamp;
-
-                    // Get rid of data too old to be interesting for "now", but too new to be likely
-                    // seen by scrolling from the current view.  If we're recording, we'll swap
-                    // this data back in when we scroll to it.  If not, then we have no data
-                    // retention guarantees.
-
-                    long throwawayBefore =
-                            timestamp - (KEEP_THIS_MANY_SCREENS * mDefaultGraphRange);
-                    long throwawayAfter = lineGraphPresenter.getRenderedXMax() + mDefaultGraphRange;
-                    lineGraphPresenter.throwAwayBetween(throwawayAfter, throwawayBefore);
-                }
-                if (timestamp < mMinLoadedX) {
-                    mMinLoadedX = timestamp;
-                }
                 double value = getValue(bundle);
-                lineGraphPresenter.addToGraph(timestamp, value);
-                audioGenerator.addData(timestamp, value, lineGraphPresenter.getRenderedYMin(),
-                        lineGraphPresenter.getRenderedYMax());
+                chartController.addPoint(new ChartData.DataPoint(timestamp, value));
+                audioGenerator.addData(timestamp, value, chartController.getRenderedYMin(),
+                        chartController.getRenderedYMax());
                 statsDisplay.updateFromBundle(bundle);
             }
 
             @Override
             public void onRecordingStateChange(boolean isRecording, long recordingStart) {
-                mRecordingStartTime = recordingStart;
-                lineGraphPresenter.setRecordingState(
-                        isRecording ? recordingStart : RecordingMetadata.NOT_RECORDING);
+                chartController.setRecordingStartTime(recordingStart);
                 statsDisplay.clear();
             }
 
             @Override
             public void onLabelsChanged(List<Label> labels) {
-                lineGraphPresenter.setLabels(labels);
+                chartController.setLabels(labels);
             }
 
             @Override
-            public void onXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,
+            public void onGlobalXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,
                     DataController dataController) {
-                if (mRecordingStartTime != RecordingMetadata.NOT_RECORDING) {
-                    if (!mAnythingLoaded) {
-                        // Don't load anything before the recording start time if we got here
-                        // from resume.
-                        xMin = Math.max(xMin, mRecordingStartTime);
-                        loadReadings(dataController, xMin, xMax);
-                        mMinLoadedX = xMin;
-                        mMaxLoadedX = xMax;
-                    }
-                    // TODO: The check comparing xMin to mRecordingStartTime can mean that we loose
-                    // a few data points just after the recording start time. This behavior is
-                    // not great but better than the current alternative (b/26816719).
-                    if (xMin < mMinLoadedX && xMin > mRecordingStartTime) {
-                        loadReadings(dataController, xMin, mMinLoadedX);
-                        mMinLoadedX = xMin;
-                    }
-                    if (xMax > mMaxLoadedX) {
-                        if (!isPinnedToNow) {
-                            // if it's pinned to now, then we don't expect to find data magically
-                            // appearing in front of old data
-                            loadReadings(dataController, mMaxLoadedX, xMax);
-                        }
-                        mMaxLoadedX = xMax;
-                    }
-                }
-                mAnythingLoaded = true;
-                mMinLoadedX = Math.min(xMin, mMinLoadedX);
-                mMaxLoadedX = Math.max(xMax, mMaxLoadedX);
-
-                lineGraphPresenter.updateIsPinned(isPinnedToNow);
-                lineGraphPresenter.setXAxis(xMin, xMax);
-
-                long throwawayThreshhold = xMin - (KEEP_THIS_MANY_SCREENS - 1) * mDefaultGraphRange;
-
-                lineGraphPresenter.throwAwayBefore(throwawayThreshhold);
-
-                mMinLoadedX = Math.max(throwawayThreshhold, mMinLoadedX);
-            }
-
-            private void loadReadings(DataController dataController, long minToLoad,
-                    long maxToLoad) {
-                ScalarDataLoader.loadSensorReadings(getId(), dataController, minToLoad, maxToLoad,
-                        0, null, mDataFailureListener, lineGraphPresenter);
+                chartController.onGlobalXAxisChanged(xMin, xMax, isPinnedToNow, dataController);
             }
 
             @Override
             public double getMinY() {
-                return lineGraphPresenter.getRenderedYMin();
+                return chartController.getRenderedYMin();
             }
 
             @Override
             public double getMaxY() {
-                return lineGraphPresenter.getRenderedYMax();
+                return chartController.getRenderedYMax();
             }
 
             @Override
             public void onStopObserving() {
                 statsDisplay.clear();
-                destroyLineGraphPresenter();
+                destroyChartController();
             }
 
             @Override
@@ -293,32 +205,32 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
             @Override
             public void setShowStatsOverlay(boolean showStatsOverlay) {
-                lineGraphPresenter.setShowStatsOverlay(showStatsOverlay);
+                chartController.setShowStatsOverlay(showStatsOverlay);
             }
 
             @Override
             public void updateStats(List<StreamStat> stats) {
-                lineGraphPresenter.updateStats(stats);
+                chartController.updateStats(stats);
             }
 
             @Override
             public void setYAxisRange(double minimumYAxisValue, double maximumYAxisValue) {
-                lineGraphPresenter.setYAxisRange(minimumYAxisValue, maximumYAxisValue);
+                chartController.setYAxis(minimumYAxisValue, maximumYAxisValue);
             }
 
             @Override
             public void resetView() {
-                lineGraphPresenter.resetView();
+                chartController.clearData();
             }
         };
     }
 
-    private void destroyLineGraphPresenter() {
-        if (mLineGraphPresenter != null) {
-            // Destroy the presenter. This causes previous data to be destroyed on a rotate,
+    private void destroyChartController() {
+        if (mChartController != null) {
+            // Destroy the controller. This causes previous data to be destroyed on a rotate,
             // later we can add that data back via the background service.
-            mLineGraphPresenter.onDestroy();
-            mLineGraphPresenter = null;
+            mChartController.onDestroy();
+            mChartController = null;
         }
         if (mAudioGenerator != null) {
             mAudioGenerator.destroy();
@@ -326,17 +238,19 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         }
     }
 
-    // Returns the existing line graph presenter if available, or makes a new one if not.
+    // Returns the existing chartController if available, or makes a new one if not.
     @NonNull
-    protected LineGraphPresenter getLineGraphPresenter(DataViewOptions dataViewOptions,
-            ExternalAxisController.InteractionListener interactionListener) {
-        if (mLineGraphPresenter == null) {
-            mLineGraphPresenter = createLineGraphPresenter(dataViewOptions, interactionListener);
+    protected ChartController getChartController(DataViewOptions dataViewOptions,
+            ExternalAxisController.InteractionListener interactionListener, String id,
+            long defaultGraphRange) {
+        if (mChartController == null) {
+            mChartController = createChartController(dataViewOptions, interactionListener, id,
+                    defaultGraphRange);
         } else {
-            mLineGraphPresenter.onResume(dataViewOptions.getGraphColor(),
-                    dataViewOptions.getLineGraphOptions(), interactionListener);
+            mChartController.updateOptions(dataViewOptions.getGraphColor(),
+                    dataViewOptions.getLineGraphOptions(), interactionListener, id);
         }
-        return mLineGraphPresenter;
+        return mChartController;
     }
 
     @NonNull
@@ -348,11 +262,17 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     }
 
     @NonNull
-    protected LineGraphPresenter createLineGraphPresenter(DataViewOptions dataViewOptions,
-            ExternalAxisController.InteractionListener interactionListener) {
-        return new LineGraphPresenter(/* smooth Y axis adjustment */ true,
-        /* show the leading edge point */ true, dataViewOptions.getGraphColor(),
-                dataViewOptions.getLineGraphOptions(), interactionListener);
+    protected ChartController createChartController(DataViewOptions dataViewOptions,
+            ExternalAxisController.InteractionListener interactionListener, String id,
+            long defaultGraphRange) {
+        ChartController chartController = new ChartController(
+                ChartOptions.ChartPlacementType.TYPE_OBSERVE,
+                dataViewOptions.getLineGraphOptions());
+        chartController.setInteractionListener(interactionListener);
+        chartController.updateColor(dataViewOptions.getGraphColor());
+        chartController.setDefaultGraphRange(defaultGraphRange);
+        chartController.setSensorId(id);
+        return chartController;
     }
 
     /**

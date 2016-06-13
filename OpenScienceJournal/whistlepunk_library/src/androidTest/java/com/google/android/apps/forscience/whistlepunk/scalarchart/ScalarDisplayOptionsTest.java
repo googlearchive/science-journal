@@ -26,7 +26,7 @@ public class ScalarDisplayOptionsTest extends AndroidTestCase {
         final ScalarDisplayOptions options = new ScalarDisplayOptions();
         float smoothness = Arbitrary.singleFloat();
         int window = Arbitrary.integer();
-        int blurType = Arbitrary.integer();
+        int blurType = ScalarDisplayOptions.BLUR_TYPE_AVERAGE;
         float sigma = Arbitrary.singleFloat();
 
         options.updateLineSettings(smoothness, window, blurType, sigma);

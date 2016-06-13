@@ -29,22 +29,40 @@
     />
 
     <FrameLayout
-        android:background="@color/card_background_color"
-        android:id="@+id/chart_content_area"
-        android:layout_below="@id/stats_drawer"
-        android:layout_height="@dimen/run_review_chart_height"
-        android:layout_marginEnd="@dimen/run_review_margin_sides"
-        android:layout_marginStart="@dimen/run_review_margin_sides"
         android:layout_width="match_parent"
-        android:paddingEnd="@dimen/stream_presenter_padding_sides"
-        android:paddingStart="@dimen/stream_presenter_padding_sides"
-        android:paddingTop="@dimen/run_review_section_margin"
-    >
+        android:layout_height="wrap_content"
+        android:id="@+id/chart_view_holder"
+        android:layout_below="@id/stats_drawer"
+        android:paddingEnd="@dimen/run_review_margin_sides"
+        android:paddingStart="@dimen/run_review_margin_sides"
+        >
+
+        <ProgressBar
+            android:id="@+id/chart_progress"
+            android:layout_height="@dimen/run_review_chart_height"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="@dimen/run_review_section_margin"
+            android:visibility="gone"
+            android:contentDescription="@string/graph_loading"
+            />
+
+        <com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView
+            android:background="@color/card_background_color"
+            android:id="@+id/chart_view"
+            android:layout_height="@dimen/run_review_chart_height"
+            android:paddingLeft="@dimen/stream_presenter_padding_sides"
+            android:layout_marginRight="@dimen/stream_presenter_padding_sides"
+            android:layout_width="match_parent"
+            android:paddingTop="@dimen/run_review_section_margin"
+            />
+
     </FrameLayout>
+
 
     <FrameLayout
         android:id="@+id/external_axis_holder"
-        android:layout_below="@id/chart_content_area"
+        android:layout_below="@id/chart_view_holder"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/run_review_margin_sides"
         android:layout_marginStart="@dimen/run_review_margin_sides"
@@ -73,7 +91,7 @@
     <FrameLayout
         android:id="@+id/run_review_playback_button_holder"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/chart_content_area"
+        android:layout_below="@id/chart_view_holder"
         android:layout_height="@dimen/accessibility_touch_target_min_size"
         android:layout_width="@dimen/accessibility_touch_target_min_size"
     >

@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.support.annotation.NonNull;
 
-import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphData;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.common.collect.Lists;
@@ -28,9 +28,6 @@ import junit.framework.Assert;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 public class TestData {
     private static final double DELTA = 0.01;
@@ -69,59 +66,51 @@ public class TestData {
         return this;
     }
 
-    public void checkContents(SortedMap<Double, Double> map) {
+    public void checkObserver(RecordingSensorObserver observer) {
+        ArrayList<ChartData.DataPoint> rawData = new ArrayList<>();
+        for (ScalarReading sr : observer.getReadings()) {
+            rawData.add(new ChartData.DataPoint(sr.getCollectedTimeMillis(), sr.getValue()));
+        }
+
+        checkRawData(rawData);
+    }
+
+    public void checkRawData(List<ChartData.DataPoint> rawData) {
+        removeDupes(rawData);
         final Iterator<Point> iterator = mPoints.iterator();
-        TreeMap<Long, Double> compressedRawData = new TreeMap<>();
-        for (Map.Entry<Double, Double> entry : map.entrySet()) {
+
+        for (ChartData.DataPoint entry : rawData) {
             // rawData (due to other bugs) can have duplicate entries, which aren't important to
             // us here.
-            compressedRawData.put((long)(double)entry.getKey(), entry.getValue());
-        }
-
-        checkCompressedData(compressedRawData);
-    }
-
-    public void checkObserver(RecordingSensorObserver observer) {
-        TreeMap<Long, Double> compressedRawData = new TreeMap<>();
-        for (ScalarReading sr : observer.getReadings()) {
-            compressedRawData.put(sr.getCollectedTimeMillis(), sr.getValue());
-        }
-
-        checkCompressedData(compressedRawData);
-
-    }
-
-    public void checkRawData(List<GraphData.ReadonlyDataPoint> rawData) {
-        TreeMap<Long, Double> compressedRawData = new TreeMap<>();
-        for (GraphData.ReadonlyDataPoint readonlyDataPoint : rawData) {
-            compressedRawData.put(readonlyDataPoint.getX(), readonlyDataPoint.getY());
-        }
-
-        checkCompressedData(compressedRawData);
-    }
-
-    protected void checkCompressedData(TreeMap<Long, Double> compressedRawData) {
-        final Iterator<Point> iterator = mPoints.iterator();
-
-        for (Map.Entry<Long, Double> entry : compressedRawData.entrySet()) {
             if (!iterator.hasNext()) {
-                Assert.fail("Expected fewer values in " + compressedRawData);
+                Assert.fail("Expected fewer values in " + rawData);
             }
             final Point expected = iterator.next();
-            Assert.assertEquals(expected.x, (long)entry.getKey());
-            Assert.assertEquals(expected.y, entry.getValue(), DELTA);
+            Assert.assertEquals(expected.x, entry.getX());
+            Assert.assertEquals(expected.y, entry.getY(), DELTA);
         }
 
         if (iterator.hasNext()) {
-            Assert.fail("Expected another value: " + iterator.next() + " in " + compressedRawData);
+            Assert.fail("Expected another value: " + iterator.next() + " in " + rawData);
         }
     }
 
-    public List<GraphData.ReadonlyDataPoint> asRawData() {
-        List<GraphData.ReadonlyDataPoint> rawData = Lists.newArrayList();
-        for (Point point : mPoints) {
-            rawData.add(new GraphData.ReadonlyDataPoint(point.x, point.y));
+    private void removeDupes(List<ChartData.DataPoint> rawData) {
+        // rawData (due to other bugs) can have duplicate entries, which aren't important to
+        // us here.
+        if (rawData.size() < 2) {
+            return;
         }
-        return rawData;
+        Iterator<ChartData.DataPoint> iterator = rawData.iterator();
+        ChartData.DataPoint thisPoint = iterator.next();
+        ChartData.DataPoint nextPoint;
+        while (iterator.hasNext()) {
+            nextPoint = iterator.next();
+            if (nextPoint.getX() == thisPoint.getX() && nextPoint.getY() == thisPoint.getY()) {
+                iterator.remove();
+            } else {
+                thisPoint = nextPoint;
+            }
+        }
     }
 }
