@@ -86,7 +86,7 @@ public class DevOptionsFragment extends PreferenceFragment {
     }
 
     public static boolean isDebugVersion(Context context) {
-        return context.getResources().getBoolean(R.bool.is_debug);
+        return BuildConfig.DEBUG;
     }
 
     @NonNull
