@@ -91,7 +91,7 @@ public class ManageDevicesFragment extends PreferenceFragment {
                 // TODO: handle errors
             }
         };
-        mDeviceDiscoverer = DeviceDiscoverer.getNewInstance(getActivity(), mCallback);
+        mDeviceDiscoverer = DeviceDiscoverer.getNewInstance(getActivity());
         mDataController = AppSingleton.getInstance(getActivity()).getDataController();
         addPreferencesFromResource(R.xml.external_devices);
         mPairedDevices = new PreferenceProgressCategory(getActivity());
@@ -218,7 +218,7 @@ public class ManageDevicesFragment extends PreferenceFragment {
         if (!mScanning) {
             mScanning = true;
             mHandler.removeMessages(MSG_STOP_SCANNING);
-            mDeviceDiscoverer.startScanning();
+            mDeviceDiscoverer.startScanning(mCallback);
             mHandler.sendEmptyMessageDelayed(MSG_STOP_SCANNING, SCAN_TIME_MS);
             setScanningUi(true);
         }

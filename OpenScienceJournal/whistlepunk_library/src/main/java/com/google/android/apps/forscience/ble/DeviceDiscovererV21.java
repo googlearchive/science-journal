@@ -48,8 +48,8 @@ import java.util.UUID;
         }
     };
 
-    DeviceDiscovererV21(Context context, Callback callback) {
-        super(context, callback);
+    DeviceDiscovererV21(Context context) {
+        super(context);
     }
 
     @Override
