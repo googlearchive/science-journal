@@ -1,5 +1,6 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -7,13 +8,12 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.google.android.apps.forscience.ble.DeviceDiscoverer;
-import com.google.android.apps.forscience.ble.DeviceDiscoverer.DeviceRecord;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.squareup.leakcanary.RefWatcher;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -45,6 +46,12 @@ public class ManageDevicesFragment extends PreferenceFragment {
      * Boolean extra set on the preference when the device in question is paired.
      */
     private static final String EXTRA_KEY_PAIRED = "paired";
+
+    /**
+     * String extra set to say the type of external sensor
+     */
+    private static final String EXTRA_KEY_TYPE = "type";
+
     private static final String EXTRA_KEY_ID = "id";
     private static final String PREF_KEY_PAIRED_DEVICES = "paired_devices";
     private static final String PREF_KEY_AVAILABLE_DEVICES = "available_devices";
@@ -55,12 +62,10 @@ public class ManageDevicesFragment extends PreferenceFragment {
 
     private boolean mScanning;
     private Handler mHandler;
-    private DeviceDiscoverer mDeviceDiscoverer;
     private DataController mDataController;
 
-    private DeviceDiscoverer.Callback mCallback;
-
     private String mExperimentId;
+    private Map<String, ExternalSensorDiscoverer> mDiscoverers = new HashMap<>();
 
     public ManageDevicesFragment() {
     }
@@ -78,20 +83,6 @@ public class ManageDevicesFragment extends PreferenceFragment {
                 return false;
             }
         });
-        mCallback = new DeviceDiscoverer.Callback() {
-            @Override
-            public void onDeviceFound(final DeviceRecord record) {
-                if (getActivity() != null) {
-                    onDeviceRecordFound(record);
-                }
-            }
-
-            @Override
-            public void onError(int error) {
-                // TODO: handle errors
-            }
-        };
-        mDeviceDiscoverer = DeviceDiscoverer.getNewInstance(getActivity());
         mDataController = AppSingleton.getInstance(getActivity()).getDataController();
         addPreferencesFromResource(R.xml.external_devices);
         mPairedDevices = new PreferenceProgressCategory(getActivity());
@@ -107,7 +98,7 @@ public class ManageDevicesFragment extends PreferenceFragment {
         getPreferenceScreen().addPreference(mAvailableDevices);
         setHasOptionsMenu(true);
 
-
+        mDiscoverers.put(BleSensorSpec.TYPE, new NativeBleDiscoverer(this, getActivity()));
     }
 
     @Override
@@ -124,9 +115,10 @@ public class ManageDevicesFragment extends PreferenceFragment {
 
     @Override
     public void onDestroy() {
-        mDeviceDiscoverer.destroy();
-        mDeviceDiscoverer = null;
-        mCallback = null;
+        for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
+            discoverer.onDestroy();
+        }
+        mDiscoverers.clear();
         mMainMenu = null;
         super.onDestroy();
 
@@ -190,10 +182,8 @@ public class ManageDevicesFragment extends PreferenceFragment {
                         }
                         for (Map.Entry<String, ExternalSensorSpec> entry : sensors.entrySet()) {
                             ExternalSensorSpec sensor = entry.getValue();
-                            Preference device = new Preference(getActivity());
-                            device.setTitle(sensor.getName());
-                            device.setKey(sensor.getAddress());
-                            device.getExtras().putBoolean(EXTRA_KEY_PAIRED, true);
+                            Preference device = makePreference(sensor.getName(),
+                                    sensor.getAddress(), sensor.getType(), true, getActivity());
                             device.getExtras().putString(EXTRA_KEY_ID, entry.getKey());
                             device.setWidgetLayoutResource(R.layout.preference_external_device);
                             updateSummary(device, sensor);
@@ -204,21 +194,59 @@ public class ManageDevicesFragment extends PreferenceFragment {
                                 mAvailableDevices.removePreference(availablePref);
                             }
                         }
-                        if (mDeviceDiscoverer.canScan()) {
-                            // Now scan, now that we've loaded this.
+                        if (canScan()) {
                             scanForDevices();
                         }
-
-
                     }
-        });
+                });
+    }
+
+    private boolean canScan() {
+        for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
+            if (discoverer.canScan()) {
+                // TODO: is the behavior we actually want?
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void startScanningInDiscoverers() {
+        ExternalSensorDiscoverer.SensorPrefCallbacks
+                scanCallbacks = new ExternalSensorDiscoverer.SensorPrefCallbacks() {
+            @Override
+            public boolean isSensorAlreadyKnown(String key) {
+                return getDevicePreference(mPairedDevices, key) != null
+                        || getDevicePreference(mAvailableDevices, key) != null;
+            }
+
+            @Override
+            public void addAvailableSensorPreference(Preference newPref) {
+                mAvailableDevices.addPreference(newPref);
+            }
+        };
+
+        for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
+            discoverer.startScanning(scanCallbacks);
+        }
+    }
+
+    @NonNull
+    public static Preference makePreference(String name, String address, String type,
+            boolean paired, Context context) {
+        Preference device = new Preference(context);
+        device.setTitle(name);
+        device.setKey(address);
+        device.getExtras().putBoolean(EXTRA_KEY_PAIRED, paired);
+        device.getExtras().putString(EXTRA_KEY_TYPE, type);
+        return device;
     }
 
     private void scanForDevices() {
         if (!mScanning) {
             mScanning = true;
             mHandler.removeMessages(MSG_STOP_SCANNING);
-            mDeviceDiscoverer.startScanning(mCallback);
+            startScanningInDiscoverers();
             mHandler.sendEmptyMessageDelayed(MSG_STOP_SCANNING, SCAN_TIME_MS);
             setScanningUi(true);
         }
@@ -227,11 +255,15 @@ public class ManageDevicesFragment extends PreferenceFragment {
     private void stopScanning() {
         if (mScanning) {
             mScanning = false;
-            if (mDeviceDiscoverer != null) {
-                mDeviceDiscoverer.stopScanning();
-            }
+            stopScanningInDiscoverers();
             mHandler.removeMessages(MSG_STOP_SCANNING);
             setScanningUi(false);
+        }
+    }
+
+    private void stopScanningInDiscoverers() {
+        for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
+            discoverer.stopScanning();
         }
     }
 
@@ -247,28 +279,6 @@ public class ManageDevicesFragment extends PreferenceFragment {
         }
     }
 
-    private void onDeviceRecordFound(DeviceRecord record) {
-        // First check if this is a paired device.
-        String address = record.device.getAddress();
-        Preference pref = getDevicePreference(mPairedDevices, address);
-        if (pref == null) {
-            // See if we've already seen this in available.
-            pref = getDevicePreference(mAvailableDevices, address);
-            if (pref == null) {
-                // If not, add to "available"
-                Preference device = new Preference(getActivity());
-                device.setKey(record.device.getAddress());
-                device.setTitle(record.device.getName());
-                device.getExtras().putBoolean(EXTRA_KEY_PAIRED, false);
-                device.setWidgetLayoutResource(0);
-                mAvailableDevices.addPreference(device);
-            }
-        } else {
-            // This is a paired device that we have found.
-            // TODO: update the extras w/ scan info?
-        }
-    }
-
     private Preference getDevicePreference(PreferenceCategory category, String address) {
         for (int index = 0; index < category.getPreferenceCount(); ++index) {
             Preference device = category.getPreference(index);
@@ -280,29 +290,30 @@ public class ManageDevicesFragment extends PreferenceFragment {
     }
 
     private void addExternalSensorIfNecessary(Preference preference) {
-        final String address = preference.getKey();
-        final BleSensorSpec sensor = new BleSensorSpec(address, preference.getTitle().toString());
         preference.setEnabled(false);
         preference.setSummary(R.string.external_devices_pairing);
         // TODO: probably shouldn't finish in these cases, instead go into
         // sensor editing.
 
+        String sensorType = preference.getExtras().getString(EXTRA_KEY_TYPE);
+        ExternalSensorDiscoverer discoverer = mDiscoverers.get(sensorType);
+        final ExternalSensorSpec sensor = discoverer.extractSensorSpec(preference);
         mDataController.addOrGetExternalSensor(sensor,
                 new LoggingConsumer<String>(TAG, "ensure sensor") {
-            @Override
-            public void success(final String sensorId) {
-                mDataController.addSensorToExperiment(mExperimentId, sensorId,
-                        new LoggingConsumer<Success>(TAG, "add sensor to experiment") {
-                            @Override
-                            public void success(Success value) {
-                                if (LOCAL_LOGD) {
-                                    Log.d(TAG, "Added sensor to experiment " + mExperimentId);
-                                }
-                                reloadAppearancesAndShowOptions(sensor, sensorId);
-                            }
-                        });
-            }
-        });
+                    @Override
+                    public void success(final String sensorId) {
+                        mDataController.addSensorToExperiment(mExperimentId, sensorId,
+                                new LoggingConsumer<Success>(TAG, "add sensor to experiment") {
+                                    @Override
+                                    public void success(Success value) {
+                                        if (LOCAL_LOGD) {
+                                            Log.d(TAG, "Added sensor to experiment " + mExperimentId);
+                                        }
+                                        reloadAppearancesAndShowOptions(sensor, sensorId);
+                                    }
+                                });
+                    }
+                });
     }
 
     private void reloadAppearancesAndShowOptions(final ExternalSensorSpec sensor,
