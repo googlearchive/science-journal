@@ -17,8 +17,6 @@ import java.util.List;
  * capture view, if applicable.
  * <p/>
  * All calls are on the main thread.
- *
- * @param <BG_DATA> Parcelable type containing the sensor data.
  */
 public interface SensorPresenter extends SensorObserver {
     /**
@@ -46,7 +44,7 @@ public interface SensorPresenter extends SensorObserver {
     /**
      * The view is ready for the data to be displayed.
      *
-     * @param view The view onto which to show the data.
+     * @param contentView The view onto which to show the data.
      */
     void startShowing(ViewGroup contentView);
 
@@ -100,7 +98,7 @@ public interface SensorPresenter extends SensorObserver {
 
     boolean hasOptionsPresenter();
 
-    void setAudioEnabled(boolean enableAudio);
+    void updateAudioSettings(boolean audioEnabled, String sonificationType);
 
     void setShowStatsOverlay(boolean showStatsOverlay);
 

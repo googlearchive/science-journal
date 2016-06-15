@@ -16,7 +16,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -85,8 +84,8 @@ import java.util.Objects;
 import java.util.Set;
 
 public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
-        Handler.Callback, StopRecordingNoDataDialog.StopRecordingDialogListener {
-    private SharedPreferences.OnSharedPreferenceChangeListener mPrefListener;
+        Handler.Callback, StopRecordingNoDataDialog.StopRecordingDialogListener,
+        AudioSettingsDialog.AudioSettingsDialogListener {
 
     private static final String TAG = "RecordFragment";
 
@@ -167,21 +166,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 R.array.graph_colors_array));
         mSensorRegistry = AppSingleton.getInstance(getActivity()).getSensorRegistry();
         mScalarDisplayOptions = new ScalarDisplayOptions();
-
-        // TODO: unregister on destroy
-        mPrefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (DevOptionsFragment.KEY_SONIFICATION_TYPE.equals(key)) {
-                    if (mScalarDisplayOptions != null) {
-                        mScalarDisplayOptions.updateSonificationSettings(
-                                DevOptionsFragment.getSonificationType(getActivity()));
-                    }
-                }
-            }
-        };
-        PreferenceManager.getDefaultSharedPreferences(
-                getActivity()).registerOnSharedPreferenceChangeListener(mPrefListener);
 
         mHandler = new Handler(this);
         mFeatureDiscoveryProvider = WhistlePunkApplication.getFeatureDiscoveryProvider(
@@ -437,10 +421,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         mBottomPanel = rootView.findViewById(R.id.bottom_panel);
 
         mGraphOptionsController.loadIntoScalarDisplayOptions(mScalarDisplayOptions, getView());
-
-        mScalarDisplayOptions.updateSonificationSettings(
-                DevOptionsFragment.getSonificationType(getActivity()));
-
         mSensorCardLayoutManager = new LinearLayoutManager(getActivity());
 
         if (savedInstanceState != null) {
@@ -773,7 +753,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
         final SensorCardPresenter sensorCardPresenter = new SensorCardPresenter(
                 new DataViewOptions(nextSensorCardColor, mScalarDisplayOptions),
-                mSensorSettingsController, rc, layout);
+                mSensorSettingsController, rc, layout, this);
 
         final SensorStatusListener sensorStatusListener = new SensorStatusListener() {
             @Override
@@ -967,10 +947,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         mLaunchIntent = new Intent(activity.getIntent());
     }
 
-    /**
-     * @param rc
-     * @param startLabel if recording, a valid start label.  If not recording, null
-     */
     private void setRecording(RecordingMetadata recording, RecorderController rc) {
         if (mLaunchIntent == null) {
             Log.wtf(TAG, "Somehow recording before ever once attached to activity...");
@@ -1481,6 +1457,36 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             showFeatureDiscovery((String) msg.obj);
         }
         return false;
+    }
+
+    @Override
+    public void onAudioSettingsPreview(String previewSonificationType, String cardSensorId) {
+        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
+            if (presenter.getSelectedSensorId().equals(cardSensorId)) {
+                presenter.onAudioSettingsPreview(previewSonificationType);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onAudioSettingsApplied(String newSonificationType, String cardSensorId) {
+        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
+            if (presenter.getSelectedSensorId().equals(cardSensorId)) {
+                presenter.onAudioSettingsApplied(newSonificationType);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onAudioSettingsCanceled(String originalSonificationType, String cardSensorId) {
+        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
+            if (presenter.getSelectedSensorId().equals(cardSensorId)) {
+                presenter.onAudioSettingsCanceled(originalSonificationType);
+                return;
+            }
+        }
     }
 
     private static class ExperimentsSpinnerAdapter extends ArrayAdapter<Experiment> {

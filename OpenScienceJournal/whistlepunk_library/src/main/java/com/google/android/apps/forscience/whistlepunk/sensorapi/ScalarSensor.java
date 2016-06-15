@@ -2,7 +2,6 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,9 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
@@ -20,11 +16,11 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioGenerator;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SimpleJsynAudioGenerator;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.LineGraphPresenter;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.ScalarDataLoader;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
@@ -106,10 +102,8 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         final LineGraphPresenter lineGraphPresenter =
                 getLineGraphPresenter(dataViewOptions, interactionListener);
 
-        final AudioGenerator audioGenerator = getAudioGenerator(
-                dataViewOptions.getLineGraphOptions());
-        final SensorPresenter.OptionsPresenter optionsPresenter = createOptionsPresenter(
-                dataViewOptions.getLineGraphOptions(), audioGenerator);
+        final AudioGenerator audioGenerator = getAudioGenerator();
+        final SensorPresenter.OptionsPresenter optionsPresenter = createOptionsPresenter();
         final StatsAccumulator.StatsDisplay statsDisplay = new StatsAccumulator.StatsDisplay();
         statsDisplay.addStatsListener(statsListener);
 
@@ -267,7 +261,12 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             }
 
             @Override
-            public void setAudioEnabled(boolean enableAudio) {
+            public void updateAudioSettings(boolean audioEnabled, String sonificationType) {
+                setAudioEnabled(audioEnabled);
+                mAudioGenerator.setSonificationType(sonificationType);
+            }
+
+            private void setAudioEnabled(boolean enableAudio) {
                 mAudioEnabled = enableAudio;
                 if (mAudioEnabled) {
                     audioGenerator.startPlaying();
@@ -325,10 +324,9 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     }
 
     @NonNull
-    protected AudioGenerator getAudioGenerator(ScalarDisplayOptions scalarDisplayOptions) {
+    protected AudioGenerator getAudioGenerator() {
         if (mAudioGenerator == null) {
-            mAudioGenerator = new SimpleJsynAudioGenerator(
-                    scalarDisplayOptions.getSonificationType());
+            mAudioGenerator = new SimpleJsynAudioGenerator();
         }
         return mAudioGenerator;
     }
@@ -349,8 +347,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         return null;
     }
 
-    protected final SensorPresenter.OptionsPresenter createOptionsPresenter(
-            final ScalarDisplayOptions scalarOptions, final AudioGenerator audioGenerator) {
+    protected final SensorPresenter.OptionsPresenter createOptionsPresenter() {
         final SensorPresenter.OptionsPresenter additionalPresenter =
                 createAdditionalScalarOptionsPresenter();
 
@@ -371,58 +368,15 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         return new SensorPresenter.OptionsPresenter() {
             @Override
             public View buildOptionsView(final ActiveBundle activeBundle, Context context) {
-                @SuppressLint("InflateParams") final View inflated =
-                        LayoutInflater.from(context).inflate(R.layout.sonification_options, null);
-
-                final ViewGroup additionalView =
-                        (ViewGroup) inflated.findViewById(R.id.options_after_sonification);
-                additionalView.setVisibility(View.VISIBLE);
-                additionalView.addView(
-                        frequencyPresenter.buildOptionsView(activeBundle, context));
-
-                Spinner soundSpinner =
-                        (Spinner) inflated.findViewById(R.id.sonification_type_spinner);
-                final ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
-                        R.array.sonification_types, android.R.layout.simple_spinner_item);
-                soundSpinner.setAdapter(adapter);
-                final String[] sonificationTypes = context.getResources().getStringArray(
-                        R.array.sonification_type_aliases);
-                soundSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position,
-                            long id) {
-                        activeBundle.changeString(ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
-                                String.valueOf(sonificationTypes[position]));
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-
-                    }
-                });
-                soundSpinner.setSelection(findSelection(sonificationTypes,
-                        getCurrentSonificationType(activeBundle.getReadOnly())));
+                @SuppressLint("InflateParams") final ViewGroup inflated =
+                        (ViewGroup) LayoutInflater.from(context).inflate(
+                                R.layout.scalar_sensor_options, null);
+                inflated.addView(frequencyPresenter.buildOptionsView(activeBundle, context));
                 return inflated;
-            }
-
-            private int findSelection(String[] adapter,
-                    String sonificationType) {
-                for (int i = 0; i < adapter.length; i++) {
-                    if (adapter[i].equals(sonificationType)) {
-                        return i;
-                    }
-                }
-                return 0;
             }
 
             @Override
             public void applyOptions(ReadableSensorOptions bundle) {
-                audioGenerator.setSonificationType(getCurrentSonificationType(bundle));
-            }
-
-            private String getCurrentSonificationType(ReadableSensorOptions bundle) {
-                return bundle.getString(ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
-                        scalarOptions.getSonificationType());
             }
         };
     }

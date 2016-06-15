@@ -50,12 +50,12 @@
         android:summary="@string/dev_tools_leak_detection_summary"
         />
 
-    <ListPreference
-        android:key="sonification_type"
-        android:title="@string/sonification_type_title"
-        android:entries="@array/sonification_types"
-        android:entryValues="@array/sonification_type_aliases"/>
-    />
+    <CheckBoxPreference
+        android:key="enable_dev_sonification_types"
+        android:title="@string/dev_sonification_types_title"
+        android:summary="@string/dev_sonification_types_summary"
+        android:defaultValue="false"
+        />
 
     <CheckBoxPreference
         android:key="live_zoom_type"

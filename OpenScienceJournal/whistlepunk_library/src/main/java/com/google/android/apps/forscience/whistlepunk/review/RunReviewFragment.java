@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
@@ -37,11 +38,11 @@ import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
+import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.PreviewNoteDialog;
@@ -341,11 +342,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 setTimepickerUi(rootView, true);
             }
         }
-
-        // TODO: Load sonification settings per-sensor once that is stored somewhere.
-        mScalarDisplayOptions.updateSonificationSettings(DevOptionsFragment.getSonificationType(getActivity()));
-        mAudioGenerator = new SimpleJsynAudioGenerator(
-                mScalarDisplayOptions.getSonificationType());
+        mAudioGenerator = new SimpleJsynAudioGenerator();
 
         return rootView;
     }
@@ -593,6 +590,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         populateSensorViews(rootView, sensorLayout);
         updateSwitchSensorArrows(rootView, mExperimentRun.getSensorTags(), sensorLayout.sensorId);
 
+        // Load the sonificationType which was saved in the layout.
+        // TODO: Create a menu option in RunReview to change this.
+        String sonificationType = getSonificationType(sensorLayout);
+
+        mAudioGenerator.setSonificationType(sonificationType);
+
         long firstTimestamp = mExperimentRun.getFirstTimestamp();
         long lastTimestamp = mExperimentRun.getLastTimestamp();
         mRunReviewOverlay.setVisibility(View.INVISIBLE);
@@ -612,6 +615,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 });
 
         tryLoadingLineGraphPresenter(firstTimestamp, lastTimestamp, sensorLayout);
+    }
+
+    private String getSonificationType(GoosciSensorLayout.SensorLayout sensorLayout) {
+        return LocalSensorOptionsStorage.loadFromLayoutExtras(sensorLayout).getReadOnly().getString(
+                ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
+                ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
     }
 
     @Override

@@ -10,6 +10,12 @@
         />
 
     <item
+        android:title="@string/card_options_audio_settings"
+        android:id="@+id/btn_sensor_card_audio_settings"
+        />
+
+
+    <item
         android:title="@string/btn_sensor_card_settings"
         android:id="@+id/btn_sensor_card_settings"
         />

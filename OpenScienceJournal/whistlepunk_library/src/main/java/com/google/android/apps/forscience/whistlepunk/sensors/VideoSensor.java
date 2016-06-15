@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
@@ -113,7 +114,7 @@ public class VideoSensor extends SensorChoice {
             }
 
             @Override
-            public void setAudioEnabled(boolean enableAudio) {
+            public void updateAudioSettings(boolean audioEnabled, String sonificationType) {
 
             }
 

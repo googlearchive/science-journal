@@ -1,6 +1,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -17,6 +18,7 @@ import java.util.Map;
  * Stores sensor options in a local map
  */
 public class LocalSensorOptionsStorage implements NewOptionsStorage {
+    public static final String TAG = "LocalSensorOptionsStrg";
     Map<String, String> mValues = new HashMap<>();
     private AbstractReadableSensorOptions mReadable = new ReadableTransportableSensorOptions(
             mValues);
@@ -42,6 +44,13 @@ public class LocalSensorOptionsStorage implements NewOptionsStorage {
         };
     }
 
+    public static WriteableSensorOptions loadFromLayoutExtras(
+            GoosciSensorLayout.SensorLayout sensorLayout) {
+        LocalSensorOptionsStorage options = new LocalSensorOptionsStorage();
+        options.putAllExtras(sensorLayout.extras);
+        return options.load(LoggingConsumer.expectSuccess(TAG, "loading sensor options"));
+    }
+
     @NonNull
     GoosciSensorLayout.SensorLayout.ExtrasEntry[] exportAsLayoutExtras() {
         ReadableSensorOptions extras = load(null).getReadOnly();
@@ -58,11 +67,10 @@ public class LocalSensorOptionsStorage implements NewOptionsStorage {
         return entries;
     }
 
-    void putAllExtras(GoosciSensorLayout.SensorLayout.ExtrasEntry[] extras) {
+    public void putAllExtras(GoosciSensorLayout.SensorLayout.ExtrasEntry[] extras) {
         WriteableSensorOptions options = load();
         for (GoosciSensorLayout.SensorLayout.ExtrasEntry extra : extras) {
             options.put(extra.key, extra.value);
         }
     }
-
 }

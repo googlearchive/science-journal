@@ -240,8 +240,7 @@ public class ScalarSensorTest extends AndroidTestCase {
         BluetoothSensor bluetoothSensor = new BluetoothSensor("sensorId", bleSensor,
                 BluetoothSensor.ANNING_SERVICE_SPEC);
         ScalarDisplayOptions scalarOptions = new ScalarDisplayOptions();
-        bluetoothSensor.createOptionsPresenter(scalarOptions, new SimpleJsynAudioGenerator())
-                .applyOptions(new BlankReadableSensorOptions());
+        bluetoothSensor.createOptionsPresenter().applyOptions(new BlankReadableSensorOptions());
         ValueFilter filter = bluetoothSensor.getDeviceDefaultValueFilter();
         filter.filterValue(0, 0);
         filter.filterValue(250, 100);

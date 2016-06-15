@@ -23,7 +23,7 @@ public class DevOptionsFragment extends PreferenceFragment {
     private static final String KEY_SINE_WAVE_SENSOR = "enable_sine_wave_sensor";
     private static final String KEY_DEV_TOOLS = "dev_tools";
     private static final String KEY_LEAK_CANARY = "leak_canary";
-    public static final String KEY_SONIFICATION_TYPE = "sonification_type";
+    public static final String KEY_DEV_SONIFICATION_TYPES = "enable_dev_sonification_types";
     public static final String KEY_ENABLE_ZOOM_IN = "live_zoom_type";
     public static final String KEY_BAROMETER_SENSOR = "enable_barometer_sensor";
     public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
@@ -89,13 +89,8 @@ public class DevOptionsFragment extends PreferenceFragment {
         return BuildConfig.DEBUG;
     }
 
-    @NonNull
-    public static String getSonificationType(Context context) {
-        if (!isDebugVersion(context)) {
-            return ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE;
-        }
-        return getPrefs(context).getString(KEY_SONIFICATION_TYPE,
-                ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
+    public static boolean getEnableAdditionalSonificationTypes(Context context) {
+        return getBoolean(KEY_DEV_SONIFICATION_TYPES, false, context);
     }
 
     public static boolean isEnableZoomInOnY(Context context) {

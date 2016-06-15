@@ -2,6 +2,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -16,6 +17,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.TtsSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,9 +27,11 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.OptionsListener;
@@ -38,6 +42,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.AccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
@@ -111,7 +116,7 @@ public class SensorCardPresenter {
     private View.OnClickListener mRetryClickListener;
     private boolean mPaused = false;
     private String mTabSelectedFormat;
-
+    private final Fragment mParentFragment;
     private PopupMenu mPopupMenu;
 
     private OptionsListener mCommitListener = new OptionsListener() {
@@ -151,7 +156,8 @@ public class SensorCardPresenter {
 
     public SensorCardPresenter(DataViewOptions dataViewOptions,
             SensorSettingsController sensorSettingsController,
-            RecorderController recorderController, GoosciSensorLayout.SensorLayout layout) {
+            RecorderController recorderController, GoosciSensorLayout.SensorLayout layout,
+            Fragment fragment) {
         mDataViewOptions = dataViewOptions;
         mSensorSettingsController = sensorSettingsController;
         mRecorderController = recorderController;
@@ -159,6 +165,7 @@ public class SensorCardPresenter {
         mNumberFormat = new AxisNumberFormat();
         mLayout = layout;
         mCardOptions.putAllExtras(layout.extras);
+        mParentFragment = fragment;
     }
 
     public void onNewData(long timestamp, Bundle bundle) {
@@ -265,7 +272,10 @@ public class SensorCardPresenter {
 
         mCurrentSource = sensorChoice;
         mSensorPresenter = sensorPresenter;
-        mSensorPresenter.setAudioEnabled(mLayout.audioEnabled);
+        if (mParentFragment != null) { // Need this to run tests
+            mSensorPresenter.updateAudioSettings(mLayout.audioEnabled,
+                    getSonificationType(mParentFragment.getActivity()));
+        }
         mSensorPresenter.setShowStatsOverlay(mLayout.showStatsOverlay);
         if (mFirstObserving) {
             // The first time we start observing on a sensor, we can load the minimum and maximum
@@ -539,7 +549,7 @@ public class SensorCardPresenter {
         final Context context = mCardViewHolder.getContext();
         mPopupMenu = new PopupMenu(context, mCardViewHolder.menuButton);
         mPopupMenu.getMenuInflater().inflate(R.menu.menu_sensor_card, mPopupMenu.getMenu());
-        Menu menu = mPopupMenu.getMenu();
+        final Menu menu = mPopupMenu.getMenu();
         menu.findItem(R.id.btn_sensor_card_close).setVisible(
                 !mIsSingleCard && !isRecording());
 
@@ -572,13 +582,55 @@ public class SensorCardPresenter {
                     return true;
                 } else if (itemId == R.id.btn_sensor_card_audio_toggle) {
                     mLayout.audioEnabled = !mLayout.audioEnabled;
-                    mSensorPresenter.setAudioEnabled(mLayout.audioEnabled);
+                    mSensorPresenter.updateAudioSettings(mLayout.audioEnabled,
+                            getSonificationType(context));
+                    return true;
+                } else if (itemId == R.id.btn_sensor_card_audio_settings) {
+                    String currentSonificationType = getCardOptions(mCurrentSource, context).load(
+                            LoggingConsumer.expectSuccess(TAG, "loading card options")
+                    ).getReadOnly().getString(
+                            ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
+                            ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
+                    AudioSettingsDialog dialog =
+                            AudioSettingsDialog.newInstance(currentSonificationType, mSensorId);
+                    dialog.show(mParentFragment.getChildFragmentManager(), AudioSettingsDialog.TAG);
                     return true;
                 }
                 return false;
             }
         });
         mPopupMenu.show();
+    }
+
+    private String getSonificationType(Context context) {
+        return getCardOptions(mCurrentSource, context).load(
+                LoggingConsumer.expectSuccess(TAG, "loading card options")
+        ).getReadOnly().getString(ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
+                ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
+    }
+
+    public void onAudioSettingsPreview(String previewSonificationType) {
+        // Must save audio settings in the layout so that if a rotation or backgrounding occurs
+        // while the dialog is active, it is saved on resume.
+        updateSonificationType(previewSonificationType);
+    }
+
+    public void onAudioSettingsApplied(String newSonificationType) {
+        updateSonificationType(newSonificationType);
+    }
+
+    public void onAudioSettingsCanceled(String originalSonificationType) {
+        updateSonificationType(originalSonificationType);
+    }
+
+    private void updateSonificationType(String sonificationType) {
+        mSensorPresenter.updateAudioSettings(mLayout.audioEnabled, sonificationType);
+        final WriteableSensorOptions writableOptions =
+                getCardOptions(mCurrentSource, mParentFragment.getActivity()).load(
+                        LoggingConsumer.expectSuccess(TAG, "loading card options"));
+        writableOptions.put(
+                ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
+                sonificationType);
     }
 
     private void initializeSensorTabs(final String sensorIdToSelect) {
@@ -1073,21 +1125,16 @@ public class SensorCardPresenter {
 
     @NonNull
     GoosciSensorLayout.SensorLayout buildLayout() {
-        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-        layout.cardView = getSensorCardViewType();
-        layout.audioEnabled = isAudioEnabled();
-        layout.showStatsOverlay = isShowStatsOverlay();
-        // TODO: Use mLayout instead of local vars for sensor ID and graph color.
-        // Get an updated min and max, and return mLayout here.
-        layout.sensorId = getSelectedSensorId();
-        layout.color = getDataViewOptions().getGraphColor();
+        // Get an updated min and max, and return mLayout.
+        // TODO: Consider storing sensorId in mLayout instead of in a field
+        mLayout.sensorId = getSelectedSensorId();
+        mLayout.color = getDataViewOptions().getGraphColor();
         if (mSensorPresenter != null) {
-            layout.minimumYAxisValue = mSensorPresenter.getMinY();
-            layout.maximumYAxisValue = mSensorPresenter.getMaxY();
+            mLayout.minimumYAxisValue = mSensorPresenter.getMinY();
+            mLayout.maximumYAxisValue = mSensorPresenter.getMaxY();
         }
-
-        layout.extras = mCardOptions.exportAsLayoutExtras();
-        return layout;
+        mLayout.extras = mCardOptions.exportAsLayoutExtras();
+        return mLayout;
     }
 
     NewOptionsStorage getCardOptions(SensorChoice sensorChoice, Context context) {

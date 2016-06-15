@@ -22,7 +22,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorO
 public class ActiveSettingsController {
     private final Context mContext;
 
-    // TODO: this doesn't really need to be a peristent object.
+    // TODO: this doesn't really need to be a persistent object.
     public ActiveSettingsController(Context context) {
         mContext = context;
     }

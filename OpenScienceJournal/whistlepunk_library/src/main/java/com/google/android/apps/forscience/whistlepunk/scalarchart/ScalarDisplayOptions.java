@@ -123,8 +123,4 @@ public class ScalarDisplayOptions {
     public float getGaussianSigma() {
         return mGaussianSigma;
     }
-
-    public String getSonificationType() {
-        return mSonificationType;
-    }
 }

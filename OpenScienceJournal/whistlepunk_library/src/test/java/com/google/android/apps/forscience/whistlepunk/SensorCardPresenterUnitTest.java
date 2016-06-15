@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.test.AndroidTestCase;
+import android.test.mock.MockApplication;
 import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
@@ -41,7 +43,7 @@ public class SensorCardPresenterUnitTest {
         };
         MemoryRecorderController rc = new MemoryRecorderController();
         SensorCardPresenter scp = new SensorCardPresenter(dataViewOptions, ssc, rc,
-                new GoosciSensorLayout.SensorLayout());
+                new GoosciSensorLayout.SensorLayout(), null);
         SensorPresenter presenter = new MemorySensorPresenter();
         SensorObserver so = new SensorObserver() {
             @Override
@@ -116,7 +118,7 @@ public class SensorCardPresenterUnitTest {
         }
 
         @Override
-        public void setAudioEnabled(boolean enableAudio) {
+        public void updateAudioSettings(boolean audioEnabled, String sonificationType) {
 
         }
 

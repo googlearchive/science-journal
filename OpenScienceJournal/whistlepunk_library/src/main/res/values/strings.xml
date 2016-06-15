@@ -546,27 +546,35 @@
     <!-- Summary of developer option to enable memory leak detection [CHAR_LIMIT=none] -->
     <string name="dev_tools_leak_detection_summary">Changes to this setting only take affect after closing the application.</string>
 
+    <!-- Default sonification type name [CHAR_LIMIT=30] -->
+    <string name="d2p">Default</string>
 
-    <string name="d2p">Data to pitch</string>
-    <string name="d2a">Data to amplitude</string>
-    <string name="d2pe">Data to pitch envelope</string>
-    <string name="d2ps">Data to pentatonic scale pitch envelope</string>
+    <!-- Name for sonification type from data to volume / amplitude of sound [CHAR_LIMIT=30] -->
+    <string name="d2a">Amplitude</string>
 
-    <!-- List of entries for the sonification type selection [CHAR_LIMIT=none] -->
-    <string-array name="sonification_types">
+    <!-- Name for sonification type from data to a pitch envelope [CHAR_LIMIT=30] -->
+    <string name="d2pe">Pitch envelope</string>
+
+    <!-- Name for sonification type from data to a pentatonic scale [CHAR_LIMIT=30] -->
+    <string name="d2ps">Pentatonic scale</string>
+
+    <!-- List of entries for the sonification type selection -->
+    <string-array name="sonification_types_prod">
         <item>@string/d2p</item>
-        <item>@string/d2a</item>
-        <item>@string/d2pe</item>
         <item>@string/d2ps</item>
     </string-array>
 
-    <!-- List of aliases for the sonification type selection [CHAR_LIMIT=none] -->
+    <string-array name="sonification_types_dev">
+        <item>@string/d2pe</item>
+        <item>@string/d2a</item>
+    </string-array>
+
+    <!-- List of aliases for the sonification type selection. Note that this must be in the order of types_prod + types_dev. [CHAR_LIMIT=none] -->
     <string-array name="sonification_type_aliases">
         <item>d2p</item>
-        <item>d2a</item>
-        <item>d2pe</item>
         <item>d2ps</item>
-
+        <item>d2pe</item>
+        <item>d2a</item>
     </string-array>
 
     <!-- Label for a spinner item which creates a new experiment. [CHAR_LIMIT=40]-->
@@ -915,11 +923,11 @@
     <!-- Content description for Run Review playback button for starting run playback [CHAR_LIMIT=None] -->
     <string name="playback_button_play">start audio playback</string>
 
-    <!-- Title for developer option to change card sonification type [CHAR_LIMIT=30] -->
-    <string name="sonification_type_card_title">Card sonification type</string>
+    <!-- Title for developer option to add more card sonification types [CHAR_LIMIT=30] -->
+    <string name="sonification_type_card_title">Dev sonification type</string>
 
-    <!-- Title for developer option to change default overall app sonification type [CHAR_LIMIT=35] -->
-    <string name="sonification_type_title">Default sonification type</string>
+    <!-- Title for developer option to enable additional sonification types [CHAR_LIMIT=35] -->
+    <string name="dev_sonification_types_title">Enable dev sonification types</string>
 
     <!-- Title for edit trial activity [CHAR_LIMIT=30] -->
     <string name="title_edit_trial_activity">Edit Trial</string>
@@ -993,6 +1001,12 @@
 
     <!-- Summary of developer option to display a video sensor [CHAR_LIMIT=none] -->
     <string name="enable_video_sensor_summary">Enable video sensor</string>
+
+    <!-- Menu option in a sensor card to change the audio settings [CHAR_LIMIT=25] -->
+    <string name="card_options_audio_settings">Audio settings</string>
+
+    <!-- Additional information about the dev option to add additional sonification types [CHAR_LIMIT=NONE] -->
+    <string name="dev_sonification_types_summary">Whether to enable additional sonification options</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
