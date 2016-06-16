@@ -20,6 +20,10 @@
     <string name="acc_z" msgid="4540365462206126342">"加速计 Z 轴"</string>
     <string name="ambient_light" msgid="3301998123545447671">"环境光"</string>
     <string name="magnetic_rotation" msgid="6643176023260466091">"磁场旋转"</string>
+    <!-- no translation found for barometer (6963377010571232863) -->
+    <skip />
+    <!-- no translation found for ambient_temperature (7953836004790593525) -->
+    <skip />
     <string name="video_stream" msgid="1813984984736617091">"视频流"</string>
     <string name="acc_units" msgid="335053831539850606">"米/秒²"</string>
     <string name="ambient_light_units" msgid="6318282254934724349">"勒克斯"</string>
@@ -29,6 +33,10 @@
     <string name="rpm_units" msgid="897807671511627492">"转/分钟"</string>
     <string name="voltage_units" msgid="6411118170860716365">"伏"</string>
     <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <!-- no translation found for barometer_units (4292292035160238626) -->
+    <skip />
+    <!-- no translation found for temperature_units (630716203187220193) -->
+    <skip />
     <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="6814534510464980289">"实验详细信息"</string>
     <string name="add_sensor" msgid="96374933560924369">"添加传感器"</string>
@@ -304,7 +312,7 @@
     <skip />
     <string name="listing_title" msgid="6842666752572268412">"科学杂志"</string>
     <string name="listing_tagline" msgid="6633876313767981347">"探索您周围世界的科学奥秘。"</string>
-    <string name="listing_changelog" msgid="5651904379742962668">"初始版本"</string>
+    <string name="listing_changelog" msgid="1093982432926956400">"错误修复：生日输入、BLE 性能、稳定性。"</string>
     <string name="listing__description" msgid="7679178857079821372">"有了“科学杂志”这个实用工具，使用智能手机就能进行科学实验了。您可以使用手机内置传感器，也可以连接外部传感器，开始尽情探索周围的世界。“科学杂志”可以让您将各种零散的想法归类整理成不同的具体项目、进行预测、记笔记并收集多次实验的数据，然后深入分析实验结果并加上相关注释，就像随身携带的一本实验室笔记本。\n\n\n您可以访问以下网址汲取实验灵感，让这款应用伴您遨游广阔的科学天地：https://makingscience.withgoogle.com/science-journal/activities \n欢迎详细了解 Making &amp; Science：https://makingscience.withgoogle.com \n如需获取支持，请访问 https://productforums.google.com/forum/#!forum/sciencejournal"</string>
     <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
     <skip />
@@ -313,6 +321,14 @@
     <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
     <skip />
     <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_barometer_sensor_title (985631392882471101) -->
+    <skip />
+    <!-- no translation found for enable_barometer_sensor_summary (5467127889896690528) -->
+    <skip />
+    <!-- no translation found for enable_temperature_sensor_title (6790406842988534774) -->
+    <skip />
+    <!-- no translation found for enable_temperature_sensor_summary (8827051325873631768) -->
     <skip />
     <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
     <skip />

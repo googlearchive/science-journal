@@ -20,6 +20,10 @@
     <string name="acc_z" msgid="4540365462206126342">"가속도계 Z"</string>
     <string name="ambient_light" msgid="3301998123545447671">"주변광"</string>
     <string name="magnetic_rotation" msgid="6643176023260466091">"자기 회전"</string>
+    <!-- no translation found for barometer (6963377010571232863) -->
+    <skip />
+    <!-- no translation found for ambient_temperature (7953836004790593525) -->
+    <skip />
     <string name="video_stream" msgid="1813984984736617091">"동영상 스트림"</string>
     <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
     <string name="ambient_light_units" msgid="6318282254934724349">"럭스"</string>
@@ -29,6 +33,10 @@
     <string name="rpm_units" msgid="897807671511627492">"RPM"</string>
     <string name="voltage_units" msgid="6411118170860716365">"V"</string>
     <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <!-- no translation found for barometer_units (4292292035160238626) -->
+    <skip />
+    <!-- no translation found for temperature_units (630716203187220193) -->
+    <skip />
     <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g>(<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="6814534510464980289">"실험 세부정보"</string>
     <string name="add_sensor" msgid="96374933560924369">"센서 추가"</string>
@@ -304,7 +312,7 @@
     <skip />
     <string name="listing_title" msgid="6842666752572268412">"과학 저널"</string>
     <string name="listing_tagline" msgid="6633876313767981347">"실험의 세상이 열립니다."</string>
-    <string name="listing_changelog" msgid="5651904379742962668">"최초 릴리스"</string>
+    <string name="listing_changelog" msgid="1093982432926956400">"버그 수정: 생일 입력, BLE 성능, 안정성"</string>
     <string name="listing__description" msgid="7679178857079821372">"과학 저널은 스마트폰으로 과학 실험을 할 수 있는 앱입니다. 휴대전화의 센서를 사용하거나 외부 센서에 연결하여 자유롭게 실험해 보세요. 아이디어를 프로젝트로 정리하고, 예측하고, 여러 번 실험하며 메모하고, 데이터를 수집하고, 결과를 종합하고 탐구해 보세요. 항상 가지고 다닐 수 있는 실험 공책과 같습니다. \n\n \n앱으로 가능한 활동 아이디어: https://makingscience.withgoogle.com/science-journal/activities \n제작 및 과학 자세히 알아보기: https://makingscience.withgoogle.com \n지원 문의: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
     <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
     <skip />
@@ -313,6 +321,14 @@
     <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
     <skip />
     <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_barometer_sensor_title (985631392882471101) -->
+    <skip />
+    <!-- no translation found for enable_barometer_sensor_summary (5467127889896690528) -->
+    <skip />
+    <!-- no translation found for enable_temperature_sensor_title (6790406842988534774) -->
+    <skip />
+    <!-- no translation found for enable_temperature_sensor_summary (8827051325873631768) -->
     <skip />
     <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
     <skip />
