@@ -191,8 +191,7 @@ public class RunReviewExporter implements Handler.Callback {
         Uri fileUri = null;
         if (!mStop) {
             fileUri = Uri.parse(
-                    "content://com.google.android.apps.forscience.whistlepunk/exported_runs/"
-                            + mFileName);
+                    "content://" + mContext.getPackageName() + "/exported_runs/" + mFileName);
         }
         mListener.onExportEnd(fileUri);
     }
