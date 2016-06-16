@@ -38,93 +38,6 @@ message Version {
   }
 }
 
-// GATT Units Specification, expressed as protocol buffer enum
-// (see https://developer.bluetooth.org/gatt/units/Pages/default.aspx).
-message Unit {
-  enum Units_Type {
-    UNITLESS = 0x2700;
-    LENGTH = 0x2701;
-    VELOCITY = 0x2712;
-    PLANE_ORIENTATION = 0x2720;
-    VOLT = 0x2728;
-    RPM = 0x27A8;
-    // TODO: add more enum from the GATT Units specs.
-  }
-  required Units_Type units = 1;
-};
-
-// Definition of an extreme (min or max) analog  value.
-message AnalogExtremum {
-  required int32 extremum = 1;
-};
-
-// Definition of analog  zero value.
-message AnalogZero {
-  required int32 zero = 1;
-};
-
-// Definition of extrema (min and max) analog  value.
-message AnalogExtrema {
-  optional AnalogExtremum minimum = 1;
-  optional AnalogExtremum maximum = 2;
-}
-
-// Definition of an extreme (min or max) float  value.
-message FloatExtremum {
-  required int32 extremum = 1;
-};
-
-// Definition of float  zero value.
-message FloatZero {
-  required int32 zero = 1;
-};
-
-// Definition of extrema (min and max) float  value.
-message FloatExtrema {
-  optional FloatExtremum minimum = 1;
-  optional FloatExtremum maximum = 2;
-}
-
-// Definition of an extreme (min or max) float  value.
-message IntExtremum {
-  required int32 extremum = 1;
-};
-
-// Definition of float  zero value.
-message IntZero {
-  required int32 zero = 1;
-};
-
-// Definition of extrema (min and max) float  value.
-message IntExtrema {
-  optional IntExtremum minimum = 1;
-  optional IntExtremum maximum = 2;
-}
-
-message Range {
-  oneof extrema {
-    AnalogExtrema analog_extrema = 1;
-    // DigtalExtrema digital_extrema = 2; (placeholder)
-    FloatExtrema float_extrema = 2;
-    IntExtrema int_extrema = 3;
-    // StringExtrema string_extrema = 4; (placeholder)
-  }
-};
-
-message Zero {
-  oneof zero {
-    AnalogZero analog_zero = 1;
-    // DigtalZero digital_zero = 2; (placeholder)
-    FloatZero float_zero = 2;
-    IntZero int_zero = 3;
-    // StringZero string_zero = 4; (placeholder)
-  }
-};
-
-message AxisConfig {
-  optional Range range = 1;
-  optional Zero zero_value = 2;
-};
 
 // Analog pin number refers to the numeric value in A0, A1, A2... use
 // this to request values from an analog pin on the Device.
@@ -147,14 +60,6 @@ enum DataType {
   STRING = 5;
 };
 
-// Describes a scalar component of a vector
-message ScalarDescriptor {
-  required string label = 1;
-  required DataType type = 2;
-  optional AxisConfig axis_config = 3;
-  optional Unit unit = 4;
-};
-
 // Virtual pin refers to a non-physical pin capability on the Device,
 // such as a Gooball orientation sensor that returns vectors of
 // floats.
@@ -171,12 +76,6 @@ message Pin {
   }
 };
 
-// Description of Pin
-message PinDescriptor {
-  required string label = 1;
-  required Pin pin = 2;
-  required ScalarDescriptor scalar_descriptor = 3;
-};
 
 /// Phone -> Device requests
 
@@ -198,19 +97,12 @@ message SensorDataRequest {
   repeated Pin pin = 3;
 };
 
-
-
 /// Device -> Phone reponses
 
 // Legacy SensorConfig
 message BleSensorConfig {
   optional string address = 1;
 }
-
-// Return a description of the pins on this device.
-message SensorEnumeration {
-  repeated PinDescriptor pin_descriptor = 1;
-};
 
 // AnalogValue contains a stream of single-dimensional integer values
 // collected from an analog pin on the Device.
