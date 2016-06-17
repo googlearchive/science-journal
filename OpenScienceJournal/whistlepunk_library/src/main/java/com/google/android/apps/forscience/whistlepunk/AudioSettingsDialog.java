@@ -200,7 +200,6 @@ public class AudioSettingsDialog extends DialogFragment {
         typeList.post(new Runnable() {
             @Override
             public void run() {
-                Log.d("mode", "in touch mode? " + typeList.isInTouchMode());
                 typeList.setSelection(index);
                 typeList.setItemChecked(index, true);
                 typeList.clearFocus();

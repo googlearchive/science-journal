@@ -142,4 +142,12 @@ public class ExperimentRun {
     public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
         return mRun.getSensorLayouts();
     }
+
+    public boolean getAutoZoomEnabled() {
+        return mRun.getAutoZoomEnabled();
+    }
+
+    public void setAutoZoomEnabled(boolean enableAutoZoom) {
+        mRun.setAutoZoomEnabled(enableAutoZoom);
+    }
 }

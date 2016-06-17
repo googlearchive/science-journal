@@ -30,7 +30,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
@@ -71,6 +70,7 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphData;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.LineGraphPresenter;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.SensorDataRenderer;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 
@@ -123,6 +123,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private ActionMode mActionMode;
     private ProgressBar mExportProgress;
     private RunReviewExporter mRunReviewExporter;
+    private RunStats mCurrentSensorStats;
 
     /**
      * Use this factory method to create a new instance of
@@ -241,9 +242,15 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (mExperimentRun != null) {
             menu.findItem(R.id.action_run_review_archive).setVisible(!mExperimentRun.isArchived());
             menu.findItem(R.id.action_run_review_unarchive).setVisible(mExperimentRun.isArchived());
+            menu.findItem(R.id.action_disable_auto_zoom).setVisible(
+                    mExperimentRun.getAutoZoomEnabled());
+            menu.findItem(R.id.action_enable_auto_zoom).setVisible(
+                    !mExperimentRun.getAutoZoomEnabled());
         } else {
             menu.findItem(R.id.action_run_review_archive).setVisible(false);
             menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
+            menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
+            menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
         }
         menu.findItem(R.id.action_export).setEnabled(!mRunReviewExporter.isExporting());
 
@@ -410,10 +417,56 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             }
         } else if (id == R.id.action_run_review_edit) {
             UpdateRunActivity.launch(getActivity(), mStartLabelId);
+        } else if (id == R.id.action_enable_auto_zoom) {
+            if (mExperimentRun != null) {
+                setAutoZoomEnabled(true);
+            }
+        } else if (id == R.id.action_disable_auto_zoom) {
+            if (mExperimentRun != null) {
+                setAutoZoomEnabled(false);
+            }
         } else if (id == R.id.action_run_review_audio_settings) {
             launchAudioSettings();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setAutoZoomEnabled(boolean enableAutoZoom) {
+        mExperimentRun.setAutoZoomEnabled(enableAutoZoom);
+        getDataController().updateRun(mExperimentRun.getRun(),
+                new LoggingConsumer<Success>(TAG, "update auto zoom") {
+                    @Override
+                    public void success(Success value) {
+                        if (mCurrentSensorStats == null) {
+                            AccessibilityUtils.makeSnackbar(getView(),
+                                    getResources().getString(R.string.autozoom_failed),
+                                    Snackbar.LENGTH_SHORT);
+                        } else {
+                            adjustYAxis();
+                        }
+                    }
+        });
+    }
+
+    private void adjustYAxis() {
+        if (mExperimentRun.getAutoZoomEnabled()) {
+            double yMin = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MIN);
+            double yMax = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MAX);
+            double buffer = SensorDataRenderer.getYBuffer(yMin, yMax);
+            mLineGraphPresenter.setYAxisRange(yMin - buffer, yMax + buffer);
+        } else {
+            GoosciSensorLayout.SensorLayout layout =
+                    mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
+            mLineGraphPresenter.setYAxisRange(layout.minimumYAxisValue,
+                    layout.maximumYAxisValue);
+        }
+        mLineGraphPresenter.redraw();
+        // Redraw the thumb after the chart is updated.
+        mRunReviewOverlay.post(new Runnable() {
+            public void run() {
+                mRunReviewOverlay.refresh(false);
+            }
+        });
     }
 
     @Override
@@ -467,8 +520,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     public void onClick(View v) {
                         Label label;
                         if (item instanceof TextLabel) {
-                            String title = "";
-                            title = ((TextLabel) item).getText();
+                            String title = ((TextLabel) item).getText();
                             label = new TextLabel(title, dc.generateNewLabelId(),
                                     item.getRunId(), item.getTimeStamp());
                         } else if (item instanceof PictureLabel) {
@@ -530,8 +582,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         // Load the data for the first sensor only.
         // TODO: Consider pre-loading data for all the sensors instead of loading it when they
         // are selected.
-        final List<GoosciSensorLayout.SensorLayout> sensorLayouts = run.getSensorLayouts();
-        final GoosciSensorLayout.SensorLayout layout = sensorLayouts.get(mSelectedSensorIndex);
         if (savedInstanceState != null) {
             mExternalAxis.zoomTo(savedInstanceState.getLong(KEY_EXTERNAL_AXIS_MINIMUM),
                     savedInstanceState.getLong(KEY_EXTERNAL_AXIS_MAXIMUM));
@@ -607,11 +657,13 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
         final DataController dataController = getDataController();
 
+        mCurrentSensorStats = null;
         final StatsList statsList = (StatsList) rootView.findViewById(R.id.stats_drawer);
         dataController.getStats(mExperimentRun.getRunId(), sensorLayout.sensorId,
                 new LoggingConsumer<RunStats>(TAG, "load stats") {
                     @Override
                     public void success(RunStats runStats) {
+                        mCurrentSensorStats = runStats;
                         statsList.updateStats(
                                 new StatsAccumulator.StatsDisplay().updateStreamStats(runStats));
                     }
@@ -684,10 +736,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         mLineGraphPresenter.setLabels(mPinnedNoteAdapter.getPinnedNotes());
                         mLineGraphPresenter.setShowProgress(false);
 
+                        // TODO: Use the sensorLayout plus mExperimentRun.getAutoZoomEnabled to
+                        // decide how to zoom on load.
+
                         if (previousXMax == Long.MIN_VALUE) {
                             // This is the first load. Zoom to fit the run.
-                            mLineGraphPresenter.zoomToShowEndpoints(firstTimestamp, lastTimestamp,
-                                    true);
+                            mLineGraphPresenter.zoomToFitX(firstTimestamp, lastTimestamp);
                             // Display the the graph and overlays.
                             mExternalAxis.setReviewData(firstTimestamp,
                                     mLineGraphPresenter.getRenderedXMin(),
@@ -702,11 +756,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                             mExternalAxis.setReviewData(firstTimestamp, firstTimestamp - bufferSize,
                                     lastTimestamp + bufferSize, mRunReviewOverlay.getSeekbar());
                             mExternalAxis.zoomTo(previousXMin, previousXMax);
-                            mLineGraphPresenter.zoomToShowEndpoints(firstTimestamp, lastTimestamp,
-                                    /* don't zoom x, but do scale y */ false);
+                            mLineGraphPresenter.updateEndpoints();
                         }
+                        adjustYAxis();
 
-                        if (overlayTimestamp != mRunReviewOverlay.NO_TIMESTAMP_SELECTED) {
+                        if (overlayTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
                             mRunReviewOverlay.setActiveTimestamp(overlayTimestamp);
                             mRunReviewOverlay.setVisibility(View.VISIBLE);
                         }

@@ -10,7 +10,7 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 
-class SensorDataRenderer extends XYMultipleSeriesRenderer {
+public class SensorDataRenderer extends XYMultipleSeriesRenderer {
 
     // The minimum spread between the minimum and maximum y values shown on the graph.
     static final double MINIMUM_Y_SPREAD = 1;
@@ -159,7 +159,7 @@ class SensorDataRenderer extends XYMultipleSeriesRenderer {
     private void adjustYAxis(boolean adjustImmediately) {
         // Create a buffer on either side to make sure that data isn't at the very
         // top or bottom of the view.
-        double buffer = Math.max(MINIMUM_Y_SPREAD, Math.abs(mYMax - mYMin) * SCALE_FACTOR);
+        double buffer = getYBuffer(mYMin, mYMax);
         double idealYMax = mYMax + buffer;
         double idealYMin = mYMin - buffer;
 
@@ -189,6 +189,10 @@ class SensorDataRenderer extends XYMultipleSeriesRenderer {
                 setYAxisMax(Math.max(lastYMax, calculateMovedValue(lastYMax, idealYMax, maxMove)));
             }
         }
+    }
+
+    public static double getYBuffer(double yMin, double yMax) {
+        return Math.max(MINIMUM_Y_SPREAD, Math.abs(yMax - yMin) * SCALE_FACTOR);
     }
 
     private double calculateMaxMove(double lastYMin, double lastYMax) {

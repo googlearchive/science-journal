@@ -246,7 +246,7 @@ public class MemoryMetadataManager implements MetaDataManager {
     @Override
     public Run newRun(Experiment experiment, String runId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-        final Run run = new Run(runId, mRuns.size(), sensorLayouts);
+        final Run run = new Run(runId, mRuns.size(), sensorLayouts, true);
         mRuns.put(run.getId(), run);
         mExperimentIdsToRunIds.put(experiment.getExperimentId(), run.getId());
         return run;

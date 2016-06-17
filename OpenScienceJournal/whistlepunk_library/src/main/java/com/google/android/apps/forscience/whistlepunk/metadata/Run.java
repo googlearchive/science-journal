@@ -13,11 +13,14 @@ public class Run {
     private String mTitle = "";
     private boolean mArchived = false;
     private List<GoosciSensorLayout.SensorLayout> mSensorLayouts;
+    private boolean mAutoZoomEnabled;
 
-    public Run(String runId, int runIndex, List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+    public Run(String runId, int runIndex, List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+            boolean autoZoomEnabled) {
         mRunId = runId;
         mRunIndex = runIndex;
         mSensorLayouts = sensorLayouts;
+        mAutoZoomEnabled = autoZoomEnabled;
     }
 
     public String getId() {
@@ -54,5 +57,13 @@ public class Run {
 
     public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
         return mSensorLayouts;
+    }
+
+    public boolean getAutoZoomEnabled() {
+        return mAutoZoomEnabled;
+    }
+
+    public void setAutoZoomEnabled(boolean enableAutoZoom) {
+        mAutoZoomEnabled = enableAutoZoom;
     }
 }

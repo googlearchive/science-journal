@@ -992,8 +992,7 @@ public class ExperimentDetailsFragment extends Fragment
                                 return;
                             }
                             // Display the graph.
-                            lineGraphPresenter.zoomToShowEndpoints(firstTimestamp,
-                                    lastTimestamp, true);
+                            lineGraphPresenter.zoomToFit(firstTimestamp, lastTimestamp);
                             lineGraphPresenter.setShowProgress(false);
                         }
                     }, null, sensorLayout.sensorId);
@@ -1091,11 +1090,6 @@ public class ExperimentDetailsFragment extends Fragment
             private PictureLabel mPictureLabel;
             private long mTimestamp;
             private LineGraphPresenter mLineGraphPresenter;
-
-            /**
-             * Number of runs. Only set if {@link mViewType} == {@value VIEW_TYPE_VALIDATE_CARD}
-             */
-            int runCount;
 
             ExperimentDetailItem(ExperimentRun run, ScalarDisplayOptions scalarDisplayOptions) {
                 mRun = run;

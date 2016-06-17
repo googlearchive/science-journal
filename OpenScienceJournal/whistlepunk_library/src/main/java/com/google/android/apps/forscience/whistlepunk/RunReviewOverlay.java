@@ -266,6 +266,10 @@ public class RunReviewOverlay extends View {
     }
 
     public void refresh(boolean backUpdateProgressBar) {
+        // No need to refresh the view if it is invisible.
+        if (getVisibility() == View.INVISIBLE) {
+            return;
+        }
         // Determine the timestamp at the current seekbar progress.
         int progress = mSeekbar.getProgress();
         GraphData.ReadonlyDataPoint point = getDataPointAtProgress(progress);

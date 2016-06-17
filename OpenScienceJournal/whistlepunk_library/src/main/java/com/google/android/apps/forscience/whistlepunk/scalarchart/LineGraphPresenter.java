@@ -355,20 +355,8 @@ public class LineGraphPresenter {
         }
     }
 
-    public void zoomToShowEndpoints(long firstTimestamp, long lastTimestamp, boolean adjustXAxis) {
-        mGraphData.updateEndpoints();
-
-        if (adjustXAxis) {
-            // Buffer the endpoints by a fraction of the total X axis length so that the
-            // points are not truncated by the edges of the chart.
-            long bufferSize = getBufferSize(firstTimestamp, lastTimestamp);
-            long xMin = firstTimestamp - bufferSize;
-            long xMax = lastTimestamp + bufferSize;
-            setXAxis(xMin, xMax);
-            if (mInteractionListener != null) {
-                mInteractionListener.onZoom(xMin, xMax);
-            }
-        }
+    public void zoomToFit(long firstTimestamp, long lastTimestamp) {
+        zoomToFitX(firstTimestamp, lastTimestamp);
 
         SortedMap<Double, Double> range = mGraphData.getDataRange(mRenderer.getXAxisMin(),
                 mRenderer.getXAxisMax());
@@ -384,6 +372,24 @@ public class LineGraphPresenter {
             mRenderer.updatePinnedYAxisLimits(yMin, yMax);
         }
         mRenderer.adjustYAxisImmediately();
+    }
+
+    public void zoomToFitX(long firstTimestamp, long lastTimestamp) {
+        updateEndpoints();
+
+        // Buffer the endpoints by a fraction of the total X axis length so that the
+        // points are not truncated by the edges of the chart.
+        long bufferSize = getBufferSize(firstTimestamp, lastTimestamp);
+        long xMin = firstTimestamp - bufferSize;
+        long xMax = lastTimestamp + bufferSize;
+        setXAxis(xMin, xMax);
+        if (mInteractionListener != null) {
+            mInteractionListener.onZoom(xMin, xMax);
+        }
+    }
+
+    public void updateEndpoints() {
+        mGraphData.updateEndpoints();
     }
 
     public static long getBufferSize(long firstTimestamp, long lastTimestamp) {
@@ -488,6 +494,9 @@ public class LineGraphPresenter {
 
     public void setYAxisRange(double minimumYAxisValue, double maximumYAxisValue) {
         mRenderer.adjustYAxis(minimumYAxisValue, maximumYAxisValue);
+        if (mChartView != null) {
+            mChartView.invalidate();
+        }
     }
 
     public void resetView() {

@@ -1011,6 +1011,15 @@
     <!-- Prompt to tell the user which sensor they are selecting audio settings for [CHAR_LIMIT=40]-->
     <string name="audio_settings_sensor_prompt">Select audio settings for:</string>
 
+    <!-- Menu option to enable auto zoom (zoom in) for a run [CHAR_LIMIT=30] -->
+    <string name="enable_auto_zoom">Enable auto zoom</string>
+
+    <!-- Menu option to disable auto zoom (zoom out) for a run [CHAR_LIMIT=30] -->
+    <string name="disable_auto_zoom">Disable auto zoom</string>
+
+    <!-- Error message shown to user when auto zoom fails [CHAR_LIMIT=100] -->
+    <string name="autozoom_failed">Failed to adjust auto zoom.</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

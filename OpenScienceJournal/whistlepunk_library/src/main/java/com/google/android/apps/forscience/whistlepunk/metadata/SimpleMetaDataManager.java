@@ -386,7 +386,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             insertRunSensors(runId, sensorLayouts);
         }
 
-        return new Run(runId, runIndex, sensorLayouts);
+        return new Run(runId, runIndex, sensorLayouts, /* enable auto zoom by default */ true);
     }
 
     private void insertRun(String runId, int runIndex) {
@@ -398,6 +398,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             values.put(RunsColumns.TIMESTAMP, getCurrentTime());
             values.put(RunsColumns.ARCHIVED, false);
             values.put(RunsColumns.TITLE, "");
+            values.put(RunsColumns.AUTO_ZOOM_ENABLED, true);
             db.insert(Tables.RUNS, null, values);
         }
     }
@@ -434,12 +435,13 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void updateRun(Run run) {
-        // Only the layout, title and archived state can be edited.
+        // Only the layout, title, archived state, and autozoom selection can be edited.
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             final ContentValues values = new ContentValues();
             values.put(RunsColumns.TITLE, run.getTitle());
             values.put(RunsColumns.ARCHIVED, run.isArchived());
+            values.put(RunsColumns.AUTO_ZOOM_ENABLED, run.getAutoZoomEnabled());
             db.update(Tables.RUNS, values, RunsColumns.RUN_ID + "=?",
                     new String[]{run.getId()});
         }
@@ -452,6 +454,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         int runIndex = -1;
         boolean archived = false;
         String title = "";
+        boolean autoZoomEnabled = true;
 
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -462,12 +465,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
             Cursor cursor = null;
             try {
                 cursor = db.query(Tables.RUNS, new String[] {RunsColumns.RUN_INDEX,
-                                RunsColumns.TITLE, RunsColumns.ARCHIVED},
+                        RunsColumns.TITLE, RunsColumns.ARCHIVED,
+                        RunsColumns.AUTO_ZOOM_ENABLED},
                         selection, selectionArgs, null, null, null);
                 if (cursor != null & cursor.moveToFirst()) {
                     runIndex = cursor.getInt(0);
                     title = cursor.getString(1);
                     archived = cursor.getInt(2) != 0;
+                    autoZoomEnabled = cursor.getInt(3) != 0;
                 }
             } finally {
                 if (cursor != null) {
@@ -505,7 +510,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             }
 
         }
-        Run result = new Run(runId, runIndex, sensorLayouts);
+        Run result = new Run(runId, runIndex, sensorLayouts, autoZoomEnabled);
         result.setArchived(archived);
         result.setTitle(title);
         return result;
@@ -1216,6 +1221,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
          * Whether the run is archived.
          */
         String ARCHIVED = "run_archived";
+
+        /**
+         * Whether auto zoom is enabled (i.e. RunReview should zoom in on the Y axis by default)
+         */
+        String AUTO_ZOOM_ENABLED = "auto_zoom_enabled";
     }
 
     public interface RunSensorsColumns {
@@ -1262,7 +1272,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
      * Manages the SQLite database backing the data for the entire app.
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        private static final int DB_VERSION = 15;
+        private static final int DB_VERSION = 16;
         private static final String DB_NAME = "main.db";
 
         DatabaseHelper(Context context, String filename) {
@@ -1417,6 +1427,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     LabelColumns.VALUE + " BLOB");
                 version = 15;
             }
+
+            if (version == 15 && version < newVersion) {
+                db.execSQL("ALTER TABLE " + Tables. RUNS + " ADD COLUMN " +
+                    RunsColumns.AUTO_ZOOM_ENABLED + " BOOLEAN");
+                version = 16;
+            }
         }
 
         private void createProjectsTable(SQLiteDatabase db) {
@@ -1478,7 +1494,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     + RunsColumns.RUN_INDEX + " INTEGER,"
                     + RunsColumns.TIMESTAMP + " INTEGER NOT NULL,"
                     + RunsColumns.TITLE + " TEXT,"
-                    + RunsColumns.ARCHIVED + " BOOLEAN)");
+                    + RunsColumns.ARCHIVED + " BOOLEAN,"
+                    + RunsColumns.AUTO_ZOOM_ENABLED + " BOOLEAN NOT NULL DEFAULT 1)");
         }
 
         private void createRunSensorsTable(SQLiteDatabase db) {
