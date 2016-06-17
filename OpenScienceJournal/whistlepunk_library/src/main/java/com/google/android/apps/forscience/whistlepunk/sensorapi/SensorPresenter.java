@@ -108,5 +108,5 @@ public interface SensorPresenter extends SensorObserver {
 
     void setYAxisRange(double minimumYAxisValue, double maximumYAxisValue);
 
-    void resetYAxisRange();
+    void resetView();
 }

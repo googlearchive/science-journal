@@ -136,7 +136,7 @@ public class SensorCardPresenterUnitTest {
         }
 
         @Override
-        public void resetYAxisRange() {
+        public void resetView() {
 
         }
 

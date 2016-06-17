@@ -643,7 +643,11 @@ public class SensorCardPresenter {
             public void onTabReselected(TabLayout.Tab tab) {
                 if (mCardViewHolder != null) {
                     String newSensorId = (String) tab.getTag();
-                    trySelectingNewSensor(newSensorId, mSensorId);
+                    if (TextUtils.equals(mSensorId, newSensorId)) {
+                        mSensorPresenter.resetView();
+                    } else {
+                        trySelectingNewSensor(mSensorId, newSensorId);
+                    }
                 }
             }
         };

@@ -133,7 +133,7 @@ public class VideoSensor extends SensorChoice {
             }
 
             @Override
-            public void resetYAxisRange() {
+            public void resetView() {
 
             }
 

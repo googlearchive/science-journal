@@ -292,8 +292,8 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             }
 
             @Override
-            public void resetYAxisRange() {
-                lineGraphPresenter.resetYAxisRange();
+            public void resetView() {
+                lineGraphPresenter.resetView();
             }
         };
     }

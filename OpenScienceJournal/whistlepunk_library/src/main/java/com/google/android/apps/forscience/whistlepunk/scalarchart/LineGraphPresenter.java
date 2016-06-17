@@ -490,7 +490,8 @@ public class LineGraphPresenter {
         mRenderer.adjustYAxis(minimumYAxisValue, maximumYAxisValue);
     }
 
-    public void resetYAxisRange() {
+    public void resetView() {
+        mGraphData.clear();
         mRenderer.resetYAxis();
     }
 

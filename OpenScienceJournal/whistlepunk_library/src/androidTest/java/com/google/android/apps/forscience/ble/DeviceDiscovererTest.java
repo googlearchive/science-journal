@@ -11,7 +11,7 @@ public class DeviceDiscovererTest extends AndroidTestCase {
 
     public void setUp() {
         DeviceDiscoverer.Callback callback = new DeviceDiscoverer.Callback();
-        mDeviceDiscoverer = DeviceDiscoverer.getNewInstance(mContext, callback);
+        mDeviceDiscoverer = DeviceDiscoverer.getNewInstance(mContext);
     }
 
     public void tearDown() {
