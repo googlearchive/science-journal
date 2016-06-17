@@ -10,10 +10,17 @@ option optimize_for = LITE_RUNTIME;
 message Empty { } // TODO(dek): replace with an import of empty.proto
 
 message Version {
-  required int32 version = 1 [ default = 1 ]; // increment default
-  // every time a breaking
-  // change is made.
-};
+  // See https://docs.google.com/document/d/10SgMM-_myVyfZQZ_afLipPv_x4aq4gQG2FTrY3oktXM/edit# for
+  // version policy and implementation details.
+  // Encode new versions using
+  // https://goosci.googlesource.com/android/+/master/proto/version_codec.py
+  enum Version {
+    option allow_alias = true;
+    V_1_0_0 = 0x800;
+
+    LATEST = 0x800;
+  }
+}
 
 // GATT Units Specification, expressed as protocol buffer enum
 // (see https://developer.bluetooth.org/gatt/units/Pages/default.aspx).
