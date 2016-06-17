@@ -20,6 +20,10 @@
     <string name="acc_z" msgid="4540365462206126342">"Z ass akselerometrs"</string>
     <string name="ambient_light" msgid="3301998123545447671">"Apkārtējā gaisma"</string>
     <string name="magnetic_rotation" msgid="6643176023260466091">"Magnētiskā rotācija"</string>
+    <!-- no translation found for barometer (6963377010571232863) -->
+    <skip />
+    <!-- no translation found for ambient_temperature (7953836004790593525) -->
+    <skip />
     <string name="video_stream" msgid="1813984984736617091">"Video plūsma"</string>
     <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
     <string name="ambient_light_units" msgid="6318282254934724349">"lukss"</string>
@@ -29,6 +33,10 @@
     <string name="rpm_units" msgid="897807671511627492">"RPM"</string>
     <string name="voltage_units" msgid="6411118170860716365">"V"</string>
     <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <!-- no translation found for barometer_units (4292292035160238626) -->
+    <skip />
+    <!-- no translation found for temperature_units (630716203187220193) -->
+    <skip />
     <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="6814534510464980289">"Eksperimenta informācija"</string>
     <string name="add_sensor" msgid="96374933560924369">"Pievienot sensoru"</string>
@@ -307,7 +315,7 @@
     <skip />
     <string name="listing_title" msgid="6842666752572268412">"Science Journal"</string>
     <string name="listing_tagline" msgid="6633876313767981347">"Eksperimentējiet ar pasauli."</string>
-    <string name="listing_changelog" msgid="5651904379742962668">"Sākotnējā versija"</string>
+    <string name="listing_changelog" msgid="1093982432926956400">"Kļūdu labojumi: dzimšanas dienas ievade, BLE veiktspēja, stabilitāte."</string>
     <string name="listing__description" msgid="7679178857079821372">"\"Science Journal\" ir rīks, ar kuru var veikt īstus eksperimentus ar tālruņa sensoriem vai izveidojot savienojumu ar ārējiem sensoriem. Pārvērtiet idejas par projektiem, prognozējiet iznākumus, veiciet piezīmes un apkopojiet daudzu izmēģinājumu datus, pēc tam komentējiet un analizējiet rezultātus. Tas ir laboratorijas darbu bloknots, kas vienmēr ir līdzi. \n\n \nŠeit varat gūt praktiskas idejas, kuras realizēt lietotnē: https://makingscience.withgoogle.com/science-journal/activities \nUzziniet vairāk par programmu Making &amp; Science: https://makingscience.withgoogle.com \nAtbalsts: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
     <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
     <skip />
@@ -316,6 +324,14 @@
     <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
     <skip />
     <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_barometer_sensor_title (985631392882471101) -->
+    <skip />
+    <!-- no translation found for enable_barometer_sensor_summary (5467127889896690528) -->
+    <skip />
+    <!-- no translation found for enable_temperature_sensor_title (6790406842988534774) -->
+    <skip />
+    <!-- no translation found for enable_temperature_sensor_summary (8827051325873631768) -->
     <skip />
     <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
     <skip />

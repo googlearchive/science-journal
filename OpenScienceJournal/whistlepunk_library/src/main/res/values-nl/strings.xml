@@ -2,7 +2,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_feedback" msgid="2230997537507885910">"Feedback"</string>
-    <string name="action_settings" msgid="4140514779355685890">"Instell."</string>
+    <string name="action_settings" msgid="4140514779355685890">"Instellingen"</string>
     <string name="action_save" msgid="7115885253849785049">"Opslaan"</string>
     <string name="action_edit" msgid="2879274643416740117">"Bewerken"</string>
     <string name="action_archive_project" msgid="3984396879969444432">"Project archiveren"</string>
@@ -20,6 +20,10 @@
     <string name="acc_z" msgid="4540365462206126342">"Accelerometer Z"</string>
     <string name="ambient_light" msgid="3301998123545447671">"Omgevingslicht"</string>
     <string name="magnetic_rotation" msgid="6643176023260466091">"Magnetische rotatie"</string>
+    <!-- no translation found for barometer (6963377010571232863) -->
+    <skip />
+    <!-- no translation found for ambient_temperature (7953836004790593525) -->
+    <skip />
     <string name="video_stream" msgid="1813984984736617091">"Videostream"</string>
     <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
     <string name="ambient_light_units" msgid="6318282254934724349">"lux"</string>
@@ -29,6 +33,10 @@
     <string name="rpm_units" msgid="897807671511627492">"RPM"</string>
     <string name="voltage_units" msgid="6411118170860716365">"V"</string>
     <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <!-- no translation found for barometer_units (4292292035160238626) -->
+    <skip />
+    <!-- no translation found for temperature_units (630716203187220193) -->
+    <skip />
     <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="6814534510464980289">"Details experiment"</string>
     <string name="add_sensor" msgid="96374933560924369">"Sensor toevoegen"</string>
@@ -74,7 +82,7 @@
     <string name="navigation_item_observe" msgid="6544385569776074166">"Waarnemen"</string>
     <string name="navigation_item_projects" msgid="204705505259389287">"Projecten"</string>
     <string name="navigation_item_web_link" msgid="1966109305973672752">"Making &amp; Science-website"</string>
-    <string name="navigation_item_settings" msgid="1612988756868966834">"Instell."</string>
+    <string name="navigation_item_settings" msgid="1612988756868966834">"Instellingen"</string>
     <string name="navigation_item_testing_options" msgid="8712068439028163725">"Testopties"</string>
     <string name="title_activity_main" msgid="8803846504222999093">"Science-journal - <xliff:g id="SECTION">%s</xliff:g>"</string>
     <string name="title_activity_add_sensor" msgid="3432276215295606638">"Externe apparaten"</string>
@@ -304,7 +312,7 @@
     <skip />
     <string name="listing_title" msgid="6842666752572268412">"Science-journal"</string>
     <string name="listing_tagline" msgid="6633876313767981347">"Experimenteer met uw wereld."</string>
-    <string name="listing_changelog" msgid="5651904379742962668">"Oorspronkelijke release"</string>
+    <string name="listing_changelog" msgid="1093982432926956400">"Bugfixes: invoer van verjaardagen, BLE-prestaties, stabiliteit."</string>
     <string name="listing__description" msgid="7679178857079821372">"Science-journal is een tool waarmee u wetenschappelijke experimenten kunt uitvoeren met uw smartphone. Gebruik de sensoren in de telefoon of maak verbinding met externe sensoren om te experimenteren met de wereld om u heen. Orden uw ideeën in projecten, doe voorspellingen, maak notities en verzamel gegevens voor meerdere proeven. Annoteer en bestudeer daarna uw resultaten. Dit notitieblok heeft u altijd bij zich. \n\n \nNieuwe ideeën voor activiteiten vindt u hier: https://makingscience.withgoogle.com/science-journal/activities \nMeer informatie over Making &amp; Science: https://makingscience.withgoogle.com \nGa voor ondersteuning naar: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
     <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
     <skip />
@@ -313,6 +321,14 @@
     <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
     <skip />
     <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_barometer_sensor_title (985631392882471101) -->
+    <skip />
+    <!-- no translation found for enable_barometer_sensor_summary (5467127889896690528) -->
+    <skip />
+    <!-- no translation found for enable_temperature_sensor_title (6790406842988534774) -->
+    <skip />
+    <!-- no translation found for enable_temperature_sensor_summary (8827051325873631768) -->
     <skip />
     <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
     <skip />

@@ -20,6 +20,10 @@
     <string name="acc_z" msgid="4540365462206126342">"Accelerometer, Z-akse"</string>
     <string name="ambient_light" msgid="3301998123545447671">"Omgivende lys"</string>
     <string name="magnetic_rotation" msgid="6643176023260466091">"Magnetfeltets rotation"</string>
+    <!-- no translation found for barometer (6963377010571232863) -->
+    <skip />
+    <!-- no translation found for ambient_temperature (7953836004790593525) -->
+    <skip />
     <string name="video_stream" msgid="1813984984736617091">"Videostream"</string>
     <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
     <string name="ambient_light_units" msgid="6318282254934724349">"lux"</string>
@@ -29,6 +33,10 @@
     <string name="rpm_units" msgid="897807671511627492">"Omdrejningssensor"</string>
     <string name="voltage_units" msgid="6411118170860716365">"V"</string>
     <string name="raw_units" msgid="2437662388895013402">"%"</string>
+    <!-- no translation found for barometer_units (4292292035160238626) -->
+    <skip />
+    <!-- no translation found for temperature_units (630716203187220193) -->
+    <skip />
     <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="6814534510464980289">"Oplysninger om eksperiment"</string>
     <string name="add_sensor" msgid="96374933560924369">"Tilføj sensor"</string>
@@ -303,9 +311,9 @@
     <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
     <skip />
     <string name="listing_title" msgid="6842666752572268412">"Science Journal"</string>
-    <string name="listing_tagline" msgid="6633876313767981347">"Udfør forsøg i din verden."</string>
-    <string name="listing_changelog" msgid="5651904379742962668">"Første version"</string>
-    <string name="listing__description" msgid="7679178857079821372">"Science Journal er et værktøj til din smartphone, som du kan bruge til videnskabelige formål. Brug sensorerne i din telefon, eller forbind eksterne sensorer for at udføre eksperimenter om verden omkring dig. Du kan organisere dine ideer i projekter, foretage prognoser, tage noter og indsamle data i flere forsøg. Herefter kan du føje annotationer til dine resultater og gennemgå dem. Det er den notesbog til laboratoriet, som du altid har med dig. \n\n \nSe eksempler på, hvilke aktiviteter du kan bruge appen til, på: https://makingscience.withgoogle.com/science-journal/activities \nLæs mere om Making Science på: https://makingscience.withgoogle.com \nDu kan få support på: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
+    <string name="listing_tagline" msgid="6633876313767981347">"Udfør forsøg på verden omkring dig."</string>
+    <string name="listing_changelog" msgid="1093982432926956400">"Fejlrettelser: Indtastning af fødselsdag, BLE-forbindelsens ydeevne, stabilitet."</string>
+    <string name="listing__description" msgid="7679178857079821372">"Science Journal er et værktøj til din smartphone, som du kan bruge til videnskabelige formål. Brug sensorerne i din telefon, eller forbind eksterne sensorer for at udføre eksperimenter på verden omkring dig. Du kan organisere dine ideer i projekter, foretage prognoser, tage noter og indsamle data i flere forsøg. Herefter kan du føje annotationer til dine resultater og gennemgå dem. Det er den notesbog til laboratoriet, som du altid har med dig. \n\n \nSe eksempler på, hvilke aktiviteter du kan bruge appen til, på: https://makingscience.withgoogle.com/science-journal/activities \nLæs mere om Making Science på: https://makingscience.withgoogle.com \nDu kan få support på: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
     <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
     <skip />
     <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
@@ -313,6 +321,14 @@
     <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
     <skip />
     <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <skip />
+    <!-- no translation found for enable_barometer_sensor_title (985631392882471101) -->
+    <skip />
+    <!-- no translation found for enable_barometer_sensor_summary (5467127889896690528) -->
+    <skip />
+    <!-- no translation found for enable_temperature_sensor_title (6790406842988534774) -->
+    <skip />
+    <!-- no translation found for enable_temperature_sensor_summary (8827051325873631768) -->
     <skip />
     <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
     <skip />
