@@ -14,6 +14,7 @@ import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.protobuf.nano.CodedOutputByteBufferNano;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -417,9 +418,23 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
+    private void updateRunSensors(String runId,
+            List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            final ContentValues values = new ContentValues();
+            for (int i = 0; i < sensorLayouts.size(); i++) {
+                GoosciSensorLayout.SensorLayout layout = sensorLayouts.get(i);
+                values.put(RunSensorsColumns.LAYOUT, ProtoUtils.makeBlob(layout));
+                db.update(Tables.RUN_SENSORS, values, RunSensorsColumns.RUN_ID + "=? AND " + RunSensorsColumns.SENSOR_ID + "=?",
+                        new String[]{runId, layout.sensorId});
+            }
+        }
+    }
+
     @Override
     public void updateRun(Run run) {
-        // Only the title and archived state can be edited.
+        // Only the layout, title and archived state can be edited.
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             final ContentValues values = new ContentValues();
@@ -428,6 +443,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             db.update(Tables.RUNS, values, RunsColumns.RUN_ID + "=?",
                     new String[]{run.getId()});
         }
+        updateRunSensors(run.getId(), run.getSensorLayouts());
     }
 
     @Override

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="@dimen/edit_note_dialog_margin"
+    android:paddingEnd="@dimen/edit_note_dialog_margin"
+    android:paddingTop="@dimen/edit_note_dialog_margin"
+    >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/audio_settings_sensor_selector_title"
+        android:text="@string/audio_settings_sensor_prompt"
+        android:textColor="@color/text_color_light_grey"
+        android:textSize="16sp"
+        />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/accessibility_touch_target_min_size"
+        android:id="@+id/audio_settings_sensor_selector"
+        />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/audio_settings_type_selector_group"
+        android:clickable="true"
+        android:dividerHeight="0dp"
+        android:divider="@android:color/transparent"
+        />
+
+</LinearLayout>

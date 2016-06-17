@@ -36,6 +36,7 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
@@ -71,6 +72,7 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsCo
 import com.google.android.apps.forscience.whistlepunk.scalarchart.LineGraphPresenter;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,7 +81,7 @@ import java.util.List;
 
 public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
         EditNoteDialog.EditNoteDialogListener, EditTimeDialogListener,
-        DeleteRunDialog.DeleteRunDialogListener {
+        DeleteRunDialog.DeleteRunDialogListener, AudioSettingsDialog.AudioSettingsDialogListener {
     public static final String ARG_START_LABEL_ID = "start_label_id";
     public static final String ARG_SENSOR_INDEX = "sensor_tag_index";
     public static final String ARG_CREATE_TASK = "create_task";
@@ -127,13 +129,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
      * this fragment using the provided parameters.
      *
      * @param startLabelId the startLabelId that joins the labels identifying this run
-     * @param sensorId the initial sensor to select in run review
+     * @param sensorIndex the initial sensor to select in run review
      * @param createTask if {@code true}, will create tasks when navigating up
      * @return A new instance of fragment RunReviewFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static RunReviewFragment newInstance(String startLabelId, int sensorIndex,
-                                                boolean createTask) {
+            boolean createTask) {
         RunReviewFragment fragment = new RunReviewFragment();
         Bundle args = new Bundle();
         args.putString(ARG_START_LABEL_ID, startLabelId);
@@ -409,6 +410,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             }
         } else if (id == R.id.action_run_review_edit) {
             UpdateRunActivity.launch(getActivity(), mStartLabelId);
+        } else if (id == R.id.action_run_review_audio_settings) {
+            launchAudioSettings();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -1013,6 +1016,59 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         EditNoteDialog dialog = EditNoteDialog.newInstance(label, newValue, labelTimeText,
                 selectedTimestamp);
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
+    }
+
+    private void launchAudioSettings() {
+        // TODO: Keep playing back audio in the background instead of pausing it.
+        stopPlayback();
+
+        List<GoosciSensorLayout.SensorLayout> sensorLayouts = mExperimentRun.getSensorLayouts();
+        int size = sensorLayouts.size();
+        String[] sensorIds = new String[size];
+        String[] sonificationTypes = new String[size];
+        for (int i = 0; i < size; i++) {
+            GoosciSensorLayout.SensorLayout layout = sensorLayouts.get(i);
+            sensorIds[i] = layout.sensorId;
+            sonificationTypes[i] = getSonificationType(layout);
+        }
+        AudioSettingsDialog dialog = AudioSettingsDialog.newInstance(sonificationTypes, sensorIds,
+                mSelectedSensorIndex);
+        dialog.show(getChildFragmentManager(), AudioSettingsDialog.TAG);
+    }
+
+    @Override
+    public void onAudioSettingsPreview(String[] previewSonificationTypes, String[] sensorIds) {
+        // TODO: Add preview behavior instead of pausing playback when the dialog is opened.
+        // Confirm with UX before doing this, though.
+    }
+
+    @Override
+    public void onAudioSettingsApplied(String[] newSonificationTypes, String[] sensorIds) {
+        // Update the currently selected sonification type.
+        mAudioGenerator.setSonificationType(newSonificationTypes[mSelectedSensorIndex]);
+
+        // Save the new sonification types into their respective sensorLayouts.
+        // Note that this uses the knowledge that the sensor ordering has not changed since
+        // launchAudioSettings.
+        List<GoosciSensorLayout.SensorLayout> layouts = mExperimentRun.getSensorLayouts();
+        int size = layouts.size();
+        for (int i = 0; i < size; i++) {
+            // Update the sonification setting in the extras for this layout.
+            LocalSensorOptionsStorage storage = new LocalSensorOptionsStorage();
+            storage.putAllExtras(layouts.get(i).extras);
+            storage.load(LoggingConsumer.expectSuccess(TAG, "loading sensor layout")).put(
+                    ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE, newSonificationTypes[i]);
+            layouts.get(i).extras = storage.exportAsLayoutExtras();
+        }
+
+        // Save the updated layouts to the DB.
+        getDataController().updateRun(mExperimentRun.getRun(),
+                LoggingConsumer.<Success>expectSuccess(TAG, "updating audio settings"));
+    }
+
+    @Override
+    public void onAudioSettingsCanceled(String[] originalSonificationTypes, String[] sensorIds) {
+        // TODO: Once preview is implemented, this will need to undo the work done in preview.
     }
 
     private DataController getDataController() {

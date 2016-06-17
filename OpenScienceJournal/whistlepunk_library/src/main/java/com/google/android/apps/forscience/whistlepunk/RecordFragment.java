@@ -1460,30 +1460,34 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     @Override
-    public void onAudioSettingsPreview(String previewSonificationType, String cardSensorId) {
+    public void onAudioSettingsPreview(String[] previewSonificationTypes, String[] sensorIds) {
+        // During observe, audio settings are only set for one card at a time, so sensorIds is
+        // length 1.
         for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (presenter.getSelectedSensorId().equals(cardSensorId)) {
-                presenter.onAudioSettingsPreview(previewSonificationType);
+            if (presenter.getSelectedSensorId().equals(sensorIds[0])) {
+                presenter.onAudioSettingsPreview(previewSonificationTypes[0]);
                 return;
             }
         }
     }
 
     @Override
-    public void onAudioSettingsApplied(String newSonificationType, String cardSensorId) {
+    public void onAudioSettingsApplied(String[] newSonificationTypes, String[] sensorIds) {
+        // During record, audio settings are only set for one card at a time, so sensorIds is length 1.
         for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (presenter.getSelectedSensorId().equals(cardSensorId)) {
-                presenter.onAudioSettingsApplied(newSonificationType);
+            if (presenter.getSelectedSensorId().equals(sensorIds[0])) {
+                presenter.onAudioSettingsApplied(newSonificationTypes[0]);
                 return;
             }
         }
     }
 
     @Override
-    public void onAudioSettingsCanceled(String originalSonificationType, String cardSensorId) {
+    public void onAudioSettingsCanceled(String[] originalSonificationTypes, String[] sensorIds) {
+        // During record, audio settings are only set for one card at a time, so sensorIds is length 1.
         for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (presenter.getSelectedSensorId().equals(cardSensorId)) {
-                presenter.onAudioSettingsCanceled(originalSonificationType);
+            if (presenter.getSelectedSensorId().equals(sensorIds[0])) {
+                presenter.onAudioSettingsCanceled(originalSonificationTypes[0]);
                 return;
             }
         }

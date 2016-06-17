@@ -565,6 +565,9 @@ public class SensorCardPresenter {
                 context.getResources().getString(mLayout.audioEnabled ?
                         R.string.graph_options_audio_feedback_disable :
                         R.string.graph_options_audio_feedback_enable));
+
+        menu.findItem(R.id.btn_sensor_card_audio_settings).setVisible(!isRecording());
+
         mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
                 int itemId = item.getItemId();
@@ -592,7 +595,8 @@ public class SensorCardPresenter {
                             ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
                             ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
                     AudioSettingsDialog dialog =
-                            AudioSettingsDialog.newInstance(currentSonificationType, mSensorId);
+                            AudioSettingsDialog.newInstance(new String[] {currentSonificationType},
+                                    new String[] {mSensorId}, 0);
                     dialog.show(mParentFragment.getChildFragmentManager(), AudioSettingsDialog.TAG);
                     return true;
                 }
@@ -625,10 +629,8 @@ public class SensorCardPresenter {
 
     private void updateSonificationType(String sonificationType) {
         mSensorPresenter.updateAudioSettings(mLayout.audioEnabled, sonificationType);
-        final WriteableSensorOptions writableOptions =
-                getCardOptions(mCurrentSource, mParentFragment.getActivity()).load(
-                        LoggingConsumer.expectSuccess(TAG, "loading card options"));
-        writableOptions.put(
+        getCardOptions(mCurrentSource, mParentFragment.getActivity()).load(
+                        LoggingConsumer.expectSuccess(TAG, "loading card options")).put(
                 ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
                 sonificationType);
     }
