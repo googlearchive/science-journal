@@ -7,5 +7,6 @@
     android:textSize="@dimen/title_spinner_text_size"
     android:drawablePadding="@dimen/title_spinner_arrow_padding"
     android:drawableEnd="@drawable/ic_arrow_drop_down_white_18dp"
+    android:paddingEnd="24dp"
     android:singleLine="true"
     />
