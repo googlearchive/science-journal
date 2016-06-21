@@ -689,7 +689,7 @@
     <string name="sensor_desc_second_paragraph_acc">You probably noticed a persistent acceleration in the Z axis, even with the phone sitting still on a table. This is the acceleration we experience here at the Earth\'s surface due to the pull of gravity, approximately 9.8 m/s\u00B2.</string>
 
     <!-- Long description of a decibel sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
-    <string name="sensor_desc_first_paragraph_decibel">Sounds are made by vibration. Your voice, for example, comes from vibrations in your throat\'s vocal chords. These vibrations create alternating zones of high and low air pressure that travel outward—much like the expanding circular ripple made by a pebble thrown into a pond.</string>
+    <string name="sensor_desc_first_paragraph_decibel">Sounds are made by vibration. Your voice, for example, comes from vibrations in your throat\'s vocal cords. These vibrations create alternating zones of high and low air pressure that travel outward—much like the expanding circular ripple made by a pebble thrown into a pond.</string>
 
     <!-- Long description of a decibel sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_decibel">All sounds can be described in terms of their frequency and intensity.
