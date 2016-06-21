@@ -10,7 +10,7 @@
         />
 
     <item
-        android:title="@string/card_options_audio_settings"
+        android:title="@string/menu_item_audio_settings"
         android:id="@+id/btn_sensor_card_audio_settings"
         />
 

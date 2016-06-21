@@ -32,6 +32,10 @@
           android:icon="@drawable/ic_archive_white_24dp"
           app:showAsAction="never"
     />
+    <item android:id="@+id/action_run_review_audio_settings"
+        android:title="@string/menu_item_audio_settings"
+        app:showAsAction="never"
+        />
     <item android:id="@+id/action_graph_options"
         android:title="@string/graph_options"
         />

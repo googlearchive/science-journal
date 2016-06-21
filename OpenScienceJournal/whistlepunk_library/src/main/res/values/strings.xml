@@ -1002,11 +1002,14 @@
     <!-- Summary of developer option to display a video sensor [CHAR_LIMIT=none] -->
     <string name="enable_video_sensor_summary">Enable video sensor</string>
 
-    <!-- Menu option in a sensor card to change the audio settings [CHAR_LIMIT=25] -->
-    <string name="card_options_audio_settings">Audio settings</string>
+    <!-- Menu option to change the audio settings [CHAR_LIMIT=25] -->
+    <string name="menu_item_audio_settings">Audio settings</string>
 
     <!-- Additional information about the dev option to add additional sonification types [CHAR_LIMIT=NONE] -->
     <string name="dev_sonification_types_summary">Whether to enable additional sonification options</string>
+
+    <!-- Prompt to tell the user which sensor they are selecting audio settings for [CHAR_LIMIT=40]-->
+    <string name="audio_settings_sensor_prompt">Select audio settings for:</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

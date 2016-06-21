@@ -52,7 +52,7 @@ public class LocalSensorOptionsStorage implements NewOptionsStorage {
     }
 
     @NonNull
-    GoosciSensorLayout.SensorLayout.ExtrasEntry[] exportAsLayoutExtras() {
+    public GoosciSensorLayout.SensorLayout.ExtrasEntry[] exportAsLayoutExtras() {
         ReadableSensorOptions extras = load(null).getReadOnly();
         Collection<String> keys = extras.getWrittenKeys();
         GoosciSensorLayout.SensorLayout.ExtrasEntry[] entries = new GoosciSensorLayout
