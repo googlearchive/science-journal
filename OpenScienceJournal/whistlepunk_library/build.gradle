@@ -30,7 +30,7 @@ android {
     sourceSets {
         main {
             java {
-                srcDir '../third_party/jsyn'
+                srcDir '../../third_party/jsyn'
                 srcDir 'src/wireapi/java'
             }
             proto {
