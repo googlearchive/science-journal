@@ -69,13 +69,13 @@ public class AddNoteDialog extends DialogFragment {
          * controller during the label add.
          * @return A MaybeConsumer of labels.
          */
-        public MaybeConsumer<Label> onLabelAdd();
+        MaybeConsumer<Label> onLabelAdd();
 
         /**
          * Called when the timestamp section is clicked. Note that this is only used if
          * showTimestampSection is true when creating a newInstance of AddNoteDialog.
          */
-        public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
+        void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
                 int labelType, long selectedTimestamp);
     }
 
@@ -150,8 +150,14 @@ public class AddNoteDialog extends DialogFragment {
                     value = GoosciLabelValue.LabelValue.parseFrom(
                             getArguments().getByteArray(KEY_SAVED_VALUE));
                     mPictureLabelPath = PictureLabel.getFilePath(value);
-                    text = TextLabel.getText(value);
-                    if (TextUtils.isEmpty(text)) {
+                    if (TextUtils.isEmpty(mPictureLabelPath)) {
+                        // If there is no picture path, then this was saved as a text label by
+                        // default (see addLabel). See if any text is available to populate the
+                        // text field.
+                        text = TextLabel.getText(value);
+                    } else {
+                        // If there is a picture path, this was saved as a picture label, so get
+                        // the caption if it is available to populate the text field.
                         text = PictureLabel.getCaption(value);
                     }
                 } catch (InvalidProtocolBufferNanoException e) {
@@ -271,6 +277,8 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     private void addLabel() {
+        // Save this as a picture label if it has a picture, otherwise just save it as a text
+        // label.
         if (hasPicture()) {
             addPictureLabel();
         } else {
