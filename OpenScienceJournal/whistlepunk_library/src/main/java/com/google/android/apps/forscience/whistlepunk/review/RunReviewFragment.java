@@ -460,6 +460,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         } else {
                             adjustYAxis();
                         }
+                        getActivity().invalidateOptionsMenu();
                     }
         });
     }
