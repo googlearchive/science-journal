@@ -37,8 +37,8 @@ import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.PreferenceProgressCategory;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
-import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.common.base.Joiner;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.HashMap;
@@ -114,7 +114,7 @@ public class ManageDevicesFragment extends PreferenceFragment {
         getPreferenceScreen().addPreference(mAvailableDevices);
         setHasOptionsMenu(true);
 
-        mDiscoverers.put(BleSensorSpec.TYPE, new NativeBleDiscoverer(this, getActivity()));
+        mDiscoverers = WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
     }
 
     @Override
@@ -131,10 +131,7 @@ public class ManageDevicesFragment extends PreferenceFragment {
 
     @Override
     public void onDestroy() {
-        for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
-            discoverer.onDestroy();
-        }
-        mDiscoverers.clear();
+        stopScanning();
         mMainMenu = null;
         super.onDestroy();
 
@@ -210,24 +207,12 @@ public class ManageDevicesFragment extends PreferenceFragment {
                                 mAvailableDevices.removePreference(availablePref);
                             }
                         }
-                        if (canScan()) {
-                            scanForDevices();
-                        }
+                        scanForDevices();
                     }
                 });
     }
 
-    private boolean canScan() {
-        for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
-            if (discoverer.canScan()) {
-                // TODO: is the behavior we actually want?
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void startScanningInDiscoverers() {
+    public boolean startScanningInDiscoverers() {
         ExternalSensorDiscoverer.SensorPrefCallbacks
                 scanCallbacks = new ExternalSensorDiscoverer.SensorPrefCallbacks() {
             @Override
@@ -242,14 +227,21 @@ public class ManageDevicesFragment extends PreferenceFragment {
             }
         };
 
+        boolean started = false;
         for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
-            discoverer.startScanning(scanCallbacks);
+            if (discoverer.startScanning(scanCallbacks, getActivity())) {
+                started = true;
+            }
         }
+
+        return started;
     }
 
     @NonNull
     public static Preference makePreference(String name, String address, String type,
             boolean paired, Context context) {
+        oopsLog("ManageDevicesFragment#makePreference", "name=" + name, "address=" + address,
+                "type=" + type, "paired=" + paired, "context=" + context);
         Preference device = new Preference(context);
         device.setTitle(name);
         device.setKey(address);
@@ -262,9 +254,12 @@ public class ManageDevicesFragment extends PreferenceFragment {
         if (!mScanning) {
             mScanning = true;
             mHandler.removeMessages(MSG_STOP_SCANNING);
-            startScanningInDiscoverers();
-            mHandler.sendEmptyMessageDelayed(MSG_STOP_SCANNING, SCAN_TIME_MS);
-            setScanningUi(true);
+            if (startScanningInDiscoverers()) {
+                mHandler.sendEmptyMessageDelayed(MSG_STOP_SCANNING, SCAN_TIME_MS);
+                setScanningUi(true);
+            } else {
+                mScanning = false;
+            }
         }
     }
 
@@ -313,6 +308,8 @@ public class ManageDevicesFragment extends PreferenceFragment {
 
         String sensorType = preference.getExtras().getString(EXTRA_KEY_TYPE);
         ExternalSensorDiscoverer discoverer = mDiscoverers.get(sensorType);
+        oopsLog("ManageDevicesFragment#addExternalSensorIfNecessary", "preference=" + preference,
+                "sensorType=" + sensorType, "discoverer=" + discoverer);
         final ExternalSensorSpec sensor = discoverer.extractSensorSpec(preference);
         mDataController.addOrGetExternalSensor(sensor,
                 new LoggingConsumer<String>(TAG, "ensure sensor") {
@@ -330,6 +327,12 @@ public class ManageDevicesFragment extends PreferenceFragment {
                                 });
                     }
                 });
+    }
+
+    private static void oopsLog(String methodName, String... params) {
+        // OOPS: delete!
+        String paramString = Joiner.on(", " + "").join(params);
+        Log.e("OOPS", methodName + "(" + paramString + ")");
     }
 
     private void reloadAppearancesAndShowOptions(final ExternalSensorSpec sensor,

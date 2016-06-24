@@ -128,10 +128,6 @@ public abstract class DeviceDiscoverer {
 
     public abstract void onStopScanning();
 
-    public void destroy() {
-        mCallback = null;
-    }
-
     public List<DeviceRecord> getDevices() {
         return new ArrayList<>(mDevices.values());
     }

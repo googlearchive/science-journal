@@ -91,10 +91,4 @@ import java.util.UUID;
             }
         }
     }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-        mCallback = null;
-    }
 }
