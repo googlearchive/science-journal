@@ -76,6 +76,7 @@
         app:menu="@menu/drawer_navigation_items"
         app:headerLayout="@layout/drawer_header"
         android:theme="@style/NavigationView"
+        android:fitsSystemWindows="true"
         />
 
 
