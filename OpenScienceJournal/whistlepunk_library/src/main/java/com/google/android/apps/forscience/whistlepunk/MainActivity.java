@@ -85,6 +85,8 @@ public class MainActivity extends AppCompatActivity
 
         mSpinner = (Spinner) findViewById(R.id.spinner_nav);
         mDrawerLayout = (MultiTouchDrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(
+                R.color.color_primary_dark));
         mNavigationView = (NavigationView) findViewById(R.id.navigation);
         mNavigationView.setNavigationItemSelectedListener(this);
 
