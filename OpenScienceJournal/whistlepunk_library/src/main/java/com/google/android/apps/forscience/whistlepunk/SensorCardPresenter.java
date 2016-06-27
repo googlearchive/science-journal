@@ -1028,6 +1028,7 @@ public class SensorCardPresenter {
         if (mSensorPresenter != null) {
             mSensorPresenter.onPause();
         }
+        mRecorderController.stopObserving(mSensorId, mObserverId);
     }
 
     public void onResume(long resetTime) {
@@ -1045,7 +1046,7 @@ public class SensorCardPresenter {
         mSensorPresenter = null;
         mSensorAnimationBehavior = null;
         mRecorderController.stopObserving(mSensorId, mObserverId);
-        this.clearSensorStreamData();
+        clearSensorStreamData();
     }
 
     private void clearSensorStreamData() {

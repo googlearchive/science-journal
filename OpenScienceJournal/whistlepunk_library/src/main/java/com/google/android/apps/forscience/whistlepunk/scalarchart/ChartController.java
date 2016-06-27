@@ -196,6 +196,7 @@ public class ChartController {
     public void onDestroy() {
         if (mChartView != null) {
             mChartView.clearInteractionListeners();
+            mInteractionListener = null;
             mChartView = null;
         }
         mChartData.clear();
@@ -439,13 +440,13 @@ public class ChartController {
 
     public void onGlobalXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,
             DataController dataController) {
-        long minLoadedX = Long.MAX_VALUE;
-        long maxLoadedX = Long.MIN_VALUE;
-        if (!mChartData.isEmpty()) {
-            minLoadedX = mChartData.getXMin();
-            maxLoadedX = mChartData.getXMax();
-        }
         if (isRecording()) {
+            long minLoadedX = Long.MAX_VALUE;
+            long maxLoadedX = Long.MIN_VALUE;
+            if (!mChartData.isEmpty()) {
+                minLoadedX = mChartData.getXMin();
+                maxLoadedX = mChartData.getXMax();
+            }
             if (mChartData.isEmpty()) {
                 // Don't load anything before the recording start time if we got here
                 // from resume.

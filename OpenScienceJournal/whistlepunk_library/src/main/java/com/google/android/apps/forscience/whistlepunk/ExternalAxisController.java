@@ -210,15 +210,23 @@ public class ExternalAxisController {
             @Override
             public void onStartInteracting() {
                 mUserIsInteracting = true;
+                // When the user is interacting, unpin to now.
+                mIsPinnedToNow = false;
             }
 
             @Override
             public void onStopInteracting() {
                 mUserIsInteracting = false;
+                // When the user is done interacting, see if they've left the graph in a pinned
+                // state, i.e. within 1% of now or with the X axis above now.
+                long now = mCurrentTimeClock.getNow();
+                mIsPinnedToNow = mXMax >= now - (0.01 * DEFAULT_GRAPH_RANGE_IN_MILLIS);
             }
 
             @Override
             public void onPan(double xMin, double xMax) {
+                // When the user is interacting, unpin to now.
+                mIsPinnedToNow = false;
                 if (!mIsLive) {
                     if (xMin < mReviewXMin || xMax > mReviewXMax) {
                         // Don't apply the change.
@@ -344,14 +352,10 @@ public class ExternalAxisController {
         if (mUserIsInteracting && mResetAxisOnFirstDataPointAfter == NO_RESET) {
             return;
         }
-        long lastMaxAxis = mXMax;
-
         nowTimestamp += LEADING_EDGE_BUFFER_TIME;
 
         // Only auto-scroll if we're already pinned to now (within 1%), or the user has indicated
         // that a reset is necessary.
-        mIsPinnedToNow = lastMaxAxis >= lastAddedTimestamp -
-                (0.01 * DEFAULT_GRAPH_RANGE_IN_MILLIS);
         if (mResetAxisOnFirstDataPointAfter != NO_RESET && lastAddedTimestamp >
                 mResetAxisOnFirstDataPointAfter) {
             mIsPinnedToNow = true;
