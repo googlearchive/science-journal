@@ -28,7 +28,7 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphData;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
 import java.util.ArrayList;
@@ -198,6 +198,7 @@ public class ExternalAxisController {
                     mXMin = timestamp - DEFAULT_GRAPH_RANGE_IN_MILLIS;
                     isInitialized = true;
                 }
+                // Do a little less scrolling for performance
                 if (timestamp - mLastScrolledTimestamp > UPDATE_TIME_MS) {
                     mLastScrolledTimestamp = timestamp;
                     scrollToNowIfPinned(mCurrentTimeClock.getNow(), timestamp);
@@ -289,17 +290,6 @@ public class ExternalAxisController {
     // Because this redraws the seekbar bounds, it needs to get called every time the
     // view is reloaded after backgrounding / rotation.
     private void setupSeekbar(AppCompatSeekBar seekbar) {
-        FrameLayout parent = (FrameLayout) seekbar.getParent();
-        RelativeLayout.LayoutParams params =
-                (RelativeLayout.LayoutParams) parent.getLayoutParams();
-        // Adjust the left and right margin based on the width of the thumb.
-        int thumbOffset = parent.getResources().getDimensionPixelSize(
-                R.dimen.run_review_half_thumb_inactive_size);
-        params.setMargins(params.leftMargin - thumbOffset + parent.getPaddingLeft(),
-                params.topMargin, params.rightMargin - thumbOffset + parent.getPaddingRight(),
-                params.bottomMargin);
-        parent.setLayoutParams(params);
-
         // Seekbar thumb is always blue, no matter the color of the grpah.
         int color = seekbar.getResources().getColor(R.color.graph_line_color_blue);
         seekbar.getThumb().setColorFilter(color, PorterDuff.Mode.SRC_IN);
@@ -389,10 +379,10 @@ public class ExternalAxisController {
 
     public void onLabelsChanged(List<Label> labels) {
         mLabels = labels;
-        List<Long> timestamps = new ArrayList();
+        List<Long> timestamps = new ArrayList<>();
         for (Label label : mLabels) {
-            if (GraphData.isDisplayable(label, mRecordingStart,
-                    mRecordingStart != RecordingMetadata.NOT_RECORDING)) {
+            if (ChartOptions.isDisplayable(label, mRecordingStart,
+                    ChartOptions.ChartPlacementType.TYPE_OBSERVE)) {
                 timestamps.add(label.getTimeStamp());
             }
         }

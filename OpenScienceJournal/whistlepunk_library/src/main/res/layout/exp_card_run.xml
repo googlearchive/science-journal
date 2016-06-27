@@ -82,16 +82,27 @@
             android:id="@+id/stats_view"
             />
 
-        <FrameLayout
+        <com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:id="@+id/chart_content_area"
+            android:id="@+id/chart_view"
             android:paddingBottom="@dimen/run_review_section_margin"
             android:layout_marginStart="@dimen/run_review_margin_sides"
             android:layout_marginEnd="@dimen/run_review_margin_sides"
+            android:layout_marginBottom="@dimen/run_review_margin_sides"
             android:layout_below="@id/stats_view"
-            >
-        </FrameLayout>
+            />
+
+        <ProgressBar
+            android:id="@+id/chart_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/stats_view"
+            android:visibility="gone"
+            android:contentDescription="@string/graph_loading"
+            />
 
         <include layout="@layout/archived_badge"
             android:layout_width="wrap_content"

@@ -20,8 +20,9 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphData;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.LineGraphPresenter;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
@@ -29,17 +30,12 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayO
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
 import com.google.common.util.concurrent.MoreExecutors;
 
-import org.achartengine.model.XYSeries;
-
 import java.util.List;
 
 public class ManualSensor extends ScalarSensor {
     private StreamConsumer mConsumer;
-    private LineGraphPresenter mLineGraphPresenter;
-    private GraphData mGraphData;
+    private ChartController mChartController;
 
-    // By default, run tests with a minimum throwaway size threshold.
-    private int mGraphDataThrowawaySizeThreshold = 0;
     private MemorySensorHistoryStorage mStorage = new MemorySensorHistoryStorage();
 
     public ManualSensor(String sensorId, long defaultGraphRange,
@@ -87,28 +83,24 @@ public class ManualSensor extends ScalarSensor {
 
     @NonNull
     @Override
-    protected LineGraphPresenter createLineGraphPresenter(DataViewOptions dataViewOptions,
-            ExternalAxisController.InteractionListener interactionListener) {
-        mLineGraphPresenter = new LineGraphPresenter(true, true,
-                dataViewOptions.getGraphColor(),
-                dataViewOptions.getLineGraphOptions(), interactionListener) {
-            @Override
-            protected GraphData createGraphData(ScalarDisplayOptions scalarDisplayOptions) {
-                mGraphData = new GraphData(scalarDisplayOptions.getWindow(),
-                        scalarDisplayOptions.getBlurType(), scalarDisplayOptions.getGaussianSigma(),
-                        mGraphDataThrowawaySizeThreshold);
-                return mGraphData;
-            }
-        };
-        return mLineGraphPresenter;
+    protected ChartController createChartController(DataViewOptions dataViewOptions,
+            ExternalAxisController.InteractionListener interactionListener, String sensorId,
+            long defaultGraphRange) {
+        mChartController = new ChartController(
+                ChartOptions.ChartPlacementType.TYPE_OBSERVE,
+                dataViewOptions.getLineGraphOptions(), 1, /* no data loading buffer */ 0);
+        mChartController.setInteractionListener(interactionListener);
+        mChartController.setSensorId(sensorId);
+        mChartController.setDefaultGraphRange(defaultGraphRange);
+        return mChartController;
     }
 
-    public List<GraphData.ReadonlyDataPoint> getRawData() {
-        return mLineGraphPresenter.getRawData();
+    public List<ChartData.DataPoint> getRawData() {
+        return mChartController.getData();
     }
 
-    public XYSeries getLineData() {
-        return mGraphData.getDataset().getSeriesAt(mGraphData.getLineDataIndex());
+    public List<ChartData.DataPoint> getLineData() {
+        return mChartController.getData();
     }
 
     public void pushValue(long timestampMillis, double value) {
@@ -144,12 +136,11 @@ public class ManualSensor extends ScalarSensor {
     @NonNull
     public SensorPresenter createRecordingPresenter(Context context, RecordingDataController rc,
             String runId, int graphDataThrowawaySizeThreshold) {
-        mGraphDataThrowawaySizeThreshold = graphDataThrowawaySizeThreshold;
         return createRecordingPresenter(context, rc, runId);
     }
 
-    public LineGraphPresenter getLineGraphPresenter() {
-        return mLineGraphPresenter;
+    public ChartController getChartController() {
+        return mChartController;
     }
 
     public void pushDataPoints(SensorRecorder recorder, int howMany) {

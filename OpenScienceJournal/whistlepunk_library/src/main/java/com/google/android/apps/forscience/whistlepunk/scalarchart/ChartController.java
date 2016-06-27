@@ -19,12 +19,22 @@ package com.google.android.apps.forscience.whistlepunk.scalarchart;
 import android.content.res.ColorStateList;
 import android.graphics.PointF;
 import android.os.Build;
+import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
 
+import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
+import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
+import com.google.android.apps.forscience.whistlepunk.ScalarDataLoader;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.review.ZoomPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
@@ -32,23 +42,89 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChartController {
+    /**
+     * Interface for chart loading status object. Things that want to load chart data must
+     * pass in an object that implements this interface, which is used to track the status
+     * of the load and also whether the data loaded matches the requested data to load. Mis-matches
+     * may occur if many load requests are issued to the same ChartController very quickly, which
+     * may happen when a user quickly scrolls through sensors in a run or scrolls through a list of
+     * runs in an experiment.
+     */
+    public interface ChartLoadingStatus {
+        int GRAPH_LOAD_STATUS_IDLE = 0;
+        int GRAPH_LOAD_STATUS_LOADING = 1;
 
-    // Factor by which to scale the Y axis range so that all the points fit snugly.
-    private static final double BUFFER_SCALE = .05;
+        int getGraphLoadStatus();
+
+        void setGraphLoadStatus(int graphLoadStatus);
+
+        String getRunId();
+
+        GoosciSensorLayout.SensorLayout getSensorLayout();
+    }
+
+    public interface ChartLoadedCallback {
+        void onChartLoaded(long firstTimestamp, long lastTimestamp);
+        void onLoadAttemptStarted();
+    }
+
+    public static final String TAG = "ChartController";
+
+    /**
+     * How many (minimum) screenfuls of data should we keep in memory?
+     * Note: If this constant is changed, the tests in ScalarSensorTest will need to be updated!
+     */
+    private static final int KEEP_THIS_MANY_SCREENS = 3;
+
+    /**
+     * How long can the screen be off before we forget old data?
+     */
+    private static final long MAX_BLACKOUT_MILLIS_BEFORE_CLEARING = 5000;
+
+    private static final long DEFAULT_DATA_LOAD_BUFFER_MILLIS =
+            ExternalAxisController.DEFAULT_GRAPH_RANGE_IN_MILLIS / 4;
 
     private final ChartData mChartData;
     private ChartOptions mChartOptions;
     private ChartView mChartView;
     private ExternalAxisController.InteractionListener mInteractionListener;
     private long mRecordingStartTime = RecordingMetadata.NOT_RECORDING;
-
     private ProgressBar mProgressView;
+
+    // Fields used for data loading and clearing during Observe/Record
+    private long mDefaultGraphRange;
+    private long mDataLoadBuffer;
+    private final FailureListener mDataFailureListener;
+    private final Runnable mOnDataLoadFinishListener;
+    private long mResetTime = -1;
+    private String mSensorId;
 
     public ChartController(ChartOptions.ChartPlacementType chartPlacementType,
             ScalarDisplayOptions scalarDisplayOptions) {
-        mChartData = new ChartData();
+        this(chartPlacementType, scalarDisplayOptions, ChartData.DEFAULT_THROWAWAY_THRESHOLD,
+                DEFAULT_DATA_LOAD_BUFFER_MILLIS);
+    }
+
+    @VisibleForTesting
+    public ChartController(ChartOptions.ChartPlacementType chartPlacementType,
+            ScalarDisplayOptions scalarDisplayOptions, int chartDataThrowawayThreshold,
+            long dataLoadBuffer) {
+        mChartData = new ChartData(chartDataThrowawayThreshold);
         mChartOptions = new ChartOptions(chartPlacementType);
         mChartOptions.setScalarDisplayOptions(scalarDisplayOptions);
+        mDataFailureListener = LoggingConsumer.expectSuccess(TAG, "loading readings");
+        mOnDataLoadFinishListener = new Runnable() {
+            @Override
+            public void run() {
+                refreshChartView();
+            }
+        };
+        mDefaultGraphRange = ExternalAxisController.DEFAULT_GRAPH_RANGE_IN_MILLIS;
+        mDataLoadBuffer = dataLoadBuffer;
+    }
+
+    public void setDefaultGraphRange(long defaultGraphRange) {
+        mDefaultGraphRange = defaultGraphRange;
     }
 
     public void setChartView(ChartView view) {
@@ -64,35 +140,49 @@ public class ChartController {
         mProgressView = progress;
     }
 
-    // Assume we add the single point to the end of the path.
+    // Adds a single point to the end of the path. Assumes points are ordered as they arrive.
     public void addPoint(ChartData.DataPoint point) {
-        mChartData.addPoint(point);
-
-        if (mChartOptions.isPinnedToNow()) {
-            // TODO: When pinned to now, zoom out to show the rendered ymin and ymax across
-            // the range, without too much zoom at each step.
-            // This currently just sets the rendered range to fit the latest data point, but
-            // does not take into account previous data points in the current window.
-            mChartOptions.setRenderedYRange(Math.min(point.getY(), mChartOptions.getRenderedYMin()),
-                    Math.max(point.getY(), mChartOptions.getRenderedYMax()));
+        // TODO: extract as a testable object
+        if (mResetTime != -1) {
+            if (point.getX() < mResetTime) {
+                // straggling datapoint from before the reset, ignore
+                return;
+            } else {
+                mResetTime = -1;
+            }
+        }
+        if (!mChartData.isEmpty()) {
+            // Get rid of data too old to be interesting for "now", but too new to be likely
+            // seen by scrolling from the current view.  If we're recording, we'll swap
+            // this data back in when we scroll to it.  If not, then we have no data
+            // retention guarantees.
+            // TODO: Is it possible to call throwAwayBetween less frequently for performance?
+            // no need to do so many binary searches in ChartData...
+            // TODO: This throwAwayBetween is causing b/28614204.
+            long throwawayBefore = point.getX() - (KEEP_THIS_MANY_SCREENS * mDefaultGraphRange);
+            long throwawayAfter = mChartOptions.getRenderedXMax() + mDefaultGraphRange;
+            mChartData.throwAwayBetween(throwawayAfter, throwawayBefore);
         }
 
-        if (mChartView != null) {
+        mChartData.addPoint(point);
+        if (mChartOptions.isPinnedToNow()) {
+            mChartOptions.adjustYAxisStep(point);
+        }
+        if (mChartView != null && mChartView.isDrawn()) {
             mChartView.addPointToEndOfPath(point);
         }
     }
 
     // Assume this is an ordered list.
-    // After setting the data, this function zooms to fit
     public void setData(List<ChartData.DataPoint> points) {
+        mChartData.clear();
         mChartData.setPoints(points);
         mChartOptions.reset();
-        mChartOptions.setRenderedXRange(mChartData.getXMin(), mChartData.getXMax());
-        zoomToFitRenderedY();
         mChartOptions.setPinnedToNow(false);
-        if (mChartView != null) {
-            mChartView.redraw();
-        }
+    }
+
+    public void addOrderedGroupOfPoints(List<ChartData.DataPoint> points) {
+        mChartData.addOrderedGroupOfPoints(points);
     }
 
     public void clearData() {
@@ -108,6 +198,7 @@ public class ChartController {
             mChartView.clearInteractionListeners();
             mChartView = null;
         }
+        mChartData.clear();
     }
 
     public void setPinnedToNow(boolean isPinnedToNow) {
@@ -143,6 +234,11 @@ public class ChartController {
         }
     }
 
+    public void setXAxisWithBuffer(long xMin, long xMax) {
+        long buffer = (long) (ExternalAxisController.EDGE_POINTS_BUFFER_FRACTION * (xMax - xMin));
+        setXAxis(xMin - buffer, xMax + buffer);
+    }
+
     public void setYAxis(double yMin, double yMax) {
         mChartOptions.setRenderedYRange(yMin, yMax);
         if (mChartView != null) {
@@ -150,27 +246,8 @@ public class ChartController {
         }
     }
 
-    // Zooms in or out to fit the Ys in the rendered X axis range.
-    public void zoomToFitRenderedY() {
-        List<ChartData.DataPoint> points = mChartData.getPointsInRange(
-                mChartOptions.getRenderedXMin(), mChartOptions.getRenderedXMax());
-        double value;
-        double min = mChartOptions.getRenderedYMin();
-        double max = mChartOptions.getRenderedYMax();
-        for (int i = 0; i < points.size(); i++) {
-            value = points.get(i).getY();
-            if (value > max) {
-                max = value;
-            }
-            if (value < min) {
-                min = value;
-            }
-        }
-        setYAxisWithBuffer(min, max);
-    }
-
     public void setYAxisWithBuffer(double min, double max) {
-        double buffer = (max - min) * BUFFER_SCALE;
+        double buffer = ChartOptions.getYBuffer(min, max);
         setYAxis(min - buffer, max + buffer);
         refreshChartView();
     }
@@ -265,15 +342,20 @@ public class ChartController {
     }
 
     public void updateOptions(int graphColor, ScalarDisplayOptions scalarDisplayOptions,
-            ExternalAxisController.InteractionListener interactionListener) {
+            ExternalAxisController.InteractionListener interactionListener, String sensorId) {
         mInteractionListener = interactionListener;
         mChartOptions.setLineColor(graphColor);
         mChartOptions.setScalarDisplayOptions(scalarDisplayOptions);
+        mSensorId = sensorId;
         if (mChartView != null) {
             mChartView.clearInteractionListeners();
             mChartView.addInteractionListener(interactionListener);
             mChartView.redraw(); // Full redraw in case the options caused computational changes.
         }
+    }
+
+    public void setSensorId(String sensorId) {
+        mSensorId = sensorId;
     }
 
     public void setRecordingStartTime(long recordingStartTime) {
@@ -298,4 +380,109 @@ public class ChartController {
         }
     }
 
+    // Tries to load data into the chart with the given parameters.
+    public void loadRunData(ExperimentRun run, GoosciSensorLayout.SensorLayout sensorLayout,
+            DataController dc, ChartLoadingStatus status, RunStats stats,
+            ChartLoadedCallback chartLoadedCallback) {
+        setShowProgress(true);
+        clearData();
+        final long firstTimestamp = run.getFirstTimestamp();
+        final long lastTimestamp = run.getLastTimestamp();
+        tryLoadingChartData(run.getRunId(), sensorLayout, dc, firstTimestamp, lastTimestamp, status,
+                stats, chartLoadedCallback);
+    }
+
+    private void tryLoadingChartData(final String runId,
+            final GoosciSensorLayout.SensorLayout sensorLayout,
+            final DataController dc, final long firstTimestamp, final long lastTimestamp,
+            final ChartLoadingStatus status, final RunStats stats,
+            final ChartLoadedCallback chartLoadedCallback) {
+        // If we are currently trying to load something, don't try and load something else.
+        // Instead, when loading is completed a callback will check that the correct data
+        // was loaded and re-call this function.
+        // The status is always set loading before loadSensorReadings, and always set to idle
+        // when loading is completed (regardless of whether the correct data was loaded).
+        if (status.getGraphLoadStatus() != ChartLoadingStatus.GRAPH_LOAD_STATUS_IDLE) {
+            return;
+        }
+        updateColor(sensorLayout.color);
+        status.setGraphLoadStatus(ChartLoadingStatus.GRAPH_LOAD_STATUS_LOADING);
+        chartLoadedCallback.onLoadAttemptStarted();
+        final ZoomPresenter zp = new ZoomPresenter(this, dc);
+        zp.loadInitialReadings(firstTimestamp,
+                lastTimestamp, stats, new Runnable() {
+                    public void run() {
+                        status.setGraphLoadStatus(ChartLoadingStatus.GRAPH_LOAD_STATUS_IDLE);
+                        if (!runId.equals(status.getRunId()) ||
+                                !sensorLayout.sensorId.equals(status.getSensorLayout().sensorId)) {
+                            // The wrong run or the wrong sensor ID was loaded into this
+                            // chartController. Clear and try again with the updated
+                            // run and sensor values from the holder.
+                            zp.clearLineData(/* reset Y axis */ true);
+                            tryLoadingChartData(status.getRunId(),
+                                    status.getSensorLayout(), dc, firstTimestamp, lastTimestamp,
+                                    status, stats, chartLoadedCallback);
+                            return;
+                        }
+                        chartLoadedCallback.onChartLoaded(firstTimestamp, lastTimestamp);
+                        setShowProgress(false);
+                    }
+                }, null, sensorLayout.sensorId);
+    }
+
+    public void onResume(long resetTime) {
+        mResetTime = resetTime;
+        if (hasData() && mResetTime > mChartData.getXMax() + MAX_BLACKOUT_MILLIS_BEFORE_CLEARING) {
+            clearData();
+        }
+    }
+
+    public void onGlobalXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,
+            DataController dataController) {
+        long minLoadedX = Long.MAX_VALUE;
+        long maxLoadedX = Long.MIN_VALUE;
+        if (!mChartData.isEmpty()) {
+            minLoadedX = mChartData.getXMin();
+            maxLoadedX = mChartData.getXMax();
+        }
+        if (isRecording()) {
+            if (mChartData.isEmpty()) {
+                // Don't load anything before the recording start time if we got here
+                // from resume.
+                xMin = Math.max(xMin, mRecordingStartTime);
+                loadReadings(dataController, xMin, xMax);
+                minLoadedX = xMin;
+                maxLoadedX = xMax;
+            }
+            // Load with a buffer to make scrolling more smooth
+            if (xMin < minLoadedX && minLoadedX >= mRecordingStartTime) {
+                long minToLoad = Math.max(xMin - mDataLoadBuffer, mRecordingStartTime);
+                loadReadings(dataController, minToLoad, minLoadedX);
+            }
+            if (xMax > maxLoadedX) {
+                if (!isPinnedToNow) {
+                    // if it's pinned to now, then we don't expect to find data magically
+                    // appearing in front of old data
+                    loadReadings(dataController, maxLoadedX + mDataLoadBuffer, xMax);
+                }
+            }
+        }
+
+        setPinnedToNow(isPinnedToNow);
+        setXAxis(xMin, xMax);
+
+        long throwawayThreshold = xMin - (KEEP_THIS_MANY_SCREENS - 1) * mDefaultGraphRange;
+        // TODO: Should this be a throwAwayBetween, depending on which way the x axis changed??
+        mChartData.throwAwayBefore(throwawayThreshold);
+    }
+
+    private boolean isRecording() {
+        return mRecordingStartTime != RecordingMetadata.NOT_RECORDING;
+    }
+
+    private void loadReadings(DataController dataController, long minToLoad, long maxToLoad) {
+        // TODO: Does this do double-loading if a user is scrolling too fast or if loading is slow?
+        ScalarDataLoader.loadSensorReadings(mSensorId, dataController, minToLoad, maxToLoad, 0,
+                mOnDataLoadFinishListener, mDataFailureListener, this);
+    }
 }

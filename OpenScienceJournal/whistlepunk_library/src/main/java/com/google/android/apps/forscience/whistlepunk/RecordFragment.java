@@ -24,7 +24,6 @@ import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -329,12 +328,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 return true;
             }
         });
-
-        long resetTime = mExternalAxis.resetAxes();
-        if (mSensorCardAdapter != null) {
-            long ignoreDataBefore = isRecording() ? -1 : resetTime;
-            mSensorCardAdapter.onResume(ignoreDataBefore);
-        }
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_OBSERVE_RECORD);
     }
@@ -393,7 +386,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         for (SensorCardPresenter sensorCardPresenter : sensorCardPresenters) {
                             SensorPresenter presenter = sensorCardPresenter.getSensorPresenter();
                             if (presenter != null) {
-                                presenter.onXAxisChanged(xMin, xMax, isPinnedToNow,
+                                presenter.onGlobalXAxisChanged(xMin, xMax, isPinnedToNow,
                                         getDataController());
                             }
                         }
@@ -691,6 +684,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         });
         updateSensorCount();
         mSensorCardAdapter.setRecording(isRecording(), getRecordingStartTime());
+        long resetTime = mExternalAxis.resetAxes();
+        if (mSensorCardAdapter != null) {
+            long ignoreDataBefore = isRecording() ? -1 : resetTime;
+            mSensorCardAdapter.onResume(ignoreDataBefore);
+        }
 
         mSensorCardRecyclerView =
                 (RecyclerView) rootView.findViewById(R.id.sensor_card_recycler_view);

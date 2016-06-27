@@ -25,6 +25,7 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.whistlepunk.DataController;
@@ -84,8 +85,8 @@ public class VideoSensor extends SensorChoice {
         clearParentViewsIfNecessary();
         return new SensorPresenter() {
             @Override
-            public void startShowing(ViewGroup contentView) {
-                contentView.addView(mCameraPreview);
+            public void startShowing(View contentView) {
+                ((ViewGroup) contentView).addView(mCameraPreview);
             }
 
             @Override
@@ -104,7 +105,7 @@ public class VideoSensor extends SensorChoice {
             }
 
             @Override
-            public void onXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,
+            public void onGlobalXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,
                     DataController dataController) {
 
             }

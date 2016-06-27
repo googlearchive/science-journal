@@ -33,7 +33,14 @@ public class ChartOptions {
         TYPE_OBSERVE, TYPE_RUN_REVIEW, TYPE_PREVIEW_REVIEW;
     }
 
-    private static final double MINIMUM_Y_RANGE = 4;
+    // Factor by which to scale the Y axis range so that all the points fit snugly.
+    private static final double BUFFER_SCALE = .05;
+
+    // The minimum spread between the minimum and maximum y values shown on the graph.
+    private static final double MINIMUM_Y_SPREAD = 1;
+
+    // The fraction of the screen size by which we can zoom at the addition of each new data point.
+    public static final double SCALE_SCREEN_SIZE_FRACTION = 0.05;
 
     private final boolean mCanPanX;
     private final boolean mCanPanY;
@@ -41,6 +48,9 @@ public class ChartOptions {
     private final boolean mCanZoomY;
     private final boolean mShowLeadingEdge;
     private final ChartPlacementType mChartPlacementType;
+
+    private double mYMinPoint = Double.MAX_VALUE;
+    private double mYMaxPoint = Double.MIN_VALUE;
 
     private long mRenderedXMin;
     private long mRenderedXMax;
@@ -108,14 +118,68 @@ public class ChartOptions {
     }
 
     public void setRenderedYRange(double renderedYMin, double renderedYMax) {
-        if (renderedYMax - renderedYMin < MINIMUM_Y_RANGE) {
+        if (renderedYMax - renderedYMin < MINIMUM_Y_SPREAD) {
             double avg = (renderedYMax + renderedYMin) / 2;
-            this.mRenderedYMin = avg - MINIMUM_Y_RANGE / 2;
-            this.mRenderedYMax = avg + MINIMUM_Y_RANGE / 2;
+            this.mRenderedYMin = avg - MINIMUM_Y_SPREAD / 2;
+            this.mRenderedYMax = avg + MINIMUM_Y_SPREAD / 2;
         } else {
             this.mRenderedYMin = renderedYMin;
             this.mRenderedYMax = renderedYMax;
         }
+    }
+
+    public void adjustYAxisStep(ChartData.DataPoint latestPoint) {
+        if (latestPoint.getY() < mYMinPoint) {
+            mYMinPoint = latestPoint.getY();
+        }
+        if (latestPoint.getY() > mYMaxPoint) {
+            mYMaxPoint = latestPoint.getY();
+        }
+        double buffer = getYBuffer(mYMinPoint, mYMaxPoint);
+        double idealYMax = mYMaxPoint + buffer;
+        double idealYMin = mYMinPoint - buffer;
+
+        double lastYMin = getRenderedYMin();
+        double lastYMax = getRenderedYMax();
+
+        if (lastYMax <= lastYMin) {
+            setRenderedYRange(idealYMin, idealYMax);
+            return;
+        }
+
+        // Don't zoom too fast
+        double maxMove = calculateMaxMove(lastYMin, lastYMax);
+
+        // Only zoom out automatically. Don't zoom in automatically!
+        double newYMin = Math.min(lastYMin, calculateMovedValue(lastYMin, idealYMin, maxMove));
+        double newYMax = Math.max(lastYMax, calculateMovedValue(lastYMax, idealYMax, maxMove));
+
+        setRenderedYRange(newYMin, newYMax);
+    }
+
+    private double calculateMaxMove(double lastYMin, double lastYMax) {
+        // To prevent jumpiness, only move by a small percent of the current screen size
+        double maxMove = (SCALE_SCREEN_SIZE_FRACTION * (lastYMax - lastYMin));
+        if (maxMove == 0) {
+            // If we never allow it to move, we will never display any data. So, put in a min
+            // amount of move here.
+            maxMove = 1;
+        }
+        return maxMove;
+    }
+
+    private double calculateMovedValue(double current, double target, double maxMove) {
+        if (Math.abs(current - target) < maxMove) {
+            return target;
+        }
+        if (target > current) {
+            return current + maxMove;
+        }
+        return current - maxMove;
+    }
+
+    public static double getYBuffer(double yMin, double yMax) {
+        return Math.max(MINIMUM_Y_SPREAD, Math.abs(yMax - yMin) * BUFFER_SCALE);
     }
 
     public boolean isShowLeadingEdge() {
@@ -160,6 +224,8 @@ public class ChartOptions {
         mRenderedXMax = Long.MIN_VALUE;
         mRenderedYMin = Double.MAX_VALUE;
         mRenderedYMax = Double.MIN_VALUE;
+        mYMinPoint = Double.MAX_VALUE;
+        mYMaxPoint = Double.MIN_VALUE;
     }
 
     public boolean canPan() {
@@ -262,13 +328,18 @@ public class ChartOptions {
         return mShowStatsOverlay && shouldDrawRecordingOverlay();
     }
 
+    public boolean isDisplayable(Label label, long recordingStartTime) {
+        return isDisplayable(label, recordingStartTime, mChartPlacementType);
+    }
+
     // A label is displayable if:
     //   - It is not an "application" label (including recording start/stop), and either:
     //   - It is after the recording start time, and we are recording
     //   - We are not recording
-    public boolean isDisplayable(Label label, long recordingStartTime) {
+    public static boolean isDisplayable(Label label, long recordingStartTime,
+            ChartPlacementType chartPlacementType) {
         if (label.getTag() != ApplicationLabel.TAG) {
-            if (mChartPlacementType == ChartPlacementType.TYPE_RUN_REVIEW) {
+            if (chartPlacementType == ChartPlacementType.TYPE_RUN_REVIEW) {
                 return true;
             }
             return recordingStartTime != RecordingMetadata.NOT_RECORDING &&

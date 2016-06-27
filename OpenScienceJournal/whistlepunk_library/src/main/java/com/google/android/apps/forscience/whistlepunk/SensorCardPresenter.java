@@ -304,7 +304,7 @@ public class SensorCardPresenter {
             mFirstObserving = false;
         }
         if (mCardViewHolder != null) {
-            mSensorPresenter.startShowing(mCardViewHolder.graphViewContent);
+            mSensorPresenter.startShowing(mCardViewHolder.chartView);
         }
         // It is possible we just resumed observing but we are currently recording, in which case
         // we need to refresh the recording UI.
@@ -362,7 +362,7 @@ public class SensorCardPresenter {
         }
 
         if (mSensorPresenter != null) {
-            mSensorPresenter.startShowing(mCardViewHolder.graphViewContent);
+            mSensorPresenter.startShowing(mCardViewHolder.chartView);
         }
 
         updateContentView(false);
@@ -962,9 +962,9 @@ public class SensorCardPresenter {
                 Math.max((int) (MULTIPLE_CARD_HEIGHT_PERCENT * mSingleCardPresenterHeight),
                         mCardViewHolder.getContext().getResources().getDimensionPixelSize(
                                 R.dimen.sensor_card_content_height_min));
-        ViewGroup.LayoutParams params = mCardViewHolder.graphViewContent.getLayoutParams();
+        ViewGroup.LayoutParams params = mCardViewHolder.chartView.getLayoutParams();
         params.height = height;
-        mCardViewHolder.graphViewContent.setLayoutParams(params);
+        mCardViewHolder.chartView.setLayoutParams(params);
 
         params = mCardViewHolder.meterViewGroup.getLayoutParams();
         params.height = height;
@@ -1015,7 +1015,7 @@ public class SensorCardPresenter {
 
         // Any other destroy code can go here.
 
-        // TODO: Find a way to clear the LineGraphPresenter from ScalarSensor when the card
+        // TODO: Find a way to clear the ChartController from ScalarSensor when the card
         // is destroyed but still keep graph data in memory. If we called
         // lineGraphPresenter.onDestroy() here it would clear the data, which is not what we
         // want in the case of a rotation. However, destroying the data may stop the blinking bug
@@ -1144,7 +1144,6 @@ public class SensorCardPresenter {
     @NonNull
     GoosciSensorLayout.SensorLayout buildLayout() {
         // Get an updated min and max, and return mLayout.
-        // TODO: Consider storing sensorId in mLayout instead of in a field
         mLayout.sensorId = getSelectedSensorId();
         mLayout.color = getDataViewOptions().getGraphColor();
         if (mSensorPresenter != null) {
@@ -1159,10 +1158,6 @@ public class SensorCardPresenter {
         // Use card options if set, otherwise sensor defaults.
         return new OverlayOptionsStorage(mCardOptions,
                 sensorChoice.getStorageForSensorDefaultOptions(context));
-    }
-
-    public int getSensorCardViewType() {
-        return mLayout.cardView;
     }
 
     public void tryRefreshingLabels(DataController dc, final ExternalAxisController externalAxis,
