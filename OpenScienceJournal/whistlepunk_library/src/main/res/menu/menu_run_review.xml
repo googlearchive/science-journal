@@ -35,6 +35,12 @@
         >
         <menu>
             <item
+                android:id="@+id/action_run_review_delete"
+                android:icon="@drawable/ic_delete_dark_24dp"
+                android:title="@string/delete_run"
+                app:showAsAction="never"
+                />
+            <item
                 android:id="@+id/action_run_review_crop"
                 android:icon="@drawable/ic_crop_dark_24dp"
                 android:title="@string/crop_run"
@@ -56,12 +62,6 @@
                 android:id="@+id/action_run_review_unarchive"
                 android:icon="@drawable/ic_unarchive_black_24dp"
                 android:title="@string/action_unarchive_run"
-                app:showAsAction="never"
-                />
-            <item
-                android:id="@+id/action_run_review_delete"
-                android:icon="@drawable/ic_delete_dark_24dp"
-                android:title="@string/delete_run"
                 app:showAsAction="never"
                 />
             <item
