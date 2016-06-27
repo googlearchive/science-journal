@@ -27,7 +27,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.VisibleForTesting;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -779,17 +781,7 @@ public class ChartView extends View {
         if (yMax < yMin) {
             return;
         }
-        int sizeShown = mYAxisPoints.size();
-        if (sizeShown >= 2) {
-            // If we are already labeling points on the Y axis, count how many labels would be
-            // drawn if we keep the same points labeled but used the new range. This tells us if we
-            // need to recalculate labeled points or not.
-            double increment = (mYAxisPoints.get(1) - mYAxisPoints.get(0));
-            int startIndex = (int) ((yMin - mYAxisPoints.get(0)) / increment);
-            int endIndex = (int) ((mYAxisPoints.get(mYAxisPoints.size() - 1) - yMax) / increment)
-                    + mYAxisPoints.size();
-            sizeShown = endIndex - startIndex;
-        }
+        int sizeShown = calculateSizeShownNext(mYAxisPoints, yMin, yMax);
         if (sizeShown < MINIMUM_NUM_LABELS || sizeShown > MAXIMUM_NUM_LABELS) {
             double range = yMax - yMin;
             if (range == 0) {
@@ -823,6 +815,34 @@ public class ChartView extends View {
                 nextLargerLabel += increment;
             }
         }
+    }
+
+    /**
+     * Calculates the number of y axis points shown if the same points are used for labeling the
+     * updated range shown.
+     * If the possible points list is 0 or 1, there is no way to calculate the difference between
+     * y axis labels, so this method returns 0 to prompt a label recalculation.
+     * @param yAxisPoints
+     * @param yMinShown
+     * @param yMaxShown
+     * @return
+     */
+    @VisibleForTesting
+    static int calculateSizeShownNext(List<Double> yAxisPoints, double yMinShown,
+            double yMaxShown) {
+        // If there are 1 or 0 points, we need to re-show anyway, so just return 0.
+        if (yAxisPoints.size() < 2) {
+            return 0;
+        }
+        // If we are already labeling points on the Y axis, count how many labels would be
+        // drawn if we keep the same points labeled but used the new range. This tells us if we
+        // need to recalculate labeled points or not.
+        double increment = (yAxisPoints.get(1) - yAxisPoints.get(0));
+        int startIndex = (int) Math.floor((yMinShown - yAxisPoints.get(0)) / increment + 1);
+        int endIndex = (int) Math.ceil(
+                (yMaxShown - yAxisPoints.get(yAxisPoints.size() - 1)) / increment) +
+                yAxisPoints.size() - 1;
+        return endIndex - startIndex;
     }
 
     public void onAxisLimitsAdjusted() {
