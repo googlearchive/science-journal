@@ -69,7 +69,7 @@
     <string name="acc_z">Accelerometer Z</string>
 
     <!-- Displayed name of a sensor that shows ambient light as measured by the phone's proximity sensor [CHAR_LIMIT=25] -->
-    <string name="ambient_light">Ambient Light</string>
+    <string name="ambient_light">Ambient light</string>
 
     <!-- Displayed name of a sensor that shows magnetic field rotation measured by the phone's magnetometer [CHAR_LIMIT=25]  -->
     <string name="magnetic_rotation">Magnetic rotation</string>
@@ -78,10 +78,10 @@
     <string name="barometer">Barometer</string>
 
     <!-- Displayed name of a sensor that measure ambient temperature [CHAR_LIMIT=25] -->
-    <string name="ambient_temperature">Ambient Temperature</string>
+    <string name="ambient_temperature">Ambient temperature</string>
 
     <!-- Displayed name of a sensor that records and displays a video stream [CHAR_LIMIT=25] -->
-    <string name="video_stream">Video Stream</string>
+    <string name="video_stream">Video stream</string>
 
     <!-- Displayed units for an acceleration sensor [CHAR_LIMIT=10] -->
     <string name="acc_units">m/s\u00B2</string>
@@ -117,7 +117,7 @@
     <string name="experiment_details">Experiment details</string>
 
     <!-- Content description for the add a new sensor button [CHAR_LIMIT=none] -->
-    <string name="add_sensor">Add Sensor</string>
+    <string name="add_sensor">Add sensor</string>
 
     <!-- Snackbar error message when an error happened while connecting to an external
          bluetooth source [CHAR_LIMIT=50] -->
@@ -127,7 +127,7 @@
     <string name="action_retry">Retry</string>
 
     <!-- Sound intensity sensor name [CHAR_LIMIT=25] -->
-    <string name="decibel">Sound Intensity</string>
+    <string name="decibel">Sound intensity</string>
 
     <!-- Window title label for the tutorial activity [CHAR_LIMIT=25] -->
     <string name="title_activity_tutorial">Science Journal Tutorial</string>
