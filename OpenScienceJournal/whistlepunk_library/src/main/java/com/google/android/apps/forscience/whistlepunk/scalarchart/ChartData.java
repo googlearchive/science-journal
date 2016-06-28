@@ -288,8 +288,12 @@ public class ChartData {
         return mStats;
     }
 
-    public void throwAwayBefore(long throwawayThreshhold) {
-        throwAwayBetween(Long.MIN_VALUE, throwawayThreshhold);
+    public void throwAwayBefore(long throwawayThreshold) {
+        throwAwayBetween(Long.MIN_VALUE, throwawayThreshold);
+    }
+
+    public void throwAwayAfter(long throwawayThreshold) {
+        throwAwayBetween(throwawayThreshold, Long.MAX_VALUE);
     }
 
     public void throwAwayBetween(long throwAwayMinX, long throwAwayMaxX) {

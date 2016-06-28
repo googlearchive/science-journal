@@ -440,6 +440,11 @@ public class ChartView extends View {
         mListeners.clear();
     }
 
+    public void clear() {
+        mIsDrawn = false;
+        redraw();
+    }
+
     public void redraw() {
         mYAxisPoints.clear();
         mYAxisPointLabels.clear();
@@ -671,21 +676,27 @@ public class ChartView extends View {
                 mLeadingEdgeIsDrawn = false;
             }
         } else if (mChartOptions.isShowEndpoints()) {
-            ChartData.DataPoint start = mChartData.getPoints().get(0);
-            ChartData.DataPoint end = mChartData.getPoints().get(mChartData.getNumPoints() - 1);
-            // TODO add some buffer to start and end so that the endpoint doesn't just disappear,
-            // but instead slide gracefully off the screen.
-            if (start.getX() >= mXMinForPathCalcs) {
-                float screenX = getScreenX(start.getX());
-                float screenY = getScreenY(start.getY());
-                canvas.drawCircle(screenX, screenY, mEndpointOuterRadius, mEndpointPaint);
-                canvas.drawCircle(screenX, screenY, mEndpointInnerRadius, mBackgroundPaint);
+            // Only try to draw the endpoints if the range shown contains the recording
+            // start and/or end times.
+            if (mChartOptions.getRenderedXMin() < mChartOptions.getRecordingStartTime() &&
+                    mChartOptions.getRecordingStartTime() < mChartOptions.getRenderedXMax()) {
+                ChartData.DataPoint start = mChartData.getPoints().get(0);
+                if (start.getX() >= mXMinForPathCalcs) {
+                    float screenX = getScreenX(start.getX());
+                    float screenY = getScreenY(start.getY());
+                    canvas.drawCircle(screenX, screenY, mEndpointOuterRadius, mEndpointPaint);
+                    canvas.drawCircle(screenX, screenY, mEndpointInnerRadius, mBackgroundPaint);
+                }
             }
-            if (end.getX() <= mXMaxForPathCalcs) {
-                float screenX = getScreenX(end.getX());
-                float screenY = getScreenY(end.getY());
-                canvas.drawCircle(screenX, screenY, mEndpointOuterRadius, mEndpointPaint);
-                canvas.drawCircle(screenX, screenY, mEndpointInnerRadius, mBackgroundPaint);
+            if (mChartOptions.getRenderedXMin() < mChartOptions.getRecordingEndTime() &&
+                    mChartOptions.getRecordingEndTime() < mChartOptions.getRenderedXMax()) {
+                ChartData.DataPoint end = mChartData.getPoints().get(mChartData.getNumPoints() - 1);
+                if (end.getX() <= mXMaxForPathCalcs) {
+                    float screenX = getScreenX(end.getX());
+                    float screenY = getScreenY(end.getY());
+                    canvas.drawCircle(screenX, screenY, mEndpointOuterRadius, mEndpointPaint);
+                    canvas.drawCircle(screenX, screenY, mEndpointInnerRadius, mBackgroundPaint);
+                }
             }
         }
     }

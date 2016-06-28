@@ -64,6 +64,7 @@ public class ChartOptions {
     private NumberFormat mNumberFormat;
     private int mLineColor = Color.BLACK;
     private long mRecordingStartTime;
+    private long mRecordingEndTime;
     private boolean mShowStatsOverlay;
     private ScalarDisplayOptions mScalarDisplayOptions;
 
@@ -98,6 +99,10 @@ public class ChartOptions {
         }
         mNumberFormat = new AxisNumberFormat();
         reset();
+    }
+
+    public ChartPlacementType getChartPlacementType() {
+        return mChartPlacementType;
     }
 
     public long getRenderedXMin() {
@@ -323,6 +328,18 @@ public class ChartOptions {
         mRecordingStartTime = recordingStartTime;
     }
 
+    public long getRecordingStartTime() {
+        return mRecordingStartTime;
+    }
+
+    public void setRecordingEndTime(long recordingEndTime) {
+        mRecordingEndTime = recordingEndTime;
+    }
+
+    public long getRecordingEndTime() {
+        return mRecordingEndTime;
+    }
+
     public boolean shouldDrawRecordingOverlay() {
         return mRecordingStartTime != RecordingMetadata.NOT_RECORDING &&
                 mChartPlacementType == ChartPlacementType.TYPE_OBSERVE;
@@ -357,10 +374,6 @@ public class ChartOptions {
                     label.getTimeStamp() >= recordingStartTime;
         }
         return false;
-    }
-
-    public long getRecordingStartTime() {
-        return mRecordingStartTime;
     }
 
     public void setScalarDisplayOptions(ScalarDisplayOptions scalarDisplayOptions) {

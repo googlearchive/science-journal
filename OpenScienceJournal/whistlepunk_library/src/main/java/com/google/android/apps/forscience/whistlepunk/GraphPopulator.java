@@ -16,28 +16,33 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
+import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumers;
+import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
+import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
-import com.google.common.base.Joiner;
 import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Range;
 
 import java.util.List;
 
 // TODO(saff): port tests from Weather
-public class GraphPopulator<O extends TimedEvent> {
-    private ObservationStore<O> mObservationStore;
-    private Range<Long> mRequestedTimes = null;
-    private ObservationDisplay<O> mObservationDisplay;
-    private boolean mRequestInFlight = false;
+public class GraphPopulator {
+    // How many datapoints do we grab from the database at one time?
+    private static final int MAX_DATAPOINTS_PER_SENSOR_LOAD = 100;
 
-    public GraphPopulator(ObservationStore<O> observationStore,
-            ObservationDisplay<O> observationDisplay) {
-        mObservationStore = observationStore;
+    private Range<Long> mRequestedTimes = null;
+    private ObservationDisplay mObservationDisplay;
+    private boolean mRequestInFlight = false;
+    private final long mRequestId;
+
+    public GraphPopulator(ObservationDisplay observationDisplay) {
         mObservationDisplay = observationDisplay;
+        mRequestId = SystemClock.uptimeMillis();
     }
 
     /**
@@ -71,51 +76,53 @@ public class GraphPopulator<O extends TimedEvent> {
      * <p/>
      * Call only on the UI thread.
      */
-    public void requestObservations(final GraphStatus graphStatus) {
+    public long requestObservations(final GraphStatus graphStatus,
+            final DataController dataController, final FailureListener failureListener,
+            final int resolutionTier, final String sensorId) {
         if (mRequestInFlight) {
-            return;
+            return mRequestId;
         }
-        // Note: The time range needs to be oldest-first or the graph data smoothing gets messed
-        // up because it assumes points are added chronologically.
-        // TODO: add some function that allows points to be added newest first and all the
-        // averaging / calculations to happen after adding is completed.
         final TimeRange r = getRequestRange(graphStatus);
         if (r == null) {
-            mObservationDisplay.onFinish();
+            mObservationDisplay.onFinish(mRequestId);
         } else {
             mRequestInFlight = true;
-            mObservationStore.getObservations(r, new FallibleConsumer<List<O>>() {
-                @Override
-                public void take(List<O> observations) {
-                    mRequestInFlight = false;
-                    if (graphStatus.graphIsStillValid()) {
-                        final Range<Long> received = addObservationsToDisplay(observations);
+            dataController.getScalarReadings(sensorId, resolutionTier, r,
+                    MAX_DATAPOINTS_PER_SENSOR_LOAD, MaybeConsumers.chainFailure(failureListener,
+                            new FallibleConsumer<ScalarReadingList>() {
+                                @Override
+                                public void take(ScalarReadingList observations) {
+                                    mRequestInFlight = false;
+                                    if (graphStatus.graphIsStillValid()) {
+                                        final Range<Long> received =
+                                                addObservationsToDisplay(observations);
+                                        if (received != null) {
+                                            mObservationDisplay.addRange(observations, mRequestId);
+                                        }
+                                        addToRequestedTimes(getEffectiveAddedRange(r, received));
+                                        requestObservations(graphStatus, dataController,
+                                                failureListener, resolutionTier, sensorId);
+                                    }
+                                }
 
-                        if (received != null) {
-                            mObservationDisplay.commit(received);
-                        }
+                                public void addToRequestedTimes(Range<Long> effectiveAdded) {
+                                    mRequestedTimes = Ranges.span(mRequestedTimes, effectiveAdded);
+                                }
 
-                        addToRequestedTimes(getEffectiveAddedRange(r, received));
-
-                        requestObservations(graphStatus);
-                    }
-                }
-
-                public void addToRequestedTimes(Range<Long> effectiveAdded) {
-                    mRequestedTimes = Ranges.span(mRequestedTimes, effectiveAdded);
-                }
-
-                public Range<Long> addObservationsToDisplay(List<O> observations) {
-                    Range<Long> range = null;
-                    for (O observation : observations) {
-                        mObservationDisplay.add(observation);
-                        range = Ranges.span(range, Range.singleton(
-                                observation.getCollectedTimeMillis()));
-                    }
-                    return range;
-                }
-            });
+                                public Range<Long> addObservationsToDisplay(
+                                        ScalarReadingList observations) {
+                                    List<ScalarReading> points = ScalarReading.slurp(observations);
+                                    Range<Long> range = null;
+                                    for (ScalarReading point : points) {
+                                        range = Ranges.span(range, Range.singleton(
+                                                point.getCollectedTimeMillis()));
+                                    }
+                                    return range;
+                                }
+                            })
+            );
         }
+        return mRequestId;
     }
 
     private TimeRange getRequestRange(GraphStatus graphStatus) {
@@ -165,20 +172,9 @@ public class GraphPopulator<O extends TimedEvent> {
         boolean graphIsStillValid();
     }
 
-    public interface ObservationStore<O> {
-        /**
-         * Request the data in the given time range.  Must be called on the UI thread.
-         *
-         * @param onSuccess callback, also executed on the UI thread.
-         */
-        void getObservations(TimeRange r, FallibleConsumer<List<O>> onSuccess);
-    }
+    public interface ObservationDisplay {
+        void addRange(ScalarReadingList observations, long requestId);
 
-    public interface ObservationDisplay<O> {
-        void add(O observation);
-
-        void commit(Range<Long> range);
-
-        void onFinish();
+        void onFinish(long requestId);
     }
 }

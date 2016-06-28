@@ -59,7 +59,6 @@ import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
-import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
@@ -945,7 +944,7 @@ public class ExperimentDetailsFragment extends Fragment
                     new LoggingConsumer<RunStats>(TAG,
                             "loading stats") {
                         @Override
-                        public void success(final RunStats stats) {
+                        public void success(RunStats stats) {
                             // Only load this if the holder run value is the same. Otherwise,
                             // bail.
                             if (!runId.equals(holder.getRunId())) {
@@ -962,22 +961,30 @@ public class ExperimentDetailsFragment extends Fragment
                                     numberFormat.format(stats.getStat(StatsAccumulator.KEY_AVERAGE))
                                     : "");
 
-                            // Load sensor readings into a line graph presenter.
+                            // Save the sensor stats so they can be used to set the Y axis on load.
+                            // If too many sensors are loaded in quick succession, having
+                            // RunStats be a final local variable may cause the Y axis to be set
+                            // inappropriately.
+                            holder.currentSensorStats = stats;
+
+                            // Load sensor readings into a chart.
                             final ChartController chartController = item.getChartController();
                             chartController.setChartView(holder.chartView);
                             chartController.setProgressView(holder.progressView);
                             holder.setSensorLayout(sensorLayout);
                             chartController.loadRunData(run, sensorLayout, dc, holder, stats,
-                                    new ChartController.ChartLoadedCallback() {
+                                    new ChartController.ChartDataLoadedCallback() {
                                         @Override
-                                        public void onChartLoaded(long firstTimestamp,
+                                        public void onChartDataLoaded(long firstTimestamp,
                                                 long lastTimestamp) {
                                             // Display the graph.
                                             chartController.setXAxisWithBuffer(firstTimestamp,
                                                     lastTimestamp);
                                             chartController.setYAxisWithBuffer(
-                                                    stats.getStat(StatsAccumulator.KEY_MIN),
-                                                    stats.getStat(StatsAccumulator.KEY_MAX));
+                                                    holder.currentSensorStats.getStat(
+                                                            StatsAccumulator.KEY_MIN),
+                                                    holder.currentSensorStats.getStat(
+                                                            StatsAccumulator.KEY_MAX));
                                         }
 
                                         @Override
@@ -1044,6 +1051,7 @@ public class ExperimentDetailsFragment extends Fragment
             ImageButton sensorPrev;
             ImageButton sensorNext;
             public ProgressBar progressView;
+            public RunStats currentSensorStats;
 
             public ViewHolder(View itemView, int viewType) {
                 super(itemView);
