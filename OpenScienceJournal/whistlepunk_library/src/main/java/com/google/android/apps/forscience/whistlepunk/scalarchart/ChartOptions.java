@@ -39,6 +39,10 @@ public class ChartOptions {
     // The minimum spread between the minimum and maximum y values shown on the graph.
     private static final double MINIMUM_Y_SPREAD = 1;
 
+    // Don't allow zoom out past this factor times the y range. At this point the line will look
+    // basically flat anyway, so there's no need to keep allowing zoom out.
+    private static final double MAXIMUM_Y_SPREAD_FACTOR = 200;
+
     // The fraction of the screen size by which we can zoom at the addition of each new data point.
     public static final double SCALE_SCREEN_SIZE_FRACTION = 0.05;
 
@@ -126,6 +130,10 @@ public class ChartOptions {
             this.mRenderedYMin = renderedYMin;
             this.mRenderedYMax = renderedYMax;
         }
+    }
+
+    public double getMaxRenderedYRange() {
+        return (mYMaxPoint - mYMinPoint) * MAXIMUM_Y_SPREAD_FACTOR;
     }
 
     public void adjustYAxisStep(ChartData.DataPoint latestPoint) {

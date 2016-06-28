@@ -29,7 +29,6 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.VisibleForTesting;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -74,7 +73,6 @@ public class ChartView extends View {
     private Paint mAxisPaint;
     private Paint mAxisTextPaint;
     private float mAxisTextHeight;
-    private float mChartStartPadding;
     private float mTopPadding;
     private float mBottomPadding;
     private float mAxisTextStartPadding;
@@ -218,7 +216,7 @@ public class ChartView extends View {
                 mChartOptions.getAxisLabelsLineWidthId()));
         mAxisTextHeight = res.getDimensionPixelSize(mChartOptions.getAxisLabelsTextSizeId());
         mAxisTextPaint.setTextSize(mAxisTextHeight);
-        mChartStartPadding = res.getDimensionPixelSize(mChartOptions.getChartStartPaddingId());
+        float chartStartPadding = res.getDimensionPixelSize(mChartOptions.getChartStartPaddingId());
         mAxisTextStartPadding = res.getDimensionPixelSize(
                 mChartOptions.getAxisLabelsStartPaddingId());
 
@@ -248,7 +246,7 @@ public class ChartView extends View {
 
         // These calculations are done really frequently, so store in member variables to reduce
         // cycles.
-        mStartPadding = mChartStartPadding + getPaddingLeft();
+        mStartPadding = chartStartPadding + getPaddingLeft();
         mChartHeight = mHeight - mBottomPadding - mTopPadding;
         mChartWidth = mWidth - mStartPadding;
 
@@ -342,13 +340,15 @@ public class ChartView extends View {
                                 float scale = mYZoomSpan / yZoomSpan;
                                 double newDiff = (mChartOptions.getRenderedYMax() -
                                         mChartOptions.getRenderedYMin()) * scale;
-                                double avg = (mChartOptions.getRenderedYMax() +
-                                        mChartOptions.getRenderedYMin()) / 2;
+                                if (scale < 1 || newDiff < mChartOptions.getMaxRenderedYRange()) {
+                                    double avg = (mChartOptions.getRenderedYMax() +
+                                            mChartOptions.getRenderedYMin()) / 2;
 
-                                mChartOptions.setRenderedYRange(avg - newDiff / 2,
-                                        avg + newDiff / 2);
+                                    mChartOptions.setRenderedYRange(avg - newDiff / 2,
+                                            avg + newDiff / 2);
+                                    hasZoomedY = true;
+                                }
                                 mYZoomSpan = yZoomSpan;
-                                hasZoomedY = true;
                             }
                         }
 
