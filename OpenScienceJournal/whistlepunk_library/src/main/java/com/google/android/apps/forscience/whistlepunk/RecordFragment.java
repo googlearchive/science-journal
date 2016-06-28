@@ -1066,7 +1066,13 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         toolbar.setBackgroundResource(toolbarColorResource);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = activity.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            if (statusBarColorResource == R.color.color_primary_dark) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            } else {
+                // For any color that is not the default, need to clear this flag so that we can
+                // draw the right color.
+                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            }
             window.setStatusBarColor(getResources().getColor(statusBarColorResource));
         }
     }
