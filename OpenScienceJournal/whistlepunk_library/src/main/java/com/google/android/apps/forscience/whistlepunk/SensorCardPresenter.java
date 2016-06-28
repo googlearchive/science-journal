@@ -43,7 +43,6 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
@@ -58,7 +57,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.AccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
@@ -240,6 +238,17 @@ public class SensorCardPresenter {
     }
 
     private void updateStatusUi() {
+        // Turn off the audio unless it is connected.
+        if (mSensorPresenter != null) {
+            if (!mHasError && mSourceStatus == SensorStatusListener.STATUS_CONNECTED
+                    && mCurrentSource != null) {
+                mSensorPresenter.updateAudioSettings(mLayout.audioEnabled,
+                        getSonificationType(mParentFragment.getActivity()));
+            } else {
+                mSensorPresenter.updateAudioSettings(false,
+                        ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
+            }
+        }
         if (mCardViewHolder == null) {
             return;
         }
@@ -288,7 +297,7 @@ public class SensorCardPresenter {
 
         mCurrentSource = sensorChoice;
         mSensorPresenter = sensorPresenter;
-        if (mParentFragment != null) { // Need this to run tests
+        if (mSourceStatus == SensorStatusListener.STATUS_CONNECTED && mParentFragment != null) {
             mSensorPresenter.updateAudioSettings(mLayout.audioEnabled,
                     getSonificationType(mParentFragment.getActivity()));
         }
