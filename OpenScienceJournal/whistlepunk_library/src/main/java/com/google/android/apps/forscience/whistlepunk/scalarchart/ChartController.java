@@ -218,6 +218,9 @@ public class ChartController {
             }
         }
         mChartData.setDisplayableLabels(displayableLabels);
+        if (mChartView != null) {
+            mChartView.invalidate();
+        }
     }
 
     public void addLabel(Label label) {
