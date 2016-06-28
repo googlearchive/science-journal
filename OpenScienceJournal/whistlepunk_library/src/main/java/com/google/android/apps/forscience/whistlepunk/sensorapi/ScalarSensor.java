@@ -135,7 +135,6 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
             @Override
             public void onResume(long resetTime) {
-                setAudioEnabled(mAudioEnabled);
                 chartController.onResume(resetTime);
             }
 
@@ -178,6 +177,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             @Override
             public void onStopObserving() {
                 statsDisplay.clear();
+                setAudioEnabled(false);
                 destroyChartController();
             }
 
