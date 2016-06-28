@@ -19,13 +19,7 @@
     <Preference
         android:key="replay_tutorial"
         android:title="@string/settings_replay_tutorial_title"
-        >
-        <intent
-            android:action="com.google.android.apps.forscience.whistlepunk.ACTION_REPLAY_TUTORIAL"
-            android:targetPackage="com.google.android.apps.forscience.whistlepunk"
-            android:targetClass="com.google.android.apps.forscience.whistlepunk.intro.TutorialActivity"
-            />
-    </Preference>
+        />
 
     <Preference
         android:key="open_source"

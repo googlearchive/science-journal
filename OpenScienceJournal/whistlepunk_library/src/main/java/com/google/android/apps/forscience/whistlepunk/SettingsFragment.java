@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import android.preference.PreferenceScreen;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.intro.TutorialActivity;
 
 /**
  * Holder for Settings, About, etc.
@@ -35,6 +37,7 @@ public class SettingsFragment extends PreferenceFragment {
     private static final String TAG = "SettingsFragment";
     private static final String KEY_VERSION = "version";
     private static final String KEY_OPEN_SOURCE = "open_source";
+    private static final String KEY_REPLAY_TUTORIAL = "replay_tutorial";
 
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
@@ -47,7 +50,10 @@ public class SettingsFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
 
         addPreferencesFromResource(R.xml.settings);
-
+        Preference tutorialPreference = findPreference(KEY_REPLAY_TUTORIAL);
+        // Set the intent explicitly so that we know we are targeting the right package.
+        tutorialPreference.setIntent(new Intent(getActivity().getApplicationContext(),
+                TutorialActivity.class));
         loadVersion(getActivity());
     }
 
