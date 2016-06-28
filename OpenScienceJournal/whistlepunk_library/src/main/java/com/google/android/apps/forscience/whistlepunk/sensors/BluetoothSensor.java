@@ -48,11 +48,13 @@ public class BluetoothSensor extends ScalarSensor {
         private final UUID mServiceId;
         private final UUID mValueId;
         private final UUID mSettingId;
+        private final UUID mVersionId;
 
-        public BleServiceSpec(UUID serviceId, UUID valueId, UUID settingId) {
+        public BleServiceSpec(UUID serviceId, UUID valueId, UUID settingId, UUID versionId) {
             mServiceId = serviceId;
             mValueId = valueId;
             mSettingId = settingId;
+            mVersionId = versionId;
         }
 
         public UUID getServiceId() {
@@ -66,6 +68,52 @@ public class BluetoothSensor extends ScalarSensor {
         public UUID getSettingId() {
             return mSettingId;
         }
+
+        public UUID getVersionId() {
+            return mVersionId;
+        }
+    }
+
+    public static class BleProtocolVersion {
+        private final int mMajorVersion;
+        private final int mMinorVersion;
+        private final int mPatchVersion;
+
+        private static final int MAJOR_BITS = 5;
+        private static final int MINOR_BITS = 5;
+        private static final int PATCH_BITS = 6;
+
+        private static final int MAJOR_MAX = (1 << MAJOR_BITS) - 1;
+        private static final int MINOR_MAX = (1 << MINOR_BITS) - 1;
+        private static final int PATCH_MAX = (1 << PATCH_BITS) - 1;
+
+        private static final int MAJOR_SHIFT = PATCH_BITS + MINOR_BITS;
+        private static final int MINOR_SHIFT = PATCH_BITS;
+
+        private static final int MAJOR_MASK = MAJOR_MAX << MAJOR_SHIFT;
+        private static final int MINOR_MASK = MINOR_MAX << MINOR_SHIFT;
+        private static final int PATCH_MASK = PATCH_MAX;
+
+        public BleProtocolVersion(byte[] rawVersion) {
+            int version = rawVersion[0] + rawVersion[1]<<8;
+
+            mMajorVersion = (version & MAJOR_MASK) >> MAJOR_SHIFT;
+            mMinorVersion = (version & MINOR_MASK) >> MINOR_SHIFT;
+            mPatchVersion = (version & PATCH_MASK);
+
+        }
+
+        public int getMajorVersion() {
+            return mMajorVersion;
+        }
+
+        public int getMinorVersion() {
+            return mMinorVersion;
+        }
+
+        public int getPatchVersion() {
+            return mPatchVersion;
+        }
     }
 
     // There may be someday additional BLE services that we natively read in Science Journal
@@ -76,9 +124,10 @@ public class BluetoothSensor extends ScalarSensor {
     private static UUID ANNING_SERV = UUID.fromString("555a0001-0aaa-467a-9538-01f0652c74e8");
     private static UUID ANNING_VALUE = UUID.fromString("555a0003-0aaa-467a-9538-01f0652c74e8");
     private static UUID ANNING_SETTING = UUID.fromString("555a0010-0aaa-467a-9538-01f0652c74e8");
+    private static UUID ANNING_VERSION = UUID.fromString("555a0012-0aaa-467a-9538-01f0652c74e8");
 
     public static final BleServiceSpec ANNING_SERVICE_SPEC = new BleServiceSpec(ANNING_SERV,
-            ANNING_VALUE, ANNING_SETTING);
+            ANNING_VALUE, ANNING_SETTING, ANNING_VERSION);
     public static final BleServiceSpec[] SUPPORTED_SERVICES =
             new BleServiceSpec[]{ANNING_SERVICE_SPEC};
 
@@ -130,6 +179,12 @@ public class BluetoothSensor extends ScalarSensor {
                 // This is where we catch the characteristic static value
                 // For Value (UUID:555a0003), it's a protobuf
                 // For Description (UUID:555a0002), it's a string desc (eg. "Goosci Windmill")
+                if (characteristic.compareTo(mServiceSpec.getVersionId()) == 0) {
+                    BleProtocolVersion protocolVersion = new BleProtocolVersion(value);
+                    if (protocolVersion.getMajorVersion() == 1) {
+                        writeConfigAndSetNotification();
+                    }
+                }
             }
 
             @Override
@@ -157,6 +212,17 @@ public class BluetoothSensor extends ScalarSensor {
                 mFlow.resetAndAddListener(mBleFlowListener)
                         .disconnect();
                 BleFlow.run(mFlow);
+            }
+
+            @Override
+            public void onServicesDiscovered() {
+                if (mFlow.isCharacteristicValid(mServiceSpec.getVersionId())) {
+                    mFlow.lookupCharacteristic(mServiceSpec.getVersionId())
+                            .read();
+                    BleFlow.run(mFlow);
+                } else {
+                    writeConfigAndSetNotification();
+                }
             }
         };
     }
@@ -215,6 +281,17 @@ public class BluetoothSensor extends ScalarSensor {
         return outputStream.toByteArray();
     }
 
+    private void writeConfigAndSetNotification() {
+        byte[] sensorConfig = buildConfigProtoForDevice(mSensor);
+        if (sensorConfig != null && mFlow.isCharacteristicValid(mServiceSpec.getSettingId())) {
+            mFlow.lookupCharacteristic(mServiceSpec.getSettingId())
+                    .write(sensorConfig);
+        }
+        mFlow.lookupCharacteristic(mServiceSpec.getValueId())
+                .enableNotification();
+        BleFlow.run(mFlow);
+    }
+
     private void readConfigurationFrom(BleSensorSpec bleSensor) {
         mDeviceFrequencyEnabled = bleSensor.getFrequencyEnabled();
         mDeviceScaleTransform = bleSensor.getScaleTransform();
@@ -243,13 +320,6 @@ public class BluetoothSensor extends ScalarSensor {
                 mFlow.resetAndAddListener(mBleFlowListener)
                         .connect()
                         .lookupService(mServiceSpec.getServiceId());
-                byte[] sensorConfig = buildConfigProtoForDevice(mSensor);
-                if (sensorConfig != null) {
-                    mFlow.lookupCharacteristic(mServiceSpec.getSettingId())
-                            .write(sensorConfig);
-                }
-                mFlow.lookupCharacteristic(mServiceSpec.getValueId())
-                        .enableNotification();
                 BleFlow.run(mFlow);
             }
 

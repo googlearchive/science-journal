@@ -38,4 +38,6 @@ public abstract class BleFlowListener {
     public abstract void onNotificationSubscribed();
 
     public abstract void onNotificationUnsubscribed();
+
+    public abstract void onServicesDiscovered();
 }
