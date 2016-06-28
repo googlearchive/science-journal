@@ -333,6 +333,9 @@ public class ChartOptions {
     }
 
     public boolean shouldShowStatsOverlay() {
+        if (mChartPlacementType == ChartPlacementType.TYPE_RUN_REVIEW) {
+            return mShowStatsOverlay;
+        }
         return mShowStatsOverlay && shouldDrawRecordingOverlay();
     }
 

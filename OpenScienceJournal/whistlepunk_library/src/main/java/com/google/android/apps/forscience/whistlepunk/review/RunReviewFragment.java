@@ -89,6 +89,7 @@ import com.google.android.apps.forscience.whistlepunk.project.experiment.Experim
 import com.google.android.apps.forscience.whistlepunk.review.EditTimeDialog.EditTimeDialogListener;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -139,6 +140,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private ProgressBar mExportProgress;
     private RunReviewExporter mRunReviewExporter;
     private RunStats mCurrentSensorStats;
+    private boolean mShowStatsOverlay = false;
 
     /**
      * Use this factory method to create a new instance of
@@ -312,6 +314,17 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         }
                     }
                 });
+
+        View statsDrawer = rootView.findViewById(R.id.stats_drawer);
+        statsDrawer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mChartController != null) {
+                    mShowStatsOverlay = !mShowStatsOverlay;
+                    mChartController.setShowStatsOverlay(mShowStatsOverlay);
+                }
+            }
+        });
 
         mRunReviewPlaybackButton =
                 (ImageButton) rootView.findViewById(R.id.run_review_playback_button);
@@ -678,12 +691,15 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     @Override
                     public void success(final RunStats runStats) {
                         mCurrentSensorStats = runStats;
-                        statsList.updateStats(
-                                new StatsAccumulator.StatsDisplay().updateStreamStats(runStats));
+                        List<StreamStat> streamStats =
+                                new StatsAccumulator.StatsDisplay().updateStreamStats(runStats);
+                        statsList.updateStats(streamStats);
+
 
                         // TODO: Replace with chartLoadedCallback and loadRunData when b/29539231
                         // is fixed instead of the above.
-                        tryLoadingChartData(firstTimestamp, lastTimestamp, sensorLayout, runStats);
+                        tryLoadingChartData(firstTimestamp, lastTimestamp, sensorLayout,
+                                streamStats);
                     }
                 });
     }
@@ -709,7 +725,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     // TODO: Remove this in favor of mChartController.loadRunData above when b/29539231 is resolved.
     private void tryLoadingChartData(final long firstTimestamp, final long lastTimestamp,
-            final GoosciSensorLayout.SensorLayout sensorLayout, final RunStats runStats) {
+            final GoosciSensorLayout.SensorLayout sensorLayout,
+            final List<StreamStat> streamStats) {
         // If we are currently trying to load something, don't try and load something else.
         // Instead, when loading is completed a callback will check that the correct data
         // was loaded and re-call this function.
@@ -740,7 +757,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                             // and try again with the updated sensor ID.
                             mChartController.clearData();
                             tryLoadingChartData(firstTimestamp, lastTimestamp,
-                                    selectedSensorLayout, runStats);
+                                    selectedSensorLayout, streamStats);
                             return;
                         }
                         // Show the replay play button
@@ -750,6 +767,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         // Add the labels after all the data is loaded
                         // so that they are interpolated correctly.
                         mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
+                        mChartController.updateStats(streamStats);
                         mChartController.setShowProgress(false);
 
                         // Buffer the endpoints a bit so they look nice.
@@ -793,7 +811,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         runDetailsText.setText(run.getDisplayTime(runDetailsText.getContext()));
 
         final TextView durationText = (TextView) rootView.findViewById(R.id.run_review_duration);
-        ElapsedTimeFormatter formatter = ElapsedTimeFormatter.getInstance(durationText.getContext());
+        ElapsedTimeFormatter formatter = ElapsedTimeFormatter.getInstance(
+                durationText.getContext());
         durationText.setText(formatter.format(
                 run.elapsedSeconds()));
         durationText.setContentDescription(formatter.formatForAccessibility(run.elapsedSeconds()));
