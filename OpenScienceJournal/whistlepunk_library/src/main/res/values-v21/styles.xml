@@ -15,7 +15,7 @@
   limitations under the License.
  -->
 <resources>
-    <style name="NoBarTheme.TranslucentStatusBar" parent="NoBarTheme">
+    <style name="NoBarTheme.MainActivity" parent="NoBarTheme">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowTranslucentStatus">true</item>
