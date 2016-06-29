@@ -16,7 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensordb;
 
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
+
+import java.util.List;
 
 public interface ScalarReadingList {
     /**
@@ -29,4 +32,10 @@ public interface ScalarReadingList {
      * Returns the size of the ScalarReadingList.
      */
     int size();
+
+    /**
+     * Converts the ScalarReadingList into a list of data points.
+     * @return The scalar reading list as a list of data points.
+     */
+    List<ChartData.DataPoint> asDataPoints();
 }

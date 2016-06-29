@@ -90,6 +90,10 @@ import com.google.android.apps.forscience.whistlepunk.review.EditTimeDialog.Edit
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
+import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
+import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
+import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
+import com.google.common.collect.Range;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,6 +123,20 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     public static final int LABEL_TYPE_TEXT = 0;
     public static final int LABEL_TYPE_PICTURE = 1;
 
+    // TODO: For sensors with more than 100 datapoints in 1 second, these constants may need to be
+    // adjusted!
+    private static final int DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD = 200;
+    private static final long DURATION_MS_PER_AUDIO_PLAYBACK_LOAD = 2000;
+    private static final int PLAYBACK_STATUS_NOT_PLAYING = 0;
+    private static final int PLAYBACK_STATUS_LOADING = 1;
+    private static final int PLAYBACK_STATUS_PLAYING = 2;
+    private int mPlaybackStatus = PLAYBACK_STATUS_NOT_PLAYING;
+    private ImageButton mRunReviewPlaybackButton;
+    private SimpleJsynAudioGenerator mAudioGenerator;
+    private Handler mHandler;
+    private Runnable mPlaybackRunnable;
+    private boolean mWasPlayingBeforeTouch = false;
+
     private String mStartLabelId;
     private int mSelectedSensorIndex = 0;
     private GraphOptionsController mGraphOptionsController;
@@ -129,13 +147,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private PinnedNoteAdapter mPinnedNoteAdapter;
     private ExperimentRun mExperimentRun;
     private Experiment mExperiment;
-    private ImageButton mRunReviewPlaybackButton;
-    private boolean mIsPlaying = false;
-    private SimpleJsynAudioGenerator mAudioGenerator;
-    private Handler mHandler;
-    private Runnable mPlaybackRunnable;
-    private int mPlaybackIndex;
-    private boolean mWasPlayingBeforeTouch = false;
     private ActionMode mActionMode;
     private ProgressBar mExportProgress;
     private RunReviewExporter mRunReviewExporter;
@@ -300,7 +311,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
                     @Override
                     public void onTouchStart() {
-                        if (mIsPlaying) {
+                        if (mPlaybackStatus == PLAYBACK_STATUS_PLAYING) {
                             mWasPlayingBeforeTouch = true;
                             stopPlayback();
                         }
@@ -331,9 +342,10 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mRunReviewPlaybackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mIsPlaying) {
+                // If playback is loading, don't do anything.
+                if (mPlaybackStatus == PLAYBACK_STATUS_PLAYING) {
                     stopPlayback();
-                } else {
+                } else if (mPlaybackStatus == PLAYBACK_STATUS_NOT_PLAYING){
                     startPlayback();
                 }
             }
@@ -1174,66 +1186,88 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         return pinnedNotes;
     }
 
+    // TODO: Split playback into a separate object from RunReview.
     private void startPlayback() {
-        if (!mChartController.hasDrawnChart() || mIsPlaying) {
+        if (!mChartController.hasDrawnChart() || mPlaybackStatus != PLAYBACK_STATUS_NOT_PLAYING) {
             return;
         }
 
         final double yMin = mChartController.getRenderedYMin();
         final double yMax = mChartController.getRenderedYMax();
-        // TODO: Change this in b/29539231. Currently, note that this uses the data from the
-        // Chart Controller, so if the ChartController is loaded with a ZoomPresenter, not enough
-        // info will be played back in audio. b/29539231 tracks not using ChartController's data
-        // here.
-        final List<ChartData.DataPoint> data = mChartController.getData();
-        if (data.isEmpty()) {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "Trying to show empty data");
-            }
-            return;
-        }
+        final long xMax = mExperimentRun.getLastTimestamp();
+        final List<ChartData.DataPoint> audioData = new ArrayList<>();
 
-        // The index is based on the current position of the slider,
-        // so the user can start playing at a particular point in time.
-        mPlaybackIndex = 0;
-        long activeTimestamp = mRunReviewOverlay.getTimestamp();
-        if (activeTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
-            if (activeTimestamp > data.get((int) ((data.size() - 1) * .95)).getX()) {
+
+        final DataController dataController = getDataController();
+        final String selectedSensorId =
+                mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId;
+        long xMinToLoad = mRunReviewOverlay.getTimestamp();
+        if (xMinToLoad == RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
+            xMinToLoad = mExperimentRun.getFirstTimestamp();
+        } else {
+            if ((xMax - xMinToLoad) < .05 * (xMax - mExperimentRun.getFirstTimestamp())) {
                 // If we are 95% or more towards the end, start at the beginning.
                 // This allows for some slop.
-                mPlaybackIndex = 0;
-            } else {
-                mPlaybackIndex = mChartController.getClosestIndexToTimestamp(activeTimestamp);
+                xMinToLoad = mExperimentRun.getFirstTimestamp();
             }
         }
+        long xMaxToLoad = Math.min(xMinToLoad + DURATION_MS_PER_AUDIO_PLAYBACK_LOAD,
+                xMax);
+        final boolean fullyLoaded = xMaxToLoad == xMax;
+
         mHandler = new Handler();
         mPlaybackRunnable = new Runnable() {
+            boolean mFullyLoaded = fullyLoaded;
             @Override
             public void run() {
-                if (mPlaybackIndex > data.size()) {
-                    if (Log.isLoggable(TAG, Log.ERROR)) {
-                        Log.e(TAG, "invalid playback index!  Aborting playback");
-                    }
+                if (audioData.size() == 0) {
+                    mPlaybackStatus = PLAYBACK_STATUS_NOT_PLAYING;
                     return;
                 }
-                ChartData.DataPoint point = data.get(mPlaybackIndex);
+
+                // Every time we play a data point, we remove it from the list.
+                ChartData.DataPoint point = audioData.remove(0);
                 long timestamp = point.getX();
+
+                // Load more data when needed, i.e. when we are within a given duration away from
+                // the last loaded timestamp, and we aren't fully loaded yet.
+                long lastTimestamp = audioData.get(audioData.size() - 1).getX();
+                if (timestamp + DURATION_MS_PER_AUDIO_PLAYBACK_LOAD / 2 > lastTimestamp &&
+                        !mFullyLoaded) {
+                    long xMaxToLoad =
+                            Math.min(lastTimestamp + DURATION_MS_PER_AUDIO_PLAYBACK_LOAD, xMax);
+                    mFullyLoaded = xMaxToLoad == xMax;
+                    dataController.getScalarReadings(selectedSensorId, /* tier 0 */ 0,
+                            TimeRange.oldest(Range.openClosed(lastTimestamp, xMaxToLoad)),
+                            DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD,
+                            new MaybeConsumer<ScalarReadingList>() {
+                                @Override
+                                public void success(ScalarReadingList list) {
+                                    audioData.addAll(list.asDataPoints());
+                                }
+
+                                @Override
+                                public void fail(Exception e) {
+                                    Log.e(TAG, "Error loading audio playback data");
+                                    stopPlayback();
+                                }
+                            });
+                }
+
+                // Now play the tone, and get set up for the next callback, if one is needed.
                 try {
                     mAudioGenerator.addData(timestamp, point.getY(), yMin, yMax);
                     mRunReviewOverlay.setActiveTimestamp(timestamp);
                 } finally {
-                    // If the playback index is the size of the last callback index,
-                    // i.e. one less than the last index in the run, some special handling
+                    // If this is the second to last point, some special handling
                     // needs to be done to determine when to make the last tone.
-                    mPlaybackIndex++;
-                    int lastCallbackIndex = data.size() - 1;
-                    if (mPlaybackIndex < lastCallbackIndex) {
+                    if (audioData.size() > 2) {
                         // Play the next note after the time between this point and the
-                        // next point has ellapsed.
+                        // next point has elapsed.
                         // mPlaybackIndex is now the index of the next point.
                         mHandler.postDelayed(mPlaybackRunnable,
-                                data.get(mPlaybackIndex).getX() - timestamp);
-                    } else if (mPlaybackIndex == lastCallbackIndex) {
+                                audioData.get(0).getX() - timestamp);
+                    } else if (audioData.size() == 1) {
                         // The last note gets some duration.
                         mHandler.postDelayed(mPlaybackRunnable, 10);
                     } else {
@@ -1242,18 +1276,37 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 }
             }
         };
-        mAudioGenerator.startPlaying();
-        mPlaybackRunnable.run();
 
-        mRunReviewPlaybackButton.setImageDrawable(
-                getResources().getDrawable(R.drawable.ic_pause_black_24dp));
-        mRunReviewPlaybackButton.setContentDescription(
-                getResources().getString(R.string.playback_button_pause));
-        mIsPlaying = true;
+        // Load the first set of scalar readings, and start playing as soon as they are loaded.
+        dataController.getScalarReadings(selectedSensorId, /* tier 0 */ 0,
+                TimeRange.oldest(Range.closed(xMinToLoad, xMaxToLoad)),
+                DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD, new MaybeConsumer<ScalarReadingList>() {
+                    @Override
+                    public void success(ScalarReadingList list) {
+                        audioData.addAll(list.asDataPoints());
+                        mAudioGenerator.startPlaying();
+                        mPlaybackRunnable.run();
+                        mPlaybackStatus = PLAYBACK_STATUS_PLAYING;
+                        mRunReviewPlaybackButton.setImageDrawable(
+                                getResources().getDrawable(R.drawable.ic_pause_black_24dp));
+                        mRunReviewPlaybackButton.setContentDescription(
+                                getResources().getString(R.string.playback_button_pause));
+                    }
+
+                    @Override
+                    public void fail(Exception e) {
+                        if (Log.isLoggable(TAG, Log.ERROR)) {
+                            Log.e(TAG, "Error loading audio playback data");
+                            stopPlayback();
+                        }
+                    }
+                });
+
+        mPlaybackStatus = PLAYBACK_STATUS_LOADING;
     }
 
     private void stopPlayback() {
-        if (!mIsPlaying) {
+        if (mPlaybackStatus == PLAYBACK_STATUS_NOT_PLAYING) {
             return;
         }
         mHandler.removeCallbacks(mPlaybackRunnable);
@@ -1263,7 +1316,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
         mRunReviewPlaybackButton.setContentDescription(
                 getResources().getString(R.string.playback_button_play));
-        mIsPlaying = false;
+        mPlaybackStatus = PLAYBACK_STATUS_NOT_PLAYING;
     }
 
     private void exportRun(final ExperimentRun run) {
