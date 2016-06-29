@@ -24,6 +24,9 @@
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
     </style>
 
+    <style name="NoBarTheme.MainActivity" parent="NoBarTheme">
+    </style>
+
     <style name="NoBarTheme.TranslucentStatusBar" parent="NoBarTheme">
         <item name="android:windowTranslucentStatus">true</item>
     </style>
