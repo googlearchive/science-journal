@@ -250,19 +250,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             }
         });
         AppSingleton.getInstance(getActivity()).removeListeners(TAG);
-        // Force a reload of layouts when we resume, in case something was changed in another
-        // activity.
-        if (!isWaitingForPermissionsResult()) {
-            mSensorLayoutsLoaded = false;
-        }
+        mSensorLayoutsLoaded = false;
         super.onPause();
-    }
-
-    private boolean isWaitingForPermissionsResult() {
-        // mDecibelSensorCardPresenter is only set when we're waiting on a permissions result
-        // in order to try and enable it.  In that case, we should not reload sensors out from under
-        // ourselves, because that leads to a reload loop (b/28470544)
-        return mDecibelSensorCardPresenter != null;
     }
 
     private boolean isRecording() {
