@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -83,6 +84,16 @@ public class InMemorySensorDatabase implements SensorDatabase {
             @Override
             public int size() {
                 return readingsToReturn.size();
+            }
+
+            @Override
+            public List<ChartData.DataPoint> asDataPoints() {
+                List<ChartData.DataPoint> result = new ArrayList<>();
+                for (ScalarReading scalarReading : readingsToReturn) {
+                    result.add(new ChartData.DataPoint(
+                            scalarReading.getCollectedTimeMillis(), scalarReading.getValue()));
+                }
+                return result;
             }
         };
     }

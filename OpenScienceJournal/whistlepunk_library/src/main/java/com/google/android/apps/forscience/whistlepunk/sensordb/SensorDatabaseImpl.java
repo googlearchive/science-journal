@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.common.base.Joiner;
 import com.google.common.collect.DiscreteDomain;
@@ -147,6 +148,15 @@ public class SensorDatabaseImpl implements SensorDatabase {
                 @Override
                 public int size() {
                     return actualCount;
+                }
+
+                @Override
+                public List<ChartData.DataPoint> asDataPoints() {
+                    List<ChartData.DataPoint> result = new ArrayList<>();
+                    for (int i = 0; i < actualCount; i++) {
+                        result.add(new ChartData.DataPoint(readTimestamps[i], readValues[i]));
+                    }
+                    return result;
                 }
             };
         } finally {
