@@ -78,11 +78,13 @@ public class SensorRegistry {
 
     private static class SensorRegistryItem {
         public String providerId;
+        public String loggingId;
         public SensorChoice choice;
 
-        public SensorRegistryItem(String providerId, SensorChoice choice) {
+        public SensorRegistryItem(String providerId, SensorChoice choice, String loggingId) {
             this.providerId = providerId;
             this.choice = choice;
+            this.loggingId = loggingId;
         }
     }
 
@@ -151,6 +153,13 @@ public class SensorRegistry {
         return mSensorRegistry.keySet();
     }
 
+    public String getLoggingId(String id) {
+        if (mSensorRegistry.containsKey(id)) {
+            return mSensorRegistry.get(id).loggingId;
+        }
+        return null;
+    }
+
     private void removeAllBluetoothDevices() {
         for (Iterator<SensorRegistryItem> iterator = mSensorRegistry.values().iterator();
                 iterator.hasNext(); ) {
@@ -203,7 +212,7 @@ public class SensorRegistry {
     }
 
     private void addBuiltInSensor(SensorChoice source) {
-        addSource(new SensorRegistryItem(WP_HARDWARE_PROVIDER_ID, source));
+        addSource(new SensorRegistryItem(WP_HARDWARE_PROVIDER_ID, source, source.getId()));
     }
 
     @NonNull
@@ -220,7 +229,8 @@ public class SensorRegistry {
                 ExternalSensorProvider provider = mExternalProviders.get(sensor.getType());
                 if (provider != null) {
                     addSource(new SensorRegistryItem(provider.getProviderId(),
-                            provider.buildSensor(sensorId, sensor)));
+                            provider.buildSensor(sensorId, sensor), entry.getValue()
+                                    .getLoggingId()));
                     sensorsActuallyAdded.add(sensorId);
                 }
             }

@@ -1157,7 +1157,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                         value.getTimeStamp() - mExternalAxis
                                                 .getRecordingStartTime());
                         // Record which sensors were recorded.
-                        String[] sensors = mSensorCardAdapter.getSensorTags();
+                        String[] sensors = getLoggingIds(mSensorCardAdapter.getSensorTags());
                         Arrays.sort(sensors);
                         WhistlePunkApplication.getUsageTracker(getActivity())
                                 .trackEvent(TrackerConstants.CATEGORY_RUNS,
@@ -1181,6 +1181,18 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                 Snackbar.LENGTH_LONG).show();
                     }
                 });
+    }
+
+    private String[] getLoggingIds(String[] sensorIds) {
+        if (sensorIds == null || sensorIds.length == 0) {
+            return new String[] {};
+        }
+        final int size = sensorIds.length;
+        String[] loggingIds = new String[size];
+        for (int index = 0; index < size; index++) {
+            loggingIds[index] = mSensorRegistry.getLoggingId(sensorIds[index]);
+        }
+        return loggingIds;
     }
 
     private void failedStopRecording(int stringId) {
