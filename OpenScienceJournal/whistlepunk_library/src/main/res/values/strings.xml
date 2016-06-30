@@ -1038,6 +1038,9 @@
     <!--Content description for RunReview overflow menu [CHAR_LIMIT=NONE]-->
     <string name="run_review_overflow_menu_content_description">More options</string>
 
+    <!-- Message shown in license screen if no licenses were found [CHAR_LIMIT=NONE]-->
+    <string name="licenses_empty">No licenses found.</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
