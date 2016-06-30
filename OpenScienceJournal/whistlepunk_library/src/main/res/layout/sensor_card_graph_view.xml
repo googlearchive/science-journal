@@ -29,7 +29,8 @@
         android:layout_height="0dp"
         android:paddingLeft="@dimen/stream_presenter_padding_sides"
         android:layout_marginRight="@dimen/stream_presenter_padding_sides"
-        android:paddingTop="@dimen/stream_presenter_padding_top_bottom"
+        android:paddingTop="@dimen/stream_presenter_padding_top"
+        android:layout_marginTop="@dimen/stream_presenter_margin_top"
         android:paddingBottom="@dimen/stream_presenter_padding_top_bottom"
         android:background="@color/card_background_color"
         />

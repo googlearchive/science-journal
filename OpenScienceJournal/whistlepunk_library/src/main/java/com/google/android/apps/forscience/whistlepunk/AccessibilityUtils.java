@@ -103,7 +103,7 @@ public final class AccessibilityUtils {
                         Rect rect = new Rect();
                         next.getHitRect(rect);
                         rect.top += shift;
-                        rect.bottom += Math.ceil(rect.top + a11ySize);
+                        rect.bottom = Math.max(rect.top + a11ySize, rect.bottom);
                         touchDelegates.add(new TouchDelegate(rect, next));
                     }
                 }

@@ -27,6 +27,8 @@
 
     <dimen name="stream_presenter_padding_sides">16dp</dimen>
     <dimen name="stream_presenter_padding_top_bottom">24dp</dimen>
+    <dimen name="stream_presenter_padding_top">12dp</dimen>
+    <dimen name="stream_presenter_margin_top">12dp</dimen>
 
     <!-- The margin between the left edge of the graph and the left edge of the chart.
          The Y axis labels will be drawn in this space. -->
