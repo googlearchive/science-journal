@@ -69,13 +69,12 @@ public class SettingsActivity extends AppCompatActivity {
         }
         getFragmentManager().beginTransaction().replace(R.id.container, fragment)
                 .commit();
-
-        setTitle(getIntent().getExtras().getString(KEY_TITLE, getString(R.string.action_settings)));
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            // TODO: use onNavigateUp instead?
             finish();
         }
         return super.onOptionsItemSelected(item);

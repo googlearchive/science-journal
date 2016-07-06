@@ -54,6 +54,11 @@ public class SettingsFragment extends PreferenceFragment {
         // Set the intent explicitly so that we know we are targeting the right package.
         tutorialPreference.setIntent(new Intent(getActivity().getApplicationContext(),
                 TutorialActivity.class));
+
+        Preference licensePreference = findPreference(KEY_OPEN_SOURCE);
+        licensePreference.setIntent(new Intent(getActivity().getApplicationContext(),
+                LicenseActivity.class));
+
         loadVersion(getActivity());
     }
 
@@ -62,15 +67,6 @@ public class SettingsFragment extends PreferenceFragment {
         super.onResume();
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_SETTINGS);
-    }
-
-    @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        if (KEY_OPEN_SOURCE.equals(preference.getKey())) {
-            new LicenseFragment().show(getFragmentManager(), "license");
-            return true;
-        }
-        return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
 
     private void loadVersion(Context context) {
