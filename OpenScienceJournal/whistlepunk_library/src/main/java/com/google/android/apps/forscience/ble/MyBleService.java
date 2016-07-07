@@ -163,9 +163,9 @@ public class MyBleService extends Service {
                                           BluetoothGattCharacteristic characteristic, int status) {
             if (DEBUG) Log.d(TAG, "Characteristic write result: "
                     + characteristic.getUuid() + " - " + (status == BluetoothGatt.GATT_SUCCESS));
-            sendGattBroadcast(characteristic.getUuid().toString(),
+            sendGattBroadcast(gatt.getDevice().getAddress(),
                     status == BluetoothGatt.GATT_SUCCESS
-                            ? BleEvents.WRITE_CHAR_OK : BleEvents.WRITE_CHAR_FAIL, null);
+                            ? BleEvents.WRITE_CHAR_OK : BleEvents.WRITE_CHAR_FAIL, characteristic);
         }
 
         @Override
@@ -200,8 +200,7 @@ public class MyBleService extends Service {
     private void sendGattBroadcast(String address, String gattAction,
                                    BluetoothGattCharacteristic characteristic) {
         if (DEBUG) Log.d(TAG, "Sending the action: " + gattAction);
-        Intent newIntent = new Intent(gattAction);
-        newIntent.putExtra(ADDRESS, address);
+        Intent newIntent = BleEvents.createIntent(gattAction, address);
         if (characteristic != null) {
             newIntent.putExtra(UUID, characteristic.getUuid().toString());
             newIntent.putExtra(FLAGS, characteristic.getProperties());
