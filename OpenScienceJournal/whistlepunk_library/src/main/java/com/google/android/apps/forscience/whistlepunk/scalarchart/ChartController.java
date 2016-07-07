@@ -310,7 +310,7 @@ public class ChartController {
     }
 
     public boolean hasScreenPoints() {
-        return mChartView.isDrawn() && !mChartData.isEmpty();
+        return mChartView != null && mChartView.isDrawn() && !mChartData.isEmpty();
     }
 
     public PointF getScreenPoint(long timestamp, double value) {
