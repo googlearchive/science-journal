@@ -111,6 +111,11 @@ public interface SensorPresenter extends SensorObserver {
      */
     void onStopObserving();
 
+    /**
+     * The view is about to be recycled, but continue observing the sensor data.
+     */
+    void onViewRecycled();
+
     OptionsPresenter getOptionsPresenter();
 
     boolean hasOptionsPresenter();

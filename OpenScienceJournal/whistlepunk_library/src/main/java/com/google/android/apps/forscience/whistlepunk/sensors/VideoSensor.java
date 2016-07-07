@@ -126,6 +126,11 @@ public class VideoSensor extends SensorChoice {
             }
 
             @Override
+            public void onViewRecycled() {
+
+            }
+
+            @Override
             public boolean hasOptionsPresenter() {
                 return true;
             }

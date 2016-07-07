@@ -202,6 +202,13 @@ public class ChartController {
         mChartData.clear();
     }
 
+    public void onViewRecycled() {
+        if (mChartView != null) {
+            mChartView.clearInteractionListeners();
+            mChartView = null;
+        }
+    }
+
     public void setPinnedToNow(boolean isPinnedToNow) {
         mChartOptions.setPinnedToNow(isPinnedToNow);
     }
