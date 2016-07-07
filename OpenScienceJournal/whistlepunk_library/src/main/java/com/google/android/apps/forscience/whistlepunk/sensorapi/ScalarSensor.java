@@ -179,6 +179,11 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             }
 
             @Override
+            public void onViewRecycled() {
+                chartController.onViewRecycled();
+            }
+
+            @Override
             public OptionsPresenter getOptionsPresenter() {
                 return optionsPresenter;
             }

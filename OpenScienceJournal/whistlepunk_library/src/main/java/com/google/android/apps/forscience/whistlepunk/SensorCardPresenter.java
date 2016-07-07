@@ -548,6 +548,7 @@ public class SensorCardPresenter {
         mCardViewHolder.menuButton.setOnClickListener(null);
         mCardViewHolder.infoButton.setOnClickListener(null);
         mCardViewHolder.graphStatsList.setOnClickListener(null);
+        mSensorPresenter.onViewRecycled();
         mCloseListener = null;
         mCardViewHolder = null;
     }

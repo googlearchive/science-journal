@@ -125,6 +125,11 @@ public class SensorCardPresenterUnitTest {
         }
 
         @Override
+        public void onViewRecycled() {
+
+        }
+
+        @Override
         public OptionsPresenter getOptionsPresenter() {
             return null;
         }
