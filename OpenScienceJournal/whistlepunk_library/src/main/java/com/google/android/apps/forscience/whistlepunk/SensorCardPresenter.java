@@ -971,9 +971,9 @@ public class SensorCardPresenter {
                 Math.max((int) (MULTIPLE_CARD_HEIGHT_PERCENT * mSingleCardPresenterHeight),
                         mCardViewHolder.getContext().getResources().getDimensionPixelSize(
                                 R.dimen.sensor_card_content_height_min));
-        ViewGroup.LayoutParams params = mCardViewHolder.chartView.getLayoutParams();
+        ViewGroup.LayoutParams params = mCardViewHolder.graphViewGroup.getLayoutParams();
         params.height = height;
-        mCardViewHolder.chartView.setLayoutParams(params);
+        mCardViewHolder.graphViewGroup.setLayoutParams(params);
 
         params = mCardViewHolder.meterViewGroup.getLayoutParams();
         params.height = height;
