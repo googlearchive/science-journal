@@ -196,6 +196,7 @@ public class ChartView extends View {
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        float prevHeight = mHeight;
         mHeight = getMeasuredHeight();
         mWidth = getMeasuredWidth();
         mTopPadding = getPaddingTop();
@@ -205,6 +206,11 @@ public class ChartView extends View {
             return;
         }
         measure();
+
+        // If the height has changed, need to redraw the whole path!
+        if (prevHeight != mHeight && mIsDrawn) {
+            redraw();
+        }
     }
 
     private void measure() {
