@@ -373,7 +373,7 @@ public class ChartController {
     public void updateStats(List<StreamStat> stats) {
         mChartData.updateStats(stats);
         if (mChartView != null) {
-            mChartView.invalidate();
+            mChartView.postInvalidateOnAnimation();
         }
     }
 

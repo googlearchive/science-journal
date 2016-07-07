@@ -438,7 +438,7 @@ public class ChartView extends View {
         mYAxisPoints.clear();
         mYAxisPointLabels.clear();
         populatePath(false);
-        invalidate();
+        postInvalidateOnAnimation();
     }
 
     /**
@@ -535,11 +535,11 @@ public class ChartView extends View {
         if (!mHasPath || numPoints < MAXIMUM_NUM_POINTS_FOR_POPULATE_PATH ||
                 (numPoints % DRAWN_POINTS_REDRAW_THRESHOLD == 0 && mChartOptions.isPinnedToNow())) {
             populatePath(true);
-            invalidate();
+            postInvalidateOnAnimation();
         } else {
             if (mChartOptions.isPinnedToNow() && !mWasPinnedToNow) {
                 populatePath(true);
-                invalidate();
+                postInvalidateOnAnimation();
             } else if ((mChartOptions.isPinnedToNow()) ||
                     mChartOptions.getRenderedXMax() >= point.getX() || mLeadingEdgeIsDrawn) {
                 // Add the point to the end only if the end is being rendered.
@@ -565,7 +565,7 @@ public class ChartView extends View {
         mPath.transform(matrix);
 
         updatePathCalcs();
-        invalidate();
+        postInvalidateOnAnimation();
     }
 
     private void updatePathCalcs() {
@@ -860,7 +860,7 @@ public class ChartView extends View {
         boolean newRangeTooLarge = getScreenX(mXMaxInPath) - getScreenX(mXMinInPath) > mWidth * 2;
         if (newRangeOutsideOfPathRange || newRangeTooLarge) {
             populatePath(false);
-            invalidate();
+            postInvalidateOnAnimation();
         } else {
             transformPath();
         }
