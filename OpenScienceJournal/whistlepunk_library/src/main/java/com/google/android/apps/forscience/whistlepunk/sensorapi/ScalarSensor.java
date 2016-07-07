@@ -18,10 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,7 +28,6 @@ import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioGenerator;
@@ -334,14 +331,6 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
     public static boolean hasValue(Bundle bundle) {
         return bundle.containsKey(BUNDLE_KEY_SENSOR_VALUE);
-    }
-
-    /**
-     * Takes a clock object and a sensor event and gets the local timestamp for it.
-     */
-    public static long getLocalTimestamp(Clock clock, SensorEvent sensorEvent) {
-        return clock.getNow() + ((sensorEvent.timestamp - SystemClock.elapsedRealtimeNanos())
-                / 1000000L);
     }
 
     @Override
