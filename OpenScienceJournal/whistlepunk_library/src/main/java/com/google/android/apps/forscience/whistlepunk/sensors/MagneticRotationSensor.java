@@ -63,7 +63,7 @@ public class MagneticRotationSensor extends ScalarSensor {
                         // Convert X and Y components to angle
                         // https://en.wikipedia.org/wiki/Atan2
                         double angle = Math.toDegrees(Math.atan2(y,x)) + 180.;
-                        c.addData(getLocalTimestamp(clock, event), angle);
+                        c.addData(clock.getNow(), angle);
                     }
 
                     @Override
