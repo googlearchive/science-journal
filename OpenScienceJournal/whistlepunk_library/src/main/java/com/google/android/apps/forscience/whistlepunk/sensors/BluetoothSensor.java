@@ -124,7 +124,7 @@ public class BluetoothSensor extends ScalarSensor {
     private static UUID ANNING_SERV = UUID.fromString("555a0001-0aaa-467a-9538-01f0652c74e8");
     private static UUID ANNING_VALUE = UUID.fromString("555a0003-0aaa-467a-9538-01f0652c74e8");
     private static UUID ANNING_SETTING = UUID.fromString("555a0010-0aaa-467a-9538-01f0652c74e8");
-    private static UUID ANNING_VERSION = UUID.fromString("555a0012-0aaa-467a-9538-01f0652c74e8");
+    private static UUID ANNING_VERSION = UUID.fromString("555a0011-0aaa-467a-9538-01f0652c74e8");
 
     public static final BleServiceSpec ANNING_SERVICE_SPEC = new BleServiceSpec(ANNING_SERV,
             ANNING_VALUE, ANNING_SETTING, ANNING_VERSION);
