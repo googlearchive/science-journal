@@ -41,7 +41,9 @@ import java.text.NumberFormat;
 /**
  * Draws the value over a RunReview chart.
  */
-public class RunReviewOverlay extends View {
+public class RunReviewOverlay extends View implements ChartController.ChartDataLoadedCallback {
+    private long mPreviouslySelectedTimestamp;
+
     public interface OnTimestampChangeListener {
         void onTimestampChanged(long timestamp);
     }
@@ -234,6 +236,7 @@ public class RunReviewOverlay extends View {
 
     public void setChartController(ChartController controller) {
         mChartController = controller;
+        mChartController.addChartDataLoadedCallback(this);
     }
 
     public void setSeekbarView(final GraphExploringSeekBar seekbar) {
@@ -376,12 +379,15 @@ public class RunReviewOverlay extends View {
     }
 
     public void onDestroy() {
-        if (mChartController != null && mOnDrawListener != null) {
-            final ViewTreeObserver observer = mChartController.getChartViewTreeObserver();
-            if (observer == null) {
-                return;
+        if (mChartController != null) {
+            mChartController.removeChartDataLoadedCallback(this);
+            if (mOnDrawListener != null) {
+                final ViewTreeObserver observer = mChartController.getChartViewTreeObserver();
+                if (observer == null) {
+                    return;
+                }
+                observer.removeOnDrawListener(mOnDrawListener);
             }
-            observer.removeOnDrawListener(mOnDrawListener);
         }
     }
 
@@ -446,5 +452,15 @@ public class RunReviewOverlay extends View {
         mPaint.setColor(newColor);
         mTimePaintActive.setColor(newColor);
         mTimePaintInactive.setColor(newColor);
+    }
+
+    @Override
+    public void onChartDataLoaded(long firstTimestamp, long lastTimestamp) {
+        setActiveTimestamp(mPreviouslySelectedTimestamp);
+    }
+
+    @Override
+    public void onLoadAttemptStarted() {
+        mPreviouslySelectedTimestamp = mSelectedTimestamp;
     }
 }

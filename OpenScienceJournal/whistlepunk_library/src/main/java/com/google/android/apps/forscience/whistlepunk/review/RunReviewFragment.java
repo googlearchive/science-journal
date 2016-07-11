@@ -34,7 +34,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -70,7 +69,6 @@ import com.google.android.apps.forscience.whistlepunk.PreviewNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment;
 import com.google.android.apps.forscience.whistlepunk.RunReviewOverlay;
-import com.google.android.apps.forscience.whistlepunk.ScalarDataLoader;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
@@ -90,7 +88,6 @@ import com.google.android.apps.forscience.whistlepunk.review.EditTimeDialog.Edit
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
-import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.collect.Range;
@@ -298,7 +295,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 new ExternalAxisController.AxisUpdateListener() {
                     @Override
                     public void onAxisUpdated(long xMin, long xMax, boolean isPinnedToNow) {
-                        mChartController.setXAxis(xMin, xMax);
+                        mChartController.onGlobalXAxisChanged(xMin, xMax, isPinnedToNow,
+                                getDataController());
                     }
                 }, /* IsLive */ false, new CurrentTimeClock());
         mRunReviewOverlay =
@@ -492,6 +490,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     private void adjustYAxis() {
+        if (mExperimentRun == null || mCurrentSensorStats == null) {
+            return;
+        }
         if (mExperimentRun.getAutoZoomEnabled()) {
             double yMin = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MIN);
             double yMax = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MAX);
@@ -676,28 +677,21 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         null, 0);
     }
 
-    // TODO: After loading run data, store it locally so that it does not need to be re-loaded in
-    // the case of switching between multiple sensors or rotating.
     private void loadRunData(final View rootView) {
         stopPlayback();
         final GoosciSensorLayout.SensorLayout sensorLayout = getSensorLayout();
         populateSensorViews(rootView, sensorLayout);
         updateSwitchSensorArrows(rootView, mExperimentRun.getSensorTags(), sensorLayout.sensorId);
 
-        // Load the sonificationType which was saved in the layout.
-        // TODO: Create a menu option in RunReview to change this.
         String sonificationType = getSonificationType(sensorLayout);
-
         mAudioGenerator.setSonificationType(sonificationType);
 
-        final long firstTimestamp = mExperimentRun.getFirstTimestamp();
-        final long lastTimestamp = mExperimentRun.getLastTimestamp();
         mRunReviewOverlay.setVisibility(View.INVISIBLE);
-
         final DataController dataController = getDataController();
-
+        final ChartController.ChartLoadingStatus fragmentRef = this;
         mCurrentSensorStats = null;
         final StatsList statsList = (StatsList) rootView.findViewById(R.id.stats_drawer);
+
         dataController.getStats(mExperimentRun.getRunId(), sensorLayout.sensorId,
                 new LoggingConsumer<RunStats>(TAG, "load stats") {
                     @Override
@@ -706,12 +700,36 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         List<StreamStat> streamStats =
                                 new StatsAccumulator.StatsDisplay().updateStreamStats(runStats);
                         statsList.updateStats(streamStats);
+                        mChartController.updateStats(streamStats);
 
+                        mChartController.loadRunData(mExperimentRun, sensorLayout, dataController,
+                                fragmentRef, runStats,
+                                new ChartController.ChartDataLoadedCallback() {
+                                    public long mOverlayTimestamp;
+                                    public long mPreviousXMax;
+                                    public long mPreviousXMin;
 
-                        // TODO: Replace with chartLoadedCallback and loadRunData when b/29539231
-                        // is fixed instead of the above.
-                        tryLoadingChartData(firstTimestamp, lastTimestamp, sensorLayout,
-                                streamStats);
+                                    @Override
+                                    public void onChartDataLoaded(long firstTimestamp,
+                                            long lastTimestamp) {
+                                       onDataLoaded(firstTimestamp, lastTimestamp, mPreviousXMin,
+                                               mPreviousXMax, mOverlayTimestamp);
+                                    }
+
+                                    @Override
+                                    public void onLoadAttemptStarted() {
+                                        // Use getSensorLayout instead of the final sensorLayout
+                                        // because the underlying sensor being loaded may have
+                                        // changed since that final var was declared, in the case
+                                        // where the user switches sensors rapidly.
+                                        mRunReviewOverlay.updateColor(getSensorLayout().color);
+                                        mRunReviewPlaybackButton.setVisibility(View.INVISIBLE);
+
+                                        mPreviousXMin = mExternalAxis.getXMin();
+                                        mPreviousXMax = mExternalAxis.getXMax();
+                                        mOverlayTimestamp = mRunReviewOverlay.getTimestamp();
+                                    }
+                                });
                     }
                 });
     }
@@ -735,81 +753,41 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 });
     }
 
-    // TODO: Remove this in favor of mChartController.loadRunData above when b/29539231 is resolved.
-    private void tryLoadingChartData(final long firstTimestamp, final long lastTimestamp,
-            final GoosciSensorLayout.SensorLayout sensorLayout,
-            final List<StreamStat> streamStats) {
-        // If we are currently trying to load something, don't try and load something else.
-        // Instead, when loading is completed a callback will check that the correct data
-        // was loaded and re-call this function.
-        // The status is always set loading before loadSensorReadings, and always set to idle
-        // when loading is completed (regardless of whether the correct data was loaded).
-        if (mLoadingStatus != GRAPH_LOAD_STATUS_IDLE) {
-            return;
+    private void onDataLoaded(long firstTimestamp, long lastTimestamp, long previousXMin,
+            long previousXMax, long overlayTimestamp) {
+        // Show the replay play button
+        mRunReviewPlaybackButton.setVisibility(View.VISIBLE);
+
+        // Add the labels after all the data is loaded
+        // so that they are interpolated correctly.
+        mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
+        mChartController.setShowProgress(false);
+
+        // Buffer the endpoints a bit so they look nice.
+        long buffer = (long) (ExternalAxisController.EDGE_POINTS_BUFFER_FRACTION *
+                (lastTimestamp - firstTimestamp));
+        long renderedXMin = firstTimestamp - buffer;
+        long renderedXMax = lastTimestamp + buffer;
+        if (previousXMax == Long.MIN_VALUE) {
+            // This is the first load. Zoom to fit the run.
+            mChartController.setXAxis(renderedXMin, renderedXMax);
+            // Display the the graph and overlays.
+            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax,
+                    mRunReviewOverlay.getSeekbar());
+            mExternalAxis.zoomTo(mChartController.getRenderedXMin(),
+                    mChartController.getRenderedXMax());
+            mRunReviewOverlay.setActiveTimestamp(firstTimestamp);
+        } else {
+            mExternalAxis.zoomTo(previousXMin, previousXMax);
+            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax,
+                    mRunReviewOverlay.getSeekbar());
         }
-        mChartController.updateColor(sensorLayout.color);
-        mRunReviewOverlay.updateColor(sensorLayout.color);
-        mRunReviewPlaybackButton.setVisibility(View.INVISIBLE);
+        adjustYAxis();
 
-        final long previousXMin = mExternalAxis.getXMin();
-        final long previousXMax = mExternalAxis.getXMax();
-        final long overlayTimestamp = mRunReviewOverlay.getTimestamp();
-
-        mChartController.clearData();
-        setGraphLoadStatus(GRAPH_LOAD_STATUS_LOADING);
-        mChartController.setShowProgress(true);
-        ScalarDataLoader.loadSensorReadings(sensorLayout.sensorId, getDataController(),
-                firstTimestamp, lastTimestamp, 0, new Runnable() {
-                    public void run() {
-                        setGraphLoadStatus(GRAPH_LOAD_STATUS_IDLE);
-                        GoosciSensorLayout.SensorLayout selectedSensorLayout = getSensorLayout();
-                        if (!TextUtils.equals(sensorLayout.sensorId,
-                                selectedSensorLayout.sensorId)) {
-                            // The wrong sensor ID was loaded into this lineGraphPresenter. Clear
-                            // and try again with the updated sensor ID.
-                            mChartController.clearData();
-                            tryLoadingChartData(firstTimestamp, lastTimestamp,
-                                    selectedSensorLayout, streamStats);
-                            return;
-                        }
-                        // Show the replay play button
-                        mRunReviewPlaybackButton.setVisibility(View.VISIBLE);
-
-
-                        // Add the labels after all the data is loaded
-                        // so that they are interpolated correctly.
-                        mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
-                        mChartController.updateStats(streamStats);
-                        mChartController.setShowProgress(false);
-
-                        // Buffer the endpoints a bit so they look nice.
-                        long buffer = (long) (ExternalAxisController.EDGE_POINTS_BUFFER_FRACTION *
-                                (lastTimestamp - firstTimestamp));
-                        long renderedXMin = firstTimestamp - buffer;
-                        long renderedXMax = lastTimestamp + buffer;
-                        if (previousXMax == Long.MIN_VALUE) {
-                            // This is the first load. Zoom to fit the run.
-                            mChartController.setXAxis(renderedXMin, renderedXMax);
-                            // Display the the graph and overlays.
-                            mExternalAxis.setReviewData(firstTimestamp,
-                                    renderedXMin, renderedXMax, mRunReviewOverlay.getSeekbar());
-                            mExternalAxis.zoomTo(mChartController.getRenderedXMin(),
-                                    mChartController.getRenderedXMax());
-                            mRunReviewOverlay.setActiveTimestamp(firstTimestamp);
-                        } else {
-                            mExternalAxis.zoomTo(previousXMin, previousXMax);
-                            mExternalAxis.setReviewData(firstTimestamp,
-                                    renderedXMin, renderedXMax, mRunReviewOverlay.getSeekbar());
-                        }
-                        adjustYAxis();
-
-                        if (overlayTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
-                            mRunReviewOverlay.setActiveTimestamp(overlayTimestamp);
-                            mRunReviewOverlay.setVisibility(View.VISIBLE);
-                        }
-                    }
-                }, LoggingConsumer.expectSuccess(TAG, "Load data for RunReview"),
-                mChartController);
+        if (overlayTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
+            mRunReviewOverlay.setActiveTimestamp(overlayTimestamp);
+            mRunReviewOverlay.setVisibility(View.VISIBLE);
+        }
     }
 
     // TODO(saff): probably extract ExperimentRunPresenter

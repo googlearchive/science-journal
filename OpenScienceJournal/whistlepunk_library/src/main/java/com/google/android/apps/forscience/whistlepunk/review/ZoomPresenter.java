@@ -16,11 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
-import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
-import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
-import com.google.android.apps.forscience.whistlepunk.ScalarDataLoader;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ZoomRecorder;
@@ -47,83 +42,32 @@ public class ZoomPresenter {
      */
     private static final double THRESHOLD_TO_CHANGE_ZOOM_LEVEL = 0.6;
 
-    private static final Runnable NOOP = new Runnable() {
-        @Override
-        public void run() {
-
-        }
-    };
     private static final String TAG = "ZoomPresenter";
 
-    private final ChartController mChartController;
-    private final DataController mDataController;
     private final int mIdealNumberOfDisplayedDatapoints;
-    private final FailureListener mFailureListener;
     private RunStats mRunStats;
     private int mCurrentTier;
-    private String mSensorId;
-    private Runnable mOnLoadFinish;
-    private IncrementalLoader mIncrementalLoader;
 
-    public ZoomPresenter(ChartController chartController, DataController dataController) {
-        this(chartController, dataController, IDEAL_NUMBER_OF_DISPLAYED_DATAPOINTS,
-                LoggingConsumer.expectSuccess(TAG, "loading readings"));
+    public ZoomPresenter() {
+        this(IDEAL_NUMBER_OF_DISPLAYED_DATAPOINTS);
     }
 
     @VisibleForTesting
-    public ZoomPresenter(ChartController chartController, DataController dataController,
-            int idealNumberOfDisplayedDatapoints, FailureListener failureListener) {
-        mChartController = Preconditions.checkNotNull(chartController);
-        mDataController = dataController;
+    public ZoomPresenter(int idealNumberOfDisplayedDatapoints) {
         mIdealNumberOfDisplayedDatapoints = idealNumberOfDisplayedDatapoints;
-        mFailureListener = failureListener;
     }
 
-    /**
-     * @param onInitialLoad should be run after data is loaded in for the first time (null for
-     *                      no-op)
-     * @param onEveryLoad   should be run every time additional data is loaded on zoom or pan (null
-     *                      for no-op)
-     */
-    public void loadInitialReadings(long firstTimestamp, long lastTimestamp, RunStats runStats,
-            final Runnable onInitialLoad, final Runnable onEveryLoad, String sensorId) {
-        long loadedRange = lastTimestamp - firstTimestamp;
-        mRunStats = runStats;
-        mCurrentTier = updateTier(loadedRange);
-        mSensorId = sensorId;
-
-        final Runnable safeInitialLoad = safeRunnable(onInitialLoad);
-        final Runnable safeEveryLoad = safeRunnable(onEveryLoad);
-
-        mOnLoadFinish = new Runnable() {
-            @Override
-            public void run() {
-                // After first run, only do every-load work
-                mOnLoadFinish = safeEveryLoad;
-
-                safeInitialLoad.run();
-                safeEveryLoad.run();
-            }
-        };
-
-        getIncrementalLoader().loadIn(firstTimestamp, lastTimestamp);
+    public void setRunStats(RunStats stats) {
+        mRunStats = stats;
     }
 
-    private Runnable safeRunnable(Runnable runnable) {
-        return runnable == null ? NOOP : runnable;
-    }
-
-    private IncrementalLoader getIncrementalLoader() {
-        if (mIncrementalLoader == null) {
-            mIncrementalLoader = new IncrementalLoader();
-        }
-        return mIncrementalLoader;
-    }
-
-    @VisibleForTesting
     public int updateTier(long loadedRange) {
         mCurrentTier = computeTier(mCurrentTier, mIdealNumberOfDisplayedDatapoints, mRunStats,
                 loadedRange);
+        return mCurrentTier;
+    }
+
+    public int getCurrentTier() {
         return mCurrentTier;
     }
 
@@ -174,58 +118,5 @@ public class ZoomPresenter {
                 StatsAccumulator.KEY_NUM_DATA_POINTS) && stats.hasStat(
                 ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS) && stats.hasStat(
                 ZoomRecorder.STATS_KEY_TIER_COUNT);
-    }
-
-    public void setXAxis(long xMin, long xMax) {
-        if (mRunStats != null) {
-            int oldTier = mCurrentTier;
-            updateTier(xMax - xMin);
-            if (mCurrentTier != oldTier) {
-                clearLineData(/* don't reset y axis */ false);
-            }
-        }
-        if (mSensorId != null) {
-            getIncrementalLoader().loadIn(xMin, xMax);
-        }
-        mChartController.setXAxis(xMin, xMax);
-    }
-
-    public void clearLineData(boolean resetYAxis) {
-        mChartController.clearData();
-        mIncrementalLoader = null;
-    }
-
-    // TODO: combine with similar code in ScalarSensor?
-    private class IncrementalLoader {
-        private boolean mAnythingLoaded = false;
-        private long mMinLoadedX = Long.MAX_VALUE;
-        private long mMaxLoadedX = Long.MIN_VALUE;
-
-        public void loadIn(long xMin, long xMax) {
-            if (!mAnythingLoaded) {
-                loadSensorReadings(xMin, xMax);
-                mMinLoadedX = xMin;
-                mMaxLoadedX = xMax;
-            }
-            if (xMin < mMinLoadedX) {
-                loadSensorReadings(xMin, mMinLoadedX);
-                mMinLoadedX = xMin;
-            }
-            if (xMax > mMaxLoadedX) {
-                loadSensorReadings(mMaxLoadedX, xMax);
-                mMaxLoadedX = xMax;
-            }
-
-            mAnythingLoaded = true;
-            mMinLoadedX = Math.min(xMin, mMinLoadedX);
-            mMaxLoadedX = Math.max(xMax, mMaxLoadedX);
-        }
-
-        private void loadSensorReadings(long firstTimestamp, long lastTimestamp) {
-            mChartController.setShowProgress(true);
-            ScalarDataLoader.loadSensorReadings(mSensorId, mDataController, firstTimestamp,
-                    lastTimestamp, mCurrentTier, mOnLoadFinish, mFailureListener,
-                    mChartController);
-        }
     }
 }
