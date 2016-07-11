@@ -676,9 +676,10 @@ public class SensorCardPresenter {
         mCardViewHolder.sensorTabLayout.post(new Runnable() {
             @Override
             public void run() {
-                mCardViewHolder.sensorTabLayout.getTabAt(
-                        mAvailableSensorIds.indexOf(sensorIdToSelect)).select();
-
+                if (mCardViewHolder != null) {
+                    mCardViewHolder.sensorTabLayout.getTabAt(
+                            mAvailableSensorIds.indexOf(sensorIdToSelect)).select();
+                }
             }
         });
     }
