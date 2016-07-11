@@ -30,7 +30,7 @@ import com.softsynth.shared.time.TimeStamp;
 **
 ** Syntona is available from: http://www.softsynth.com/syntona/
 */
-public class SimpleJsynUnitVoice extends Circuit implements UnitVoice
+public class SimpleJsynUnitVoice extends SimpleJsynUnitVoiceBase
 {
     // Declare units and ports.
     com.jsyn.unitgen.PassThrough frequencyPassThrough;
