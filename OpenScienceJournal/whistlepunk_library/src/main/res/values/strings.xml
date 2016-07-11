@@ -228,7 +228,7 @@
     <string name="elapsed_time_axis_format_small_tenths"><xliff:g id="minutes">%1d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g>.<xliff:g id="tenths">%1d</xliff:g></string>
 
     <!-- The string formatting string used to display elapsed time greater than one hour down to the tenth of a second, like 1:23:45.6 for 1 hr, 23 minutes, 45.6 seconds. [CHAR_LIMIT=5] -->
-    <string name="elapsed_time_axis_format_large_tenths"><xliff:g id="hours">%1d</xliff:g>:<xliff:g id="minutes">%1d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g>.<xliff:g id="tenths">%1d</xliff:g></string>
+    <string name="elapsed_time_axis_format_large_tenths"><xliff:g id="hours">%1d</xliff:g>:<xliff:g id="minutes">%02d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g>.<xliff:g id="tenths">%1d</xliff:g></string>
 
     <!-- String formatting string for the accessibility description of the RunReview slider [CHAR_LIMIT=None] -->
     <string name="graph_exploring_seekbar_content_description"><xliff:g id="time">%1s</xliff:g>, <xliff:g id="value">%2s</xliff:g> <xliff:g id="units">%3s</xliff:g>.</string>
