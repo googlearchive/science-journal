@@ -253,9 +253,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     @Override
                     public void onExportError(Exception e) {
                         resetExportUi();
-                        Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
-                                getString(R.string.export_error), Snackbar.LENGTH_LONG);
-                        bar.show();
+                        if (getActivity() != null) {
+                            Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
+                                    getString(R.string.export_error), Snackbar.LENGTH_LONG);
+                            bar.show();
+                        }
                     }
                 });
         setHasOptionsMenu(true);
