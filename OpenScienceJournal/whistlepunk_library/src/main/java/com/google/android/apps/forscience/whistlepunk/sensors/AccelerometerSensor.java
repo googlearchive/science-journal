@@ -79,9 +79,8 @@ public class AccelerometerSensor extends ScalarSensor {
                 mSensorEventListener = new SensorEventListener() {
                     @Override
                     public void onSensorChanged(SensorEvent event) {
-                        // TODO(saff): do we want to use skew calculation from the event, similar
-                        // to BLE?
-                        c.addData(clock.getNow(), mAxis.getValue(event));
+                        c.addData(getLocalEventTime(clock, event.timestamp),
+                                mAxis.getValue(event));
                     }
 
                     @Override
