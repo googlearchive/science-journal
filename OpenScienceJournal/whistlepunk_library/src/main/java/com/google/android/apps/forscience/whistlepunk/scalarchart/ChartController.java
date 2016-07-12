@@ -508,19 +508,21 @@ public class ChartController {
                 // Replace the old line data with line data at the new zoom level.
                 setShowProgress(true);
                 clearLineData();
-                mMinLoadedX = xMin - buffer;
-                mMaxLoadedX = xMax + buffer;
+                mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
+                mMaxLoadedX = Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
                 mCurrentLoadIds.clear();
                 loadReadings(dataController, mMinLoadedX, mMaxLoadedX);
             } else if (!mChartData.isEmpty()) {
                 // Load new data and throw away data that is too far off screen.
                 if (xMin < mMinLoadedX) {
-                    loadReadings(dataController, xMin - buffer, mMinLoadedX);
-                    mMinLoadedX = xMin - buffer;
+                    long prevMinLoadedX = mMinLoadedX;
+                    mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
+                    loadReadings(dataController, mMinLoadedX, prevMinLoadedX);
                 }
                 if (xMax > mMaxLoadedX) {
-                    loadReadings(dataController, mMaxLoadedX, xMax + buffer);
-                    mMaxLoadedX = xMax + buffer;
+                    long prevMaxLoadedX = mMaxLoadedX;
+                    mMaxLoadedX = Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
+                    loadReadings(dataController, prevMaxLoadedX, mMaxLoadedX);
                 }
                 mChartData.throwAwayBefore(mMinLoadedX);
                 mChartData.throwAwayAfter(mMaxLoadedX);
