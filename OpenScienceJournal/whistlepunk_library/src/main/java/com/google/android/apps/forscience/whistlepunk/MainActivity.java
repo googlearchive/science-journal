@@ -37,6 +37,7 @@ import android.view.View;
 import android.widget.Spinner;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.intro.TutorialActivity;
@@ -165,6 +166,13 @@ public class MainActivity extends AppCompatActivity
                 });
         mRecordFragment = (RecordFragment) getFragmentManager().findFragmentByTag(
                 String.valueOf(R.id.navigation_item_observe));
+        // If we get to here, it's safe to log the mode we are in: user has completed age
+        // verification.
+        WhistlePunkApplication.getUsageTracker(this).trackEvent(TrackerConstants.CATEGORY_APP,
+                TrackerConstants.ACTION_SET_MODE,
+                AgeVerifier.isOver13(AgeVerifier.getUserAge(this)) ?
+                        TrackerConstants.LABEL_MODE_NONCHILD : TrackerConstants.LABEL_MODE_CHILD,
+                0);
     }
 
     @Override

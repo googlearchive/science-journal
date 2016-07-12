@@ -54,6 +54,7 @@ public final class TrackerConstants {
     public static final String CATEGORY_EXPERIMENTS = "Experiments";
     public static final String CATEGORY_RUNS = "Runs";
     public static final String CATEGORY_NOTES = "Notes";
+    public static final String CATEGORY_APP = "App";
 
     // Event actions
     public static final String ACTION_CREATE = "Create";
@@ -63,12 +64,16 @@ public final class TrackerConstants {
     public static final String ACTION_UNARCHIVE = "Unarchived";
     public static final String ACTION_DELETED = "Deleted";
     public static final String ACTION_DELETE_UNDO = "UndoDelete";
+    public static final String ACTION_SET_MODE = "SetMode";
 
     // Labels
     public static final String LABEL_RECORD = "record";
     public static final String LABEL_RUN_REVIEW = "run_review";
     public static final String LABEL_OBSERVE = "observe";
     public static final String LABEL_EXPERIMENT_DETAIL = "experiment_detail";
+
+    public static final String LABEL_MODE_CHILD = "child";
+    public static final String LABEL_MODE_NONCHILD = "nonchild";
 
     // Values
     public static final long VALUE_TYPE_TEXT = 0;
