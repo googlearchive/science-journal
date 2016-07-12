@@ -71,7 +71,14 @@ public class StopRecordingNoDataDialog extends DialogFragment {
                 ((StopRecordingDialogListener) getParentFragment()).requestStopRecording();
             }
         });
+
         alertDialog.setCancelable(true);
         return alertDialog.create();
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        ((StopRecordingDialogListener) getParentFragment()).continueRecording();
     }
 }
