@@ -621,8 +621,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
 
         int activeCardIndex = 0;
-        if (mInitialActiveCardIndex != -1
-                && mInitialActiveCardIndex < sensorCardPresenters.size()) {
+        if (mInitialActiveCardIndex != -1 &&
+                mInitialActiveCardIndex < sensorCardPresenters.size()) {
             activeCardIndex = mInitialActiveCardIndex;
         }
 
@@ -1307,6 +1307,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 // the first time on the screen, highlight the left-most one,
                 // the one most likely to be on-screen.
                 String sensorId = sensorsActuallyAdded.get(0);
+                // Activate the first sensor card so the feature discovery has a place to attach.
+                if (mSensorCardAdapter.getSensorCardPresenters().size() > 0) {
+                    mSensorCardAdapter.getSensorCardPresenters().get(0).setActive(true, true);
+                }
                 scheduleFeatureDiscovery(sensorId);
             }
             Fragment hasBluetoothDialog =
