@@ -95,7 +95,7 @@ public class BluetoothSensor extends ScalarSensor {
         private static final int PATCH_MASK = PATCH_MAX;
 
         public BleProtocolVersion(byte[] rawVersion) {
-            int version = rawVersion[0] + rawVersion[1]<<8;
+            int version = (rawVersion[0] & 0xFF) | ((rawVersion[1]<<8) & 0xFF00);
 
             mMajorVersion = (version & MAJOR_MASK) >> MAJOR_SHIFT;
             mMinorVersion = (version & MINOR_MASK) >> MINOR_SHIFT;
@@ -113,6 +113,21 @@ public class BluetoothSensor extends ScalarSensor {
 
         public int getPatchVersion() {
             return mPatchVersion;
+        }
+
+        @VisibleForTesting
+        public int getMaxMajorVersion() {
+            return MAJOR_MAX;
+        }
+
+        @VisibleForTesting
+        public int getMaxMinorVersion() {
+            return MINOR_MAX;
+        }
+
+        @VisibleForTesting
+        public int getMaxPatchVersion() {
+            return PATCH_MAX;
         }
     }
 
