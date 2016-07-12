@@ -47,6 +47,8 @@ import android.widget.VideoView;
 
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -157,6 +159,13 @@ public class TutorialActivity extends AppCompatActivity {
         setStatusBarColorIfPossible(res.getColor(R.color.tutorial_background_welcome));
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        WhistlePunkApplication.getUsageTracker(this).trackScreenView(isIntroduction() ?
+                TrackerConstants.SCREEN_INTRO : TrackerConstants.SCREEN_INTRO_REPLAY);
+    }
+
     private void setupDots(ArrayList<TutorialItem> items) {
         mDots.removeAllViews();
         LayoutInflater inflater = getLayoutInflater();
@@ -205,16 +214,20 @@ public class TutorialActivity extends AppCompatActivity {
     }
 
     private void launchOrFinish() {
-        if (TextUtils.isEmpty(getIntent().getAction())) {
+        if (isIntroduction()) {
             // If this is true, we didn't come here from settings, so relaunch the main activity
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }
         finish();
-        // This always throws an exception, sometimes with nasty results.  See b/28086979
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            overridePendingTransition(0, android.R.transition.explode);
-//        }
+    }
+
+    /**
+     * Returns {@code true} if this launch was due to the user never having seen this before and
+     * {@code false} if the user came here from the "replay tutorial" action.
+     */
+    private boolean isIntroduction() {
+        return TextUtils.isEmpty(getIntent().getAction());
     }
 
     public static boolean shouldShowTutorial(Context context) {

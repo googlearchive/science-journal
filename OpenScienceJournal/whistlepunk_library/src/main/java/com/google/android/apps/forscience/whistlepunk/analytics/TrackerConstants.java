@@ -28,6 +28,7 @@ public final class TrackerConstants {
     // Screen names.
 
     public static final String SCREEN_INTRO = "intro";
+    public static final String SCREEN_INTRO_REPLAY = "intro_replay";
     public static final String SCREEN_OBSERVE_RECORD = "observe_record";
     public static final String SCREEN_PROJECTS = "projects";
     public static final String SCREEN_PROJECT_DETAIL = "project_detail";

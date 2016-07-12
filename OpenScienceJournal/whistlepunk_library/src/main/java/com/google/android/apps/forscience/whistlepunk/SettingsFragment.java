@@ -52,8 +52,10 @@ public class SettingsFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.settings);
         Preference tutorialPreference = findPreference(KEY_REPLAY_TUTORIAL);
         // Set the intent explicitly so that we know we are targeting the right package.
+        // Add an action so the tutorial activity knows whether we are in intro or not.
         tutorialPreference.setIntent(new Intent(getActivity().getApplicationContext(),
-                TutorialActivity.class));
+                TutorialActivity.class)
+                .setAction(KEY_REPLAY_TUTORIAL));
 
         Preference licensePreference = findPreference(KEY_OPEN_SOURCE);
         licensePreference.setIntent(new Intent(getActivity().getApplicationContext(),
