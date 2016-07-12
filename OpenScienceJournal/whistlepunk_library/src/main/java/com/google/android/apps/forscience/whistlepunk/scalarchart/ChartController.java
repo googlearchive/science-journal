@@ -56,11 +56,8 @@ public class ChartController {
         int GRAPH_LOAD_STATUS_LOADING = 1;
 
         int getGraphLoadStatus();
-
         void setGraphLoadStatus(int graphLoadStatus);
-
         String getRunId();
-
         GoosciSensorLayout.SensorLayout getSensorLayout();
     }
 
@@ -193,8 +190,11 @@ public class ChartController {
         }
     }
 
+    // Clears just the line data, but does not reset the options. This is useful if we need
+    // to update zoom levels on the same sensor in the same range, for example.
     public void clearLineData() {
         mChartData.clear();
+        mCurrentLoadIds.clear();
         if (mChartView != null) {
             mChartView.clear();
         }
@@ -202,6 +202,7 @@ public class ChartController {
 
     public void clearData() {
         mChartData.clear();
+        mCurrentLoadIds.clear();
         mChartOptions.reset();
         if (mChartView != null) {
             mChartView.clear();
@@ -439,7 +440,6 @@ public class ChartController {
         if (status.getGraphLoadStatus() != ChartLoadingStatus.GRAPH_LOAD_STATUS_IDLE) {
             return;
         }
-        mCurrentLoadIds.clear();
         updateColor(sensorLayout.color);
         status.setGraphLoadStatus(ChartLoadingStatus.GRAPH_LOAD_STATUS_LOADING);
         dataLoadedCallback.onLoadAttemptStarted();
@@ -456,23 +456,22 @@ public class ChartController {
 
             @Override
             public void onFinish(long requestId) {
-                if (mCurrentLoadIds.contains(requestId)) {
-                    mCurrentLoadIds.remove(requestId);
-                }
                 status.setGraphLoadStatus(ChartLoadingStatus.GRAPH_LOAD_STATUS_IDLE);
                 if (!runId.equals(status.getRunId()) ||
-                        !sensorLayout.sensorId.equals(status.getSensorLayout().sensorId)) {
+                        !sensorLayout.sensorId.equals(status.getSensorLayout().sensorId) ||
+                        !mCurrentLoadIds.contains(requestId)) {
                     // The wrong run or the wrong sensor ID was loaded into this
-                    // chartController. Clear and try again with the updated
-                    // run and sensor values from the holder.
+                    // chartController, or this is the wrong request ID.
+                    // Clear and try again with the updated run and sensor values from the holder.
                     clearData();
                     tryLoadingChartData(status.getRunId(),
                             status.getSensorLayout(), dc, firstTimestamp, lastTimestamp,
                             status, stats, dataLoadedCallback);
-                    return;
+                } else {
+                    mCurrentLoadIds.remove(requestId);
+                    dataLoadedCallback.onChartDataLoaded(firstTimestamp, lastTimestamp);
+                    setShowProgress(false);
                 }
-                dataLoadedCallback.onChartDataLoaded(firstTimestamp, lastTimestamp);
-                setShowProgress(false);
             }
         });
 
@@ -510,16 +509,19 @@ public class ChartController {
                 clearLineData();
                 mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
                 mMaxLoadedX = Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
-                mCurrentLoadIds.clear();
                 loadReadings(dataController, mMinLoadedX, mMaxLoadedX);
             } else if (!mChartData.isEmpty()) {
                 // Load new data and throw away data that is too far off screen.
-                if (xMin < mMinLoadedX) {
+                // Note that xMin may be less than what is possible to load, because we often
+                // load the chart with some buffer.
+                long minPossibleToLoad = Math.max(xMin, mChartOptions.getRecordingStartTime());
+                if (minPossibleToLoad < mMinLoadedX) {
                     long prevMinLoadedX = mMinLoadedX;
                     mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
                     loadReadings(dataController, mMinLoadedX, prevMinLoadedX);
                 }
-                if (xMax > mMaxLoadedX) {
+                long maxPossibleToLoad = Math.min(xMax, mChartOptions.getRecordingEndTime());
+                if (maxPossibleToLoad > mMaxLoadedX) {
                     long prevMaxLoadedX = mMaxLoadedX;
                     mMaxLoadedX = Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
                     loadReadings(dataController, prevMaxLoadedX, mMaxLoadedX);
