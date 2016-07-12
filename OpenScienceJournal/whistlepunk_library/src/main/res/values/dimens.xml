@@ -86,10 +86,13 @@
     <!-- The full sensor card header height is used to calculate how large the sensor
          presenter view should be. It is not used in any layout xml files. -->
     <dimen name="sensor_card_header_height">84dp</dimen>
-    <dimen name="sensor_card_content_height_min">240dp</dimen>
+    <dimen name="sensor_card_content_height_min">260dp</dimen>
 
     <dimen name="sensor_card_meter_units_text_size">14sp</dimen>
-    <dimen name="sensor_card_live_value_text_size">64sp</dimen>
+    <!-- This text is sized relative to the large meter mode icon, and does not need to be
+         increased for accessibility "large text" mode since it is already huge. Therefore
+         it is specified in dp instead of sp. -->
+    <dimen name="sensor_card_live_value_text_size">64dp</dimen>
     <dimen name="sensor_card_back_learn_more_text_size">14sp</dimen>
     <dimen name="sensor_card_back_info_text_size">13sp</dimen>
     <dimen name="sensor_card_back_text_margin_top">16dp</dimen>
