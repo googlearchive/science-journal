@@ -134,8 +134,10 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 notifyItemInserted(mSensorCardPresenters.size());
             }
         }
-        for (SensorCardPresenter presenter : mSensorCardPresenters) {
-            presenter.lockUiForRecording();
+        if (uiIsLocked) {
+            for (SensorCardPresenter presenter : mSensorCardPresenters) {
+                presenter.lockUiForRecording();
+            }
         }
     }
 
