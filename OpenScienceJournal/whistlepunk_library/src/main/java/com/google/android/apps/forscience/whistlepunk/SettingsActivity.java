@@ -54,12 +54,15 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-
+        setTitle(getIntent().getStringExtra(KEY_TITLE));
         int settingsType = getIntent().getIntExtra(KEY_TYPE, TYPE_SETTINGS);
         Fragment fragment;
         switch (settingsType) {
+            case TYPE_ABOUT:
+                fragment = SettingsFragment.newInstance(TYPE_ABOUT);
+                break;
             case TYPE_SETTINGS:
-                fragment = new SettingsFragment();
+                fragment = SettingsFragment.newInstance(TYPE_SETTINGS);
                 break;
             case TYPE_DEV_OPTIONS:
                 fragment = DevOptionsFragment.newInstance();

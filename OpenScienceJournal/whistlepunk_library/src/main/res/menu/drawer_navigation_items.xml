@@ -50,5 +50,9 @@
             android:id="@+id/navigation_item_feedback"
             android:icon="@drawable/ic_feedback_black_24dp"
             android:title="@string/action_feedback" />
+        <item
+            android:id="@+id/navigation_item_about"
+            android:icon="@drawable/ic_info_black_24dp"
+            android:title="@string/action_about" />
     </group>
 </menu>

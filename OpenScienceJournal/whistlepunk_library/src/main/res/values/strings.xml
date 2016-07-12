@@ -23,6 +23,9 @@
     <!-- Menu option for the settings screen [CHAR_LIMIT=25] -->
     <string name="action_settings">Settings</string>
 
+    <!-- Menu option for the about informational screen [CHAR_LIMIT=25] -->
+    <string name="action_about">About</string>
+
     <!-- Menu option for saving an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_save">Save</string>
 

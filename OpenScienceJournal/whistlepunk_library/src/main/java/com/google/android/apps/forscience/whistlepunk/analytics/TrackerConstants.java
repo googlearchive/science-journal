@@ -39,6 +39,7 @@ public final class TrackerConstants {
     public static final String SCREEN_EXPERIMENT_DETAIL = "experiment_detail";
     public static final String SCREEN_RUN_REVIEW = "run_review";
     public static final String SCREEN_SETTINGS = "settings";
+    public static final String SCREEN_ABOUT = "about";
     public static final String SCREEN_DEVICE_MANAGER = "device_manager";
     public static final String SCREEN_DEVICE_OPTIONS = "device_options";
     public static final String SCREEN_UPDATE_RUN = "run_update";

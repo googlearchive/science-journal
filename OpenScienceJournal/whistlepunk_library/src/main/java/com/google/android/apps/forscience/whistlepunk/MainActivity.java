@@ -263,6 +263,9 @@ public class MainActivity extends AppCompatActivity
             } else if (itemId == R.id.navigation_item_settings) {
                 intent = SettingsActivity.getLaunchIntent(this, menuItem.getTitle(),
                         SettingsActivity.TYPE_SETTINGS);
+            } else if (itemId == R.id.navigation_item_about) {
+                intent = SettingsActivity.getLaunchIntent(this, menuItem.getTitle(),
+                        SettingsActivity.TYPE_ABOUT);
             } else if (itemId == R.id.dev_testing_options) {
                 intent = SettingsActivity.getLaunchIntent(this, menuItem.getTitle(),
                         SettingsActivity.TYPE_DEV_OPTIONS);

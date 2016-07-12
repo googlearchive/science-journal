@@ -16,4 +16,19 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <Preference
+        android:key="replay_tutorial"
+        android:title="@string/settings_replay_tutorial_title"
+        />
+
+    <Preference
+        android:key="open_source"
+        android:title="@string/settings_open_source_title"
+        />
+
+    <Preference
+        android:key="version"
+        android:title="@string/settings_version_title"
+        />
+
 </PreferenceScreen>
