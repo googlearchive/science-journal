@@ -58,6 +58,7 @@ import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
 import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
+import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
@@ -88,9 +89,6 @@ import com.google.android.apps.forscience.whistlepunk.review.EditTimeDialog.Edit
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
-import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
-import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
-import com.google.common.collect.Range;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -120,18 +118,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     public static final int LABEL_TYPE_TEXT = 0;
     public static final int LABEL_TYPE_PICTURE = 1;
 
-    // TODO: For sensors with more than 100 datapoints in 1 second, these constants may need to be
-    // adjusted!
-    private static final int DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD = 200;
-    private static final long DURATION_MS_PER_AUDIO_PLAYBACK_LOAD = 2000;
-    private static final int PLAYBACK_STATUS_NOT_PLAYING = 0;
-    private static final int PLAYBACK_STATUS_LOADING = 1;
-    private static final int PLAYBACK_STATUS_PLAYING = 2;
-    private int mPlaybackStatus = PLAYBACK_STATUS_NOT_PLAYING;
     private ImageButton mRunReviewPlaybackButton;
-    private SimpleJsynAudioGenerator mAudioGenerator;
-    private Handler mHandler;
-    private Runnable mPlaybackRunnable;
+    private AudioPlaybackController mAudioPlaybackController;
     private boolean mWasPlayingBeforeTouch = false;
 
     private String mStartLabelId;
@@ -183,7 +171,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     @Override
     public void onDestroy() {
-        stopPlayback();
+        mAudioPlaybackController.stopPlayback();
         mGraphOptionsController = null;
         if (mExternalAxis != null) {
             mExternalAxis.destroy();
@@ -202,7 +190,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     @Override
     public void onPause() {
-        stopPlayback();
+        mAudioPlaybackController.stopPlayback();
         super.onPause();
     }
 
@@ -311,9 +299,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
                     @Override
                     public void onTouchStart() {
-                        if (mPlaybackStatus == PLAYBACK_STATUS_PLAYING) {
+                        if (mAudioPlaybackController.isPlaying()) {
                             mWasPlayingBeforeTouch = true;
-                            stopPlayback();
+                            mAudioPlaybackController.stopPlayback();
                         }
                     }
 
@@ -321,7 +309,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     public void onTouchStop() {
                         if (mWasPlayingBeforeTouch) {
                             mWasPlayingBeforeTouch = false;
-                            startPlayback();
+                            mAudioPlaybackController.startPlayback(mChartController,
+                                    getDataController(), mExperimentRun.getFirstTimestamp(),
+                                    mExperimentRun.getLastTimestamp(),
+                                    mRunReviewOverlay.getTimestamp(),
+                                    mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex)
+                                            .sensorId);
                         }
                     }
                 });
@@ -343,10 +336,15 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             @Override
             public void onClick(View v) {
                 // If playback is loading, don't do anything.
-                if (mPlaybackStatus == PLAYBACK_STATUS_PLAYING) {
-                    stopPlayback();
-                } else if (mPlaybackStatus == PLAYBACK_STATUS_NOT_PLAYING){
-                    startPlayback();
+                if (mAudioPlaybackController.isPlaying()) {
+                    mAudioPlaybackController.stopPlayback();
+                } else if (mAudioPlaybackController.isNotPlaying()){
+                    mAudioPlaybackController.startPlayback(mChartController,
+                            getDataController(), mExperimentRun.getFirstTimestamp(),
+                            mExperimentRun.getLastTimestamp(),
+                            mRunReviewOverlay.getTimestamp(),
+                            mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex)
+                                    .sensorId);
                 }
             }
         });
@@ -392,7 +390,35 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 setTimepickerUi(rootView, true);
             }
         }
-        mAudioGenerator = new SimpleJsynAudioGenerator();
+
+        mAudioPlaybackController = new AudioPlaybackController(
+                new AudioPlaybackController.AudioPlaybackListener() {
+                    @Override
+                    public void onAudioPlaybackStarted() {
+                        WhistlePunkApplication.getUsageTracker(getActivity()).trackEvent(
+                                TrackerConstants.CATEGORY_RUNS,
+                                TrackerConstants.ACTION_START_AUDIO_PLAYBACK,
+                                TrackerConstants.LABEL_RUN_REVIEW, 0);
+                        mRunReviewPlaybackButton.setImageDrawable(
+                                getResources().getDrawable(R.drawable.ic_pause_black_24dp));
+                        mRunReviewPlaybackButton.setContentDescription(
+                                getResources().getString(R.string.playback_button_pause));
+                    }
+
+                    @Override
+                    public void onTimestampUpdated(long activeTimestamp) {
+                        mRunReviewOverlay.setActiveTimestamp(activeTimestamp);
+                    }
+
+                    @Override
+                    public void onAudioPlaybackStopped() {
+                        mAudioPlaybackController.stopPlayback();
+                        mRunReviewPlaybackButton.setImageDrawable(
+                                getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
+                        mRunReviewPlaybackButton.setContentDescription(
+                                getResources().getString(R.string.playback_button_play));
+                    }
+                });
 
         return rootView;
     }
@@ -625,8 +651,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         hookUpExperimentDetailsArea(run, rootView);
 
         // Load the data for the first sensor only.
-        // TODO: Consider pre-loading data for all the sensors instead of loading it when they
-        // are selected.
         if (savedInstanceState != null) {
             mExternalAxis.zoomTo(savedInstanceState.getLong(KEY_EXTERNAL_AXIS_MINIMUM),
                     savedInstanceState.getLong(KEY_EXTERNAL_AXIS_MAXIMUM));
@@ -680,13 +704,13 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     private void loadRunData(final View rootView) {
-        stopPlayback();
+        mAudioPlaybackController.stopPlayback();
         final GoosciSensorLayout.SensorLayout sensorLayout = getSensorLayout();
         populateSensorViews(rootView, sensorLayout);
         updateSwitchSensorArrows(rootView, mExperimentRun.getSensorTags(), sensorLayout.sensorId);
 
         String sonificationType = getSonificationType(sensorLayout);
-        mAudioGenerator.setSonificationType(sonificationType);
+        mAudioPlaybackController.setSonificationType(sonificationType);
 
         mRunReviewOverlay.setVisibility(View.INVISIBLE);
         final DataController dataController = getDataController();
@@ -1097,7 +1121,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     private void launchAudioSettings() {
-        stopPlayback();
+        mAudioPlaybackController.stopPlayback();
 
         List<GoosciSensorLayout.SensorLayout> sensorLayouts = mExperimentRun.getSensorLayouts();
         int size = sensorLayouts.size();
@@ -1121,7 +1145,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     @Override
     public void onAudioSettingsApplied(String[] newSonificationTypes, String[] sensorIds) {
         // Update the currently selected sonification type.
-        mAudioGenerator.setSonificationType(newSonificationTypes[mSelectedSensorIndex]);
+        mAudioPlaybackController.setSonificationType(newSonificationTypes[mSelectedSensorIndex]);
 
         // Save the new sonification types into their respective sensorLayouts.
         // Note that this uses the knowledge that the sensor ordering has not changed since
@@ -1166,138 +1190,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         return pinnedNotes;
     }
 
-    // TODO: Split playback into a separate object from RunReview.
-    private void startPlayback() {
-        if (!mChartController.hasDrawnChart() || mPlaybackStatus != PLAYBACK_STATUS_NOT_PLAYING) {
-            return;
-        }
-
-        final double yMin = mChartController.getRenderedYMin();
-        final double yMax = mChartController.getRenderedYMax();
-        final long xMax = mExperimentRun.getLastTimestamp();
-        final List<ChartData.DataPoint> audioData = new ArrayList<>();
-
-
-        final DataController dataController = getDataController();
-        final String selectedSensorId =
-                mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId;
-        long xMinToLoad = mRunReviewOverlay.getTimestamp();
-        if (xMinToLoad == RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
-            xMinToLoad = mExperimentRun.getFirstTimestamp();
-        } else {
-            if ((xMax - xMinToLoad) < .05 * (xMax - mExperimentRun.getFirstTimestamp())) {
-                // If we are 95% or more towards the end, start at the beginning.
-                // This allows for some slop.
-                xMinToLoad = mExperimentRun.getFirstTimestamp();
-            }
-        }
-        long xMaxToLoad = Math.min(xMinToLoad + DURATION_MS_PER_AUDIO_PLAYBACK_LOAD,
-                xMax);
-        final boolean fullyLoaded = xMaxToLoad == xMax;
-
-        mHandler = new Handler();
-        mPlaybackRunnable = new Runnable() {
-            boolean mFullyLoaded = fullyLoaded;
-            @Override
-            public void run() {
-                if (audioData.size() == 0) {
-                    mPlaybackStatus = PLAYBACK_STATUS_NOT_PLAYING;
-                    return;
-                }
-
-                // Every time we play a data point, we remove it from the list.
-                ChartData.DataPoint point = audioData.remove(0);
-                long timestamp = point.getX();
-
-                // Load more data when needed, i.e. when we are within a given duration away from
-                // the last loaded timestamp, and we aren't fully loaded yet.
-                long lastTimestamp = audioData.get(audioData.size() - 1).getX();
-                if (timestamp + DURATION_MS_PER_AUDIO_PLAYBACK_LOAD / 2 > lastTimestamp &&
-                        !mFullyLoaded) {
-                    long xMaxToLoad =
-                            Math.min(lastTimestamp + DURATION_MS_PER_AUDIO_PLAYBACK_LOAD, xMax);
-                    mFullyLoaded = xMaxToLoad == xMax;
-                    dataController.getScalarReadings(selectedSensorId, /* tier 0 */ 0,
-                            TimeRange.oldest(Range.openClosed(lastTimestamp, xMaxToLoad)),
-                            DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD,
-                            new MaybeConsumer<ScalarReadingList>() {
-                                @Override
-                                public void success(ScalarReadingList list) {
-                                    audioData.addAll(list.asDataPoints());
-                                }
-
-                                @Override
-                                public void fail(Exception e) {
-                                    Log.e(TAG, "Error loading audio playback data");
-                                    stopPlayback();
-                                }
-                            });
-                }
-
-                // Now play the tone, and get set up for the next callback, if one is needed.
-                try {
-                    mAudioGenerator.addData(timestamp, point.getY(), yMin, yMax);
-                    mRunReviewOverlay.setActiveTimestamp(timestamp);
-                } finally {
-                    // If this is the second to last point, some special handling
-                    // needs to be done to determine when to make the last tone.
-                    if (audioData.size() > 2) {
-                        // Play the next note after the time between this point and the
-                        // next point has elapsed.
-                        // mPlaybackIndex is now the index of the next point.
-                        mHandler.postDelayed(mPlaybackRunnable,
-                                audioData.get(0).getX() - timestamp);
-                    } else if (audioData.size() == 1) {
-                        // The last note gets some duration.
-                        mHandler.postDelayed(mPlaybackRunnable, 10);
-                    } else {
-                        stopPlayback();
-                    }
-                }
-            }
-        };
-
-        // Load the first set of scalar readings, and start playing as soon as they are loaded.
-        dataController.getScalarReadings(selectedSensorId, /* tier 0 */ 0,
-                TimeRange.oldest(Range.closed(xMinToLoad, xMaxToLoad)),
-                DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD, new MaybeConsumer<ScalarReadingList>() {
-                    @Override
-                    public void success(ScalarReadingList list) {
-                        audioData.addAll(list.asDataPoints());
-                        mAudioGenerator.startPlaying();
-                        mPlaybackRunnable.run();
-                        mPlaybackStatus = PLAYBACK_STATUS_PLAYING;
-                        mRunReviewPlaybackButton.setImageDrawable(
-                                getResources().getDrawable(R.drawable.ic_pause_black_24dp));
-                        mRunReviewPlaybackButton.setContentDescription(
-                                getResources().getString(R.string.playback_button_pause));
-                    }
-
-                    @Override
-                    public void fail(Exception e) {
-                        if (Log.isLoggable(TAG, Log.ERROR)) {
-                            Log.e(TAG, "Error loading audio playback data");
-                            stopPlayback();
-                        }
-                    }
-                });
-
-        mPlaybackStatus = PLAYBACK_STATUS_LOADING;
-    }
-
-    private void stopPlayback() {
-        if (mPlaybackStatus == PLAYBACK_STATUS_NOT_PLAYING) {
-            return;
-        }
-        mHandler.removeCallbacks(mPlaybackRunnable);
-        mAudioGenerator.stopPlaying();
-
-        mRunReviewPlaybackButton.setImageDrawable(
-                getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
-        mRunReviewPlaybackButton.setContentDescription(
-                getResources().getString(R.string.playback_button_play));
-        mPlaybackStatus = PLAYBACK_STATUS_NOT_PLAYING;
-    }
 
     private void exportRun(final ExperimentRun run) {
         mRunReviewExporter.startExport(getActivity(), mExperiment.getDisplayTitle(

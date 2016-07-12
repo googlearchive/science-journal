@@ -26,7 +26,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 public final class TrackerConstants {
 
     // Screen names.
-
     public static final String SCREEN_INTRO = "intro";
     public static final String SCREEN_INTRO_REPLAY = "intro_replay";
     public static final String SCREEN_OBSERVE_RECORD = "observe_record";
@@ -45,7 +44,6 @@ public final class TrackerConstants {
     public static final String SCREEN_UPDATE_RUN = "run_update";
 
     // Custom dimension indices.
-
     public static final int DIMENSION_MODE = 1;
     public static final int RELEASE_TYPE = 2;
 
@@ -65,6 +63,7 @@ public final class TrackerConstants {
     public static final String ACTION_DELETED = "Deleted";
     public static final String ACTION_DELETE_UNDO = "UndoDelete";
     public static final String ACTION_SET_MODE = "SetMode";
+    public static final String ACTION_START_AUDIO_PLAYBACK = "StartAudioPlayback";
 
     // Labels
     public static final String LABEL_RECORD = "record";
