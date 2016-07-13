@@ -196,8 +196,10 @@ public class BluetoothSensor extends ScalarSensor {
                 // For Description (UUID:555a0002), it's a string desc (eg. "Goosci Windmill")
                 if (characteristic.compareTo(mServiceSpec.getVersionId()) == 0) {
                     BleProtocolVersion protocolVersion = new BleProtocolVersion(value);
-                    if (protocolVersion.getMajorVersion() == 1) {
-                        writeConfigAndSetNotification();
+                    switch (protocolVersion.getMajorVersion()) {
+                        // Currently no version requires a special connection sequence
+                        default:
+                            writeConfigAndSetNotification();
                     }
                 }
             }
