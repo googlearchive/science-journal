@@ -16,7 +16,12 @@
 
 package com.google.android.apps.forscience.ble;
 
+import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
+import android.os.Parcel;
+
+import java.util.List;
 
 /**
  * BLE related events.
@@ -55,8 +60,14 @@ public class BleEvents {
     public static final String START_TX_OK = "START_TX_OK";
     public static final String START_TX_FAIL = "START_TX_FAIL";
 
-    static IntentFilter createIntent() {
+    private static final String DATA_SCHEME = "sciencejournal";
+
+    static IntentFilter createIntentFilter(String address) {
         IntentFilter intent = new IntentFilter();
+
+        intent.addDataScheme(DATA_SCHEME);
+        intent.addDataAuthority(address, null);
+
         intent.addAction(BLE_ENABLED);
         intent.addAction(BLE_UNSUPPORTED);
         intent.addAction(BLE_DISABLED);
@@ -92,5 +103,10 @@ public class BleEvents {
         intent.addAction(START_TX_OK);
 
         return intent;
+    }
+
+    static Intent createIntent(String action, String address) {
+        Uri intentUri = new Uri.Builder().scheme(DATA_SCHEME).authority(address).build();
+        return new Intent(action, intentUri);
     }
 }

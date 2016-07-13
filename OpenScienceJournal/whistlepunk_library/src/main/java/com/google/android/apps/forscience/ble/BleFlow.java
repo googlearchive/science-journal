@@ -214,7 +214,7 @@ public class BleFlow {
             }
         }
     };
-
+    
     private BleFlow(BleClient client, Context context, String address) {
         this.client = client;
         this.context = context;
@@ -230,7 +230,7 @@ public class BleFlow {
         maxNoDevices = MyBleService.MAX_NO_DEVICES;
 
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver,
-                BleEvents.createIntent());
+                BleEvents.createIntentFilter(address));
     }
 
     private void nextAction() {
