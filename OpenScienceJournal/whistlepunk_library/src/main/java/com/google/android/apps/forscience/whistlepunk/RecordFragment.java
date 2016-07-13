@@ -1308,7 +1308,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 // the one most likely to be on-screen.
                 String sensorId = sensorsActuallyAdded.get(0);
                 // Activate the first sensor card so the feature discovery has a place to attach.
-                if (mSensorCardAdapter.getSensorCardPresenters().size() > 0) {
+                if (mSensorCardAdapter != null &&
+                        mSensorCardAdapter.getSensorCardPresenters().size() > 0) {
                     mSensorCardAdapter.getSensorCardPresenters().get(0).setActive(true, true);
                 }
                 scheduleFeatureDiscovery(sensorId);
