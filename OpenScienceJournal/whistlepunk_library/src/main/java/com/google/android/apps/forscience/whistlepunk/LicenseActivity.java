@@ -3,9 +3,11 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.ListFragment;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -72,6 +74,12 @@ public class LicenseActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             if (getFragmentManager().popBackStackImmediate()) {
+                return true;
+            } else {
+                Intent intent = SettingsActivity.getLaunchIntent(this,
+                        getString(R.string.action_about),
+                        SettingsActivity.TYPE_ABOUT);
+                NavUtils.navigateUpTo(this, intent);
                 return true;
             }
         }
