@@ -97,7 +97,7 @@ public class ExternalAxisController {
     private NewDataListener mNewDataListener;
     private InteractionListener mInteractionListener;
 
-    static final int MS_IN_SEC = 1000;
+    public static final int MS_IN_SEC = 1000;
     private static final int DEFAULT_GRAPH_RANGE_IN_SECONDS = 20;
     public static final int DEFAULT_GRAPH_RANGE_IN_MILLIS =
             DEFAULT_GRAPH_RANGE_IN_SECONDS * MS_IN_SEC;

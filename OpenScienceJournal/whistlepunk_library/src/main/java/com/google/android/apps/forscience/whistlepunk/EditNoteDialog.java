@@ -46,10 +46,11 @@ public class EditNoteDialog extends DialogFragment {
     private static final String KEY_SAVED_TIME_TEXT = "keySavedTimeText";
     private static final String KEY_SAVED_TIMESTAMP = "keySavedTimestamp";
     private static final String KEY_SELECTED_VALUE = "keySavedValue";
+    private static final java.lang.String KEY_SAVED_TIME_TEXT_DESCRIPTION =
+            "keySavedTimeTextDescription";
 
     private Label mLabel;
     private GoosciLabelValue.LabelValue mSelectedValue;
-    private String mTimeText;
     private long mTimestamp;
 
     public interface EditNoteDialogListener {
@@ -69,13 +70,15 @@ public class EditNoteDialog extends DialogFragment {
     }
 
     public static EditNoteDialog newInstance(Label label,
-            GoosciLabelValue.LabelValue selectedValue, String timeText, long timestamp) {
+            GoosciLabelValue.LabelValue selectedValue, String timeText, long timestamp,
+            String timeTextDescription) {
         EditNoteDialog dialog = new EditNoteDialog();
         Bundle args = new Bundle();
         args.putParcelable(KEY_SAVED_LABEL, label);
         args.putByteArray(KEY_SELECTED_VALUE, ProtoUtils.makeBlob(selectedValue));
         args.putString(KEY_SAVED_TIME_TEXT, timeText);
         args.putLong(KEY_SAVED_TIMESTAMP, timestamp);
+        args.putString(KEY_SAVED_TIME_TEXT_DESCRIPTION, timeTextDescription);
         dialog.setArguments(args);
         return dialog;
     }
@@ -86,7 +89,9 @@ public class EditNoteDialog extends DialogFragment {
     @Override
     public AlertDialog onCreateDialog(Bundle savedInstanceState) {
         mLabel = getArguments().getParcelable(KEY_SAVED_LABEL);
-        mTimeText = getArguments().getString(KEY_SAVED_TIME_TEXT, "");
+        String timeText = getArguments().getString(KEY_SAVED_TIME_TEXT, "");
+        String timeTextContentDescription = getArguments().getString(
+                KEY_SAVED_TIME_TEXT_DESCRIPTION);
         mTimestamp = getArguments().getLong(KEY_SAVED_TIMESTAMP);
         try {
             mSelectedValue = GoosciLabelValue.LabelValue.parseFrom(
@@ -150,9 +155,10 @@ public class EditNoteDialog extends DialogFragment {
                 });
         alertDialog.setCancelable(true);
 
-        TextView timeText = (TextView) rootView.findViewById(R.id.edit_note_time);
-        timeText.setText(mTimeText);
-        timeText.setOnClickListener(new View.OnClickListener() {
+        TextView timeTextView = (TextView) rootView.findViewById(R.id.edit_note_time);
+        timeTextView.setText(timeText);
+        timeTextView.setContentDescription(timeTextContentDescription);
+        timeTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();

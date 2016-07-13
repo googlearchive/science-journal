@@ -62,6 +62,8 @@ public class AddNoteDialog extends DialogFragment {
     private static final String KEY_SHOW_TIMESTAMP_SECTION = "savedShowTimestampSection";
     private static final String KEY_LABEL_TIME_TEXT = "savedLabelTimeText";
     private static final String KEY_SAVED_VALUE = "savedLabelValue";
+    private static final java.lang.String KEY_SAVED_TIME_TEXT_DESCRIPTION =
+            "keySavedTimeTextDescription";
 
     public interface AddNoteDialogListener {
         /**
@@ -82,15 +84,26 @@ public class AddNoteDialog extends DialogFragment {
     private long mTimestamp;
     private boolean mShowTimestampSection;
     private String mLabelTimeText;
+    private String mLabelTimeTextDescription = "";
     private String mRunId;
     private String mExperimentId;
     private int mHintTextId = R.string.add_run_note_placeholder_text;
     private String mPictureLabelPath;
     private EditText mInput;
 
+    /**
+     * Create an AddNoteDialog that does not show the timestamp section, and where the note
+     * has no previous value.
+     */
+    public static AddNoteDialog newInstance(long timestamp, String currentRunId,
+            String experimentId, int hintTextId) {
+        return AddNoteDialog.newInstance(timestamp, currentRunId, experimentId,
+                hintTextId, false, "", "");
+    }
+
     public static AddNoteDialog newInstance(long timestamp, String currentRunId,
             String experimentId, int hintTextId, boolean showTimestampSection,
-            String labelTimeText) {
+            String labelTimeText, String labelTimeTextDescription) {
         AddNoteDialog dialog = new AddNoteDialog();
 
         Bundle args = new Bundle();
@@ -100,6 +113,7 @@ public class AddNoteDialog extends DialogFragment {
         args.putInt(KEY_HINT_TEXT_ID, hintTextId);
         args.putBoolean(KEY_SHOW_TIMESTAMP_SECTION, showTimestampSection);
         args.putString(KEY_LABEL_TIME_TEXT, labelTimeText);
+        args.putString(KEY_SAVED_TIME_TEXT_DESCRIPTION, labelTimeTextDescription);
         dialog.setArguments(args);
 
         return dialog;
@@ -107,9 +121,10 @@ public class AddNoteDialog extends DialogFragment {
 
     public static AddNoteDialog newInstance(long timestamp, String currentRunId,
             String experimentId, int hintTextId, boolean showTimestampSection,
-            String labelTimeText, GoosciLabelValue.LabelValue currentValue, int labelType) {
+            String labelTimeText, GoosciLabelValue.LabelValue currentValue, int labelType,
+            String labelTimeTextDescription) {
         AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, currentRunId, experimentId,
-                hintTextId, showTimestampSection, labelTimeText);
+                hintTextId, showTimestampSection, labelTimeText, labelTimeTextDescription);
 
         if (labelType == RunReviewFragment.LABEL_TYPE_UNDECIDED) {
             // no user added value yet, so no need to store anything else.
@@ -145,6 +160,10 @@ public class AddNoteDialog extends DialogFragment {
             mHintTextId = getArguments().getInt(KEY_HINT_TEXT_ID, mHintTextId);
             mLabelTimeText = getArguments().getString(KEY_LABEL_TIME_TEXT, "");
             mPictureLabelPath = getArguments().getString(KEY_SAVED_PICTURE_PATH, null);
+            if (getArguments().containsKey(KEY_SAVED_TIME_TEXT_DESCRIPTION)) {
+                mLabelTimeTextDescription =
+                        getArguments().getString(KEY_SAVED_TIME_TEXT_DESCRIPTION);
+            }
             if (getArguments().containsKey(KEY_SAVED_VALUE)) {
                 try {
                     value = GoosciLabelValue.LabelValue.parseFrom(
@@ -200,6 +219,9 @@ public class AddNoteDialog extends DialogFragment {
             rootView.findViewById(R.id.label_dialog_timestamp_section).setVisibility(View.VISIBLE);
             TextView timestampSection = (TextView) rootView.findViewById(R.id.edit_note_time);
             timestampSection.setText(mLabelTimeText);
+            if (!TextUtils.isEmpty(mLabelTimeTextDescription)) {
+                timestampSection.setContentDescription(mLabelTimeTextDescription);
+            }
             timestampSection.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

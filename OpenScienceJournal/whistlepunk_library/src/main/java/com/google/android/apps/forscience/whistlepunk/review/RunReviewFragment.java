@@ -915,7 +915,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 PinnedNoteAdapter.getNoteTimeText(timestamp, mExperimentRun.getFirstTimestamp());
         AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, mExperimentRun.getRunId(),
                 mExperimentRun.getExperimentId(), R.string.add_note_hint_text,
-                /* show timestamp section */ true, labelTimeText, selectedValue, labelType);
+                /* show timestamp section */ true, labelTimeText, selectedValue, labelType,
+                PinnedNoteAdapter.getNoteTimeContentDescription(timestamp,
+                        mExperimentRun.getFirstTimestamp(), getActivity()));
         dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
     }
 
@@ -1116,7 +1118,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         String labelTimeText =
                 PinnedNoteAdapter.getNoteTimeText(selectedTimestamp, run.getFirstTimestamp());
         EditNoteDialog dialog = EditNoteDialog.newInstance(label, newValue, labelTimeText,
-                selectedTimestamp);
+                selectedTimestamp, PinnedNoteAdapter.getNoteTimeContentDescription(
+                        selectedTimestamp, run.getFirstTimestamp(), getActivity()));
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
