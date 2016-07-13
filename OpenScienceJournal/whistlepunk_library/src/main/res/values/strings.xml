@@ -571,19 +571,19 @@
     <string name="d2a">Amplitude</string>
 
     <!-- Name for sonification type from data to a pitch envelope [CHAR_LIMIT=30] -->
-    <string name="d2pe">Pitch envelope</string>
+    <string name="d2pe">Notes</string>
 
     <!-- Name for sonification type from data to a pentatonic scale [CHAR_LIMIT=30] -->
-    <string name="d2ps">Pentatonic scale</string>
+    <string name="d2ps">Scale</string>
 
     <!-- List of entries for the sonification type selection -->
     <string-array name="sonification_types_prod">
         <item>@string/d2p</item>
         <item>@string/d2ps</item>
+        <item>@string/d2pe</item>
     </string-array>
 
     <string-array name="sonification_types_dev">
-        <item>@string/d2pe</item>
         <item>@string/d2a</item>
     </string-array>
 
