@@ -972,7 +972,12 @@
     <string name="listing_tagline">Experiment on your world.</string>
 
     <!-- Change log for Science Journal (note: this is multiline, with \n to separate lines) [CHAR LIMIT=500] -->
-    <string name="listing_changelog">Bug fixes: birthday input, BLE performance, stability.</string>
+    <string name="listing_changelog">New features and improvements:
+        \n\u2022 Add captions to picture notes.
+        \n\u2022 Audio settings for data sonification.
+        \n\u2022 Performance improvements for very long trials.
+        \n\u2022 Bug fixes.
+    </string>
 
     <!-- Description text shown in the Play Store for this app. Ensure a space
          remains before and after urls. [CHAR LIMIT=4000]-->
@@ -981,7 +986,9 @@
 \n\n
 \nGet activity ideas to use with the app here: https://makingscience.withgoogle.com/science-journal/activities
 \nLearn more about Making &amp; Science: https://makingscience.withgoogle.com
-\nFor support: https://productforums.google.com/forum/#!forum/sciencejournal</string>
+\nFor support: https://productforums.google.com/forum/#!forum/sciencejournal
+\nCode available: https://github.com/google/science-journal
+    </string>
     <!-- End of Play Store Listing Strings -->
 
     <!-- The title for the live zoom in Y testing option [CHAR_LIMIT=35] -->
