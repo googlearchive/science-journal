@@ -726,7 +726,7 @@ public class SensorCardPresenter {
             public void onTabReselected(TabLayout.Tab tab) {
                 if (mCardViewHolder != null) {
                     String newSensorId = (String) tab.getTag();
-                    if (TextUtils.equals(mSensorId, newSensorId)) {
+                    if (TextUtils.equals(mSensorId, newSensorId) && mSensorPresenter != null) {
                         mSensorPresenter.resetView();
                     } else {
                         trySelectingNewSensor(mSensorId, newSensorId);
