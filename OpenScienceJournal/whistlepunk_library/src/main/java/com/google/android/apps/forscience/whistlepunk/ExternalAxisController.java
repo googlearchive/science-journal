@@ -415,7 +415,7 @@ public class ExternalAxisController {
             return "";
         }
         return ElapsedTimeFormatter.getInstance(context).formatForAccessibility(
-                (timestamp - mReviewXMin) / MS_IN_SEC);
+                (timestamp - mRecordingStart) / MS_IN_SEC);
     }
 
     private void animateButtonIn() {
