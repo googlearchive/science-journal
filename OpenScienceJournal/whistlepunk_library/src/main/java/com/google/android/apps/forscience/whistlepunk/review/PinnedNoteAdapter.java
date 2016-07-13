@@ -31,6 +31,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
+import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
+import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
@@ -134,6 +136,8 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final NoteHolder noteHolder = (NoteHolder) holder;
         final Label label = mPinnedNotes.get(position);
         noteHolder.mDurationText.setText(getNoteTimeText(label, mStartTimestamp));
+        noteHolder.mDurationText.setContentDescription(getNoteTimeContentDescription(
+                label.getTimeStamp(), mStartTimestamp, noteHolder.mDurationText.getContext()));
         String text = "";
         if (label instanceof TextLabel) {
             text = ((TextLabel) label).getText();
@@ -279,6 +283,12 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public static String getNoteTimeText(long labelTimestamp, long startTimestamp) {
         return DateUtils.formatElapsedTime(Math.round(
                 (labelTimestamp - startTimestamp) / RunReviewFragment.MILLIS_IN_A_SECOND));
+    }
+
+    public static String getNoteTimeContentDescription(long currentTimestamp,
+            long runStartTimestamp, Context context) {
+        return ElapsedTimeFormatter.getInstance(context).formatForAccessibility(
+                (currentTimestamp - runStartTimestamp) / ExternalAxisController.MS_IN_SEC);
     }
 
     public void onDestroy() {

@@ -859,8 +859,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         final AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, mCurrentRunId,
                 mSelectedExperiment.getExperimentId(),
                 isRecording() ? R.string.add_run_note_placeholder_text :
-                        R.string.add_experiment_note_placeholder_text,
-                /* don't show timestamp section */ false, "");
+                        R.string.add_experiment_note_placeholder_text);
 
         dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
     }
