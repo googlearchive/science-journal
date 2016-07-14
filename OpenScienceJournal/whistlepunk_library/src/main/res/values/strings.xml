@@ -916,6 +916,8 @@
     <string name="btn_previous_label">Prev</string>
     <!-- Button label to go to the next screen in the tutorial [CHAR_LIMIT=10]-->
     <string name="btn_next_label">Next</string>
+    <!-- Button label to skip the tutorial completely [CHAR_LIMIT=10] -->
+    <string name="btn_skip_label">Skip</string>
 
     <!-- Message to display to the user when a sensor card failed to load data [CHAR_LIMIT=100] -->
     <string name="sensor_card_error_text">Failed to load sensor data</string>
