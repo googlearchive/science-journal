@@ -87,7 +87,6 @@ public class ChartController {
     private ChartOptions mChartOptions;
     private ChartView mChartView;
     private ExternalAxisController.InteractionListener mInteractionListener;
-    private long mRecordingStartTime = RecordingMetadata.NOT_RECORDING;
     private ProgressBar mProgressView;
 
     // Fields used for data loading and clearing during Observe/Record
@@ -103,8 +102,10 @@ public class ChartController {
     // that region was meant to be cleared, causing bugs. Therefore mMinLoadedX and mMaxLoadedX
     // are used to track the min and max we know we've loaded during RunReview, to assist in
     // data loading during zoom and pan.
-    private long mMinLoadedX;
+    private static final long NOTHING_LOADED = -1;
+    private long mMinLoadedX = NOTHING_LOADED;
     private long mMaxLoadedX;
+    private boolean mNeedsForwardLoad = false;
     private List<Long> mCurrentLoadIds = new ArrayList<>();
     public List<ChartDataLoadedCallback> mChartDataLoadedCallbacks = new ArrayList<>();
 
@@ -216,6 +217,7 @@ public class ChartController {
             mChartView = null;
         }
         mChartData.clear();
+        mCurrentLoadIds.clear();
         mChartDataLoadedCallbacks.clear();
     }
 
@@ -237,7 +239,7 @@ public class ChartController {
     public void setLabels(List<Label> labels) {
         mDisplayableLabels.clear();
         for (Label label : labels) {
-            if (mChartOptions.isDisplayable(label, mRecordingStartTime)) {
+            if (mChartOptions.isDisplayable(label, mChartOptions.getRecordingStartTime())) {
                 mDisplayableLabels.add(label);
             }
         }
@@ -390,7 +392,6 @@ public class ChartController {
     }
 
     public void setRecordingStartTime(long recordingStartTime) {
-        mRecordingStartTime = recordingStartTime;
         mChartOptions.setRecordingStartTime(recordingStartTime);
         if (mChartView != null) {
             mChartView.invalidate();
@@ -488,29 +489,52 @@ public class ChartController {
         return mZoomPresenter;
     }
 
+    public void onPause() {
+        if (isRecording()) {
+            mNeedsForwardLoad = true;
+        }
+    }
+
     public void onResume(long resetTime) {
         mResetTime = resetTime;
         if (hasData() && mResetTime > mChartData.getXMax() + MAX_BLACKOUT_MILLIS_BEFORE_CLEARING) {
-            clearData();
+            clearLineData();
+            mNeedsForwardLoad = false;
         }
     }
 
     public void onGlobalXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,
             DataController dataController) {
-        if (mChartOptions.getChartPlacementType() ==
-                ChartOptions.ChartPlacementType.TYPE_RUN_REVIEW && mZoomPresenter != null) {
+        boolean isRunReview = mChartOptions.getChartPlacementType() ==
+                ChartOptions.ChartPlacementType.TYPE_RUN_REVIEW;
+        if (isRunReview && mZoomPresenter == null) {
+            // Then we aren't loaded all the way, so don't try to load anything else.
+            return;
+        }
+        boolean isRecording = mChartOptions.getChartPlacementType() ==
+                ChartOptions.ChartPlacementType.TYPE_OBSERVE && isRecording();
+        if (isRunReview || isRecording) {
             long range = xMax - xMin;
-            long buffer = range / 8;
-            int oldTier = mZoomPresenter.getCurrentTier();
-            int newTier = mZoomPresenter.updateTier(range);
-            if (oldTier != newTier) {
-                // Replace the old line data with line data at the new zoom level.
-                setShowProgress(true);
-                clearLineData();
-                mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
-                mMaxLoadedX = Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
-                loadReadings(dataController, mMinLoadedX, mMaxLoadedX);
-            } else if (!mChartData.isEmpty()) {
+            long buffer = isRecording ? mDataLoadBuffer : range / 8;
+
+            if (isRunReview) {
+                int oldTier = mZoomPresenter.getCurrentTier();
+                int newTier = mZoomPresenter.updateTier(range);
+                if (oldTier != newTier) {
+                    // Replace the old line data with line data at the new zoom level.
+                    setShowProgress(true);
+                    clearLineData();
+                    mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
+                    mMaxLoadedX = Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
+                    mCurrentLoadIds.clear();
+                    loadReadings(dataController, mMinLoadedX, mMaxLoadedX);
+                    setXAxis(xMin, xMax);
+                    return;
+                }
+            }
+
+            // If something is already loaded...
+            if (mMinLoadedX != NOTHING_LOADED && !mChartData.isEmpty()) {
                 // Load new data and throw away data that is too far off screen.
                 // Note that xMin may be less than what is possible to load, because we often
                 // load the chart with some buffer.
@@ -520,59 +544,49 @@ public class ChartController {
                     mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
                     loadReadings(dataController, mMinLoadedX, prevMinLoadedX);
                 }
-                long maxPossibleToLoad = Math.min(xMax, mChartOptions.getRecordingEndTime());
+                long maxPossibleToLoad = isRecording ? xMax :
+                        Math.min(xMax, mChartOptions.getRecordingEndTime());
                 if (maxPossibleToLoad > mMaxLoadedX) {
                     long prevMaxLoadedX = mMaxLoadedX;
-                    mMaxLoadedX = Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
-                    loadReadings(dataController, prevMaxLoadedX, mMaxLoadedX);
+                    mMaxLoadedX = isRecording? xMax :
+                            Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
+                    // If it's pinned to now, then we don't expect to find data magically
+                    // appearing in front of old data.
+                    if (mNeedsForwardLoad || isRunReview || !isPinnedToNow) {
+                        loadReadings(dataController, prevMaxLoadedX, mMaxLoadedX);
+                        mNeedsForwardLoad = false;
+                    }
                 }
-                mChartData.throwAwayBefore(mMinLoadedX);
-                mChartData.throwAwayAfter(mMaxLoadedX);
-            }
-            setXAxis(xMin, xMax);
-            return;
-        }
-        if (isRecording()) {
-            // TODO: Can this code be combined with the loading code above?
-            long minLoadedX = Long.MAX_VALUE;
-            long maxLoadedX = Long.MIN_VALUE;
-            if (!mChartData.isEmpty()) {
-                minLoadedX = mChartData.getXMin();
-                maxLoadedX = mChartData.getXMax();
-            }
-            // TODO: Does this do double-loading if a user is scrolling too fast or if loading is
-            // slow? May need to track min/max loaded here just like above with RunReview!
-            if (mChartData.isEmpty()) {
+            } else if (isRecording && mCurrentLoadIds.size() == 0) {
+                // If we haven't loaded anything, and it is recorded, try loading data that
+                // was already recorded.
                 // Don't load anything before the recording start time if we got here
                 // from resume.
-                xMin = Math.max(xMin, mRecordingStartTime);
-                loadReadings(dataController, xMin, xMax);
-                minLoadedX = xMin;
-                maxLoadedX = xMax;
-            }
-            // Load with a buffer to make scrolling more smooth
-            if (xMin < minLoadedX && minLoadedX >= mRecordingStartTime) {
-                long minToLoad = Math.max(xMin - mDataLoadBuffer, mRecordingStartTime);
-                loadReadings(dataController, minToLoad, minLoadedX);
-            }
-            if (xMax > maxLoadedX) {
-                if (!isPinnedToNow) {
-                    // if it's pinned to now, then we don't expect to find data magically
-                    // appearing in front of old data
-                    loadReadings(dataController, maxLoadedX + mDataLoadBuffer, xMax);
-                }
+                mMinLoadedX = Math.max(xMin, mChartOptions.getRecordingStartTime());
+                mMaxLoadedX = xMax;
+                loadReadings(dataController, mMinLoadedX, mMaxLoadedX);
             }
         }
-        setPinnedToNow(isPinnedToNow);
         setXAxis(xMin, xMax);
 
-        long throwawayThreshold = xMin - (KEEP_THIS_MANY_SCREENS - 1) * mDefaultGraphRange;
-        // TODO: Should this be a throwAwayBetween, depending on which way the x axis changed??
-        mChartData.throwAwayBefore(throwawayThreshold);
+        if (isRunReview) {
+            mChartData.throwAwayBefore(mMinLoadedX);
+            mChartData.throwAwayAfter(mMaxLoadedX);
+        } else {
+            setPinnedToNow(isPinnedToNow);
+            long throwawayThreshold = xMin - (KEEP_THIS_MANY_SCREENS - 1) *
+                    mDefaultGraphRange;
+            if (mMinLoadedX < throwawayThreshold) {
+                mMinLoadedX = throwawayThreshold;
+            }
+            // TODO: Should this be a throwAwayBetween or throwAwayafter, depending on which way
+            // the x axis changed??
+            mChartData.throwAwayBefore(throwawayThreshold);
+        }
     }
 
     private boolean isRecording() {
-        return mRecordingStartTime != RecordingMetadata.NOT_RECORDING;
+        return mChartOptions.getRecordingStartTime() != RecordingMetadata.NOT_RECORDING;
     }
 
     private void loadReadings(DataController dataController, final long minToLoad,

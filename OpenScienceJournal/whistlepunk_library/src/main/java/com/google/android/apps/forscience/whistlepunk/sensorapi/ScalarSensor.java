@@ -138,6 +138,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             @Override
             public void onPause() {
                 audioGenerator.stopPlaying();
+                chartController.onPause();
             }
 
             @Override
