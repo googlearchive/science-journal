@@ -33,6 +33,8 @@
         android:layout_marginTop="@dimen/stream_presenter_margin_top"
         android:paddingBottom="@dimen/stream_presenter_padding_top_bottom"
         android:background="@color/card_background_color"
+        android:contentDescription="@string/live_graph_content_description"
+        android:focusable="true"
         />
 
     <com.google.android.apps.forscience.whistlepunk.StatsList
