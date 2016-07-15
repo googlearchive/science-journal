@@ -61,7 +61,7 @@ public class AmbientTemperatureSensor extends ScalarSensor {
                 mSensorEventListener = new SensorEventListener() {
                     @Override
                     public void onSensorChanged(SensorEvent event) {
-                        c.addData(getLocalEventTime(clock, event.timestamp), event.values[0]);
+                        c.addData(clock.getNow(), event.values[0]);
                     }
 
                     @Override

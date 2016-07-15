@@ -79,8 +79,7 @@ public class AccelerometerSensor extends ScalarSensor {
                 mSensorEventListener = new SensorEventListener() {
                     @Override
                     public void onSensorChanged(SensorEvent event) {
-                        c.addData(getLocalEventTime(clock, event.timestamp),
-                                mAxis.getValue(event));
+                        c.addData(clock.getNow(), mAxis.getValue(event));
                     }
 
                     @Override
