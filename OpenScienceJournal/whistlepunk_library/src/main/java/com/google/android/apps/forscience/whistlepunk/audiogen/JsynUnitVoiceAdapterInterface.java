@@ -37,6 +37,12 @@ public interface JsynUnitVoiceAdapterInterface {
     public void noteOn(double value, double min, double max, TimeStamp timeStamp);
 
     /**
+     * Turn off a note
+     * @param timeStamp the timestamp at which to disable the note
+     */
+    public void noteOff(TimeStamp timeStamp);
+
+    /**
      * Return the UnitVoice.
      * @return UnitVoice
      */
