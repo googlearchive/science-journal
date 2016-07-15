@@ -34,13 +34,13 @@ import java.util.Arrays;
  * This implementation does nothing.
  * </p>
  */
-public class DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter implements
+public class DataToScalePitchSimpleJsynUnitVoiceAdapter implements
         JsynUnitVoiceAdapterInterface {
     private final SimpleJsynUnitVoiceBase mVoice;
     private final int[] mPitches;
     private static final double AMP_VALUE = 1.0; // default value for amplitude
 
-    public DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter(Synthesizer synth, int[] scale,
+    public DataToScalePitchSimpleJsynUnitVoiceAdapter(Synthesizer synth, int[] scale,
                                                               int pitchMin, int pitchMax) {
         mPitches = PitchGenerator.generatePitches(scale, pitchMin, pitchMax);
         mVoice = new SimpleJsynUnitVoice();
