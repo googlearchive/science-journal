@@ -36,14 +36,14 @@ import java.util.Arrays;
  */
 public class DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter implements
         JsynUnitVoiceAdapterInterface {
-    private final SimpleJsynUnitVoice mVoice;
+    private final SimpleJsynUnitVoiceBase mVoice;
     private final int[] mPitches;
     private static final double AMP_VALUE = 1.0; // default value for amplitude
 
     public DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter(Synthesizer synth, int[] scale,
                                                               int pitchMin, int pitchMax) {
         mPitches = PitchGenerator.generatePitches(scale, pitchMin, pitchMax);
-        mVoice = new SimpleJsynUnitVoice();
+        mVoice = new SineEnvelope();
         synth.add(mVoice);
     }
 
@@ -59,7 +59,7 @@ public class DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter implements
         mVoice.noteOn(freq, AMP_VALUE, timeStamp);
     }
 
-    public SimpleJsynUnitVoice getVoice() {
+    public SimpleJsynUnitVoiceBase getVoice() {
         return mVoice;
     }
 }

@@ -35,7 +35,7 @@ import com.jsyn.unitgen.PassThrough;
 import com.jsyn.unitgen.EnvelopeDAHDSR;
 import com.jsyn.unitgen.Circuit;
 
-public class SineEnvelope extends Circuit implements UnitVoice {
+public class SineEnvelope extends SimpleJsynUnitVoiceBase {
     // Declare units and ports.
     PassThrough mFrequencyPassThrough;
     public UnitInputPort frequency;
