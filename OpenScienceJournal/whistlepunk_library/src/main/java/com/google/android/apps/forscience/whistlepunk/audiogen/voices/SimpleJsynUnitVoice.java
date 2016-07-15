@@ -76,7 +76,7 @@ public class SimpleJsynUnitVoice extends SimpleJsynUnitVoiceBase
         // Setup
         frequency.setup(0.0, 440.0, 1000.0);
         amplitude.setup(0.0, 1.0, 1.0);
-        freqRampLinTime.setup(0.0, 0.1111111, 1.0);
+        freqRampLinTime.setup(0.0, 0.05, 1.0);
         ampRampLinTime.setup(0.0, 0.1, 1.0);
     }
 
