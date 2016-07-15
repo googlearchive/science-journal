@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,7 +28,6 @@ import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioGenerator;
@@ -75,14 +73,6 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     private ValueFilter mValueFilter = null;
     private ChartController mChartController;
     private AudioGenerator mAudioGenerator;
-
-    /**
-     * Amount of time skew between a sensor event and realTimeNanos.
-     * <p>
-     *     If Long.MIN_VALUE, then this has not been set yet.
-     * </p>
-     */
-    private long mTimeSkewNs = Long.MIN_VALUE;
 
     public ScalarSensor(String id) {
         this(id, AppSingleton.getUiThreadExecutor());
@@ -376,7 +366,6 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             public void stopObserving() {
                 super.stopObserving();
                 dataController.clearDataErrorListenerForSensor(getId());
-                resetTimeSkew();
             }
 
             @Override
@@ -451,6 +440,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         private final RecordingDataController mDataController;
         private final ZoomRecorder mZoomRecorder;
         private boolean mIsRecording = false;
+        private long mLastDataTimestampMillis;
 
         public ScalarStreamConsumer(StatsAccumulator statsAccumulator,
                 SensorObserver observer, RecordingDataController dataController,
@@ -471,8 +461,18 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             mZoomRecorder.flushAllTiers(mDataController);
         }
 
+        public boolean maintainsTimeSeries (final long timestampMillis) {
+            if (timestampMillis > mLastDataTimestampMillis) {
+                return true;
+            }
+            return false;
+        }
+
         @Override
         public void addData(final long timestampMillis, double value) {
+            if (!maintainsTimeSeries(timestampMillis)) {
+                return;
+            }
             if (mValueFilter != null) {
                 value = mValueFilter.filterValue(timestampMillis, value);
             }
@@ -492,6 +492,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
                 mZoomRecorder.addData(timestampMillis, value, mDataController);
                 mDataController.addScalarReading(getId(), 0, timestampMillis, value);
             }
+            mLastDataTimestampMillis = timestampMillis;
         }
 
         // TODO: profile this to make sure Bundles don't add extravagant memory and
@@ -500,23 +501,6 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             mBundle.putDouble(BUNDLE_KEY_SENSOR_VALUE, value);
             return mBundle;
         }
-    }
-
-    protected void resetTimeSkew() {
-        mTimeSkewNs = Long.MIN_VALUE;
-    }
-
-    protected long getLocalEventTime(Clock clock, long sensorEventTimeStampNs) {
-        if (mTimeSkewNs == Long.MIN_VALUE) {
-            // Hasn't been set yet. Get the skew time in ns.
-            // On some phones, the timestamp is close to the nanos, and on some phones, the time
-            // stamp is the local time, etc. Save the skew to use later to get the event timestamp
-            // close to the real time.
-            mTimeSkewNs = SystemClock.elapsedRealtimeNanos() - sensorEventTimeStampNs;
-        }
-        // Now, use the skew to offset the time.
-        long timestamp = SystemClock.elapsedRealtimeNanos() - sensorEventTimeStampNs - mTimeSkewNs;
-        return clock.getNow() + (timestamp / 1000000L);
     }
 
     public static SensorManager getSensorManager(Context context) {
