@@ -43,7 +43,7 @@ public class DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter implements
     public DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter(Synthesizer synth, int[] scale,
                                                               int pitchMin, int pitchMax) {
         mPitches = PitchGenerator.generatePitches(scale, pitchMin, pitchMax);
-        mVoice = new SineEnvelope();
+        mVoice = new SimpleJsynUnitVoice();
         synth.add(mVoice);
     }
 
