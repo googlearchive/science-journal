@@ -43,6 +43,10 @@ public class DataToAmplitudeSimpleJsynUnitVoiceAdapter implements JsynUnitVoiceA
     }
 
     public void noteOn(double value, double min, double max, TimeStamp timeStamp) {
+        // Range checking, in case min or max is higher or lower than value (respectively).
+        if (value < min) value = min;
+        if (value > max) value = max;
+
         double amp = (value - min) / (max - min) * (AMP_MAX - AMP_MIN) + AMP_MIN;
         mVoice.noteOn(FREQ_VALUE, amp, timeStamp);
     }

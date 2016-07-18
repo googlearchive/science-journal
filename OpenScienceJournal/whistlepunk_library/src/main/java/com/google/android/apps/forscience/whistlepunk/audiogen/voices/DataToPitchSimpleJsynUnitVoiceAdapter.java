@@ -43,6 +43,10 @@ public class DataToPitchSimpleJsynUnitVoiceAdapter implements JsynUnitVoiceAdapt
     }
 
     public void noteOn(double value, double min, double max, TimeStamp timeStamp) {
+        // Range checking, in case min or max is higher or lower than value (respectively).
+        if (value < min) value = min;
+        if (value > max) value = max;
+
         double freq = (value - min) / (max - min) * (FREQ_MAX - FREQ_MIN) + FREQ_MIN;
         mVoice.noteOn(freq, AMP_VALUE, timeStamp);
     }
