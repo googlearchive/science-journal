@@ -67,12 +67,13 @@ public class SineEnvelope extends SimpleJsynUnitVoiceBase {
         frequency.setup(40.0, 698.4584691287101, 8000.0);
         amplitude.setup(0.0, 0.999969482421875, 1.0);
         mDAHDSR.input.set(0.0);
-        mDAHDSR.delay.set(0.0);
-        mDAHDSR.attack.set(0.1);
-        mDAHDSR.hold.set(0.0);
-        mDAHDSR.decay.set(0.2);
-        mDAHDSR.sustain.set(0.5);
-        mDAHDSR.release.set(0.3);
+        // Sum of these times should not exceed MIN_TIME_VALUE_CHANGE_MS
+        mDAHDSR.delay.set(0.01);
+        mDAHDSR.attack.set(0.01);
+        mDAHDSR.hold.set(0.04);
+        mDAHDSR.decay.set(0.01);
+        mDAHDSR.sustain.set(0.045);
+        mDAHDSR.release.set(0.01);
     }
 
     public void noteOn(double frequency, double amplitude, TimeStamp timeStamp) {
