@@ -17,11 +17,8 @@
 package com.google.android.apps.forscience.whistlepunk.audiogen.voices;
 
 import com.google.android.apps.forscience.whistlepunk.audiogen.JsynUnitVoiceAdapter;
-import com.google.android.apps.forscience.whistlepunk.audiogen.JsynUnitVoiceAdapterInterface;
-import com.google.android.apps.forscience.whistlepunk.audiogen.voices.SimpleJsynUnitVoice;
+
 import com.jsyn.Synthesizer;
-import com.jsyn.ports.UnitOutputPort;
-import com.jsyn.unitgen.UnitVoice;
 import com.softsynth.shared.time.TimeStamp;
 
 /**
@@ -33,17 +30,45 @@ import com.softsynth.shared.time.TimeStamp;
  * </p>
  */
 public class DataToPitchEnvelopeSimpleJsynUnitVoiceAdapter extends JsynUnitVoiceAdapter {
+    private static final double MIN_VALUE_PERCENT_CHANGE = 10.; // min value percent delta trigger
+    private static final long MIN_TIME_VALUE_CHANGE_MS = 125; // min time delta to trigger new audio
+    private static final long MIN_TIME_CHANGE_MS = 1000; // min time change to trigger new audio
+
+    private long mOldTime = System.currentTimeMillis();
+    private double mOldValue = Double.MIN_VALUE;
+
     public DataToPitchEnvelopeSimpleJsynUnitVoiceAdapter(Synthesizer synth) {
         mVoice = new SineEnvelope();
         synth.add(mVoice);
     }
 
-    public void noteOn(double value, double min, double max, TimeStamp timeStamp) {
+    public void noteOn(double newValue, double min, double max, TimeStamp timeStamp) {
+        if (mOldValue == Double.MIN_VALUE) {
+            mOldValue = newValue;
+            return;
+        }
         // Range checking, in case min or max is higher or lower than value (respectively).
-        if (value < min) value = min;
-        if (value > max) value = max;
+        if (newValue < min) newValue = min;
+        if (newValue > max) newValue = max;
 
-        double freq = (value - min) / (max - min) * (FREQ_MAX - FREQ_MIN) + FREQ_MIN;
-        mVoice.noteOn(freq, AMP_VALUE, timeStamp);
+        // Compute percent change of value within Y axis range.
+        double dv = newValue - mOldValue;
+        double range = max - min;
+        double change = Math.abs(dv / range*100.);
+
+        long newTime = System.currentTimeMillis();
+        long dt = newTime - mOldTime;
+
+        // If the value hasn't changed more than MIN_VALUE_CHANGED, suppress new notes for up to
+        // MIN_TIME_CHANGE_MS.  If value has changed more than MIN_VALUE_CHANGED, suppress new
+        // notes for MIN_TIME_VALUE_CHANGE_MS.
+        if ((change >= MIN_VALUE_PERCENT_CHANGE && dt > MIN_TIME_VALUE_CHANGE_MS) ||
+                (change < MIN_VALUE_PERCENT_CHANGE && dt > MIN_TIME_CHANGE_MS)) {
+            mOldTime = newTime;
+            mOldValue = newValue;
+            double freq = (newValue - min) / (max - min) * (FREQ_MAX - FREQ_MIN) + FREQ_MIN;
+            mVoice.noteOn(freq, AMP_VALUE, timeStamp);
+            mVoice.noteOff(timeStamp.makeRelative(MIN_TIME_VALUE_CHANGE_MS / 1000.));
+        }
     }
 }
