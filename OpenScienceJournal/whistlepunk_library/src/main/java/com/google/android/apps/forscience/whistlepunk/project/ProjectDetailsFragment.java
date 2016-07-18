@@ -260,7 +260,7 @@ public class ProjectDetailsFragment extends Fragment {
             return true;
 
         } else if (id == R.id.action_delete_project) {
-            // TODO(mkhatib): Confirm deletion and delete the project and its related assets and
+            // TODO: Confirm deletion and delete the project and its related assets and
             // records form the file system and database and close the activity.
 
             return true;
