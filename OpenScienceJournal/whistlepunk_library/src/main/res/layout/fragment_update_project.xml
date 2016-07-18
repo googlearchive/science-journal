@@ -67,7 +67,7 @@
             android:clickable="false"
             android:textAllCaps="true"
             android:textStyle="bold"
-            android:textColor="@color/color_primary"/>
+            android:textColor="@color/color_accent_dark"/>
     </FrameLayout>
 
     <android.support.design.widget.TextInputLayout
