@@ -60,9 +60,11 @@ public class LicenseActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_licenses);
 
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.add(R.id.container, new LicenseListFragment(), "list");
-        ft.commit();
+        if (getFragmentManager().findFragmentByTag("list") == null) {
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.add(R.id.container, new LicenseListFragment(), "list");
+            ft.commit();
+        }
 
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -165,7 +167,7 @@ public class LicenseActivity extends AppCompatActivity {
 
     private void showLicense(License license) {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.container, LicenseFragment.newInstance(license), "license");
+        ft.add(R.id.container, LicenseFragment.newInstance(license), "license");
         ft.addToBackStack(license.key);
         ft.commit();
     }
