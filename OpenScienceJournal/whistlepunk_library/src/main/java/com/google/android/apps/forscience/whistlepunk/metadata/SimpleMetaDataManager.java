@@ -443,8 +443,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
             for (int i = 0; i < sensorLayouts.size(); i++) {
                 GoosciSensorLayout.SensorLayout layout = sensorLayouts.get(i);
                 values.put(RunSensorsColumns.LAYOUT, ProtoUtils.makeBlob(layout));
-                db.update(Tables.RUN_SENSORS, values, RunSensorsColumns.RUN_ID + "=? AND " + RunSensorsColumns.SENSOR_ID + "=?",
-                        new String[]{runId, layout.sensorId});
+                db.update(Tables.RUN_SENSORS, values, RunSensorsColumns.RUN_ID + "=? AND " +
+                        RunSensorsColumns.SENSOR_ID + "=?", new String[]{runId, layout.sensorId});
             }
         }
     }
@@ -1288,7 +1288,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
      * Manages the SQLite database backing the data for the entire app.
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        private static final int DB_VERSION = 16;
+        private static final int DB_VERSION = 17;
         private static final String DB_NAME = "main.db";
 
         DatabaseHelper(Context context, String filename) {
@@ -1448,6 +1448,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 db.execSQL("ALTER TABLE " + Tables. RUNS + " ADD COLUMN " +
                     RunsColumns.AUTO_ZOOM_ENABLED + " BOOLEAN");
                 version = 16;
+            }
+
+            if (version == 16 && version < newVersion) {
+                db.execSQL("UPDATE " + Tables. RUNS + " SET " + RunsColumns.AUTO_ZOOM_ENABLED +
+                        " = 1 WHERE " + RunsColumns.AUTO_ZOOM_ENABLED + " IS NULL");
+                version = 17;
             }
         }
 
