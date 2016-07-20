@@ -25,6 +25,8 @@ public class AudioPlaybackController {
 
     public static final String TAG = "AudioPlaybackController";
 
+    public static final int LAST_TONE_DURATION_MS = 10;
+
     // NOTE: For sensors with more than 100 datapoints in 1 second, these constants may need to be
     // adjusted!
     private static final int DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD = 200;
@@ -74,7 +76,7 @@ public class AudioPlaybackController {
             @Override
             public void run() {
                 if (audioData.size() == 0) {
-                    mPlaybackStatus = PLAYBACK_STATUS_NOT_PLAYING;
+                    stopPlayback();
                     return;
                 }
 
@@ -84,7 +86,8 @@ public class AudioPlaybackController {
 
                 // Load more data when needed, i.e. when we are within a given duration away from
                 // the last loaded timestamp, and we aren't fully loaded yet.
-                long lastTimestamp = audioData.get(audioData.size() - 1).getX();
+                long lastTimestamp = audioData.size() == 0 ? timestamp :
+                        audioData.get(audioData.size() - 1).getX();
                 if (timestamp + DURATION_MS_PER_AUDIO_PLAYBACK_LOAD / 2 > lastTimestamp &&
                         !mFullyLoaded) {
                     long xMaxToLoad =
@@ -114,17 +117,15 @@ public class AudioPlaybackController {
                 } finally {
                     // If this is the second to last point, some special handling
                     // needs to be done to determine when to make the last tone.
-                    if (audioData.size() > 2) {
+                    if (audioData.size() > 0) {
                         // Play the next note after the time between this point and the
                         // next point has elapsed.
                         // mPlaybackIndex is now the index of the next point.
                         mHandler.postDelayed(mPlaybackRunnable,
                                 audioData.get(0).getX() - timestamp);
-                    } else if (audioData.size() == 1) {
-                        // The last note gets some duration.
-                        mHandler.postDelayed(mPlaybackRunnable, 10);
                     } else {
-                        stopPlayback();
+                        // The last note gets some duration.
+                        mHandler.postDelayed(mPlaybackRunnable, LAST_TONE_DURATION_MS);
                     }
                 }
             }
