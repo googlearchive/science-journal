@@ -600,9 +600,11 @@ public class SensorCardPresenter {
         menu.findItem(R.id.btn_sensor_card_settings).setVisible(
                 DevOptionsFragment.isDevToolsEnabled(context) && !isRecording());
 
-        // Don't show audio feedback if there is an error or bad status.
-        menu.findItem(R.id.btn_sensor_card_audio_toggle).setEnabled(
-                !mHasError && mSourceStatus == SensorStatusListener.STATUS_CONNECTED);
+        // Don't show audio options if there is an error or bad status.
+        boolean sensorConnected = !mHasError &&
+                mSourceStatus == SensorStatusListener.STATUS_CONNECTED;
+        menu.findItem(R.id.btn_sensor_card_audio_toggle).setEnabled(sensorConnected);
+        menu.findItem(R.id.btn_sensor_card_audio_settings).setEnabled(sensorConnected);
 
         menu.findItem(R.id.btn_sensor_card_audio_toggle).setTitle(
                 context.getResources().getString(mLayout.audioEnabled ?
