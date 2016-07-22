@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 
 import java.util.List;
@@ -196,4 +197,32 @@ public interface MetaDataManager {
      * @param runId The ID of the run to delete
      */
     void deleteRun(String runId);
+
+    /**
+     * Adds a new trigger.
+     * @param trigger
+     * @param experimentId The experiment active when the trigger was first added. Note that this is
+     *                     currently not used for retrieval.
+     */
+    void addSensorTrigger(SensorTrigger trigger, String experimentId);
+
+    /**
+     * Updates an existing SensorTrigger. note that only the last used timestamp and
+     * TriggerInformation can be mutated.
+     * @param trigger
+     */
+    void updateSensorTrigger(SensorTrigger trigger);
+
+    /**
+     * Gets a single SensorTrigger by ID.
+     */
+    SensorTrigger getSensorTrigger(String triggerId);
+
+    /**
+     * Gets a list of sensor triggers that are applicable to a given Sensor ID.
+     * TODO: Experiment could be added to these params if we decide that is reasonable.
+     * @param sensorId
+     * @return A list of SensorTriggers that apply to that Sensor ID
+     */
+    List<SensorTrigger> getSensorTriggersForSensor(String sensorId);
 }

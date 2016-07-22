@@ -471,6 +471,8 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
         @Override
         public void addData(final long timestampMillis, double value) {
+            // TODO: Hook up SensorTriggers here, as this function is called both when recording
+            // as a service in the background as well as when recording/observing in the foreground.
             if (!maintainsTimeSeries(timestampMillis)) {
                 return;
             }

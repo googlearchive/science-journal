@@ -22,8 +22,6 @@ import android.os.Bundle;
  * Observes changes to a sensor, potentially serialized between processes.
  *
  * Assume all calls are on the main thread
- *
- * @param <BG_DATA> Parcelable type containing the sensor data.
  */
 public interface SensorObserver {
     /**
