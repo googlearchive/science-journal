@@ -48,6 +48,7 @@
         android:hint="@string/edit_note_hint_text"
         android:textColor="@color/text_color_dark_grey"
         android:textCursorDrawable="@null"
+        android:maxLines="10"
         />
 
     <include layout="@layout/label_dialog_timestamp_section"/>

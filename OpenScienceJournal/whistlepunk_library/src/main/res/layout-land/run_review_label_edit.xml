@@ -43,6 +43,7 @@
             android:layout_toStartOf="@id/picture_note_preview_image"
             android:layout_alignWithParentIfMissing="true"
             android:layout_centerVertical="true"
+            android:maxLines="5"
             />
 
         <ImageView
