@@ -37,6 +37,7 @@ public class ManualSensor extends ScalarSensor {
     private ChartController mChartController;
 
     private MemorySensorHistoryStorage mStorage = new MemorySensorHistoryStorage();
+    private int mThrowawayThreshold = 1;
 
     public ManualSensor(String sensorId, long defaultGraphRange,
             int zoomLevelBetweenResolutionTiers) {
@@ -88,7 +89,8 @@ public class ManualSensor extends ScalarSensor {
             long defaultGraphRange) {
         mChartController = new ChartController(
                 ChartOptions.ChartPlacementType.TYPE_OBSERVE,
-                dataViewOptions.getLineGraphOptions(), 1, /* no data loading buffer */ 0);
+                dataViewOptions.getLineGraphOptions(), mThrowawayThreshold,
+                /* no data loading buffer */ 0);
         mChartController.setInteractionListener(interactionListener);
         mChartController.setSensorId(sensorId);
         mChartController.setDefaultGraphRange(defaultGraphRange);
@@ -136,6 +138,7 @@ public class ManualSensor extends ScalarSensor {
     @NonNull
     public SensorPresenter createRecordingPresenter(Context context, RecordingDataController rc,
             String runId, int graphDataThrowawaySizeThreshold) {
+        mThrowawayThreshold = graphDataThrowawaySizeThreshold;
         return createRecordingPresenter(context, rc, runId);
     }
 

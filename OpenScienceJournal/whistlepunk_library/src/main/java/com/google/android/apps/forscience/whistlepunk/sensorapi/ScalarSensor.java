@@ -441,7 +441,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         private final RecordingDataController mDataController;
         private final ZoomRecorder mZoomRecorder;
         private boolean mIsRecording = false;
-        private long mLastDataTimestampMillis;
+        private long mLastDataTimestampMillis = -1;
 
         public ScalarStreamConsumer(StatsAccumulator statsAccumulator,
                 SensorObserver observer, RecordingDataController dataController,
@@ -462,7 +462,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             mZoomRecorder.flushAllTiers(mDataController);
         }
 
-        public boolean maintainsTimeSeries (final long timestampMillis) {
+        public boolean maintainsTimeSeries(final long timestampMillis) {
             if (timestampMillis > mLastDataTimestampMillis) {
                 return true;
             }
