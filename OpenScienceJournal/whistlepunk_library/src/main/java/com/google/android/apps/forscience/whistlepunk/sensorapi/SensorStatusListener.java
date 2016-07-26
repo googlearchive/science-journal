@@ -43,8 +43,9 @@ public interface SensorStatusListener {
 
     int ERROR_UNKNOWN = 0;
     int ERROR_FAILED_TO_CONNECT = 1;
+    int ERROR_INVALID_PROTO = 2;
 
-    @IntDef({ERROR_UNKNOWN, ERROR_FAILED_TO_CONNECT})
+    @IntDef({ERROR_UNKNOWN, ERROR_FAILED_TO_CONNECT, ERROR_INVALID_PROTO})
     @Retention(RetentionPolicy.SOURCE)
     @interface Error {}
 

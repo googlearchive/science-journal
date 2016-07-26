@@ -235,6 +235,7 @@ public class SensorCardPresenter {
     public void onSourceError(boolean hasError) {
         mHasError = hasError;
         updateStatusUi();
+        stopObserving();
     }
 
     private void updateStatusUi() {
