@@ -59,7 +59,6 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public ProgressBar statusProgressBar;
     public TextView statusMessage;
     public final Button statusRetryButton;
-    public ImageView audioEnabledNotification;
 
     public CardViewHolder(CardView itemView) {
         super(itemView);
@@ -88,8 +87,6 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         statusProgressBar = (ProgressBar) itemView.findViewById(R.id.progress_bar);
         statusMessage = (TextView) itemView.findViewById(R.id.status_message);
         statusRetryButton = (Button) itemView.findViewById(R.id.status_retry_button);
-        audioEnabledNotification = (ImageView) itemView.findViewById(
-                R.id.audio_enabled_notification);
     }
 
     public Context getContext() {
