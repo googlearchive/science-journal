@@ -77,6 +77,13 @@
         android:defaultValue="false"
         android:title="@string/live_zoom_type_option_title"
         android:summary="@string/live_zoom_type_option_summary"
-        />
+    />
+
+    <CheckBoxPreference
+        android:key="enable_third_party_sensors"
+        android:defaultValue="false"
+        android:title="@string/third_party_sensors_option_title"
+        android:summary="@string/third_party_sensors_option_summary"
+    />
 
 </PreferenceScreen>

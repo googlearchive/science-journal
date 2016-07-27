@@ -25,6 +25,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 
@@ -43,6 +44,7 @@ public class DevOptionsFragment extends PreferenceFragment {
     public static final String KEY_ENABLE_ZOOM_IN = "live_zoom_type";
     public static final String KEY_BAROMETER_SENSOR = "enable_barometer_sensor";
     public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
+    public static final String KEY_THIRD_PARTY_SENSORS = "enable_third_party_sensors";
 
     public static DevOptionsFragment newInstance() {
         return new DevOptionsFragment();
@@ -77,7 +79,8 @@ public class DevOptionsFragment extends PreferenceFragment {
         }
     }
 
-    private static SharedPreferences getPrefs(Context context) {
+    @VisibleForTesting
+    public static SharedPreferences getPrefs(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
 
@@ -126,5 +129,9 @@ public class DevOptionsFragment extends PreferenceFragment {
             return defaultBool;
         }
         return getPrefs(context).getBoolean(key, defaultBool);
+    }
+
+    public static boolean isThirdPartyDiscoveryEnabled(Context context) {
+        return getBoolean(KEY_THIRD_PARTY_SENSORS, false, context);
     }
 }
