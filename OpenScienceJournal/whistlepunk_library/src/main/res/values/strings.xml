@@ -1053,9 +1053,6 @@
     <!-- Message shown in license screen if no licenses were found [CHAR_LIMIT=NONE]-->
     <string name="licenses_empty">No licenses found.</string>
 
-    <!-- Content description for the audio enabled symbol that shows up on a sensor card [CHAR_LIMIT=NONE] -->
-    <string name="audio_enabled_notification">(audio on)</string>
-
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

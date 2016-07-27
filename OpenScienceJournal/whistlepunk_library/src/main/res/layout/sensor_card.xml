@@ -67,48 +67,21 @@
             android:layout_alignParentTop="true"
             >
 
-            <!-- TODO: See if the header can be constructed with a ConstraintLayout instead -->
-
-            <RelativeLayout
+            <TextView
+                android:id="@+id/sensor_card_header_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
                 android:layout_toEndOf="@+id/sensor_card_toggle_spacer"
                 android:layout_toStartOf="@+id/btn_sensor_card_flip"
-                android:layout_alignParentTop="true"
-                >
-
-                <TextView
-                    android:id="@+id/sensor_card_header_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_color_white"
-                    android:textSize="@dimen/sensor_card_header_text_size"
-                    android:textStyle="bold"
-                    android:paddingTop="@dimen/sensor_card_header_text_padding"
-                    android:paddingBottom="@dimen/sensor_card_header_text_padding"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:layout_alignParentStart="true"
-                    android:layout_toStartOf="@+id/audio_enabled_notification"
-                    android:layout_alignWithParentIfMissing="true"
-                    />
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:id="@id/audio_enabled_notification"
-                    android:contentDescription="@string/audio_enabled_notification"
-                    android:layout_gravity="center_vertical"
-                    android:paddingTop="@dimen/sensor_card_header_text_padding"
-                    android:paddingBottom="@dimen/sensor_card_header_text_padding"
-                    android:layout_marginStart="8dp"
-                    android:src="@drawable/ic_music_note_white_18dp"
-                    android:scaleType="center"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    />
-
-            </RelativeLayout>
+                android:textColor="@color/text_color_white"
+                android:textSize="@dimen/sensor_card_header_text_size"
+                android:textStyle="bold"
+                android:paddingTop="@dimen/sensor_card_header_text_padding"
+                android:paddingBottom="@dimen/sensor_card_header_text_padding"
+                android:ellipsize="end"
+                android:maxLines="1"
+                />
 
             <ImageButton
                 android:id="@+id/btn_sensor_card_toggle"
@@ -123,7 +96,7 @@
                 android:visibility="visible"
                 />
 
-            <Space
+            <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:id="@+id/sensor_card_toggle_spacer"
