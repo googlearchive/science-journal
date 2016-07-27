@@ -237,16 +237,30 @@ public class SensorCardPresenter {
         updateStatusUi();
     }
 
+    private void updateAudio(boolean enabled, String sonificationType) {
+        mSensorPresenter.updateAudioSettings(enabled, sonificationType);
+        if (mCardViewHolder != null) {
+            updateAudioEnabledUi(enabled);
+        }
+    }
+
+    private void updateAudioEnabledUi(boolean isEnabled) {
+        if (isEnabled) {
+            mCardViewHolder.audioEnabledNotification.setVisibility(View.VISIBLE);
+        } else {
+            mCardViewHolder.audioEnabledNotification.setVisibility(View.GONE);
+        }
+    }
+
     private void updateStatusUi() {
         // Turn off the audio unless it is connected.
         if (mSensorPresenter != null) {
             if (!mHasError && mSourceStatus == SensorStatusListener.STATUS_CONNECTED
                     && mCurrentSource != null) {
-                mSensorPresenter.updateAudioSettings(mLayout.audioEnabled,
-                        getSonificationType(mParentFragment.getActivity()));
+                updateAudio(mLayout.audioEnabled, getSonificationType(
+                        mParentFragment.getActivity()));
             } else {
-                mSensorPresenter.updateAudioSettings(false,
-                        ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
+                updateAudio(false, ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
             }
         }
         if (mCardViewHolder == null) {
@@ -298,8 +312,7 @@ public class SensorCardPresenter {
         mCurrentSource = sensorChoice;
         mSensorPresenter = sensorPresenter;
         if (mSourceStatus == SensorStatusListener.STATUS_CONNECTED && mParentFragment != null) {
-            mSensorPresenter.updateAudioSettings(mLayout.audioEnabled,
-                    getSonificationType(mParentFragment.getActivity()));
+            updateAudio(mLayout.audioEnabled, getSonificationType(mParentFragment.getActivity()));
         }
         mSensorPresenter.setShowStatsOverlay(mLayout.showStatsOverlay);
         if (mFirstObserving) {
@@ -411,6 +424,7 @@ public class SensorCardPresenter {
             }
         });
         updateStatusUi();
+        updateAudioEnabledUi(mLayout.audioEnabled);
 
         if (mTabSelectedFormat == null) {
             mTabSelectedFormat =
@@ -615,8 +629,7 @@ public class SensorCardPresenter {
                     return true;
                 } else if (itemId == R.id.btn_sensor_card_audio_toggle) {
                     mLayout.audioEnabled = !mLayout.audioEnabled;
-                    mSensorPresenter.updateAudioSettings(mLayout.audioEnabled,
-                            getSonificationType(context));
+                    updateAudio(mLayout.audioEnabled, getSonificationType(context));
                     return true;
                 } else if (itemId == R.id.btn_sensor_card_audio_settings) {
                     String currentSonificationType = getCardOptions(mCurrentSource, context).load(
@@ -658,7 +671,7 @@ public class SensorCardPresenter {
     }
 
     private void updateSonificationType(String sonificationType) {
-        mSensorPresenter.updateAudioSettings(mLayout.audioEnabled, sonificationType);
+        updateAudio(mLayout.audioEnabled, sonificationType);
         getCardOptions(mCurrentSource, mParentFragment.getActivity()).load(
                         LoggingConsumer.expectSuccess(TAG, "loading card options")).put(
                 ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
