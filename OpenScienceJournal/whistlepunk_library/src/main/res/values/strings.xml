@@ -1053,6 +1053,9 @@
     <!-- Message shown in license screen if no licenses were found [CHAR_LIMIT=NONE]-->
     <string name="licenses_empty">No licenses found.</string>
 
+    <!-- Sensor header format when the audio is enabled. The unicode note character is appended to the sensor name. [CHAR_LIMIT = 3] -->
+    <string name="audio_enabled_format"><xliff:g id="sensor_display_name">%1s</xliff:g>  \u266A</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
