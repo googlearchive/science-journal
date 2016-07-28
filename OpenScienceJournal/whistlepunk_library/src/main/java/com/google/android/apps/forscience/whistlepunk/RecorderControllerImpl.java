@@ -396,7 +396,7 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @Override
-    public void replaceExternalSensors(Map<String, ExternalSensorSpec> sensors) {
-        mSensors.replaceExternalSensors(sensors);
+    public void updateExternalSensors(Map<String, ExternalSensorSpec> sensors) {
+        mSensors.updateExternalSensors(sensors);
     }
 }

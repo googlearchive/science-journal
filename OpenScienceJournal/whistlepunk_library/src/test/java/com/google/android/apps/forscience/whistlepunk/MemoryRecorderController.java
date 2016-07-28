@@ -99,7 +99,7 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public void replaceExternalSensors(Map<String, ExternalSensorSpec> sensors) {
+    public void updateExternalSensors(Map<String, ExternalSensorSpec> sensors) {
 
     }
 

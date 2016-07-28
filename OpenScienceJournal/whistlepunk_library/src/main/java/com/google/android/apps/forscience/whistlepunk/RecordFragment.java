@@ -1306,8 +1306,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (getActivity() == null) {
             return;
         }
-        List<String> sensorsActuallyAdded = mSensorRegistry
-                .replaceExternalSensors(sensors);
+        List<String> sensorsActuallyAdded = mSensorRegistry.updateExternalSensors(sensors);
 
         if (!sensorsActuallyAdded.isEmpty()) {
             boolean discoveryEnabled = mFeatureDiscoveryProvider.isEnabled(
