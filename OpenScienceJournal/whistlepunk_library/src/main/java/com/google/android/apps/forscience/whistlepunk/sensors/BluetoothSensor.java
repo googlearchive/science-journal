@@ -173,7 +173,8 @@ public class BluetoothSensor extends ScalarSensor {
     private BleFlowListener createBleFlowListener(final StreamConsumer c, final Clock defaultClock,
             final SensorStatusListener listener) {
         return new BleFlowListener() {
-            final PacketAssembler mPa = new PacketAssembler(c, defaultClock, BluetoothSensor.this);
+            final PacketAssembler mPa = new PacketAssembler(c, defaultClock, BluetoothSensor.this,
+                    listener);
 
             @Override
             public void onSuccess() {
@@ -208,6 +209,7 @@ public class BluetoothSensor extends ScalarSensor {
             public void onNotification(UUID characteristic, int flags, byte[] value) {
                 mPa.append(value);
             }
+
             @Override
             public void onDisconnect() {
                 listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
