@@ -203,7 +203,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             // If the sensor can't be loaded, still show it as selected on the card
             // so the user understands that they wanted this sensor but can't use it.
             mDecibelSensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
-                    getActivity().getApplicationContext());
+                    getActivity().getApplicationContext(), true);
         }
         // in either case, we have our answer.  Stop waiting for it.
         mDecibelSensorCardPresenter = null;
@@ -494,7 +494,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (!TextUtils.equals(Experiment.getExperimentId(selectedExperiment),
                 Experiment.getExperimentId(mSelectedExperiment))) {
             saveCurrentLayouts();
-        } else if (mSensorLayoutsLoaded == true) {
+        } else if (mSensorLayoutsLoaded) {
             // If it is the same experiment and we've already loaded the sensor layouts, we
             // don't need to do it again.
             setControlButtonsEnabled(true);
@@ -808,15 +808,27 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     private void tryStartObserving(SensorCardPresenter sensorCardPresenter, String sensorId,
             boolean retry) {
-        if (TextUtils.equals(sensorId, DecibelSensor.ID) &&
+        if (TextUtils.equals(sensorId, DecibelSensor.ID) && mDecibelSensorCardPresenter == null &&
                 !PictureUtils.tryRequestingPermission(getActivity(),
                         Manifest.permission.RECORD_AUDIO,
                         MainActivity.PERMISSIONS_AUDIO_RECORD_REQUEST, /* force retry */ retry)) {
-            mDecibelSensorCardPresenter = sensorCardPresenter;
-            // If the sensor can't be loaded, still show it as selected on the card so the user
-            // understands that they wanted this sensor but can't use it.
-            mDecibelSensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
-                    getActivity().getApplicationContext());
+            // If we did actually try to request the permission, save this sensorCardPresenter.
+            // for when the permission is granted.
+            if (PictureUtils.canRequestAgain(getActivity(), Manifest.permission.RECORD_AUDIO)) {
+                if (retry) {
+                    // In this case, we had tried requesting permissions, so save this presenter.
+                    mDecibelSensorCardPresenter = sensorCardPresenter;
+                }
+                // If the sensor can't be loaded, still show it as selected on the card so the user
+                // understands that they wanted this sensor but can't use it.
+                sensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
+                        getActivity().getApplicationContext(), true);
+            } else {
+                // Then the user has selected "never ask again".
+                sensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
+                        getActivity().getApplicationContext(),
+                        /* don't show the retry button */ false);
+            }
         } else {
             startObserving(sensorId, sensorCardPresenter);
             sensorCardPresenter.setRecording(getRecordingStartTime());
@@ -1224,7 +1236,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     public void startObserving(final String sensorId,
             final SensorCardPresenter sensorCardPresenter) {
         final Context context = getActivity().getApplicationContext();
-        sensorCardPresenter.setConnectingUI(sensorId, false, context);
+        sensorCardPresenter.setConnectingUI(sensorId, false, context, true);
         mSensorRegistry.withSensorChoice(sensorId, new Consumer<SensorChoice>() {
             @Override
             public void take(SensorChoice sensorChoice) {

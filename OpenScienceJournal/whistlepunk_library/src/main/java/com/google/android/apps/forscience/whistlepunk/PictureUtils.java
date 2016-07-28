@@ -109,18 +109,21 @@ public class PictureUtils {
         int permissionCheck = ContextCompat.checkSelfPermission(activity, permission);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
-                    && !forceRetry) {
-                // Then the user didn't explicitly ask for us to retry the permission,
-                // so we won't do anything.
-            } else {
-                // No explanation needed, we can request the permission.
+            if (canRequestAgain(activity, permission) && forceRetry) {
+                // No explanation needed, so we can request the permission.
                 ActivityCompat.requestPermissions(activity, new String[]{permission},
                         permissionType);
+            } else {
+                // Then the user didn't explicitly ask for us to retry the permission,
+                // so we won't do anything.
             }
             return false;
         }
         return true;
+    }
+
+    public static boolean canRequestAgain(Activity activity, String permission) {
+        return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
     }
 
     public static void onRequestPermissionsResult(int requestCode, String permissions[],
