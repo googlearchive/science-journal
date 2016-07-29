@@ -30,13 +30,9 @@ import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.protobuf.nano.CodedOutputByteBufferNano;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-import com.google.protobuf.nano.MessageNano;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,6 +69,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         String RUNS = "runs";
         String RUN_SENSORS = "run_sensors";
         String EXPERIMENT_SENSOR_LAYOUT = "experiment_sensor_layout";
+        String SENSOR_TRIGGERS = "sensor_triggers";
     }
 
     public SimpleMetaDataManager(Context context) {
@@ -1015,6 +1012,99 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return sensors;
     }
 
+    @Override
+    public void addSensorTrigger(SensorTrigger trigger, String experimentId) {
+        ContentValues values = new ContentValues();
+        values.put(SensorTriggerColumns.EXPERIMENT_ID, experimentId);
+        values.put(SensorTriggerColumns.TRIGGER_ID, trigger.getTriggerId());
+        values.put(SensorTriggerColumns.LAST_USED_TIMESTAMP_MS, trigger.getLastUsed());
+        values.put(SensorTriggerColumns.SENSOR_ID, trigger.getSensorId());
+        values.put(SensorTriggerColumns.TRIGGER_INFORMATION,
+                ProtoUtils.makeBlob(trigger.getTriggerInformation()));
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.insert(Tables.SENSOR_TRIGGERS, null, values);
+        }
+    }
+
+    @Override
+    public void updateSensorTrigger(SensorTrigger trigger) {
+        // Only the LastUsedTimestamp and TriggerInformation can be updated.
+        ContentValues values = new ContentValues();
+        values.put(SensorTriggerColumns.LAST_USED_TIMESTAMP_MS, trigger.getLastUsed());
+        values.put(SensorTriggerColumns.TRIGGER_INFORMATION,
+                ProtoUtils.makeBlob(trigger.getTriggerInformation()));
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.update(Tables.SENSOR_TRIGGERS, values, SensorTriggerColumns.TRIGGER_ID + "=?",
+                    new String[]{trigger.getTriggerId()});
+        }
+    }
+
+    @Override
+    public SensorTrigger getSensorTrigger(String triggerId) {
+        SensorTrigger trigger = null;
+
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+            final String selection = SensorTriggerColumns.TRIGGER_ID + "=?";
+            final String[] selectionArgs = new String[]{triggerId};
+            Cursor c = null;
+            try {
+                c = db.query(
+                        Tables.SENSOR_TRIGGERS, new String[]{SensorTriggerColumns.SENSOR_ID,
+                                SensorTriggerColumns.LAST_USED_TIMESTAMP_MS,
+                                SensorTriggerColumns.TRIGGER_INFORMATION}, selection, selectionArgs,
+                        null, null, null, "1");
+                if (c == null || !c.moveToFirst()) {
+                    return null;
+                }
+                trigger = new SensorTrigger(triggerId, c.getString(0), c.getLong(1),
+                        GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
+                                c.getBlob(2)));
+            } catch (InvalidProtocolBufferNanoException e) {
+                e.printStackTrace();
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
+        }
+        return trigger;
+    }
+
+    @Override
+    public List<SensorTrigger> getSensorTriggersForSensor(String sensorId) {
+        List<SensorTrigger> triggers = new ArrayList<>();
+
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+            Cursor c = null;
+            String selection = SensorTriggerColumns.SENSOR_ID + "=?";
+            String[] selectionArgs = new String[]{sensorId};
+            try {
+                c = db.query(Tables.SENSOR_TRIGGERS, new String[]{
+                        SensorTriggerColumns.TRIGGER_ID,
+                        SensorTriggerColumns.LAST_USED_TIMESTAMP_MS,
+                        SensorTriggerColumns.TRIGGER_INFORMATION},
+                        selection, selectionArgs, null, null,
+                        SensorTriggerColumns.LAST_USED_TIMESTAMP_MS + " DESC");
+                while (c.moveToNext()) {
+                    triggers.add(new SensorTrigger(c.getString(0), sensorId, c.getLong(1),
+                            GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
+                                    c.getBlob(2))));
+                }
+            } catch (InvalidProtocolBufferNanoException e) {
+                e.printStackTrace();
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
+        }
+        return triggers;
+    }
+
     public interface ProjectColumns {
 
         /**
@@ -1284,11 +1374,38 @@ public class SimpleMetaDataManager implements MetaDataManager {
         String LAYOUT = "layout";
     }
 
+    public interface SensorTriggerColumns {
+        /**
+         * Trigger ID. THis is unique.
+         */
+        String TRIGGER_ID = "trigger_id";
+
+        /**
+         * Sensor ID for this trigger.
+         */
+        String SENSOR_ID = "sensor_id";
+
+        /**
+         * The timestamp when this trigger was last used.
+         */
+        String LAST_USED_TIMESTAMP_MS = "last_used_timestamp";
+
+        /**
+         * The experiment ID that this trigger is associated with.
+         */
+        String EXPERIMENT_ID = "experiment_id";
+
+        /**
+         * The TriggerInformation proto containing the configuration of this trigger.
+         */
+        String TRIGGER_INFORMATION = "trigger_information";
+    }
+
     /**
      * Manages the SQLite database backing the data for the entire app.
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        private static final int DB_VERSION = 17;
+        private static final int DB_VERSION = 18;
         private static final String DB_NAME = "main.db";
 
         DatabaseHelper(Context context, String filename) {
@@ -1306,6 +1423,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             createRunsTable(db);
             createRunSensorsTable(db);
             createExperimentSensorLayoutTable(db);
+            createSensorTriggersTable(db);
         }
 
         private void createExperimentsTable(SQLiteDatabase db) {
@@ -1455,6 +1573,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
                         " = 1 WHERE " + RunsColumns.AUTO_ZOOM_ENABLED + " IS NULL");
                 version = 17;
             }
+
+            if (version == 17 && version < newVersion) {
+                createSensorTriggersTable(db);
+                version = 18;
+            }
         }
 
         private void createProjectsTable(SQLiteDatabase db) {
@@ -1539,6 +1662,17 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     + ExperimentSensorLayoutColumns.LAYOUT + " BLOB,"
                     + "UNIQUE(" + ExperimentSensorLayoutColumns.EXPERIMENT_ID + ","
                     + ExperimentSensorLayoutColumns.POSITION + "))");
+        }
+
+        private void createSensorTriggersTable(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE " + Tables.SENSOR_TRIGGERS + " ("
+                    + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + SensorTriggerColumns.TRIGGER_ID + " TEXT UNIQUE,"
+                    + SensorTriggerColumns.EXPERIMENT_ID + " TEXT,"
+                    + SensorTriggerColumns.LAST_USED_TIMESTAMP_MS + " INTEGER,"
+                    + SensorTriggerColumns.SENSOR_ID + " TEXT,"
+                    + SensorTriggerColumns.TRIGGER_INFORMATION + " BLOB)"
+            );
         }
 
         private void populateUpgradedRunsTable(SQLiteDatabase db) {

@@ -27,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.Run;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 
@@ -164,4 +165,27 @@ public interface DataController {
      */
     void replaceSensorInExperiment(String experimentId, String oldSensorId, String newSensorId,
             final MaybeConsumer<Success> onSuccess);
+
+    /**
+     * Adds a new SensorTrigger to the database.
+     */
+    void addSensorTrigger(SensorTrigger trigger, String experimentId,
+            final MaybeConsumer<Success> onSuccess);
+
+    /**
+     * Updates a SensorTrigger in the database.
+     */
+    void updateSensorTrigger(SensorTrigger trigger, final MaybeConsumer<Success> onSuccess);
+
+    /**
+     * Gets a single SensorTrigger by ID.
+     */
+    void getSensorTrigger(String triggerId, final MaybeConsumer<SensorTrigger> onSuccess);
+
+    /**
+     * Gets a list of SensorTriggers for a given sensor from the database.
+     */
+    void getSensorTriggersForSensor(String sensorId,
+            final MaybeConsumer<List<SensorTrigger>> onSuccess);
+
 }

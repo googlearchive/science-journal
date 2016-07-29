@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.sensordb;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -27,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.Run;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
@@ -43,6 +45,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class MemoryMetadataManager implements MetaDataManager {
     private Project mLastUsedProject = null;
@@ -305,5 +308,58 @@ public class MemoryMetadataManager implements MetaDataManager {
     @Override
     public void deleteRun(String runId) {
 
+    }
+
+    private Map<String, List<SensorTrigger>> mSensorTriggers = new HashMap<>();
+
+    @Override
+    public void addSensorTrigger(SensorTrigger trigger, String experimentId) {
+        String sensorId = trigger.getSensorId();
+        if (mSensorTriggers.containsKey(sensorId)) {
+            mSensorTriggers.get(sensorId).add(trigger);
+        } else {
+            List<SensorTrigger> triggers = new ArrayList<>();
+            triggers.add(trigger);
+            mSensorTriggers.put(sensorId, triggers);
+        }
+    }
+
+    @Override
+    public void updateSensorTrigger(SensorTrigger trigger) {
+        if (mSensorTriggers.containsKey(trigger.getSensorId())) {
+            List<SensorTrigger> triggers = mSensorTriggers.get(trigger.getSensorId());
+            int index = -1;
+            for (int i = 0; i < triggers.size(); i++) {
+                if (TextUtils.equals(triggers.get(i).getTriggerId(), trigger.getTriggerId())) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index >= 0) {
+                triggers.remove(index);
+                triggers.add(index, trigger);
+            }
+        }
+    }
+
+    @Override
+    public SensorTrigger getSensorTrigger(String triggerId) {
+        for (List<SensorTrigger> triggers : mSensorTriggers.values()) {
+            for (SensorTrigger trigger : triggers) {
+                if (TextUtils.equals(trigger.getTriggerId(), triggerId)) {
+                    return trigger;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<SensorTrigger> getSensorTriggersForSensor(String sensorId) {
+        List<SensorTrigger> result = new ArrayList<>();
+        if (mSensorTriggers.containsKey(sensorId)) {
+            Collections.copy(result, mSensorTriggers.get(sensorId));
+        }
+        return result;
     }
 }
