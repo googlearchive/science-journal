@@ -42,6 +42,8 @@ public final class TrackerConstants {
     public static final String SCREEN_DEVICE_MANAGER = "device_manager";
     public static final String SCREEN_DEVICE_OPTIONS = "device_options";
     public static final String SCREEN_UPDATE_RUN = "run_update";
+    public static final String SCREEN_TRIGGER_LIST = "trigger_list";
+    public static final String SCREEN_TRIGGER_EDIT = "trigger_edit";
 
     // Custom dimension indices.
     public static final int DIMENSION_MODE = 1;
@@ -53,6 +55,7 @@ public final class TrackerConstants {
     public static final String CATEGORY_RUNS = "Runs";
     public static final String CATEGORY_NOTES = "Notes";
     public static final String CATEGORY_APP = "App";
+    public static final String CATEGORY_TRIGGERS = "Triggers";
 
     // Event actions
     public static final String ACTION_CREATE = "Create";

@@ -60,7 +60,7 @@ public class SensorCardPresenterUnitTest {
         };
         MemoryRecorderController rc = new MemoryRecorderController();
         SensorCardPresenter scp = new SensorCardPresenter(dataViewOptions, ssc, rc,
-                new GoosciSensorLayout.SensorLayout(), null);
+                new GoosciSensorLayout.SensorLayout(), "", null);
         SensorPresenter presenter = new MemorySensorPresenter();
         SensorObserver so = new SensorObserver() {
             @Override

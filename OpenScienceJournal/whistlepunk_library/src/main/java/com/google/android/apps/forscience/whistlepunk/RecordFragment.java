@@ -578,7 +578,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
     }
 
-    private GoosciSensorLayout.SensorLayout defaultLayout() {
+    public static GoosciSensorLayout.SensorLayout defaultLayout() {
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = null;
         layout.cardView = DEFAULT_CARD_VIEW;
@@ -756,7 +756,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
         final SensorCardPresenter sensorCardPresenter = new SensorCardPresenter(
                 new DataViewOptions(nextSensorCardColor, mScalarDisplayOptions),
-                mSensorSettingsController, rc, layout, this);
+                mSensorSettingsController, rc, layout, mSelectedExperiment.getExperimentId(),
+                this);
 
         final SensorStatusListener sensorStatusListener = new SensorStatusListener() {
             @Override
@@ -1093,6 +1094,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
         DataController dataController = getDataController();
         for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
+            // TODO: instead of having each presenter get the labels from the DC, we should
+            // get the labels here and pass them into all the presenters. This will be much more
+            // efficient with multiple cards!
             presenter.tryRefreshingLabels(dataController, mExternalAxis, mSelectedExperiment);
         }
     }
@@ -1527,6 +1531,19 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 return;
             }
         }
+    }
+
+    public int getPositionOfLayout(GoosciSensorLayout.SensorLayout layout) {
+        if (mSensorCardAdapter == null) {
+            return -1;
+        }
+        List<SensorCardPresenter> presenters = mSensorCardAdapter.getSensorCardPresenters();
+        for (int i = 0; i < presenters.size(); i++) {
+            if (TextUtils.equals(presenters.get(i).getSelectedSensorId(), layout.sensorId)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private static class ExperimentsSpinnerAdapter extends ArrayAdapter<Experiment> {

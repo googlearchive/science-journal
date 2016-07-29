@@ -154,6 +154,28 @@
                 android:value="com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity"/>
         </activity>
         <activity
+            android:name=".metadata.TriggerListActivity"
+            android:exported="false"
+            android:label="@string/title_activity_trigger_list"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.UpdateMetadata"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
+        </activity>
+        <activity
+            android:name=".metadata.EditTriggerActivity"
+            android:exported="false"
+            android:label="@string/title_activity_edit_trigger"
+            android:parentActivityName=".metadata.TriggerListActivity"
+            android:theme="@style/AppTheme.UpdateMetadata"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.metadata.TriggerListActivity"/>
+        </activity>
+        <activity
             android:name=".review.UpdateRunActivity"
             android:label="@string/title_edit_trial_activity"
             android:parentActivityName=".review.RunReviewActivity"

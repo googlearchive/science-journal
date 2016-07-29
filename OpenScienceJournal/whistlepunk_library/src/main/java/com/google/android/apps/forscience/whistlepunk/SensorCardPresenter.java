@@ -46,6 +46,7 @@ import android.widget.TextView;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.TriggerListActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
@@ -119,6 +120,7 @@ public class SensorCardPresenter {
     private String mSensorDisplayName = "";
     private String mUnits = "";
     private String mSensorId;
+    private final String mExperimentId;
     private SensorAnimationBehavior mSensorAnimationBehavior;
     private SensorChoice mCurrentSource = null;
     private SensorStatusListener mSensorStatusListener = null;
@@ -131,7 +133,7 @@ public class SensorCardPresenter {
     private View.OnClickListener mRetryClickListener;
     private boolean mPaused = false;
     private String mTabSelectedFormat;
-    private final Fragment mParentFragment;
+    private final RecordFragment mParentFragment;
     private PopupMenu mPopupMenu;
     private boolean mAllowRetry = true;
 
@@ -173,7 +175,7 @@ public class SensorCardPresenter {
     public SensorCardPresenter(DataViewOptions dataViewOptions,
             SensorSettingsController sensorSettingsController,
             RecorderController recorderController, GoosciSensorLayout.SensorLayout layout,
-            Fragment fragment) {
+            String experimentId, RecordFragment fragment) {
         mDataViewOptions = dataViewOptions;
         mSensorSettingsController = sensorSettingsController;
         mRecorderController = recorderController;
@@ -181,7 +183,8 @@ public class SensorCardPresenter {
         mNumberFormat = new AxisNumberFormat();
         mLayout = layout;
         mCardOptions.putAllExtras(layout.extras);
-        mParentFragment = fragment;
+        mExperimentId = experimentId;
+        mParentFragment = fragment; // TODO: Should this use a weak reference?
     }
 
     public void onNewData(long timestamp, Bundle bundle) {
@@ -614,6 +617,13 @@ public class SensorCardPresenter {
 
         menu.findItem(R.id.btn_sensor_card_audio_settings).setVisible(!isRecording());
 
+        // For now, hide triggers behind test options.
+        menu.findItem(R.id.btn_sensor_card_set_triggers).setVisible(
+                DevOptionsFragment.isDevToolsEnabled(context));
+        // Disable trigger settings during recording.
+        menu.findItem(R.id.btn_sensor_card_set_triggers).setEnabled(sensorConnected &&
+                !isRecording() && mLayout != null);
+
         mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
                 int itemId = item.getItemId();
@@ -643,6 +653,20 @@ public class SensorCardPresenter {
                             AudioSettingsDialog.newInstance(new String[] {currentSonificationType},
                                     new String[] {mSensorId}, 0);
                     dialog.show(mParentFragment.getChildFragmentManager(), AudioSettingsDialog.TAG);
+                    return true;
+                } else if (itemId == R.id.btn_sensor_card_set_triggers) {
+                    if (mParentFragment == null) {
+                        return false;
+                    }
+                    Intent intent = new Intent(mParentFragment.getActivity(),
+                            TriggerListActivity.class);
+                    intent.putExtra(TriggerListActivity.EXTRA_SENSOR_ID, mSensorId);
+                    intent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, mExperimentId);
+                    intent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION,
+                            mParentFragment.getPositionOfLayout(mLayout));
+                    intent.putExtra(TriggerListActivity.EXTRA_SENSOR_LAYOUT_BLOB,
+                            ProtoUtils.makeBlob(mLayout));
+                    mParentFragment.getActivity().startActivity(intent);
                     return true;
                 }
                 return false;

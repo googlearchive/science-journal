@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2016 Google Inc. All Rights Reserved.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/update_project_horizontal_padding"
+    android:paddingRight="@dimen/update_project_horizontal_padding"
+    android:paddingTop="@dimen/update_project_vertical_padding"
+    android:background="@color/text_color_white"
+    tools:context="com.google.android.apps.forscience.whistlepunk.metadata.EditTriggerActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_color_light_grey"
+        android:textSize="12sp"
+        android:text="@string/trigger_type_label"
+        android:labelFor="@+id/trigger_type_spinner"
+        />
+
+    <android.support.v7.widget.AppCompatSpinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/accessibility_touch_target_min_size"
+        android:id="@id/trigger_type_spinner"
+        android:layout_marginBottom="24dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_color_light_grey"
+        android:textSize="12sp"
+        android:text="@string/trigger_when_label"
+        android:labelFor="@+id/trigger_when_spinner"
+        />
+
+    <android.support.v7.widget.AppCompatSpinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/accessibility_touch_target_min_size"
+        android:id="@id/trigger_when_spinner"
+        android:layout_marginBottom="24dp"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp"
+        >
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:minWidth="144dp"
+            android:layout_height="@dimen/accessibility_touch_target_min_size"
+            android:id="@+id/value_input"
+            android:singleLine="true"
+            android:lines="1"
+            android:inputType="numberDecimal|numberSigned"
+            android:textSize="16sp"
+            android:hint="@string/trigger_value_hint"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_dark_grey"
+            android:id="@+id/units"
+            android:textSize="16sp"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/note_type_trigger_section"
+        android:visibility="gone"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_light_grey"
+            android:textSize="12sp"
+            android:text="@string/trigger_note_text_label"
+            android:labelFor="@+id/trigger_note_text"
+            />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/accessibility_touch_target_min_size"
+            android:id="@id/trigger_note_text"
+            android:hint="@string/trigger_note_text_hint"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/alert_type_trigger_section"
+        android:visibility="gone"
+        >
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/accessibility_touch_target_min_size"
+            android:id="@+id/alert_type_audio_selector"
+            android:text="@string/trigger_audio_alert"
+            android:textSize="16sp"
+            android:textColor="@color/text_color_dark_grey"
+            android:layout_marginEnd="24dp"
+            />
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/accessibility_touch_target_min_size"
+            android:id="@+id/alert_type_haptic_selector"
+            android:text="@string/trigger_haptic_alert"
+            android:textSize="16sp"
+            android:textColor="@color/text_color_dark_grey"
+            android:layout_marginEnd="24dp"
+            />
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/accessibility_touch_target_min_size"
+            android:id="@+id/alert_type_visual_selector"
+            android:text="@string/trigger_visual_alert"
+            android:textSize="16sp"
+            android:textColor="@color/text_color_dark_grey"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>

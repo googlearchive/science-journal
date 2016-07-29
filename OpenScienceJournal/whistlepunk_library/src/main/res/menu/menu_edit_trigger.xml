@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2016 Google Inc. All Rights Reserved.
 
@@ -16,31 +15,12 @@
  -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:showAsAction="always"
-    >
-
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.google.android.apps.forscience.whistlepunk.metadata.EditTriggerActivity">
     <item
-        android:title="@string/graph_options_audio_feedback_enable"
-        android:id="@+id/btn_sensor_card_audio_toggle"
-        />
-
-    <item
-        android:title="@string/menu_item_audio_settings"
-        android:id="@+id/btn_sensor_card_audio_settings"
-        />
-
-    <item
-        android:title="@string/menu_item_set_triggers"
-        android:id="@+id/btn_sensor_card_set_triggers"
-        />
-
-    <item
-        android:title="@string/btn_sensor_card_settings"
-        android:id="@+id/btn_sensor_card_settings"
-        />
-
-    <item
-        android:title="@string/btn_sensor_card_close"
-        android:id="@+id/btn_sensor_card_close"
+        android:id="@+id/action_save"
+        android:title="@string/action_save"
+        android:orderInCategory="100"
+        app:showAsAction="always"
         />
 </menu>
