@@ -80,14 +80,14 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     private void replaceIdInLayouts(String experimentId, String oldSensorId, String newSensorId) {
-        List<GoosciSensorLayout.SensorLayout> layouts = mMetaDataManager.getExperimentSensorLayout(
+        List<GoosciSensorLayout.SensorLayout> layouts = mMetaDataManager.getExperimentSensorLayouts(
                 experimentId);
         for (GoosciSensorLayout.SensorLayout layout : layouts) {
             if (layout.sensorId.equals(oldSensorId)) {
                 layout.sensorId = newSensorId;
             }
         }
-        mMetaDataManager.setExperimentSensorLayout(experimentId, layouts);
+        mMetaDataManager.setExperimentSensorLayouts(experimentId, layouts);
     }
 
     public void stopRun(final Experiment experiment, final String runId,
@@ -578,7 +578,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {
-                mMetaDataManager.setExperimentSensorLayout(experimentId, layouts);
+                mMetaDataManager.setExperimentSensorLayouts(experimentId, layouts);
                 return Success.SUCCESS;
             }
         });
@@ -592,8 +592,20 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             @Override
             public List<GoosciSensorLayout.SensorLayout> call() throws Exception {
                 List<GoosciSensorLayout.SensorLayout> sensorLayout =
-                        mMetaDataManager.getExperimentSensorLayout(experimentId);
+                        mMetaDataManager.getExperimentSensorLayouts(experimentId);
                 return sensorLayout;
+            }
+        });
+    }
+
+    @Override
+    public void updateSensorLayout(final String experimentId, final int position,
+            final GoosciSensorLayout.SensorLayout layout, MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            @Override
+            public Success call() throws Exception {
+                mMetaDataManager.updateSensorLayout(experimentId, position, layout);
+                return Success.SUCCESS;
             }
         });
     }
@@ -675,6 +687,17 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             @Override
             public List<SensorTrigger> call() throws Exception {
                 return mMetaDataManager.getSensorTriggersForSensor(sensorId);
+            }
+        });
+    }
+
+    @Override
+    public void deleteSensorTrigger(final SensorTrigger trigger, MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            @Override
+            public Success call() throws Exception {
+                mMetaDataManager.deleteSensorTrigger(trigger);
+                return Success.SUCCESS;
             }
         });
     }

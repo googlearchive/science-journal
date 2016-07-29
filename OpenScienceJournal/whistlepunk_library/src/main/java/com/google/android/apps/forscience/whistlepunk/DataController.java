@@ -153,6 +153,12 @@ public interface DataController {
             MaybeConsumer<List<GoosciSensorLayout.SensorLayout>> onSuccess);
 
     /**
+     * Updates a sensor layout in a given position for an experiment
+     */
+    void updateSensorLayout(String experimentId, int position,
+            GoosciSensorLayout.SensorLayout layout, MaybeConsumer<Success> onSuccess);
+
+    /**
      * Makes sure there is an external sensor already registered in the database with the given
      * spec, and returns its id to {@code onSensorId}
      */
@@ -187,5 +193,10 @@ public interface DataController {
      */
     void getSensorTriggersForSensor(String sensorId,
             final MaybeConsumer<List<SensorTrigger>> onSuccess);
+
+    /**
+     * Deletes a SensorTrigger.
+     */
+    void deleteSensorTrigger(SensorTrigger trigger, final MaybeConsumer<Success> onSuccess);
 
 }

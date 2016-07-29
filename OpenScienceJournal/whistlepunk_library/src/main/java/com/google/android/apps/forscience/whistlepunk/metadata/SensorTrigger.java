@@ -57,8 +57,8 @@ public class SensorTrigger {
     }
 
     // Short cut to create a Note type SensorTrigger.
-    public static SensorTrigger newNoteTypeTrigger(String triggerId, String sensorId, int triggerWhen,
-            String noteText, double triggerValue) {
+    public static SensorTrigger newNoteTypeTrigger(String triggerId, String sensorId,
+            int triggerWhen, String noteText, double triggerValue) {
         SensorTrigger result = new SensorTrigger(triggerId, sensorId, triggerWhen,
                 TriggerInformation.TRIGGER_ACTION_NOTE,
                 triggerValue);
@@ -121,6 +121,7 @@ public class SensorTrigger {
         return mTriggerInfo.triggerActionType;
     }
 
+    // TODO: Write tests for this function to make sure it clears and sets the correct data.
     public void setTriggerActionType(int actionType) {
         if (mTriggerInfo.triggerActionType == actionType) {
             return;
@@ -131,6 +132,7 @@ public class SensorTrigger {
         } else if (mTriggerInfo.triggerActionType == TriggerInformation.TRIGGER_ACTION_ALERT) {
             mTriggerInfo.triggerAlertTypes = null;
         }
+        mTriggerInfo.triggerActionType = actionType;
         updateLastUsed();
     }
 
@@ -197,10 +199,10 @@ public class SensorTrigger {
                 getActionType() == other.getActionType() &&
                 getTriggerWhen() == other.getTriggerWhen() &&
                 TextUtils.equals(getNoteText(), other.getNoteText()) &&
-                hasSameElements(getAlertTypes(), other.getAlertTypes());
+                hasSameAlertTypes(getAlertTypes(), other.getAlertTypes());
     }
 
-    private static boolean hasSameElements(int[] first, int[] second) {
+    public static boolean hasSameAlertTypes(int[] first, int[] second) {
         if (first == null || second == null) {
             return first == null && second == null;
         }

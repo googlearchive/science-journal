@@ -177,13 +177,20 @@ public interface MetaDataManager {
     /**
      * Set the sensor selection and layout for an experiment
      */
-    void setExperimentSensorLayout(String experimentId,
+    void setExperimentSensorLayouts(String experimentId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts);
 
     /**
      * Retrieve the sensor selection and layout for an experiment
      */
-    List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayout(String experimentId);
+    List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayouts(String experimentId);
+
+    /**
+     * Updates a sensor layout in a given position for an experiment. If the experimentID is
+     * invalid or the position is too large for that experimentID, nothing happens.
+     */
+    void updateSensorLayout(String experimentId, int position,
+            GoosciSensorLayout.SensorLayout layout);
 
     void close();
 
@@ -225,4 +232,9 @@ public interface MetaDataManager {
      * @return A list of SensorTriggers that apply to that Sensor ID
      */
     List<SensorTrigger> getSensorTriggersForSensor(String sensorId);
+
+    /**
+     * Deletes the SensorTrigger from the database.
+     */
+    void deleteSensorTrigger(SensorTrigger trigger);
 }
