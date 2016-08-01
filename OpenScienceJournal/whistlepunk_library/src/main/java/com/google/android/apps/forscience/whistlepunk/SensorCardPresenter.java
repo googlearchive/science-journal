@@ -133,6 +133,7 @@ public class SensorCardPresenter {
     private String mTabSelectedFormat;
     private final Fragment mParentFragment;
     private PopupMenu mPopupMenu;
+    private boolean mAllowRetry = true;
 
     private OptionsListener mCommitListener = new OptionsListener() {
         @Override
@@ -277,7 +278,7 @@ public class SensorCardPresenter {
         mCardViewHolder.statusRetryButton.setVisibility(View.GONE);
         if (mHasError) {
             // An error
-            if (mRetryClickListener != null) {
+            if (mRetryClickListener != null && mAllowRetry) {
                 mCardViewHolder.statusRetryButton.setVisibility(View.VISIBLE);
                 mCardViewHolder.statusRetryButton.setOnClickListener(mRetryClickListener);
             }
@@ -759,7 +760,7 @@ public class SensorCardPresenter {
     // Selects the new sensor if it is different from the old sensor or if no sensor is currently
     // selected.
     private void trySelectingNewSensor(String newSensorId, String oldSensorId) {
-        if (mCurrentSource == null || !TextUtils.equals(newSensorId, oldSensorId)) {
+        if ((mCurrentSource == null && !mHasError) || !TextUtils.equals(newSensorId, oldSensorId)) {
             mOnSensorClickListener.onSensorClicked(newSensorId);
         }
     }
@@ -1210,7 +1211,8 @@ public class SensorCardPresenter {
                 });
     }
 
-    void setConnectingUI(String sensorId, boolean hasError, Context context) {
+    void setConnectingUI(String sensorId, boolean hasError, Context context, boolean allowRetry) {
+        mAllowRetry = allowRetry;
         SensorAppearance appearance = mAppearanceProvider.getAppearance(sensorId);
         setUiForConnectingNewSensor(sensorId,
                 appearance.getSensorDisplayName(context), appearance.getUnits(context), hasError);
