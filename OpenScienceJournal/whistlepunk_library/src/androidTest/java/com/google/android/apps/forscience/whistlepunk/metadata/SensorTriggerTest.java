@@ -24,6 +24,48 @@ import android.test.AndroidTestCase;
  */
 public class SensorTriggerTest extends AndroidTestCase {
 
+    public void testSetActionType_noChangeWhenEqual() {
+        SensorTrigger trigger = new SensorTrigger("0", "fakeId", TriggerInformation.TRIGGER_WHEN_AT,
+                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
+        SensorTrigger same = new SensorTrigger("0", "fakeId", TriggerInformation.TRIGGER_WHEN_AT,
+                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
+        trigger.setTriggerActionType(TriggerInformation.TRIGGER_ACTION_START_RECORDING);
+        assertTrue(trigger.userSettingsEquals(same));
+
+        trigger = SensorTrigger.newAlertTypeTrigger("1", "fakeId",
+                TriggerInformation.TRIGGER_WHEN_AT,
+                new int[]{TriggerInformation.TRIGGER_ALERT_VISUAL,
+                        TriggerInformation.TRIGGER_ALERT_AUDIO}, 10.);
+        same = SensorTrigger.newAlertTypeTrigger("1", "fakeId",
+                TriggerInformation.TRIGGER_WHEN_AT,
+                new int[]{TriggerInformation.TRIGGER_ALERT_VISUAL,
+                        TriggerInformation.TRIGGER_ALERT_AUDIO}, 10.);
+        trigger.setTriggerActionType(TriggerInformation.TRIGGER_ACTION_ALERT);
+        assertTrue(trigger.userSettingsEquals(same));
+    }
+
+    public void testSetActionType_clearsMetaDataWhenChanged() {
+        SensorTrigger trigger = SensorTrigger.newAlertTypeTrigger("1", "fakeId",
+                TriggerInformation.TRIGGER_WHEN_AT,
+                new int[]{TriggerInformation.TRIGGER_ALERT_VISUAL,
+                        TriggerInformation.TRIGGER_ALERT_AUDIO}, 10.);
+        assertTrue(trigger.getNoteText().isEmpty());
+        assertEquals(trigger.getAlertTypes().length, 2);
+
+        trigger.setTriggerActionType(TriggerInformation.TRIGGER_ACTION_NOTE);
+        assertTrue(trigger.getNoteText().isEmpty());
+        assertEquals(trigger.getAlertTypes().length, 0);
+
+        trigger = SensorTrigger.newNoteTypeTrigger("7", "fakeId",
+                TriggerInformation.TRIGGER_WHEN_AT, "text", 10.);
+        assertTrue(trigger.getNoteText().equals("text"));
+        assertEquals(trigger.getAlertTypes().length, 0);
+
+        trigger.setTriggerActionType(TriggerInformation.TRIGGER_ACTION_START_RECORDING);
+        assertTrue(trigger.getNoteText().isEmpty());
+        assertEquals(trigger.getAlertTypes().length, 0);
+    }
+
     public void testIsTriggered_datapointAtUnequal() {
         SensorTrigger trigger = new SensorTrigger("0", "fakeId", TriggerInformation.TRIGGER_WHEN_AT,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
@@ -95,12 +137,14 @@ public class SensorTriggerTest extends AndroidTestCase {
         first = SensorTrigger.newAlertTypeTrigger("4", "fakeId", TriggerInformation.TRIGGER_WHEN_AT,
                 new int[]{TriggerInformation.TRIGGER_ALERT_VISUAL,
                         TriggerInformation.TRIGGER_ALERT_AUDIO}, 10.);
-        second = SensorTrigger.newAlertTypeTrigger("5", "fakeId", TriggerInformation.TRIGGER_WHEN_AT,
+        second = SensorTrigger.newAlertTypeTrigger("5", "fakeId",
+                TriggerInformation.TRIGGER_WHEN_AT,
                 new int[]{TriggerInformation.TRIGGER_ALERT_AUDIO,
                         TriggerInformation.TRIGGER_ALERT_VISUAL}, 10.);
         assertTrue(first.userSettingsEquals(second));
 
-        second = SensorTrigger.newAlertTypeTrigger("6", "fakeId", TriggerInformation.TRIGGER_WHEN_AT,
+        second = SensorTrigger.newAlertTypeTrigger("6", "fakeId",
+                TriggerInformation.TRIGGER_WHEN_AT,
                 new int[]{TriggerInformation.TRIGGER_ALERT_AUDIO}, 10.);
         assertFalse(first.userSettingsEquals(second));
 

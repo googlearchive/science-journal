@@ -121,7 +121,6 @@ public class SensorTrigger {
         return mTriggerInfo.triggerActionType;
     }
 
-    // TODO: Write tests for this function to make sure it clears and sets the correct data.
     public void setTriggerActionType(int actionType) {
         if (mTriggerInfo.triggerActionType == actionType) {
             return;
@@ -130,7 +129,7 @@ public class SensorTrigger {
         if (mTriggerInfo.triggerActionType == TriggerInformation.TRIGGER_ACTION_NOTE) {
             mTriggerInfo.noteText = "";
         } else if (mTriggerInfo.triggerActionType == TriggerInformation.TRIGGER_ACTION_ALERT) {
-            mTriggerInfo.triggerAlertTypes = null;
+            mTriggerInfo.triggerAlertTypes = new int[]{};
         }
         mTriggerInfo.triggerActionType = actionType;
         updateLastUsed();
