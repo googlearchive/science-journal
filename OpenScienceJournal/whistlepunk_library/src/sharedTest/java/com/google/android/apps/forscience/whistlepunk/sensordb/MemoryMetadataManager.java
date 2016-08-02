@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -280,18 +281,28 @@ public class MemoryMetadataManager implements MetaDataManager {
     Map<String, List<GoosciSensorLayout.SensorLayout>> mLayouts = new HashMap<>();
 
     @Override
-    public void setExperimentSensorLayout(String experimentId,
+    public void setExperimentSensorLayouts(String experimentId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
         mLayouts.put(experimentId, sensorLayouts);
     }
 
     @Override
-    public List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayout(String experimentId) {
+    public List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayouts(String experimentId) {
         List<GoosciSensorLayout.SensorLayout> layouts = mLayouts.get(experimentId);
         if (layouts == null) {
             return Collections.emptyList();
         } else {
             return layouts;
+        }
+    }
+
+    @Override
+    public void updateSensorLayout(String experimentId, int position,
+            GoosciSensorLayout.SensorLayout layout) {
+        List<GoosciSensorLayout.SensorLayout> layouts = mLayouts.get(experimentId);
+        if (layouts.size() > position) {
+            layouts.remove(position);
+            layouts.add(position, layout);
         }
     }
 
@@ -361,5 +372,19 @@ public class MemoryMetadataManager implements MetaDataManager {
             Collections.copy(result, mSensorTriggers.get(sensorId));
         }
         return result;
+    }
+
+    @Override
+    public void deleteSensorTrigger(SensorTrigger toDelete) {
+        for (List<SensorTrigger> triggers : mSensorTriggers.values()) {
+            Iterator<SensorTrigger> iterator = triggers.iterator();
+            while (iterator.hasNext()) {
+                SensorTrigger trigger = iterator.next();
+                if (TextUtils.equals(trigger.getTriggerId(), toDelete.getTriggerId())) {
+                    iterator.remove();
+                    return;
+                }
+            }
+        }
     }
 }

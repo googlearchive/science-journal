@@ -502,25 +502,25 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
         layout2.sensorId = "sensorId2";
         String experimentId = Arbitrary.string();
-        mMetaDataManager.setExperimentSensorLayout(experimentId, Lists.newArrayList(layout1,
+        mMetaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout1,
                 layout2));
 
         assertEquals(Lists.newArrayList(layout1.sensorId, layout2.sensorId),
-                getIds(mMetaDataManager.getExperimentSensorLayout(experimentId)));
+                getIds(mMetaDataManager.getExperimentSensorLayouts(experimentId)));
 
         GoosciSensorLayout.SensorLayout layout3 = new GoosciSensorLayout.SensorLayout();
         layout3.sensorId = "sensorId3";
-        mMetaDataManager.setExperimentSensorLayout(experimentId, Lists.newArrayList(layout3));
+        mMetaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout3));
 
         assertEquals(Lists.newArrayList(layout3.sensorId),
-                getIds(mMetaDataManager.getExperimentSensorLayout(experimentId)));
+                getIds(mMetaDataManager.getExperimentSensorLayouts(experimentId)));
 
         // Try storing duplicate
-        mMetaDataManager.setExperimentSensorLayout(experimentId, Lists.newArrayList(layout3,
+        mMetaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout3,
                 layout3));
         // duplicates are removed
         assertEquals(Lists.newArrayList(layout3.sensorId),
-                getIds(mMetaDataManager.getExperimentSensorLayout(experimentId)));
+                getIds(mMetaDataManager.getExperimentSensorLayouts(experimentId)));
     }
 
     private List<String> getIds(List<GoosciSensorLayout.SensorLayout> layouts) {

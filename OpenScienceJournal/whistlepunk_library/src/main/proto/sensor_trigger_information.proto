@@ -28,18 +28,18 @@ message TriggerInformation {
 
   // What data pattern causes the trigger to fire?
   enum TriggerWhen {
-    TRIGGER_WHEN_AT = 1;
-    TRIGGER_WHEN_RISES_ABOVE = 2;
-    TRIGGER_WHEN_DROPS_BELOW = 3;
+    TRIGGER_WHEN_AT = 0;
+    TRIGGER_WHEN_RISES_ABOVE = 1;
+    TRIGGER_WHEN_DROPS_BELOW = 2;
   }
   optional TriggerWhen triggerWhen = 4;
 
   // What type of action should be taken when the trigger fires?
   enum TriggerActionType {
-    TRIGGER_ACTION_NOTE = 1;
-    TRIGGER_ACTION_START_RECORDING = 2;
-    TRIGGER_ACTION_STOP_RECORDING = 3;
-    TRIGGER_ACTION_ALERT = 4;
+    TRIGGER_ACTION_START_RECORDING = 0;
+    TRIGGER_ACTION_STOP_RECORDING = 1;
+    TRIGGER_ACTION_NOTE = 2;
+    TRIGGER_ACTION_ALERT = 3;
   }
   optional TriggerActionType triggerActionType = 5;
 

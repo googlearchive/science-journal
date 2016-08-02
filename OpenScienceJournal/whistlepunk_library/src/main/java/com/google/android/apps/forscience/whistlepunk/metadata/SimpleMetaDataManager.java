@@ -530,7 +530,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public void setExperimentSensorLayout(String experimentId,
+    public void setExperimentSensorLayouts(String experimentId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -552,7 +552,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayout(String experimentId) {
+    public List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayouts(String experimentId) {
         List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -584,6 +584,20 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
 
         return layouts;
+    }
+
+    @Override
+    public void updateSensorLayout(String experimentId, int position,
+            GoosciSensorLayout.SensorLayout layout) {
+        ContentValues values = new ContentValues();
+        values.put(ExperimentSensorLayoutColumns.LAYOUT, ProtoUtils.makeBlob(layout));
+        String where = ExperimentSensorLayoutColumns.EXPERIMENT_ID + "=? AND " +
+                ExperimentSensorLayoutColumns.POSITION + "=?";
+        String[] params = new String[]{experimentId, String.valueOf(position)};
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.update(Tables.EXPERIMENT_SENSOR_LAYOUT, values, where, params);
+        }
     }
 
     @Override
@@ -1103,6 +1117,15 @@ public class SimpleMetaDataManager implements MetaDataManager {
             }
         }
         return triggers;
+    }
+
+    @Override
+    public void deleteSensorTrigger(SensorTrigger trigger) {
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.delete(Tables.SENSOR_TRIGGERS, SensorTriggerColumns.TRIGGER_ID + "=?",
+                    new String[]{trigger.getTriggerId()});
+        }
     }
 
     public interface ProjectColumns {
