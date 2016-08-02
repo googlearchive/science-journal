@@ -21,5 +21,5 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 import java.util.Map;
 
 public interface ExternalSensorListener {
-    void replaceExternalSensors(Map<String, ExternalSensorSpec> sensors);
+    void updateExternalSensors(Map<String, ExternalSensorSpec> sensors);
 }

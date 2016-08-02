@@ -36,9 +36,10 @@ import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSens
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -160,14 +161,14 @@ public class SensorRegistry {
         return null;
     }
 
-    private void removeAllBluetoothDevices() {
-        for (Iterator<SensorRegistryItem> iterator = mSensorRegistry.values().iterator();
-                iterator.hasNext(); ) {
-            SensorRegistryItem source = iterator.next();
-            if (source.providerId.equals(WP_NATIVE_BLE_PROVIDER_ID)) {
-                iterator.remove();
+    private Set<String> getAllExternalSources() {
+        Set<String> externalSourceIds = new HashSet<String>();
+        for (Map.Entry<String, SensorRegistryItem> entry : mSensorRegistry.entrySet()) {
+            if (entry.getValue().providerId.equals(WP_NATIVE_BLE_PROVIDER_ID)) {
+                externalSourceIds.add(entry.getKey());
             }
         }
+        return externalSourceIds;
     }
 
     private void addAvailableBuiltinSensors(Context context) {
@@ -216,28 +217,35 @@ public class SensorRegistry {
     }
 
     @NonNull
-    public List<String> replaceExternalSensors(Map<String, ExternalSensorSpec> sensors) {
+    public List<String> updateExternalSensors(Map<String, ExternalSensorSpec> sensors) {
         mMostRecentExternalSensors = sensors;
-        removeAllBluetoothDevices();
 
         List<String> sensorsActuallyAdded = new ArrayList<>();
 
-        for (Map.Entry<String, ExternalSensorSpec> entry : sensors.entrySet()) {
-            String sensorId = entry.getKey();
-            if (!hasSource(sensorId)) {
-                ExternalSensorSpec sensor = entry.getValue();
-                ExternalSensorProvider provider = mExternalProviders.get(sensor.getType());
-                if (provider != null) {
-                    addSource(new SensorRegistryItem(provider.getProviderId(),
-                            provider.buildSensor(sensorId, sensor), entry.getValue()
-                                    .getLoggingId()));
-                    sensorsActuallyAdded.add(sensorId);
-                }
+        Set<String> previousExternalSources = getAllExternalSources();
+
+        // Add previously unknown sensors
+        Set<String> newExternalSensors = Sets.difference(sensors.keySet(),
+                previousExternalSources);
+        for (String externalSensorId : newExternalSensors) {
+            ExternalSensorSpec sensor = sensors.get(externalSensorId);
+            ExternalSensorProvider provider = mExternalProviders.get(sensor.getType());
+            if (provider != null) {
+                addSource(new SensorRegistryItem(provider.getProviderId(),
+                        provider.buildSensor(externalSensorId, sensor), sensor.getLoggingId()));
+                sensorsActuallyAdded.add(externalSensorId);
             }
         }
 
+        // Remove known sensors that no longer exist
+        Set<String> removedExternalSensors = Sets.difference(previousExternalSources,
+                sensors.keySet());
+        for (String externalSensorId : removedExternalSensors) {
+            mSensorRegistry.remove(externalSensorId);
+        }
+
         if (mExternalSensorListener != null) {
-            mExternalSensorListener.replaceExternalSensors(sensors);
+            mExternalSensorListener.updateExternalSensors(sensors);
         }
 
         return sensorsActuallyAdded;
@@ -248,7 +256,7 @@ public class SensorRegistry {
 
         if (mMostRecentExternalSensors != null) {
             // TODO: write test for this behavior
-            mExternalSensorListener.replaceExternalSensors(mMostRecentExternalSensors);
+            mExternalSensorListener.updateExternalSensors(mMostRecentExternalSensors);
         }
     }
 }
