@@ -184,9 +184,9 @@ public interface DataController {
     void updateSensorTrigger(SensorTrigger trigger, final MaybeConsumer<Success> onSuccess);
 
     /**
-     * Gets a single SensorTrigger by ID.
+     * Gets a list of SensorTrigger by their IDs.
      */
-    void getSensorTrigger(String triggerId, final MaybeConsumer<SensorTrigger> onSuccess);
+    void getSensorTriggers(String[] triggerIds, final MaybeConsumer<List<SensorTrigger>> onSuccess);
 
     /**
      * Gets a list of SensorTriggers for a given sensor from the database.

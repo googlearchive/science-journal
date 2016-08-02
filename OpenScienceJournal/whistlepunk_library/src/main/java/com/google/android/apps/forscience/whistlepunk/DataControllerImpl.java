@@ -671,11 +671,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void getSensorTrigger(final String triggerId, MaybeConsumer<SensorTrigger> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<SensorTrigger>() {
+    public void getSensorTriggers(final String[] triggerIds,
+            MaybeConsumer<List<SensorTrigger>> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<List<SensorTrigger>>() {
             @Override
-            public SensorTrigger call() throws Exception {
-                return mMetaDataManager.getSensorTrigger(triggerId);
+            public List<SensorTrigger> call() throws Exception {
+                return mMetaDataManager.getSensorTriggers(triggerIds);
             }
         });
     }

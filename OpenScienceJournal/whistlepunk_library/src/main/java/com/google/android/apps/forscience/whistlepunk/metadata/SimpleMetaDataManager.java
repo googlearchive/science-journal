@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
@@ -31,9 +32,11 @@ import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.common.base.Strings;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1056,26 +1059,35 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public SensorTrigger getSensorTrigger(String triggerId) {
-        SensorTrigger trigger = null;
+    public List<SensorTrigger> getSensorTriggers(String[] triggerIds) {
+        List<SensorTrigger> triggers = new ArrayList<>();
+        if (triggerIds == null || triggerIds.length == 0) {
+            return triggers;
+        }
 
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            final String selection = SensorTriggerColumns.TRIGGER_ID + "=?";
-            final String[] selectionArgs = new String[]{triggerId};
+            String[] whereArr = new String[triggerIds.length];
+            Arrays.fill(whereArr, "?");
+            final String where = TextUtils.join(",", whereArr);
+            final String selection = SensorTriggerColumns.TRIGGER_ID + " IN (" + where + ")";
             Cursor c = null;
             try {
                 c = db.query(
-                        Tables.SENSOR_TRIGGERS, new String[]{SensorTriggerColumns.SENSOR_ID,
+                        Tables.SENSOR_TRIGGERS, new String[]{SensorTriggerColumns.TRIGGER_ID,
+                                SensorTriggerColumns.SENSOR_ID,
                                 SensorTriggerColumns.LAST_USED_TIMESTAMP_MS,
-                                SensorTriggerColumns.TRIGGER_INFORMATION}, selection, selectionArgs,
-                        null, null, null, "1");
+                                SensorTriggerColumns.TRIGGER_INFORMATION}, selection, triggerIds,
+                        null, null, null, null);
                 if (c == null || !c.moveToFirst()) {
-                    return null;
+                    return triggers;
                 }
-                trigger = new SensorTrigger(triggerId, c.getString(0), c.getLong(1),
-                        GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
-                                c.getBlob(2)));
+                while (!c.isAfterLast()) {
+                    triggers.add(new SensorTrigger(c.getString(0), c.getString(1), c.getLong(2),
+                            GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
+                                    c.getBlob(3))));
+                    c.moveToNext();
+                }
             } catch (InvalidProtocolBufferNanoException e) {
                 e.printStackTrace();
             } finally {
@@ -1084,7 +1096,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 }
             }
         }
-        return trigger;
+        return triggers;
     }
 
     @Override

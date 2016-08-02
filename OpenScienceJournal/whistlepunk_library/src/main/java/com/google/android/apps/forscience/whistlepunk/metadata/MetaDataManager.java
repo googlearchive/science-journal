@@ -221,9 +221,10 @@ public interface MetaDataManager {
     void updateSensorTrigger(SensorTrigger trigger);
 
     /**
-     * Gets a single SensorTrigger by ID.
+     * Gets a list of SensorTrigger by their IDs.
+     * @param triggerIds
      */
-    SensorTrigger getSensorTrigger(String triggerId);
+    List<SensorTrigger> getSensorTriggers(String[] triggerIds);
 
     /**
      * Gets a list of sensor triggers that are applicable to a given Sensor ID.

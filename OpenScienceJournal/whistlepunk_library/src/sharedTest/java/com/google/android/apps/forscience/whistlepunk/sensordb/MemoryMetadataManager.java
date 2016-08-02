@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class MemoryMetadataManager implements MetaDataManager {
     private Project mLastUsedProject = null;
@@ -354,15 +353,18 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public SensorTrigger getSensorTrigger(String triggerId) {
+    public List<SensorTrigger> getSensorTriggers(String[] triggerIds) {
+        List<SensorTrigger> result = new ArrayList<>();
         for (List<SensorTrigger> triggers : mSensorTriggers.values()) {
             for (SensorTrigger trigger : triggers) {
-                if (TextUtils.equals(trigger.getTriggerId(), triggerId)) {
-                    return trigger;
+                for (String triggerId : triggerIds) {
+                    if (TextUtils.equals(trigger.getTriggerId(), triggerId)) {
+                        result.add(trigger);
+                    }
                 }
             }
         }
-        return null;
+        return result;
     }
 
     @Override
