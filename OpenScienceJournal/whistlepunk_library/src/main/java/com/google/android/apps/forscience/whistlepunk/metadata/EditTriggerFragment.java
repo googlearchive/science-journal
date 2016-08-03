@@ -188,6 +188,11 @@ public class EditTriggerFragment extends Fragment {
                 mNoteValue.setText(mTriggerToEdit.getNoteText());
             }
             updateViewVisibilities(actionType);
+        } else {
+            // Default to an alert spinner that triggers "at" a value, and does a visual alert.
+            mTypeSpinner.setSelection(TriggerInformation.TRIGGER_ACTION_ALERT);
+            mWhenSpinner.setSelection(TriggerInformation.TRIGGER_WHEN_AT);
+            mVisualAlert.setChecked(true);
         }
 
         return view;
