@@ -351,6 +351,7 @@ public class TriggerListFragment extends Fragment {
                 }
             });
 
+            holder.activationSwitch.setOnCheckedChangeListener(null);
             holder.activationSwitch.setChecked(mParentReference.get().isTriggerActive(trigger));
             holder.activationSwitch.setOnCheckedChangeListener(
                     new CompoundButton.OnCheckedChangeListener() {
@@ -361,6 +362,16 @@ public class TriggerListFragment extends Fragment {
                             }
                         }
                     });
+        }
+
+        @Override
+        public void onViewRecycled(TriggerListAdapter.ViewHolder holder) {
+            int position = holder.getAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) {
+                return;
+            }
+            holder.activationSwitch.setOnCheckedChangeListener(null);
+            holder.menuButton.setOnClickListener(null);
         }
 
         @Override

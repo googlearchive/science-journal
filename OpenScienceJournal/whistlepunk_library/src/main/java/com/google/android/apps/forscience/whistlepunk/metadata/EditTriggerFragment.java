@@ -196,13 +196,13 @@ public class EditTriggerFragment extends Fragment {
     private void updateViewVisibilities(int actionType) {
         if (actionType == TriggerInformation.TRIGGER_ACTION_START_RECORDING ||
                 actionType == TriggerInformation.TRIGGER_ACTION_STOP_RECORDING) {
-            mNoteValue.setVisibility(View.GONE);
+            mNoteGroup.setVisibility(View.GONE);
             mAlertGroup.setVisibility(View.GONE);
         } else if (actionType == TriggerInformation.TRIGGER_ACTION_ALERT) {
-            mNoteValue.setVisibility(View.GONE);
+            mNoteGroup.setVisibility(View.GONE);
             mAlertGroup.setVisibility(View.VISIBLE);
         } else if (actionType == TriggerInformation.TRIGGER_ACTION_NOTE) {
-            mNoteValue.setVisibility(View.VISIBLE);
+            mNoteGroup.setVisibility(View.VISIBLE);
             mAlertGroup.setVisibility(View.GONE);
         }
     }
