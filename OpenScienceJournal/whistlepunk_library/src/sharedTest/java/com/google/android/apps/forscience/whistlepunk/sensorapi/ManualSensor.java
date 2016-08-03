@@ -28,6 +28,8 @@ import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.UptimeClock;
+import com.google.android.apps.forscience.whistlepunk.sensordb.MonotonicClock;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.List;
@@ -42,7 +44,7 @@ public class ManualSensor extends ScalarSensor {
     public ManualSensor(String sensorId, long defaultGraphRange,
             int zoomLevelBetweenResolutionTiers) {
         super(sensorId, defaultGraphRange, MoreExecutors.directExecutor(),
-                zoomLevelBetweenResolutionTiers);
+                zoomLevelBetweenResolutionTiers, new UptimeClock());
     }
 
     public SensorRecorder createRecorder(Context context, RecordingDataController rdc,
@@ -90,7 +92,7 @@ public class ManualSensor extends ScalarSensor {
         mChartController = new ChartController(
                 ChartOptions.ChartPlacementType.TYPE_OBSERVE,
                 dataViewOptions.getLineGraphOptions(), mThrowawayThreshold,
-                /* no data loading buffer */ 0);
+                /* no data loading buffer */ 0, new MonotonicClock());
         mChartController.setInteractionListener(interactionListener);
         mChartController.setSensorId(sensorId);
         mChartController.setDefaultGraphRange(defaultGraphRange);
@@ -111,7 +113,7 @@ public class ManualSensor extends ScalarSensor {
         }
     }
 
-    public SensorPresenter createPresenter() {
+    private SensorPresenter createPresenter() {
         StatsListener statsListener = new StubStatsListener();
         ExternalAxisController.InteractionListener interactionListener =
                 new StubInteractionListener();
@@ -130,7 +132,7 @@ public class ManualSensor extends ScalarSensor {
     }
 
     @NonNull
-    public MemorySensorEnvironment makeSensorEnvironment(Context context,
+    private MemorySensorEnvironment makeSensorEnvironment(Context context,
             RecordingDataController rc) {
         return new MemorySensorEnvironment(rc, new FakeBleClient(context), mStorage);
     }
