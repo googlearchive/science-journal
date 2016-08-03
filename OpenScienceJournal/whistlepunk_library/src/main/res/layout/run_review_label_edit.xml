@@ -51,6 +51,17 @@
         android:maxLines="10"
         />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/auto_note_text"
+        android:textColor="@color/text_color_light_grey"
+        android:layout_marginStart="@dimen/edit_note_dialog_margin"
+        android:layout_marginEnd="@dimen/edit_note_dialog_margin"
+        android:layout_marginBottom="@dimen/edit_note_dialog_margin"
+        android:textStyle="italic"
+        />
+
     <include layout="@layout/label_dialog_timestamp_section"/>
 
 </LinearLayout>

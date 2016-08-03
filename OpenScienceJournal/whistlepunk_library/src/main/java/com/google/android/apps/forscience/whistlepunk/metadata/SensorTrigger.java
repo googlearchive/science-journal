@@ -17,17 +17,30 @@
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
 
+import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 
 
+import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+
+
+import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
+import android.util.Log;
+
 import java.util.Objects;
 
 /**
  * A wrapper class for a SensorTriggerInformation.
  */
 public class SensorTrigger {
+    private static final String TAG = "SensorTrigger";
+
+    private static final String KEY_TRIGGER_ID = "trigger_id";
+    private static final String KEY_SENSOR_ID = "sensor_id";
+    private static final String KEY_LAST_USED = "last_used";
+    private static final String KEY_TRIGGER_INFO = "trigger_info";
 
     private TriggerInformation mTriggerInfo;
 
@@ -230,5 +243,27 @@ public class SensorTrigger {
     public void setNoteText(String newText) {
         mTriggerInfo.noteText = newText;
         updateLastUsed();
+    }
+
+    public Bundle toBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putString(KEY_TRIGGER_ID, mTriggerId);
+        bundle.putString(KEY_SENSOR_ID, mSensorId);
+        bundle.putLong(KEY_LAST_USED, mLastUsed);
+        bundle.putByteArray(KEY_TRIGGER_INFO, ProtoUtils.makeBlob(mTriggerInfo));
+        return bundle;
+    }
+
+    public static SensorTrigger fromBundle(Bundle bundle) {
+        try {
+            return new SensorTrigger(bundle.getString(KEY_TRIGGER_ID),
+                    bundle.getString(KEY_SENSOR_ID), bundle.getLong(KEY_LAST_USED),
+                    TriggerInformation.parseFrom(bundle.getByteArray(KEY_TRIGGER_INFO)));
+        } catch (InvalidProtocolBufferNanoException e) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "Error parsing SensorTrigger");
+            }
+            return null;
+        }
     }
 }

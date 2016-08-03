@@ -19,8 +19,6 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.common.annotations.VisibleForTesting;
-
 /**
  * A label which represents a piece of text.
  */
@@ -80,6 +78,11 @@ public class TextLabel extends Label {
 
     static boolean isTag(String tag) {
         return TAG.equalsIgnoreCase(tag);
+    }
+
+    @Override
+    public boolean canEditTimestamp() {
+        return true;
     }
 
     public static final Parcelable.Creator<TextLabel> CREATOR =

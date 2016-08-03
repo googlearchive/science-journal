@@ -103,6 +103,11 @@ public class PictureLabel extends Label {
         return TAG.equalsIgnoreCase(tag);
     }
 
+    @Override
+    public boolean canEditTimestamp() {
+        return true;
+    }
+
     public static final Parcelable.Creator<PictureLabel> CREATOR =
             new Parcelable.Creator<PictureLabel>() {
         public PictureLabel createFromParcel(Parcel in) {

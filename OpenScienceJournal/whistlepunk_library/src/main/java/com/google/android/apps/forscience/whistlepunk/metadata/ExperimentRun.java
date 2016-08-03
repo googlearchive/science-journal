@@ -30,16 +30,14 @@ import java.util.List;
 public class ExperimentRun {
     private final long mStartTime;
     private final long mStopTime;
-    private final List<TextLabel> mTextLabels;
-    private final List<PictureLabel> mPictureLabels;
+    private final ArrayList<Label> mLabels;
     private final Run mRun;
     private String mExperimentId;
 
     public static ExperimentRun fromLabels(Run run, List<Label> allLabels) {
         long startTime = -1;
         long stopTime = -1;
-        List<TextLabel> textLabels = new ArrayList<>();
-        List<PictureLabel> pictureLabels = new ArrayList<>();
+        ArrayList<Label> labels = new ArrayList<>();
         String experimentId = null;
         for (Label label : allLabels) {
             if (label instanceof ApplicationLabel) {
@@ -50,43 +48,37 @@ public class ExperimentRun {
                 } else if (appLabel.getType() == ApplicationLabel.TYPE_RECORDING_STOP) {
                     stopTime = appLabel.getTimeStamp();
                 }
-            } else if (label instanceof TextLabel) {
-                textLabels.add((TextLabel) label);
-            } else if (label instanceof PictureLabel) {
-                pictureLabels.add((PictureLabel) label);
+            } else {
+                labels.add(label);
             }
         }
-        return new ExperimentRun(run, experimentId, startTime, stopTime, textLabels, pictureLabels);
+        return new ExperimentRun(run, experimentId, startTime, stopTime, labels);
     }
 
     private ExperimentRun(Run run, String experimentId, long startTime, long stopTime,
-                          List<TextLabel> textLabels, List<PictureLabel> pictureLabels) {
+            ArrayList<Label> labels) {
         mExperimentId = experimentId;
         mStartTime = startTime;
         mStopTime = stopTime;
-        mTextLabels = textLabels;
-        mPictureLabels = pictureLabels;
+        mLabels = labels;
         mRun = run;
     }
 
     public int getNoteCount() {
-        return mTextLabels.size() + mPictureLabels.size();
+        return mLabels.size();
     }
 
-    public List<TextLabel> getPinnedNotes() {
-        return mTextLabels;
-    }
-
-    public List<PictureLabel> getPictureLabels() {
-        return mPictureLabels;
+    public ArrayList<Label> getPinnedNotes() {
+        return mLabels;
     }
 
     public PictureLabel getCoverPictureLabel() {
-        if (mPictureLabels.size() > 0) {
-            return mPictureLabels.get(0);
-        } else {
-            return null;
+        for (Label label : mLabels) {
+            if (label instanceof PictureLabel) {
+                return (PictureLabel) label;
+            }
         }
+        return null;
     }
 
     public String getExperimentId() {

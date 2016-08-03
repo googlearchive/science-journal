@@ -1149,6 +1149,16 @@
         <item>@string/trigger_when_drops_below</item>
     </array>
 
+    <!-- Past tense of trigger when, to be used in the string formatting string trigger_label_auto_text. -->
+    <array name="trigger_when_list_note_text">
+        <item>at</item>
+        <item>rose above</item>
+        <item>dropped below</item>
+    </array>
+
+    <!-- The auto-generated note text for a note type trigger. For example,this might say, "Auto-generated note create by a Decibel trigger which fired when the value rose above 3.0 db". [CHAR_LIMIT=200]-->
+    <string name="trigger_label_auto_text">Trigger note: <xliff:g id="sensor_name">%1s</xliff:g> <xliff:g id="trigger_when">%2s</xliff:g> <xliff:g id="trigger_value">%.2f</xliff:g> <xliff:g id="sensor_units">%4s</xliff:g></string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
