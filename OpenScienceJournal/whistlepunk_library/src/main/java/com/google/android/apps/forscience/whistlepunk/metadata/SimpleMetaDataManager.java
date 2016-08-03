@@ -752,6 +752,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
                             label = new PictureLabel(labelId, startLabelId, timestamp, value);
                         } else if (ApplicationLabel.isTag(type)) {
                             label = new ApplicationLabel(labelId, startLabelId, timestamp, value);
+                        } else if (SensorTriggerLabel.isTag(type)) {
+                            label = new SensorTriggerLabel(labelId, startLabelId, timestamp, value);
                         } else {
                             throw new IllegalStateException("Unknown label type: " + type);
                         }
