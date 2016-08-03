@@ -57,6 +57,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -515,14 +516,26 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         setControlButtonsEnabled(true);
     }
 
+    private void updateSensorLayout(GoosciSensorLayout.SensorLayout sensorLayout) {
+        if (mSelectedExperiment == null) {
+            return;
+        }
+        int position = getPositionOfLayout(sensorLayout);
+        if (position < 0) {
+            return;
+        }
+        getDataController().updateSensorLayout(mSelectedExperiment.getExperimentId(), position,
+                sensorLayout, LoggingConsumer.<Success>expectSuccess(TAG, "saving layout"));
+    }
 
     private void saveCurrentLayouts() {
-        if (mSelectedExperiment != null && mSensorLayoutsLoaded) {
-            List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
-            if (layouts != null) {
-                getDataController().setSensorLayouts(mSelectedExperiment.getExperimentId(),
-                        layouts, LoggingConsumer.<Success>expectSuccess(TAG, "saving layouts"));
-            }
+        if (mSelectedExperiment == null || !mSensorLayoutsLoaded) {
+            return;
+        }
+        List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
+        if (layouts != null) {
+            getDataController().setSensorLayouts(mSelectedExperiment.getExperimentId(),
+                    layouts, LoggingConsumer.<Success>expectSuccess(TAG, "saving layouts"));
         }
     }
 
@@ -837,6 +850,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (!retry) {
             mExternalAxis.resetAxes();
         }
+        updateSensorLayout(sensorCardPresenter.buildLayout());
         updateAvailableSensors();
     }
 
