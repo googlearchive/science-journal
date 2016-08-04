@@ -28,21 +28,23 @@ import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
-import com.google.android.apps.forscience.whistlepunk.audiogen.AudioGenerator;
-import com.google.android.apps.forscience.whistlepunk.audiogen.SimpleJsynAudioGenerator;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
+import com.google.android.apps.forscience.whistlepunk.audiogen.AudioGenerator;
+import com.google.android.apps.forscience.whistlepunk.audiogen.SimpleJsynAudioGenerator;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.UptimeClock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FrequencyOptionsPresenter
         .FilterChangeListener;
 import com.google.common.annotations.VisibleForTesting;
@@ -73,6 +75,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     private ValueFilter mValueFilter = null;
     private ChartController mChartController;
     private AudioGenerator mAudioGenerator;
+    private final Clock mClock;
 
     public ScalarSensor(String id) {
         this(id, AppSingleton.getUiThreadExecutor());
@@ -81,12 +84,12 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     @VisibleForTesting
     public ScalarSensor(String id, Executor uiThreadExecutor) {
         this(id, ExternalAxisController.DEFAULT_GRAPH_RANGE_IN_MILLIS, uiThreadExecutor,
-                DEFAULT_ZOOM_LEVEL_BETWEEN_TIERS);
+                DEFAULT_ZOOM_LEVEL_BETWEEN_TIERS, new UptimeClock());
     }
 
     @VisibleForTesting
-    public ScalarSensor(String id, long defaultGraphRange, Executor uiThreadExecutor,
-            int zoomLevelBetweenTiers) {
+    ScalarSensor(String id, long defaultGraphRange, Executor uiThreadExecutor,
+            int zoomLevelBetweenTiers, Clock clock) {
         super(id);
         mDefaultGraphRange = defaultGraphRange;
         mUiThreadExecutor = uiThreadExecutor;
@@ -99,6 +102,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
                 }
             }
         };
+        mClock = clock;
     }
 
     @Override
@@ -272,8 +276,8 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             ExternalAxisController.InteractionListener interactionListener, String id,
             long defaultGraphRange) {
         ChartController chartController = new ChartController(
-                ChartOptions.ChartPlacementType.TYPE_OBSERVE,
-                dataViewOptions.getLineGraphOptions());
+                ChartOptions.ChartPlacementType.TYPE_OBSERVE, dataViewOptions.getLineGraphOptions(),
+                mClock);
         chartController.setInteractionListener(interactionListener);
         chartController.updateColor(dataViewOptions.getGraphColor());
         chartController.setDefaultGraphRange(defaultGraphRange);
@@ -471,14 +475,17 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
         @Override
         public void addData(final long timestampMillis, double value) {
-            // TODO: Hook up SensorTriggers here, as this function is called both when recording
-            // as a service in the background as well as when recording/observing in the foreground.
+            // TODO: would inlining here gain performance?
             if (!maintainsTimeSeries(timestampMillis)) {
                 return;
             }
-            if (mValueFilter != null) {
-                value = mValueFilter.filterValue(timestampMillis, value);
-            }
+            value = maybeFilter(timestampMillis, value);
+            observeData(timestampMillis, value);
+            recordData(timestampMillis, value);
+            mLastDataTimestampMillis = timestampMillis;
+        }
+
+        public void observeData(final long timestampMillis, double value) {
             final Bundle data = makeBundle(value);
             mStatsAccumulator.updateRecordingStreamStats(timestampMillis, value);
             mStatsAccumulator.addStatsToBundle(data);
@@ -490,12 +497,20 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
                     mObserver.onNewData(timestampMillis, data);
                 }
             });
+        }
 
+        public void recordData(long timestampMillis, double value) {
             if (mIsRecording) {
                 mZoomRecorder.addData(timestampMillis, value, mDataController);
                 mDataController.addScalarReading(getId(), 0, timestampMillis, value);
             }
-            mLastDataTimestampMillis = timestampMillis;
+        }
+
+        public double maybeFilter(long timestampMillis, double value) {
+            if (mValueFilter != null) {
+                value = mValueFilter.filterValue(timestampMillis, value);
+            }
+            return value;
         }
 
         // TODO: profile this to make sure Bundles don't add extravagant memory and
