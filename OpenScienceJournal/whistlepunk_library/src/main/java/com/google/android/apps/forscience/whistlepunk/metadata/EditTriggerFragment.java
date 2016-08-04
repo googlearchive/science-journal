@@ -1,5 +1,6 @@
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -19,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -27,6 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment;
@@ -51,6 +54,7 @@ public class EditTriggerFragment extends Fragment {
     private static final String ARG_TRIGGER_INFO = "trigger_info";
     private static final String ARG_TRIGGER_ID = "trigger_id";
     private static final String ARG_LAYOUT_POSITION = "sensor_layout_position";
+    private static final int PERMISSION_VIBRATE = 1;
 
     private String mSensorId;
     private String mExperimentId;
@@ -160,6 +164,22 @@ public class EditTriggerFragment extends Fragment {
         mAudioAlert = (CheckBox) view.findViewById(R.id.alert_type_audio_selector);
         mVisualAlert = (CheckBox) view.findViewById(R.id.alert_type_visual_selector);
         mHapticAlert = (CheckBox) view.findViewById(R.id.alert_type_haptic_selector);
+        if (!PermissionUtils.permissionIsGranted(getActivity(), Manifest.permission.VIBRATE)) {
+            mHapticAlert.setEnabled(PermissionUtils.canRequestAgain(getActivity(),
+                    Manifest.permission.VIBRATE));
+        };
+        mHapticAlert.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Don't let them check this checkbox if they deny the vibrate permission.
+                    if (!PermissionUtils.tryRequestingPermission(getActivity(),
+                            Manifest.permission.VIBRATE, PERMISSION_VIBRATE, true)) {
+                        mHapticAlert.setChecked(false);
+                    };
+                }
+            }
+        });
 
         TextView unitsTextView = (TextView) view.findViewById(R.id.units);
         String units = AppSingleton.getInstance(getActivity())

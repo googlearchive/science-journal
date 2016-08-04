@@ -31,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -57,7 +58,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -115,6 +115,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     private static final String EXTRA_SENSOR_IDS = "sensorIds";
 
     private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
+    private static final long TRIGGER_VIBRATION_DURATION = 200;
 
     public SensorRegistry mSensorRegistry;
 
@@ -164,6 +165,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
      * when we resume
      */
     private String mRecorderPauseId;
+    private Vibrator mVibrator;
 
     public static RecordFragment newInstance() {
         RecordFragment fragment = new RecordFragment();
@@ -823,12 +825,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     private void tryStartObserving(SensorCardPresenter sensorCardPresenter, String sensorId,
             boolean retry) {
         if (TextUtils.equals(sensorId, DecibelSensor.ID) && mDecibelSensorCardPresenter == null &&
-                !PictureUtils.tryRequestingPermission(getActivity(),
+                !PermissionUtils.tryRequestingPermission(getActivity(),
                         Manifest.permission.RECORD_AUDIO,
                         MainActivity.PERMISSIONS_AUDIO_RECORD_REQUEST, /* force retry */ retry)) {
             // If we did actually try to request the permission, save this sensorCardPresenter.
             // for when the permission is granted.
-            if (PictureUtils.canRequestAgain(getActivity(), Manifest.permission.RECORD_AUDIO)) {
+            if (PermissionUtils.canRequestAgain(getActivity(), Manifest.permission.RECORD_AUDIO)) {
                 if (retry) {
                     // In this case, we had tried requesting permissions, so save this presenter.
                     mDecibelSensorCardPresenter = sensorCardPresenter;
@@ -1295,6 +1297,22 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             }
 
         });
+    }
+
+    private void doVibrateAlert() {
+        // Don't try requesting permission again if it is not granted. Just ignore it.
+        // We try requesting permission when the user creates the alert. If it is not granted here,
+        // it means they manually turned it off in the app settings.
+        if (PermissionUtils.permissionIsGranted(getActivity(), Manifest.permission.VIBRATE)) {
+            getVibrator().vibrate(TRIGGER_VIBRATION_DURATION);
+        }
+    }
+
+    private Vibrator getVibrator() {
+        if (mVibrator == null) {
+            mVibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+        }
+        return mVibrator;
     }
 
     /**

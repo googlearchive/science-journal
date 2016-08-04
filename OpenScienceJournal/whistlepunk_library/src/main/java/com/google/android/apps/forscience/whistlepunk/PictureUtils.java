@@ -24,8 +24,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -37,7 +35,7 @@ import java.io.IOException;
  * Static picture functions shared across many parts of the app.
  */
 public class PictureUtils {
-    public static final String TAG = "PicturUtils";
+    public static final String TAG = "PictureUtils";
 
     // Links a photo-taking request intent with the onActivityResult by requestType.
     public static final int REQUEST_TAKE_PHOTO = 1;
@@ -97,44 +95,21 @@ public class PictureUtils {
         // Try to get the storage permission granted if it is not yet, so that all the
         // camera-related permissions requests happen at once.
         if (granted) {
-            tryRequestingPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    PERMISSIONS_WRITE_EXTERNAL_STORAGE, true);
+            PermissionUtils.tryRequestingPermission(activity,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE, PERMISSIONS_WRITE_EXTERNAL_STORAGE,
+                    true);
         }
-    }
-
-    // The microphone requires explicit permission in Android M. Check that we have permission
-    // before adding the decibel sensor option.
-    public static boolean tryRequestingPermission(Activity activity, String permission,
-                                                  int permissionType, boolean forceRetry) {
-        int permissionCheck = ContextCompat.checkSelfPermission(activity, permission);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            // Should we show an explanation?
-            if (canRequestAgain(activity, permission) && forceRetry) {
-                // No explanation needed, so we can request the permission.
-                ActivityCompat.requestPermissions(activity, new String[]{permission},
-                        permissionType);
-            } else {
-                // Then the user didn't explicitly ask for us to retry the permission,
-                // so we won't do anything.
-            }
-            return false;
-        }
-        return true;
-    }
-
-    public static boolean canRequestAgain(Activity activity, String permission) {
-        return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
     }
 
     public static void onRequestPermissionsResult(int requestCode, String permissions[],
-                                           int[] grantResults, Activity activity) {
+            int[] grantResults, Activity activity) {
         boolean granted = grantResults.length > 0 &&
                 grantResults[0] == PackageManager.PERMISSION_GRANTED;
         switch (requestCode) {
-            case PictureUtils.PERMISSIONS_CAMERA:
-                PictureUtils.cameraPermissionGranted(activity, granted);
+            case PERMISSIONS_CAMERA:
+                cameraPermissionGranted(activity, granted);
                 return;
-            case PictureUtils.PERMISSIONS_WRITE_EXTERNAL_STORAGE:
+            case PERMISSIONS_WRITE_EXTERNAL_STORAGE:
                 // Do nothing for now
                 return;
         }
