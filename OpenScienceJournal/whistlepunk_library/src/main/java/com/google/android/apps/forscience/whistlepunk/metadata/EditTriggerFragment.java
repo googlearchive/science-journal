@@ -177,11 +177,11 @@ public class EditTriggerFragment extends Fragment {
                 for (int i = 0; i < alertTypes.length; i++) {
                     int alertType = alertTypes[i];
                     if (alertType == TriggerInformation.TRIGGER_ALERT_AUDIO) {
-                        mAudioAlert.setSelected(true);
+                        mAudioAlert.setChecked(true);
                     } else if (alertType == TriggerInformation.TRIGGER_ALERT_VISUAL) {
-                        mVisualAlert.setSelected(true);
+                        mVisualAlert.setChecked(true);
                     } else if (alertType == TriggerInformation.TRIGGER_ALERT_PHYSICAL) {
-                        mHapticAlert.setSelected(true);
+                        mHapticAlert.setChecked(true);
                     }
                 }
             } else if (actionType == TriggerInformation.TRIGGER_ACTION_NOTE) {
@@ -235,13 +235,13 @@ public class EditTriggerFragment extends Fragment {
     // Calculates the current list of alert types based on which alert checkboxes are selected.
     private int[] getCurrentAlertTypes() {
         List<Integer> alertTypesList = new ArrayList<>();
-        if (mHapticAlert.isSelected()) {
+        if (mHapticAlert.isChecked()) {
             alertTypesList.add(TriggerInformation.TRIGGER_ALERT_PHYSICAL);
         }
-        if (mVisualAlert.isSelected()) {
+        if (mVisualAlert.isChecked()) {
             alertTypesList.add(TriggerInformation.TRIGGER_ALERT_VISUAL);
         }
-        if (mAudioAlert.isSelected()) {
+        if (mAudioAlert.isChecked()) {
             alertTypesList.add(TriggerInformation.TRIGGER_ALERT_AUDIO);
         }
         int[] alertTypes = new int[alertTypesList.size()];
