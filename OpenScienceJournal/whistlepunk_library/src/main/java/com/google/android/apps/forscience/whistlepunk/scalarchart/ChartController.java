@@ -123,7 +123,6 @@ public class ChartController {
                 DEFAULT_DATA_LOAD_BUFFER_MILLIS, new UptimeClock());
     }
 
-    // TODO: too many parameters?
     @VisibleForTesting
     public ChartController(ChartOptions.ChartPlacementType chartPlacementType,
             ScalarDisplayOptions scalarDisplayOptions, int chartDataThrowawayThreshold,
@@ -133,7 +132,6 @@ public class ChartController {
     }
 
 
-    // TODO: too many parameters?
     @VisibleForTesting
     public ChartController(ChartOptions.ChartPlacementType chartPlacementType,
             ScalarDisplayOptions scalarDisplayOptions, int chartDataThrowawayThreshold,

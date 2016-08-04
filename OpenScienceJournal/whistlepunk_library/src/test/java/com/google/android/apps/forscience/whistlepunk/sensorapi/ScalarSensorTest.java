@@ -16,8 +16,12 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import android.content.Context;
 import android.support.annotation.NonNull;
-import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
@@ -28,21 +32,28 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.Bl
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.MoreExecutors;
+
+import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
 
-public class ScalarSensorTest extends AndroidTestCase {
+public class ScalarSensorTest {
     private final MemoryMetadataManager mMetadata = new MemoryMetadataManager();
     private InMemorySensorDatabase mDb = new InMemorySensorDatabase();
     private final RecordingDataController mRecordingController = mDb.makeSimpleRecordingController(
             mMetadata);
 
+    @Test
     public void testDontStoreWhenObserving() {
         ManualSensor sensor = new ManualSensor("test", Long.MAX_VALUE, 2);
         RecordingSensorObserver observer = new RecordingSensorObserver();
@@ -79,6 +90,11 @@ public class ScalarSensorTest extends AndroidTestCase {
         assertEquals(expectedObserved, observer.getReadings());
     }
 
+    private Context getContext() {
+        return null;
+    }
+
+    @Test
     public void testThrowawayData() {
         ManualSensor sensor = new ManualSensor("test", 10, 100);
         InMemorySensorDatabase db = new InMemorySensorDatabase();
@@ -112,6 +128,7 @@ public class ScalarSensorTest extends AndroidTestCase {
         assertLineData(expectedScrollback, sensor);
     }
 
+    @Test
     public void testThrowawayDataWithSizeThreshold() {
         ManualSensor sensor = new ManualSensor("test", 10, 100);
         InMemorySensorDatabase db = new InMemorySensorDatabase();
@@ -161,6 +178,7 @@ public class ScalarSensorTest extends AndroidTestCase {
         assertLineData(expectedUpdated, sensor);
     }
 
+    @Test
     public void testTruncateWhenAddingRightOfScreen() {
         ManualSensor sensor = new ManualSensor("test", 10, 100);
         InMemorySensorDatabase db = new InMemorySensorDatabase();
@@ -194,7 +212,10 @@ public class ScalarSensorTest extends AndroidTestCase {
         expectedLive.addPoint(40, 40);
         expectedLive.addPoint(50, 50);
 
-        // 60 and 70 have been dropped
+        // And one more screen to the right
+        expectedLive.addPoint(60, 60);
+
+        // 70 has been dropped
         // Cache for return-to-now
 
         expectedLive.addPoint(80, 80);
@@ -209,6 +230,7 @@ public class ScalarSensorTest extends AndroidTestCase {
         testData.checkRawData(sensor.getRawData());
     }
 
+    @Test
     public void testComputeFilterOnlyScale() {
         ScaleTransform transform = new ScaleTransform();
         transform.sourceBottom = 0;
@@ -219,11 +241,13 @@ public class ScalarSensorTest extends AndroidTestCase {
         assertEquals(30.0, valueFilter.filterValue(0, 3.0), 0.001);
     }
 
+    @Test
     public void testComputeFilterOnlyFrequency() {
         double latest = feed20HzSignal(ScalarSensor.computeValueFilter(100, 0, true, null));
         assertEquals(20.0 * 60, latest, 0.01);
     }
 
+    @Test
     public void testComputeFilterCombined() {
         ScaleTransform transform = rpmToHertz();
         double latest = feed20HzSignal(ScalarSensor.computeValueFilter(100, 0, true, transform));
@@ -238,6 +262,7 @@ public class ScalarSensorTest extends AndroidTestCase {
         return filter.filterValue(100, 0);
     }
 
+    @Test
     public void testTranslateFilter() {
         ScaleTransform transform = new ScaleTransform();
         transform.sourceBottom = 0;
@@ -248,13 +273,14 @@ public class ScalarSensorTest extends AndroidTestCase {
         assertEquals(3090, buffer.filterValue(0, 3000), 0.01);
     }
 
+    @Test
     public void testApplyOptions() {
         BleSensorSpec bleSensor = new BleSensorSpec("address", "name");
         bleSensor.setSensorType(SensorTypeProvider.TYPE_CUSTOM);
         bleSensor.setCustomFrequencyEnabled(true);
         bleSensor.setCustomScaleTransform(rpmToHertz());
         BluetoothSensor bluetoothSensor = new BluetoothSensor("sensorId", bleSensor,
-                BluetoothSensor.ANNING_SERVICE_SPEC);
+                BluetoothSensor.ANNING_SERVICE_SPEC, getUiThreadExecutor());
         ScalarDisplayOptions scalarOptions = new ScalarDisplayOptions();
         bluetoothSensor.createOptionsPresenter().applyOptions(new BlankReadableSensorOptions());
         ValueFilter filter = bluetoothSensor.getDeviceDefaultValueFilter();
@@ -266,6 +292,11 @@ public class ScalarSensorTest extends AndroidTestCase {
         assertEquals(2.0, filtered, 0.01);
     }
 
+    private Executor getUiThreadExecutor() {
+        return MoreExecutors.directExecutor();
+    }
+
+    @Test
     public void testZoomBetweenTiers() {
         ManualSensor sensor = new ManualSensor("test", 1000, 5);
         SensorRecorder recorder = createRecorder(sensor);
@@ -287,6 +318,7 @@ public class ScalarSensorTest extends AndroidTestCase {
                 new RecordingSensorObserver());
     }
 
+    @Test
     public void testZoomUpTwoTiers() {
         ManualSensor sensor = new ManualSensor("test", 1000, 5);
         SensorRecorder recorder = createRecorder(sensor);
@@ -307,7 +339,7 @@ public class ScalarSensorTest extends AndroidTestCase {
         assertEquals(3.0, stats.getStat(ZoomRecorder.STATS_KEY_TIER_COUNT), 0.001);
 
         recorder.startRecording("runId2");
-        sensor.pushValue(0, 0);
+        sensor.pushValue(200, 0);
         recorder.stopRecording();
         RunStats stats2 = mMetadata.getStats("runId2", "test");
         assertEquals(1.0, stats2.getStat(StatsAccumulator.KEY_NUM_DATA_POINTS), 0.001);
