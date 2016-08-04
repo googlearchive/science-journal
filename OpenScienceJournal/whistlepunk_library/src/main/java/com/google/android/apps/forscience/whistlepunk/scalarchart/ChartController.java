@@ -34,6 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.review.ZoomPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
@@ -252,6 +253,14 @@ public class ChartController {
 
     public boolean isPinnedToNow() {
         return mChartOptions.isPinnedToNow();
+    }
+
+    public void setTriggers(List<SensorTrigger> triggers) {
+        List<Double> values = new ArrayList<>();
+        for (SensorTrigger trigger : triggers) {
+            values.add(trigger.getValueToTrigger());
+        }
+        mChartOptions.setTriggerValues(values);
     }
 
     public void setLabels(List<Label> labels) {
