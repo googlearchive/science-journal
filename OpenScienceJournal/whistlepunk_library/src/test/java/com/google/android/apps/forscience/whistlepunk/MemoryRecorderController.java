@@ -22,6 +22,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
@@ -37,8 +38,9 @@ class MemoryRecorderController implements RecorderController {
     private int mObserverCount = 0;
 
     @Override
-    public String startObserving(String sensorId, SensorObserver observer,
-            SensorStatusListener listener, TransportableSensorOptions initialOptions) {
+    public String startObserving(String sensorId, List<SensorTrigger> activeTriggers,
+            SensorObserver observer, SensorStatusListener listener,
+            TransportableSensorOptions initialOptions) {
         String observerId = String.valueOf(++mObserverCount);
         mCurrentObserverIds.put(sensorId, observerId);
         return observerId;
@@ -67,13 +69,12 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public void startRecording(Intent resumeIntent, Experiment experiment, Project project) {
+    public void startRecording(Intent resumeIntent, Project project) {
 
     }
 
     @Override
-    public void stopRecording(Experiment experiment,
-            List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+    public void stopRecording() {
 
     }
 
@@ -99,11 +100,32 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
+    public void addTriggerFiredListener(String listenerId,
+            TriggerFiredListener listener) {
+
+    }
+
+    @Override
+    public void removeTriggerFiredListener(String listenerId) {
+
+    }
+
+    @Override
     public void addObservedIdsListener(String listenerId, ObservedIdsListener listener) {
     }
 
     @Override
     public void removeObservedIdsListener(String listenerId) {
+
+    }
+
+    @Override
+    public void setSelectedExperiment(Experiment experiment) {
+
+    }
+
+    @Override
+    public void setCurrentSensorLayouts(List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
 
     }
 

@@ -1,21 +1,83 @@
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Resources;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Vibrator;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Utils for triggers and layouts.
+ * Utils for triggers.
  */
-public class SensorLayoutTriggerUtils {
+public class TriggerHelper {
+
+    private static final String TAG = "TriggerHelper";
+    private static final long TRIGGER_VIBRATION_DURATION = 200;
+
+    private static final MediaPlayer.OnCompletionListener MEDIA_PLAYER_COMPLETION_LISTENER =
+            new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.reset();
+                    mp.release();
+                }
+            };
+
+    private static final MediaPlayer.OnPreparedListener MEDIA_PLAYER_ON_PREPARED_LISTENER =
+            new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                }
+            };
+
+    private final Uri mNotification;
+    private Vibrator mVibrator;
+
+    public TriggerHelper(Uri notificationUri) {
+        // TODO: Talk to UX about the best sound for this.
+        mNotification = notificationUri;
+    }
+
+    public void doAudioAlert(Context context) {
+        final MediaPlayer mediaPlayer =  new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mediaPlayer.setDataSource(context, mNotification);
+        } catch (IOException e) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "error getting notification sound");
+            }
+        }
+        mediaPlayer.setOnPreparedListener(MEDIA_PLAYER_ON_PREPARED_LISTENER);
+        mediaPlayer.setOnCompletionListener(MEDIA_PLAYER_COMPLETION_LISTENER);
+        // Don't prepare the mediaplayer on the UI thread! That's asking for trouble.
+        mediaPlayer.prepareAsync();
+    }
+
+    public void doVibrateAlert(Context context) {
+        // TODO: Talk to UX about desired duration or pattern.
+        if (mVibrator == null) {
+            mVibrator = ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE));
+        }
+        mVibrator.vibrate(TRIGGER_VIBRATION_DURATION);
+    }
 
     /**
      * Adds the trigger ID to the layout's active triggers if it is not already in the list.

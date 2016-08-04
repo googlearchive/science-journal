@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.analytics;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 
 /**
@@ -80,6 +81,7 @@ public final class TrackerConstants {
     // Values
     public static final long VALUE_TYPE_TEXT = 0;
     public static final long VALUE_TYPE_PICTURE = 1;
+    public static final long VALUE_TYPE_SENSOR_TRIGGER = 2;
 
     private TrackerConstants() {}
 
@@ -91,6 +93,8 @@ public final class TrackerConstants {
             return TrackerConstants.VALUE_TYPE_PICTURE;
         } else if (label instanceof TextLabel) {
             return TrackerConstants.VALUE_TYPE_TEXT;
+        } else if (label instanceof SensorTriggerLabel) {
+            return TrackerConstants.VALUE_TYPE_SENSOR_TRIGGER;
         } else {
             throw new IllegalArgumentException("Label type is not supported for logging.");
         }

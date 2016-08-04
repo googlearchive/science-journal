@@ -54,6 +54,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     private MetaDataManager mMetaDataManager;
     private Clock mClock;
     private Map<String, FailureListener> mSensorFailureListeners = new HashMap<>();
+    private long mPrevLabelTimestamp = 0;
 
     public DataControllerImpl(SensorDatabase sensorDatabase, Executor uiThread,
             Executor metaDataThread,
@@ -295,7 +296,13 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     @Override
     public String generateNewLabelId() {
-        return "label_" + System.currentTimeMillis();
+        long nextLabelTimestamp = mClock.getNow();
+        if (nextLabelTimestamp <= mPrevLabelTimestamp) {
+            // Make sure we never use the same label ID twice.
+            nextLabelTimestamp = mPrevLabelTimestamp + 1;
+        }
+        mPrevLabelTimestamp = nextLabelTimestamp;
+        return "label_" + nextLabelTimestamp;
     }
 
     // TODO(saff): test
