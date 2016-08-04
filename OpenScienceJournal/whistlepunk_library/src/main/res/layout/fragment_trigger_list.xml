@@ -28,6 +28,8 @@
         android:id="@+id/trigger_recycler_view"
         android:elevation="2dp"
         tools:ignore="UnusedAttribute"
+        android:paddingBottom="@dimen/list_bottom_padding"
+        android:clipToPadding="false"
         />
 
     <android.support.design.widget.FloatingActionButton
