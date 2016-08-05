@@ -26,6 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
 import java.text.NumberFormat;
+import java.util.List;
 
 public class ChartOptions {
 
@@ -67,6 +68,8 @@ public class ChartOptions {
     private long mRecordingEndTime;
     private boolean mShowStatsOverlay;
     private ScalarDisplayOptions mScalarDisplayOptions;
+
+    private List<Double> mTriggerValues;
 
     public ChartOptions(ChartPlacementType chartPlacementType) {
         mChartPlacementType = chartPlacementType;
@@ -382,5 +385,13 @@ public class ChartOptions {
 
     public ScalarDisplayOptions getScalarDisplayOptions() {
         return mScalarDisplayOptions;
+    }
+
+    public void setTriggerValues(List<Double> values) {
+        mTriggerValues = values;
+    }
+
+    public List<Double> getTriggerValues() {
+        return mTriggerValues;
     }
 }

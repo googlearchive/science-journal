@@ -25,6 +25,7 @@ import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.VisibleForTesting;
@@ -141,6 +142,7 @@ public class ChartView extends View {
     private int mStatDrawableWidth;
     private Path mStatsPath;
     private float mStartPadding;
+    private Drawable mTriggerDrawable;
 
     public ChartView(Context context) {
         super(context);
@@ -636,6 +638,8 @@ public class ChartView extends View {
         canvas.drawRect(0, 0, mWidth, mTopPadding, mBackgroundPaint);
         canvas.drawRect(0, mHeight - mBottomPadding, mWidth, mHeight, mBackgroundPaint);
 
+        drawTriggers(canvas);
+
         // Draw the Y label text above the rect that whites out the Y label axis.
         drawYAxisText(canvas);
 
@@ -644,6 +648,33 @@ public class ChartView extends View {
 
     public boolean isDrawn() {
         return mIsDrawn;
+    }
+
+    private void drawTriggers(Canvas canvas) {
+        List<Double> triggerValues = mChartOptions.getTriggerValues();
+        if (triggerValues != null || triggerValues.size() == 0) {
+            return;
+        }
+        Drawable drawable = getTriggerDrawable();
+        int width = drawable.getIntrinsicWidth();
+        int height = drawable.getIntrinsicHeight();
+        for (double value : triggerValues) {
+            float y = getScreenY(value);
+            drawable.setBounds((int) (mStartPadding - width - mAxisTextStartPadding),
+                    (int) y - height / 2, (int) (mStartPadding - mAxisTextStartPadding),
+                    (int) y + height / 2);
+            drawable.draw(canvas);
+        }
+    }
+
+    private Drawable getTriggerDrawable() {
+        // Lazy init, as most charts probably won't need triggers.
+        if (mTriggerDrawable == null) {
+            mTriggerDrawable = getResources().getDrawable(R.drawable.ic_label_black_24dp);
+            mTriggerDrawable.mutate().setColorFilter(mChartOptions.getLineColor(),
+                    PorterDuff.Mode.SRC_IN);
+        }
+        return mTriggerDrawable;
     }
 
     private void drawLabels(Canvas canvas) {

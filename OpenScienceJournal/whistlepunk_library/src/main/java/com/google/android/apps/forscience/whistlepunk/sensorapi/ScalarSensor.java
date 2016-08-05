@@ -40,6 +40,7 @@ import com.google.android.apps.forscience.whistlepunk.audiogen.SimpleJsynAudioGe
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
@@ -231,6 +232,11 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             @Override
             public void resetView() {
                 chartController.clearData();
+            }
+
+            @Override
+            public void setTriggers(List<SensorTrigger> triggers) {
+                chartController.setTriggers(triggers);
             }
         };
     }
