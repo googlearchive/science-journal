@@ -652,7 +652,7 @@ public class ChartView extends View {
 
     private void drawTriggers(Canvas canvas) {
         List<Double> triggerValues = mChartOptions.getTriggerValues();
-        if (triggerValues != null || triggerValues.size() == 0) {
+        if (triggerValues == null || triggerValues.size() == 0) {
             return;
         }
         Drawable drawable = getTriggerDrawable();
