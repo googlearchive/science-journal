@@ -26,8 +26,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 public final class TrackerConstants {
 
     // Screen names.
-
     public static final String SCREEN_INTRO = "intro";
+    public static final String SCREEN_INTRO_REPLAY = "intro_replay";
     public static final String SCREEN_OBSERVE_RECORD = "observe_record";
     public static final String SCREEN_PROJECTS = "projects";
     public static final String SCREEN_PROJECT_DETAIL = "project_detail";
@@ -38,12 +38,12 @@ public final class TrackerConstants {
     public static final String SCREEN_EXPERIMENT_DETAIL = "experiment_detail";
     public static final String SCREEN_RUN_REVIEW = "run_review";
     public static final String SCREEN_SETTINGS = "settings";
+    public static final String SCREEN_ABOUT = "about";
     public static final String SCREEN_DEVICE_MANAGER = "device_manager";
     public static final String SCREEN_DEVICE_OPTIONS = "device_options";
     public static final String SCREEN_UPDATE_RUN = "run_update";
 
     // Custom dimension indices.
-
     public static final int DIMENSION_MODE = 1;
     public static final int RELEASE_TYPE = 2;
 
@@ -52,6 +52,7 @@ public final class TrackerConstants {
     public static final String CATEGORY_EXPERIMENTS = "Experiments";
     public static final String CATEGORY_RUNS = "Runs";
     public static final String CATEGORY_NOTES = "Notes";
+    public static final String CATEGORY_APP = "App";
 
     // Event actions
     public static final String ACTION_CREATE = "Create";
@@ -61,12 +62,17 @@ public final class TrackerConstants {
     public static final String ACTION_UNARCHIVE = "Unarchived";
     public static final String ACTION_DELETED = "Deleted";
     public static final String ACTION_DELETE_UNDO = "UndoDelete";
+    public static final String ACTION_SET_MODE = "SetMode";
+    public static final String ACTION_START_AUDIO_PLAYBACK = "StartAudioPlayback";
 
     // Labels
     public static final String LABEL_RECORD = "record";
     public static final String LABEL_RUN_REVIEW = "run_review";
     public static final String LABEL_OBSERVE = "observe";
     public static final String LABEL_EXPERIMENT_DETAIL = "experiment_detail";
+
+    public static final String LABEL_MODE_CHILD = "child";
+    public static final String LABEL_MODE_NONCHILD = "nonchild";
 
     // Values
     public static final long VALUE_TYPE_TEXT = 0;

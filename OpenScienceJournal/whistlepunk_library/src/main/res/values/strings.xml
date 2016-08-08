@@ -23,6 +23,9 @@
     <!-- Menu option for the settings screen [CHAR_LIMIT=25] -->
     <string name="action_settings">Settings</string>
 
+    <!-- Menu option for the about informational screen [CHAR_LIMIT=25] -->
+    <string name="action_about">About</string>
+
     <!-- Menu option for saving an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_save">Save</string>
 
@@ -69,7 +72,7 @@
     <string name="acc_z">Accelerometer Z</string>
 
     <!-- Displayed name of a sensor that shows ambient light as measured by the phone's proximity sensor [CHAR_LIMIT=25] -->
-    <string name="ambient_light">Ambient Light</string>
+    <string name="ambient_light">Ambient light</string>
 
     <!-- Displayed name of a sensor that shows magnetic field rotation measured by the phone's magnetometer [CHAR_LIMIT=25]  -->
     <string name="magnetic_rotation">Magnetic rotation</string>
@@ -78,10 +81,10 @@
     <string name="barometer">Barometer</string>
 
     <!-- Displayed name of a sensor that measure ambient temperature [CHAR_LIMIT=25] -->
-    <string name="ambient_temperature">Ambient Temperature</string>
+    <string name="ambient_temperature">Ambient temperature</string>
 
     <!-- Displayed name of a sensor that records and displays a video stream [CHAR_LIMIT=25] -->
-    <string name="video_stream">Video Stream</string>
+    <string name="video_stream">Video stream</string>
 
     <!-- Displayed units for an acceleration sensor [CHAR_LIMIT=10] -->
     <string name="acc_units">m/s\u00B2</string>
@@ -117,7 +120,7 @@
     <string name="experiment_details">Experiment details</string>
 
     <!-- Content description for the add a new sensor button [CHAR_LIMIT=none] -->
-    <string name="add_sensor">Add Sensor</string>
+    <string name="add_sensor">Add sensor</string>
 
     <!-- Snackbar error message when an error happened while connecting to an external
          bluetooth source [CHAR_LIMIT=50] -->
@@ -127,7 +130,7 @@
     <string name="action_retry">Retry</string>
 
     <!-- Sound intensity sensor name [CHAR_LIMIT=25] -->
-    <string name="decibel">Sound Intensity</string>
+    <string name="decibel">Sound intensity</string>
 
     <!-- Window title label for the tutorial activity [CHAR_LIMIT=25] -->
     <string name="title_activity_tutorial">Science Journal Tutorial</string>
@@ -228,7 +231,7 @@
     <string name="elapsed_time_axis_format_small_tenths"><xliff:g id="minutes">%1d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g>.<xliff:g id="tenths">%1d</xliff:g></string>
 
     <!-- The string formatting string used to display elapsed time greater than one hour down to the tenth of a second, like 1:23:45.6 for 1 hr, 23 minutes, 45.6 seconds. [CHAR_LIMIT=5] -->
-    <string name="elapsed_time_axis_format_large_tenths"><xliff:g id="hours">%1d</xliff:g>:<xliff:g id="minutes">%1d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g>.<xliff:g id="tenths">%1d</xliff:g></string>
+    <string name="elapsed_time_axis_format_large_tenths"><xliff:g id="hours">%1d</xliff:g>:<xliff:g id="minutes">%02d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g>.<xliff:g id="tenths">%1d</xliff:g></string>
 
     <!-- String formatting string for the accessibility description of the RunReview slider [CHAR_LIMIT=None] -->
     <string name="graph_exploring_seekbar_content_description"><xliff:g id="time">%1s</xliff:g>, <xliff:g id="value">%2s</xliff:g> <xliff:g id="units">%3s</xliff:g>.</string>
@@ -568,19 +571,19 @@
     <string name="d2a">Amplitude</string>
 
     <!-- Name for sonification type from data to a pitch envelope [CHAR_LIMIT=30] -->
-    <string name="d2pe">Pitch envelope</string>
+    <string name="d2pe">Notes</string>
 
     <!-- Name for sonification type from data to a pentatonic scale [CHAR_LIMIT=30] -->
-    <string name="d2ps">Pentatonic scale</string>
+    <string name="d2ps">Scale</string>
 
     <!-- List of entries for the sonification type selection -->
     <string-array name="sonification_types_prod">
         <item>@string/d2p</item>
         <item>@string/d2ps</item>
+        <item>@string/d2pe</item>
     </string-array>
 
     <string-array name="sonification_types_dev">
-        <item>@string/d2pe</item>
         <item>@string/d2a</item>
     </string-array>
 
@@ -913,6 +916,8 @@
     <string name="btn_previous_label">Prev</string>
     <!-- Button label to go to the next screen in the tutorial [CHAR_LIMIT=10]-->
     <string name="btn_next_label">Next</string>
+    <!-- Button label to skip the tutorial completely [CHAR_LIMIT=10] -->
+    <string name="btn_skip_label">Skip</string>
 
     <!-- Message to display to the user when a sensor card failed to load data [CHAR_LIMIT=100] -->
     <string name="sensor_card_error_text">Failed to load sensor data</string>
@@ -969,7 +974,12 @@
     <string name="listing_tagline">Experiment on your world.</string>
 
     <!-- Change log for Science Journal (note: this is multiline, with \n to separate lines) [CHAR LIMIT=500] -->
-    <string name="listing_changelog">Bug fixes: birthday input, BLE performance, stability.</string>
+    <string name="listing_changelog">New features and improvements:
+        \n\u2022 Add captions to picture notes.
+        \n\u2022 Audio settings for data sonification.
+        \n\u2022 Performance improvements for very long trials.
+        \n\u2022 Bug fixes.
+    </string>
 
     <!-- Description text shown in the Play Store for this app. Ensure a space
          remains before and after urls. [CHAR LIMIT=4000]-->
@@ -978,7 +988,9 @@
 \n\n
 \nGet activity ideas to use with the app here: https://makingscience.withgoogle.com/science-journal/activities
 \nLearn more about Making &amp; Science: https://makingscience.withgoogle.com
-\nFor support: https://productforums.google.com/forum/#!forum/sciencejournal</string>
+\nFor support: https://productforums.google.com/forum/#!forum/sciencejournal
+\nCode available: https://github.com/google/science-journal
+    </string>
     <!-- End of Play Store Listing Strings -->
 
     <!-- The title for the live zoom in Y testing option [CHAR_LIMIT=35] -->
@@ -1026,14 +1038,23 @@
     <!-- Prompt to tell the user which sensor they are selecting audio settings for [CHAR_LIMIT=40]-->
     <string name="audio_settings_sensor_prompt">Select audio settings for:</string>
 
-    <!-- Menu option to enable auto zoom (zoom in) for a run [CHAR_LIMIT=30] -->
-    <string name="enable_auto_zoom">Enable auto zoom</string>
+    <!-- Menu option to enable auto scale (zoom in in Y) for a run [CHAR_LIMIT=30] -->
+    <string name="enable_auto_zoom">Enable auto scale</string>
 
-    <!-- Menu option to disable auto zoom (zoom out) for a run [CHAR_LIMIT=30] -->
-    <string name="disable_auto_zoom">Disable auto zoom</string>
+    <!-- Menu option to disable auto scale (zoom out in Y) for a run [CHAR_LIMIT=30] -->
+    <string name="disable_auto_zoom">Disable auto scale</string>
 
-    <!-- Error message shown to user when auto zoom fails [CHAR_LIMIT=100] -->
-    <string name="autozoom_failed">Failed to adjust auto zoom.</string>
+    <!-- Error message shown to user when auto scale fails [CHAR_LIMIT=100] -->
+    <string name="autozoom_failed">Failed to adjust auto scale.</string>
+
+    <!--Content description for RunReview overflow menu [CHAR_LIMIT=NONE]-->
+    <string name="run_review_overflow_menu_content_description">More options</string>
+
+    <!-- Message shown in license screen if no licenses were found [CHAR_LIMIT=NONE]-->
+    <string name="licenses_empty">No licenses found.</string>
+
+    <!-- Sensor header format when the audio is enabled. The unicode note character is appended to the sensor name. [CHAR_LIMIT = 3] -->
+    <string name="audio_enabled_format"><xliff:g id="sensor_display_name">%1s</xliff:g>  \u266A</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

@@ -134,8 +134,10 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 notifyItemInserted(mSensorCardPresenters.size());
             }
         }
-        for (SensorCardPresenter presenter : mSensorCardPresenters) {
-            presenter.lockUiForRecording();
+        if (uiIsLocked) {
+            for (SensorCardPresenter presenter : mSensorCardPresenters) {
+                presenter.lockUiForRecording();
+            }
         }
     }
 
@@ -245,6 +247,7 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         } else if (getItemViewType(position) == TYPE_SENSOR_ADD) {
             AddCardViewHolder addCardViewHolder = (AddCardViewHolder) viewHolder;
             addCardViewHolder.button.setOnClickListener(mOnAddButtonClickListener);
+            mAddView = addCardViewHolder.itemView;
         }
     }
 

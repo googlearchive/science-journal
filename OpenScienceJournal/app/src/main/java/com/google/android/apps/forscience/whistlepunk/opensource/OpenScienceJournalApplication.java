@@ -21,7 +21,7 @@ import com.google.android.apps.forscience.whistlepunk.opensource.components
         .DaggerOpenSourceComponent;
 
 /**
- * Subclass of WhistlePunkApplication which installs stub component.
+ * Subclass of WhistlePunkApplication which installs stub / default components.
  */
 public class OpenScienceJournalApplication extends WhistlePunkApplication {
 

@@ -88,7 +88,7 @@
         android:id="@id/sensor_card_meter_footer"
         >
 
-        <include layout="@layout/sensor_card_meter_view_info_section"></include>
+        <include layout="@layout/sensor_card_meter_view_info_section"/>
 
         <com.google.android.apps.forscience.whistlepunk.StatsList
             android:id="@+id/stats_view_meter"

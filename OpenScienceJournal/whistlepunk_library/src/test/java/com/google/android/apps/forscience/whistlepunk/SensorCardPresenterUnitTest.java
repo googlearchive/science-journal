@@ -22,6 +22,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.test.AndroidTestCase;
 import android.test.mock.MockApplication;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
@@ -78,7 +79,7 @@ public class SensorCardPresenterUnitTest {
 
     private static class MemorySensorPresenter implements SensorPresenter {
         @Override
-        public void startShowing(ViewGroup contentView) {
+        public void startShowing(View contentView) {
 
         }
 
@@ -93,7 +94,7 @@ public class SensorCardPresenterUnitTest {
         }
 
         @Override
-        public void onXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,
+        public void onGlobalXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,
                 DataController dataController) {
 
         }
@@ -120,6 +121,11 @@ public class SensorCardPresenterUnitTest {
 
         @Override
         public void onStopObserving() {
+
+        }
+
+        @Override
+        public void onViewRecycled() {
 
         }
 

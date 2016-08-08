@@ -22,6 +22,7 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -32,15 +33,17 @@ import android.view.ViewTreeObserver;
 import android.widget.SeekBar;
 
 import com.google.android.apps.forscience.whistlepunk.review.GraphExploringSeekBar;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphData;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.LineGraphPresenter;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 
 import java.text.NumberFormat;
 
 /**
  * Draws the value over a RunReview chart.
  */
-public class RunReviewOverlay extends View {
+public class RunReviewOverlay extends View implements ChartController.ChartDataLoadedCallback {
+    private long mPreviouslySelectedTimestamp;
+
     public interface OnTimestampChangeListener {
         void onTimestampChanged(long timestamp);
     }
@@ -72,8 +75,8 @@ public class RunReviewOverlay extends View {
     private long mSelectedTimestamp = NO_TIMESTAMP_SELECTED;
 
     private double mValue;
-    private double[] mScreenPoint;
-    private LineGraphPresenter mLineGraphPresenter;
+    private PointF mScreenPoint;
+    private ChartController mChartController;
     private int mInactiveCircleDiameter;
     private int mActiveCircleDiameter;
     private GraphExploringSeekBar mSeekbar;
@@ -160,8 +163,7 @@ public class RunReviewOverlay extends View {
         mHeight = getMeasuredHeight();
         mWidth = getMeasuredWidth();
         mPaddingLeft = getPaddingLeft();
-        mChartHeight = res.getDimensionPixelSize(R.dimen.run_review_chart_height) -
-                res.getDimensionPixelSize(R.dimen.run_review_section_margin);
+        mChartHeight = res.getDimensionPixelSize(R.dimen.run_review_chart_height);
         mActiveCircleDiameter = res.getDimensionPixelSize(R.dimen.run_review_bubble_diameter);
         mInactiveCircleDiameter =
                 res.getDimensionPixelSize(R.dimen.run_review_inactive_bubble_radius);
@@ -175,7 +177,8 @@ public class RunReviewOverlay extends View {
         mDotBackgroundRadius =
                 res.getDimensionPixelSize(R.dimen.run_review_value_label_dot_background_radius);
 
-        mChartMarginLeft = res.getDimensionPixelSize(R.dimen.chart_margin_size_left);
+        mChartMarginLeft = res.getDimensionPixelSize(R.dimen.chart_margin_size_left) +
+                res.getDimensionPixelSize(R.dimen.stream_presenter_padding_sides);
     }
 
     public void onDraw(Canvas canvas) {
@@ -189,8 +192,8 @@ public class RunReviewOverlay extends View {
 
         float diamondHeight = (float) (circleDiameter / DENOM);
         float nudge = mDotRadius / 2;
-        float cx = mPaddingLeft + (float) mScreenPoint[0] - mChartMarginLeft - nudge;
-        float cy = mHeight - mChartHeight + (float) mScreenPoint[1] - 2 * diamondHeight -
+        float cx = mPaddingLeft + mScreenPoint.x - mChartMarginLeft - nudge;
+        float cy = mHeight - mChartHeight + mScreenPoint.y - 2 * diamondHeight -
                 2 * mDotBackgroundRadius + nudge;
 
         // TODO: To optimize, create the path just once and move it around with path.transform.
@@ -231,8 +234,9 @@ public class RunReviewOverlay extends View {
                 mSelectedTimestamp, getContext()), label);
     }
 
-    public void setLineGraphPresenter(LineGraphPresenter presenter) {
-        mLineGraphPresenter = presenter;
+    public void setChartController(ChartController controller) {
+        mChartController = controller;
+        mChartController.addChartDataLoadedCallback(this);
     }
 
     public void setSeekbarView(final GraphExploringSeekBar seekbar) {
@@ -256,8 +260,9 @@ public class RunReviewOverlay extends View {
                     mOnSeekbarTouchListener.onTouchStop();
                 }
                 // If the user is as early on the seekbar as they can go, hide the overlay.
-                GraphData.ReadonlyDataPoint point = getDataPointAtProgress(seekBar.getProgress());
-                if (point == null || point.getX() <= mLineGraphPresenter.getXMin()) {
+                ChartData.DataPoint point = getDataPointAtProgress(seekBar.getProgress());
+                if (point == null || !mChartController.hasData() ||
+                        point.getX() <= mChartController.getXMin()) {
                     setVisibility(View.INVISIBLE);
                 }
                 mIsActive = false;
@@ -288,17 +293,17 @@ public class RunReviewOverlay extends View {
         }
         // Determine the timestamp at the current seekbar progress.
         int progress = mSeekbar.getProgress();
-        GraphData.ReadonlyDataPoint point = getDataPointAtProgress(progress);
+        ChartData.DataPoint point = getDataPointAtProgress(progress);
         if (point == null) {
-            // This happens when the user is dragging the thumb before the LineGraphPresenter
-            // has loaded data; there is no data loaded at all.
+            // This happens when the user is dragging the thumb before the chart has loaded data;
+            // there is no data loaded at all.
             // The bubble itself has been hidden in this case in RunReviewFragment, which hides
             // the RunReviewOverlay during line graph load and only shows it again once the graph
             // has been loaded successfully.
             return;
         }
 
-        // Update the selected timestamp to one available in the LineGraphPresenter.
+        // Update the selected timestamp to one available in the chart data.
         mSelectedTimestamp = point.getX();
         mValue = point.getY();
 
@@ -318,10 +323,8 @@ public class RunReviewOverlay extends View {
             }
         }
 
-        double[] screenPoint = mLineGraphPresenter.getScreenPoint(
-                new double[]{(double) mSelectedTimestamp, mValue});
-        if (screenPoint != null) {
-            mScreenPoint = screenPoint;
+        if (mChartController.hasScreenPoints()) {
+            mScreenPoint = mChartController.getScreenPoint(mSelectedTimestamp, mValue);
         }
         if (mTimestampChangeListener != null) {
             mTimestampChangeListener.onTimestampChanged(mSelectedTimestamp);
@@ -329,13 +332,13 @@ public class RunReviewOverlay extends View {
         invalidate();
     }
 
-    private GraphData.ReadonlyDataPoint getDataPointAtProgress(int progress) {
+    private ChartData.DataPoint getDataPointAtProgress(int progress) {
         double percent = progress / SEEKBAR_MAX;
         long axisDuration = mExternalAxis.mXMax - mExternalAxis.mXMin;
         long timestamp = (long) (percent * axisDuration +
                 mExternalAxis.mXMin);
         // Get the data point closest to this timestamp.
-        return mLineGraphPresenter.getClosestDataPointToTimestamp(timestamp);
+        return mChartController.getClosestDataPointToTimestamp(timestamp);
     }
 
     public void setOnTimestampChangeListener(OnTimestampChangeListener listener) {
@@ -347,10 +350,10 @@ public class RunReviewOverlay extends View {
     }
 
     public void refreshAfterChartLoad(final boolean backUpdateProgressBar) {
-        if (!mLineGraphPresenter.hasDrawnChart()) {
+        if (!mChartController.hasDrawnChart()) {
             // Refresh the Run Review Overlay after the line graph presenter's chart
             // has finished drawing itself.
-            final ViewTreeObserver observer = mLineGraphPresenter.getChartViewTreeObserver();
+            final ViewTreeObserver observer = mChartController.getChartViewTreeObserver();
             if (observer == null) {
                 return;
             }
@@ -376,12 +379,15 @@ public class RunReviewOverlay extends View {
     }
 
     public void onDestroy() {
-        if (mLineGraphPresenter != null && mOnDrawListener != null) {
-            final ViewTreeObserver observer = mLineGraphPresenter.getChartViewTreeObserver();
-            if (observer == null) {
-                return;
+        if (mChartController != null) {
+            mChartController.removeChartDataLoadedCallback(this);
+            if (mOnDrawListener != null) {
+                final ViewTreeObserver observer = mChartController.getChartViewTreeObserver();
+                if (observer == null) {
+                    return;
+                }
+                observer.removeOnDrawListener(mOnDrawListener);
             }
-            observer.removeOnDrawListener(mOnDrawListener);
         }
     }
 
@@ -400,7 +406,7 @@ public class RunReviewOverlay extends View {
             // Only back-update the seekbar if the selected timestmap is in range.
             refreshAfterChartLoad(true);
         } else {
-            if (mLineGraphPresenter.hasDrawnChart()) {
+            if (mChartController.hasDrawnChart()) {
                 mSeekbar.setThumb(null);
                 redraw(mSeekbar.getProgress(), true);
             }
@@ -421,7 +427,7 @@ public class RunReviewOverlay extends View {
 
             @Override
             public void onAxisUpdated(long xMin, long xMax, boolean isPinnedToNow) {
-                if (!mLineGraphPresenter.hasDrawnChart()) {
+                if (!mChartController.hasDrawnChart()) {
                     return;
                 }
                 if (mSelectedTimestamp != NO_TIMESTAMP_SELECTED) {
@@ -446,5 +452,15 @@ public class RunReviewOverlay extends View {
         mPaint.setColor(newColor);
         mTimePaintActive.setColor(newColor);
         mTimePaintInactive.setColor(newColor);
+    }
+
+    @Override
+    public void onChartDataLoaded(long firstTimestamp, long lastTimestamp) {
+        setActiveTimestamp(mPreviouslySelectedTimestamp);
+    }
+
+    @Override
+    public void onLoadAttemptStarted() {
+        mPreviouslySelectedTimestamp = mSelectedTimestamp;
     }
 }

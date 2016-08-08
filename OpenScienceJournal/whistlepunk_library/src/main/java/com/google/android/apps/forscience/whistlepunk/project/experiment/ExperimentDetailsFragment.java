@@ -43,10 +43,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -59,8 +59,10 @@ import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.LineGraphPresenter;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
@@ -85,7 +87,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 import com.google.android.apps.forscience.whistlepunk.project.ProjectDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
-import com.google.android.apps.forscience.whistlepunk.review.ZoomPresenter;
 
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
@@ -121,7 +122,6 @@ public class ExperimentDetailsFragment extends Fragment
     private Experiment mExperiment;
     private ScalarDisplayOptions mScalarDisplayOptions;
     private GraphOptionsController mGraphOptionsController;
-    private static int[] mGraphColors;
     private boolean mIncludeArchived;
 
     /**
@@ -224,8 +224,6 @@ public class ExperimentDetailsFragment extends Fragment
         mScalarDisplayOptions = new ScalarDisplayOptions();
         mGraphOptionsController = new GraphOptionsController(getActivity());
         mGraphOptionsController.loadIntoScalarDisplayOptions(mScalarDisplayOptions, view);
-
-        mGraphColors = getResources().getIntArray(R.array.graph_colors_array);
 
         FeatureDiscoveryProvider provider = WhistlePunkApplication.getFeatureDiscoveryProvider(
                 getActivity());
@@ -380,26 +378,25 @@ public class ExperimentDetailsFragment extends Fragment
                 });
     }
 
-    private void launchPicturePreview(PictureLabel label, String timeString) {
+    private void launchPicturePreview(PictureLabel label, String timeString,
+            String timeTextContentDescription) {
         EditNoteDialog dialog = EditNoteDialog.newInstance(label, label.getValue(),
-                timeString, label.getTimeStamp());
+                timeString, label.getTimeStamp(), timeTextContentDescription);
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
-    private void launchLabelEdit(final Label label, String timeString) {
+    private void launchLabelEdit(final Label label, String timeString,
+            String timeTextContentDescription) {
         EditNoteDialog dialog = EditNoteDialog.newInstance(label, label.getValue(),
-                timeString, label.getTimeStamp());
+                timeString, label.getTimeStamp(), timeTextContentDescription);
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
     private void launchLabelAdd() {
         Long now = AppSingleton.getInstance(getActivity()).getSensorEnvironment()
                 .getDefaultClock().getNow();
-        String timeString = DetailsAdapter.formatAbsoluteTime(
-                getActivity().getApplicationContext(), now).toString();
         AddNoteDialog dialog = AddNoteDialog.newInstance(now, RecordFragment.NOT_RECORDING_RUN_ID,
-                mExperimentId, R.string.add_experiment_note_placeholder_text,
-                /* don't show timestamp section */ false, timeString);
+                mExperimentId, R.string.add_experiment_note_placeholder_text);
         dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
     }
 
@@ -629,7 +626,7 @@ public class ExperimentDetailsFragment extends Fragment
                         public void onClick(View v) {
                             if (mParentReference.get() != null) {
                                 mParentReference.get().launchPicturePreview((PictureLabel) label,
-                                        timeString);
+                                        timeString, timeString);
                             }
                         }
                     };
@@ -640,7 +637,8 @@ public class ExperimentDetailsFragment extends Fragment
                         @Override
                         public void onClick(View v) {
                             if (mParentReference.get() != null) {
-                                mParentReference.get().launchLabelEdit(label, timeString);
+                                mParentReference.get().launchLabelEdit(label, timeString,
+                                        timeString);
                             }
                         }
                     });
@@ -678,7 +676,8 @@ public class ExperimentDetailsFragment extends Fragment
                         public boolean onMenuItemClick(MenuItem item) {
                             if (item.getItemId() == R.id.btn_edit_note) {
                                 if (mParentReference.get() != null) {
-                                    mParentReference.get().launchLabelEdit(label, timeString);
+                                    mParentReference.get().launchLabelEdit(label, timeString,
+                                            timeString);
                                 }
                                 return true;
                             } else if (item.getItemId() == R.id.btn_delete_note) {
@@ -815,7 +814,7 @@ public class ExperimentDetailsFragment extends Fragment
         void bindRun(final ViewHolder holder, final ExperimentDetailItem item) {
             final ExperimentRun run = item.getRun();
             final Context applicationContext = holder.itemView.getContext().getApplicationContext();
-            holder.runId = run.getRunId();
+            holder.setRunId(run.getRunId());
             String title = run.getRunTitle(applicationContext);
             holder.runTitle.setText(title);
             holder.date.setText(run.getDisplayTime(applicationContext));
@@ -860,7 +859,7 @@ public class ExperimentDetailsFragment extends Fragment
                         GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
                         holder.itemView.setOnClickListener(createRunClickListener(
                                 item.getSensorTagIndex()));
-                        holder.sensorLayout = layout;
+                        holder.setSensorLayout(layout);
                     }
                 });
                 holder.sensorPrev.setOnClickListener(new View.OnClickListener() {
@@ -875,13 +874,13 @@ public class ExperimentDetailsFragment extends Fragment
                         GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
                         holder.itemView.setOnClickListener(createRunClickListener(
                                 item.getSensorTagIndex()));
-                        holder.sensorLayout = layout;
+                        holder.setSensorLayout(layout);
                     }
                 });
 
             } else {
                 holder.sensorName.setText("");
-                holder.sensorLayout.clear();
+                holder.clearSensorLayout();
                 setIndeterminateSensorData(holder);
 
             }
@@ -946,72 +945,56 @@ public class ExperimentDetailsFragment extends Fragment
                     new LoggingConsumer<RunStats>(TAG,
                             "loading stats") {
                         @Override
-                        public void success(RunStats value) {
+                        public void success(RunStats stats) {
                             // Only load this if the holder run value is the same. Otherwise,
                             // bail.
-                            if (!runId.equals(holder.runId)) {
+                            if (!runId.equals(holder.getRunId())) {
                                 return;
                             }
                             holder.statsLoadStatus = ViewHolder.STATS_LOAD_STATUS_IDLE;
-                            holder.min.setText(value.hasStat(StatsAccumulator.KEY_MIN) ?
-                                    numberFormat.format(value.getStat(StatsAccumulator.KEY_MIN)) :
+                            holder.min.setText(stats.hasStat(StatsAccumulator.KEY_MIN) ?
+                                    numberFormat.format(stats.getStat(StatsAccumulator.KEY_MIN)) :
                                     "");
-                            holder.max.setText(value.hasStat(StatsAccumulator.KEY_MAX) ?
-                                    numberFormat.format(value.getStat(StatsAccumulator.KEY_MAX)) :
+                            holder.max.setText(stats.hasStat(StatsAccumulator.KEY_MAX) ?
+                                    numberFormat.format(stats.getStat(StatsAccumulator.KEY_MAX)) :
                                     "");
-                            holder.avg.setText(value.hasStat(StatsAccumulator.KEY_AVERAGE) ?
-                                    numberFormat.format(value.getStat(StatsAccumulator.KEY_AVERAGE))
+                            holder.avg.setText(stats.hasStat(StatsAccumulator.KEY_AVERAGE) ?
+                                    numberFormat.format(stats.getStat(StatsAccumulator.KEY_AVERAGE))
                                     : "");
 
-                            // Load sensor readings into a line graph presenter.
-                            final LineGraphPresenter lineGraphPresenter =
-                                    item.getLineGraphPresenter();
-                            lineGraphPresenter.clearData(true);
-                            lineGraphPresenter.populateEmpty(holder.chartContentArea);
-                            final long firstTimestamp = run.getFirstTimestamp();
-                            final long lastTimestamp = run.getLastTimestamp();
-                            tryLoadingLineGraphPresenter(lineGraphPresenter, runId, sensorLayout,
-                                    dc, firstTimestamp, lastTimestamp, holder, value);
+                            // Save the sensor stats so they can be used to set the Y axis on load.
+                            // If too many sensors are loaded in quick succession, having
+                            // RunStats be a final local variable may cause the Y axis to be set
+                            // inappropriately.
+                            holder.currentSensorStats = stats;
+
+                            // Load sensor readings into a chart.
+                            final ChartController chartController = item.getChartController();
+                            chartController.setChartView(holder.chartView);
+                            chartController.setProgressView(holder.progressView);
+                            holder.setSensorLayout(sensorLayout);
+                            chartController.loadRunData(run, sensorLayout, dc, holder, stats,
+                                    new ChartController.ChartDataLoadedCallback() {
+                                        @Override
+                                        public void onChartDataLoaded(long firstTimestamp,
+                                                long lastTimestamp) {
+                                            // Display the graph.
+                                            chartController.setXAxisWithBuffer(firstTimestamp,
+                                                    lastTimestamp);
+                                            chartController.setYAxisWithBuffer(
+                                                    holder.currentSensorStats.getStat(
+                                                            StatsAccumulator.KEY_MIN),
+                                                    holder.currentSensorStats.getStat(
+                                                            StatsAccumulator.KEY_MAX));
+                                        }
+
+                                        @Override
+                                        public void onLoadAttemptStarted() {
+
+                                        }
+                                    });
                         }
                     });
-        }
-
-        void tryLoadingLineGraphPresenter(final LineGraphPresenter lineGraphPresenter,
-                final String runId, final GoosciSensorLayout.SensorLayout sensorLayout,
-                final DataController dc, final long firstTimestamp, final long lastTimestamp,
-                final ViewHolder holder, final RunStats stats) {
-            // If we are currently trying to load something, don't try and load something else.
-            // Instead, when loading is completed a callback will check that the correct data
-            // was loaded and re-call this function.
-            // The status is always set loading before loadSensorReadings, and always set to idle
-            // when loading is completed (regardless of whether the correct data was loaded).
-            if (holder.graphLoadStatus != ViewHolder.GRAPH_LOAD_STATUS_IDLE) {
-                return;
-            }
-            lineGraphPresenter.updateColor(sensorLayout.color);
-            holder.graphLoadStatus = ViewHolder.GRAPH_LOAD_STATUS_LOADING;
-            holder.sensorLayout = sensorLayout;
-            final ZoomPresenter zp = new ZoomPresenter(lineGraphPresenter, dc);
-            zp.loadInitialReadings(firstTimestamp,
-                    lastTimestamp, stats, new Runnable() {
-                        public void run() {
-                            holder.graphLoadStatus = ViewHolder.GRAPH_LOAD_STATUS_IDLE;
-                            if (!runId.equals(holder.runId) ||
-                                    !sensorLayout.sensorId.equals(holder.sensorLayout.sensorId)) {
-                                // The wrong run or the wrong sensor ID was loaded into this
-                                // lineGraphPresenter. Clear and try again with the updated
-                                // run and sensor values from the holder.
-                                zp.clearLineData(/* reset Y axis */ true);
-                                tryLoadingLineGraphPresenter(lineGraphPresenter, holder.runId,
-                                        holder.sensorLayout, dc, firstTimestamp, lastTimestamp,
-                                        holder, stats);
-                                return;
-                            }
-                            // Display the graph.
-                            lineGraphPresenter.zoomToFit(firstTimestamp, lastTimestamp);
-                            lineGraphPresenter.setShowProgress(false);
-                        }
-                    }, null, sensorLayout.sensorId);
         }
 
         void sortItems() {
@@ -1034,29 +1017,30 @@ public class ExperimentDetailsFragment extends Fragment
             outState.putIntegerArrayList(KEY_SAVED_SENSOR_INDICES, selectedIndices);
         }
 
-        public static class ViewHolder extends RecyclerView.ViewHolder {
+        public static class ViewHolder extends RecyclerView.ViewHolder implements
+                ChartController.ChartLoadingStatus {
 
             static final int STATS_LOAD_STATUS_IDLE = 0;
             static final int STATS_LOAD_STATUS_LOADING = 1;
-            static final int GRAPH_LOAD_STATUS_IDLE = 0;
-            static final int GRAPH_LOAD_STATUS_LOADING = 1;
 
-            final int mViewType;
+            private int mGraphLoadStatus;
 
             // Keep track of the loading state and what should currently be displayed:
             // Loads are done on a background thread, so as cards are scrolled or sensors are
             // updated we need to track what needs to be reloaded.
-            String runId;
-            GoosciSensorLayout.SensorLayout sensorLayout;
+            private String mRunId;
+            private GoosciSensorLayout.SensorLayout mSensorLayout;
+
+            final int mViewType;
+
             int statsLoadStatus;
-            int graphLoadStatus;
 
             // Run members.
             TextView runTitle;
             TextView date;
             TextView duration;
             TextView noteCount;
-            FrameLayout chartContentArea;
+            ChartView chartView;
 
             // Stats members.
             TextView min;
@@ -1067,6 +1051,8 @@ public class ExperimentDetailsFragment extends Fragment
             ImageView sensorImage;
             ImageButton sensorPrev;
             ImageButton sensorNext;
+            public ProgressBar progressView;
+            public RunStats currentSensorStats;
 
             public ViewHolder(View itemView, int viewType) {
                 super(itemView);
@@ -1086,9 +1072,42 @@ public class ExperimentDetailsFragment extends Fragment
                             R.id.run_review_switch_sensor_btn_prev);
                     sensorNext = (ImageButton) itemView.findViewById(
                             R.id.run_review_switch_sensor_btn_next);
-                    chartContentArea = (FrameLayout) itemView.findViewById(R.id.chart_content_area);
+                    chartView = (ChartView) itemView.findViewById(R.id.chart_view);
                     sensorImage = (ImageView) itemView.findViewById(R.id.sensor_icon);
+                    progressView = (ProgressBar) itemView.findViewById(R.id.chart_progress);
                 }
+            }
+
+            public void setRunId(String runId) {
+                this.mRunId = runId;
+            }
+
+            public void setSensorLayout(GoosciSensorLayout.SensorLayout sensorLayout) {
+                this.mSensorLayout = sensorLayout;
+            }
+
+            public void clearSensorLayout() {
+                this.mSensorLayout.clear();
+            }
+
+            @Override
+            public int getGraphLoadStatus() {
+                return mGraphLoadStatus;
+            }
+
+            @Override
+            public void setGraphLoadStatus(int graphLoadStatus) {
+                this.mGraphLoadStatus = graphLoadStatus;
+            }
+
+            @Override
+            public String getRunId() {
+                return mRunId;
+            }
+
+            @Override
+            public GoosciSensorLayout.SensorLayout getSensorLayout() {
+                return mSensorLayout;
             }
         }
 
@@ -1105,17 +1124,16 @@ public class ExperimentDetailsFragment extends Fragment
             private TextLabel mTextLabel;
             private PictureLabel mPictureLabel;
             private long mTimestamp;
-            private LineGraphPresenter mLineGraphPresenter;
+            private ChartController mChartController;
 
             ExperimentDetailItem(ExperimentRun run, ScalarDisplayOptions scalarDisplayOptions) {
                 mRun = run;
                 mTimestamp = mRun.getFirstTimestamp();
                 mViewType = VIEW_TYPE_RUN_CARD;
                 mSensorTagIndex = run.getSensorTags().size() > 0 ? 0 : -1;
-                mLineGraphPresenter = new LineGraphPresenter(/* Show full Y axis */ false,
-                        /* Hide the leading edge point */ false, mGraphColors[0],
-                        scalarDisplayOptions,
-                        /* no interaction listener */ null, false);
+                mChartController = new ChartController(
+                        ChartOptions.ChartPlacementType.TYPE_PREVIEW_REVIEW,
+                        scalarDisplayOptions);
             }
 
             public static boolean canShowLabel(Label label) {
@@ -1169,8 +1187,8 @@ public class ExperimentDetailsFragment extends Fragment
                 mSensorTagIndex = index;
             }
 
-            LineGraphPresenter getLineGraphPresenter() {
-                return mLineGraphPresenter;
+            ChartController getChartController() {
+                return mChartController;
             }
         }
 

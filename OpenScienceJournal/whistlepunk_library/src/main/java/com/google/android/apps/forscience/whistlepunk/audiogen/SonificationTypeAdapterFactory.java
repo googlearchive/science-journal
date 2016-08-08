@@ -19,9 +19,11 @@ package com.google.android.apps.forscience.whistlepunk.audiogen;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices
         .DataToAmplitudeSimpleJsynUnitVoiceAdapter;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices
-        .DataToPentatonicScalePitchEnvelopeSimpleJsynUnitVoiceAdapter;
+        .DataToPentatonicScalePitchSimpleJsynUnitVoiceAdapter;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices
         .DataToPitchEnvelopeSimpleJsynUnitVoiceAdapter;
+import com.google.android.apps.forscience.whistlepunk.audiogen.voices
+        .DataToPitchSimpleJsynUnitVoiceAdapter;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices
         .DataToPitchSimpleJsynUnitVoiceAdapter;
 import com.jsyn.Synthesizer;
@@ -37,7 +39,7 @@ public class SonificationTypeAdapterFactory {
         } else if (sonification_type.equals("d2pe")) {
             return new DataToPitchEnvelopeSimpleJsynUnitVoiceAdapter(synth);
         } else if (sonification_type.equals("d2ps")) {
-            return new DataToPentatonicScalePitchEnvelopeSimpleJsynUnitVoiceAdapter(synth);
+            return new DataToPentatonicScalePitchSimpleJsynUnitVoiceAdapter(synth);
         } else {
             return null;
         }

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<licenses>
+    <license key="protobuf">
+        <title>Protobuf</title>
+        <resource>license_protobuf</resource>
+    </license>
+    <license key="appcompat">
+        <title>Android App Support Library</title>
+        <resource>license_apache2</resource>
+        <copyrightHeader>Copyright 2014, Google Inc. All rights reserved.</copyrightHeader>
+    </license>
+    <license key="design">
+        <title>Android Design Library</title>
+        <resource>license_apache2</resource>
+        <copyrightHeader>Copyright 2014, Google Inc. All rights reserved.</copyrightHeader>
+    </license>
+    <license key="cardview">
+        <title>Android CardView Library</title>
+        <resource>license_apache2</resource>
+        <copyrightHeader>Copyright 2014, Google Inc. All rights reserved.</copyrightHeader>
+    </license>
+    <license key="recyclerview">
+        <title>Android RecyclerView Library</title>
+        <resource>license_apache2</resource>
+        <copyrightHeader>Copyright 2014, Google Inc. All rights reserved.</copyrightHeader>
+    </license>
+    <license key="percent">
+        <title>Android Percent Library</title>
+        <resource>license_apache2</resource>
+        <copyrightHeader>Copyright 2015, Google Inc. All rights reserved.</copyrightHeader>
+    </license>
+    <license key="guava">
+        <title>Guava</title>
+        <resource>license_apache2</resource>
+        <copyrightHeader>Copyright 2006, Google Inc. All rights reserved.</copyrightHeader>
+    </license>
+    <license key="glide">
+        <title>Glide</title>
+        <resource>license_glide</resource>
+    </license>
+    <license key="dagger2">
+        <title>Dagger 2</title>
+        <resource>license_apache2</resource>
+        <copyrightHeader>Copyright (C) 2012 Square Inc.
+            Copyright (C) 2012 Google Inc.</copyrightHeader>
+    </license>
+    <license key="leakcanary">
+        <title>Leak Canary</title>
+        <resource>license_apache2</resource>
+        <copyrightHeader>Copyright 2015 Square, Inc.</copyrightHeader>
+    </license>
+    <license key="jsyn">
+        <title>Jsyn</title>
+        <resource>license_apache2</resource>
+        <copyrightHeader>JSyn - Copyright 1997-2014 Mobileer Inc</copyrightHeader>
+    </license>
+</licenses>

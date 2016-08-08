@@ -28,16 +28,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 /**
  * Discovers BLE sensors that speak our "native" Science Journal protocol.
  */
-class NativeBleDiscoverer implements ExternalSensorDiscoverer {
-    private ManageDevicesFragment mManageDevicesFragment;
-    private Context mContext;
-    private final DeviceDiscoverer mDeviceDiscoverer;
-
-    public NativeBleDiscoverer(ManageDevicesFragment manageDevicesFragment, Context context) {
-        mManageDevicesFragment = manageDevicesFragment;
-        mContext = context;
-        mDeviceDiscoverer = DeviceDiscoverer.getNewInstance(context);
-    }
+public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
+    private DeviceDiscoverer mDeviceDiscoverer;
 
     @Override
     @NonNull
@@ -48,21 +40,19 @@ class NativeBleDiscoverer implements ExternalSensorDiscoverer {
     }
 
     @Override
-    public void onDestroy() {
-        mDeviceDiscoverer.destroy();
-    }
+    public boolean startScanning(final SensorPrefCallbacks sensorPrefCallbacks,
+            final Context context) {
+        stopScanning();
 
-    @Override
-    public boolean canScan() {
-        return mDeviceDiscoverer.canScan();
-    }
-
-    @Override
-    public void startScanning(final SensorPrefCallbacks sensorPrefCallbacks) {
+        mDeviceDiscoverer = DeviceDiscoverer.getNewInstance(context);
+        if (!mDeviceDiscoverer.canScan()) {
+            stopScanning();
+            return false;
+        }
         mDeviceDiscoverer.startScanning(new DeviceDiscoverer.Callback() {
             @Override
             public void onDeviceFound(final DeviceDiscoverer.DeviceRecord record) {
-                onDeviceRecordFound(record, sensorPrefCallbacks);
+                onDeviceRecordFound(context, record, sensorPrefCallbacks);
             }
 
             @Override
@@ -70,16 +60,18 @@ class NativeBleDiscoverer implements ExternalSensorDiscoverer {
                 // TODO: handle errors
             }
         });
+        return true;
     }
 
     @Override
     public void stopScanning() {
         if (mDeviceDiscoverer != null) {
             mDeviceDiscoverer.stopScanning();
+            mDeviceDiscoverer = null;
         }
     }
 
-    private void onDeviceRecordFound(DeviceDiscoverer.DeviceRecord record,
+    private void onDeviceRecordFound(Context context, DeviceDiscoverer.DeviceRecord record,
             SensorPrefCallbacks sensorPrefCallbacks) {
         // First check if this is a paired device.
         BluetoothDevice device = record.device;
@@ -88,7 +80,7 @@ class NativeBleDiscoverer implements ExternalSensorDiscoverer {
         if (!sensorPrefCallbacks.isSensorAlreadyKnown(address)) {
             // If not, add to "available"
             Preference newPref = ManageDevicesFragment.makePreference(device.getName(), address,
-                    BleSensorSpec.TYPE, false, mContext);
+                    BleSensorSpec.TYPE, false, context);
             newPref.setWidgetLayoutResource(0);
             sensorPrefCallbacks.addAvailableSensorPreference(newPref);
         }

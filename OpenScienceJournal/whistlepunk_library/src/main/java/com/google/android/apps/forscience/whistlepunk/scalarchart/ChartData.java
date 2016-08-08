@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ChartData {
-
     public static class DataPoint {
 
         private final long mX;
@@ -54,6 +53,9 @@ public class ChartData {
     @VisibleForTesting
     public static final int DEFAULT_APPROX_RANGE = 8;
 
+    public static final int DEFAULT_THROWAWAY_THRESHOLD = 100;
+    private int mThrowawayDataSizeThreshold;
+
     private List<DataPoint> mData = new ArrayList<>();
 
     // The list of data points at which a label should be displayed.
@@ -64,9 +66,23 @@ public class ChartData {
     // so we cannot calculate where that label should be drawn.
     private List<Label> mUnaddedLabels = new ArrayList<>();
 
+    // The stats for this list.
     private List<StreamStat> mStats = new ArrayList<>();
 
+    public static final Comparator<? super DataPoint> DATA_POINT_COMPARATOR =
+            new Comparator<DataPoint>() {
+        @Override
+        public int compare(DataPoint lhs, DataPoint rhs) {
+            return Long.compare(lhs.getX(), rhs.getX());
+        }
+    };
+
     public ChartData() {
+        this(DEFAULT_THROWAWAY_THRESHOLD);
+    }
+
+    public ChartData(int throwawayDataSizeThreshold) {
+        mThrowawayDataSizeThreshold = throwawayDataSizeThreshold;
     }
 
     // This assumes the data point occurs after all previous data points.
@@ -93,6 +109,14 @@ public class ChartData {
     // This assumes the List<DataPoint> is ordered by timestamp.
     public void setPoints(List<DataPoint> data) {
         mData = data;
+    }
+
+    public void addOrderedGroupOfPoints(List<DataPoint> points) {
+        if (points == null || points.size() == 0) {
+            return;
+        }
+        mData.addAll(points);
+        Collections.sort(mData, DATA_POINT_COMPARATOR);
     }
 
     public List<DataPoint> getPointsInRangeToEnd(long xMin) {
@@ -147,7 +171,7 @@ public class ChartData {
      * A helper function to search for the index of the point with the closest value to the searchX
      * provided, using the default approximate search range.
      * @param searchX The value to search for
-     * @param startIndex The index into the data where the search starts
+     * @param startSearchIndex The index into the data where the search starts
      * @param preferStart Whether the approximate result should prefer the start of a range or
      *                    the end of a range. This can be used to make sure the range is not
      *                    too short.
@@ -262,6 +286,29 @@ public class ChartData {
 
     public List<StreamStat> getStats() {
         return mStats;
+    }
+
+    public void throwAwayBefore(long throwawayThreshold) {
+        throwAwayBetween(Long.MIN_VALUE, throwawayThreshold);
+    }
+
+    public void throwAwayAfter(long throwawayThreshold) {
+        throwAwayBetween(throwawayThreshold, Long.MAX_VALUE);
+    }
+
+    public void throwAwayBetween(long throwAwayMinX, long throwAwayMaxX) {
+        if (throwAwayMaxX <= throwAwayMinX) {
+            return;
+        }
+        int indexEnd = exactBinarySearch(throwAwayMaxX, 0);
+        int indexStart = exactBinarySearch(throwAwayMinX, 0);
+
+        // Only throw away in bulk once we reach a threshold, so that all the work is not done on
+        // every iteration.
+        if (indexEnd - indexStart < mThrowawayDataSizeThreshold) {
+            return;
+        }
+        mData.subList(indexStart, indexEnd).clear();
     }
 
 }

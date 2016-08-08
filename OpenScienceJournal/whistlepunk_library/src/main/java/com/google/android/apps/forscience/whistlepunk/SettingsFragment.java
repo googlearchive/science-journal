@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -25,7 +26,9 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.util.Log;
 
+import com.google.android.apps.forscience.whistlepunk.SettingsActivity.SettingsType;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.intro.TutorialActivity;
 
 /**
  * Holder for Settings, About, etc.
@@ -33,11 +36,19 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 public class SettingsFragment extends PreferenceFragment {
 
     private static final String TAG = "SettingsFragment";
+
+    private static final String KEY_TYPE = "type";
+
     private static final String KEY_VERSION = "version";
     private static final String KEY_OPEN_SOURCE = "open_source";
+    private static final String KEY_REPLAY_TUTORIAL = "replay_tutorial";
 
-    public static SettingsFragment newInstance() {
-        return new SettingsFragment();
+    public static SettingsFragment newInstance(@SettingsType int type) {
+        Bundle args = new Bundle();
+        args.putInt(KEY_TYPE, type);
+        SettingsFragment fragment = new SettingsFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     public SettingsFragment() {}
@@ -45,26 +56,42 @@ public class SettingsFragment extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        int type = getArguments().getInt(KEY_TYPE);
+        if (type == SettingsActivity.TYPE_ABOUT) {
+            addPreferencesFromResource(R.xml.about);
+            Preference tutorialPreference = findPreference(KEY_REPLAY_TUTORIAL);
+            // Set the intent explicitly so that we know we are targeting the right package.
+            // Add an action so the tutorial activity knows whether we are in intro or not.
+            tutorialPreference.setIntent(new Intent(getActivity().getApplicationContext(),
+                    TutorialActivity.class)
+                    .setAction(KEY_REPLAY_TUTORIAL));
 
-        addPreferencesFromResource(R.xml.settings);
+            Preference licensePreference = findPreference(KEY_OPEN_SOURCE);
+            licensePreference.setIntent(new Intent(getActivity().getApplicationContext(),
+                    LicenseActivity.class));
 
-        loadVersion(getActivity());
+            loadVersion(getActivity());
+        } else if (type == SettingsActivity.TYPE_SETTINGS) {
+            addPreferencesFromResource(R.xml.settings);
+        } else {
+            throw new IllegalStateException("SettingsFragment type " + type + " is unknown.");
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
-                TrackerConstants.SCREEN_SETTINGS);
-    }
-
-    @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        if (KEY_OPEN_SOURCE.equals(preference.getKey())) {
-            new LicenseFragment().show(getFragmentManager(), "license");
-            return true;
+        int type = getArguments().getInt(KEY_TYPE);
+        String screenName;
+        if (type == SettingsActivity.TYPE_SETTINGS) {
+            screenName = TrackerConstants.SCREEN_SETTINGS;
+        } else if (type == SettingsActivity.TYPE_ABOUT) {
+            screenName = TrackerConstants.SCREEN_ABOUT;
+        } else {
+            throw new IllegalStateException("SettingsFragment type " + type + " is unknown.");
         }
-        return super.onPreferenceTreeClick(preferenceScreen, preference);
+
+        WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(screenName);
     }
 
     private void loadVersion(Context context) {

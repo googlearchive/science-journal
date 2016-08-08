@@ -48,6 +48,13 @@ public abstract class ExternalSensorSpec implements Parcelable {
         return spec.getType() + "-" + spec.getAddress() + "-" + spec.getName() + "-" + suffix;
     }
 
+    /**
+     * Returns redacted info suitable for logging.
+     */
+    public String getLoggingId() {
+        return getType();
+    }
+
     public abstract String getName();
 
     public abstract String getType();

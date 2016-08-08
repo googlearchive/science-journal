@@ -165,6 +165,8 @@ public class EditTimeDialog extends DialogFragment implements RunReviewOverlay.O
         if (mTimeView != null) {
             mTimeView.setText(
                     PinnedNoteAdapter.getNoteTimeText(mCurrentTimestamp, mRunStartTimestamp));
+            mTimeView.setContentDescription(PinnedNoteAdapter.getNoteTimeContentDescription(
+                    mCurrentTimestamp, mRunStartTimestamp, getActivity()));
         }
     }
 

@@ -34,7 +34,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -59,13 +58,18 @@ import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
 import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
+import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.PreviewNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment;
 import com.google.android.apps.forscience.whistlepunk.RunReviewOverlay;
-import com.google.android.apps.forscience.whistlepunk.ScalarDataLoader;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
@@ -82,13 +86,9 @@ import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.review.EditTimeDialog.EditTimeDialogListener;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphData;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.LineGraphPresenter;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.SensorDataRenderer;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,7 +97,8 @@ import java.util.List;
 
 public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
         EditNoteDialog.EditNoteDialogListener, EditTimeDialogListener,
-        DeleteRunDialog.DeleteRunDialogListener, AudioSettingsDialog.AudioSettingsDialogListener {
+        DeleteRunDialog.DeleteRunDialogListener, AudioSettingsDialog.AudioSettingsDialogListener,
+        ChartController.ChartLoadingStatus {
     public static final String ARG_START_LABEL_ID = "start_label_id";
     public static final String ARG_SENSOR_INDEX = "sensor_tag_index";
     public static final String ARG_CREATE_TASK = "create_task";
@@ -109,8 +110,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private static final String KEY_EXTERNAL_AXIS_MAXIMUM = "external_axis_max";
     private static final String KEY_RUN_REVIEW_OVERLAY_TIMESTAMP = "run_review_overlay_time";
 
-    private static final int GRAPH_LOAD_STATUS_IDLE = 1;
-    private static final int GRAPH_LOAD_STATUS_LOADING = 2;
     private int mLoadingStatus = GRAPH_LOAD_STATUS_IDLE;
 
     public static final double MILLIS_IN_A_SECOND = 1000.0;
@@ -119,27 +118,25 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     public static final int LABEL_TYPE_TEXT = 0;
     public static final int LABEL_TYPE_PICTURE = 1;
 
+    private ImageButton mRunReviewPlaybackButton;
+    private AudioPlaybackController mAudioPlaybackController;
+    private boolean mWasPlayingBeforeTouch = false;
+
     private String mStartLabelId;
     private int mSelectedSensorIndex = 0;
     private GraphOptionsController mGraphOptionsController;
     private ScalarDisplayOptions mScalarDisplayOptions;
-    private LineGraphPresenter mLineGraphPresenter;
+    private ChartController mChartController;
     private ExternalAxisController mExternalAxis;
     private RunReviewOverlay mRunReviewOverlay;
     private PinnedNoteAdapter mPinnedNoteAdapter;
     private ExperimentRun mExperimentRun;
     private Experiment mExperiment;
-    private ImageButton mRunReviewPlaybackButton;
-    private boolean mIsPlaying = false;
-    private SimpleJsynAudioGenerator mAudioGenerator;
-    private Handler mHandler;
-    private Runnable mPlaybackRunnable;
-    private int mPlaybackIndex;
-    private boolean mWasPlayingBeforeTouch = false;
     private ActionMode mActionMode;
     private ProgressBar mExportProgress;
     private RunReviewExporter mRunReviewExporter;
     private RunStats mCurrentSensorStats;
+    private boolean mShowStatsOverlay = false;
 
     /**
      * Use this factory method to create a new instance of
@@ -174,7 +171,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     @Override
     public void onDestroy() {
-        stopPlayback();
+        mAudioPlaybackController.stopPlayback();
         mGraphOptionsController = null;
         if (mExternalAxis != null) {
             mExternalAxis.destroy();
@@ -185,15 +182,15 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (mRunReviewOverlay != null) {
             mRunReviewOverlay.onDestroy();
         }
-        if (mLineGraphPresenter != null) {
-            mLineGraphPresenter.onDestroy();
+        if (mChartController != null) {
+            mChartController.onDestroy();
         }
         super.onDestroy();
     }
 
     @Override
     public void onPause() {
-        stopPlayback();
+        mAudioPlaybackController.stopPlayback();
         super.onPause();
     }
 
@@ -244,9 +241,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     @Override
                     public void onExportError(Exception e) {
                         resetExportUi();
-                        Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
-                                getString(R.string.export_error), Snackbar.LENGTH_LONG);
-                        bar.show();
+                        if (getActivity() != null) {
+                            Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
+                                    getString(R.string.export_error), Snackbar.LENGTH_LONG);
+                            bar.show();
+                        }
                     }
                 });
         setHasOptionsMenu(true);
@@ -286,7 +285,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 new ExternalAxisController.AxisUpdateListener() {
                     @Override
                     public void onAxisUpdated(long xMin, long xMax, boolean isPinnedToNow) {
-                        mLineGraphPresenter.setXAxis(xMin, xMax);
+                        mChartController.onGlobalXAxisChanged(xMin, xMax, isPinnedToNow,
+                                getDataController());
                     }
                 }, /* IsLive */ false, new CurrentTimeClock());
         mRunReviewOverlay =
@@ -299,9 +299,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
                     @Override
                     public void onTouchStart() {
-                        if (mIsPlaying) {
+                        if (mAudioPlaybackController.isPlaying()) {
                             mWasPlayingBeforeTouch = true;
-                            stopPlayback();
+                            mAudioPlaybackController.stopPlayback();
                         }
                     }
 
@@ -309,20 +309,42 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     public void onTouchStop() {
                         if (mWasPlayingBeforeTouch) {
                             mWasPlayingBeforeTouch = false;
-                            startPlayback();
+                            mAudioPlaybackController.startPlayback(mChartController,
+                                    getDataController(), mExperimentRun.getFirstTimestamp(),
+                                    mExperimentRun.getLastTimestamp(),
+                                    mRunReviewOverlay.getTimestamp(),
+                                    mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex)
+                                            .sensorId);
                         }
                     }
                 });
+
+        View statsDrawer = rootView.findViewById(R.id.stats_drawer);
+        statsDrawer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mChartController != null) {
+                    mShowStatsOverlay = !mShowStatsOverlay;
+                    mChartController.setShowStatsOverlay(mShowStatsOverlay);
+                }
+            }
+        });
 
         mRunReviewPlaybackButton =
                 (ImageButton) rootView.findViewById(R.id.run_review_playback_button);
         mRunReviewPlaybackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mIsPlaying) {
-                    stopPlayback();
-                } else {
-                    startPlayback();
+                // If playback is loading, don't do anything.
+                if (mAudioPlaybackController.isPlaying()) {
+                    mAudioPlaybackController.stopPlayback();
+                } else if (mAudioPlaybackController.isNotPlaying()){
+                    mAudioPlaybackController.startPlayback(mChartController,
+                            getDataController(), mExperimentRun.getFirstTimestamp(),
+                            mExperimentRun.getLastTimestamp(),
+                            mRunReviewOverlay.getTimestamp(),
+                            mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex)
+                                    .sensorId);
                 }
             }
         });
@@ -356,17 +378,47 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mGraphOptionsController = new GraphOptionsController(getActivity());
         mGraphOptionsController.loadIntoScalarDisplayOptions(mScalarDisplayOptions, rootView);
 
-        mLineGraphPresenter = new LineGraphPresenter(/* Show full Y axis */ false,
-                /* Hide the leading edge point */ false, R.color.graph_line_color_blue,
-                mScalarDisplayOptions, mExternalAxis.getInteractionListener());
-        mRunReviewOverlay.setLineGraphPresenter(mLineGraphPresenter);
+        mChartController = new ChartController(ChartOptions.ChartPlacementType.TYPE_RUN_REVIEW,
+                mScalarDisplayOptions);
+        mChartController.setChartView((ChartView) rootView.findViewById(R.id.chart_view));
+        mChartController.setProgressView((ProgressBar) rootView.findViewById(R.id.chart_progress));
+        mChartController.setInteractionListener(mExternalAxis.getInteractionListener());
+        mRunReviewOverlay.setChartController(mChartController);
 
         if (savedInstanceState != null) {
             if (getChildFragmentManager().findFragmentByTag(EditTimeDialog.TAG) != null) {
                 setTimepickerUi(rootView, true);
             }
         }
-        mAudioGenerator = new SimpleJsynAudioGenerator();
+
+        mAudioPlaybackController = new AudioPlaybackController(
+                new AudioPlaybackController.AudioPlaybackListener() {
+                    @Override
+                    public void onAudioPlaybackStarted() {
+                        WhistlePunkApplication.getUsageTracker(getActivity()).trackEvent(
+                                TrackerConstants.CATEGORY_RUNS,
+                                TrackerConstants.ACTION_START_AUDIO_PLAYBACK,
+                                TrackerConstants.LABEL_RUN_REVIEW, 0);
+                        mRunReviewPlaybackButton.setImageDrawable(
+                                getResources().getDrawable(R.drawable.ic_pause_black_24dp));
+                        mRunReviewPlaybackButton.setContentDescription(
+                                getResources().getString(R.string.playback_button_pause));
+                    }
+
+                    @Override
+                    public void onTimestampUpdated(long activeTimestamp) {
+                        mRunReviewOverlay.setActiveTimestamp(activeTimestamp);
+                    }
+
+                    @Override
+                    public void onAudioPlaybackStopped() {
+                        mAudioPlaybackController.stopPlayback();
+                        mRunReviewPlaybackButton.setImageDrawable(
+                                getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
+                        mRunReviewPlaybackButton.setContentDescription(
+                                getResources().getString(R.string.playback_button_play));
+                    }
+                });
 
         return rootView;
     }
@@ -460,23 +512,26 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         } else {
                             adjustYAxis();
                         }
+                        getActivity().invalidateOptionsMenu();
                     }
         });
     }
 
     private void adjustYAxis() {
+        if (mExperimentRun == null || mCurrentSensorStats == null) {
+            return;
+        }
         if (mExperimentRun.getAutoZoomEnabled()) {
             double yMin = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MIN);
             double yMax = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MAX);
-            double buffer = SensorDataRenderer.getYBuffer(yMin, yMax);
-            mLineGraphPresenter.setYAxisRange(yMin - buffer, yMax + buffer);
+            mChartController.setYAxisWithBuffer(yMin, yMax);
         } else {
             GoosciSensorLayout.SensorLayout layout =
                     mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
-            mLineGraphPresenter.setYAxisRange(layout.minimumYAxisValue,
+            mChartController.setYAxis(layout.minimumYAxisValue,
                     layout.maximumYAxisValue);
         }
-        mLineGraphPresenter.redraw();
+        mChartController.refreshChartView();
         // Redraw the thumb after the chart is updated.
         mRunReviewOverlay.post(new Runnable() {
             public void run() {
@@ -552,7 +607,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                             @Override
                             public void success(Label label) {
                                 mPinnedNoteAdapter.insertNote(label);
-                                mLineGraphPresenter.setLabels(mPinnedNoteAdapter.getPinnedNotes());
+                                mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
                                 WhistlePunkApplication.getUsageTracker(getActivity())
                                         .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                                 TrackerConstants.ACTION_DELETE_UNDO,
@@ -568,7 +623,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     @Override
                     public void success(Success value) {
                         mPinnedNoteAdapter.deleteNote(item);
-                        mLineGraphPresenter.setLabels(mPinnedNoteAdapter.getPinnedNotes());
+                        mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
                         WhistlePunkApplication.getUsageTracker(getActivity())
                                 .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                         TrackerConstants.ACTION_DELETED,
@@ -596,8 +651,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         hookUpExperimentDetailsArea(run, rootView);
 
         // Load the data for the first sensor only.
-        // TODO: Consider pre-loading data for all the sensors instead of loading it when they
-        // are selected.
         if (savedInstanceState != null) {
             mExternalAxis.zoomTo(savedInstanceState.getLong(KEY_EXTERNAL_AXIS_MINIMUM),
                     savedInstanceState.getLong(KEY_EXTERNAL_AXIS_MAXIMUM));
@@ -606,7 +659,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 mRunReviewOverlay.setActiveTimestamp(overlayTimestamp);
             }
         }
-        loadRunData(rootView, mSelectedSensorIndex);
+        loadRunData(rootView);
         if (getActivity() != null) {
             ((AppCompatActivity) getActivity()).supportStartPostponedEnterTransition();
         }
@@ -650,42 +703,61 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         null, 0);
     }
 
-    // TODO: After loading run data, store it locally so that it does not need to be re-loaded in
-    // the case of switching between multiple sensors or rotating.
-    private void loadRunData(final View rootView, int selectedSensorIndex) {
-        stopPlayback();
-        GoosciSensorLayout.SensorLayout sensorLayout =
-                mExperimentRun.getSensorLayouts().get(selectedSensorIndex);
+    private void loadRunData(final View rootView) {
+        mAudioPlaybackController.stopPlayback();
+        final GoosciSensorLayout.SensorLayout sensorLayout = getSensorLayout();
         populateSensorViews(rootView, sensorLayout);
         updateSwitchSensorArrows(rootView, mExperimentRun.getSensorTags(), sensorLayout.sensorId);
 
-        // Load the sonificationType which was saved in the layout.
-        // TODO: Create a menu option in RunReview to change this.
         String sonificationType = getSonificationType(sensorLayout);
+        mAudioPlaybackController.setSonificationType(sonificationType);
 
-        mAudioGenerator.setSonificationType(sonificationType);
-
-        long firstTimestamp = mExperimentRun.getFirstTimestamp();
-        long lastTimestamp = mExperimentRun.getLastTimestamp();
         mRunReviewOverlay.setVisibility(View.INVISIBLE);
-        mLineGraphPresenter.populateEmpty(
-                (ViewGroup) rootView.findViewById(R.id.chart_content_area));
-
         final DataController dataController = getDataController();
-
+        final ChartController.ChartLoadingStatus fragmentRef = this;
         mCurrentSensorStats = null;
         final StatsList statsList = (StatsList) rootView.findViewById(R.id.stats_drawer);
+
         dataController.getStats(mExperimentRun.getRunId(), sensorLayout.sensorId,
                 new LoggingConsumer<RunStats>(TAG, "load stats") {
                     @Override
-                    public void success(RunStats runStats) {
+                    public void success(final RunStats runStats) {
                         mCurrentSensorStats = runStats;
-                        statsList.updateStats(
-                                new StatsAccumulator.StatsDisplay().updateStreamStats(runStats));
+                        List<StreamStat> streamStats =
+                                new StatsAccumulator.StatsDisplay().updateStreamStats(runStats);
+                        statsList.updateStats(streamStats);
+                        mChartController.updateStats(streamStats);
+
+                        mChartController.loadRunData(mExperimentRun, sensorLayout, dataController,
+                                fragmentRef, runStats,
+                                new ChartController.ChartDataLoadedCallback() {
+                                    public long mOverlayTimestamp;
+                                    public long mPreviousXMax;
+                                    public long mPreviousXMin;
+
+                                    @Override
+                                    public void onChartDataLoaded(long firstTimestamp,
+                                            long lastTimestamp) {
+                                       onDataLoaded(firstTimestamp, lastTimestamp, mPreviousXMin,
+                                               mPreviousXMax, mOverlayTimestamp);
+                                    }
+
+                                    @Override
+                                    public void onLoadAttemptStarted() {
+                                        // Use getSensorLayout instead of the final sensorLayout
+                                        // because the underlying sensor being loaded may have
+                                        // changed since that final var was declared, in the case
+                                        // where the user switches sensors rapidly.
+                                        mRunReviewOverlay.updateColor(getSensorLayout().color);
+                                        mRunReviewPlaybackButton.setVisibility(View.INVISIBLE);
+
+                                        mPreviousXMin = mExternalAxis.getXMin();
+                                        mPreviousXMax = mExternalAxis.getXMax();
+                                        mOverlayTimestamp = mRunReviewOverlay.getTimestamp();
+                                    }
+                                });
                     }
                 });
-
-        tryLoadingLineGraphPresenter(firstTimestamp, lastTimestamp, sensorLayout);
     }
 
     private String getSonificationType(GoosciSensorLayout.SensorLayout sensorLayout) {
@@ -707,82 +779,41 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 });
     }
 
-    private void tryLoadingLineGraphPresenter(final long firstTimestamp, final long lastTimestamp,
-                                              final GoosciSensorLayout.SensorLayout sensorLayout) {
-        // If we are currently trying to load something, don't try and load something else.
-        // Instead, when loading is completed a callback will check that the correct data
-        // was loaded and re-call this function.
-        // The status is always set loading before loadSensorReadings, and always set to idle
-        // when loading is completed (regardless of whether the correct data was loaded).
-        if (mLoadingStatus != GRAPH_LOAD_STATUS_IDLE) {
-            return;
+    private void onDataLoaded(long firstTimestamp, long lastTimestamp, long previousXMin,
+            long previousXMax, long overlayTimestamp) {
+        // Show the replay play button
+        mRunReviewPlaybackButton.setVisibility(View.VISIBLE);
+
+        // Add the labels after all the data is loaded
+        // so that they are interpolated correctly.
+        mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
+        mChartController.setShowProgress(false);
+
+        // Buffer the endpoints a bit so they look nice.
+        long buffer = (long) (ExternalAxisController.EDGE_POINTS_BUFFER_FRACTION *
+                (lastTimestamp - firstTimestamp));
+        long renderedXMin = firstTimestamp - buffer;
+        long renderedXMax = lastTimestamp + buffer;
+        if (previousXMax == Long.MIN_VALUE) {
+            // This is the first load. Zoom to fit the run.
+            mChartController.setXAxis(renderedXMin, renderedXMax);
+            // Display the the graph and overlays.
+            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax,
+                    mRunReviewOverlay.getSeekbar());
+            mExternalAxis.zoomTo(mChartController.getRenderedXMin(),
+                    mChartController.getRenderedXMax());
+            mRunReviewOverlay.setActiveTimestamp(firstTimestamp);
+        } else {
+            mExternalAxis.zoomTo(previousXMin, previousXMax);
+            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax,
+                    mRunReviewOverlay.getSeekbar());
         }
-        mLineGraphPresenter.updateColor(sensorLayout.color);
-        mRunReviewOverlay.updateColor(sensorLayout.color);
-        mRunReviewPlaybackButton.setVisibility(View.INVISIBLE);
+        adjustYAxis();
 
-        final long previousXMin = mExternalAxis.getXMin();
-        final long previousXMax = mExternalAxis.getXMax();
-        final long overlayTimestamp = mRunReviewOverlay.getTimestamp();
-
-        mLineGraphPresenter.clearData(true);
-        mLoadingStatus = GRAPH_LOAD_STATUS_LOADING;
-        mLineGraphPresenter.setShowProgress(true);
-        ScalarDataLoader.loadSensorReadings(sensorLayout.sensorId, getDataController(),
-                firstTimestamp, lastTimestamp, 0, new Runnable() {
-                    public void run() {
-                        mLoadingStatus = GRAPH_LOAD_STATUS_IDLE;
-                        GoosciSensorLayout.SensorLayout selectedSensorLayout =
-                                mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
-                        if (!TextUtils.equals(sensorLayout.sensorId,
-                                selectedSensorLayout.sensorId)) {
-                            // The wrong sensor ID was loaded into this lineGraphPresenter. Clear
-                            // and try again with the updated sensor ID.
-                            mLineGraphPresenter.clearData(true);
-                            tryLoadingLineGraphPresenter(firstTimestamp, lastTimestamp,
-                                    selectedSensorLayout);
-                            return;
-                        }
-                        // Show the replay play button
-                        mRunReviewPlaybackButton.setVisibility(View.VISIBLE);
-
-
-                        // Add the labels after all the data is loaded
-                        // so that they are interpolated correctly.
-                        mLineGraphPresenter.setLabels(mPinnedNoteAdapter.getPinnedNotes());
-                        mLineGraphPresenter.setShowProgress(false);
-
-                        // TODO: Use the sensorLayout plus mExperimentRun.getAutoZoomEnabled to
-                        // decide how to zoom on load.
-
-                        if (previousXMax == Long.MIN_VALUE) {
-                            // This is the first load. Zoom to fit the run.
-                            mLineGraphPresenter.zoomToFitX(firstTimestamp, lastTimestamp);
-                            // Display the the graph and overlays.
-                            mExternalAxis.setReviewData(firstTimestamp,
-                                    mLineGraphPresenter.getRenderedXMin(),
-                                    mLineGraphPresenter.getRenderedXMax(),
-                                    mRunReviewOverlay.getSeekbar());
-                            mExternalAxis.zoomTo(mLineGraphPresenter.getRenderedXMin(),
-                                    mLineGraphPresenter.getRenderedXMax());
-                            mRunReviewOverlay.setActiveTimestamp(firstTimestamp);
-                        } else {
-                            long bufferSize = LineGraphPresenter.getBufferSize(firstTimestamp,
-                                    lastTimestamp);
-                            mExternalAxis.setReviewData(firstTimestamp, firstTimestamp - bufferSize,
-                                    lastTimestamp + bufferSize, mRunReviewOverlay.getSeekbar());
-                            mExternalAxis.zoomTo(previousXMin, previousXMax);
-                            mLineGraphPresenter.updateEndpoints();
-                        }
-                        adjustYAxis();
-
-                        if (overlayTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
-                            mRunReviewOverlay.setActiveTimestamp(overlayTimestamp);
-                            mRunReviewOverlay.setVisibility(View.VISIBLE);
-                        }
-                    }
-                }, LoggingConsumer.expectSuccess(TAG, "Load data for RunReview"),
-                mLineGraphPresenter);
+        if (overlayTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
+            mRunReviewOverlay.setActiveTimestamp(overlayTimestamp);
+            mRunReviewOverlay.setVisibility(View.VISIBLE);
+        }
     }
 
     // TODO(saff): probably extract ExperimentRunPresenter
@@ -796,7 +827,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         runDetailsText.setText(run.getDisplayTime(runDetailsText.getContext()));
 
         final TextView durationText = (TextView) rootView.findViewById(R.id.run_review_duration);
-        ElapsedTimeFormatter formatter = ElapsedTimeFormatter.getInstance(durationText.getContext());
+        ElapsedTimeFormatter formatter = ElapsedTimeFormatter.getInstance(
+                durationText.getContext());
         durationText.setText(formatter.format(
                 run.elapsedSeconds()));
         durationText.setContentDescription(formatter.formatForAccessibility(run.elapsedSeconds()));
@@ -833,7 +865,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 @Override
                 public void onClick(View v) {
                     mSelectedSensorIndex = position - 1;
-                    loadRunData(rootView, mSelectedSensorIndex);
+                    loadRunData(rootView);
                 }
             });
             String prevSensorId = sensorIds.get(position - 1);
@@ -845,7 +877,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 @Override
                 public void onClick(View v) {
                     mSelectedSensorIndex = position + 1;
-                    loadRunData(rootView, mSelectedSensorIndex);
+                    loadRunData(rootView);
                 }
             });
             String nextSensorId = sensorIds.get(position + 1);
@@ -883,7 +915,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 PinnedNoteAdapter.getNoteTimeText(timestamp, mExperimentRun.getFirstTimestamp());
         AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, mExperimentRun.getRunId(),
                 mExperimentRun.getExperimentId(), R.string.add_note_hint_text,
-                /* show timestamp section */ true, labelTimeText, selectedValue, labelType);
+                /* show timestamp section */ true, labelTimeText, selectedValue, labelType,
+                PinnedNoteAdapter.getNoteTimeContentDescription(timestamp,
+                        mExperimentRun.getFirstTimestamp(), getActivity()));
         dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
     }
 
@@ -893,7 +927,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             @Override
             public void success(Label label) {
                 mPinnedNoteAdapter.insertNote(label);
-                mLineGraphPresenter.setLabels(mPinnedNoteAdapter.getPinnedNotes());
+                mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
                 WhistlePunkApplication.getUsageTracker(getActivity())
                         .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                 TrackerConstants.ACTION_CREATE,
@@ -925,7 +959,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             public void success(Label value) {
                 mPinnedNoteAdapter.editLabel(value);
                 // The timestamp may have been edited, so also refresh the line graph presenter.
-                mLineGraphPresenter.setLabels(mPinnedNoteAdapter.getPinnedNotes());
+                mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
                 WhistlePunkApplication.getUsageTracker(getActivity())
                         .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                 TrackerConstants.ACTION_EDITED,
@@ -1084,13 +1118,13 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         String labelTimeText =
                 PinnedNoteAdapter.getNoteTimeText(selectedTimestamp, run.getFirstTimestamp());
         EditNoteDialog dialog = EditNoteDialog.newInstance(label, newValue, labelTimeText,
-                selectedTimestamp);
+                selectedTimestamp, PinnedNoteAdapter.getNoteTimeContentDescription(
+                        selectedTimestamp, run.getFirstTimestamp(), getActivity()));
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
     private void launchAudioSettings() {
-        // TODO: Keep playing back audio in the background instead of pausing it.
-        stopPlayback();
+        mAudioPlaybackController.stopPlayback();
 
         List<GoosciSensorLayout.SensorLayout> sensorLayouts = mExperimentRun.getSensorLayouts();
         int size = sensorLayouts.size();
@@ -1108,14 +1142,13 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     @Override
     public void onAudioSettingsPreview(String[] previewSonificationTypes, String[] sensorIds) {
-        // TODO: Add preview behavior instead of pausing playback when the dialog is opened.
-        // Confirm with UX before doing this, though.
+        // RunReview does not have audio preview.
     }
 
     @Override
     public void onAudioSettingsApplied(String[] newSonificationTypes, String[] sensorIds) {
         // Update the currently selected sonification type.
-        mAudioGenerator.setSonificationType(newSonificationTypes[mSelectedSensorIndex]);
+        mAudioPlaybackController.setSonificationType(newSonificationTypes[mSelectedSensorIndex]);
 
         // Save the new sonification types into their respective sensorLayouts.
         // Note that this uses the knowledge that the sensor ordering has not changed since
@@ -1138,7 +1171,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     @Override
     public void onAudioSettingsCanceled(String[] originalSonificationTypes, String[] sensorIds) {
-        // TODO: Once preview is implemented, this will need to undo the work done in preview.
+        // RunReview does not have audio preview.
     }
 
     private DataController getDataController() {
@@ -1160,102 +1193,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         return pinnedNotes;
     }
 
-    private void startPlayback() {
-        if (!mLineGraphPresenter.hasDrawnChart() || mIsPlaying) {
-            return;
-        }
-
-        final double yMin = mLineGraphPresenter.getRenderedYMin();
-        final double yMax = mLineGraphPresenter.getRenderedYMax();
-        final List<GraphData.ReadonlyDataPoint> data = mLineGraphPresenter.getRawData();
-        if (data.isEmpty()) {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "Trying to show empty data");
-            }
-            return;
-        }
-
-        // The index is based on the current position of the slider,
-        // so the user can start playing at a particular point in time.
-        mPlaybackIndex = 0;
-        long activeTimestamp = mRunReviewOverlay.getTimestamp();
-        if (activeTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
-            if (activeTimestamp > data.get((int) ((data.size() - 1) * .95)).getX()) {
-                // If we are 95% or more towards the end, start at the beginning.
-                // This allows for some slop.
-                mPlaybackIndex = 0;
-            } else {
-                mPlaybackIndex = mLineGraphPresenter.getIndexForTimestamp(activeTimestamp);
-                // In this case, the active timestamp wasn't found, so we should make sure to use
-                // a timstamp that is in mLineGraphPresenter's data.
-                if (mPlaybackIndex < 0) {
-                    activeTimestamp = mLineGraphPresenter.getClosestDataPointToTimestamp(
-                            activeTimestamp).getX();
-                    // Just in case, don't let it be negative.
-                    mPlaybackIndex = Math.max(0,
-                            mLineGraphPresenter.getIndexForTimestamp(activeTimestamp));
-                }
-            }
-        }
-        mHandler = new Handler();
-        mPlaybackRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (mPlaybackIndex > data.size()) {
-                    if (Log.isLoggable(TAG, Log.ERROR)) {
-                        Log.e(TAG, "invalid playback index!  Aborting playback");
-                    }
-                    return;
-                }
-                GraphData.ReadonlyDataPoint point = data.get(mPlaybackIndex);
-                long timestamp = point.getX();
-                try {
-                    mAudioGenerator.addData(timestamp, point.getY(), yMin, yMax);
-                    mRunReviewOverlay.setActiveTimestamp(timestamp);
-                } finally {
-                    // If the playback index is the size of the last callback index,
-                    // i.e. one less than the last index in the run, some special handling
-                    // needs to be done to determine when to make the last tone.
-                    mPlaybackIndex++;
-                    int lastCallbackIndex = data.size() - 1;
-                    if (mPlaybackIndex < lastCallbackIndex) {
-                        // Play the next note after the time between this point and the
-                        // next point has ellapsed.
-                        // mPlaybackIndex is now the index of the next point.
-                        mHandler.postDelayed(mPlaybackRunnable,
-                                data.get(mPlaybackIndex).getX() - timestamp);
-                    } else if (mPlaybackIndex == lastCallbackIndex) {
-                        // The last note gets some duration.
-                        mHandler.postDelayed(mPlaybackRunnable, 10);
-                    } else {
-                        stopPlayback();
-                    }
-                }
-            }
-        };
-        mAudioGenerator.startPlaying();
-        mPlaybackRunnable.run();
-
-        mRunReviewPlaybackButton.setImageDrawable(
-                getResources().getDrawable(R.drawable.ic_pause_black_24dp));
-        mRunReviewPlaybackButton.setContentDescription(
-                getResources().getString(R.string.playback_button_pause));
-        mIsPlaying = true;
-    }
-
-    private void stopPlayback() {
-        if (!mIsPlaying) {
-            return;
-        }
-        mHandler.removeCallbacks(mPlaybackRunnable);
-        mAudioGenerator.stopPlaying();
-
-        mRunReviewPlaybackButton.setImageDrawable(
-                getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
-        mRunReviewPlaybackButton.setContentDescription(
-                getResources().getString(R.string.playback_button_play));
-        mIsPlaying = false;
-    }
 
     private void exportRun(final ExperimentRun run) {
         mRunReviewExporter.startExport(getActivity(), mExperiment.getDisplayTitle(
@@ -1295,5 +1232,25 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 mExportProgress.setVisibility(View.GONE);
             }
         });
+    }
+
+    @Override
+    public int getGraphLoadStatus() {
+        return mLoadingStatus;
+    }
+
+    @Override
+    public void setGraphLoadStatus(int graphLoadStatus) {
+        mLoadingStatus = graphLoadStatus;
+    }
+
+    @Override
+    public String getRunId() {
+        return mExperimentRun.getRunId();
+    }
+
+    @Override
+    public GoosciSensorLayout.SensorLayout getSensorLayout() {
+        return mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
     }
 }

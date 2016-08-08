@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.audiogen.voices;
 
 import android.util.Log;
 
+import com.google.android.apps.forscience.whistlepunk.audiogen.JsynUnitVoiceAdapter;
 import com.google.android.apps.forscience.whistlepunk.audiogen.JsynUnitVoiceAdapterInterface;
 import com.google.common.primitives.Doubles;
 import com.jsyn.Synthesizer;
@@ -34,13 +35,10 @@ import java.util.Arrays;
  * This implementation does nothing.
  * </p>
  */
-public class DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter implements
-        JsynUnitVoiceAdapterInterface {
-    private final SimpleJsynUnitVoice mVoice;
+public class DataToScalePitchSimpleJsynUnitVoiceAdapter extends JsynUnitVoiceAdapter {
     private final int[] mPitches;
-    private static final double AMP_VALUE = 1.0; // default value for amplitude
 
-    public DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter(Synthesizer synth, int[] scale,
+    public DataToScalePitchSimpleJsynUnitVoiceAdapter(Synthesizer synth, int[] scale,
                                                               int pitchMin, int pitchMax) {
         mPitches = PitchGenerator.generatePitches(scale, pitchMin, pitchMax);
         mVoice = new SimpleJsynUnitVoice();
@@ -57,9 +55,5 @@ public class DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter implements
         int index = (int) Math.floor((value - min) / (max - min) * (mPitches.length-1));
         double freq = AudioMath.pitchToFrequency(mPitches[index]);
         mVoice.noteOn(freq, AMP_VALUE, timeStamp);
-    }
-
-    public SimpleJsynUnitVoice getVoice() {
-        return mVoice;
     }
 }

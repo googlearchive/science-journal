@@ -76,7 +76,8 @@ public final class AccessibilityUtils {
      */
     public static void setTouchDelegateForSensorTabs(final View viewsToDelegate[],
                                                      final View ancestor) {
-        if (viewsToDelegate == null || viewsToDelegate.length == 0 || ancestor == null) {
+        if (viewsToDelegate == null || viewsToDelegate.length == 0 || ancestor == null ||
+                viewsToDelegate[0] == null) {
             return;
         }
         final View parent = (View) viewsToDelegate[0].getParent();
@@ -103,7 +104,7 @@ public final class AccessibilityUtils {
                         Rect rect = new Rect();
                         next.getHitRect(rect);
                         rect.top += shift;
-                        rect.bottom += Math.ceil(rect.top + a11ySize);
+                        rect.bottom = Math.max(rect.top + a11ySize, rect.bottom);
                         touchDelegates.add(new TouchDelegate(rect, next));
                     }
                 }

@@ -62,7 +62,7 @@ public interface SensorPresenter extends SensorObserver {
      *
      * @param contentView The view onto which to show the data.
      */
-    void startShowing(ViewGroup contentView);
+    void startShowing(View contentView);
 
     /**
      * The SensorPresenter may update its UI to show whether it is currently
@@ -89,7 +89,8 @@ public interface SensorPresenter extends SensorObserver {
      * @param isPinnedToNow Whether the X axis is currently "pinned" to now.
      * @param dataController
      */
-    void onXAxisChanged(long xMin, long xMax, boolean isPinnedToNow, DataController dataController);
+    void onGlobalXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,
+            DataController dataController);
 
     /**
      * Gets the minimum Y axis value currently displayed for this sensor.
@@ -109,6 +110,11 @@ public interface SensorPresenter extends SensorObserver {
      * The view is about to be removed.  Clean up any unneeded resources.
      */
     void onStopObserving();
+
+    /**
+     * The view is about to be recycled, but continue observing the sensor data.
+     */
+    void onViewRecycled();
 
     OptionsPresenter getOptionsPresenter();
 

@@ -28,7 +28,7 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphData;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
 import java.util.ArrayList;
@@ -97,7 +97,7 @@ public class ExternalAxisController {
     private NewDataListener mNewDataListener;
     private InteractionListener mInteractionListener;
 
-    static final int MS_IN_SEC = 1000;
+    public static final int MS_IN_SEC = 1000;
     private static final int DEFAULT_GRAPH_RANGE_IN_SECONDS = 20;
     public static final int DEFAULT_GRAPH_RANGE_IN_MILLIS =
             DEFAULT_GRAPH_RANGE_IN_SECONDS * MS_IN_SEC;
@@ -198,6 +198,7 @@ public class ExternalAxisController {
                     mXMin = timestamp - DEFAULT_GRAPH_RANGE_IN_MILLIS;
                     isInitialized = true;
                 }
+                // Do a little less scrolling for performance
                 if (timestamp - mLastScrolledTimestamp > UPDATE_TIME_MS) {
                     mLastScrolledTimestamp = timestamp;
                     scrollToNowIfPinned(mCurrentTimeClock.getNow(), timestamp);
@@ -209,15 +210,23 @@ public class ExternalAxisController {
             @Override
             public void onStartInteracting() {
                 mUserIsInteracting = true;
+                // When the user is interacting, unpin to now.
+                mIsPinnedToNow = false;
             }
 
             @Override
             public void onStopInteracting() {
                 mUserIsInteracting = false;
+                // When the user is done interacting, see if they've left the graph in a pinned
+                // state, i.e. within 1% of now or with the X axis above now.
+                long now = mCurrentTimeClock.getNow();
+                mIsPinnedToNow = mXMax >= now - (0.01 * DEFAULT_GRAPH_RANGE_IN_MILLIS);
             }
 
             @Override
             public void onPan(double xMin, double xMax) {
+                // When the user is interacting, unpin to now.
+                mIsPinnedToNow = false;
                 if (!mIsLive) {
                     if (xMin < mReviewXMin || xMax > mReviewXMax) {
                         // Don't apply the change.
@@ -289,17 +298,6 @@ public class ExternalAxisController {
     // Because this redraws the seekbar bounds, it needs to get called every time the
     // view is reloaded after backgrounding / rotation.
     private void setupSeekbar(AppCompatSeekBar seekbar) {
-        FrameLayout parent = (FrameLayout) seekbar.getParent();
-        RelativeLayout.LayoutParams params =
-                (RelativeLayout.LayoutParams) parent.getLayoutParams();
-        // Adjust the left and right margin based on the width of the thumb.
-        int thumbOffset = parent.getResources().getDimensionPixelSize(
-                R.dimen.run_review_half_thumb_inactive_size);
-        params.setMargins(params.leftMargin - thumbOffset + parent.getPaddingLeft(),
-                params.topMargin, params.rightMargin - thumbOffset + parent.getPaddingRight(),
-                params.bottomMargin);
-        parent.setLayoutParams(params);
-
         // Seekbar thumb is always blue, no matter the color of the grpah.
         int color = seekbar.getResources().getColor(R.color.graph_line_color_blue);
         seekbar.getThumb().setColorFilter(color, PorterDuff.Mode.SRC_IN);
@@ -354,14 +352,10 @@ public class ExternalAxisController {
         if (mUserIsInteracting && mResetAxisOnFirstDataPointAfter == NO_RESET) {
             return;
         }
-        long lastMaxAxis = mXMax;
-
         nowTimestamp += LEADING_EDGE_BUFFER_TIME;
 
         // Only auto-scroll if we're already pinned to now (within 1%), or the user has indicated
         // that a reset is necessary.
-        mIsPinnedToNow = lastMaxAxis >= lastAddedTimestamp -
-                (0.01 * DEFAULT_GRAPH_RANGE_IN_MILLIS);
         if (mResetAxisOnFirstDataPointAfter != NO_RESET && lastAddedTimestamp >
                 mResetAxisOnFirstDataPointAfter) {
             mIsPinnedToNow = true;
@@ -389,10 +383,10 @@ public class ExternalAxisController {
 
     public void onLabelsChanged(List<Label> labels) {
         mLabels = labels;
-        List<Long> timestamps = new ArrayList();
+        List<Long> timestamps = new ArrayList<>();
         for (Label label : mLabels) {
-            if (GraphData.isDisplayable(label, mRecordingStart,
-                    mRecordingStart != RecordingMetadata.NOT_RECORDING)) {
+            if (ChartOptions.isDisplayable(label, mRecordingStart,
+                    ChartOptions.ChartPlacementType.TYPE_OBSERVE)) {
                 timestamps.add(label.getTimeStamp());
             }
         }
@@ -421,7 +415,7 @@ public class ExternalAxisController {
             return "";
         }
         return ElapsedTimeFormatter.getInstance(context).formatForAccessibility(
-                (timestamp - mReviewXMin) / MS_IN_SEC);
+                (timestamp - mRecordingStart) / MS_IN_SEC);
     }
 
     private void animateButtonIn() {

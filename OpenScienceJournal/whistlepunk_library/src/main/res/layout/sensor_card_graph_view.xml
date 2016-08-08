@@ -23,22 +23,25 @@
     android:id="@+id/graph_view_content_group"
     >
 
-    <FrameLayout
-        android:id="@+id/graph_view_content"
+    <com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView
+        android:id="@+id/chart_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:paddingStart="@dimen/stream_presenter_padding_sides"
-        android:paddingEnd="@dimen/stream_presenter_padding_sides"
-        android:paddingTop="@dimen/stream_presenter_padding_top_bottom"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/stream_presenter_padding_sides"
+        android:layout_marginRight="@dimen/stream_presenter_padding_sides"
+        android:paddingTop="@dimen/stream_presenter_padding_top"
+        android:layout_marginTop="@dimen/stream_presenter_margin_top"
         android:paddingBottom="@dimen/stream_presenter_padding_top_bottom"
         android:background="@color/card_background_color"
+        android:contentDescription="@string/live_graph_content_description"
+        android:focusable="true"
         />
 
     <com.google.android.apps.forscience.whistlepunk.StatsList
         android:id="@+id/stats_drawer"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/accessibility_touch_target_min_size"
-        android:layout_alignTop="@id/graph_view_content"
+        android:layout_alignParentTop="@id/chart_view"
         android:layout_alignParentEnd="true"
         android:layout_margin="@dimen/stats_drawer_margin"
         app:statsLayout="@layout/stats_view_small"

@@ -65,17 +65,17 @@ public class BleFlow {
             "00002902-0000-1000-8000-00805f9b34fb");
     private static final BleFlowListener defaultListener = new BleFlowListener() {
         @Override
-        public void onSuccess() {
-        }
+        public void onSuccess() {}
+
         @Override
-        public void onNotification(UUID characteristic, int flags, byte[] value) {
-        }
+        public void onNotification(UUID characteristic, int flags, byte[] value) {}
+
         @Override
-        public void onCharacteristicRead(UUID characteristic, int flags, byte[] value) {
-        }
+        public void onCharacteristicRead(UUID characteristic, int flags, byte[] value) {}
+
         @Override
-        public void onFailure(Exception error) {
-        }
+        public void onFailure(Exception error) {}
+
         @Override
         public void onDisconnect() {}
 
@@ -87,6 +87,9 @@ public class BleFlow {
 
         @Override
         public void onNotificationUnsubscribed() {}
+
+        @Override
+        public void onServicesDiscovered() {}
     };
 
     private final Context context;
@@ -163,6 +166,7 @@ public class BleFlow {
                             + address));
                     flowEnded.set(true);
                 } else {
+                    listener.onServicesDiscovered();
                     nextAction();
                 }
             } else if (BleEvents.SERVICES_FAIL.equals(action)) {
@@ -210,7 +214,7 @@ public class BleFlow {
             }
         }
     };
-
+    
     private BleFlow(BleClient client, Context context, String address) {
         this.client = client;
         this.context = context;
@@ -226,7 +230,7 @@ public class BleFlow {
         maxNoDevices = MyBleService.MAX_NO_DEVICES;
 
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver,
-                BleEvents.createIntent());
+                BleEvents.createIntentFilter(address));
     }
 
     private void nextAction() {
@@ -538,8 +542,12 @@ public class BleFlow {
 
     }
 
-    public BluetoothGattService getCurrentService() {
+    private BluetoothGattService getCurrentService() {
         return currentService;
+    }
+
+    public boolean isCharacteristicValid (UUID characteristic) {
+        return currentService != null && currentService.getCharacteristic(characteristic) != null;
     }
 
     public BluetoothGattCharacteristic getCharacteristic(UUID serviceId, UUID charractId) {

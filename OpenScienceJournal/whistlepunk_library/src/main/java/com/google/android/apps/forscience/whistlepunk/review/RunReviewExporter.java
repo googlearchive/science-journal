@@ -103,6 +103,10 @@ public class RunReviewExporter implements Handler.Callback {
             @Override
             public void addData(final long timestampMillis, final double value) {
                 try {
+                    if (mOutputStreamWriter == null) {
+                        mListener.onExportError(new IllegalStateException("Output stream closed."));
+                        return;
+                    }
                     mOutputStreamWriter.write(Long.toString(timestampMillis));
                     mOutputStreamWriter.write(",");
                     mOutputStreamWriter.write(Double.toString(value));

@@ -43,7 +43,6 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
@@ -58,12 +57,12 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.AccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+import com.google.common.base.Strings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,6 +133,7 @@ public class SensorCardPresenter {
     private String mTabSelectedFormat;
     private final Fragment mParentFragment;
     private PopupMenu mPopupMenu;
+    private boolean mAllowRetry = true;
 
     private OptionsListener mCommitListener = new OptionsListener() {
         @Override
@@ -239,7 +239,31 @@ public class SensorCardPresenter {
         updateStatusUi();
     }
 
+    private void updateAudio(boolean enabled, String sonificationType) {
+        mSensorPresenter.updateAudioSettings(enabled, sonificationType);
+        if (mCardViewHolder != null) {
+            updateAudioEnabledUi(enabled);
+        }
+    }
+
+    private void updateAudioEnabledUi(boolean isEnabled) {
+        String display = isEnabled ? String.format(
+                mCardViewHolder.getContext().getString(R.string.audio_enabled_format),
+                mSensorDisplayName) : mSensorDisplayName;
+        mCardViewHolder.headerText.setText(display);
+    }
+
     private void updateStatusUi() {
+        // Turn off the audio unless it is connected.
+        if (mSensorPresenter != null) {
+            if (!mHasError && mSourceStatus == SensorStatusListener.STATUS_CONNECTED
+                    && mCurrentSource != null) {
+                updateAudio(mLayout.audioEnabled, getSonificationType(
+                        mParentFragment.getActivity()));
+            } else {
+                updateAudio(false, ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
+            }
+        }
         if (mCardViewHolder == null) {
             return;
         }
@@ -254,7 +278,7 @@ public class SensorCardPresenter {
         mCardViewHolder.statusRetryButton.setVisibility(View.GONE);
         if (mHasError) {
             // An error
-            if (mRetryClickListener != null) {
+            if (mRetryClickListener != null && mAllowRetry) {
                 mCardViewHolder.statusRetryButton.setVisibility(View.VISIBLE);
                 mCardViewHolder.statusRetryButton.setOnClickListener(mRetryClickListener);
             }
@@ -288,9 +312,8 @@ public class SensorCardPresenter {
 
         mCurrentSource = sensorChoice;
         mSensorPresenter = sensorPresenter;
-        if (mParentFragment != null) { // Need this to run tests
-            mSensorPresenter.updateAudioSettings(mLayout.audioEnabled,
-                    getSonificationType(mParentFragment.getActivity()));
+        if (mSourceStatus == SensorStatusListener.STATUS_CONNECTED && mParentFragment != null) {
+            updateAudio(mLayout.audioEnabled, getSonificationType(mParentFragment.getActivity()));
         }
         mSensorPresenter.setShowStatsOverlay(mLayout.showStatsOverlay);
         if (mFirstObserving) {
@@ -304,7 +327,7 @@ public class SensorCardPresenter {
             mFirstObserving = false;
         }
         if (mCardViewHolder != null) {
-            mSensorPresenter.startShowing(mCardViewHolder.graphViewContent);
+            mSensorPresenter.startShowing(mCardViewHolder.chartView);
         }
         // It is possible we just resumed observing but we are currently recording, in which case
         // we need to refresh the recording UI.
@@ -362,7 +385,7 @@ public class SensorCardPresenter {
         }
 
         if (mSensorPresenter != null) {
-            mSensorPresenter.startShowing(mCardViewHolder.graphViewContent);
+            mSensorPresenter.startShowing(mCardViewHolder.chartView);
         }
 
         updateContentView(false);
@@ -402,6 +425,7 @@ public class SensorCardPresenter {
             }
         });
         updateStatusUi();
+        updateAudioEnabledUi(mLayout.audioEnabled);
 
         if (mTabSelectedFormat == null) {
             mTabSelectedFormat =
@@ -539,6 +563,9 @@ public class SensorCardPresenter {
         mCardViewHolder.menuButton.setOnClickListener(null);
         mCardViewHolder.infoButton.setOnClickListener(null);
         mCardViewHolder.graphStatsList.setOnClickListener(null);
+        if (mSensorPresenter != null) {
+            mSensorPresenter.onViewRecycled();
+        }
         mCloseListener = null;
         mCardViewHolder = null;
     }
@@ -601,8 +628,7 @@ public class SensorCardPresenter {
                     return true;
                 } else if (itemId == R.id.btn_sensor_card_audio_toggle) {
                     mLayout.audioEnabled = !mLayout.audioEnabled;
-                    mSensorPresenter.updateAudioSettings(mLayout.audioEnabled,
-                            getSonificationType(context));
+                    updateAudio(mLayout.audioEnabled, getSonificationType(context));
                     return true;
                 } else if (itemId == R.id.btn_sensor_card_audio_settings) {
                     String currentSonificationType = getCardOptions(mCurrentSource, context).load(
@@ -644,7 +670,7 @@ public class SensorCardPresenter {
     }
 
     private void updateSonificationType(String sonificationType) {
-        mSensorPresenter.updateAudioSettings(mLayout.audioEnabled, sonificationType);
+        updateAudio(mLayout.audioEnabled, sonificationType);
         getCardOptions(mCurrentSource, mParentFragment.getActivity()).load(
                         LoggingConsumer.expectSuccess(TAG, "loading card options")).put(
                 ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
@@ -664,9 +690,10 @@ public class SensorCardPresenter {
         mCardViewHolder.sensorTabLayout.post(new Runnable() {
             @Override
             public void run() {
-                mCardViewHolder.sensorTabLayout.getTabAt(
-                        mAvailableSensorIds.indexOf(sensorIdToSelect)).select();
-
+                if (mCardViewHolder != null) {
+                    mCardViewHolder.sensorTabLayout.getTabAt(
+                            mAvailableSensorIds.indexOf(sensorIdToSelect)).select();
+                }
             }
         });
     }
@@ -713,7 +740,7 @@ public class SensorCardPresenter {
             public void onTabReselected(TabLayout.Tab tab) {
                 if (mCardViewHolder != null) {
                     String newSensorId = (String) tab.getTag();
-                    if (TextUtils.equals(mSensorId, newSensorId)) {
+                    if (TextUtils.equals(mSensorId, newSensorId) && mSensorPresenter != null) {
                         mSensorPresenter.resetView();
                     } else {
                         trySelectingNewSensor(mSensorId, newSensorId);
@@ -733,7 +760,7 @@ public class SensorCardPresenter {
     // Selects the new sensor if it is different from the old sensor or if no sensor is currently
     // selected.
     private void trySelectingNewSensor(String newSensorId, String oldSensorId) {
-        if (mCurrentSource == null || !TextUtils.equals(newSensorId, oldSensorId)) {
+        if ((mCurrentSource == null && !mHasError) || !TextUtils.equals(newSensorId, oldSensorId)) {
             mOnSensorClickListener.onSensorClicked(newSensorId);
         }
     }
@@ -962,9 +989,9 @@ public class SensorCardPresenter {
                 Math.max((int) (MULTIPLE_CARD_HEIGHT_PERCENT * mSingleCardPresenterHeight),
                         mCardViewHolder.getContext().getResources().getDimensionPixelSize(
                                 R.dimen.sensor_card_content_height_min));
-        ViewGroup.LayoutParams params = mCardViewHolder.graphViewContent.getLayoutParams();
+        ViewGroup.LayoutParams params = mCardViewHolder.graphViewGroup.getLayoutParams();
         params.height = height;
-        mCardViewHolder.graphViewContent.setLayoutParams(params);
+        mCardViewHolder.graphViewGroup.setLayoutParams(params);
 
         params = mCardViewHolder.meterViewGroup.getLayoutParams();
         params.height = height;
@@ -1015,7 +1042,7 @@ public class SensorCardPresenter {
 
         // Any other destroy code can go here.
 
-        // TODO: Find a way to clear the LineGraphPresenter from ScalarSensor when the card
+        // TODO: Find a way to clear the ChartController from ScalarSensor when the card
         // is destroyed but still keep graph data in memory. If we called
         // lineGraphPresenter.onDestroy() here it would clear the data, which is not what we
         // want in the case of a rotation. However, destroying the data may stop the blinking bug
@@ -1028,6 +1055,7 @@ public class SensorCardPresenter {
         if (mSensorPresenter != null) {
             mSensorPresenter.onPause();
         }
+        mRecorderController.stopObserving(mSensorId, mObserverId);
     }
 
     public void onResume(long resetTime) {
@@ -1045,7 +1073,7 @@ public class SensorCardPresenter {
         mSensorPresenter = null;
         mSensorAnimationBehavior = null;
         mRecorderController.stopObserving(mSensorId, mObserverId);
-        this.clearSensorStreamData();
+        clearSensorStreamData();
     }
 
     private void clearSensorStreamData() {
@@ -1144,7 +1172,6 @@ public class SensorCardPresenter {
     @NonNull
     GoosciSensorLayout.SensorLayout buildLayout() {
         // Get an updated min and max, and return mLayout.
-        // TODO: Consider storing sensorId in mLayout instead of in a field
         mLayout.sensorId = getSelectedSensorId();
         mLayout.color = getDataViewOptions().getGraphColor();
         if (mSensorPresenter != null) {
@@ -1159,10 +1186,6 @@ public class SensorCardPresenter {
         // Use card options if set, otherwise sensor defaults.
         return new OverlayOptionsStorage(mCardOptions,
                 sensorChoice.getStorageForSensorDefaultOptions(context));
-    }
-
-    public int getSensorCardViewType() {
-        return mLayout.cardView;
     }
 
     public void tryRefreshingLabels(DataController dc, final ExternalAxisController externalAxis,
@@ -1188,7 +1211,8 @@ public class SensorCardPresenter {
                 });
     }
 
-    void setConnectingUI(String sensorId, boolean hasError, Context context) {
+    void setConnectingUI(String sensorId, boolean hasError, Context context, boolean allowRetry) {
+        mAllowRetry = allowRetry;
         SensorAppearance appearance = mAppearanceProvider.getAppearance(sensorId);
         setUiForConnectingNewSensor(sensorId,
                 appearance.getSensorDisplayName(context), appearance.getUnits(context), hasError);

@@ -59,10 +59,6 @@ public class GraphExploringSeekBar extends AppCompatSeekBar {
             @Override
             public void onPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
                 super.onPopulateAccessibilityEvent(host, event);
-                // Removing the class name stops the A11y event from reading "Seek control. 25%"
-                // at each small change. It still reads the seekBar a11y info when selected on some
-                // phones, but not when changes are made. This is less noisy for the user.
-                event.setClassName(GraphExploringSeekBar.class.toString());
                 event.getText().clear();
                 event.getText().add(generateEventText());
             }
@@ -71,10 +67,6 @@ public class GraphExploringSeekBar extends AppCompatSeekBar {
             public void onInitializeAccessibilityNodeInfo(View host,
                                                           AccessibilityNodeInfoCompat info) {
                 super.onInitializeAccessibilityNodeInfo(host, info);
-                // Removing the class name stops the A11y event from reading "Seek control. 25%"
-                // at each small change. It still reads the seekBar a11y info when selected on some
-                // phones, but not when changes are made. This is less noisy for the user.
-                info.setClassName(GraphExploringSeekBar.class.toString());
                 info.setText(generateEventText());
             }
         });

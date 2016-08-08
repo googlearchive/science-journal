@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.audiogen.voices;
 
+import com.google.android.apps.forscience.whistlepunk.audiogen.JsynUnitVoiceAdapter;
 import com.google.android.apps.forscience.whistlepunk.audiogen.JsynUnitVoiceAdapterInterface;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices.SimpleJsynUnitVoice;
 import com.jsyn.Synthesizer;
@@ -30,12 +31,10 @@ import com.softsynth.shared.time.TimeStamp;
  * AMP_MIN-AMP_MAX.
  * </p>
  */
-public class DataToAmplitudeSimpleJsynUnitVoiceAdapter implements JsynUnitVoiceAdapterInterface {
+public class DataToAmplitudeSimpleJsynUnitVoiceAdapter extends JsynUnitVoiceAdapter {
     public static final double AMP_MIN = 0.01;
     public static final double AMP_MAX = 1.0;
     public static final double FREQ_VALUE = 440; // default value for amplitude
-
-    private final SimpleJsynUnitVoice mVoice;
 
     public DataToAmplitudeSimpleJsynUnitVoiceAdapter(Synthesizer synth) {
         mVoice = new SimpleJsynUnitVoice();
@@ -43,11 +42,11 @@ public class DataToAmplitudeSimpleJsynUnitVoiceAdapter implements JsynUnitVoiceA
     }
 
     public void noteOn(double value, double min, double max, TimeStamp timeStamp) {
+        // Range checking, in case min or max is higher or lower than value (respectively).
+        if (value < min) value = min;
+        if (value > max) value = max;
+
         double amp = (value - min) / (max - min) * (AMP_MAX - AMP_MIN) + AMP_MIN;
         mVoice.noteOn(FREQ_VALUE, amp, timeStamp);
-    }
-
-    public SimpleJsynUnitVoice getVoice() {
-      return mVoice;
     }
 }

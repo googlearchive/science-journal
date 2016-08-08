@@ -20,12 +20,17 @@ import android.app.Application;
 import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewExporter;
 import com.squareup.leakcanary.RefWatcher;
 
+import java.util.Map;
+
 import javax.inject.Inject;
+
+import dagger.Lazy;
 
 /**
  * Application subclass holding shared objects.
@@ -42,6 +47,9 @@ public abstract class WhistlePunkApplication extends Application {
 
     @Inject
     FeedbackProvider mFeedbackProvider;
+
+    @Inject
+    Map<String, ExternalSensorDiscoverer> mSensorDiscoverers;
 
     public static RefWatcher getRefWatcher(Context context) {
         WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
@@ -63,6 +71,12 @@ public abstract class WhistlePunkApplication extends Application {
         return app.mFeedbackProvider;
     }
 
+    public static Map<String, ExternalSensorDiscoverer> getExternalSensorDiscoverers(
+            Context context) {
+        WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
+        return app.mSensorDiscoverers;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -76,5 +90,4 @@ public abstract class WhistlePunkApplication extends Application {
     }
 
     protected abstract void onCreateInjector();
-
 }

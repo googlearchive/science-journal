@@ -20,20 +20,20 @@
     <dimen name="chart_labels_text_size">14sp</dimen>
     <dimen name="ruler_hash_size">16dp</dimen>
     <dimen name="ruler_label_offset">4dp</dimen>
-    <dimen name="label_dot_size">8dp</dimen>
-    <dimen name="label_dot_outline">11dp</dimen>
     <dimen name="label_dot_radius">4dp</dimen>
     <dimen name="label_dot_outline_radius">6dp</dimen>
-    <dimen name="chart_leading_dot_size">10dp</dimen>
+    <dimen name="chart_leading_dot_size">5dp</dimen>
     <dimen name="graph_line_width">2dp</dimen>
 
     <dimen name="stream_presenter_padding_sides">16dp</dimen>
     <dimen name="stream_presenter_padding_top_bottom">24dp</dimen>
+    <dimen name="stream_presenter_padding_top">12dp</dimen>
+    <dimen name="stream_presenter_margin_top">12dp</dimen>
 
     <!-- The margin between the left edge of the graph and the left edge of the chart.
          The Y axis labels will be drawn in this space. -->
-    <dimen name="chart_margin_size_left">38dp</dimen>
-    <dimen name="chart_labels_padding">22dp</dimen>
+    <dimen name="chart_margin_size_left">36dp</dimen>
+    <dimen name="chart_labels_padding">14dp</dimen>
     <dimen name="chart_labels_vertical_padding">-5dp</dimen>
     <dimen name="chart_grid_line_width">1dp</dimen>
 
@@ -86,10 +86,13 @@
     <!-- The full sensor card header height is used to calculate how large the sensor
          presenter view should be. It is not used in any layout xml files. -->
     <dimen name="sensor_card_header_height">84dp</dimen>
-    <dimen name="sensor_card_content_height_min">240dp</dimen>
+    <dimen name="sensor_card_content_height_min">260dp</dimen>
 
     <dimen name="sensor_card_meter_units_text_size">14sp</dimen>
-    <dimen name="sensor_card_live_value_text_size">64sp</dimen>
+    <!-- This text is sized relative to the large meter mode icon, and does not need to be
+         increased for accessibility "large text" mode since it is already huge. Therefore
+         it is specified in dp instead of sp. -->
+    <dimen name="sensor_card_live_value_text_size">64dp</dimen>
     <dimen name="sensor_card_back_learn_more_text_size">14sp</dimen>
     <dimen name="sensor_card_back_info_text_size">13sp</dimen>
     <dimen name="sensor_card_back_text_margin_top">16dp</dimen>
@@ -123,7 +126,7 @@
 
     <!-- The external axis side margins must be the cardview_margin plus
          stream_presenter_padding_sides plus chart_margin_size_left -->
-    <dimen name="external_axis_left_padding">64dp</dimen>
+    <dimen name="external_axis_left_padding">62dp</dimen>
     <dimen name="external_axis_right_padding">26dp</dimen>
     <dimen name="external_axis_note_dot_size">16dp</dimen>
     <dimen name="external_axis_recording_dot_size">10dp</dimen>
@@ -161,10 +164,11 @@
     <dimen name="run_review_sensor_name_text_size">16sp</dimen>
     <dimen name="run_review_chart_height">160dp</dimen>
     <dimen name="run_review_margin_sides">8dp</dimen>
+    <dimen name="run_review_chart_margin_sides">24dp</dimen>
     <dimen name="run_review_header_text_margin_top">8dp</dimen>
     <dimen name="run_review_external_axis_left_margin">48dp</dimen>
-    <dimen name="run_review_external_axis_left_padding">8dp</dimen>
-    <dimen name="run_review_external_axis_right_padding">18dp</dimen>
+    <dimen name="run_review_external_axis_left_padding">4dp</dimen>
+    <dimen name="run_review_external_axis_right_padding">16dp</dimen>
     <dimen name="run_review_divider_margin">8dp</dimen>
     <dimen name="run_review_sensor_section_margin_top_bottom">4dp</dimen>
     <dimen name="run_review_duration_text_height">30dp</dimen>
@@ -200,7 +204,7 @@
     <dimen name="run_review_overlay_margin_bottom">32dp</dimen>
     <!-- The left padding matches run_review_external_axis_left_margin, and the right matches the right -->
     <dimen name="run_review_overlay_margin_left">56dp</dimen>
-    <dimen name="run_review_overlay_margin_right">18dp</dimen>
+    <dimen name="run_review_overlay_margin_right">16dp</dimen>
 
     <dimen name="picture_note_preview_size">300dp</dimen>
 
@@ -218,8 +222,8 @@
          plus 8dp for top margin, then some padding so it is below the app bar layout -->
     <dimen name="edit_time_dialog_margin_top">82dp</dimen>
 
-    <dimen name="endpoints_label_dot_outline">12dp</dimen>
-    <dimen name="endpoints_label_fill_size">8dp</dimen>
+    <dimen name="endpoints_label_dot_outline">6dp</dimen>
+    <dimen name="endpoints_label_fill_size">3dp</dimen>
 
     <dimen name="info_paragraph_text_size">16sp</dimen>
     <dimen name="info_header_text_size">24sp</dimen>

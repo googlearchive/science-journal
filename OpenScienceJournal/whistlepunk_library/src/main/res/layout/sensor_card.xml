@@ -79,8 +79,9 @@
                 android:textStyle="bold"
                 android:paddingTop="@dimen/sensor_card_header_text_padding"
                 android:paddingBottom="@dimen/sensor_card_header_text_padding"
-                android:ellipsize="end"
+                android:ellipsize="middle"
                 android:maxLines="1"
+                android:singleLine="true"
                 />
 
             <ImageButton
@@ -96,7 +97,7 @@
                 android:visibility="visible"
                 />
 
-            <View
+            <Space
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:id="@+id/sensor_card_toggle_spacer"

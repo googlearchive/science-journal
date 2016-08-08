@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.support.design.widget.TabLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -30,11 +29,13 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
+
 /*
  * View Holder for sensor cards.
  */
 public class CardViewHolder extends RecyclerView.ViewHolder {
-    public FrameLayout graphViewContent;
+    public ChartView chartView;
     public ViewGroup sensorTabHolder;
     public View sensorSelectionArea;
     public ScrollListenerTabLayout sensorTabLayout;
@@ -61,7 +62,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
 
     public CardViewHolder(CardView itemView) {
         super(itemView);
-        graphViewContent = (FrameLayout) itemView.findViewById(R.id.graph_view_content);
+        chartView = (ChartView) itemView.findViewById(R.id.chart_view);
         sensorSelectionArea = itemView.findViewById(R.id.sensor_selection_area);
         sensorTabLayout = (ScrollListenerTabLayout) itemView.findViewById(
                 R.id.sensor_selector_tab_layout);

@@ -24,7 +24,6 @@ import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -204,7 +203,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             // If the sensor can't be loaded, still show it as selected on the card
             // so the user understands that they wanted this sensor but can't use it.
             mDecibelSensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
-                    getActivity().getApplicationContext());
+                    getActivity().getApplicationContext(), true);
         }
         // in either case, we have our answer.  Stop waiting for it.
         mDecibelSensorCardPresenter = null;
@@ -251,19 +250,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             }
         });
         AppSingleton.getInstance(getActivity()).removeListeners(TAG);
-        // Force a reload of layouts when we resume, in case something was changed in another
-        // activity.
-        if (!isWaitingForPermissionsResult()) {
-            mSensorLayoutsLoaded = false;
-        }
+        mSensorLayoutsLoaded = false;
         super.onPause();
-    }
-
-    private boolean isWaitingForPermissionsResult() {
-        // mDecibelSensorCardPresenter is only set when we're waiting on a permissions result
-        // in order to try and enable it.  In that case, we should not reload sensors out from under
-        // ourselves, because that leads to a reload loop (b/28470544)
-        return mDecibelSensorCardPresenter != null;
     }
 
     private boolean isRecording() {
@@ -329,12 +317,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 return true;
             }
         });
-
-        long resetTime = mExternalAxis.resetAxes();
-        if (mSensorCardAdapter != null) {
-            long ignoreDataBefore = isRecording() ? -1 : resetTime;
-            mSensorCardAdapter.onResume(ignoreDataBefore);
-        }
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_OBSERVE_RECORD);
     }
@@ -393,7 +375,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         for (SensorCardPresenter sensorCardPresenter : sensorCardPresenters) {
                             SensorPresenter presenter = sensorCardPresenter.getSensorPresenter();
                             if (presenter != null) {
-                                presenter.onXAxisChanged(xMin, xMax, isPinnedToNow,
+                                presenter.onGlobalXAxisChanged(xMin, xMax, isPinnedToNow,
                                         getDataController());
                             }
                         }
@@ -512,7 +494,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (!TextUtils.equals(Experiment.getExperimentId(selectedExperiment),
                 Experiment.getExperimentId(mSelectedExperiment))) {
             saveCurrentLayouts();
-        } else if (mSensorLayoutsLoaded == true) {
+        } else if (mSensorLayoutsLoaded) {
             // If it is the same experiment and we've already loaded the sensor layouts, we
             // don't need to do it again.
             setControlButtonsEnabled(true);
@@ -639,8 +621,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
 
         int activeCardIndex = 0;
-        if (mInitialActiveCardIndex != -1
-                && mInitialActiveCardIndex < sensorCardPresenters.size()) {
+        if (mInitialActiveCardIndex != -1 &&
+                mInitialActiveCardIndex < sensorCardPresenters.size()) {
             activeCardIndex = mInitialActiveCardIndex;
         }
 
@@ -691,6 +673,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         });
         updateSensorCount();
         mSensorCardAdapter.setRecording(isRecording(), getRecordingStartTime());
+        long resetTime = mExternalAxis.resetAxes();
+        if (mSensorCardAdapter != null) {
+            long ignoreDataBefore = isRecording() ? -1 : resetTime;
+            mSensorCardAdapter.onResume(ignoreDataBefore);
+        }
 
         mSensorCardRecyclerView =
                 (RecyclerView) rootView.findViewById(R.id.sensor_card_recycler_view);
@@ -821,15 +808,27 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     private void tryStartObserving(SensorCardPresenter sensorCardPresenter, String sensorId,
             boolean retry) {
-        if (TextUtils.equals(sensorId, DecibelSensor.ID) &&
+        if (TextUtils.equals(sensorId, DecibelSensor.ID) && mDecibelSensorCardPresenter == null &&
                 !PictureUtils.tryRequestingPermission(getActivity(),
                         Manifest.permission.RECORD_AUDIO,
                         MainActivity.PERMISSIONS_AUDIO_RECORD_REQUEST, /* force retry */ retry)) {
-            mDecibelSensorCardPresenter = sensorCardPresenter;
-            // If the sensor can't be loaded, still show it as selected on the card so the user
-            // understands that they wanted this sensor but can't use it.
-            mDecibelSensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
-                    getActivity().getApplicationContext());
+            // If we did actually try to request the permission, save this sensorCardPresenter.
+            // for when the permission is granted.
+            if (PictureUtils.canRequestAgain(getActivity(), Manifest.permission.RECORD_AUDIO)) {
+                if (retry) {
+                    // In this case, we had tried requesting permissions, so save this presenter.
+                    mDecibelSensorCardPresenter = sensorCardPresenter;
+                }
+                // If the sensor can't be loaded, still show it as selected on the card so the user
+                // understands that they wanted this sensor but can't use it.
+                sensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
+                        getActivity().getApplicationContext(), true);
+            } else {
+                // Then the user has selected "never ask again".
+                sensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
+                        getActivity().getApplicationContext(),
+                        /* don't show the retry button */ false);
+            }
         } else {
             startObserving(sensorId, sensorCardPresenter);
             sensorCardPresenter.setRecording(getRecordingStartTime());
@@ -872,8 +871,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         final AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, mCurrentRunId,
                 mSelectedExperiment.getExperimentId(),
                 isRecording() ? R.string.add_run_note_placeholder_text :
-                        R.string.add_experiment_note_placeholder_text,
-                /* don't show timestamp section */ false, "");
+                        R.string.add_experiment_note_placeholder_text);
 
         dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
     }
@@ -1068,7 +1066,13 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         toolbar.setBackgroundResource(toolbarColorResource);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = activity.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            if (statusBarColorResource == R.color.color_primary_dark) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            } else {
+                // For any color that is not the default, need to clear this flag so that we can
+                // draw the right color.
+                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            }
             window.setStatusBarColor(getResources().getColor(statusBarColorResource));
         }
     }
@@ -1164,7 +1168,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                         value.getTimeStamp() - mExternalAxis
                                                 .getRecordingStartTime());
                         // Record which sensors were recorded.
-                        String[] sensors = mSensorCardAdapter.getSensorTags();
+                        String[] sensors = getLoggingIds(mSensorCardAdapter.getSensorTags());
                         Arrays.sort(sensors);
                         WhistlePunkApplication.getUsageTracker(getActivity())
                                 .trackEvent(TrackerConstants.CATEGORY_RUNS,
@@ -1188,6 +1192,18 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                 Snackbar.LENGTH_LONG).show();
                     }
                 });
+    }
+
+    private String[] getLoggingIds(String[] sensorIds) {
+        if (sensorIds == null || sensorIds.length == 0) {
+            return new String[] {};
+        }
+        final int size = sensorIds.length;
+        String[] loggingIds = new String[size];
+        for (int index = 0; index < size; index++) {
+            loggingIds[index] = mSensorRegistry.getLoggingId(sensorIds[index]);
+        }
+        return loggingIds;
     }
 
     private void failedStopRecording(int stringId) {
@@ -1220,7 +1236,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     public void startObserving(final String sensorId,
             final SensorCardPresenter sensorCardPresenter) {
         final Context context = getActivity().getApplicationContext();
-        sensorCardPresenter.setConnectingUI(sensorId, false, context);
+        sensorCardPresenter.setConnectingUI(sensorId, false, context, true);
         mSensorRegistry.withSensorChoice(sensorId, new Consumer<SensorChoice>() {
             @Override
             public void take(SensorChoice sensorChoice) {
@@ -1302,6 +1318,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 // the first time on the screen, highlight the left-most one,
                 // the one most likely to be on-screen.
                 String sensorId = sensorsActuallyAdded.get(0);
+                // Activate the first sensor card so the feature discovery has a place to attach.
+                if (mSensorCardAdapter != null &&
+                        mSensorCardAdapter.getSensorCardPresenters().size() > 0) {
+                    mSensorCardAdapter.getSensorCardPresenters().get(0).setActive(true, true);
+                }
                 scheduleFeatureDiscovery(sensorId);
             }
             Fragment hasBluetoothDialog =

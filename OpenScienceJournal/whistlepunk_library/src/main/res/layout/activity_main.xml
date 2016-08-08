@@ -43,7 +43,7 @@
                 android:minHeight="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                app:popupTheme="@style/Theme.AppCompat.Light.NoActionBar"
+                app:popupTheme="@style/NoBarTheme"
                 app:subtitleTextAppearance="@style/NoBarTheme.ActionBar.SubtitleTextStyle"
                 android:accessibilityLiveRegion="polite"
                 >
@@ -76,6 +76,7 @@
         app:menu="@menu/drawer_navigation_items"
         app:headerLayout="@layout/drawer_header"
         android:theme="@style/NavigationView"
+        android:fitsSystemWindows="true"
         />
 
 
