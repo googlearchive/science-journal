@@ -38,6 +38,7 @@ android {
             }
             aidl {
                 srcDir 'src/api/wireapi/aidl'
+                srcDir 'src/api/scalarinput/aidl'
             }
         }
         String sharedTestDir = 'src/sharedTest/java'

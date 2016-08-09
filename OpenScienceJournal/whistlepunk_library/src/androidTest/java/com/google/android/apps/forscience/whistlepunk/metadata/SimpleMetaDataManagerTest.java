@@ -374,7 +374,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
             }
 
             @Override
-            void loadFromConfig(byte[] data) {
+            protected void loadFromConfig(byte[] data) {
 
             }
         };
