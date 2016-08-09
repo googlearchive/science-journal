@@ -31,13 +31,13 @@ android {
         main {
             java {
                 srcDir '../../third_party/jsyn'
-                srcDir 'src/wireapi/java'
+                srcDir 'src/api/wireapi/java'
             }
             proto {
                 srcDir 'src/main/proto'
             }
             aidl {
-                srcDir 'src/wireapi/aidl'
+                srcDir 'src/api/wireapi/aidl'
             }
         }
         String sharedTestDir = 'src/sharedTest/java'
