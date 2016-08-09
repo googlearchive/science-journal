@@ -72,5 +72,5 @@ public abstract class ExternalSensorSpec implements Parcelable {
     /**
      * Loads internal sensor data from the database.
      */
-    abstract void loadFromConfig(byte[] data);
+    protected abstract void loadFromConfig(byte[] data);
 }
