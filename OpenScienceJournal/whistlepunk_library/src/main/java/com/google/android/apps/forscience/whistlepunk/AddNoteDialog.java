@@ -263,13 +263,18 @@ public class AddNoteDialog extends DialogFragment {
                     boolean grantedCamera = PictureUtils.tryRequestingPermission(getActivity(),
                             Manifest.permission.CAMERA,
                             PictureUtils.PERMISSIONS_CAMERA, /* force retry */ true);
-                    boolean grantedStorage = PictureUtils.tryRequestingPermission(getActivity(),
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            PictureUtils.PERMISSIONS_WRITE_EXTERNAL_STORAGE,
-                            /* force retry */ true);
-                    if (grantedStorage && grantedCamera) {
-                        // TODO: Error states if these are not granted (b/24303452)
-                        mPictureLabelPath = PictureUtils.capturePictureLabel(getActivity());
+                    // If camera permission was not granted, on permission result we try requesting
+                    // storage. If it was granted, then check storage separately here.
+                    if (grantedCamera) {
+                        boolean grantedStorage = PictureUtils.tryRequestingPermission(
+                                getActivity(),
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                PictureUtils.PERMISSIONS_WRITE_EXTERNAL_STORAGE,
+                                /* force retry */ true);
+                        if (grantedStorage) {
+                            // TODO: Error states if these are not granted (b/24303452)
+                            mPictureLabelPath = PictureUtils.capturePictureLabel(getActivity());
+                        }
                     }
                 }
             });
