@@ -814,7 +814,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                     @Override
                     public void onSensorClicked(String sensorId) {
                         sensorCardPresenter.stopObserving();
-                        tryStartObserving(sensorCardPresenter, sensorId, false);
+                        tryStartObserving(sensorCardPresenter, sensorId, true);
                     }
                 });
         sensorCardPresenter.setAppearanceProvider(getSensorAppearanceProvider());

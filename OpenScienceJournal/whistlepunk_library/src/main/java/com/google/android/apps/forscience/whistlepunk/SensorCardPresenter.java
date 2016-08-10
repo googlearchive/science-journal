@@ -430,6 +430,7 @@ public class SensorCardPresenter {
         });
         updateStatusUi();
         updateAudioEnabledUi(mLayout.audioEnabled);
+        updateCardMenu();
 
         if (mTabSelectedFormat == null) {
             mTabSelectedFormat =
@@ -580,8 +581,7 @@ public class SensorCardPresenter {
     }
 
     private void updateCardMenu() {
-        if (mCardViewHolder == null || mCardViewHolder.menuButton == null ||
-                mSensorPresenter == null) {
+        if (mCardViewHolder == null || mCardViewHolder.menuButton == null) {
             return;
         }
         mCardViewHolder.menuButton.setOnClickListener(new View.OnClickListener() {
