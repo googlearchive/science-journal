@@ -20,9 +20,11 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -32,6 +34,9 @@ import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Static picture functions shared across many parts of the app.
@@ -43,6 +48,9 @@ public class PictureUtils {
     public static final int REQUEST_TAKE_PHOTO = 1;
     public static final int PERMISSIONS_WRITE_EXTERNAL_STORAGE = 2;
     public static final int PERMISSIONS_CAMERA = 3;
+
+    private static final String KEY_PERMISSIONS_REQUESTED_SET = "permissions_requested";
+    private static final Set<String> NO_STRINGS = Collections.emptySet();
 
     // From http://developer.android.com/training/camera/photobasics.html.
     public static File createImageFile(long timestamp) throws IOException {
@@ -111,8 +119,7 @@ public class PictureUtils {
             // Should we show an explanation?
             if (canRequestAgain(activity, permission) && forceRetry) {
                 // No explanation needed, so we can request the permission.
-                ActivityCompat.requestPermissions(activity, new String[]{permission},
-                        permissionType);
+                requestPermission(activity, permission, permissionType);
             } else {
                 // Then the user didn't explicitly ask for us to retry the permission,
                 // so we won't do anything.
@@ -123,7 +130,36 @@ public class PictureUtils {
     }
 
     public static boolean canRequestAgain(Activity activity, String permission) {
-        return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
+        // If the user has denied the permissions request, but not either never asked before
+        // or clicked "never ask again", this will return true. In that case, we can request again.
+        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+            return true;
+        }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        Set<String> requestedPerms = prefs.getStringSet(KEY_PERMISSIONS_REQUESTED_SET, NO_STRINGS);
+
+        // If the permission is in the set, they have asked for it already, and
+        // at this point shouldShowRequestPermissionRationale is false, so they have also
+        // clicked "never ask again". Return false -- we cannot request again.
+        // If it was not found in the set, they haven't asked for it yet, so we can still ask.
+        return !requestedPerms.contains(permission);
+    }
+
+    private static void requestPermission(Activity activity, String permission,
+            int permissionType) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+
+        // The set returned by getStringSet should not be modified.
+        Set<String> requestedPerms = prefs.getStringSet(KEY_PERMISSIONS_REQUESTED_SET, null);
+        Set<String> copyPerms = new HashSet<>();
+
+        if (requestedPerms != null) {
+            copyPerms.addAll(requestedPerms);
+        }
+        copyPerms.add(permission);
+        prefs.edit().putStringSet(KEY_PERMISSIONS_REQUESTED_SET, copyPerms).apply();
+
+        ActivityCompat.requestPermissions(activity, new String[]{permission}, permissionType);
     }
 
     public static void onRequestPermissionsResult(int requestCode, String permissions[],
