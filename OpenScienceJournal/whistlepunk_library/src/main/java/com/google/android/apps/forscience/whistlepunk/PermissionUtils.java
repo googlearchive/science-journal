@@ -78,7 +78,10 @@ public class PermissionUtils {
     private static void requestPermission(Activity activity, String permission,
             int permissionType) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-        Set<String> requestedPerms = prefs.getStringSet(KEY_PERMISSIONS_REQUESTED_SET, NO_STRINGS);
+        Set<String> requestedPerms = prefs.getStringSet(KEY_PERMISSIONS_REQUESTED_SET, null);
+        if (requestedPerms == null) {
+            requestedPerms = new HashSet<>();
+        }
         requestedPerms.add(permission);
         prefs.edit().putStringSet(KEY_PERMISSIONS_REQUESTED_SET, requestedPerms).apply();
 
