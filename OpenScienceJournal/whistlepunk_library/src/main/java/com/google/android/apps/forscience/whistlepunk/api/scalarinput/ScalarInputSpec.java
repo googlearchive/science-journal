@@ -5,13 +5,20 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 
 public class ScalarInputSpec extends ExternalSensorSpec {
     public static final String TYPE = "ScalarInput";
+    private String mName;
+    private String mAddress;
 
-    // TODO: implement all!
+    public ScalarInputSpec(String name, String address) {
+        mName = name;
+        mAddress = address;
+    }
+
 
     @Override
     public String getName() {
-        return null;
+        return mName;
     }
+
 
     @Override
     public String getType() {
@@ -20,9 +27,10 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
     @Override
     public String getAddress() {
-        return null;
+        return mAddress;
     }
 
+    // TODO: implement all!
     @Override
     public SensorAppearance getSensorAppearance() {
         return null;
