@@ -78,12 +78,16 @@ public class PermissionUtils {
     private static void requestPermission(Activity activity, String permission,
             int permissionType) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+
+        // The set returned by getStringSet should not be modified.
         Set<String> requestedPerms = prefs.getStringSet(KEY_PERMISSIONS_REQUESTED_SET, null);
-        if (requestedPerms == null) {
-            requestedPerms = new HashSet<>();
+        Set<String> copyPerms = new HashSet<>();
+
+        if (requestedPerms != null) {
+            copyPerms.addAll(requestedPerms);
         }
-        requestedPerms.add(permission);
-        prefs.edit().putStringSet(KEY_PERMISSIONS_REQUESTED_SET, requestedPerms).apply();
+        copyPerms.add(permission);
+        prefs.edit().putStringSet(KEY_PERMISSIONS_REQUESTED_SET, copyPerms).apply();
 
         ActivityCompat.requestPermissions(activity, new String[]{permission}, permissionType);
     }
