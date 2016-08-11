@@ -30,6 +30,8 @@ public interface ExternalSensorDiscoverer {
         boolean isSensorAlreadyKnown(String key);
 
         void addAvailableSensorPreference(Preference newPref);
+
+        void onScanError(Exception e);
     }
 
     /**

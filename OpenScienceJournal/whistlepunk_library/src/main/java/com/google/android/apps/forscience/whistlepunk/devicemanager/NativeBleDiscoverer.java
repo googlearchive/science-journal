@@ -34,9 +34,9 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
     @Override
     @NonNull
     public ExternalSensorSpec extractSensorSpec(Preference preference) {
-        final String address = preference.getKey();
-        String title = preference.getTitle().toString();
-        return new BleSensorSpec(address, title);
+        final String address = ManageDevicesFragment.getAddressFromPreference(preference);
+        String name = ManageDevicesFragment.getNameFromPreference(preference);
+        return new BleSensorSpec(address, name);
     }
 
     @Override
