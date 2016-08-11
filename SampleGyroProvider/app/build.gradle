@@ -11,13 +11,7 @@ android {
         versionCode 1
         versionName "1.0"
     }
-    signingConfigs {
-        debug {
-            storeFile file("../../WhistlePunk/whistlepunk.keystore")
-            // If this file is missing, run ./get_keystore.sh from the WhistlePunk directory.
-            // (Or copy from WhistlePunk if you have it there.)
-        }
-    }
+
     buildTypes {
         release {
             minifyEnabled false
