@@ -18,7 +18,10 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Intent;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
@@ -64,12 +67,18 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public void startRecording(Intent resumeIntent, RecordingMetadata recording) {
+    public void startRecording(Intent resumeIntent, Experiment experiment, Project project) {
 
     }
 
     @Override
-    public void stopRecording() {
+    public void stopRecording(Experiment experiment,
+            List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+
+    }
+
+    @Override
+    public void stopRecordingWithoutSaving() {
 
     }
 

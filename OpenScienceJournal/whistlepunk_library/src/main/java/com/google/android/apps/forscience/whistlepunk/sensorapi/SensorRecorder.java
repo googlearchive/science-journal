@@ -60,4 +60,10 @@ public interface SensorRecorder extends OptionsListener {
      */
     void stopObserving();
 
+    /**
+     * Whether the sensor has gathered data since recording started. If not recording or no data
+     * was gathered after recording started, this returns false.
+     * @return True if the sensor has gathered data since recording started. False otherwise.
+     */
+    boolean hasRecordedData();
 }

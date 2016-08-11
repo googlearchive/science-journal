@@ -42,4 +42,9 @@ public class DelegatingSensorRecorder implements SensorRecorder {
     public void stopObserving() {
         mDelegate.stopObserving();
     }
+
+    @Override
+    public boolean hasRecordedData() {
+        return mDelegate.hasRecordedData();
+    }
 }

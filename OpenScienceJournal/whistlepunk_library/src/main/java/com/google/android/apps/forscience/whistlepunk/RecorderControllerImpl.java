@@ -20,6 +20,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.VisibleForTesting;
@@ -29,7 +30,13 @@ import android.util.Log;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
+import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
@@ -38,8 +45,11 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -47,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.Set;
 
 /**
  * Keeps track of:
@@ -60,10 +71,12 @@ import java.util.Queue;
 public class RecorderControllerImpl implements RecorderController {
     private static final String TAG = "RecorderController";
 
-    private static class StatefulRecorder {
+    @VisibleForTesting
+    static class StatefulRecorder {
         private boolean mObserving = false;
         private boolean mRecording = false;
         private final SensorRecorder mRecorder;
+        private boolean mForceHasDataForTesting = false;
 
         private StatefulRecorder(SensorRecorder mRecorder) {
             this.mRecorder = mRecorder;
@@ -115,6 +128,16 @@ public class RecorderControllerImpl implements RecorderController {
         public void applyOptions(ReadableSensorOptions settings) {
             mRecorder.applyOptions(settings);
         }
+
+        public boolean hasRecordedData() {
+            return mRecorder.hasRecordedData() || mForceHasDataForTesting;
+        }
+
+        // TODO: Find a better way to fake force add data than this method.
+        @VisibleForTesting
+        void forceHasDataForTesting(boolean hasDataForTesting) {
+            mForceHasDataForTesting = hasDataForTesting;
+        }
     }
 
     private static class RecorderServiceConnection implements ServiceConnection {
@@ -162,7 +185,8 @@ public class RecorderControllerImpl implements RecorderController {
     private Map<String, StatefulRecorder> mRecorders = new LinkedHashMap<>();
     private final Context mContext;
     private SensorRegistry mSensors;
-    private final RecorderListenerRegistry mRegistry = new RecorderListenerRegistry();
+    private final RecorderListenerRegistry mRegistry;
+    private Map<String, String> mServiceObservers = new HashMap<>();
     private RecorderServiceConnection mServiceConnection = null;
     private int mPauseCount = 0;
     private final SensorEnvironment mSensorEnvironment;
@@ -186,22 +210,23 @@ public class RecorderControllerImpl implements RecorderController {
 
     public RecorderControllerImpl(Context context) {
         this(context, SensorRegistry.createWithBuiltinSensors(context),
-                AppSingleton.getInstance(context).getSensorEnvironment());
+                AppSingleton.getInstance(context).getSensorEnvironment(),
+                new RecorderListenerRegistry());
     }
 
     @VisibleForTesting
     public RecorderControllerImpl(Context context, SensorRegistry registry,
-            SensorEnvironment sensorEnvironment) {
+            SensorEnvironment sensorEnvironment, RecorderListenerRegistry listenerRegistry) {
         mContext = context;
         mSensors = registry;
         mSensorEnvironment = sensorEnvironment;
+        mRegistry = listenerRegistry;
     }
 
     @Override
     public String startObserving(final String sensorId, SensorObserver observer,
             SensorStatusListener listener, final TransportableSensorOptions initialOptions) {
         String observerId = mRegistry.putListeners(sensorId, observer, listener);
-
         StatefulRecorder sr = mRecorders.get(sensorId);
         if (sr != null) {
             RecorderControllerImpl.this.startObserving(sr);
@@ -215,6 +240,17 @@ public class RecorderControllerImpl implements RecorderController {
                     recorder.applyOptions(new ReadableTransportableSensorOptions(initialOptions));
                     StatefulRecorder newStatefulRecorder = new StatefulRecorder(recorder);
                     mRecorders.put(sensorId, newStatefulRecorder);
+
+                    if (!mServiceObservers.containsKey(sensorId)) {
+                        String serviceObserverId = mRegistry.putListeners(sensorId,
+                                new SensorObserver() {
+                                    @Override
+                                    public void onNewData(long timestamp, Bundle data) {
+                                        // TODO: Add code to fire triggers here.
+                                    }
+                                }, null);
+                        mServiceObservers.put(sensorId, serviceObserverId);
+                    }
                     RecorderControllerImpl.this.startObserving(newStatefulRecorder);
                 }
             });
@@ -229,20 +265,27 @@ public class RecorderControllerImpl implements RecorderController {
 
     @Override
     public void stopObserving(String sensorId, String observerId) {
-        if (!mRegistry.remove(sensorId, observerId)) {
-            // Stale observer, do nothing
-            return;
-        }
-
-        final StatefulRecorder r = mRecorders.get(sensorId);
-        if (r != null) {
-            r.stopObserving();
+        mRegistry.remove(sensorId, observerId);
+        // If there are no listeners left except for our serviceobserver, remove it.
+        if (mRegistry.countListeners(sensorId) == 1) {
+            final StatefulRecorder r = mRecorders.get(sensorId);
+            if (r != null) {
+                r.stopObserving();
+                if (!r.isStillRunning()) {
+                    // Then it was not recording, so we can also remove our service-level observers.
+                    if (mServiceObservers.containsKey(sensorId)) {
+                        String serviceObserverId = mServiceObservers.get(sensorId);
+                        mRegistry.remove(sensorId, serviceObserverId);
+                        mServiceObservers.remove(sensorId);
+                    }
+                }
+            }
         }
         cleanUpUnusedRecorders();
         updateObservedIdListeners();
         if (mRecorders.isEmpty()) {
             SensorHistoryStorage storage = mSensorEnvironment.getSensorHistoryStorage();
-            storage.setMostRecentSensorIds(Lists.<String>newArrayList(sensorId));
+            storage.setMostRecentSensorIds(Lists.newArrayList(sensorId));
         }
     }
 
@@ -312,25 +355,120 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @Override
-    public void startRecording(final Intent resumeIntent, final RecordingMetadata recording) {
+    public void startRecording(final Intent resumeIntent, final Experiment experiment, final
+            Project project) {
         if (mRecording != null) {
             return;
         }
-        mRecording = recording;
+        if (mRecorders.size() == 0) {
+            // If the recorders are empty, then we stopped observing a sensor before we tried
+            // to start recording it. This may happen if we failed to connect to an external sensor
+            // and it was disconnected before recording started.
+            callRecordingStartFailedListeners(RecorderController.ERROR_START_FAILED);
+            return;
+        }
+
+        // Check that all sensors are connected before starting a recording.
+        for (String sensorId : mRecorders.keySet()) {
+            if (!mRegistry.isSourceConnectedWithoutError(sensorId)) {
+                callRecordingStartFailedListeners(
+                        RecorderController.ERROR_START_FAILED_DISCONNECTED);
+                return;
+            }
+        }
         withBoundRecorderService(new FallibleConsumer<RecorderService>() {
             @Override
-            public void take(RecorderService recorderService) throws RemoteException {
-                recorderService.beginServiceRecording(recording.getExperimentName(), resumeIntent);
+            public void take(final RecorderService recorderService) throws RemoteException {
+                final DataController dataController = getDataController(
+                        recorderService.getApplicationContext());
+                dataController.startRun(experiment,
+                        new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
+                            @Override
+                            public void success(ApplicationLabel label) {
+                                mRecording = new RecordingMetadata(label.getTimeStamp(),
+                                        label.getRunId(),
+                                        experiment.getDisplayTitle(
+                                                recorderService.getApplicationContext()));
+                                ensureUnarchived(experiment, project, dataController);
+                                recorderService.beginServiceRecording(
+                                        mRecording.getExperimentName(), resumeIntent);
+
+                                for (StatefulRecorder recorder : mRecorders.values()) {
+                                    recorder.startRecording(mRecording.getRunId());
+                                }
+                                updateRecordingListeners();
+                            }
+
+                            @Override
+                            public void fail(Exception e) {
+                                super.fail(e);
+                                callRecordingStartFailedListeners(
+                                        RecorderController.ERROR_START_FAILED);
+                            }
+                        });
             }
         });
-        for (StatefulRecorder recorder : mRecorders.values()) {
-            recorder.startRecording(recording.getRunId());
-        }
-        updateRecordingListeners();
+    }
+
+    @VisibleForTesting
+    protected DataController getDataController(Context context) {
+        return AppSingleton.getInstance(context).getDataController();
     }
 
     @Override
-    public void stopRecording() {
+    public void stopRecording(final Experiment experiment,
+            final List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+        if (mRecording == null) {
+            return;
+        }
+
+        // First check that all sensors have at least one data point. A recording with no
+        // data is invalid.
+        for (String sensorId : mRecorders.keySet()) {
+            // If we try to stop recording when a sensor is not connected, recording stop fails.
+            if (!mRegistry.isSourceConnectedWithoutError(sensorId)) {
+                callRecordingStopFailedListeners(RecorderController.ERROR_STOP_FAILED_DISCONNECTED);
+                return;
+            }
+            // Check to see if it has no data recorded, as this also fails stop recording.
+            if (!mRecorders.get(sensorId).hasRecordedData()) {
+                callRecordingStopFailedListeners(RecorderController.ERROR_STOP_FAILED_NO_DATA);
+                return;
+            }
+        }
+        withBoundRecorderService(new FallibleConsumer<RecorderService>() {
+            @Override
+            public void take(final RecorderService recorderService) throws RemoteException {
+                getDataController(recorderService.getApplicationContext())
+                        .stopRun(experiment, mRecording.getRunId(), sensorLayouts,
+                        new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
+                            @Override
+                            public void success(ApplicationLabel value) {
+                                trackStopRecording(recorderService.getApplicationContext(), value);
+
+                                // Now actually stop the recording.
+                                mRecording = null;
+                                for (StatefulRecorder recorder : mRecorders.values()) {
+                                    recorder.stopRecording();
+                                }
+                                recorderService.endServiceRecording();
+                                cleanUpUnusedRecorders();
+                                updateRecordingListeners();
+                            }
+
+                            @Override
+                            public void fail(Exception e) {
+                                super.fail(e);
+                                callRecordingStopFailedListeners(
+                                        RecorderController.ERROR_FAILED_SAVE_RECORDING);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Override
+    public void stopRecordingWithoutSaving() {
         if (mRecording == null) {
             return;
         }
@@ -348,9 +486,40 @@ public class RecorderControllerImpl implements RecorderController {
         updateRecordingListeners();
     }
 
+    @VisibleForTesting
+    void trackStopRecording(Context context, ApplicationLabel stopRecordingLabel) {
+        // Record how long this session was.
+        WhistlePunkApplication.getUsageTracker(context)
+                .trackEvent(TrackerConstants.CATEGORY_RUNS,
+                        TrackerConstants.ACTION_CREATE, null,
+                        stopRecordingLabel.getTimeStamp() - mRecording.getStartTime());
+
+        // Record which sensors were recorded.
+        Set<String> sensors = mRecorders.keySet();
+        String[] sensorArray = sensors.toArray(new String[sensors.size()]);
+        Arrays.sort(sensorArray);
+        WhistlePunkApplication.getUsageTracker(context)
+                .trackEvent(TrackerConstants.CATEGORY_RUNS,
+                        TrackerConstants.ACTION_RECORDED,
+                        Joiner.on(",").join(sensorArray),
+                        0);
+    }
+
     private void updateRecordingListeners() {
         for (RecordingStateListener listener : mRecordingStateListeners.values()) {
             listener.onRecordingStateChanged(mRecording);
+        }
+    }
+
+    private void callRecordingStopFailedListeners(@RecordingStopErrorType int errorType) {
+        for (RecordingStateListener listener : mRecordingStateListeners.values()) {
+            listener.onRecordingStopFailed(errorType);
+        }
+    }
+
+    private void callRecordingStartFailedListeners(@RecordingStartErrorType int errorType) {
+        for (RecordingStateListener listener : mRecordingStateListeners.values()) {
+            listener.onRecordingStartFailed(errorType);
         }
     }
 
@@ -398,5 +567,15 @@ public class RecorderControllerImpl implements RecorderController {
     @Override
     public void updateExternalSensors(Map<String, ExternalSensorSpec> sensors) {
         mSensors.updateExternalSensors(sensors);
+    }
+
+    @VisibleForTesting
+    public Map<String, StatefulRecorder> getRecorders() {
+        return mRecorders;
+    }
+
+    @VisibleForTesting
+    void ensureUnarchived(Experiment experiment, Project project, DataController dc) {
+        RecordFragment.ensureUnarchived(experiment, project, dc);
     }
 }

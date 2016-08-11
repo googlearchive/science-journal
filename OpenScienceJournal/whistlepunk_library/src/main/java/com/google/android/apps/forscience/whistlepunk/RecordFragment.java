@@ -40,7 +40,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -64,7 +63,6 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesActivity;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryListener;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
-import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
@@ -87,7 +85,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
@@ -125,7 +122,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
      * Used as the Run ID for labels that are created when no run is being recorded.
      */
     public static final String NOT_RECORDING_RUN_ID = "NOT_RECORDING";
-    private String mCurrentRunId = NOT_RECORDING_RUN_ID;
 
     private ImageButton mAddButton;
     private ImageButton mRecordButton;
@@ -166,6 +162,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
      */
     private String mRecorderPauseId;
     private Vibrator mVibrator;
+    private boolean mRecordingWasCanceled;
 
     public static RecordFragment newInstance() {
         RecordFragment fragment = new RecordFragment();
@@ -261,6 +258,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         return mCurrentRecording != null;
     }
 
+    private String getCurrentRunId() {
+        return isRecording() ? mCurrentRecording.getRunId() : NOT_RECORDING_RUN_ID;
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -277,7 +278,47 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 rc.addRecordingStateListener(TAG, new RecorderController.RecordingStateListener() {
                     @Override
                     public void onRecordingStateChanged(RecordingMetadata currentRecording) {
+                        RecordingMetadata prevRecording = mCurrentRecording;
+
                         mCurrentRecording = currentRecording;
+                        onRecordingMetadataUpdated();
+                        // If we have switched from a recording state to a not-recording state,
+                        // update the UI.
+                        if (prevRecording != null && !isRecording()) {
+                            mExternalAxis.onStopRecording();
+                            if (!mRecordingWasCanceled) {
+                                onRecordingStopped(prevRecording.getRunId());
+                            }
+                        }
+                        mRecordingWasCanceled = false;
+                    }
+
+                    @Override
+                    public void onRecordingStartFailed(
+                            @RecorderController.RecordingStartErrorType int errorType) {
+                        if (errorType == RecorderController.ERROR_START_FAILED) {
+                            failedStartRecording(R.string.recording_start_failed);
+                        } else if (errorType ==
+                                RecorderController.ERROR_START_FAILED_DISCONNECTED) {
+                            failedStartRecording(R.string.recording_start_failed_disconnected);
+                        }
+                        updateRecordingUIState();
+                    }
+
+                    @Override
+                    public void onRecordingStopFailed(
+                            @RecorderController.RecordingStopErrorType int errorType) {
+                        if (errorType == RecorderController.ERROR_STOP_FAILED_DISCONNECTED) {
+                            failedStopRecording(R.string.recording_stop_failed_disconnected);
+                        } else if (errorType == RecorderController.ERROR_STOP_FAILED_NO_DATA) {
+                            failedStopRecording(R.string.recording_stop_failed_no_data);
+                        } else if (errorType == RecorderController.ERROR_FAILED_SAVE_RECORDING) {
+                            AccessibilityUtils.makeSnackbar(getView(),
+                                    getActivity().getResources().getString(
+                                            R.string.recording_stop_failed_save),
+                                    Snackbar.LENGTH_LONG).show();
+                        }
+                        updateRecordingUIState();
                     }
                 });
                 if (!rc.resumeObservingAll(mRecorderPauseId)) {
@@ -299,8 +340,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
                                 // The recording UI shows the current experiment in the toolbar,
                                 // so it cannot be set up until experiments are loaded.
-                                setRecordingMetadata(mCurrentRecording);
-                                updateRecordingUIState();
+                                onRecordingMetadataUpdated();
                             }
                         });
 
@@ -397,6 +437,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         });
 
         mRecordButton = (ImageButton) rootView.findViewById(R.id.btn_record);
+
+        // Hide the record button until we have a RecorderController instance it can use.
         mRecordButton.setVisibility(View.INVISIBLE);
         withRecorderController(new Consumer<RecorderController>() {
             @Override
@@ -885,7 +927,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void launchLabelAdd(long timestamp) {
-        final AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, mCurrentRunId,
+        String currentRunId = getCurrentRunId();
+        final AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, currentRunId,
                 mSelectedExperiment.getExperimentId(),
                 isRecording() ? R.string.add_run_note_placeholder_text :
                         R.string.add_experiment_note_placeholder_text);
@@ -905,7 +948,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             @Override
             public void success(Label value) {
                 refreshLabels();
-                ensureUnarchived();
+                ensureUnarchived(mSelectedExperiment, mSelectedProject, getDataController());
                 playAddNoteAnimation();
                 String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
                         TrackerConstants.LABEL_OBSERVE;
@@ -978,37 +1021,23 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         mLaunchIntent = new Intent(activity.getIntent());
     }
 
-    private void setRecording(RecordingMetadata recording, RecorderController rc) {
-        if (mLaunchIntent == null) {
-            Log.wtf(TAG, "Somehow recording before ever once attached to activity...");
-            return;
-        }
-        if (recording != null) {
-            rc.startRecording(mLaunchIntent, recording);
-        } else {
-            rc.stopRecording();
-        }
-        setRecordingMetadata(recording);
-        updateRecordingUIState();
-    }
-
-    private void setRecordingMetadata(RecordingMetadata recording) {
-        boolean isRecording = recording != null;
+    private void onRecordingMetadataUpdated() {
+        boolean isRecording = isRecording();
         if (isRecording) {
-            mCurrentRunId = recording.getRunId();
             mExternalAxis.resetAxes();
-            mExternalAxis.onStartRecording(recording.getStartTime());
-            refreshLabels();
+            mExternalAxis.onStartRecording(mCurrentRecording.getStartTime());
         } else {
-            mCurrentRunId = NOT_RECORDING_RUN_ID;
             mExternalAxis.onStopRecording();
         }
+        refreshLabels();
         if (mSensorCardAdapter != null) {
-            mSensorCardAdapter.setRecording(isRecording, RecordingMetadata.getStartTime(recording));
+            mSensorCardAdapter.setRecording(isRecording, RecordingMetadata.getStartTime(
+                    mCurrentRecording));
             if (!isRecording) {
                 adjustSensorCardAddAlpha();
             }
         }
+        updateRecordingUIState();
     }
 
     private String getExperimentName() {
@@ -1074,6 +1103,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                     R.string.btn_record_description));
             mRecordButton.setImageDrawable(getResources().getDrawable(
                     R.drawable.ic_recording_red_40dp));
+            if (mSensorCardAdapter != null) {
+                mSensorCardAdapter.setUiLockedForRecording(false);
+            }
         }
     }
 
@@ -1118,112 +1150,20 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void tryStartRecording(final RecorderController rc) {
-        // Check that all sensors are connected before starting a recording.
-        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (!presenter.isConnected()) {
-                failedStartRecording(R.string.recording_start_failed_disconnected, rc);
-                return;
-            }
+        if (mLaunchIntent == null || mSelectedExperiment == null || mSelectedProject == null) {
+            return;
         }
-        final DataController dataController = getDataController();
-        dataController.startRun(mSelectedExperiment,
-                new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
-                    @Override
-                    public void success(ApplicationLabel label) {
-                        setRecording(new RecordingMetadata(label.getTimeStamp(), label.getRunId(),
-                                mSelectedExperiment.getDisplayTitle(getActivity())),
-                                rc);
-                        ensureUnarchived();
-                    }
-
-                    @Override
-                    public void fail(Exception e) {
-                        super.fail(e);
-                        failedStartRecording(R.string.recording_start_failed, rc);
-                    }
-                });
+        rc.startRecording(mLaunchIntent, mSelectedExperiment, mSelectedProject);
     }
 
-    private void failedStartRecording(int stringId, RecorderController rc) {
-        mCurrentRunId = NOT_RECORDING_RUN_ID;
-        setRecording(null, rc);
+    private void failedStartRecording(int stringId) {
         Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
                 getActivity().getResources().getString(stringId), Snackbar.LENGTH_LONG);
         bar.show();
     }
 
     private void tryStopRecording(final RecorderController rc) {
-        // First check that all sensors have at least one data point. A recording with no
-        // data is invalid.
-        if (mSensorCardAdapter == null) {
-            return;
-        }
-        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (!presenter.hasRecordedData()) {
-                if (!presenter.isConnected()) {
-                    // If a presenter has no data and is also disconnected.
-                    failedStopRecording(R.string.recording_stop_failed_disconnected);
-                } else {
-                    // Otherwise it just has no data.
-                    failedStopRecording(R.string.recording_stop_failed_no_data);
-                }
-                return;
-            }
-        }
-        getDataController().stopRun(mSelectedExperiment, mCurrentRunId, buildCurrentLayouts(),
-                new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
-                    @Override
-                    public void success(ApplicationLabel value) {
-                        refreshLabels();
-                        mCurrentRunId = NOT_RECORDING_RUN_ID;
-
-                        // Record how long this session was.
-                        // TODO: this is sort of ugly using the mExternalAxis to get the start time
-                        // but due to threading, getRecordingStartTime might be null by the time
-                        // we get here.
-                        WhistlePunkApplication.getUsageTracker(getActivity())
-                                .trackEvent(TrackerConstants.CATEGORY_RUNS,
-                                        TrackerConstants.ACTION_CREATE,
-                                        null,
-                                        value.getTimeStamp() - mExternalAxis
-                                                .getRecordingStartTime());
-                        // Record which sensors were recorded.
-                        String[] sensors = getLoggingIds(mSensorCardAdapter.getSensorTags());
-                        Arrays.sort(sensors);
-                        WhistlePunkApplication.getUsageTracker(getActivity())
-                                .trackEvent(TrackerConstants.CATEGORY_RUNS,
-                                        TrackerConstants.ACTION_RECORDED,
-                                        Joiner.on(",").join(sensors),
-                                        0);
-
-                        mExternalAxis.onStopRecording();
-                        setRecording(null, rc);
-                        // no run is currently happening.
-                        onRecordingStopped(value.getRunId());
-                    }
-
-                    @Override
-                    public void fail(Exception e) {
-                        super.fail(e);
-                        setRecording(null, rc);
-                        AccessibilityUtils.makeSnackbar(getView(),
-                                getActivity().getResources().getString(
-                                        R.string.recording_stop_failed_save),
-                                Snackbar.LENGTH_LONG).show();
-                    }
-                });
-    }
-
-    private String[] getLoggingIds(String[] sensorIds) {
-        if (sensorIds == null || sensorIds.length == 0) {
-            return new String[] {};
-        }
-        final int size = sensorIds.length;
-        String[] loggingIds = new String[size];
-        for (int index = 0; index < size; index++) {
-            loggingIds[index] = mSensorRegistry.getLoggingId(sensorIds[index]);
-        }
-        return loggingIds;
+        rc.stopRecording(mSelectedExperiment, buildCurrentLayouts());
     }
 
     private void failedStopRecording(int stringId) {
@@ -1233,11 +1173,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     @Override
-    public void requestStopRecording() {
+    public void requestCancelRecording() {
+        mRecordingWasCanceled = true;
         withRecorderController(new Consumer<RecorderController>() {
             @Override
             public void take(RecorderController rc) {
-                setRecording(null, rc);
+                rc.stopRecordingWithoutSaving();
             }
         });
     }
@@ -1496,31 +1437,30 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
      * Ensures that the project and experiment are unarchived, in case we make a new run or label
      * on them.
      */
-    private void ensureUnarchived() {
-        if (mSelectedExperiment != null) {
-            if (mSelectedExperiment.isArchived()) {
-                mSelectedExperiment.setArchived(false);
-                getDataController().updateExperiment(mSelectedExperiment,
+    public static void ensureUnarchived(Experiment experiment, Project project, DataController dc) {
+        if (experiment != null) {
+            if (experiment.isArchived()) {
+                experiment.setArchived(false);
+                dc.updateExperiment(experiment,
                         LoggingConsumer.<Success>expectSuccess(TAG, "Unarchiving experiment"));
             }
-            if (mSelectedProject != null) {
-                if (mSelectedExperiment.getProjectId().equals(mSelectedProject.getProjectId())) {
+            if (project != null) {
+                if (experiment.getProjectId().equals(project.getProjectId())) {
                     // Make sure we have the right project.
-                    if (mSelectedProject.isArchived()) {
-                        mSelectedProject.setArchived(false);
-                        getDataController().updateProject(mSelectedProject,
+                    if (project.isArchived()) {
+                        project.setArchived(false);
+                        dc.updateProject(project,
                                 LoggingConsumer.<Success>expectSuccess(TAG, "Unarchiving project"));
                     }
                 } else {
                     throw new IllegalStateException("Selected project "
-                            + mSelectedProject.getProjectId()
+                            + project.getProjectId()
                             + " is not the right parent of selected experiment "
-                            + mSelectedExperiment.getExperimentId()
-                            + " (should be " + mSelectedExperiment.getProjectId() + ")");
+                            + experiment.getExperimentId()
+                            + " (should be " + experiment.getProjectId() + ")");
                 }
             }
         }
-
     }
 
     @Override

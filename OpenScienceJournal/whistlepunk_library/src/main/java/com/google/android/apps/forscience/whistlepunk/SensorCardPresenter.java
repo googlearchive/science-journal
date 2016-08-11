@@ -864,7 +864,7 @@ public class SensorCardPresenter {
         return mDataViewOptions;
     }
 
-    public SensorStatusListener getSensorStatusListener() {
+    private SensorStatusListener getSensorStatusListener() {
         return mSensorStatusListener;
     }
 
@@ -1152,15 +1152,6 @@ public class SensorCardPresenter {
 
     private boolean isRecording() {
         return mRecordingStart != RecordingMetadata.NOT_RECORDING;
-    }
-
-    /**
-     * Whether data was recorded.
-     * @return true if at least one data point was recorded.
-     */
-    public boolean hasRecordedData() {
-        return mRecordingStart != RecordingMetadata.NOT_RECORDING &&
-                mLastUpdatedIconTimestamp > mRecordingStart;
     }
 
     public boolean isConnected() {

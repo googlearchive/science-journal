@@ -43,6 +43,11 @@ public class AbstractSensorRecorder implements SensorRecorder {
     }
 
     @Override
+    public boolean hasRecordedData() {
+        return false;
+    }
+
+    @Override
     public void applyOptions(ReadableSensorOptions settings) {
 
     }
