@@ -9,13 +9,9 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesFragment;
-import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
-    public static final String INTENT_ACTION =
-            "com.google.android.apps.forscience.whistlepunk.ADDED_SENSOR";
-    private static final String TAG = "ThirdPartyDisc";
     private Consumer<AppDiscoveryCallbacks> mServiceFinder;
 
     /**
@@ -27,7 +23,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
      */
     public interface AppDiscoveryCallbacks {
         // Called with each service found
-        public void onServiceFound(ISensorDiscoverer.Stub service);
+        public void onServiceFound(ISensorDiscoverer service);
 
         // Called after all services have been found
         public void onDiscoveryDone();
@@ -36,8 +32,6 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     public ScalarInputDiscoverer(Consumer<AppDiscoveryCallbacks> serviceFinder) {
         mServiceFinder = serviceFinder;
     }
-
-    // TODO: implement all of these!
 
     @NonNull
     @Override
@@ -51,7 +45,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
         final ISensorConsumer.Stub sc = makeSensorConsumer(context, callbacks);
         mServiceFinder.take(new AppDiscoveryCallbacks() {
             @Override
-            public void onServiceFound(final ISensorDiscoverer.Stub service) {
+            public void onServiceFound(final ISensorDiscoverer service) {
                 try {
                     service.scanDevices(makeDeviceConsumer(service, sc));
                 } catch (RemoteException e) {
@@ -69,7 +63,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     }
 
     @NonNull
-    private IDeviceConsumer.Stub makeDeviceConsumer(final ISensorDiscoverer.Stub service,
+    private IDeviceConsumer.Stub makeDeviceConsumer(final ISensorDiscoverer service,
             final ISensorConsumer.Stub sc) {
         return new IDeviceConsumer.Stub() {
             @Override
@@ -97,5 +91,6 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
     @Override
     public void stopScanning() {
+        // TODO: implement all of these!
     }
 }
