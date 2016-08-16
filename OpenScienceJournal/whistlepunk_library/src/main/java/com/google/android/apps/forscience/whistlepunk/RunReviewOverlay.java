@@ -20,6 +20,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -35,8 +36,6 @@ import android.widget.SeekBar;
 import com.google.android.apps.forscience.whistlepunk.review.GraphExploringSeekBar;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
-
-import java.text.NumberFormat;
 
 /**
  * Draws the value over a RunReview chart.
@@ -55,7 +54,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     }
     private OnSeekbarTouchListener mOnSeekbarTouchListener;
 
-    private static double DENOM = 2 * Math.sqrt(2);
+    private static double SQRT_2_OVER_2 = Math.sqrt(2) / 2;
     private static final double SEEKBAR_MAX = 300.0;
 
     private int mHeight;
@@ -64,12 +63,18 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     private int mChartHeight;
     private int mChartMarginLeft;
 
+    private int mLabelPadding;
+    private int mIntraLabelPadding;
+    private int mNotchHeight;
+    private int mCornerRadius;
+
     private Paint mPaint;
+    private Paint mDotPaint;
     private Paint mDotBackgroundPaint;
-    private Paint mTextPaintActive;
-    private Paint mTextPaintInactive;
-    private Paint mTimePaintActive;
-    private Paint mTimePaintInactive;
+    private Paint mTextPaint;
+    private Paint mTimePaint;
+    private Paint mLinePaint;
+    private Paint mCenterLinePaint;
 
     public static final long NO_TIMESTAMP_SELECTED = -1;
     private long mSelectedTimestamp = NO_TIMESTAMP_SELECTED;
@@ -77,15 +82,11 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     private double mValue;
     private PointF mScreenPoint;
     private ChartController mChartController;
-    private int mInactiveCircleDiameter;
-    private int mActiveCircleDiameter;
     private GraphExploringSeekBar mSeekbar;
     private ExternalAxisController mExternalAxis;
-    private NumberFormat mYAxisNumberFormat;
+    private String mTextFormat;
     private ElapsedTimeAxisFormatter mTimeFormat;
-    private float mActiveTextHeight;
-    private float mInactiveTextHeight;
-    private RectF mTopRect;
+    private RectF mBoxRect;
     private Path mPath;
     private boolean mIsActive = false;
     private float mDotRadius;
@@ -121,38 +122,42 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL);
 
-        Typeface typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL);
-
-        mTextPaintActive = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mTextPaintActive.setColor(res.getColor(R.color.text_color_white));
-        mTextPaintActive.setTextSize(res.getDimension(
-                R.dimen.run_review_value_label_text_size_large));
-        mTextPaintActive.setTypeface(typeface);
-
-        mTextPaintInactive = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mTextPaintInactive.setColor(res.getColor(R.color.text_color_white));
-        mTextPaintInactive.setTextSize(res.getDimension(
-                R.dimen.run_review_value_label_text_size_small));
-        mTextPaintInactive.setTypeface(typeface);
+        mDotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mDotPaint.setStyle(Paint.Style.FILL);
 
         mDotBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mDotBackgroundPaint.setColor(res.getColor(R.color.chart_margins_color));
         mDotBackgroundPaint.setStyle(Paint.Style.FILL);
 
-        mTimePaintActive = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mTimePaintActive.setTypeface(typeface);
-        mTimePaintActive.setTextSize(
-                res.getDimension(R.dimen.run_review_seekbar_label_text_size_large));
+        Typeface valueTypeface = Typeface.create("sans-serif-medium", Typeface.NORMAL);
+        Typeface timeTimeface = Typeface.create("sans-serif", Typeface.NORMAL);
 
-        mTimePaintInactive = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mTimePaintInactive.setTypeface(typeface);
-        mTimePaintInactive.setTextSize(
-                res.getDimension(R.dimen.run_review_seekbar_label_text_size_small));
+        mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mTextPaint.setTypeface(valueTypeface);
+        mTextPaint.setTextSize(res.getDimension(R.dimen.run_review_overlay_label_text_size));
+        mTextPaint.setColor(res.getColor(R.color.text_color_white));
+
+        mTimePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mTimePaint.setTypeface(timeTimeface);
+        mTimePaint.setTextSize(res.getDimension(R.dimen.run_review_overlay_label_text_size));
+        mTimePaint.setColor(res.getColor(R.color.text_color_white));
+
+        mCenterLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mCenterLinePaint.setStrokeWidth(res.getDimensionPixelSize(R.dimen.chart_grid_line_width));
+        mCenterLinePaint.setStyle(Paint.Style.STROKE);
+        mCenterLinePaint.setColor(res.getColor(R.color.text_color_white));
+
+        mLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mLinePaint.setStrokeWidth(res.getDimensionPixelSize(R.dimen.recording_overlay_bar_width));
+        int dashSize = res.getDimensionPixelSize(R.dimen.run_review_overlay_dash_size);
+        mLinePaint.setPathEffect(new DashPathEffect(new float[]{dashSize, dashSize}, dashSize));
+        mLinePaint.setColor(res.getColor(R.color.note_overlay_line_color));
+        mLinePaint.setStyle(Paint.Style.STROKE);
 
         mPath = new Path();
-        mTopRect = new RectF();
+        mBoxRect = new RectF();
 
-        mYAxisNumberFormat = new AxisNumberFormat();
+        mTextFormat = res.getString(R.string.run_review_chart_label_format);
         mTimeFormat = ElapsedTimeAxisFormatter.getInstance(getContext());
     }
 
@@ -164,14 +169,12 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         mWidth = getMeasuredWidth();
         mPaddingLeft = getPaddingLeft();
         mChartHeight = res.getDimensionPixelSize(R.dimen.run_review_chart_height);
-        mActiveCircleDiameter = res.getDimensionPixelSize(R.dimen.run_review_bubble_diameter);
-        mInactiveCircleDiameter =
-                res.getDimensionPixelSize(R.dimen.run_review_inactive_bubble_radius);
 
-        mActiveTextHeight =
-                res.getDimensionPixelSize(R.dimen.run_review_value_label_text_size_large);
-        mInactiveTextHeight =
-                res.getDimensionPixelSize(R.dimen.run_review_value_label_text_size_small);
+        mLabelPadding = res.getDimensionPixelSize(R.dimen.run_review_overlay_label_padding);
+        mIntraLabelPadding = res.getDimensionPixelSize(
+                R.dimen.run_review_overlay_label_intra_padding);
+        mNotchHeight = res.getDimensionPixelSize(R.dimen.run_review_overlay_label_notch_height);
+        mCornerRadius = res.getDimensionPixelSize(R.dimen.run_review_overlay_label_corner_radius);
 
         mDotRadius = res.getDimensionPixelSize(R.dimen.run_review_value_label_dot_radius);
         mDotBackgroundRadius =
@@ -185,50 +188,54 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         if (mScreenPoint == null) {
             return;
         }
-
-        float circleDiameter = mIsActive ? mActiveCircleDiameter : mInactiveCircleDiameter;
-        Paint textPaint = mIsActive ? mTextPaintActive : mTextPaintInactive;
-        float textHeight = mIsActive ? mActiveTextHeight : mInactiveTextHeight;
-
-        float diamondHeight = (float) (circleDiameter / DENOM);
-        float nudge = mDotRadius / 2;
-        float cx = mPaddingLeft + mScreenPoint.x - mChartMarginLeft - nudge;
-        float cy = mHeight - mChartHeight + mScreenPoint.y - 2 * diamondHeight -
-                2 * mDotBackgroundRadius + nudge;
-
-        // TODO: To optimize, create the path just once and move it around with path.transform.
-        mTopRect.set(cx - circleDiameter / 2, cy - circleDiameter / 2, cx + circleDiameter / 2,
-                cy + circleDiameter / 2);
-        mPath.reset();
-        mPath.moveTo(cx, cy);
-        mPath.lineTo(cx + diamondHeight, cy + diamondHeight);
-        mPath.lineTo(cx, cy + 2 * diamondHeight);
-        mPath.lineTo(cx - diamondHeight, cy + diamondHeight);
-        mPath.lineTo(cx, cy);
-        mPath.arcTo(mTopRect, 135, 270);
-        mPath.lineTo(cx, cy);
-        canvas.drawPath(mPath, mPaint);
-
-        float cySmall = cy + 2 * diamondHeight + 1.5f * mDotBackgroundRadius;
-        canvas.drawCircle(cx, cySmall, mDotBackgroundRadius, mDotBackgroundPaint);
-        canvas.drawCircle(cx, cySmall, mDotRadius, mPaint);
-
-        String label = mYAxisNumberFormat.format(mValue);
-        float labelWidth = textPaint.measureText(label);
-        canvas.drawText(label, cx - labelWidth / 2, cy + textHeight / 2, textPaint);
-
+        String label = String.format(mTextFormat, mValue);
+        float labelWidth = mTextPaint.measureText(label);
         String timeLabel = mTimeFormat.formatToTenths(mSelectedTimestamp -
                 mExternalAxis.getRecordingStartTime());
-        Paint timePaint = mIsActive ? mTimePaintActive : mTimePaintInactive;
-        float textWidth = timePaint.measureText(timeLabel);
-        // Since there is no spec for where to put this text, use the dot background radius as a
-        // reasonable buffer between the slider point and the text.
-        float buffer = mIsActive ? mDotBackgroundRadius * 2 : mDotBackgroundRadius;
-        if (textWidth + cx + mDotBackgroundRadius > mWidth) {
-            canvas.drawText(timeLabel, cx - textWidth - buffer, mHeight - buffer, timePaint);
-        } else {
-            canvas.drawText(timeLabel, cx + buffer, mHeight - buffer, timePaint);
+        float timeWidth = mTimePaint.measureText(timeLabel);
+        float textSize = -1 * mTextPaint.ascent();
+
+        float nudge = mDotRadius / 2;
+        float cx = mPaddingLeft + mScreenPoint.x - mChartMarginLeft - nudge;
+        float cy = mHeight - mChartHeight + mScreenPoint.y - 2 * mDotBackgroundRadius + nudge;
+        float boxTop = mHeight - mChartHeight - textSize;
+        float boxBottom = boxTop + textSize + mLabelPadding * 2 + 5;
+        float width = mIntraLabelPadding + 2 * mLabelPadding + timeWidth + labelWidth;
+        float boxStart = cx - width / 2;
+        float boxEnd = cx + width / 2;
+        if (boxStart < mPaddingLeft) {
+            boxStart = mPaddingLeft;
+            boxEnd = boxStart + width;
+        } else if (boxEnd > mWidth) {
+            boxEnd = mWidth;
+            boxStart = boxEnd - width;
         }
+
+        mPath.reset();
+        mPath.moveTo(cx, boxTop);
+        mPath.lineTo(cx, cy);
+        canvas.drawPath(mPath, mLinePaint);
+
+        mBoxRect.set(boxStart, boxTop, boxEnd, boxBottom);
+        canvas.drawRoundRect(mBoxRect, mCornerRadius, mCornerRadius, mPaint);
+
+        mPath.reset();
+        mPath.moveTo((int) (cx - mNotchHeight * SQRT_2_OVER_2), boxBottom);
+        mPath.lineTo(cx, boxBottom + mNotchHeight);
+        mPath.lineTo((int) (cx + mNotchHeight * SQRT_2_OVER_2), boxBottom);
+        canvas.drawPath(mPath, mPaint);
+
+        float cySmall = cy + 1.5f * mDotBackgroundRadius;
+        canvas.drawCircle(cx, cySmall, mDotBackgroundRadius, mDotBackgroundPaint);
+        canvas.drawCircle(cx, cySmall, mDotRadius, mDotPaint);
+
+        float textBase = boxTop + mLabelPadding + textSize;
+        canvas.drawText(timeLabel, boxStart + mLabelPadding, textBase, mTimePaint);
+        canvas.drawText(label, boxEnd - labelWidth - mLabelPadding, textBase, mTextPaint);
+
+        float center = boxStart + mLabelPadding + timeWidth + mIntraLabelPadding / 2;
+        canvas.drawLine(center, boxTop + mLabelPadding, center,
+                boxBottom - mLabelPadding, mCenterLinePaint);
 
         mSeekbar.updateValuesForAccessibility(mExternalAxis.formatElapsedTimeForAccessibility(
                 mSelectedTimestamp, getContext()), label);
@@ -449,9 +456,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     }
 
     public void updateColor(int newColor) {
+        mDotPaint.setColor(newColor);
         mPaint.setColor(newColor);
-        mTimePaintActive.setColor(newColor);
-        mTimePaintInactive.setColor(newColor);
     }
 
     @Override

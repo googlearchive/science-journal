@@ -1165,6 +1165,9 @@
     <!-- The auto-generated note text for a note type trigger. For example,this might say, "Auto-generated note create by a Decibel trigger which fired when the value rose above 3.0 db". [CHAR_LIMIT=200]-->
     <string name="trigger_label_auto_text">Trigger note: <xliff:g id="sensor_name">%1s</xliff:g> <xliff:g id="trigger_when">%2s</xliff:g> <xliff:g id="trigger_value">%.2f</xliff:g> <xliff:g id="sensor_units">%4s</xliff:g></string>
 
+    <!-- The format for a floating point data value when displayed to the user. This has more significant figures than on the Y axis. DO NOT TRANSLATE -->
+    <string name="run_review_chart_label_format"><xliff:g id="value">%.2f</xliff:g></string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

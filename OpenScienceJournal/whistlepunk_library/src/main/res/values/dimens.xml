@@ -184,21 +184,20 @@
     <dimen name="run_review_section_margin_notes">24dp</dimen>
 
     <dimen name="run_review_seekbar_holder_padding_bottom">18dp</dimen>
-    <dimen name="run_review_seekbar_label_text_size_small">12sp</dimen>
-    <dimen name="run_review_seekbar_label_text_size_large">16sp</dimen>
     <dimen name="external_axis_seekbar_size">48dp</dimen>
     <dimen name="run_review_thumb_center_size">8dp</dimen>
     <dimen name="run_review_thumb_center_padding">20dp</dimen>
     <dimen name="run_review_thumb_inactive_size">24dp</dimen>
     <dimen name="run_review_half_thumb_inactive_size">12dp</dimen>
     <dimen name="run_review_thumb_inactive_padding">12dp</dimen>
-    <dimen name="run_review_value_label_text_size_large">18sp</dimen>
-    <dimen name="run_review_value_label_text_size_small">14sp</dimen>
-    <dimen name="run_review_bubble_diameter">52dp</dimen>
-    <dimen name="run_review_inactive_bubble_radius">36dp</dimen>
     <dimen name="run_review_value_label_dot_radius">3dp</dimen>
     <dimen name="run_review_value_label_dot_background_radius">5dp</dimen>
-
+    <dimen name="run_review_overlay_label_text_size">12sp</dimen>
+    <dimen name="run_review_overlay_label_padding">8dp</dimen>
+    <dimen name="run_review_overlay_label_intra_padding">16dp</dimen>
+    <dimen name="run_review_overlay_label_notch_height">7dp</dimen>
+    <dimen name="run_review_overlay_dash_size">2dp</dimen>
+    <dimen name="run_review_overlay_label_corner_radius">3dp</dimen>
 
     <dimen name="run_review_overlay_height">280dp</dimen>
     <dimen name="run_review_overlay_margin_bottom">32dp</dimen>
