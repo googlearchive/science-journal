@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
+<!-- 
   Copyright 2016 Google Inc. All Rights Reserved.
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,344 +13,400 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
- -->
+  -->
+
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="action_feedback" msgid="2230997537507885910">"ความคิดเห็น"</string>
-    <string name="action_settings" msgid="4140514779355685890">"การตั้งค่า"</string>
-    <string name="action_save" msgid="7115885253849785049">"บันทึก"</string>
-    <string name="action_edit" msgid="2879274643416740117">"แก้ไข"</string>
-    <string name="action_archive_project" msgid="3984396879969444432">"เก็บถาวรโครงการ"</string>
-    <string name="action_unarchive_project" msgid="2708696233939647946">"เลิกเก็บถาวรโครงการ"</string>
-    <string name="action_archive_experiment" msgid="5641733726709708591">"เก็บถาวรการทดลอง"</string>
-    <string name="action_unarchive_experiment" msgid="2357913494087884425">"เลิกเก็บถาวรการทดลอง"</string>
-    <string name="action_archive_run" msgid="439270635088307350">"เก็บถาวรการทดลอง"</string>
-    <string name="action_unarchive_run" msgid="5992535261034463728">"เลิกเก็บถาวรการทดลอง"</string>
-    <string name="action_delete" msgid="5205384449071348669">"ลบ"</string>
-    <string name="action_ruler" msgid="3567453615091215971">"ไม้บรรทัด"</string>
-    <string name="action_level" msgid="2223203490872051791">"ระดับ"</string>
-    <string name="sine_wave" msgid="7465850130633241930">"คลื่นไซน์"</string>
-    <string name="acc_x" msgid="6032598557672647110">"มาตรความเร่ง X"</string>
-    <string name="acc_y" msgid="3524690325306070984">"มาตรความเร่ง Y"</string>
-    <string name="acc_z" msgid="4540365462206126342">"มาตรความเร่ง Z"</string>
-    <string name="ambient_light" msgid="3301998123545447671">"แสงสว่างโดยรอบ"</string>
-    <string name="magnetic_rotation" msgid="6643176023260466091">"การหมุนแม่เหล็ก"</string>
-    <!-- no translation found for barometer (6963377010571232863) -->
+    <string name="app_name" msgid="1749878361700406471">"วารสารวิทยาศาสตร์"</string>
+    <string name="action_feedback" msgid="3485726544664165152">"ความคิดเห็น"</string>
+    <string name="action_settings" msgid="7253243161333327313">"การตั้งค่า"</string>
+    <string name="action_about" msgid="6800644842624263352">"เกี่ยวกับ"</string>
+    <string name="action_save" msgid="9094966122984771386">"บันทึก"</string>
+    <string name="action_edit" msgid="8133918565183877925">"แก้ไข"</string>
+    <string name="action_archive_project" msgid="8407635733693871521">"เก็บถาวรโครงการ"</string>
+    <string name="action_unarchive_project" msgid="442733101427522517">"เลิกเก็บถาวรโครงการ"</string>
+    <string name="action_archive_experiment" msgid="4508918574186115343">"เก็บถาวรการทดลอง"</string>
+    <string name="action_unarchive_experiment" msgid="7449138468795347573">"เลิกเก็บถาวรการทดลอง"</string>
+    <string name="action_archive_run" msgid="770255470137391128">"เก็บถาวรการทดลอง"</string>
+    <string name="action_unarchive_run" msgid="3365579330809738407">"เลิกเก็บถาวรการทดลอง"</string>
+    <string name="action_delete" msgid="6217133451237930256">"ลบ"</string>
+    <string name="action_ruler" msgid="5720457218308907651">"ไม้บรรทัด"</string>
+    <string name="action_level" msgid="3318260389907112898">"ระดับ"</string>
+    <string name="sine_wave" msgid="1453405614112850463">"คลื่นไซน์"</string>
+    <string name="acc_x" msgid="572611270410562378">"มาตรความเร่ง X"</string>
+    <string name="acc_y" msgid="663998787829282850">"มาตรความเร่ง Y"</string>
+    <string name="acc_z" msgid="6875563648805408084">"มาตรความเร่ง Z"</string>
+    <string name="ambient_light" msgid="956709382703134737">"แสงสว่างโดยรอบ"</string>
+    <string name="magnetic_rotation" msgid="300136225077841521">"การหมุนแม่เหล็ก"</string>
+    <string name="barometer" msgid="99316252932520865">"บาโรมิเตอร์"</string>
+    <string name="ambient_temperature" msgid="1293814885248346186">"อุณหภูมิแวดล้อม"</string>
+    <string name="video_stream" msgid="6479736939735009121">"สตรีมวิดีโอ"</string>
+    <string name="acc_units" msgid="3131953779961725111">"m/s²"</string>
+    <string name="ambient_light_units" msgid="3481544691869862434">"ลักซ์"</string>
+    <string name="magnetic_rotation_units" msgid="9212090641224993573">"องศา"</string>
+    <string name="decibel_units" msgid="1242238682082079824">"dB"</string>
+    <string name="rpm_units" msgid="2651871280948091901">"RPM"</string>
+    <string name="voltage_units" msgid="598716668433769220">"V"</string>
+    <string name="raw_units" msgid="4501311675565391535">"%"</string>
+    <string name="barometer_units" msgid="8404848712372029263">"mbar"</string>
+    <string name="temperature_units" msgid="6865637706924726630">"°C"</string>
+    <string name="header_name_and_units" msgid="2085988560798053543">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
+    <string name="experiment_details" msgid="5584369034749538544">"รายละเอียดการทดลอง"</string>
+    <string name="add_sensor" msgid="7637499411634365504">"เพิ่มเซ็นเซอร์"</string>
+    <string name="snackbar_source_error" msgid="488480213360860471">"เกิดข้อผิดพลาดเมื่อเชื่อมต่อกับแหล่งที่มานี้: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
+    <string name="action_retry" msgid="3145700667339813916">"ลองอีกครั้ง"</string>
+    <string name="decibel" msgid="2567269521573545643">"ความเข้มเสียง"</string>
+    <string name="title_activity_tutorial" msgid="2584345529619464915">"บทแนะนำวารสารวิทยาศาสตร์"</string>
+    <string name="title_activity_age_verifier" msgid="7040452872458524616">"วันเกิด"</string>
+    <string name="title_activity_ruler" msgid="7356097859627917798">"ไม้บรรทัด"</string>
+    <string name="ruler_label_metric" msgid="4168199108712627963">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> มม."</string>
+    <string name="ruler_label_imperial" msgid="1039145960645936776">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> นิ้ว"</string>
+    <string name="title_activity_level" msgid="2904927174950333272">"ระดับ"</string>
+    <string name="action_calibrate" msgid="5052399287917638600">"ปรับเทียบ"</string>
+    <string name="action_end_calibrate" msgid="2666757370394990045">"หยุดการปรับเทียบ"</string>
+    <string name="title_calibrate" msgid="2097885049939977932">"ปรับเทียบกับ…"</string>
+    <string name="calibration_credit_card" msgid="6966145058355347674">"บัตรเครดิต (ความสูง)"</string>
+    <string name="calibration_ruler_imperial" msgid="6767953232294903980">"ไม้บรรทัด (3 นิ้ว)"</string>
+    <string name="calibration_ruler_metric" msgid="3428029796129511235">"ไม้บรรทัด (80 มม.)"</string>
+    <string name="btn_add_experiment_note_description" msgid="8169467252583720202">"เพิ่มบันทึกการทดลอง"</string>
+    <string name="btn_add_run_note_description" msgid="7794624989896671036">"เพิ่มบันทึกการทดลอง"</string>
+    <string name="btn_record_description" msgid="268797023942242799">"เริ่มบันทึก"</string>
+    <string name="btn_stop_description" msgid="360845145601118810">"หยุดบันทึก"</string>
+    <string name="unknown_sensor" msgid="2817579529256439266">"เซ็นเซอร์ที่ไม่รู้จัก"</string>
+    <string name="recording_start_failed" msgid="2424384727076648476">"การบันทึกล้มเหลว โปรดลองอีกครั้ง"</string>
+    <string name="recording_start_failed_disconnected" msgid="6044183997855730278">"การบันทึกล้มเหลว เชื่อมต่อเซ็นเซอร์แล้วลองอีกครั้ง"</string>
+    <string name="recording_stop_failed_no_data_title" msgid="7187684438487384614">"ไม่มีการบันทึกข้อมูล"</string>
+    <string name="recording_stop_failed_no_data" msgid="5652683982830054853">"มีเซ็นเซอร์อย่างน้อย 1 รายการที่ไม่บันทึกข้อมูล คุณต้องการยกเลิกการบันทึกนี้ไหม"</string>
+    <string name="recording_stop_failed_continue" msgid="6866415472979372254">"ต่อไป"</string>
+    <string name="recording_stop_failed_cancel" msgid="1054502695356124817">"ยกเลิกการบันทึก"</string>
+    <string name="recording_stop_failed_disconnected" msgid="1890256452807120000">"หยุดบันทึกไม่สำเร็จ: ไม่ได้เชื่อมต่อเซ็นเซอร์ ต้องการยกเลิกการบันทึกนี้ไหม"</string>
+    <string name="recording_stop_failed_save" msgid="3671113211131295790">"หยุดการบันทึกไม่สำเร็จ: ไม่สามารถบันทึกการทดลองได้ โปรดลองอีกครั้ง"</string>
+    <!-- no translation found for elapsed_time_short_format (3910690086425194536) -->
     <skip />
-    <!-- no translation found for ambient_temperature (7953836004790593525) -->
+    <string name="elapsed_time_long_format" msgid="3886757247239765591">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
+    <!-- no translation found for accessible_elapsed_time_short_format (2808530294119164764) -->
     <skip />
-    <string name="video_stream" msgid="1813984984736617091">"สตรีมวิดีโอ"</string>
-    <string name="acc_units" msgid="335053831539850606">"m/s²"</string>
-    <string name="ambient_light_units" msgid="6318282254934724349">"ลักซ์"</string>
-    <!-- no translation found for magnetic_rotation_units (5964336522624353252) -->
-    <skip />
-    <string name="decibel_units" msgid="2890849301464041989">"dB"</string>
-    <string name="rpm_units" msgid="897807671511627492">"RPM"</string>
-    <string name="voltage_units" msgid="6411118170860716365">"V"</string>
-    <string name="raw_units" msgid="2437662388895013402">"%"</string>
-    <!-- no translation found for barometer_units (4292292035160238626) -->
-    <skip />
-    <!-- no translation found for temperature_units (630716203187220193) -->
-    <skip />
-    <string name="header_name_and_units" msgid="6139360310627518052">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
-    <string name="experiment_details" msgid="6814534510464980289">"รายละเอียดการทดลอง"</string>
-    <string name="add_sensor" msgid="96374933560924369">"เพิ่มเซ็นเซอร์"</string>
-    <string name="snackbar_source_error" msgid="6054360710842869995">"เกิดข้อผิดพลาดเมื่อเชื่อมต่อกับแหล่งที่มานี้: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
-    <string name="action_retry" msgid="7873032739745888974">"ลองอีกครั้ง"</string>
-    <string name="decibel" msgid="7425761238029567370">"ความเข้มเสียง"</string>
-    <string name="title_activity_tutorial" msgid="7117023626104839821">"บทแนะนำวารสารวิทยาศาสตร์"</string>
-    <string name="title_activity_age_verifier" msgid="6953483601673982354">"วันเกิด"</string>
-    <string name="title_activity_ruler" msgid="4538057504732643762">"ไม้บรรทัด"</string>
-    <string name="ruler_label_metric" msgid="8008318703764352929">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> มม."</string>
-    <string name="ruler_label_imperial" msgid="2225518554245466626">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> นิ้ว"</string>
-    <string name="title_activity_level" msgid="7751336762571175981">"ระดับ"</string>
-    <string name="action_calibrate" msgid="2567237363558254927">"ปรับเทียบ"</string>
-    <string name="action_end_calibrate" msgid="6416011236105220467">"หยุดการปรับเทียบ"</string>
-    <string name="title_calibrate" msgid="4425118955292706233">"ปรับเทียบกับ…"</string>
-    <string name="calibration_credit_card" msgid="1784606520446558443">"บัตรเครดิต (ความสูง)"</string>
-    <string name="calibration_ruler_imperial" msgid="2477725634940053346">"ไม้บรรทัด (3 นิ้ว)"</string>
-    <string name="calibration_ruler_metric" msgid="1330487431270295597">"ไม้บรรทัด (80 มม.)"</string>
-    <string name="btn_add_experiment_note_description" msgid="7451384954210671094">"เพิ่มบันทึกการทดลอง"</string>
-    <string name="btn_add_run_note_description" msgid="3729688760639518856">"เพิ่มบันทึกการทดลอง"</string>
-    <string name="btn_record_description" msgid="6165596989316716650">"เริ่มบันทึก"</string>
-    <string name="btn_stop_description" msgid="5331283967913304386">"หยุดบันทึก"</string>
-    <string name="unknown_sensor" msgid="2253417219024438701">"เซ็นเซอร์ที่ไม่รู้จัก"</string>
-    <string name="recording_start_failed" msgid="8094130346174113235">"การบันทึกล้มเหลว โปรดลองอีกครั้ง"</string>
-    <string name="recording_start_failed_disconnected" msgid="2493130069585541040">"การบันทึกล้มเหลว เชื่อมต่อเซ็นเซอร์แล้วลองอีกครั้ง"</string>
-    <string name="recording_stop_failed_no_data_title" msgid="256592083253381257">"ไม่มีการบันทึกข้อมูล"</string>
-    <string name="recording_stop_failed_no_data" msgid="5167111037930589862">"มีเซ็นเซอร์อย่างน้อย 1 รายการที่ไม่บันทึกข้อมูล คุณต้องการยกเลิกการบันทึกนี้ไหม"</string>
-    <string name="recording_stop_failed_continue" msgid="161788317476740066">"ต่อไป"</string>
-    <string name="recording_stop_failed_cancel" msgid="9167449814602506726">"ยกเลิกการบันทึก"</string>
-    <string name="recording_stop_failed_disconnected" msgid="1409656957401598471">"หยุดบันทึกไม่สำเร็จ: ไม่ได้เชื่อมต่อเซ็นเซอร์ ต้องการยกเลิกการบันทึกนี้ไหม"</string>
-    <string name="recording_stop_failed_save" msgid="720527628154679503">"หยุดการบันทึกไม่สำเร็จ: ไม่สามารถบันทึกการทดลองได้ โปรดลองอีกครั้ง"</string>
-    <!-- no translation found for elapsed_time_short_format (7848904136886917036) -->
-    <skip />
-    <string name="elapsed_time_long_format" msgid="3451516277286685162">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
-    <!-- no translation found for accessible_elapsed_time_short_format (867388448497851890) -->
-    <skip />
-    <string name="accessible_elapsed_time_long_format" msgid="5588697398982936316">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
-    <string name="elapsed_time_axis_format_small" msgid="8801162161093675447">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
-    <string name="elapsed_time_axis_format_large" msgid="1312366645818667859">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
-    <string name="graph_exploring_seekbar_content_description" msgid="8665096074255046060">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>"</string>
-    <string name="picture_note_description" msgid="4617343713156115501">"รูปภาพจากการทดลอง"</string>
-    <string name="picture_note_preview_content_description" msgid="4160980766022755366">"หน้าตัวอย่างบันทึกรูปภาพ"</string>
-    <string name="navigation_item_observe" msgid="6544385569776074166">"สังเกตการณ์"</string>
-    <string name="navigation_item_projects" msgid="204705505259389287">"โครงการ"</string>
-    <string name="navigation_item_web_link" msgid="1966109305973672752">"เว็บไซต์ทดลองวิทยาศาสตร์"</string>
-    <string name="navigation_item_settings" msgid="1612988756868966834">"การตั้งค่า"</string>
-    <string name="navigation_item_testing_options" msgid="8712068439028163725">"ตัวเลือกการทดสอบ"</string>
-    <string name="title_activity_main" msgid="8803846504222999093">"วารสารวิทยาศาสตร์ - <xliff:g id="SECTION">%s</xliff:g>"</string>
-    <string name="title_activity_add_sensor" msgid="3432276215295606638">"อุปกรณ์ภายนอก"</string>
-    <string name="external_devices_paired" msgid="460907629018449824">"อุปกรณ์ที่จับคู่"</string>
-    <string name="external_devices_pairing" msgid="1318140666547340328">"กำลังจับคู่…"</string>
-    <string name="external_devices_available" msgid="4660407499712163232">"อุปกรณ์ที่ใช้ได้"</string>
-    <string name="external_devices_settings_title" msgid="7731073608455634240">"การตั้งค่าอุปกรณ์"</string>
-    <string name="external_devices_settings_forget" msgid="2280373936547146694">"ไม่จำ"</string>
-    <string name="external_devices_settings_ok" msgid="3688835834178014100">"ตกลง"</string>
-    <string name="progress_scanning" msgid="504228868213512629">"กำลังสแกน…"</string>
-    <string name="action_refresh" msgid="6449507931372381488">"รีเฟรช"</string>
-    <string name="no_options_title" msgid="5380361167896386704">"ไม่มีตัวเลือกสำหรับ <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="no_options_message" msgid="3139314286228576248">"ไม่สามารถตั้งค่าตัวเลือกสำหรับ <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="options_message" msgid="693169996123125208">"ตั้งค่าตัวเลือกสำหรับ <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
-    <string name="sine_wave_frequency_option" msgid="3299263567413396079">"ตั้งค่าความถี่คลื่นไซน์เป็นมิลลิวินาที:"</string>
-    <string name="video_stream_fps_option" msgid="7912973629078331063">"ตั้งค่าอัตราการบันทึกสตรีมวิดีโอเป็นเฟรมต่อวินาที:"</string>
-    <string name="title_activity_project_details" msgid="6738094706468371738">"การทดลองของโครงการ"</string>
-    <string name="graph_name" msgid="4051005079264085531">"กราฟ"</string>
-    <string name="graph_options" msgid="4225585925400993925">"ตัวเลือกกราฟ"</string>
-    <string name="graph_options_title" msgid="6860269315108522661">"ตัวเลือกกราฟ"</string>
-    <string name="graph_options_smoothness_edit" msgid="1885781785347948911">"ความเรียบ"</string>
-    <string name="graph_options_window_edit" msgid="8943669029029140826">"ขนาดความเบลอ"</string>
-    <string name="graph_options_blur_edit" msgid="6217163217394307677">"ประเภทการเบลอ"</string>
-    <string name="graph_options_gaussian_sigma_edit" msgid="5761710064672068300">"ค่าเบี่ยงเบนมาตรฐาน"</string>
-    <string name="blur_type_average" msgid="1617413241621655455">"ค่าเฉลี่ย"</string>
-    <string name="blur_type_gaussian" msgid="1011871621295653087">"เกาส์เซียน"</string>
-    <string name="graph_options_audio_feedback_enable" msgid="1845200328398473302">"เปิดใช้เสียง"</string>
-    <string name="graph_options_audio_feedback_disable" msgid="5006766005261847317">"ปิดใช้เสียง"</string>
-    <string name="stat_min" msgid="7907031942382531617">"ต่ำสุด"</string>
-    <string name="stat_max" msgid="8227023306109349391">"สูงสุด"</string>
-    <string name="stat_average" msgid="3601514334204674938">"ค่าเฉลี่ย"</string>
-    <string name="stat_min_label" msgid="8763695907241205634">"ต่ำสุด"</string>
-    <string name="stat_max_label" msgid="4173459591223474511">"สูงสุด"</string>
-    <string name="stat_average_label" msgid="7341499679015444245">"ค่าเฉลี่ย"</string>
-    <string name="stat_duration" msgid="8999214260188208590">"ระยะเวลา"</string>
-    <string name="stat_unknown" msgid="8543005524144060221">"ไม่ทราบ"</string>
-    <string name="btn_reset_description" msgid="7288391743038780410">"กลับไปที่เวลาปัจจุบัน"</string>
-    <string name="export_action" msgid="3269831142664490446">"ส่งออก"</string>
-    <string name="export_run_chooser_title" msgid="6420930071586217884">"บันทึกไปที่…"</string>
-    <string name="settings_version_title" msgid="6212827772323334070">"เวอร์ชัน"</string>
-    <string name="settings_replay_tutorial_title" msgid="3811832513865119930">"บทแนะนำ"</string>
-    <string name="settings_open_source_title" msgid="3090096891818776727">"ใบอนุญาตโอเพนซอร์ส"</string>
-    <string name="dev_sensors_title" msgid="4583380726898357656">"เปิดใช้เซ็นเซอร์การทดลอง"</string>
-    <string name="cannot_scan_message" msgid="8297618436609318137">"หากต้องการเข้าถึงอุปกรณ์ภายนอก (“เซ็นเซอร์วารสารวิทยาศาสตร์”) โดยใช้วารสารวิทยาศาสตร์ คุณจะต้องเปิดบลูทูธก่อน หากต้องการสำรวจเซ็นเซอร์วารสารวิทยาศาสตร์ คุณต้องให้สิทธิ์ Android เข้าถึงสถานที่ของคุณเนื่องจากอุปกรณ์บลูทูธอื่นอาจกระจายข้อมูลสถานที่ระหว่างค้นหาอุปกรณ์ อย่างไรก็ตาม วารสารวิทยาศาสตร์จะไม่เก็บหรือใช้ข้อมูลสถานที่นี้ และเซ็นเซอร์วารสารวิทยาศาสตร์จะไม่ส่งข้อมูลสถานที่"</string>
-    <string name="btn_request_location" msgid="8197595806751014499">"เปิดการเข้าถึงตำแหน่ง"</string>
-    <string name="btn_enable_bluetooth" msgid="5357651687998209452">"เปิดบลูทูธ"</string>
-    <string name="btn_new_project_content_description" msgid="6932143755645026255">"โครงการใหม่"</string>
-    <string name="title_activity_new_project" msgid="2838213281488377791">"โครงการใหม่"</string>
-    <string name="title_activity_update_project" msgid="4441312132900502358">"อัปเดตโครงการ"</string>
-    <string name="project_save_failed" msgid="5623422183377416130">"ไม่สามารถบันทึกโครงการได้ โปรดลองอีกครั้ง"</string>
-    <string name="archived_project_message" msgid="4798618073088509851">"เก็บถาวรโครงการแล้ว"</string>
-    <string name="unarchived_project_message" msgid="178393278028428287">"ย้ายโครงการออกจากการเก็บถาวรแล้ว"</string>
-    <string name="action_undo" msgid="3152747614676103846">"เลิกทำ"</string>
-    <string name="project_title_hint" msgid="8228443486075398477">"ชื่อโครงการ"</string>
-    <string name="project_problem_hint" msgid="381678432298729684">"รายละเอียด"</string>
-    <string name="project_cover_description" msgid="1534511071097246816">"เลือกรูปภาพโครงการ"</string>
-    <string name="choose_photo_button_text" msgid="761066275467820031">"เลือกรูปภาพ"</string>
-    <plurals name="project_experiments_count" formatted="false" msgid="7648457680949535167">
+    <string name="accessible_elapsed_time_long_format" msgid="2581868378578719385">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small" msgid="7697419444947920959">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large" msgid="5693537324927532690">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_small_tenths" msgid="4091017607656155791">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
+    <string name="elapsed_time_axis_format_large_tenths" msgid="3013544179502005785">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>"</string>
+    <string name="picture_note_description" msgid="6443481127492010185">"รูปภาพจากการทดลอง"</string>
+    <string name="picture_note_preview_content_description" msgid="6722170064198693944">"หน้าตัวอย่างบันทึกรูปภาพ"</string>
+    <string name="navigation_item_observe" msgid="8558454737213940045">"สังเกตการณ์"</string>
+    <string name="navigation_item_projects" msgid="1428359552921228239">"โครงการ"</string>
+    <string name="navigation_item_web_link" msgid="2569270479818502015">"เว็บไซต์ทดลองวิทยาศาสตร์"</string>
+    <string name="navigation_item_settings" msgid="2126253880412012953">"การตั้งค่า"</string>
+    <string name="navigation_item_testing_options" msgid="1439511512230377082">"ตัวเลือกการทดสอบ"</string>
+    <string name="title_activity_main" msgid="7023325446656975223">"วารสารวิทยาศาสตร์ - <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_add_sensor" msgid="1432724804471397682">"อุปกรณ์ภายนอก"</string>
+    <string name="external_devices_paired" msgid="4167288049155302614">"อุปกรณ์ที่จับคู่"</string>
+    <string name="external_devices_pairing" msgid="572657574850294026">"กำลังจับคู่…"</string>
+    <string name="external_devices_available" msgid="720745596048662241">"อุปกรณ์ที่ใช้ได้"</string>
+    <string name="external_devices_settings_title" msgid="952881146142956835">"การตั้งค่าอุปกรณ์"</string>
+    <string name="external_devices_settings_forget" msgid="466669859199297908">"ไม่จำ"</string>
+    <string name="external_devices_settings_ok" msgid="7019210050520015615">"ตกลง"</string>
+    <string name="progress_scanning" msgid="9075247982494624322">"กำลังสแกน…"</string>
+    <string name="action_refresh" msgid="5908393033128600915">"รีเฟรช"</string>
+    <string name="no_options_title" msgid="1760920590759723521">"ไม่มีตัวเลือกสำหรับ <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="no_options_message" msgid="6604746064377213999">"ไม่สามารถตั้งค่าตัวเลือกสำหรับ <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="options_message" msgid="5565091991624696680">"ตั้งค่าตัวเลือกสำหรับ <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
+    <string name="sine_wave_frequency_option" msgid="5738179822180276142">"ตั้งค่าความถี่คลื่นไซน์เป็นมิลลิวินาที:"</string>
+    <string name="video_stream_fps_option" msgid="5159674567746736769">"ตั้งค่าอัตราการบันทึกสตรีมวิดีโอเป็นเฟรมต่อวินาที:"</string>
+    <string name="title_activity_project_details" msgid="2062373187938579607">"การทดลองของโครงการ"</string>
+    <string name="graph_name" msgid="2545455541298916481">"กราฟ"</string>
+    <string name="graph_options" msgid="6713912577613720780">"ตัวเลือกกราฟ"</string>
+    <string name="graph_options_title" msgid="1337465440393004072">"ตัวเลือกกราฟ"</string>
+    <string name="graph_options_smoothness_edit" msgid="2477873677504950555">"ความเรียบ"</string>
+    <string name="graph_options_window_edit" msgid="3548069010152399718">"ขนาดความเบลอ"</string>
+    <string name="graph_options_blur_edit" msgid="2197486882632863109">"ประเภทการเบลอ"</string>
+    <string name="graph_options_gaussian_sigma_edit" msgid="2461536252865603423">"ค่าเบี่ยงเบนมาตรฐาน"</string>
+    <string name="blur_type_average" msgid="4897294297363973000">"ค่าเฉลี่ย"</string>
+    <string name="blur_type_gaussian" msgid="2015359964672731288">"เกาส์เซียน"</string>
+    <string name="graph_options_audio_feedback_enable" msgid="2434324371310489773">"เปิดใช้เสียง"</string>
+    <string name="graph_options_audio_feedback_disable" msgid="4923990162095457862">"ปิดใช้เสียง"</string>
+    <string name="stat_min" msgid="2266439267301735688">"ต่ำสุด"</string>
+    <string name="stat_max" msgid="8842803905585048937">"สูงสุด"</string>
+    <string name="stat_average" msgid="2997539530283743087">"ค่าเฉลี่ย"</string>
+    <string name="stat_min_label" msgid="5418771583021876764">"ต่ำสุด"</string>
+    <string name="stat_max_label" msgid="2701466484421221541">"สูงสุด"</string>
+    <string name="stat_average_label" msgid="3416599910353955678">"ค่าเฉลี่ย"</string>
+    <string name="stat_duration" msgid="7050779789237242550">"ระยะเวลา"</string>
+    <string name="stat_unknown" msgid="4617276179275913656">"ไม่ทราบ"</string>
+    <string name="btn_reset_description" msgid="7031769397794008342">"กลับไปที่เวลาปัจจุบัน"</string>
+    <string name="export_action" msgid="983044359273517958">"ส่งออก"</string>
+    <string name="export_run_chooser_title" msgid="3151522898296393519">"บันทึกไปที่…"</string>
+    <string name="settings_version_title" msgid="6926476057478648092">"เวอร์ชัน"</string>
+    <string name="settings_replay_tutorial_title" msgid="6935249461039953640">"บทแนะนำ"</string>
+    <string name="settings_open_source_title" msgid="2075335777151654751">"ใบอนุญาตโอเพนซอร์ส"</string>
+    <string name="dev_sensors_title" msgid="56483495191187216">"เปิดใช้เซ็นเซอร์การทดลอง"</string>
+    <string name="cannot_scan_message" msgid="5736974833739008592">"หากต้องการเข้าถึงอุปกรณ์ภายนอก (“เซ็นเซอร์วารสารวิทยาศาสตร์”) โดยใช้วารสารวิทยาศาสตร์ คุณจะต้องเปิดบลูทูธก่อน หากต้องการสำรวจเซ็นเซอร์วารสารวิทยาศาสตร์ คุณต้องให้สิทธิ์ Android เข้าถึงสถานที่ของคุณเนื่องจากอุปกรณ์บลูทูธอื่นอาจกระจายข้อมูลสถานที่ระหว่างค้นหาอุปกรณ์ อย่างไรก็ตาม วารสารวิทยาศาสตร์จะไม่เก็บหรือใช้ข้อมูลสถานที่นี้ และเซ็นเซอร์วารสารวิทยาศาสตร์จะไม่ส่งข้อมูลสถานที่"</string>
+    <string name="btn_request_location" msgid="307169020767649663">"เปิดการเข้าถึงตำแหน่ง"</string>
+    <string name="btn_enable_bluetooth" msgid="4110230448360114456">"เปิดบลูทูธ"</string>
+    <string name="btn_new_project_content_description" msgid="7274313837160584011">"โครงการใหม่"</string>
+    <string name="title_activity_new_project" msgid="1587042971310859166">"โครงการใหม่"</string>
+    <string name="title_activity_update_project" msgid="7350262427705944300">"อัปเดตโครงการ"</string>
+    <string name="project_save_failed" msgid="5086391732504142091">"ไม่สามารถบันทึกโครงการได้ โปรดลองอีกครั้ง"</string>
+    <string name="archived_project_message" msgid="66153039940455913">"เก็บถาวรโครงการแล้ว"</string>
+    <string name="unarchived_project_message" msgid="8018113308137052929">"ย้ายโครงการออกจากการเก็บถาวรแล้ว"</string>
+    <string name="action_undo" msgid="1852278327756791797">"เลิกทำ"</string>
+    <string name="project_title_hint" msgid="5788484729941933289">"ชื่อโครงการ"</string>
+    <string name="project_problem_hint" msgid="4818690816549079105">"รายละเอียด"</string>
+    <string name="project_cover_description" msgid="8583694225708356859">"เลือกรูปภาพโครงการ"</string>
+    <string name="choose_photo_button_text" msgid="1108459708662688336">"เลือกรูปภาพ"</string>
+    <plurals name="project_experiments_count" formatted="false" msgid="4266966348548554933">
       <item quantity="other">การทดลอง <xliff:g id="NUMBER_1">%1d</xliff:g> ครั้ง</item>
       <item quantity="one">การทดลอง <xliff:g id="NUMBER_0">%1d</xliff:g> ครั้ง</item>
     </plurals>
-    <string name="btn_new_experiment_content_description" msgid="7327973648445064928">"การทดลองใหม่"</string>
-    <string name="archived_experiment_message" msgid="6471344531723915995">"เก็บถาวรการทดลองแล้ว"</string>
-    <string name="unarchived_experiment_message" msgid="8059010703916773668">"ย้ายการทดลองออกจากการเก็บถาวรแล้ว"</string>
-    <string name="archived_run_message" msgid="8095301767431802235">"เก็บถาวรการทดลองแล้ว"</string>
-    <string name="unarchived_run_message" msgid="471395163511338290">"ย้ายการทดลองออกจากการเก็บถาวรแล้ว"</string>
-    <string name="experiments_toolbar_title" msgid="7336526041603098967">"การทดลอง"</string>
-    <string name="archived_content_description" msgid="5626832963025103076">"<xliff:g id="ITEM">%1s</xliff:g> (เก็บถาวรแล้ว)"</string>
-    <plurals name="experiment_run_count" formatted="false" msgid="8354594369372506196">
+    <string name="btn_new_experiment_content_description" msgid="3961726691003098466">"การทดลองใหม่"</string>
+    <string name="archived_experiment_message" msgid="8039215577892892448">"เก็บถาวรการทดลองแล้ว"</string>
+    <string name="unarchived_experiment_message" msgid="7870126733421916514">"ย้ายการทดลองออกจากการเก็บถาวรแล้ว"</string>
+    <string name="archived_run_message" msgid="8346607350306633655">"เก็บถาวรการทดลองแล้ว"</string>
+    <string name="unarchived_run_message" msgid="3807535396227509421">"ย้ายการทดลองออกจากการเก็บถาวรแล้ว"</string>
+    <string name="experiments_toolbar_title" msgid="6963959917416270680">"การทดลอง"</string>
+    <string name="archived_content_description" msgid="7931247623909344339">"<xliff:g id="ITEM">%1s</xliff:g> (เก็บถาวรแล้ว)"</string>
+    <plurals name="experiment_run_count" formatted="false" msgid="1283784154893798777">
       <item quantity="other">การทดลอง <xliff:g id="NUMBER_1">%1d</xliff:g> ครั้ง</item>
       <item quantity="one">การทดลอง <xliff:g id="NUMBER_0">%1d</xliff:g> ครั้ง</item>
     </plurals>
-    <plurals name="notes_count" formatted="false" msgid="7949686260707404918">
+    <plurals name="notes_count" formatted="false" msgid="1493689099305335546">
       <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> บันทึก</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> บันทึก</item>
     </plurals>
-    <string name="experiment_title_hint" msgid="3508456602523057718">"ชื่อการทดลอง"</string>
-    <string name="experiment_description_hint" msgid="3197580737141616333">"คำอธิบายการทดลอง"</string>
-    <string name="title_activity_new_experiment" msgid="5681560613521817391">"การทดลองใหม่"</string>
-    <string name="title_activity_update_experiment" msgid="681114244731613638">"อัปเดตการทดลอง"</string>
-    <string name="experiment_save_failed" msgid="5031953807658062748">"ไม่สามารถบันทึกการทดลองได้ โปรดลองอีกครั้ง"</string>
-    <string name="btn_add_sensor_card_description" msgid="4836624546799382073">"เพิ่มการ์ดเซ็นเซอร์ใหม่"</string>
-    <string name="btn_sensor_card_settings" msgid="5722000860549753304">"การตั้งค่าเซ็นเซอร์"</string>
-    <string name="sensor_options" msgid="7269577762234317911">"ตัวเลือกเซ็นเซอร์"</string>
-    <string name="btn_sensor_card_expand" msgid="5267003335362502193">"แสดงรายการเซ็นเซอร์"</string>
-    <string name="btn_sensor_card_contract" msgid="4805549352705439024">"ซ่อนรายการเซ็นเซอร์"</string>
-    <string name="btn_sensor_card_close" msgid="4964202674700426175">"ปิดการ์ด"</string>
-    <string name="learn_more_button" msgid="6562065467901868709">"เรียนรู้เพิ่มเติม"</string>
-    <string name="default_experiment_name" msgid="8360979514785269303">"การทดลองที่ไม่มีชื่อ"</string>
-    <string name="default_project_name" msgid="5076954632739479626">"โครงการที่ไม่มีชื่อ"</string>
-    <string name="empty_project_library" msgid="6139693733859042212">"คุณไม่มีโครงการ"</string>
-    <string name="empty_project" msgid="196070251052121055">"คุณไม่มีการทดลอง"</string>
-    <string name="frequency_window_option_label" msgid="4885731738492452610">"กรอบความถี่ (เป็นมิลลิวินาที)"</string>
-    <string name="frequency_filter_option_label" msgid="6322746140513536230">"ตัวกรองความถี่ (เป็นหน่วยเซ็นเซอร์)"</string>
-    <string name="enable_frequency_checkbox_label" msgid="7012647084401204497">"แสดงความถี่"</string>
-    <string name="dev_sensors_summary" msgid="3417308653634353239">"แสดงเซ็นเซอร์สำหรับการทดสอบโดยนักพัฒนาซอฟต์แวร์เท่านั้น"</string>
-    <string name="options_save_error" msgid="5710202337557612915">"ข้อผิดพลาดบันทึกตัวเลือก"</string>
-    <string name="options_load_error" msgid="1033189385249714186">"ข้อผิดพลาดการโหลดตัวเลือก"</string>
-    <string name="dev_tools_title" msgid="413875762004836148">"เปิดใช้เครื่องมือการทดลอง"</string>
-    <string name="dev_tools_summary" msgid="8602005614020489618">"แสดงเครื่องมือสำหรับการทดสอบโดยนักพัฒนาซอฟต์แวร์เท่านั้น"</string>
-    <string name="dev_tools_leak_detection_title" msgid="4501895025531999102">"เปิดใช้การตรวจจับการรั่วไหลของหน่วยความจำ"</string>
-    <string name="dev_tools_leak_detection_summary" msgid="6611870647303094340">"การเปลี่ยนแปลงการตั้งค่านี้จะมีผลหลังปิดแอปพลิเคชัน"</string>
-    <string name="d2p" msgid="639917686672445089">"แปลงข้อมูลเป็นระดับเสียง"</string>
-    <string name="d2a" msgid="1134874560612971036">"แปลงข้อมูลเป็นแอมพลิจูด"</string>
-    <string name="d2pe" msgid="3727800647324543645">"แปลงข้อมูลเป็นเอนเวโลประดับเสียง"</string>
-    <string name="d2ps" msgid="7368523482734331024">"แปลงข้อมูลเป็นเอนเวโลประดับเสียงตามเพนทาโทนิคสเกล"</string>
-    <!-- no translation found for sonification_types:0 (3861898414238653003) -->
-    <!-- no translation found for sonification_types:1 (906523180895001108) -->
-    <!-- no translation found for sonification_types:2 (5312779098039590744) -->
-    <!-- no translation found for sonification_types:3 (2613491808468275381) -->
+    <string name="experiment_title_hint" msgid="4911759592447244874">"ชื่อการทดลอง"</string>
+    <string name="experiment_description_hint" msgid="9040493859360181138">"คำอธิบายการทดลอง"</string>
+    <string name="title_activity_new_experiment" msgid="1697272498867631187">"การทดลองใหม่"</string>
+    <string name="title_activity_update_experiment" msgid="8903071005308719553">"อัปเดตการทดลอง"</string>
+    <string name="experiment_save_failed" msgid="3579978860172392885">"ไม่สามารถบันทึกการทดลองได้ โปรดลองอีกครั้ง"</string>
+    <string name="btn_add_sensor_card_description" msgid="3220894480072851740">"เพิ่มการ์ดเซ็นเซอร์ใหม่"</string>
+    <string name="btn_sensor_card_settings" msgid="8338988984248785174">"การตั้งค่าเซ็นเซอร์"</string>
+    <string name="sensor_options" msgid="2527469837515426649">"ตัวเลือกเซ็นเซอร์"</string>
+    <string name="btn_sensor_card_expand" msgid="1914614017147970197">"แสดงรายการเซ็นเซอร์"</string>
+    <string name="btn_sensor_card_contract" msgid="1006419097337923899">"ซ่อนรายการเซ็นเซอร์"</string>
+    <string name="btn_sensor_card_close" msgid="7007680079590450567">"ปิดการ์ด"</string>
+    <string name="learn_more_button" msgid="7118982997189708606">"เรียนรู้เพิ่มเติม"</string>
+    <string name="default_experiment_name" msgid="7276399663891989139">"การทดลองที่ไม่มีชื่อ"</string>
+    <string name="default_project_name" msgid="6612431275727005025">"โครงการที่ไม่มีชื่อ"</string>
+    <string name="empty_project_library" msgid="5583535044982272786">"คุณไม่มีโครงการ"</string>
+    <string name="empty_project" msgid="4645516559486435478">"คุณไม่มีการทดลอง"</string>
+    <string name="frequency_window_option_label" msgid="4919436041479250367">"กรอบความถี่ (เป็นมิลลิวินาที)"</string>
+    <string name="frequency_filter_option_label" msgid="4458966053132937293">"ตัวกรองความถี่ (เป็นหน่วยเซ็นเซอร์)"</string>
+    <string name="enable_frequency_checkbox_label" msgid="2922864218507547240">"แสดงความถี่"</string>
+    <string name="dev_sensors_summary" msgid="7086328959529574660">"แสดงเซ็นเซอร์สำหรับการทดสอบโดยนักพัฒนาซอฟต์แวร์เท่านั้น"</string>
+    <string name="options_save_error" msgid="1262808099812151932">"ข้อผิดพลาดบันทึกตัวเลือก"</string>
+    <string name="options_load_error" msgid="1594503728021930743">"ข้อผิดพลาดการโหลดตัวเลือก"</string>
+    <string name="dev_tools_title" msgid="8231917267495770691">"เปิดใช้เครื่องมือการทดลอง"</string>
+    <string name="dev_tools_summary" msgid="3609685547301741618">"แสดงเครื่องมือสำหรับการทดสอบโดยนักพัฒนาซอฟต์แวร์เท่านั้น"</string>
+    <string name="dev_tools_leak_detection_title" msgid="4725525693236520974">"เปิดใช้การตรวจจับการรั่วไหลของหน่วยความจำ"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="9019022238189456899">"การเปลี่ยนแปลงการตั้งค่านี้จะมีผลหลังปิดแอปพลิเคชัน"</string>
+    <string name="d2p" msgid="372033271119706811">"ค่าเริ่มต้น"</string>
+    <string name="d2a" msgid="8650862124682156354">"แอมพลิจูด"</string>
+    <string name="d2pe" msgid="956618657669378971">"โน้ต"</string>
+    <string name="d2ps" msgid="5114174025939101366">"สเกล"</string>
+    <!-- no translation found for sonification_types_prod:0 (3254769575914104850) -->
+    <!-- no translation found for sonification_types_prod:1 (1831413879274006078) -->
+    <!-- no translation found for sonification_types_prod:2 (1917376169281831239) -->
+    <!-- no translation found for sonification_types_dev:0 (7417644575217300390) -->
   <string-array name="sonification_type_aliases">
-    <item msgid="7377813266249747858">"d2p"</item>
-    <item msgid="6906000057586711876">"d2a"</item>
-    <item msgid="1870736636828704674">"d2pe"</item>
-    <item msgid="5674284626652201942">"d2ps"</item>
+    <item msgid="234968762840479178">"d2p"</item>
+    <item msgid="6154566816995872686">"d2ps"</item>
+    <item msgid="2062530924507614569">"d2pe"</item>
+    <item msgid="72378471312023144">"d2a"</item>
   </string-array>
-    <string name="new_experiment_spinner_item" msgid="5833883031740938473">"การทดลองใหม่…"</string>
-    <string name="recording_title_label" msgid="5188061176268043052">"กำลังบันทึก…"</string>
-    <string name="exp_edit_info_button" msgid="57557261114019563">"แก้ไขข้อมูล"</string>
-    <string name="btn_observe_content_description" msgid="6339279151257255267">"สังเกตการณ์"</string>
-    <string name="title_activity_experiment_details" msgid="6104721540075416005">"รายละเอียดการทดลอง"</string>
-    <string name="empty_runs" msgid="2492444523656046772">"คุณไม่มีการทดลอง"</string>
-    <string name="permission_request_write" msgid="7894354232042075113">"ต้องใช้สิทธิ์ในการเขียนพื้นที่เก็บข้อมูลภายนอก"</string>
-    <string name="device_options_sensor_label_text" msgid="4913281182269452551">"เซ็นเซอร์"</string>
-    <string name="external_sensor_appearance_name" msgid="2545762878566289321">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
-    <string name="sensor_rotation_rpm" msgid="7675868077769123026">"การหมุน"</string>
-    <string name="sensor_voltage" msgid="8803070522098118555">"แรงดันไฟฟ้า"</string>
-    <string name="sensor_raw" msgid="3706079416934145306">"ข้อมูลดิบ"</string>
-    <string name="sensor_temperature_fahrenheit" msgid="530709732319662008">"อุณหภูมิเป็นฟาเรนไฮท์ (F)"</string>
-    <string name="sensor_custom" msgid="6419934674147294928">"กำหนดเอง"</string>
-    <string name="device_options_custom_sensor_pin_label_text" msgid="7800969142277212707">"PIN"</string>
-    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="3441420502780409558">"ความถี่"</string>
-    <string name="feedback_error_message" msgid="6267829056474146185">"ไม่สามารถส่งความคิดเห็น"</string>
-    <string name="no_sensor_info_found" msgid="4162175886082619280">"เซ็นเซอร์นี้ไม่มีข้อมูลเพิ่มเติม"</string>
-    <string name="sensor_desc_short_acc_x" msgid="2894000283386570265">"ความเร่งของโทรศัพท์ไปทางซ้ายและขวา หน่วยเป็นเมตร/วินาที²"</string>
-    <string name="sensor_desc_short_acc_y" msgid="6068967454464639546">"ความเร่งของโทรศัพท์ไปด้านหน้าและหลัง หน่วยเป็นเมตร/วินาที²"</string>
-    <string name="sensor_desc_short_acc_z" msgid="718984279193417402">"ความเร่งของโทรศัพท์ในทิศทางขึ้นและลง หน่วยเป็นเมตร/วินาที²"</string>
-    <string name="sensor_desc_short_decibel" msgid="6022620562641402361">"ความเข้มของเสียงตกกระทบเซ็นเซอร์เสียงหรือไมโครโฟน หน่วยเป็นเดซิเบล (dB)"</string>
-    <string name="sensor_desc_short_light" msgid="2836912567230826095">"ปริมาณแสงตกกระทบเซ็นเซอร์วัดแสงโดยรอบ หน่วยเป็นลักซ์"</string>
-    <string name="sensor_desc_short_magnetic_rotation" msgid="2856177797841108478">"องศาของการหมุนระหว่างโทรศัพท์และสนามแม่เหล็กภายนอก"</string>
-    <string name="sensor_desc_short_bluetooth" msgid="6408146877850831242">"เซ็นเซอร์ภายนอกแสดงข้อมูลของเซ็นเซอร์ที่นี่ตามการตั้งค่าที่กำหนดเอง"</string>
-    <string name="sensor_desc_short_rotation" msgid="4005725749913712057">"จำนวนรอบที่หมุนต่อนาที"</string>
-    <string name="sensor_desc_short_raw" msgid="8183752554049502871">"การอ่านข้อมูลดิบจากเซ็นเซอร์ภายนอกคิดเป็นเปอร์เซ็นต์"</string>
-    <string name="sensor_desc_first_paragraph_light" msgid="4109035727606616530">"เซ็นเซอร์วัดแสงโดยรอบจะวัดความสว่างเป็นหน่วยลักซ์ ซึ่งเป็นการวัดความส่องสว่างที่ขึ้นอยู่กับปริมาณแสงที่สว่างออกมาและพื้นที่ที่แสงครอบคลุม \n\nพระจันทร์เต็มดวงมีความส่องสว่างประมาณ 1 ลักซ์ ห้องปกติที่มีโคมไฟมีประมาณ 50 ลักซ์ แสงไฟในห้องเรียนและแสงอาทิตย์เมื่อขึ้นและตกมีประมาณ 400 ลักซ์ แสงตอนกลางวัน (แสงอาทิตย์ทางอ้อม) มีมากกว่า 10,000 ลักซ์ และแสงอาทิตย์ทางตรงมี 30,000 ลักซ์ \n\nลักซ์เป็นหน่วยที่คนส่วนมากไม่คุ้นเคย เมื่อซื้อหลอดไฟเราจะดูที่หน่วยวัตต์ แต่วัตต์ของหลอดไฟไม่ได้บอกว่าหลอดไฟจะสว่างแค่ไหน แต่จะบอกแค่เพียงพลังงานที่หลอดไฟใช้เท่านั้น หน่วยลูเมนเป็นการวัดที่ดีกว่าเมื่อจะซื้อหลอดไฟ เพราะลูเมนจะบอกว่าหลอดไฟนั้นสร้างแสงสว่างออกมามากเพียงใด ส่วนลักซ์จะบอกว่ามีแสงปริมาณเท่าใดที่เดินทางถึงพื้นที่หนึ่งๆ"</string>
-    <string name="sensor_desc_second_paragraph_light" msgid="4898255020378037357">"เนื่องจากแสงจะกระจายตัวออกเมื่อเดินทาง ปริมาณลักซ์จึงลดลงเมื่อคุณถอยห่างจากแหล่งกำเนิดแสงแม้ว่าแหล่งกำเนิดแสงดังกล่าวจะให้แสงในปริมาณลูเมนที่เท่ากัน พื้นที่ที่เอียงออกจากแหล่งกำเนิดแสงจะได้รับแสงสว่างน้อยลง ซึ่งเป็นสาเหตุที่บริเวณเส้นศูนย์สูตรของโลกอุ่นกว่าขั้วโลกที่เย็นยะเยือกมาก \n\nทั้งนี้ จุดประสงค์ของเซ็นเซอร์แสงในโทรศัพท์ของคุณคือการควบคุมระดับความสว่างของหน้าจอและปรับตามสิ่งแวดล้อมที่มืดสลัวและสว่าง ภายในเซ็นเซอร์แสงจะมีสารกึ่งตัวนำขนาดเล็กคอยตอบสนองต่อแสงที่เข้ามาโดยผลิตกระแสไฟฟ้าอ่อนๆ แต่สามารถวัดได้ ปรากฏการณ์นี้เรียกว่าปรากฏการณ์โฟโตอิเล็กทริก เซ็นเซอร์ที่คล้ายกันนี้มีการใช้กับไฟถนนเพื่อให้ไฟเปิดขึ้นเมื่อท้องฟ้ามืด"</string>
-    <string name="sensor_desc_first_paragraph_acc" msgid="5154591427983319390">"วัตถุมีแนวโน้มที่จะอยู่นิ่งหรือเคลื่อนที่ต่อไปหากกำลังเคลื่อนที่อยู่ แนวโน้มนี้เรียกว่าความเฉื่อย กฎข้อที่ 1 ของนิวตันกล่าวว่า วัตถุจะคงสถานะการเคลื่อนไหวหรืออยู่นิ่งจนกระทั่งได้รับผลกระทบจากแรงที่ไม่สมดุล \n\nเมื่อแรงที่ไม่สมดุลทำให้วัตถุเคลื่อนที่ เราเรียกว่าวัตถุมีความเร่ง นั่นคือ อัตราเร็วหรือความเร็วของวัตถุจะเปลี่ยนแปลงเป็นเร็วขึ้น ช้าลง หรือเปลี่ยนทิศทาง ความเร่งจะวัดจากการเปลี่ยนแปลงอัตราเร็ว (เมตรต่อวินาที) ในระยะเวลาหนึ่ง หรือเมตรต่อวินาทียกกำลังสอง (เมตร/วินาที²) \n\nโทรศัพท์ของคุณมีอุปกรณ์วัดการเปลี่ยนแปลงความเคลื่อนไหวที่เรียกว่าตัววัดความเร่ง ภายในตัววัดความเร่งจะมีมวลสารเล็กๆ ลอยอยู่อย่างเป็นอิสระ การเคลื่อนไหวที่เปลี่ยนไปจะทำให้มวลสารเคลื่อนที่ เช่นเดียวกับตอนที่ศีรษะเหวี่ยงไปด้านหน้าเมื่อรถหยุดกระทันหัน การวัดการเปลี่ยนแปลงความเฉื่อยที่ซับซ้อนนี้ทำให้ตัววัดความเร่งในโทรศัพท์สามารถตรวจจับความเคลื่อนไหวและทิศทางที่เปลี่ยนไปได้ ซึ่งมีประโยชน์ในการสลับหน้าจอจากโหมดแนวนอนเป็นแนวตั้งสำหรับการเล่นเกมในโทรศัพท์และอื่นๆ"</string>
-    <string name="sensor_desc_second_paragraph_acc" msgid="8812623507037923651">"คุณอาจสังเกตเห็นว่าในแกน Z มีการเพิ่มความเร็วอยู่ตลอดแม้ว่าโทรศัพท์จะวางนิ่งอยู่บนโต๊ะ นี่เป็นความเร่งที่เกิดขึ้นบนพื้นผิวโลกเนื่องจากแรงดึงของแรงดึงดูด ประมาณ 9.8 เมตร/วินาที²"</string>
-    <string name="sensor_desc_first_paragraph_decibel" msgid="2782071765610621336">"เสียงเกิดจากการสั่นสะเทือน ตัวอย่างเช่น เสียงของคุณมาจากการสั่นสะเทือนของเส้นเสียงในกล่องเสียงในลำคอของคุณ การสั่นสะเทือนเหล่าจะสร้างพื้นที่ที่มีแรงกดอากาศสูงและต่ำสลับกันที่เปล่งออกมาภายนอก คล้ายกับวงน้ำที่ขยายตัวออกเมื่อโยนก้อนหินลงบ่อน้ำ"</string>
-    <string name="sensor_desc_second_paragraph_decibel" msgid="142151860819231749">"เสียงทั้งหมดสามารถอธิบายได้ในแง่ของความถี่และความเข้ม \n\nความเข้มคือสิ่งที่คุณวัดที่นี่ด้วยวารสารวิทยาศาสตร์เป็นหน่วยเดซิเบล (dB) ความเข้มหรือความดังขึ้นอยู่กับระยะทางที่วัตถุที่สั่นสะเทือนมีการเคลื่อนที่ในแต่ละครั้งที่สั่นสะเทือน เราจะได้ยินความเข้มมากขึ้นเมื่อความดังเพิ่มขึ้น \n\nความถี่ (หรือระดับเสียงหรือโทนเสียง) ของคลื่นเสียงจะเท่ากับอัตราการสั่นสะเทือน ยิ่งวัตถุสั่นเร็วขึ้นเท่าใดเสียงที่ออกมาก็จะสูงขึ้นเท่านั้น วารสารวิทยาศาสตร์ไม่ได้วัดความถี่ แต่วัดเฉพาะความดัง \n\nเสียงเบาที่สุดที่หูของมนุษย์ทั่วไปสามารถได้ยินมีการระบุไว้เท่ากับ 0 dB การสนทนาโต้ตอบธรรมดาดังประมาณ 60 dB และเสียงที่ดังกว่า 140 dB จะสร้างความเจ็บปวดต่อหูของมนุษย์ แต่เสียงที่เป็นอันตรายอาจไม่ใช่เสียงที่สร้างความเจ็บปวดเสมอไป การฟังเสียงดัง 90 dB หรือดังประมาณเสียงเครื่องดูดฝุ่นอย่างต่อเนื่องเป็นเวลานานก็สามารถทำให้สูญเสียการได้ยินได้ในที่สุด \n\nตารางเดซิเบลเป็นแบบลอการิทึมซึ่งทำให้สับสนได้ง่าย: แหล่งที่มาของเสียงดัง 40 dB ไม่ได้มีความเข้มเป็น 2 เท่าของแหล่งที่มาของเสียงดัง 20 dB แต่เข้มกว่า 100 เท่า ส่วนนาฬิกาปลุกที่กำลังดัง 1 เรือนจะสร้างเสียง 70 dB แต่นาฬิกาปลุกที่กำลังดัง 2 เรือนไม่ได้สร้างเสียง 140 dB แต่เป็น 73 dB อย่างที่เราได้กล่าวไว้ ตารางเดซิเบลค่อนข้างเป็นตารางที่แปลก\n\nใบไม้ดังกรอบแกรบเท่ากับ 10 dB \nเสียงกระซิบระยะ 5 ฟุตดัง 20 dB \nเสียงกระซิบเบาๆ ดัง 30 dB \nฝนตกดัง 50 dB \nการสนทนาปกติดัง 60 dB \nเครื่องปั่นดัง 90 dB \nรถที่ไม่มีกระบอกลดเสียงดัง 100 dB \nการตะโกนใกล้ๆ หูดัง 110 dB \nฟ้าผ่าดัง 120 dB \nเครื่องเจาะหินดัง 130 dB \nเครื่องบินขึ้นดัง 140 dB"</string>
-    <string name="sensor_desc_first_paragraph_rotation" msgid="8053108458881116800">"รอบต่อนาที (RPM) คือการวัดความถี่ของการหมุนรอบแกนคงที่ใน 1 นาที \n\nเมื่อกังหันลมหมุน กังหันก็จะหมุนจานเข้ารหัส:"</string>
-    <string name="sensor_desc_second_paragraph_rotation" msgid="1296904470766613471">"ซึ่งจะสร้างช่วงของความสว่างและความมืดบนเซ็นเซอร์ที่บันทึกไว้เป็นการหมุนในวารสารวิทยาศาสตร์"</string>
-    <string name="sensor_desc_first_paragraph_raw" msgid="4939612146659644032">"ข้อมูลที่แสดงที่นี่มาจากการสื่อสารของเซ็นเซอร์ภายนอกกับโทรศัพท์ของคุณผ่านบลูทูธ \n\nค่าดังกล่าวจะแสดงการอ่านข้อมูลดิบโดยตรงจากไมโครคอนโทรลเลอร์คิดเป็นเปอร์เซ็นต์ ซึ่งมักเป็นเปอร์เซ็นต์ของแรงดันไฟตกในเซ็นเซอร์"</string>
-    <string name="sensor_desc_second_paragraph_raw" msgid="8973117353495356394">"บลูทูธเป็นเทคโนโลยีไร้สายที่ใช้คลื่นวิทยุในการแลกเปลี่ยนข้อมูลระยะใกล้จากอุปกรณ์ที่อยู่กับที่และอุปกรณ์เคลื่อนที่"</string>
-    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="7981623485563854939">"ข้อมูลที่แสดงที่นี่มาจากการสื่อสารของเซ็นเซอร์ภายนอกกับโทรศัพท์ของคุณผ่านบลูทูธ"</string>
-    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="7708856960763941387">"บลูทูธเป็นเทคโนโลยีไร้สายที่ใช้คลื่นวิทยุในการแลกเปลี่ยนข้อมูลระยะใกล้จากอุปกรณ์ที่อยู่กับที่และอุปกรณ์เคลื่อนที่"</string>
-    <string name="run_review_duration" msgid="7076553835966679478">"ระยะเวลา"</string>
-    <string name="run_review_activity_label" msgid="5276313115461408528">"รีวิว"</string>
-    <string name="service_notification_content_title" msgid="409211151396677834">"วารสารวิทยาศาตร์"</string>
-    <string name="service_notification_content_text" msgid="6198486549545279611">"กำลังบันทึก…"</string>
-    <string name="live_graph_content_description" msgid="3504419430886261146">"กราฟเซ็นเซอร์แบบสด ลากเพื่อเลื่อนแกน X"</string>
-    <string name="static_graph_content_description" msgid="5963837267567407006">"กราฟเซ็นเซอร์ บีบเพื่อซูมและลากเพื่อเลื่อนแกน X"</string>
-    <string name="sensor_card_overflow_menu_content_description" msgid="1847239009701022116">"ตัวเลือกการ์ด"</string>
-    <string name="btn_sensor_flip_info_content_description" msgid="4129040510635338579">"สลับไปใช้โหมดข้อมูล"</string>
-    <string name="btn_sensor_flip_graph_content_description" msgid="2500545463691107821">"สลับไปใช้โหมดกราฟ"</string>
-    <string name="sensor_tab_layout_content_description" msgid="6653074718544676936">"เซ็นเซอร์ที่มี"</string>
-    <string name="sensor_tab_selected_format" msgid="5189774892597619784">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (เลือกแล้ว)"</string>
-    <string name="title_activity_sensor_info" msgid="6960039814316283850">"ข้อมูลเซ็นเซอร์"</string>
-    <string name="title_activity_sensor_info_format" msgid="9106545676836634722">"เซ็นเซอร์ <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
-    <string name="heading_info_section" msgid="3068233297591403258">"เกิดอะไรขึ้น"</string>
-    <string name="edit_note_menu_item" msgid="5303280313359136552">"แก้ไข"</string>
-    <string name="edit_note_time" msgid="2027041230205029461">"แก้ไขเวลาของบันทึก"</string>
-    <string name="delete_note_menu_item" msgid="7908811564743301702">"ลบ"</string>
-    <string name="delete_run" msgid="103141962786624686">"ลบ"</string>
-    <string name="crop_run" msgid="1336721925526265401">"ครอบตัด"</string>
-    <string name="add_run_note" msgid="4601243377697085005">"เพิ่มบันทึก"</string>
-    <string name="add_experiment_note" msgid="1084637094906153162">"เพิ่มบันทึก"</string>
-    <string name="run_label" msgid="7587739695592981023">"การทดลอง <xliff:g id="RUN_INDEX">%s</xliff:g>"</string>
-    <string name="run_review_switch_sensor_btn_prev" msgid="1562899512022232138">"เซ็นเซอร์ก่อนหน้า: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
-    <string name="run_review_switch_sensor_btn_next" msgid="5528270146135394657">"เซ็นเซอร์ถัดไป: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
-    <string name="edit_note_hint_text" msgid="7190191469950695769">"แก้ไขบันทึกการทดลอง"</string>
-    <string name="add_note_hint_text" msgid="4947278182685363439">"เพิ่มบันทึกใหม่"</string>
-    <string name="snackbar_note_deleted" msgid="4926151554010737654">"ลบบันทึกแล้ว"</string>
-    <string name="snackbar_undo" msgid="488185413692934054">"เลิกทำ"</string>
-    <string name="add_run_note_placeholder_text" msgid="4564897234715127061">"เพิ่มบันทึกในการทดลองนี้"</string>
-    <string name="add_experiment_note_placeholder_text" msgid="5668745283017643514">"เพิ่มบันทึกการทดลอง"</string>
-    <string name="add_note_image_button_content_description" msgid="5956413597980661328">"บันทึกด้วยภาพ"</string>
-    <string name="pinned_note_placeholder_text" msgid="742162042813125689">"เพิ่มบันทึก"</string>
-    <string name="no_notes_text" msgid="1333257200348947043">"ไม่มีบันทึก"</string>
-    <string name="indeterminate_value" msgid="6535623633404732608">"--"</string>
-    <string name="project_card_overflow_menu_content_description" msgid="2569345733400148597">"ตัวเลือกโครงการ"</string>
-    <string name="project_active_badge" msgid="8953778683278828884">"ใช้งานอยู่"</string>
-    <string name="archived_badge" msgid="7204033469949818539">"เก็บแล้ว"</string>
-    <string name="action_include_archived_projects" msgid="1872416419322070603">"รวมโครงการที่เก็บถาวร"</string>
-    <string name="action_include_archived_experiments" msgid="1368001463798477703">"รวมการทดลองที่เก็บถาวร"</string>
-    <string name="action_new_experiment" msgid="3598888962558710132">"การทดลองใหม่"</string>
-    <string name="delete_run_dialog_title" msgid="2829473058431908340">"ลบการทดลองนี้ใช่ไหม"</string>
-    <string name="run_review_delete_confirm" msgid="9216827234502882510">"แน่ใจไหมว่าต้องการลบการทดลองนี้ ระบบจะลบข้อมูลและบันทึกที่บันทึกไว้ การดำเนินการนี้ไม่สามารถยกเลิกได้"</string>
-    <string name="menu_btn_content_description" msgid="4680014704943654954">"เมนู"</string>
-    <string name="age_verifier_header" msgid="9217155512378711429">"ยืนยันอายุของคุณ"</string>
-    <string name="age_verifier_birthday" msgid="2054392341079524729">"วันเกิด:"</string>
-    <string name="age_verifier_get_started" msgid="1086024826189816224">"เริ่มต้นใช้งาน"</string>
-    <string name="tutorial_welcome_header" msgid="5596382686735832683">"สำรวจโลกรอบตัวคุณ"</string>
-    <string name="tutorial_welcome_body" msgid="7591843046586427635">"ใช้เซ็นเซอร์ในโทรศัพท์ Android ของคุณในการวัดเสียง แสงสว่าง และอีกมากมาย"</string>
-    <string name="tutorial_setup_header" msgid="7529566316389493918">"จัดระเบียบโครงการ"</string>
-    <string name="tutorial_setup_body" msgid="3570507763094472318">"ตั้งค่าโครงการและการทดลองเพื่อจัดระเบียบข้อมูลและเปรียบเทียบผลลัพธ์"</string>
-    <string name="tutorial_observe_record_header" msgid="3715811468629596336">"บันทึกแบบเรียลไทม์"</string>
-    <string name="tutorial_observe_record_body" msgid="6982870167622582123">"หากพบสิ่งที่คุณต้องการวัด คุณสามารถบันทึกการสังเกตการณ์แบบเรียลไทม์ด้วยการกดเพียงปุ่มเดียว"</string>
-    <string name="tutorial_take_notes_header" msgid="8271718393020433479">"เพิ่มบันทึกการสังเกตการณ์"</string>
-    <string name="tutorial_take_notes_body" msgid="6597967563928412974">"ขณะบันทึก คุณสามารถเพิ่มบันทึกและรูปภาพเพื่อเพิ่มบริบทให้กับข้อมูลมากขึ้น"</string>
-    <string name="btn_previous_label" msgid="2881262882599469727">"ก่อนหน้า"</string>
-    <string name="btn_next_label" msgid="1682026626542221420">"ถัดไป"</string>
-    <string name="sensor_card_error_text" msgid="151455534130824363">"ไม่สามารถโหลดข้อมูลเซ็นเซอร์"</string>
-    <string name="bluetooth_not_on_title" msgid="8961840974431817490">"เชื่อมต่อกับบลูทูธ"</string>
-    <string name="bluetooth_not_on_body" msgid="1861412368943739545">"ไม่สามารถเชื่อมต่อกับเซ็นเซอร์ภายนอก: บลูทูธปิดอยู่ เปิดบลูทูธเพื่อเชื่อมต่อกับเซ็นเซอร์ภายนอกของคุณ"</string>
-    <string name="bluetooth_not_on_ok" msgid="3148597353545683264">"เปิดบลูทูธ"</string>
-    <string name="sensor_card_loading_text" msgid="8569947135727599414">"กำลังโหลดข้อมูลเซ็นเซอร์…"</string>
-    <string name="graph_loading" msgid="9200302049191996695">"กำลังโหลดกราฟ…"</string>
-    <string name="playback_button_pause" msgid="6025607837788357759">"หยุดเล่นเสียงชั่วคราว"</string>
-    <string name="playback_button_play" msgid="5739285031289314186">"เริ่มเล่นเสียง"</string>
-    <string name="sonification_type_card_title" msgid="7315771791094946967">"ประเภทการแปลงข้อมูลเป็นเสียงของการ์ด"</string>
-    <string name="sonification_type_title" msgid="271616837832972881">"ประเภทการแปลงข้อมูลเป็นเสียงเริ่มต้น"</string>
-    <string name="title_edit_trial_activity" msgid="3272215900928155534">"แก้ไขการทดลอง"</string>
-    <string name="edit_trial_title_hint" msgid="3752953269416446342">"ชื่อการทดลอง"</string>
-    <string name="include_archived_trials" msgid="6064586011723883752">"รวมการทดลองที่เก็บถาวร"</string>
-    <string name="export_error" msgid="8729689368786707247">"การส่งออกล้มเหลว"</string>
-    <!-- no translation found for picture_note_caption_hint (5048893770454854926) -->
+    <string name="new_experiment_spinner_item" msgid="5017810476745425374">"การทดลองใหม่…"</string>
+    <string name="recording_title_label" msgid="736399431431816185">"กำลังบันทึก…"</string>
+    <string name="exp_edit_info_button" msgid="3141909000709306124">"แก้ไขข้อมูล"</string>
+    <string name="btn_observe_content_description" msgid="476911391550333702">"สังเกตการณ์"</string>
+    <string name="title_activity_experiment_details" msgid="3494340558031776911">"รายละเอียดการทดลอง"</string>
+    <string name="empty_runs" msgid="7548505071633993347">"คุณไม่มีการทดลอง"</string>
+    <string name="permission_request_write" msgid="6590731147363977582">"ต้องใช้สิทธิ์ในการเขียนพื้นที่เก็บข้อมูลภายนอก"</string>
+    <string name="device_options_sensor_label_text" msgid="5073336029128358977">"เซ็นเซอร์"</string>
+    <string name="external_sensor_appearance_name" msgid="6419268671149879170">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
+    <string name="sensor_rotation_rpm" msgid="8182424841627888016">"การหมุน"</string>
+    <string name="sensor_voltage" msgid="6438018742829699537">"แรงดันไฟฟ้า"</string>
+    <string name="sensor_raw" msgid="3190262811359056981">"ข้อมูลดิบ"</string>
+    <string name="sensor_temperature_fahrenheit" msgid="1114912288747943713">"อุณหภูมิเป็นฟาเรนไฮท์ (F)"</string>
+    <string name="sensor_custom" msgid="4391469894020745029">"กำหนดเอง"</string>
+    <string name="device_options_custom_sensor_pin_label_text" msgid="7023371657105134847">"PIN"</string>
+    <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="4571472391388122413">"ความถี่"</string>
+    <string name="feedback_error_message" msgid="3117491109292317255">"ไม่สามารถส่งความคิดเห็น"</string>
+    <string name="no_sensor_info_found" msgid="2182109795740683658">"เซ็นเซอร์นี้ไม่มีข้อมูลเพิ่มเติม"</string>
+    <string name="sensor_desc_short_acc_x" msgid="1184579399689940361">"ความเร่งของโทรศัพท์ไปทางซ้ายและขวา หน่วยเป็นเมตร/วินาที²"</string>
+    <string name="sensor_desc_short_acc_y" msgid="7084492489358508838">"ความเร่งของโทรศัพท์ไปด้านหน้าและหลัง หน่วยเป็นเมตร/วินาที²"</string>
+    <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"ความเร่งของโทรศัพท์ในทิศทางขึ้นและลง หน่วยเป็นเมตร/วินาที²"</string>
+    <string name="sensor_desc_short_decibel" msgid="2359189091191569028">"ความเข้มของเสียงตกกระทบเซ็นเซอร์เสียงหรือไมโครโฟน หน่วยเป็นเดซิเบล (dB)"</string>
+    <string name="sensor_desc_short_light" msgid="8639505918865988429">"ปริมาณแสงตกกระทบเซ็นเซอร์วัดแสงโดยรอบ หน่วยเป็นลักซ์"</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="1329789157704631467">"องศาของการหมุนระหว่างโทรศัพท์และสนามแม่เหล็กภายนอก"</string>
+    <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"เซ็นเซอร์ภายนอกแสดงข้อมูลของเซ็นเซอร์ที่นี่ตามการตั้งค่าที่กำหนดเอง"</string>
+    <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"จำนวนรอบที่หมุนต่อนาที"</string>
+    <string name="sensor_desc_short_raw" msgid="110741801025942586">"การอ่านข้อมูลดิบจากเซ็นเซอร์ภายนอกคิดเป็นเปอร์เซ็นต์"</string>
+    <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"เซ็นเซอร์วัดแสงโดยรอบจะวัดความสว่างเป็นหน่วยลักซ์ ซึ่งเป็นการวัดความส่องสว่างที่ขึ้นอยู่กับปริมาณแสงที่สว่างออกมาและพื้นที่ที่แสงครอบคลุม \n\nพระจันทร์เต็มดวงมีความส่องสว่างประมาณ 1 ลักซ์ ห้องปกติที่มีโคมไฟมีประมาณ 50 ลักซ์ แสงไฟในห้องเรียนและแสงอาทิตย์เมื่อขึ้นและตกมีประมาณ 400 ลักซ์ แสงตอนกลางวัน (แสงอาทิตย์ทางอ้อม) มีมากกว่า 10,000 ลักซ์ และแสงอาทิตย์ทางตรงมี 30,000 ลักซ์ \n\nลักซ์เป็นหน่วยที่คนส่วนมากไม่คุ้นเคย เมื่อซื้อหลอดไฟเราจะดูที่หน่วยวัตต์ แต่วัตต์ของหลอดไฟไม่ได้บอกว่าหลอดไฟจะสว่างแค่ไหน แต่จะบอกแค่เพียงพลังงานที่หลอดไฟใช้เท่านั้น หน่วยลูเมนเป็นการวัดที่ดีกว่าเมื่อจะซื้อหลอดไฟ เพราะลูเมนจะบอกว่าหลอดไฟนั้นสร้างแสงสว่างออกมามากเพียงใด ส่วนลักซ์จะบอกว่ามีแสงปริมาณเท่าใดที่เดินทางถึงพื้นที่หนึ่งๆ"</string>
+    <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"เนื่องจากแสงจะกระจายตัวออกเมื่อเดินทาง ปริมาณลักซ์จึงลดลงเมื่อคุณถอยห่างจากแหล่งกำเนิดแสงแม้ว่าแหล่งกำเนิดแสงดังกล่าวจะให้แสงในปริมาณลูเมนที่เท่ากัน พื้นที่ที่เอียงออกจากแหล่งกำเนิดแสงจะได้รับแสงสว่างน้อยลง ซึ่งเป็นสาเหตุที่บริเวณเส้นศูนย์สูตรของโลกอุ่นกว่าขั้วโลกที่เย็นยะเยือกมาก \n\nทั้งนี้ จุดประสงค์ของเซ็นเซอร์แสงในโทรศัพท์ของคุณคือการควบคุมระดับความสว่างของหน้าจอและปรับตามสิ่งแวดล้อมที่มืดสลัวและสว่าง ภายในเซ็นเซอร์แสงจะมีสารกึ่งตัวนำขนาดเล็กคอยตอบสนองต่อแสงที่เข้ามาโดยผลิตกระแสไฟฟ้าอ่อนๆ แต่สามารถวัดได้ ปรากฏการณ์นี้เรียกว่าปรากฏการณ์โฟโตอิเล็กทริก เซ็นเซอร์ที่คล้ายกันนี้มีการใช้กับไฟถนนเพื่อให้ไฟเปิดขึ้นเมื่อท้องฟ้ามืด"</string>
+    <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"วัตถุมีแนวโน้มที่จะอยู่นิ่งหรือเคลื่อนที่ต่อไปหากกำลังเคลื่อนที่อยู่ แนวโน้มนี้เรียกว่าความเฉื่อย กฎข้อที่ 1 ของนิวตันกล่าวว่า วัตถุจะคงสถานะการเคลื่อนไหวหรืออยู่นิ่งจนกระทั่งได้รับผลกระทบจากแรงที่ไม่สมดุล \n\nเมื่อแรงที่ไม่สมดุลทำให้วัตถุเคลื่อนที่ เราเรียกว่าวัตถุมีความเร่ง นั่นคือ อัตราเร็วหรือความเร็วของวัตถุจะเปลี่ยนแปลงเป็นเร็วขึ้น ช้าลง หรือเปลี่ยนทิศทาง ความเร่งจะวัดจากการเปลี่ยนแปลงอัตราเร็ว (เมตรต่อวินาที) ในระยะเวลาหนึ่ง หรือเมตรต่อวินาทียกกำลังสอง (เมตร/วินาที²) \n\nโทรศัพท์ของคุณมีอุปกรณ์วัดการเปลี่ยนแปลงความเคลื่อนไหวที่เรียกว่าตัววัดความเร่ง ภายในตัววัดความเร่งจะมีมวลสารเล็กๆ ลอยอยู่อย่างเป็นอิสระ การเคลื่อนไหวที่เปลี่ยนไปจะทำให้มวลสารเคลื่อนที่ เช่นเดียวกับตอนที่ศีรษะเหวี่ยงไปด้านหน้าเมื่อรถหยุดกระทันหัน การวัดการเปลี่ยนแปลงความเฉื่อยที่ซับซ้อนนี้ทำให้ตัววัดความเร่งในโทรศัพท์สามารถตรวจจับความเคลื่อนไหวและทิศทางที่เปลี่ยนไปได้ ซึ่งมีประโยชน์ในการสลับหน้าจอจากโหมดแนวนอนเป็นแนวตั้งสำหรับการเล่นเกมในโทรศัพท์และอื่นๆ"</string>
+    <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"คุณอาจสังเกตเห็นว่าในแกน Z มีการเพิ่มความเร็วอยู่ตลอดแม้ว่าโทรศัพท์จะวางนิ่งอยู่บนโต๊ะ นี่เป็นความเร่งที่เกิดขึ้นบนพื้นผิวโลกเนื่องจากแรงดึงของแรงดึงดูด ประมาณ 9.8 เมตร/วินาที²"</string>
+    <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"เสียงเกิดจากการสั่นสะเทือน ตัวอย่างเช่น เสียงของคุณมาจากการสั่นสะเทือนของเส้นเสียงในกล่องเสียงในลำคอของคุณ การสั่นสะเทือนเหล่าจะสร้างพื้นที่ที่มีแรงกดอากาศสูงและต่ำสลับกันที่เปล่งออกมาภายนอก คล้ายกับวงน้ำที่ขยายตัวออกเมื่อโยนก้อนหินลงบ่อน้ำ"</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="6039417536094358024">"เสียงทั้งหมดสามารถอธิบายได้ในแง่ของความถี่และความเข้ม \n\nความเข้มคือสิ่งที่คุณวัดที่นี่ด้วยวารสารวิทยาศาสตร์เป็นหน่วยเดซิเบล (dB) ความเข้มหรือความดังขึ้นอยู่กับระยะทางที่วัตถุที่สั่นสะเทือนมีการเคลื่อนที่ในแต่ละครั้งที่สั่นสะเทือน เราจะได้ยินความเข้มมากขึ้นเมื่อความดังเพิ่มขึ้น \n\nความถี่ (หรือระดับเสียงหรือโทนเสียง) ของคลื่นเสียงจะเท่ากับอัตราการสั่นสะเทือน ยิ่งวัตถุสั่นเร็วขึ้นเท่าใดเสียงที่ออกมาก็จะสูงขึ้นเท่านั้น วารสารวิทยาศาสตร์ไม่ได้วัดความถี่ แต่วัดเฉพาะความดัง \n\nเสียงเบาที่สุดที่หูของมนุษย์ทั่วไปสามารถได้ยินมีการระบุไว้เท่ากับ 0 dB การสนทนาโต้ตอบธรรมดาดังประมาณ 60 dB และเสียงที่ดังกว่า 140 dB จะสร้างความเจ็บปวดต่อหูของมนุษย์ แต่เสียงที่เป็นอันตรายอาจไม่ใช่เสียงที่สร้างความเจ็บปวดเสมอไป การฟังเสียงดัง 90 dB หรือดังประมาณเสียงเครื่องดูดฝุ่นอย่างต่อเนื่องเป็นเวลานานก็สามารถทำให้สูญเสียการได้ยินได้ในที่สุด \n\nตารางเดซิเบลเป็นแบบลอการิทึมซึ่งทำให้สับสนได้ง่าย: แหล่งที่มาของเสียงดัง 40 dB ไม่ได้มีความเข้มเป็น 2 เท่าของแหล่งที่มาของเสียงดัง 20 dB แต่เข้มกว่า 100 เท่า ส่วนนาฬิกาปลุกที่กำลังดัง 1 เรือนจะสร้างเสียง 70 dB แต่นาฬิกาปลุกที่กำลังดัง 2 เรือนไม่ได้สร้างเสียง 140 dB แต่เป็น 73 dB อย่างที่เราได้กล่าวไว้ ตารางเดซิเบลค่อนข้างเป็นตารางที่แปลก\n\nใบไม้ดังกรอบแกรบเท่ากับ 10 dB \nเสียงกระซิบระยะ 5 ฟุตดัง 20 dB \nเสียงกระซิบเบาๆ ดัง 30 dB \nฝนตกดัง 50 dB \nการสนทนาปกติดัง 60 dB \nเครื่องปั่นดัง 90 dB \nรถที่ไม่มีกระบอกลดเสียงดัง 100 dB \nการตะโกนใกล้ๆ หูดัง 110 dB \nฟ้าผ่าดัง 120 dB \nเครื่องเจาะหินดัง 130 dB \nเครื่องบินขึ้นดัง 140 dB"</string>
+    <string name="sensor_desc_first_paragraph_rotation" msgid="701021949358379491">"รอบต่อนาที (RPM) คือการวัดความถี่ของการหมุนรอบแกนคงที่ใน 1 นาที \n\nเมื่อกังหันลมหมุน กังหันก็จะหมุนจานเข้ารหัส:"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="5453599141200678146">"ซึ่งจะสร้างช่วงของความสว่างและความมืดบนเซ็นเซอร์ที่บันทึกไว้เป็นการหมุนในวารสารวิทยาศาสตร์"</string>
+    <string name="sensor_desc_first_paragraph_raw" msgid="8624088001449985317">"ข้อมูลที่แสดงที่นี่มาจากการสื่อสารของเซ็นเซอร์ภายนอกกับโทรศัพท์ของคุณผ่านบลูทูธ \n\nค่าดังกล่าวจะแสดงการอ่านข้อมูลดิบโดยตรงจากไมโครคอนโทรลเลอร์คิดเป็นเปอร์เซ็นต์ ซึ่งมักเป็นเปอร์เซ็นต์ของแรงดันไฟตกในเซ็นเซอร์"</string>
+    <string name="sensor_desc_second_paragraph_raw" msgid="2081830388555382169">"บลูทูธเป็นเทคโนโลยีไร้สายที่ใช้คลื่นวิทยุในการแลกเปลี่ยนข้อมูลระยะใกล้จากอุปกรณ์ที่อยู่กับที่และอุปกรณ์เคลื่อนที่"</string>
+    <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"ข้อมูลที่แสดงที่นี่มาจากการสื่อสารของเซ็นเซอร์ภายนอกกับโทรศัพท์ของคุณผ่านบลูทูธ"</string>
+    <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"บลูทูธเป็นเทคโนโลยีไร้สายที่ใช้คลื่นวิทยุในการแลกเปลี่ยนข้อมูลระยะใกล้จากอุปกรณ์ที่อยู่กับที่และอุปกรณ์เคลื่อนที่"</string>
+    <string name="run_review_duration" msgid="1978235455271606762">"ระยะเวลา"</string>
+    <string name="run_review_activity_label" msgid="5646135462344737004">"รีวิว"</string>
+    <string name="service_notification_content_title" msgid="791621361781451323">"วารสารวิทยาศาตร์"</string>
+    <string name="service_notification_content_text" msgid="8364458347657207997">"กำลังบันทึก…"</string>
+    <string name="live_graph_content_description" msgid="3509656099170703878">"กราฟเซ็นเซอร์แบบสด ลากเพื่อเลื่อนแกน X"</string>
+    <string name="static_graph_content_description" msgid="8689642435844781150">"กราฟเซ็นเซอร์ บีบเพื่อซูมและลากเพื่อเลื่อนแกน X"</string>
+    <string name="sensor_card_overflow_menu_content_description" msgid="4358551973476442373">"ตัวเลือกการ์ด"</string>
+    <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"สลับไปใช้โหมดข้อมูล"</string>
+    <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"สลับไปใช้โหมดกราฟ"</string>
+    <string name="sensor_tab_layout_content_description" msgid="3807243095823040361">"เซ็นเซอร์ที่มี"</string>
+    <string name="sensor_tab_selected_format" msgid="2686213304137352967">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (เลือกแล้ว)"</string>
+    <string name="title_activity_sensor_info" msgid="8667402055779114709">"ข้อมูลเซ็นเซอร์"</string>
+    <string name="title_activity_sensor_info_format" msgid="4810933938741070862">"เซ็นเซอร์ <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="heading_info_section" msgid="8939391891795009974">"เกิดอะไรขึ้น"</string>
+    <string name="edit_note_menu_item" msgid="8530099824744920575">"แก้ไข"</string>
+    <string name="edit_note_time" msgid="5307388665454994755">"แก้ไขเวลาของบันทึก"</string>
+    <string name="delete_note_menu_item" msgid="3351780044042394477">"ลบ"</string>
+    <string name="delete_run" msgid="7610513991553541053">"ลบ"</string>
+    <string name="crop_run" msgid="6840335859520847482">"ครอบตัด"</string>
+    <string name="add_run_note" msgid="7224091083430877994">"เพิ่มบันทึก"</string>
+    <string name="add_experiment_note" msgid="3946438334341592982">"เพิ่มบันทึก"</string>
+    <string name="run_label" msgid="4240358186140342958">"การทดลอง <xliff:g id="RUN_INDEX">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_prev" msgid="193192887823025190">"เซ็นเซอร์ก่อนหน้า: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="run_review_switch_sensor_btn_next" msgid="7804434037837088592">"เซ็นเซอร์ถัดไป: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="edit_note_hint_text" msgid="1729007018652377076">"แก้ไขบันทึกการทดลอง"</string>
+    <string name="add_note_hint_text" msgid="2378709047693154979">"เพิ่มบันทึกใหม่"</string>
+    <string name="snackbar_note_deleted" msgid="6991629249337643878">"ลบบันทึกแล้ว"</string>
+    <string name="snackbar_undo" msgid="2277748858954056127">"เลิกทำ"</string>
+    <string name="add_run_note_placeholder_text" msgid="4470545253774006492">"เพิ่มบันทึกในการทดลองนี้"</string>
+    <string name="add_experiment_note_placeholder_text" msgid="2815729408235567303">"เพิ่มบันทึกการทดลอง"</string>
+    <string name="add_note_image_button_content_description" msgid="45880639214601555">"บันทึกด้วยภาพ"</string>
+    <string name="pinned_note_placeholder_text" msgid="1019278674906788183">"เพิ่มบันทึก"</string>
+    <string name="no_notes_text" msgid="2487720915222758113">"ไม่มีบันทึก"</string>
+    <string name="indeterminate_value" msgid="3103662211042579599">"--"</string>
+    <string name="project_card_overflow_menu_content_description" msgid="3537115360336968327">"ตัวเลือกโครงการ"</string>
+    <string name="project_active_badge" msgid="7042566285853918127">"ใช้งานอยู่"</string>
+    <string name="archived_badge" msgid="6068366174702659773">"เก็บแล้ว"</string>
+    <string name="action_include_archived_projects" msgid="7075034155088762601">"รวมโครงการที่เก็บถาวร"</string>
+    <string name="action_include_archived_experiments" msgid="9179328397501796497">"รวมการทดลองที่เก็บถาวร"</string>
+    <string name="action_new_experiment" msgid="5987527361707254638">"การทดลองใหม่"</string>
+    <string name="delete_run_dialog_title" msgid="3841579587741640965">"ลบการทดลองนี้ใช่ไหม"</string>
+    <string name="run_review_delete_confirm" msgid="1608962272042732123">"แน่ใจไหมว่าต้องการลบการทดลองนี้ ระบบจะลบข้อมูลและบันทึกที่บันทึกไว้ การดำเนินการนี้ไม่สามารถยกเลิกได้"</string>
+    <string name="menu_btn_content_description" msgid="6686128481642305452">"เมนู"</string>
+    <string name="age_verifier_header" msgid="6109465186601177801">"ยืนยันอายุของคุณ"</string>
+    <string name="age_verifier_birthday" msgid="6757334725141206468">"วันเกิด:"</string>
+    <string name="age_verifier_get_started" msgid="9125839459553905737">"เริ่มต้นใช้งาน"</string>
+    <string name="tutorial_welcome_header" msgid="8673213009201774919">"สำรวจโลกรอบตัวคุณ"</string>
+    <string name="tutorial_welcome_body" msgid="7504590176372575077">"ใช้เซ็นเซอร์ในโทรศัพท์ Android ของคุณในการวัดเสียง แสงสว่าง และอีกมากมาย"</string>
+    <string name="tutorial_setup_header" msgid="5866129957923532593">"จัดระเบียบโครงการ"</string>
+    <string name="tutorial_setup_body" msgid="4621803117988869624">"ตั้งค่าโครงการและการทดลองเพื่อจัดระเบียบข้อมูลและเปรียบเทียบผลลัพธ์"</string>
+    <string name="tutorial_observe_record_header" msgid="6908831734895697396">"บันทึกแบบเรียลไทม์"</string>
+    <string name="tutorial_observe_record_body" msgid="2645271576190894956">"หากพบสิ่งที่คุณต้องการวัด คุณสามารถบันทึกการสังเกตการณ์แบบเรียลไทม์ด้วยการกดเพียงปุ่มเดียว"</string>
+    <string name="tutorial_take_notes_header" msgid="3292315997680250927">"เพิ่มบันทึกการสังเกตการณ์"</string>
+    <string name="tutorial_take_notes_body" msgid="3156191863373375875">"ขณะบันทึก คุณสามารถเพิ่มบันทึกและรูปภาพเพื่อเพิ่มบริบทให้กับข้อมูลมากขึ้น"</string>
+    <string name="btn_previous_label" msgid="1726590296250110893">"ก่อนหน้า"</string>
+    <string name="btn_next_label" msgid="6877193481185676643">"ถัดไป"</string>
+    <string name="btn_skip_label" msgid="2947141543365158602">"ข้าม"</string>
+    <string name="sensor_card_error_text" msgid="3679963077521758478">"ไม่สามารถโหลดข้อมูลเซ็นเซอร์"</string>
+    <string name="bluetooth_not_on_title" msgid="1500514868723624858">"เชื่อมต่อกับบลูทูธ"</string>
+    <string name="bluetooth_not_on_body" msgid="7739877029954834163">"ไม่สามารถเชื่อมต่อกับเซ็นเซอร์ภายนอก: บลูทูธปิดอยู่ เปิดบลูทูธเพื่อเชื่อมต่อกับเซ็นเซอร์ภายนอกของคุณ"</string>
+    <string name="bluetooth_not_on_ok" msgid="8565149527766425263">"เปิดบลูทูธ"</string>
+    <string name="sensor_card_loading_text" msgid="5919502524672985896">"กำลังโหลดข้อมูลเซ็นเซอร์…"</string>
+    <string name="graph_loading" msgid="1102165995961515949">"กำลังโหลดกราฟ…"</string>
+    <string name="playback_button_pause" msgid="348710889337495167">"หยุดเล่นเสียงชั่วคราว"</string>
+    <string name="playback_button_play" msgid="3845595255478520691">"เริ่มเล่นเสียง"</string>
+    <string name="sonification_type_card_title" msgid="7998122361918330347">"ประเภทการแปลงข้อมูลเป็นเสียงสำหรับนักพัฒนา"</string>
+    <string name="dev_sonification_types_title" msgid="8470117255317834775">"เปิดใช้ประเภทการแปลงข้อมูลเป็นเสียงสำหรับนักพัฒนา"</string>
+    <string name="title_edit_trial_activity" msgid="2639088409396156730">"แก้ไขการทดลอง"</string>
+    <string name="edit_trial_title_hint" msgid="2537511526292819270">"ชื่อการทดลอง"</string>
+    <string name="include_archived_trials" msgid="2976166896399146224">"รวมการทดลองที่เก็บถาวร"</string>
+    <string name="export_error" msgid="2485739090885091041">"การส่งออกล้มเหลว"</string>
+    <string name="picture_note_caption_hint" msgid="9155126680230680734">"เพิ่มคำอธิบายภาพ"</string>
+    <string name="listing_title" msgid="1732490922169483408">"วารสารวิทยาศาสตร์"</string>
+    <string name="listing_tagline" msgid="1469201637342921292">"ทำการทดลองกับโลกรอบตัวคุณ"</string>
+    <string name="listing_changelog" msgid="1272605515497326900">"คุณลักษณะใหม่และการปรับปรุง: \n• เพิ่มคำอธิบายภาพลงในบันทึกรูปภาพ \n• การตั้งค่าเสียงสำหรับการแปลงข้อมูลเป็นเสียง \n• การปรับปรุงประสิทธิภาพสำหรับการทดลองที่ใช้เวลานานมาก \n• แก้ไขข้อบกพร่อง"</string>
+    <string name="listing__description" msgid="3975515995792990185">"วารสารวิทยาศาสตร์คือเครื่องมือสำหรับการทดลองทางวิทยาศาสตร์ด้วยสมาร์ทโฟนของคุณ คุณสามารถใช้เซ็นเซอร์ในโทรศัพท์หรือเชื่อมต่อกับเซ็นเซอร์ภายนอกเพื่อทำการทดลองกับโลกรอบตัวคุณ จัดระเบียบไอเดียของคุณให้เป็นโครงการ ตั้งสมมติฐาน จดบันทึก และเก็บรวบรวมข้อมูลในการทดลองหลายๆ ครั้ง จากนั้นทำหมายเหตุประกอบและสำรวจผลการทดลองของคุณ นี่คือสมุดบันทึกห้องทดลองที่คุณพกติดตัวไปได้ทุกที่\n\n \nดูไอเดียกิจกรรมเพื่อใช้กับแอปได้ที่นี่: https://makingscience.withgoogle.com/science-journal/activities \nเรียนรู้เพิ่มเติมเกี่ยวกับ Making &amp; Science: https://makingscience.withgoogle.com \nสำหรับความช่วยเหลือ: https://productforums.google.com/forum/#!forum/sciencejournal \nโค้ดที่ใช้งานได้: https://github.com/google/science-journal"</string>
+    <string name="live_zoom_type_option_title" msgid="6184011805342339557">"ซูมเข้าอัตโนมัติระหว่างสังเกตการณ์"</string>
+    <string name="live_zoom_type_option_summary" msgid="3327087952315423967">"เมื่อตรึงไว้ตอนนี้จะเป็นการเปิดใช้การซูมเข้าอัตโนมัติบนแกน Y ระหว่างสังเกตการณ์ ค่าเริ่มต้นคือปิดใช้"</string>
+    <!-- no translation found for third_party_sensors_option_title (4835603485129230503) -->
     <skip />
-    <string name="listing_title" msgid="6842666752572268412">"วารสารวิทยาศาสตร์"</string>
-    <string name="listing_tagline" msgid="6633876313767981347">"ทำการทดลองกับโลกรอบตัวคุณ"</string>
-    <string name="listing_changelog" msgid="1093982432926956400">"แก้ไขข้อบกพร่อง: การป้อนวันเกิด ประสิทธิภาพของ BLE และความเสถียร"</string>
-    <string name="listing__description" msgid="7679178857079821372">"วารสารวิทยาศาสตร์คือเครื่องมือสำหรับการทดลองทางวิทยาศาสตร์ด้วยสมาร์ทโฟนของคุณ คุณสามารถใช้เซ็นเซอร์ในโทรศัพท์หรือเชื่อมต่อกับเซ็นเซอร์ภายนอกเพื่อทำการทดลองกับโลกรอบตัวคุณ จัดระเบียบไอเดียของคุณให้เป็นโครงการ ตั้งสมมติฐาน จดบันทึก และเก็บรวบรวมข้อมูลในการทดลองหลายๆ ครั้ง จากนั้นทำหมายเหตุประกอบและสำรวจผลการทดลองของคุณ นี่คือสมุดบันทึกห้องทดลองที่คุณพกติดตัวไปได้ทุกที่ \n\n\nดูไอเดียกิจกรรมเพื่อใช้กับแอปได้ที่นี่: https://makingscience.withgoogle.com/science-journal/activities \nเรียนรู้เพิ่มเติมเกี่ยวกับ Making &amp;amp Science: https://makingscience.withgoogle.com \nสำหรับความช่วยเหลือ: https://productforums.google.com/forum/#!forum/sciencejournal"</string>
-    <!-- no translation found for live_zoom_type_option_title (7163596723687878951) -->
+    <!-- no translation found for third_party_sensors_option_summary (2567608839882361492) -->
     <skip />
-    <!-- no translation found for live_zoom_type_option_summary (7687266738508383581) -->
+    <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"เปิดใช้แมกนิโตมิเตอร์"</string>
+    <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"เปิดใช้เซ็นเซอร์แมกนิโตมิเตอร์ในการทดลอง"</string>
+    <string name="enable_barometer_sensor_title" msgid="4532163359473808928">"เปิดใช้บาโรมิเตอร์"</string>
+    <string name="enable_barometer_sensor_summary" msgid="352316348564408931">"เปิดใช้เซ็นเซอร์บาโรมิเตอร์ในการทดลอง"</string>
+    <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"เปิดใช้อุณหภูมิแวดล้อม"</string>
+    <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"เปิดใช้เซ็นเซอร์วัดอุณหภูมิแวดล้อมในการทดลอง"</string>
+    <string name="enable_sine_wave_sensor_title" msgid="5361133155106781791">"เปิดใช้คลื่นไซน์"</string>
+    <string name="enable_sine_wave_sensor_summary" msgid="4344597474984074166">"เปิดใช้เซ็นเซอร์วัดคลื่นไซน์สังเคราะห์ในการทดลอง"</string>
+    <string name="enable_video_sensor_title" msgid="4519564641860085548">"เปิดใช้เซ็นเซอร์วิดีโอ"</string>
+    <string name="enable_video_sensor_summary" msgid="3554296098795476937">"เปิดใช้เซ็นเซอร์วิดีโอ"</string>
+    <string name="menu_item_audio_settings" msgid="3083272235611335612">"การตั้งค่าเสียง"</string>
+    <string name="dev_sonification_types_summary" msgid="3388638534256966964">"เลือกว่าจะเปิดใช้ตัวเลือกการแปลงข้อมูลเป็นเสียงเพิ่มเติมหรือไม่"</string>
+    <string name="audio_settings_sensor_prompt" msgid="5297799876523575284">"เลือกการตั้งค่าเสียงสำหรับ:"</string>
+    <string name="enable_auto_zoom" msgid="1280889416178028975">"เปิดใช้การปรับขนาดอัตโนมัติ"</string>
+    <string name="disable_auto_zoom" msgid="1242933906677617230">"ปิดใช้การปรับขนาดอัตโนมัติ"</string>
+    <string name="autozoom_failed" msgid="2708983116606188884">"การปรับขนาดอัตโนมัติล้มเหลว"</string>
+    <string name="run_review_overflow_menu_content_description" msgid="5689925874345140909">"ตัวเลือกเพิ่มเติม"</string>
+    <string name="licenses_empty" msgid="2746335366478622872">"ไม่พบใบอนุญาต"</string>
+    <!-- no translation found for audio_enabled_format (4202071153288924614) -->
     <skip />
-    <!-- no translation found for enable_magnetometer_sensor_title (1596315125509908923) -->
+    <!-- no translation found for menu_item_set_triggers (3555868641262376254) -->
     <skip />
-    <!-- no translation found for enable_magnetometer_sensor_summary (2407682181370350652) -->
+    <!-- no translation found for title_activity_trigger_list (5014690461140632120) -->
     <skip />
-    <!-- no translation found for enable_barometer_sensor_title (985631392882471101) -->
+    <!-- no translation found for btn_add_new_trigger (1143389268664607859) -->
     <skip />
-    <!-- no translation found for enable_barometer_sensor_summary (5467127889896690528) -->
+    <!-- no translation found for empty_trigger_list (238046755667717404) -->
     <skip />
-    <!-- no translation found for enable_temperature_sensor_title (6790406842988534774) -->
+    <!-- no translation found for title_activity_edit_trigger (2115747586987165481) -->
     <skip />
-    <!-- no translation found for enable_temperature_sensor_summary (8827051325873631768) -->
+    <!-- no translation found for title_activity_add_trigger (9137879813992485906) -->
     <skip />
-    <!-- no translation found for enable_sine_wave_sensor_title (8733855789159566952) -->
+    <!-- no translation found for trigger_type_label (4847350415951495617) -->
     <skip />
-    <!-- no translation found for enable_sine_wave_sensor_summary (1881741234337323074) -->
+    <!-- no translation found for trigger_when_label (8616405039634043612) -->
     <skip />
-    <!-- no translation found for enable_video_sensor_title (7760095515631648430) -->
+    <!-- no translation found for trigger_type_start_recording (7292105639999785968) -->
     <skip />
-    <!-- no translation found for enable_video_sensor_summary (5446570032717609139) -->
+    <!-- no translation found for trigger_type_stop_recording (3022683931027310288) -->
+    <skip />
+    <!-- no translation found for trigger_type_note (626654531254636746) -->
+    <skip />
+    <!-- no translation found for trigger_type_alert (6525543144561765762) -->
+    <skip />
+    <!-- no translation found for trigger_when_at (762967868925610869) -->
+    <skip />
+    <!-- no translation found for trigger_when_drops_below (149048320758854889) -->
+    <skip />
+    <!-- no translation found for trigger_when_rises_above (4131024183229534708) -->
+    <skip />
+    <!-- no translation found for trigger_value_hint (6176793893724760154) -->
+    <skip />
+    <!-- no translation found for trigger_note_text_label (2243205345376006607) -->
+    <skip />
+    <!-- no translation found for trigger_note_text_hint (7624572723656572363) -->
+    <skip />
+    <!-- no translation found for trigger_audio_alert (3888981987994238753) -->
+    <skip />
+    <!-- no translation found for trigger_haptic_alert (4734911836763569299) -->
+    <skip />
+    <!-- no translation found for trigger_visual_alert (8191512950406497950) -->
+    <skip />
+    <!-- no translation found for cannot_save_invalid_value (2889387470051561369) -->
+    <skip />
+    <!-- no translation found for trigger_when_at_description (1004528252412424201) -->
+    <skip />
+    <!-- no translation found for trigger_when_rises_above_description (9004635001846058548) -->
+    <skip />
+    <!-- no translation found for trigger_when_drops_below_description (1707397407766550719) -->
+    <skip />
+    <!-- no translation found for sensor_trigger_deleted (1181819400253443424) -->
+    <skip />
+    <!-- no translation found for trigger_label_auto_text (9210831035009346407) -->
     <skip />
 </resources>
