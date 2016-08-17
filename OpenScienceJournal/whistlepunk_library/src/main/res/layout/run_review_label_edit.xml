@@ -48,7 +48,7 @@
         android:hint="@string/edit_note_hint_text"
         android:textColor="@color/text_color_dark_grey"
         android:textCursorDrawable="@null"
-        android:maxLines="10"
+        android:maxLines="@integer/label_edit_max_lines"
         />
 
     <TextView

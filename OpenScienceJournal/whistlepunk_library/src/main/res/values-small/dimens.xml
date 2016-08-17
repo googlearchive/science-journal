@@ -14,9 +14,6 @@
   limitations under the License.
  -->
 <resources>
-    <dimen name="run_review_chart_height">100dp</dimen>
-    <dimen name="picture_note_preview_size">145dp</dimen>
-
     <!-- Maximum number of lines to show when editing a text label or note. -->
-    <integer name="label_edit_max_lines">5</integer>
+    <integer name="label_edit_max_lines">2</integer>
 </resources>
