@@ -400,6 +400,11 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
                 consumer.stopRecording();
                 statsAccumulator.clearStats();
             }
+
+            @Override
+            public boolean hasRecordedData() {
+                return consumer.hasRecordedData();
+            }
         };
     }
 
@@ -445,13 +450,16 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             SensorEnvironment environment, Context context, SensorStatusListener listener);
 
     private class ScalarStreamConsumer implements StreamConsumer {
+        private static final int NO_DATA_RECORDED = -1;
+
         private final Bundle mBundle;
         private final StatsAccumulator mStatsAccumulator;
         private final SensorObserver mObserver;
         private final RecordingDataController mDataController;
         private final ZoomRecorder mZoomRecorder;
         private boolean mIsRecording = false;
-        private long mLastDataTimestampMillis = -1;
+        private long mLastDataTimestampMillis = NO_DATA_RECORDED;
+        private long mTimestampBeforeRecordingStart = NO_DATA_RECORDED;
 
         public ScalarStreamConsumer(StatsAccumulator statsAccumulator,
                 SensorObserver observer, RecordingDataController dataController,
@@ -465,6 +473,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
         public void startRecording() {
             mIsRecording = true;
+            mTimestampBeforeRecordingStart = mLastDataTimestampMillis;
         }
 
         public void stopRecording() {
@@ -517,6 +526,10 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
                 value = mValueFilter.filterValue(timestampMillis, value);
             }
             return value;
+        }
+
+        public boolean hasRecordedData() {
+            return mLastDataTimestampMillis > mTimestampBeforeRecordingStart;
         }
 
         // TODO: profile this to make sure Bundles don't add extravagant memory and

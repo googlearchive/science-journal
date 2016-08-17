@@ -27,10 +27,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -123,6 +123,18 @@ public class MainActivity extends AppCompatActivity
                         recording == null);
                 mIsRecording = recording != null;
                 exitMetadataIfNeeded();
+            }
+
+            @Override
+            public void onRecordingStartFailed(
+                    @RecorderController.RecordingStartErrorType int errorType) {
+
+            }
+
+            @Override
+            public void onRecordingStopFailed(
+                    @RecorderController.RecordingStopErrorType int recordingStateErrorType) {
+
             }
         };
 
@@ -331,7 +343,7 @@ public class MainActivity extends AppCompatActivity
         // Only show items in the action bar relevant to this screen
         // if the drawer is not showing. Otherwise, let the drawer
         // decide what to show in the action bar.
-        if (!mDrawerLayout.isDrawerOpen(Gravity.START)) {
+        if (!mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             restoreActionBar();
         }
         return super.onCreateOptionsMenu(menu);
@@ -346,10 +358,10 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == android.R.id.home) {
-            if (mDrawerLayout.isDrawerOpen(Gravity.START)) {
-                mDrawerLayout.closeDrawer(Gravity.START);
+            if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                mDrawerLayout.closeDrawer(GravityCompat.START);
             } else {
-                mDrawerLayout.openDrawer(Gravity.START);
+                mDrawerLayout.openDrawer(GravityCompat.START);
             }
         }
         return super.onOptionsItemSelected(item);

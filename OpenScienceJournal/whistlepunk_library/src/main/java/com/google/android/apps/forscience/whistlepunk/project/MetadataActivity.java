@@ -46,6 +46,18 @@ public class MetadataActivity extends AppCompatActivity {
                                             finish();
                                         }
                                     }
+
+                                    @Override
+                                    public void onRecordingStartFailed(
+                                            @RecorderController.RecordingStartErrorType int type) {
+
+                                    }
+
+                                    @Override
+                                    public void onRecordingStopFailed(
+                                            @RecorderController.RecordingStopErrorType int type) {
+
+                                    }
                                 });
                     }
                 });

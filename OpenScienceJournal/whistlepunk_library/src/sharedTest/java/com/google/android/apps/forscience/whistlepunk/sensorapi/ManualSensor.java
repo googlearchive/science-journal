@@ -78,6 +78,11 @@ public class ManualSensor extends ScalarSensor {
             }
 
             @Override
+            public boolean hasRecordedData() {
+                return true;
+            }
+
+            @Override
             public void applyOptions(ReadableSensorOptions settings) {
 
             }
