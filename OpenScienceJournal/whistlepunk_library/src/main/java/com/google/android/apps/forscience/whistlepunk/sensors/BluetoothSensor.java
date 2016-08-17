@@ -220,6 +220,7 @@ public class BluetoothSensor extends ScalarSensor {
 
             @Override
             public void onDisconnect() {
+                mNotificationSubscribed = false;
                 listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
             }
 
@@ -229,7 +230,7 @@ public class BluetoothSensor extends ScalarSensor {
             }
 
             @Override
-            public void onNotificationSubscribed(){
+            public void onNotificationSubscribed() {
                 mNotificationSubscribed = true;
             }
 
