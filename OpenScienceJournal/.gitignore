@@ -1,14 +1,13 @@
 .gradle
 local.properties
-app/app.iml
+app/*.iml
 third_party/*.iml
-third_party/achartengine/achartengine.iml
-whistlepunk_library/whistlepunk_library.iml
+whistlepunk_library/*.iml
+*.iml
 .DS_Store
 build
 captures
 whistlepunk.keystore
-
 
 # ignore most of .idea, but not the lint inspection profile
 .idea/*
