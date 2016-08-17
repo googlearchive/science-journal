@@ -20,6 +20,10 @@ Note: You'll need Android SDK version 23, build tools 23.0.3, and the Android Su
 compile the project. If you're unsure about this, use Android Studio and tick the appropriate boxes
 in the SDK Manager.
 
+The [OpenScienceJournal README][https://github.com/google/science-journal/tree/master/OpenScienceJournal]
+contains details about the organization of the source code, and the relationship of this published source
+to the [published app][play-store].
+
 ## Contributing
 
 Please read our [guidelines for contributors][contributing].
