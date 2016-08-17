@@ -47,6 +47,11 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
                                 assertEquals(deviceId, actualDeviceId);
                                 c.onSensorFound(sensorId, sensorName, null);
                             }
+
+                            @Override
+                            public ISensorConnector getConnector() throws RemoteException {
+                                return null;
+                            }
                         });
                         adc.onDiscoveryDone();
                     }
@@ -81,6 +86,11 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
                             public void scanSensors(String actualDeviceId, ISensorConsumer c)
                                     throws RemoteException {
                                 throw new RemoteException("Should never be thrown");
+                            }
+
+                            @Override
+                            public ISensorConnector getConnector() throws RemoteException {
+                                return null;
                             }
                         });
                     }
