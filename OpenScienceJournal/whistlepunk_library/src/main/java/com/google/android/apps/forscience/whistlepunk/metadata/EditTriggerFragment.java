@@ -33,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -238,11 +239,17 @@ public class EditTriggerFragment extends Fragment {
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        if (isNewTrigger()) {
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+        }
 
         menu.findItem(R.id.action_save).setVisible(isNewTrigger());
 
-        actionBar.setTitle(getString(isNewTrigger() ? R.string.title_activity_add_trigger :
-                R.string.title_activity_edit_trigger));
+        SensorAppearance appearance = AppSingleton.getInstance(getActivity())
+                .getSensorAppearanceProvider().getAppearance(mSensorId);
+        String triggerTitle = getString(isNewTrigger() ? R.string.title_activity_add_trigger :
+                R.string.title_activity_edit_trigger);
+        actionBar.setTitle(String.format(triggerTitle, appearance.getName(getActivity())));
 
         super.onCreateOptionsMenu(menu, inflater);
     }

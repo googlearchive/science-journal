@@ -585,7 +585,10 @@ public class SensorCardPresenter {
         mCardViewHolder.triggerSection.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startSetTriggersActivity();
+                if (!isRecording() && !mHasError &&
+                        mSourceStatus == SensorStatusListener.STATUS_CONNECTED) {
+                    startSetTriggersActivity();
+                }
             }
         });
         mCardViewHolder.triggerText.setText(createCardTriggerText(mSensorTriggers.get(0)));

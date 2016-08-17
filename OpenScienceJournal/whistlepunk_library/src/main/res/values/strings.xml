@@ -1066,7 +1066,7 @@
     <string name="menu_item_set_triggers">Set triggers</string>
 
     <!-- Title for an activity to view and edit triggers for a particular sensor [CHAR_LIMIT=15]-->
-    <string name="title_activity_trigger_list">Triggers for <xliff:g id="sensor_name">%1s</xliff:g></string>
+    <string name="title_activity_trigger_list">Triggers for <xliff:g id="sensor_name">%s</xliff:g></string>
 
     <!-- Content description for a button to add a new trigger [CHAR_LIMIT=NONE]-->
     <string name="btn_add_new_trigger">Create trigger</string>
@@ -1075,10 +1075,10 @@
     <string name="empty_trigger_list">No triggers set</string>
 
     <!-- Title of an activity to edit an existing trigger [CHAR_LIMIT=25]-->
-    <string name="title_activity_edit_trigger">Edit trigger</string>
+    <string name="title_activity_edit_trigger">Edit <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
 
     <!-- Title of an activity to add a new trigger [CHAR_LIMIT=25]-->
-    <string name="title_activity_add_trigger">New trigger</string>
+    <string name="title_activity_add_trigger">New <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
 
     <!-- The label for a drop-down to choose the type of action a trigger will take [CHAR_LIMIT=30]-->
     <string name="trigger_type_label">Trigger type</string>
