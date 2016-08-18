@@ -20,6 +20,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.ArrayMap;
+import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -50,6 +51,8 @@ import java.util.Set;
  */
 // TODO: Move more functionality into SensorCardPresenter.
 public class SensorRegistry {
+    private static final String TAG = "SensorRegistry";
+
     public interface ExternalSensorProvider {
         public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec);
 
@@ -229,11 +232,17 @@ public class SensorRegistry {
                 previousExternalSources);
         for (String externalSensorId : newExternalSensors) {
             ExternalSensorSpec sensor = sensors.get(externalSensorId);
-            ExternalSensorProvider provider = mExternalProviders.get(sensor.getType());
-            if (provider != null) {
-                addSource(new SensorRegistryItem(provider.getProviderId(),
-                        provider.buildSensor(externalSensorId, sensor), sensor.getLoggingId()));
-                sensorsActuallyAdded.add(externalSensorId);
+            if (sensor != null) {
+                ExternalSensorProvider provider = mExternalProviders.get(sensor.getType());
+                if (provider != null) {
+                    addSource(new SensorRegistryItem(provider.getProviderId(),
+                            provider.buildSensor(externalSensorId, sensor), sensor.getLoggingId()));
+                    sensorsActuallyAdded.add(externalSensorId);
+                }
+            } else {
+                if (Log.isLoggable(TAG, Log.ERROR)) {
+                    Log.e(TAG, "No sensor found for ID: " + externalSensorId);
+                }
             }
         }
 

@@ -18,17 +18,40 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.hardware.Sensor;
 import android.preference.Preference;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
+import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
 
 /**
  * Discovers BLE sensors that speak our "native" Science Journal protocol.
  */
 public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
+    private static final ExternalSensorProvider PROVIDER = new ExternalSensorProvider() {
+        @Override
+        public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
+            return new BluetoothSensor(sensorId, (BleSensorSpec) spec,
+                    BluetoothSensor.ANNING_SERVICE_SPEC);
+        }
+
+        @Override
+        public String getProviderId() {
+            return SensorRegistry.WP_NATIVE_BLE_PROVIDER_ID;
+        }
+
+        @Override
+        public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
+            return new BleSensorSpec(name, config);
+        }
+    };
+
     private DeviceDiscoverer mDeviceDiscoverer;
 
     @Override
@@ -37,6 +60,11 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
         final String address = ManageDevicesFragment.getAddressFromPreference(preference);
         String name = ManageDevicesFragment.getNameFromPreference(preference);
         return new BleSensorSpec(address, name);
+    }
+
+    @Override
+    public ExternalSensorProvider getProvider() {
+        return PROVIDER;
     }
 
     @Override
