@@ -23,12 +23,17 @@ import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.Clock;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -306,15 +311,16 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testAddRemoveExternalSensor() {
-        Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExternalSensors();
+        Map<String,ExternalSensorProvider> providerMap = getProviderMap();
+        Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExternalSensors(providerMap);
         assertEquals(0, sensors.size());
 
         String testAddress = "11:22:33:44:55";
         String testName = "testName";
         BleSensorSpec sensor = new BleSensorSpec(testAddress, testName);
-        String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor);
+        String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
-        sensors = mMetaDataManager.getExternalSensors();
+        sensors = mMetaDataManager.getExternalSensors(providerMap);
 
         assertEquals(1, sensors.size());
         ExternalSensorSpec spec = sensors.values().iterator().next();
@@ -326,12 +332,20 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
         mMetaDataManager.removeExternalSensor(databaseTag);
 
-        sensors = mMetaDataManager.getExternalSensors();
+        sensors = mMetaDataManager.getExternalSensors(providerMap);
         assertEquals(0, sensors.size());
     }
 
+    private Map<String, ExternalSensorProvider> getProviderMap() {
+        HashMap<String, ExternalSensorProvider> map = new HashMap<>();
+        map.put(BleSensorSpec.TYPE, new NativeBleDiscoverer().getProvider());
+        map.put(ScalarInputSpec.TYPE, new ScalarInputDiscoverer(null).getProvider());
+        return map;
+    }
+
     public void testSensorsDifferentTypes() {
-        Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExternalSensors();
+        Map<String, ExternalSensorProvider> providerMap = null;
+        Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExternalSensors(providerMap);
         assertEquals(0, sensors.size());
 
         final String testAddress = "11:22:33:44:55";
@@ -379,18 +393,34 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
             }
         };
 
-        String bleId = mMetaDataManager.addOrGetExternalSensor(bleSpec);
-        String wackedId = mMetaDataManager.addOrGetExternalSensor(wackedSpec);
+        String bleId = mMetaDataManager.addOrGetExternalSensor(bleSpec, providerMap);
+        String wackedId = mMetaDataManager.addOrGetExternalSensor(wackedSpec, providerMap);
 
         assertEquals("bluetooth_le-11:22:33:44:55-testName-0", bleId);
         assertEquals("wacked-11:22:33:44:55-testName-0", wackedId);
+    }
+
+    public void testGetExternalSensorsWithScalarInput() {
+        Map<String, ExternalSensorProvider> providerMap = getProviderMap();
+        assertEquals(0, mMetaDataManager.getExternalSensors(providerMap).size());
+        mMetaDataManager.addOrGetExternalSensor(new ScalarInputSpec("name", "address"), providerMap);
+        Map<String, ExternalSensorSpec> newSensors = mMetaDataManager.getExternalSensors(
+                providerMap);
+        assertEquals(1, newSensors.size());
+        String id = "ScalarInput-address-name-0";
+        assertEquals(id, newSensors.keySet().iterator().next());
+        ExternalSensorSpec spec = newSensors.get(id);
+        assertEquals(ScalarInputSpec.TYPE, spec.getType());
+        assertEquals("name", spec.getName());
+        assertEquals("address", spec.getAddress());
     }
 
     public void testSensorToExperiment() {
         String testAddress = "11:22:33:44:55";
         String testName = "testName";
         BleSensorSpec sensor = new BleSensorSpec(testAddress, testName);
-        String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor);
+        Map<String, ExternalSensorProvider> providerMap = getProviderMap();
+        String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
         Project project = mMetaDataManager.newProject();
         Experiment experiment = mMetaDataManager.newExperiment(project);
@@ -398,13 +428,14 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
         Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExperimentExternalSensors(
-                experiment.getExperimentId());
+                experiment.getExperimentId(), providerMap);
         assertEquals(1, sensors.size());
         assertEquals(databaseTag, sensors.keySet().iterator().next());
 
         mMetaDataManager.removeSensorFromExperiment(databaseTag, experiment.getExperimentId());
 
-        sensors = mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId());
+        sensors = mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                providerMap);
         assertEquals(0, sensors.size());
     }
 
@@ -412,7 +443,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         String testAddress = "11:22:33:44:55";
         String testName = "testName";
         BleSensorSpec sensor = new BleSensorSpec(testAddress, testName);
-        String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor);
+        Map<String, ExternalSensorProvider> providerMap = getProviderMap();
+        String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
         Project project = mMetaDataManager.newProject();
         Experiment experiment = mMetaDataManager.newExperiment(project);
@@ -420,14 +452,15 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
         Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExperimentExternalSensors(
-                experiment.getExperimentId());
+                experiment.getExperimentId(), providerMap);
         assertEquals(1, sensors.size());
         assertEquals(databaseTag, sensors.keySet().iterator().next());
 
         mMetaDataManager.removeExternalSensor(databaseTag);
 
         // This should be gone now.
-        sensors = mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId());
+        sensors = mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                providerMap);
         assertEquals(0, sensors.size());
     }
 
@@ -435,7 +468,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         String testAddress = "11:22:33:44:55";
         String testName = "testName";
         BleSensorSpec sensor = new BleSensorSpec(testAddress, testName);
-        String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor);
+        Map<String, ExternalSensorProvider> providerMap = getProviderMap();
+        String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
         Project project = mMetaDataManager.newProject();
         Experiment experiment = mMetaDataManager.newExperiment(project);
@@ -443,14 +477,15 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
         Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExperimentExternalSensors(
-                experiment.getExperimentId());
+                experiment.getExperimentId(), providerMap);
         assertEquals(1, sensors.size());
         assertEquals(databaseTag, sensors.keySet().iterator().next());
 
         mMetaDataManager.deleteProject(project);
 
         // This should be gone now.
-        sensors = mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId());
+        sensors = mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                providerMap);
         assertEquals(0, sensors.size());
     }
 

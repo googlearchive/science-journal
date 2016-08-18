@@ -54,17 +54,20 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     private MetaDataManager mMetaDataManager;
     private Clock mClock;
     private Map<String, FailureListener> mSensorFailureListeners = new HashMap<>();
+    private final Map<String, ExternalSensorProvider> mProviderMap;
     private long mPrevLabelTimestamp = 0;
 
     public DataControllerImpl(SensorDatabase sensorDatabase, Executor uiThread,
             Executor metaDataThread,
-            Executor sensorDataThread, MetaDataManager metaDataManager, Clock clock) {
+            Executor sensorDataThread, MetaDataManager metaDataManager, Clock clock,
+            Map<String, ExternalSensorProvider> providerMap) {
         mSensorDatabase = sensorDatabase;
         mUiThread = uiThread;
         mMetaDataThread = metaDataThread;
         mSensorDataThread = sensorDataThread;
         mMetaDataManager = metaDataManager;
         mClock = clock;
+        mProviderMap = providerMap;
     }
 
     public void replaceSensorInExperiment(final String experimentId, final String oldSensorId,
@@ -411,7 +414,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<Map<String, ExternalSensorSpec>>() {
             @Override
             public Map<String, ExternalSensorSpec> call() throws Exception {
-                return mMetaDataManager.getExternalSensors();
+                return mMetaDataManager.getExternalSensors(mProviderMap);
             }
         });
     }
@@ -422,7 +425,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<Map<String, ExternalSensorSpec>>() {
             @Override
             public Map<String, ExternalSensorSpec> call() throws Exception {
-                return mMetaDataManager.getExperimentExternalSensors(experimentId);
+                return mMetaDataManager.getExperimentExternalSensors(experimentId, mProviderMap);
             }
         });
     }
@@ -434,7 +437,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<ExternalSensorSpec>() {
             @Override
             public ExternalSensorSpec call() throws Exception {
-                return mMetaDataManager.getExternalSensorById(id);
+                return mMetaDataManager.getExternalSensorById(id, mProviderMap);
             }
         });
     }
@@ -623,7 +626,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSensorId, new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return mMetaDataManager.addOrGetExternalSensor(sensor);
+                return mMetaDataManager.addOrGetExternalSensor(sensor, mProviderMap);
             }
         });
     }

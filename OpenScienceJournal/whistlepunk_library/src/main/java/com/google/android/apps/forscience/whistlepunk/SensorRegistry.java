@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
@@ -51,34 +52,13 @@ import java.util.Set;
  */
 // TODO: Move more functionality into SensorCardPresenter.
 public class SensorRegistry {
-    private static final String TAG = "SensorRegistry";
-
-    public interface ExternalSensorProvider {
-        public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec);
-
-        String getProviderId();
-    }
-
-    private Map<String, ExternalSensorProvider> mExternalProviders = new ArrayMap<>();
-
     public static final String WP_NATIVE_BLE_PROVIDER_ID =
             "com.google.android.apps.forscience.whistlepunk.ble";
 
     public static final String WP_HARDWARE_PROVIDER_ID =
             "com.google.android.apps.forscience.whistlepunk.hardware";
 
-    private static final ExternalSensorProvider WINDMILL_PROVIDER = new ExternalSensorProvider() {
-        @Override
-        public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
-            return new BluetoothSensor(sensorId, (BleSensorSpec) spec,
-                    BluetoothSensor.ANNING_SERVICE_SPEC);
-        }
-
-        @Override
-        public String getProviderId() {
-            return WP_NATIVE_BLE_PROVIDER_ID;
-        }
-    };
+    private static final String TAG = "SensorRegistry";
 
     private static class SensorRegistryItem {
         public String providerId;
@@ -87,7 +67,7 @@ public class SensorRegistry {
 
         public SensorRegistryItem(String providerId, SensorChoice choice, String loggingId) {
             this.providerId = providerId;
-            this.choice = choice;
+            this.choice = Preconditions.checkNotNull(choice);
             this.loggingId = loggingId;
         }
     }
@@ -107,9 +87,6 @@ public class SensorRegistry {
     @VisibleForTesting
     protected SensorRegistry() {
         // prevent direct construction
-
-        // TODO: more dynamic way to build this?
-        mExternalProviders.put(BleSensorSpec.TYPE, WINDMILL_PROVIDER);
     }
 
     /**
@@ -149,25 +126,14 @@ public class SensorRegistry {
         mWaitingSensorChoiceOperations.removeAll(id);
     }
 
-    private boolean hasSource(String id) {
-        return mSensorRegistry.containsKey(id);
-    }
-
     public Set<String> getAllSources() {
         return mSensorRegistry.keySet();
-    }
-
-    public String getLoggingId(String id) {
-        if (mSensorRegistry.containsKey(id)) {
-            return mSensorRegistry.get(id).loggingId;
-        }
-        return null;
     }
 
     private Set<String> getAllExternalSources() {
         Set<String> externalSourceIds = new HashSet<String>();
         for (Map.Entry<String, SensorRegistryItem> entry : mSensorRegistry.entrySet()) {
-            if (entry.getValue().providerId.equals(WP_NATIVE_BLE_PROVIDER_ID)) {
+            if (!entry.getValue().providerId.equals(WP_HARDWARE_PROVIDER_ID)) {
                 externalSourceIds.add(entry.getKey());
             }
         }
@@ -220,7 +186,8 @@ public class SensorRegistry {
     }
 
     @NonNull
-    public List<String> updateExternalSensors(Map<String, ExternalSensorSpec> sensors) {
+    public List<String> updateExternalSensors(Map<String, ExternalSensorSpec> sensors,
+            Map<String, ExternalSensorProvider> externalProviders) {
         mMostRecentExternalSensors = sensors;
 
         List<String> sensorsActuallyAdded = new ArrayList<>();
@@ -233,7 +200,7 @@ public class SensorRegistry {
         for (String externalSensorId : newExternalSensors) {
             ExternalSensorSpec sensor = sensors.get(externalSensorId);
             if (sensor != null) {
-                ExternalSensorProvider provider = mExternalProviders.get(sensor.getType());
+                ExternalSensorProvider provider = externalProviders.get(sensor.getType());
                 if (provider != null) {
                     addSource(new SensorRegistryItem(provider.getProviderId(),
                             provider.buildSensor(externalSensorId, sensor), sensor.getLoggingId()));

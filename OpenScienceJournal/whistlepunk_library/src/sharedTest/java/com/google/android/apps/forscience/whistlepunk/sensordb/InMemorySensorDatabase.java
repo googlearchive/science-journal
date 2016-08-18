@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
@@ -29,6 +30,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class InMemorySensorDatabase implements SensorDatabase {
     private List<List<Reading>> mReadings = new ArrayList<>();
@@ -45,9 +47,10 @@ public class InMemorySensorDatabase implements SensorDatabase {
 
     @NonNull
     private DataControllerImpl makeDataControllerImpl(MemoryMetadataManager manager) {
+        Map<String, ExternalSensorProvider> providerMap = null;
         return new DataControllerImpl(this, MoreExecutors.directExecutor(),
                 MoreExecutors.directExecutor(), MoreExecutors.directExecutor(), manager,
-                new MonotonicClock());
+                new MonotonicClock(), providerMap);
     }
 
     @Override

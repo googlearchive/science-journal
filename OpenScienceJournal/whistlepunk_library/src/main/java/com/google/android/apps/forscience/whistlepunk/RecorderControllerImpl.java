@@ -723,7 +723,8 @@ public class RecorderControllerImpl implements RecorderController {
 
     @Override
     public void updateExternalSensors(Map<String, ExternalSensorSpec> sensors) {
-        mSensors.updateExternalSensors(sensors);
+        mSensors.updateExternalSensors(sensors,
+                AppSingleton.getInstance(mContext).getExternalSensorProviders());
     }
 
     @VisibleForTesting

@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 
 import java.util.List;
@@ -107,20 +107,25 @@ public interface MetaDataManager {
 
     /**
      * Gets all the external sensors previously saved.
+     * @param providerMap
      */
-    public Map<String, ExternalSensorSpec> getExternalSensors();
+    public Map<String, ExternalSensorSpec> getExternalSensors(
+            Map<String, ExternalSensorProvider> providerMap);
 
     /**
      * Gets the external sensor or {@null} if no sensor with that ID was added.
      */
-    public ExternalSensorSpec getExternalSensorById(String id);
+    public ExternalSensorSpec getExternalSensorById(String id,
+            Map<String, ExternalSensorProvider> providerMap);
 
     /**
      *
      * @param sensor
+     * @param providerMap
      * @return
      */
-    public String addOrGetExternalSensor(ExternalSensorSpec sensor);
+    public String addOrGetExternalSensor(ExternalSensorSpec sensor,
+            Map<String, ExternalSensorProvider> providerMap);
 
     /**
      * Removes an external sensor from the database.
@@ -143,7 +148,8 @@ public interface MetaDataManager {
     /**
      * Gets all the externdal sensors which are linked to an experiment.
      */
-    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId);
+    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId,
+            Map<String, ExternalSensorProvider> providerMap);
 
     /**
      * @returns Last used experiment.

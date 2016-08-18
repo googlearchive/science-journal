@@ -29,10 +29,10 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.common.base.Strings;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.util.ArrayList;
@@ -619,7 +619,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public String addOrGetExternalSensor(ExternalSensorSpec sensor) {
+    public String addOrGetExternalSensor(ExternalSensorSpec sensor,
+            Map<String, ExternalSensorProvider> providerMap) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
             String sql = "SELECT IFNULL(MIN(" + SensorColumns.SENSOR_ID + "), '') FROM " + Tables
@@ -635,7 +636,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
 
         int suffix = 0;
-        while (getExternalSensorById(ExternalSensorSpec.getSensorId(sensor, suffix)) != null) {
+        while (getExternalSensorById(ExternalSensorSpec.getSensorId(sensor, suffix), providerMap)
+                != null) {
             suffix++;
         }
 
@@ -924,7 +926,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public Map<String, ExternalSensorSpec> getExternalSensors() {
+    public Map<String, ExternalSensorSpec> getExternalSensors(
+            Map<String, ExternalSensorProvider> providerMap) {
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
 
         synchronized (mLock) {
@@ -934,7 +937,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 c = db.query(Tables.EXTERNAL_SENSORS, SensorQuery.PROJECTION, null, null, null,
                         null, null);
                 while (c.moveToNext()) {
-                    ExternalSensorSpec value = loadSensorFromDatabase(c);
+                    ExternalSensorSpec value = loadSensorFromDatabase(c, providerMap);
                     if (value != null) {
                         sensors.put(c.getString(SensorQuery.DATABASE_TAG_INDEX), value);
                     }
@@ -950,7 +953,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public ExternalSensorSpec getExternalSensorById(String id) {
+    public ExternalSensorSpec getExternalSensorById(String id,
+            Map<String, ExternalSensorProvider> providerMap) {
         ExternalSensorSpec sensor = null;
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -959,7 +963,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 c = db.query(Tables.EXTERNAL_SENSORS, SensorQuery.PROJECTION,
                         SensorColumns.SENSOR_ID + "=?", new String[]{id}, null, null, null);
                 if (c.moveToNext()) {
-                    sensor = loadSensorFromDatabase(c);
+                    sensor = loadSensorFromDatabase(c, providerMap);
                 }
             } finally {
                 if (c != null) {
@@ -970,17 +974,15 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return sensor;
     }
 
-    private ExternalSensorSpec loadSensorFromDatabase(Cursor c) {
+    private ExternalSensorSpec loadSensorFromDatabase(Cursor c,
+            Map<String, ExternalSensorProvider> providerMap) {
         String type = c.getString(SensorQuery.TYPE_INDEX);
-        if (BleSensorSpec.TYPE.equals(type)) {
-            return new BleSensorSpec(c.getString(SensorQuery.NAME_INDEX),
-                    c.getBlob(SensorQuery.CONFIG_INDEX));
-        } else {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "Unknown sensor type: " + type);
-            }
-            return null;
+        ExternalSensorProvider externalSensorProvider = providerMap.get(type);
+        if (externalSensorProvider == null) {
+            throw new IllegalArgumentException("No provider for sensor type: " + type);
         }
+        return externalSensorProvider.buildSensorSpec(c.getString(SensorQuery.NAME_INDEX),
+                c.getBlob(SensorQuery.CONFIG_INDEX));
     }
 
     @Override
@@ -1006,7 +1008,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId) {
+    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId,
+            Map<String, ExternalSensorProvider> providerMap) {
         List<String> tags = new ArrayList<>();
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
 
@@ -1029,8 +1032,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             // This is somewhat inefficient to do nested queries, but in most cases there will
             // only be one or two, so we are trading off code complexity of doing a db join.
             for (String tag : tags) {
-                ExternalSensorSpec externalSensorById = getExternalSensorById(tag);
-                sensors.put(tag, externalSensorById);
+                sensors.put(tag, getExternalSensorById(tag, providerMap));
             }
         }
 

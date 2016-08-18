@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.sensordb;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -175,12 +176,14 @@ public class MemoryMetadataManager implements MetaDataManager {
     private Map<String, ExternalSensorSpec> mExternalSensors = new HashMap<>();
 
     @Override
-    public Map<String, ExternalSensorSpec> getExternalSensors() {
+    public Map<String, ExternalSensorSpec> getExternalSensors(
+            Map<String, ExternalSensorProvider> providerMap) {
         return mExternalSensors;
     }
 
     @Override
-    public ExternalSensorSpec getExternalSensorById(String id) {
+    public ExternalSensorSpec getExternalSensorById(String id,
+            Map<String, ExternalSensorProvider> providerMap) {
         return mExternalSensors.get(id);
     }
 
@@ -191,7 +194,8 @@ public class MemoryMetadataManager implements MetaDataManager {
 
 
     @Override
-    public String addOrGetExternalSensor(ExternalSensorSpec sensor) {
+    public String addOrGetExternalSensor(ExternalSensorSpec sensor,
+            Map<String, ExternalSensorProvider> providerMap) {
         for (Map.Entry<String, ExternalSensorSpec> entry : mExternalSensors.entrySet()) {
             if (Arrays.equals(entry.getValue().getConfig(), sensor.getConfig())) {
                 return entry.getKey();
@@ -225,7 +229,8 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId) {
+    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId,
+            Map<String, ExternalSensorProvider> providerMap) {
         Map<String, ExternalSensorSpec> specs = new HashMap<>();
         for (String id : mExperimentToSensors.get(experimentId)) {
             specs.put(id, mExternalSensors.get(id));
