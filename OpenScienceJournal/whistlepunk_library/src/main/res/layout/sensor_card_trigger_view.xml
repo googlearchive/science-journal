@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:background="@color/text_color_dark_grey"
     android:id="@+id/sensor_card_trigger_section"
+    android:visibility="gone"
     >
 
     <View

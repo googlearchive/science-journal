@@ -23,9 +23,11 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusList
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -70,7 +72,11 @@ public class RecorderListenerRegistry implements SensorStatusListener {
     @Override
     public void onSourceError(String id, @Error int error, String errorMessage) {
         mCurrentErrors.put(id, true);
-        for (ListenerSet set : mListeners.get(id)) {
+        // Since onSourceError can call a disconnect and remove a listener, need to keep this safe
+        // for concurrent modification by copying it elsewhere.
+        List<ListenerSet> listenerList = new ArrayList<>();
+        listenerList.addAll(mListeners.get(id));
+        for (ListenerSet set : listenerList) {
             if (set.statusListener != null) {
                 set.statusListener.onSourceError(id, error, errorMessage);
             }

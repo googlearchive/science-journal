@@ -1254,15 +1254,18 @@ public class SensorCardPresenter {
             mSensorPresenter.onStopObserving();
         }
         mSensorPresenter = null;
+        mCurrentSource = null;
         mSensorAnimationBehavior = null;
         mRecorderController.stopObserving(mSensorId, mObserverId);
-        clearSensorStreamData();
+        if (!mHasError) {
+            // Only clear the data if the disconnect didn't come from an error.
+            clearSensorStreamData();
+        }
     }
 
     private void clearSensorStreamData() {
         mSensorDisplayName = "";
         mUnits = "";
-        mCurrentSource = null;
         mSensorId = "";
         if (mCardViewHolder != null) {
             mCardViewHolder.meterLiveData.setText("");
