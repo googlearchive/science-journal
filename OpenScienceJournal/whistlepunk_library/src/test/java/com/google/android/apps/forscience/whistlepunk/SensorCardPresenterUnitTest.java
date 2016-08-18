@@ -41,6 +41,8 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
+import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
+import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 
 import org.junit.Test;
 
@@ -70,7 +72,10 @@ public class SensorCardPresenterUnitTest {
             }
         };
         ManualSensor ds = new ManualSensor("sensorId", 100, 100);
-        scp.startObserving(ds, presenter, new BlankReadableSensorOptions(), so);
+        InMemorySensorDatabase db = new InMemorySensorDatabase();
+        MemoryMetadataManager manager = new MemoryMetadataManager();
+        final DataController dc = db.makeSimpleController(manager);
+        scp.startObserving(ds, presenter, new BlankReadableSensorOptions(), dc, so);
         scp.setAppearanceProvider(new MemoryAppearanceProvider());
         scp.setUiForConnectingNewSensor(ds.getId(), "Display Name", "units", false);
         assertEquals(Arrays.asList(ds.getId()), rc.getCurrentObservedIds());

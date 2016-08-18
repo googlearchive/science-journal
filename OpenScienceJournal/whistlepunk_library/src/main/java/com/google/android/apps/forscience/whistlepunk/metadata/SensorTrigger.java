@@ -21,6 +21,8 @@ import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 
 
+
+import com.google.common.primitives.Ints;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 
@@ -226,6 +228,11 @@ public class SensorTrigger {
     // For TRIGGER_ACTION_ALERT only.
     public int[] getAlertTypes() {
         return mTriggerInfo.triggerAlertTypes;
+    }
+
+    public boolean hasAlertType(int alertType) {
+        int[] alertTypes = mTriggerInfo.triggerAlertTypes;
+        return Ints.indexOf(alertTypes, alertType) != -1;
     }
 
     // For TRIGGER_ACTION_ALERT only.

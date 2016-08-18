@@ -16,9 +16,13 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import static org.junit.Assert.assertEquals;
+import static junit.framework.Assert.assertEquals;
+
+import android.net.Uri;
+import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
@@ -29,6 +33,8 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDat
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 
 import org.junit.Test;
+
+import java.util.Collections;
 
 public class RecorderControllerTest {
     @Test
@@ -47,14 +53,16 @@ public class RecorderControllerTest {
                         new MemoryMetadataManager()), new FakeBleClient(null),
                 new MemorySensorHistoryStorage());
         RecorderControllerImpl rc = new RecorderControllerImpl(null, registry, env,
-                new RecorderListenerRegistry());
+                new RecorderListenerRegistry(), Uri.EMPTY);
         RecordingSensorObserver observer1 = new RecordingSensorObserver();
         RecordingSensorObserver observer2 = new RecordingSensorObserver();
 
         sensor.pushValue(0, 0);
-        String id1 = rc.startObserving(sensorId, observer1, new StubStatusListener(), null);
+        String id1 = rc.startObserving(sensorId, Collections.<SensorTrigger>emptyList(), observer1,
+                new StubStatusListener(), null);
         sensor.pushValue(1, 1);
-        String id2 = rc.startObserving(sensorId, observer2, new StubStatusListener(), null);
+        String id2 = rc.startObserving(sensorId, Collections.<SensorTrigger>emptyList(), observer2,
+                new StubStatusListener(), null);
         sensor.pushValue(2, 2);
         rc.stopObserving(sensorId, id1);
         sensor.pushValue(3, 3);

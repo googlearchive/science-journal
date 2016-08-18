@@ -329,7 +329,7 @@ public class EditTriggerFragment extends Fragment {
             goToParent();
             return;
         }
-        SensorLayoutTriggerUtils.addTriggerToLayoutActiveTriggers(mSensorLayout,
+        TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout,
                 mTriggerToEdit.getTriggerId());
         dc.updateSensorTrigger(mTriggerToEdit,
                 new LoggingConsumer<Success>(TAG, "update trigger") {
@@ -359,7 +359,7 @@ public class EditTriggerFragment extends Fragment {
             triggerToAdd = SensorTrigger.newAlertTypeTrigger(triggerId, mSensorId, triggerWhen,
                     getCurrentAlertTypes(), triggerValue);
         }
-        SensorLayoutTriggerUtils.addTriggerToLayoutActiveTriggers(mSensorLayout, triggerId);
+        TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout, triggerId);
         dc.addSensorTrigger(triggerToAdd, mExperimentId,
                 new LoggingConsumer<Success>(TAG, "add trigger") {
                     @Override

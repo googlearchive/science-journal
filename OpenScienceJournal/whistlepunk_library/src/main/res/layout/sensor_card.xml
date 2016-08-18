@@ -132,6 +132,17 @@
 
         </com.google.android.apps.forscience.whistlepunk.SensorCardHeader>
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/sensor_trigger_holder"
+            android:layout_below="@id/sensor_selection_area"
+            >
+
+            <include layout="@layout/sensor_card_trigger_view"/>
+
+        </FrameLayout>
+
         <include layout="@layout/sensor_card_graph_view"/>
         <include layout="@layout/sensor_card_meter_view"/>
         <include layout="@layout/sensor_card_status_view"/>

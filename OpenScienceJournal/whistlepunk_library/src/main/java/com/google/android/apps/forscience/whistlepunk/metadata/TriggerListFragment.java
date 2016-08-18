@@ -16,10 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -54,7 +52,6 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -218,7 +215,7 @@ public class TriggerListFragment extends Fragment {
                             public void success(Success value) {
                                 if (isActive) {
                                     // If it was active, re-add it to the Layout.
-                                    SensorLayoutTriggerUtils.addTriggerToLayoutActiveTriggers(
+                                    TriggerHelper.addTriggerToLayoutActiveTriggers(
                                             mSensorLayout, trigger.getTriggerId());
                                     dc.updateSensorLayout(mExperimentId, mLayoutPosition,
                                             mSensorLayout, new LoggingConsumer<Success>(
@@ -238,7 +235,7 @@ public class TriggerListFragment extends Fragment {
 
         // Do the deletion, first by removing it from the layout and next by removing it
         // from the trigger database.
-        SensorLayoutTriggerUtils.removeTriggerFromLayoutActiveTriggers(mSensorLayout,
+        TriggerHelper.removeTriggerFromLayoutActiveTriggers(mSensorLayout,
                 trigger.getTriggerId());
         dc.updateSensorLayout(mExperimentId, mLayoutPosition, mSensorLayout,
                 new LoggingConsumer<Success>(TAG, "remove trigger from layout") {
@@ -271,10 +268,10 @@ public class TriggerListFragment extends Fragment {
             return;
         }
         if (isActive) {
-            SensorLayoutTriggerUtils.addTriggerToLayoutActiveTriggers(mSensorLayout,
+            TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout,
                     trigger.getTriggerId());
         } else {
-            SensorLayoutTriggerUtils.removeTriggerFromLayoutActiveTriggers(mSensorLayout,
+            TriggerHelper.removeTriggerFromLayoutActiveTriggers(mSensorLayout,
                     trigger.getTriggerId());
         }
         getDataController().updateSensorLayout(mExperimentId, mLayoutPosition, mSensorLayout,
@@ -322,7 +319,7 @@ public class TriggerListFragment extends Fragment {
             if (mParentReference.get() == null) {
                 return;
             }
-            holder.description.setText(SensorLayoutTriggerUtils.buildDescription(trigger,
+            holder.description.setText(TriggerHelper.buildDescription(trigger,
                     mParentReference.get().getActivity()));
 
             holder.menuButton.setOnClickListener(new View.OnClickListener() {

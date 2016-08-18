@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Routes information flowing back from the recorders to the listeners (if any) in the foreground
@@ -112,7 +111,6 @@ public class RecorderListenerRegistry implements SensorStatusListener {
 
     public void remove(String sensorId, String observerId) {
         Collection<ListenerSet> sensorListeners = mListeners.get(sensorId);
-        int size = sensorListeners.size();
         Iterator<ListenerSet> iterator = sensorListeners.iterator();
         while (iterator.hasNext()) {
             if (iterator.next().observerId.equals(observerId)) {
@@ -124,9 +122,6 @@ public class RecorderListenerRegistry implements SensorStatusListener {
             // Remove the status and errors state too.
             if (mCurrentErrors.containsKey(sensorId)) {
                 mCurrentErrors.remove(sensorId);
-            }
-            if (mCurrentStatus.containsKey(sensorId)) {
-                mCurrentStatus.remove(sensorId);
             }
         }
     }

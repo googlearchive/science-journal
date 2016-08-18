@@ -66,8 +66,10 @@ import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDi
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
@@ -112,7 +114,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     private static final String EXTRA_SENSOR_IDS = "sensorIds";
 
     private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
-    private static final long TRIGGER_VIBRATION_DURATION = 200;
 
     public SensorRegistry mSensorRegistry;
 
@@ -165,8 +166,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     private boolean mRecordingWasCanceled;
 
     public static RecordFragment newInstance() {
-        RecordFragment fragment = new RecordFragment();
-        return fragment;
+        return new RecordFragment();
     }
 
     @Override
@@ -247,6 +247,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             public void take(RecorderController rc) {
                 mRecorderPauseId = rc.pauseObservingAll();
                 rc.removeRecordingStateListener(TAG);
+                rc.removeTriggerFiredListener(TAG);
             }
         });
         AppSingleton.getInstance(getActivity()).removeListeners(TAG);
@@ -321,6 +322,29 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         updateRecordingUIState();
                     }
                 });
+                rc.addTriggerFiredListener(TAG, new RecorderController.TriggerFiredListener() {
+
+                    @Override
+                    public void onTriggerFired(SensorTrigger trigger) {
+                        doVisualAlert(trigger);
+                    }
+
+                    @Override
+                    public void onRequestStartRecording() {
+                        lockUiForRecording((AppCompatActivity) getActivity());
+                    }
+
+                    @Override
+                    public void onLabelAdded(Label label) {
+                        processAddedLabel(label);
+                    }
+
+                    @Override
+                    public void onRequestStopRecording(RecorderController rc) {
+                        updateRecorderControllerLayouts(rc, buildCurrentLayouts());
+                    }
+                });
+
                 if (!rc.resumeObservingAll(mRecorderPauseId)) {
                     // Force a reload of the current experiment's ob
                     mSelectedExperiment = null;
@@ -557,6 +581,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         mSensorLayoutsLoaded = true;
                     }
                 });
+        rc.setSelectedExperiment(mSelectedExperiment);
         setControlButtonsEnabled(true);
     }
 
@@ -576,11 +601,22 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (mSelectedExperiment == null || !mSensorLayoutsLoaded) {
             return;
         }
-        List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
+        final List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
         if (layouts != null) {
             getDataController().setSensorLayouts(mSelectedExperiment.getExperimentId(),
                     layouts, LoggingConsumer.<Success>expectSuccess(TAG, "saving layouts"));
         }
+        withRecorderController(new Consumer<RecorderController>() {
+            @Override
+            public void take(RecorderController recorderController) {
+                updateRecorderControllerLayouts(recorderController, layouts);
+            }
+        });
+    }
+
+    private void updateRecorderControllerLayouts(RecorderController rc,
+            List<GoosciSensorLayout.SensorLayout> layouts) {
+        rc.setCurrentSensorLayouts(layouts);
     }
 
     private List<GoosciSensorLayout.SensorLayout> buildCurrentLayouts() {
@@ -842,8 +878,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         // Retry streaming.
                         final String sensorId =
                                 sensorCardPresenter.getSelectedSensorId();
-                        if (sensorId != null
-                                && mSensorCardAdapter.getSensorCardPresenters()
+                        if (sensorId != null && mSensorCardAdapter.getSensorCardPresenters()
                                 .contains(sensorCardPresenter)) {
                             sensorCardPresenter.stopObserving();
                             tryStartObserving(sensorCardPresenter, sensorId, true);
@@ -947,18 +982,22 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         return new LoggingConsumer<Label>(TAG, "store label") {
             @Override
             public void success(Label value) {
-                refreshLabels();
-                ensureUnarchived(mSelectedExperiment, mSelectedProject, getDataController());
-                playAddNoteAnimation();
-                String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
-                        TrackerConstants.LABEL_OBSERVE;
-                WhistlePunkApplication.getUsageTracker(getActivity())
-                        .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                TrackerConstants.ACTION_CREATE,
-                                trackerLabel,
-                                TrackerConstants.getLabelValueType(value));
+                processAddedLabel(value);
             }
         };
+    }
+
+    private void processAddedLabel(Label label) {
+        refreshLabels();
+        ensureUnarchived(mSelectedExperiment, mSelectedProject, getDataController());
+        playAddNoteAnimation();
+        String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
+                TrackerConstants.LABEL_OBSERVE;
+        WhistlePunkApplication.getUsageTracker(getActivity())
+                .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                        TrackerConstants.ACTION_CREATE,
+                        trackerLabel,
+                        TrackerConstants.getLabelValueType(label));
     }
 
     private void playAddNoteAnimation() {
@@ -988,7 +1027,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 .scaleX(1.0f)
                 .scaleY(1.0f)
                 .alpha(.2f)
-                .setDuration(500)
+                .setDuration(750)
                 .setInterpolator(new DecelerateInterpolator())
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
@@ -1153,17 +1192,18 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (mLaunchIntent == null || mSelectedExperiment == null || mSelectedProject == null) {
             return;
         }
-        rc.startRecording(mLaunchIntent, mSelectedExperiment, mSelectedProject);
+        rc.startRecording(mLaunchIntent, mSelectedProject);
     }
 
     private void failedStartRecording(int stringId) {
         Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
                 getActivity().getResources().getString(stringId), Snackbar.LENGTH_LONG);
-        bar.show();
+        showSnackbar(bar);
     }
 
     private void tryStopRecording(final RecorderController rc) {
-        rc.stopRecording(mSelectedExperiment, buildCurrentLayouts());
+        rc.setCurrentSensorLayouts(buildCurrentLayouts());
+        rc.stopRecording();
     }
 
     private void failedStopRecording(int stringId) {
@@ -1222,7 +1262,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 sensorPresenter.getOptionsPresenter().applyOptions(readOptions);
 
                 sensorCardPresenter.startObserving(sensorChoice, sensorPresenter, readOptions,
-                        new SensorObserver() {
+                        getDataController(), new SensorObserver() {
                             @Override
                             public void onNewData(long timestamp, Bundle value) {
                                 // TODO: Why is there an occasional errant first point when
@@ -1240,20 +1280,53 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         });
     }
 
-    private void doVibrateAlert() {
-        // Don't try requesting permission again if it is not granted. Just ignore it.
-        // We try requesting permission when the user creates the alert. If it is not granted here,
-        // it means they manually turned it off in the app settings.
-        if (PermissionUtils.permissionIsGranted(getActivity(), Manifest.permission.VIBRATE)) {
-            getVibrator().vibrate(TRIGGER_VIBRATION_DURATION);
+    private void doVisualAlert(SensorTrigger trigger) {
+        SensorCardPresenter presenter = getPresenterById(trigger.getSensorId());
+        if (presenter == null) {
+            return;
         }
-    }
 
-    private Vibrator getVibrator() {
-        if (mVibrator == null) {
-            mVibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+        // In any of the presenter is visible, go ahead and pass the trigger to it.
+        presenter.onSensorTriggerFired(trigger);
+
+        // Only need to do a snackbar for off-screen visual alerts.
+        if (!trigger.hasAlertType(TriggerInformation.TRIGGER_ALERT_VISUAL)) {
+            return;
         }
-        return mVibrator;
+        // If a snackbar is already being shown, don't show a new one.
+        if (mVisibleSnackbar != null) {
+            return;
+        }
+
+        // Get the presenter's position.
+        final int position = getPositionOfPresenter(presenter);
+
+        // TODO: Work with UX to tweak this check so that the right amount of the card is shown.
+        // Look to see if the card is outside of the visible presenter range. The alert is shown
+        // near the top of the card, so we check between the first fully visible card and the last
+        // partially visible card.
+        if (position < mSensorCardLayoutManager.findFirstCompletelyVisibleItemPosition() ||
+                position > mSensorCardLayoutManager.findLastVisibleItemPosition()) {
+
+            SensorAppearance appearance = AppSingleton.getInstance(getActivity())
+                    .getSensorAppearanceProvider().getAppearance(trigger.getSensorId());
+            String units = appearance.getUnits(getActivity());
+            String sensorName = appearance.getName(getActivity());
+            String triggerWhenText = getActivity().getResources().getStringArray(
+                    R.array.trigger_when_list_note_text)[trigger.getTriggerWhen()];
+            String message = getActivity().getResources().getString(
+                    R.string.trigger_snackbar_auto_text, sensorName, triggerWhenText,
+                    trigger.getValueToTrigger(), units);
+            final Snackbar bar = AccessibilityUtils.makeSnackbar(getView(), message,
+                    Snackbar.LENGTH_LONG);
+            bar.setAction(R.string.scroll_to_card, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mSensorCardLayoutManager.scrollToPosition(position);
+                }
+            });
+            showSnackbar(bar);
+        }
     }
 
     /**
@@ -1475,34 +1548,31 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     public void onAudioSettingsPreview(String[] previewSonificationTypes, String[] sensorIds) {
         // During observe, audio settings are only set for one card at a time, so sensorIds is
         // length 1.
-        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (presenter.getSelectedSensorId().equals(sensorIds[0])) {
-                presenter.onAudioSettingsPreview(previewSonificationTypes[0]);
-                return;
-            }
+        SensorCardPresenter presenter = getPresenterById(sensorIds[0]);
+        if (presenter == null) {
+            return;
         }
+        presenter.onAudioSettingsPreview(previewSonificationTypes[0]);
     }
 
     @Override
     public void onAudioSettingsApplied(String[] newSonificationTypes, String[] sensorIds) {
         // During record, audio settings are only set for one card at a time, so sensorIds is length 1.
-        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (presenter.getSelectedSensorId().equals(sensorIds[0])) {
-                presenter.onAudioSettingsApplied(newSonificationTypes[0]);
-                return;
-            }
+        SensorCardPresenter presenter = getPresenterById(sensorIds[0]);
+        if (presenter == null) {
+            return;
         }
+        presenter.onAudioSettingsApplied(newSonificationTypes[0]);
     }
 
     @Override
     public void onAudioSettingsCanceled(String[] originalSonificationTypes, String[] sensorIds) {
         // During record, audio settings are only set for one card at a time, so sensorIds is length 1.
-        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (presenter.getSelectedSensorId().equals(sensorIds[0])) {
-                presenter.onAudioSettingsCanceled(originalSonificationTypes[0]);
-                return;
-            }
+        SensorCardPresenter presenter = getPresenterById(sensorIds[0]);
+        if (presenter == null) {
+            return;
         }
+        presenter.onAudioSettingsCanceled(originalSonificationTypes[0]);
     }
 
     public int getPositionOfLayout(GoosciSensorLayout.SensorLayout layout) {
@@ -1516,6 +1586,31 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             }
         }
         return -1;
+    }
+
+    public int getPositionOfPresenter(SensorCardPresenter presenter) {
+        if (mSensorCardAdapter == null) {
+            return -1;
+        }
+        List<SensorCardPresenter> presenters = mSensorCardAdapter.getSensorCardPresenters();
+        for (int i = 0; i < presenters.size(); i++) {
+            if (Objects.equals(presenter, presenters.get(i))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private SensorCardPresenter getPresenterById(String sensorId) {
+        if (mSensorCardAdapter == null) {
+            return null;
+        }
+        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
+            if (presenter.getSelectedSensorId().equals(sensorId)) {
+                return presenter;
+            }
+        }
+        return null;
     }
 
     private static class ExperimentsSpinnerAdapter extends ArrayAdapter<Experiment> {
@@ -1559,6 +1654,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void showSnackbar(Snackbar bar) {
+        // TODO: UX asks for the Snackbar to be shown above the external axis...
+        // may need to do a custom snackbar class.
         bar.setCallback(new Snackbar.Callback() {
 
             @Override

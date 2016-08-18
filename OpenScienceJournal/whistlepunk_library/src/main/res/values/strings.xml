@@ -1168,6 +1168,12 @@
     <!-- The format for a floating point data value when displayed to the user. This has more significant figures than on the Y axis. DO NOT TRANSLATE -->
     <string name="run_review_chart_label_format"><xliff:g id="value">%.2f</xliff:g></string>
 
+    <!-- Auto-generated text for a snackbar that announces that a trigger has fired. For example, "Ambient light rose above 13 lux". [CHAR_LIMIT=50] -->
+    <string name="trigger_snackbar_auto_text"><xliff:g id="sensor_name">%1s</xliff:g> <xliff:g id="trigger_when">%2s</xliff:g> <xliff:g id="trigger_value">%.2f</xliff:g> <xliff:g id="sensor_units">%4s</xliff:g></string>
+
+    <!-- Action text for a snackbar to scroll to a particular SensorCard. [CHAR_LIMIT=20] -->
+    <string name="scroll_to_card">show</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

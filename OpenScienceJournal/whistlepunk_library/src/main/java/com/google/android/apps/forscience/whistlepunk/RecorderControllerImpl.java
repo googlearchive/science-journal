@@ -20,6 +20,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -30,14 +32,19 @@ import android.util.Log;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
@@ -49,6 +56,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -155,7 +163,7 @@ public class RecorderControllerImpl implements RecorderController {
         public void onServiceConnected(ComponentName name, IBinder service) {
             RecorderService.Binder binder = (RecorderService.Binder) service;
             mService = binder.getService();
-            while (! mOperations.isEmpty()) {
+            while (!mOperations.isEmpty()) {
                 runOperation(mOperations.remove());
             }
         }
@@ -190,6 +198,12 @@ public class RecorderControllerImpl implements RecorderController {
     private RecorderServiceConnection mServiceConnection = null;
     private int mPauseCount = 0;
     private final SensorEnvironment mSensorEnvironment;
+    private Experiment mSelectedExperiment;
+    private Map<String, TriggerFiredListener> mTriggerListeners = new HashMap<>();
+    private List<GoosciSensorLayout.SensorLayout> mSensorLayouts = Collections.emptyList();
+    private boolean mRecordingStateChangeInProgress;
+    private TriggerHelper mTriggerHelper;
+    private Uri mAudioAlertUri;
 
     private FailureListener mRemoteFailureListener = new FailureListener() {
         @Override
@@ -211,25 +225,31 @@ public class RecorderControllerImpl implements RecorderController {
     public RecorderControllerImpl(Context context) {
         this(context, SensorRegistry.createWithBuiltinSensors(context),
                 AppSingleton.getInstance(context).getSensorEnvironment(),
-                new RecorderListenerRegistry());
+                new RecorderListenerRegistry(),
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
     }
 
     @VisibleForTesting
     public RecorderControllerImpl(Context context, SensorRegistry registry,
-            SensorEnvironment sensorEnvironment, RecorderListenerRegistry listenerRegistry) {
+            SensorEnvironment sensorEnvironment, RecorderListenerRegistry listenerRegistry,
+            Uri audioAlertUri) {
         mContext = context;
         mSensors = registry;
         mSensorEnvironment = sensorEnvironment;
         mRegistry = listenerRegistry;
+        mAudioAlertUri = audioAlertUri;
     }
 
     @Override
-    public String startObserving(final String sensorId, SensorObserver observer,
-            SensorStatusListener listener, final TransportableSensorOptions initialOptions) {
+    public String startObserving(final String sensorId, final List<SensorTrigger> activeTriggers,
+            SensorObserver observer, SensorStatusListener listener,
+            final TransportableSensorOptions initialOptions) {
+        // Put the observer and listener in the registry by sensorId.
         String observerId = mRegistry.putListeners(sensorId, observer, listener);
         StatefulRecorder sr = mRecorders.get(sensorId);
         if (sr != null) {
             RecorderControllerImpl.this.startObserving(sr);
+            addServiceObserverIfNeeded(sensorId, activeTriggers);
         } else {
             mSensors.withSensorChoice(sensorId, new Consumer<SensorChoice>() {
                 @Override
@@ -240,22 +260,118 @@ public class RecorderControllerImpl implements RecorderController {
                     recorder.applyOptions(new ReadableTransportableSensorOptions(initialOptions));
                     StatefulRecorder newStatefulRecorder = new StatefulRecorder(recorder);
                     mRecorders.put(sensorId, newStatefulRecorder);
-
-                    if (!mServiceObservers.containsKey(sensorId)) {
-                        String serviceObserverId = mRegistry.putListeners(sensorId,
-                                new SensorObserver() {
-                                    @Override
-                                    public void onNewData(long timestamp, Bundle data) {
-                                        // TODO: Add code to fire triggers here.
-                                    }
-                                }, null);
-                        mServiceObservers.put(sensorId, serviceObserverId);
-                    }
+                    addServiceObserverIfNeeded(sensorId, activeTriggers);
                     RecorderControllerImpl.this.startObserving(newStatefulRecorder);
                 }
             });
         }
         return observerId;
+    }
+
+    private void addServiceObserverIfNeeded(String sensorId,
+            final List<SensorTrigger> activeTriggers) {
+        if (!mServiceObservers.containsKey(sensorId)) {
+            String serviceObserverId = mRegistry.putListeners(sensorId,
+                    new SensorObserver() {
+                        @Override
+                        public void onNewData(long timestamp, Bundle data) {
+                            if (!ScalarSensor.hasValue(data)) {
+                                return;
+                            }
+                            double value = ScalarSensor.getValue(data);
+                            // Fire triggers.
+                            for (SensorTrigger trigger : activeTriggers) {
+                                if (trigger.isTriggered(value)) {
+                                    fireSensorTrigger(trigger, timestamp);
+                                }
+                            }
+                        }
+                    }, null);
+            mServiceObservers.put(sensorId, serviceObserverId);
+        }
+    }
+
+    private void fireSensorTrigger(SensorTrigger trigger, long timestamp) {
+        // TODO: Think about behavior for triggers firing near the same time, especially
+        // regarding start/stop recording and notes. Right now behavior may not seem repeatable
+        // depending on timing of callbacks and order of triggers. b/
+        boolean triggerWasFired = false;
+        if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_START_RECORDING &&
+                !isRecording() && mSelectedExperiment != null) {
+            if (!mRecordingStateChangeInProgress) {
+                triggerWasFired = true;
+                for (TriggerFiredListener listener : mTriggerListeners.values()) {
+                    listener.onRequestStartRecording();
+                }
+                getDataController(mContext).getProjectById(mSelectedExperiment.getProjectId(),
+                        new LoggingConsumer<Project>(TAG, "get project to record into") {
+                            @Override
+                            public void success(Project project) {
+                                startRecording(new Intent(mContext, MainActivity.class), project);
+                            }
+                        });
+            }
+        } else if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_STOP_RECORDING &&
+                isRecording()) {
+            if (!mRecordingStateChangeInProgress) {
+                triggerWasFired = true;
+                for (TriggerFiredListener listener : mTriggerListeners.values()) {
+                    listener.onRequestStopRecording(this);
+                }
+                stopRecording();
+            }
+        } else if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_NOTE) {
+            triggerWasFired = true;
+            addTriggerLabel(timestamp, trigger, mContext);
+        } else if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_ALERT) {
+            if (trigger.getAlertTypes().length > 0) {
+                triggerWasFired = true;
+            }
+            if (trigger.hasAlertType(TriggerInformation.TRIGGER_ALERT_PHYSICAL)) {
+                getTriggerHelper().doVibrateAlert(mContext);
+            }
+            if (trigger.hasAlertType(TriggerInformation.TRIGGER_ALERT_AUDIO)) {
+                getTriggerHelper().doAudioAlert(mContext);
+            }
+            // Visual alerts are not covered in RecorderControllerImpl.
+        }
+        // Not all triggers should actually be fired -- for example, we cannot stop recording if
+        // we are not yet recording. Only call the trigger fired listeners when the event actually
+        // takes place.
+        if (triggerWasFired) {
+            for (TriggerFiredListener listener : mTriggerListeners.values()) {
+                listener.onTriggerFired(trigger);
+            }
+        }
+    }
+
+    private TriggerHelper getTriggerHelper() {
+        if (mTriggerHelper == null) {
+            mTriggerHelper = new TriggerHelper(mAudioAlertUri);
+        }
+        return mTriggerHelper;
+    }
+
+    private void addTriggerLabel(long timestamp, SensorTrigger trigger, Context context) {
+        if (mSelectedExperiment == null) {
+            return;
+        }
+        Label triggerLabel = new SensorTriggerLabel(getDataController(context).generateNewLabelId(),
+                getCurrentRunId(), timestamp, trigger, context);
+        triggerLabel.setExperimentId(mSelectedExperiment.getExperimentId());
+        getDataController(context).addLabel(triggerLabel,
+                new LoggingConsumer<Label>(TAG, "add trigger label") {
+                    @Override
+                    public void success(Label label) {
+                        for (TriggerFiredListener listener : mTriggerListeners.values()) {
+                            listener.onLabelAdded(label);
+                        }
+                    }
+                });
+    }
+
+    private String getCurrentRunId() {
+        return mRecording == null? RecordFragment.NOT_RECORDING_RUN_ID : mRecording.getRunId();
     }
 
     private void startObserving(StatefulRecorder sr) {
@@ -347,17 +463,16 @@ public class RecorderControllerImpl implements RecorderController {
     private void cleanUpUnusedRecorders() {
         final Iterator<Map.Entry<String, StatefulRecorder>> iter = mRecorders.entrySet().iterator();
         while (iter.hasNext()) {
-            StatefulRecorder value = iter.next().getValue();
-            if (!value.isStillRunning()) {
+            StatefulRecorder r = iter.next().getValue();
+            if (!r.isStillRunning()) {
                 iter.remove();
             }
         }
     }
 
     @Override
-    public void startRecording(final Intent resumeIntent, final Experiment experiment, final
-            Project project) {
-        if (mRecording != null) {
+    public void startRecording(final Intent resumeIntent, final Project project) {
+        if (mRecording != null || mRecordingStateChangeInProgress) {
             return;
         }
         if (mRecorders.size() == 0) {
@@ -367,7 +482,6 @@ public class RecorderControllerImpl implements RecorderController {
             callRecordingStartFailedListeners(RecorderController.ERROR_START_FAILED);
             return;
         }
-
         // Check that all sensors are connected before starting a recording.
         for (String sensorId : mRecorders.keySet()) {
             if (!mRegistry.isSourceConnectedWithoutError(sensorId)) {
@@ -376,20 +490,21 @@ public class RecorderControllerImpl implements RecorderController {
                 return;
             }
         }
+        mRecordingStateChangeInProgress = true;
         withBoundRecorderService(new FallibleConsumer<RecorderService>() {
             @Override
             public void take(final RecorderService recorderService) throws RemoteException {
-                final DataController dataController = getDataController(
-                        recorderService.getApplicationContext());
-                dataController.startRun(experiment,
+                final Context context = recorderService.getApplicationContext();
+                final DataController dataController = getDataController(context);
+                dataController.startRun(mSelectedExperiment,
                         new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
                             @Override
                             public void success(ApplicationLabel label) {
                                 mRecording = new RecordingMetadata(label.getTimeStamp(),
                                         label.getRunId(),
-                                        experiment.getDisplayTitle(
-                                                recorderService.getApplicationContext()));
-                                ensureUnarchived(experiment, project, dataController);
+                                        mSelectedExperiment.getDisplayTitle(context));
+
+                                ensureUnarchived(mSelectedExperiment, project, dataController);
                                 recorderService.beginServiceRecording(
                                         mRecording.getExperimentName(), resumeIntent);
 
@@ -397,6 +512,8 @@ public class RecorderControllerImpl implements RecorderController {
                                     recorder.startRecording(mRecording.getRunId());
                                 }
                                 updateRecordingListeners();
+                                mRecordingStateChangeInProgress = false;
+
                             }
 
                             @Override
@@ -404,6 +521,7 @@ public class RecorderControllerImpl implements RecorderController {
                                 super.fail(e);
                                 callRecordingStartFailedListeners(
                                         RecorderController.ERROR_START_FAILED);
+                                mRecordingStateChangeInProgress = false;
                             }
                         });
             }
@@ -416,11 +534,12 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @Override
-    public void stopRecording(final Experiment experiment,
-            final List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-        if (mRecording == null) {
+    public void stopRecording() {
+        if (mRecording == null || mSelectedExperiment == null || mRecordingStateChangeInProgress) {
             return;
         }
+
+        // TODO: What happens when recording stop fails and the app is in the background?
 
         // First check that all sensors have at least one data point. A recording with no
         // data is invalid.
@@ -436,11 +555,12 @@ public class RecorderControllerImpl implements RecorderController {
                 return;
             }
         }
+        mRecordingStateChangeInProgress = true;
         withBoundRecorderService(new FallibleConsumer<RecorderService>() {
             @Override
             public void take(final RecorderService recorderService) throws RemoteException {
                 getDataController(recorderService.getApplicationContext())
-                        .stopRun(experiment, mRecording.getRunId(), sensorLayouts,
+                        .stopRun(mSelectedExperiment, mRecording.getRunId(), mSensorLayouts,
                         new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
                             @Override
                             public void success(ApplicationLabel value) {
@@ -452,8 +572,19 @@ public class RecorderControllerImpl implements RecorderController {
                                     recorder.stopRecording();
                                 }
                                 recorderService.endServiceRecording();
+                                // Now stop observing in the service, because after recording
+                                // completes we don't want to keep observing and firing triggers in
+                                // the foreground or background.
+                                // NOTE: We assume that after recording stops we do *not* want
+                                // to keep observing.
+                                for (String sensorId : mServiceObservers.keySet()) {
+                                    mRegistry.remove(sensorId, mServiceObservers.get(sensorId));
+                                }
+                                mServiceObservers.clear();
+
                                 cleanUpUnusedRecorders();
                                 updateRecordingListeners();
+                                mRecordingStateChangeInProgress = false;
                             }
 
                             @Override
@@ -461,6 +592,7 @@ public class RecorderControllerImpl implements RecorderController {
                                 super.fail(e);
                                 callRecordingStopFailedListeners(
                                         RecorderController.ERROR_FAILED_SAVE_RECORDING);
+                                mRecordingStateChangeInProgress = false;
                             }
                         });
             }
@@ -469,17 +601,19 @@ public class RecorderControllerImpl implements RecorderController {
 
     @Override
     public void stopRecordingWithoutSaving() {
-        if (mRecording == null) {
+        if (mRecording == null || mRecordingStateChangeInProgress) {
             return;
         }
         mRecording = null;
         for (StatefulRecorder recorder : mRecorders.values()) {
             recorder.stopRecording();
         }
+        mRecordingStateChangeInProgress = true;
         withBoundRecorderService(new FallibleConsumer<RecorderService>() {
             @Override
             public void take(RecorderService recorderService) throws RemoteException {
                 recorderService.endServiceRecording();
+                mRecordingStateChangeInProgress = false;
             }
         });
         cleanUpUnusedRecorders();
@@ -550,6 +684,19 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @Override
+    public void addTriggerFiredListener(String listenerId, TriggerFiredListener listener) {
+        if (mTriggerListeners.containsKey(listenerId)) {
+            throw new IllegalStateException("Already listening to triggers on: " + listenerId);
+        }
+        mTriggerListeners.put(listenerId, listener);
+    }
+
+    @Override
+    public void removeTriggerFiredListener(String listenerId) {
+        mTriggerListeners.remove(listenerId);
+    }
+
+    @Override
     public void addObservedIdsListener(String listenerId, ObservedIdsListener listener) {
         mObservedIdListeners.put(listenerId, listener);
         listener.onObservedIdsChanged(getMostRecentObservedSensorIds());
@@ -558,6 +705,16 @@ public class RecorderControllerImpl implements RecorderController {
     @Override
     public void removeObservedIdsListener(String listenerId) {
         mObservedIdListeners.remove(listenerId);
+    }
+
+    @Override
+    public void setSelectedExperiment(Experiment experiment) {
+        mSelectedExperiment = experiment;
+    }
+
+    @Override
+    public void setCurrentSensorLayouts(List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+        mSensorLayouts = sensorLayouts;
     }
 
     private boolean isRecording() {
