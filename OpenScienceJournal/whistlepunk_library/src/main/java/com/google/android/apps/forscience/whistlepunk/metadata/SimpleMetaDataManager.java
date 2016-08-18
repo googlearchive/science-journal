@@ -934,8 +934,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 c = db.query(Tables.EXTERNAL_SENSORS, SensorQuery.PROJECTION, null, null, null,
                         null, null);
                 while (c.moveToNext()) {
-                    sensors.put(c.getString(SensorQuery.DATABASE_TAG_INDEX),
-                            loadSensorFromDatabase(c));
+                    ExternalSensorSpec value = loadSensorFromDatabase(c);
+                    if (value != null) {
+                        sensors.put(c.getString(SensorQuery.DATABASE_TAG_INDEX), value);
+                    }
                 }
             } finally {
                 if (c != null) {
@@ -974,7 +976,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
             return new BleSensorSpec(c.getString(SensorQuery.NAME_INDEX),
                     c.getBlob(SensorQuery.CONFIG_INDEX));
         } else {
-            throw new IllegalStateException("Unknown sensor type: " + type);
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "Unknown sensor type: " + type);
+            }
+            return null;
         }
     }
 
@@ -1024,7 +1029,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
             // This is somewhat inefficient to do nested queries, but in most cases there will
             // only be one or two, so we are trading off code complexity of doing a db join.
             for (String tag : tags) {
-                sensors.put(tag, getExternalSensorById(tag));
+                ExternalSensorSpec externalSensorById = getExternalSensorById(tag);
+                sensors.put(tag, externalSensorById);
             }
         }
 

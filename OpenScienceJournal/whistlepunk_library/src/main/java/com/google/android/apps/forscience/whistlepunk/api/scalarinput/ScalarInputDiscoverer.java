@@ -2,14 +2,35 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.Preference;
 import android.support.annotation.NonNull;
+import android.view.View;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.StatsListener;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesFragment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
+
+import java.util.List;
 
 public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     private Consumer<AppDiscoveryCallbacks> mServiceFinder;
@@ -38,6 +59,28 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     public ExternalSensorSpec extractSensorSpec(Preference preference) {
         return new ScalarInputSpec(ManageDevicesFragment.getNameFromPreference(preference),
                 ManageDevicesFragment.getAddressFromPreference(preference));
+    }
+
+    @Override
+    public ExternalSensorProvider getProvider() {
+        return new ExternalSensorProvider() {
+            @Override
+            public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
+                // TODO: implement more fully
+                return new ScalarInputSensor(sensorId);
+            }
+
+            @Override
+            public String getProviderId() {
+                // TODO: implement
+                return null;
+            }
+
+            @Override
+            public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
+                return new ScalarInputSpec(name, config);
+            }
+        };
     }
 
     @Override
@@ -92,5 +135,48 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     @Override
     public void stopScanning() {
         // TODO: implement all of these!
+    }
+
+    private class ScalarInputSensor extends ScalarSensor {
+        public ScalarInputSensor(String id) {
+            super(id);
+        }
+
+        @Override
+        protected SensorRecorder makeScalarControl(StreamConsumer c, SensorEnvironment environment,
+                Context context, SensorStatusListener listener) {
+            return new SensorRecorder() {
+                @Override
+                public void startObserving() {
+                    // TODO: implement all!
+
+                }
+
+                @Override
+                public void startRecording(String runId) {
+
+                }
+
+                @Override
+                public void stopRecording() {
+
+                }
+
+                @Override
+                public void stopObserving() {
+
+                }
+
+                @Override
+                public boolean hasRecordedData() {
+                    return false;
+                }
+
+                @Override
+                public void applyOptions(ReadableSensorOptions settings) {
+
+                }
+            };
+        }
     }
 }

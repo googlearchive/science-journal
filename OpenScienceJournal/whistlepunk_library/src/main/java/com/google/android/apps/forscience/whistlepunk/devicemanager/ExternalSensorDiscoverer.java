@@ -20,6 +20,7 @@ import android.content.Context;
 import android.preference.Preference;
 import android.support.annotation.NonNull;
 
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 /**
@@ -46,4 +47,9 @@ public interface ExternalSensorDiscoverer {
 
     @NonNull
     ExternalSensorSpec extractSensorSpec(Preference preference);
+
+    /**
+     * @return the provider that can be used to generate a SensorChoice from the stored spec.
+     */
+    ExternalSensorProvider getProvider();
 }

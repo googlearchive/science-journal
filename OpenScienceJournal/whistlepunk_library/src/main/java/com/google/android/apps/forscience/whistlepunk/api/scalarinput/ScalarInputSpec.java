@@ -1,18 +1,26 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
+import android.content.Context;
+
+import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+
+import java.util.Arrays;
 
 public class ScalarInputSpec extends ExternalSensorSpec {
     public static final String TYPE = "ScalarInput";
     private String mName;
     private String mAddress;
 
-    public ScalarInputSpec(String name, String address) {
-        mName = name;
+    public ScalarInputSpec(String sensorName, String address) {
+        mName = sensorName;
         mAddress = address;
     }
 
+    public ScalarInputSpec(String sensorName, byte[] config) {
+        this(sensorName, new String(config));
+    }
 
     @Override
     public String getName() {
@@ -33,12 +41,20 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     // TODO: implement all!
     @Override
     public SensorAppearance getSensorAppearance() {
-        return null;
+        // TODO: allow no name str id
+        // TODO: better icon?
+        int drawableId = R.drawable.ic_sensor_raw_white_24dp;
+        return new SensorAppearance(0, drawableId) {
+            @Override
+            public String getName(Context context) {
+                return mName;
+            }
+        };
     }
 
     @Override
     public byte[] getConfig() {
-        return new byte[0];
+        return mAddress.getBytes();
     }
 
     @Override
