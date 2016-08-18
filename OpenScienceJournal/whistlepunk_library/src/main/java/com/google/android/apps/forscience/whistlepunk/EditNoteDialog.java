@@ -190,6 +190,9 @@ public class EditNoteDialog extends DialogFragment {
                     }
                 }
             });
+        } else {
+            // TODO: UX will define how the timestamp should look when it is not editable -- i.e.
+            // maybe a padlock or otherwise disabled looking.
         }
 
         AlertDialog dialog = alertDialog.create();

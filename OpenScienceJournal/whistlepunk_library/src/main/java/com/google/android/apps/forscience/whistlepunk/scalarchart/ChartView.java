@@ -670,9 +670,11 @@ public class ChartView extends View {
     private Drawable getTriggerDrawable() {
         // Lazy init, as most charts probably won't need triggers.
         if (mTriggerDrawable == null) {
-            mTriggerDrawable = getResources().getDrawable(R.drawable.ic_label_black_24dp);
-            mTriggerDrawable.mutate().setColorFilter(mChartOptions.getLineColor(),
+            Resources res = getResources();
+            mTriggerDrawable = res.getDrawable(R.drawable.ic_label_black_24dp);
+            mTriggerDrawable.mutate().setColorFilter(res.getColor(R.color.color_accent),
                     PorterDuff.Mode.SRC_IN);
+            mTriggerDrawable.setAlpha(res.getInteger(R.integer.trigger_drawable_alpha));
         }
         return mTriggerDrawable;
     }
