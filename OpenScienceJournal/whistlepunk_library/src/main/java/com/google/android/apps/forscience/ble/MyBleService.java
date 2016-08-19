@@ -113,6 +113,8 @@ public class MyBleService extends Service {
                     + newState);
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 sendGattBroadcast(gatt.getDevice().getAddress(), BleEvents.GATT_CONNECT_FAIL, null);
+                addressToGattClient.remove(gatt.getDevice().getAddress());
+                gatt.close();
                 return;
             }
 
