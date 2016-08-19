@@ -55,6 +55,7 @@ import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSenso
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -384,24 +385,28 @@ public class RecorderControllerImpl implements RecorderController {
         mRegistry.remove(sensorId, observerId);
         // If there are no listeners left except for our serviceobserver, remove it.
         if (mRegistry.countListeners(sensorId) == 1) {
-            final StatefulRecorder r = mRecorders.get(sensorId);
-            if (r != null) {
-                r.stopObserving();
-                if (!r.isStillRunning()) {
-                    // Then it was not recording, so we can also remove our service-level observers.
-                    if (mServiceObservers.containsKey(sensorId)) {
-                        String serviceObserverId = mServiceObservers.get(sensorId);
-                        mRegistry.remove(sensorId, serviceObserverId);
-                        mServiceObservers.remove(sensorId);
-                    }
-                }
-            }
+            stopObservingServiceObserver(sensorId);
         }
         cleanUpUnusedRecorders();
         updateObservedIdListeners();
         if (mRecorders.isEmpty()) {
             SensorHistoryStorage storage = mSensorEnvironment.getSensorHistoryStorage();
             storage.setMostRecentSensorIds(Lists.newArrayList(sensorId));
+        }
+    }
+
+    private void stopObservingServiceObserver(String sensorId) {
+        final StatefulRecorder r = mRecorders.get(sensorId);
+        if (r != null) {
+            r.stopObserving();
+            if (!r.isStillRunning()) {
+                // Then it was not recording, so we can also remove our service-level observers.
+                if (mServiceObservers.containsKey(sensorId)) {
+                    String serviceObserverId = mServiceObservers.get(sensorId);
+                    mRegistry.remove(sensorId, serviceObserverId);
+                    mServiceObservers.remove(sensorId);
+                }
+            }
         }
     }
 
@@ -577,8 +582,10 @@ public class RecorderControllerImpl implements RecorderController {
                                 // the foreground or background.
                                 // NOTE: We assume that after recording stops we do *not* want
                                 // to keep observing.
-                                for (String sensorId : mServiceObservers.keySet()) {
-                                    mRegistry.remove(sensorId, mServiceObservers.get(sensorId));
+                                List<String> sensorIds = new ArrayList();
+                                sensorIds.addAll(mServiceObservers.keySet());
+                                for (String sensorId : sensorIds) {
+                                    stopObservingServiceObserver(sensorId);
                                 }
                                 mServiceObservers.clear();
 
