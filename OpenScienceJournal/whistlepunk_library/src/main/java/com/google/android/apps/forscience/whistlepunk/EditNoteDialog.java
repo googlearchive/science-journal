@@ -18,8 +18,11 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -170,7 +173,7 @@ public class EditNoteDialog extends DialogFragment {
         TextView timeTextView = (TextView) rootView.findViewById(R.id.edit_note_time);
         timeTextView.setText(timeText);
         timeTextView.setContentDescription(timeTextContentDescription);
-        if (mLabel.canEditTimestamp()) {
+        if (labelBelongsToRun() && mLabel.canEditTimestamp()) {
             timeTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -190,9 +193,14 @@ public class EditNoteDialog extends DialogFragment {
                     }
                 }
             });
-        } else {
-            // TODO: UX will define how the timestamp should look when it is not editable -- i.e.
-            // maybe a padlock or otherwise disabled looking.
+        } else if (labelBelongsToRun()) {
+            Drawable lockDrawable = getResources().getDrawable(R.drawable.ic_lock_black_18dp);
+            DrawableCompat.setTint(lockDrawable,
+                    getResources().getColor(R.color.text_color_light_grey));
+            // There is already a start drawable. Use it again.
+            Drawable[] drawables = timeTextView.getCompoundDrawablesRelative();
+            timeTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(drawables[0], null,
+                    lockDrawable, null);
         }
 
         AlertDialog dialog = alertDialog.create();
@@ -207,4 +215,7 @@ public class EditNoteDialog extends DialogFragment {
         return AppSingleton.getInstance(getActivity()).getDataController();
     }
 
+    private boolean labelBelongsToRun() {
+        return !TextUtils.equals(mLabel.getRunId(), RecordFragment.NOT_RECORDING_RUN_ID);
+    }
 }
