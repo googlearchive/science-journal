@@ -809,6 +809,13 @@ public class SensorCardPresenter {
                 return false;
             }
         });
+        mPopupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+            @Override
+            public void onDismiss(PopupMenu menu) {
+                mPopupMenu = null;
+            }
+        });
+
         mPopupMenu.show();
     }
 
@@ -1342,6 +1349,10 @@ public class SensorCardPresenter {
             params.width = toggleButtonSpacerWidth;
             mCardViewHolder.toggleButtonSpacer.setLayoutParams(params);
             updateButtonsVisibility();
+            // Close the menu, because options change when recording starts.
+            if (mPopupMenu != null) {
+                mPopupMenu.dismiss();
+            }
         }
         // Collapse the header during recording.
         if (isRecording()) {
