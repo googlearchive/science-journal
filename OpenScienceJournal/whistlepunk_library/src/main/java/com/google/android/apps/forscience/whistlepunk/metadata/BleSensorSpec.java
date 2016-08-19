@@ -217,7 +217,7 @@ public class BleSensorSpec extends ExternalSensorSpec implements Parcelable {
         GoosciSensorConfig.BleSensorConfig.ScaleTransform transform = new GoosciSensorConfig
                 .BleSensorConfig.ScaleTransform();
         transform.sourceBottom = 0;
-        transform.sourceTop = 1024;
+        transform.sourceTop = 1023;
         transform.destBottom = 0;
         transform.destTop = 100;
         return transform;
