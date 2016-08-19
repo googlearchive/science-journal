@@ -188,16 +188,29 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         if (mScreenPoint == null) {
             return;
         }
+
         String label = String.format(mTextFormat, mValue);
+        mSeekbar.updateValuesForAccessibility(mExternalAxis.formatElapsedTimeForAccessibility(
+                mSelectedTimestamp, getContext()), label);
+
+        float nudge = mDotRadius / 2;
+        float cx = mPaddingLeft + mScreenPoint.x - mChartMarginLeft - nudge;
+
+        if (cx < mPaddingLeft + mCornerRadius + mNotchHeight * SQRT_2_OVER_2 ||
+                cx > mWidth - mCornerRadius - mNotchHeight * SQRT_2_OVER_2) {
+            // Then we can't draw the overlay balloon because the point is close to the edge of the
+            // screen or offscreen.
+            return;
+        }
+
+        float cy = mHeight - mChartHeight + mScreenPoint.y - 2 * mDotBackgroundRadius + nudge;
+
         float labelWidth = mTextPaint.measureText(label);
         String timeLabel = mTimeFormat.formatToTenths(mSelectedTimestamp -
                 mExternalAxis.getRecordingStartTime());
         float timeWidth = mTimePaint.measureText(timeLabel);
         float textSize = -1 * mTextPaint.ascent();
 
-        float nudge = mDotRadius / 2;
-        float cx = mPaddingLeft + mScreenPoint.x - mChartMarginLeft - nudge;
-        float cy = mHeight - mChartHeight + mScreenPoint.y - 2 * mDotBackgroundRadius + nudge;
         float boxTop = mHeight - mChartHeight - textSize;
         float boxBottom = boxTop + textSize + mLabelPadding * 2 + 5;
         float width = mIntraLabelPadding + 2 * mLabelPadding + timeWidth + labelWidth;
@@ -236,9 +249,6 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         float center = boxStart + mLabelPadding + timeWidth + mIntraLabelPadding / 2;
         canvas.drawLine(center, boxTop + mLabelPadding, center,
                 boxBottom - mLabelPadding, mCenterLinePaint);
-
-        mSeekbar.updateValuesForAccessibility(mExternalAxis.formatElapsedTimeForAccessibility(
-                mSelectedTimestamp, getContext()), label);
     }
 
     public void setChartController(ChartController controller) {

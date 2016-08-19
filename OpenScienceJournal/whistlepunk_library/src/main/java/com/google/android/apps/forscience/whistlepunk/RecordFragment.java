@@ -1443,7 +1443,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
         inflater.inflate(R.menu.menu_record, menu);
         boolean enableDevTools = DevOptionsFragment.isDevToolsEnabled(getActivity());
-        menu.findItem(R.id.action_graph_options).setVisible(enableDevTools);
+        menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
         menu.findItem(R.id.action_level).setVisible(enableDevTools);
         menu.findItem(R.id.action_ruler).setVisible(enableDevTools);
         super.onCreateOptionsMenu(menu, inflater);

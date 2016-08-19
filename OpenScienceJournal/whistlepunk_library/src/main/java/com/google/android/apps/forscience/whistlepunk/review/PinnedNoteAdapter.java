@@ -66,7 +66,11 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * An interface for listening to when a pinned note is clicked.
      */
     public interface ListItemClickListener {
+        // Anywhere on the item was clicked.
         void onListItemClicked(Label item);
+
+        // The picture of a picture label was clicked
+        void onPictureItemClicked(PictureLabel item);
     }
 
     public class NoteHolder extends RecyclerView.ViewHolder {
@@ -158,7 +162,7 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             noteHolder.mImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mClickListener.onListItemClicked(label);
+                    mClickListener.onPictureItemClicked((PictureLabel) label);
                 }
             });
         } else if (label instanceof SensorTriggerLabel) {
@@ -216,6 +220,12 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             });
         }
+        noteHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mClickListener.onListItemClicked(label);
+            }
+        });
     }
 
     @Override

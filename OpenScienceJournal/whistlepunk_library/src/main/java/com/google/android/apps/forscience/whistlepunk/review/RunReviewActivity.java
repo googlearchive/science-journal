@@ -79,7 +79,7 @@ public class RunReviewActivity extends MetadataActivity {
         boolean enableDevTools = DevOptionsFragment.isDevToolsEnabled(this);
         menu.findItem(R.id.action_export).setVisible(AgeVerifier.isOver13(
                 AgeVerifier.getUserAge(this)));
-        menu.findItem(R.id.action_graph_options).setVisible(enableDevTools);
+        menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
 
         // Delete is only available if we came from record mode directly.
         menu.findItem(R.id.action_run_review_delete).setVisible(mFromRecord);

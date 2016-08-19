@@ -635,10 +635,13 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mPinnedNoteAdapter.setListItemClickListener(new PinnedNoteAdapter.ListItemClickListener() {
             @Override
             public void onListItemClicked(Label item) {
-                if (item instanceof PictureLabel) {
-                    PictureLabel pictureLabel = (PictureLabel) item;
-                    launchPicturePreview(pictureLabel);
-                }
+                // TODO: Animate to the active timestamp.
+                mRunReviewOverlay.setActiveTimestamp(item.getTimeStamp());
+            }
+
+            @Override
+            public void onPictureItemClicked(PictureLabel item) {
+                launchPicturePreview(item);
             }
         });
         pinnedNoteList.setAdapter(mPinnedNoteAdapter);
