@@ -76,9 +76,23 @@ public class SensorTriggerTest extends AndroidTestCase {
     public void testIsTriggered_datapointAtEquals() {
         SensorTrigger trigger = new SensorTrigger("0", "fakeId", TriggerInformation.TRIGGER_WHEN_AT,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
+        // Never trigger on the first point.
         assertFalse(trigger.isTriggered(10.));
+
+        // Fire if the value is equal.
+        assertTrue(trigger.isTriggered(10.));
+
+        // Fire when reaching the value from below.
         assertFalse(trigger.isTriggered(9.));
         assertTrue(trigger.isTriggered(10.));
+
+        // Fire when reaching the value from above.
+        assertFalse(trigger.isTriggered(11.));
+        assertTrue(trigger.isTriggered(10.));
+
+        // Fire when crossing from above to below.
+        assertFalse(trigger.isTriggered(11.));
+        assertTrue(trigger.isTriggered(9.));
     }
 
     public void testIsTriggered_rising() {

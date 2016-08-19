@@ -262,7 +262,7 @@ public class DataControllerTest extends AndroidTestCase {
     public void testGenerateLabelId() {
         IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
         DataController dc = new DataControllerImpl(null, null, null, null, null,
-                clock);
+                clock, null);
         clock.increment();
 
         String firstLabelId = dc.generateNewLabelId();

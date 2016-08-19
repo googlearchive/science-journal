@@ -20,11 +20,8 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 
-
-
 import com.google.common.primitives.Ints;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-
 
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
@@ -43,6 +40,10 @@ public class SensorTrigger {
     private static final String KEY_SENSOR_ID = "sensor_id";
     private static final String KEY_LAST_USED = "last_used";
     private static final String KEY_TRIGGER_INFO = "trigger_info";
+
+    // When comparing double values from sensors, use this epsilon.
+    // TODO: This could be passed in per-sensor as part of the API.
+    private static final Double EPSILON = .00001;
 
     private TriggerInformation mTriggerInfo;
 
@@ -176,7 +177,7 @@ public class SensorTrigger {
             if (mTriggerInfo.triggerWhen == TriggerInformation.TRIGGER_WHEN_AT) {
                 // Not just an equality check: also test to see if the threshold was crossed in
                 // either direction.
-                result = newValue == mTriggerInfo.valueToTrigger ||
+                result = doubleEquals(newValue, mTriggerInfo.valueToTrigger) ||
                         crossedThreshold(newValue, mOldValue);
             } else if (mTriggerInfo.triggerWhen == TriggerInformation.TRIGGER_WHEN_DROPS_BELOW) {
                 result = droppedBelow(newValue, mOldValue);
@@ -188,6 +189,10 @@ public class SensorTrigger {
         // The last used time may be the last time it was used in a card.
         updateLastUsed();
         return result;
+    }
+
+    private boolean doubleEquals(double first, double second) {
+        return Math.abs(first - second) < EPSILON;
     }
 
     private boolean droppedBelow(double newValue, double oldValue) {
