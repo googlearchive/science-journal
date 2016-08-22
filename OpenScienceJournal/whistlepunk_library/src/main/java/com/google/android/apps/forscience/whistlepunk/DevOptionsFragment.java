@@ -24,10 +24,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
-
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 
 /**
  * Holder for Developer Testing Options
@@ -35,9 +32,11 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayO
 public class DevOptionsFragment extends PreferenceFragment {
     private static final String TAG = "DevOptionsFragment";
 
+    @VisibleForTesting
+    public static final String KEY_SINE_WAVE_SENSOR = "enable_sine_wave_sensor";
+
     private static final String KEY_MAGNETOMETER = "enable_magnetometer_sensor";
     private static final String KEY_VIDEO_SENSOR = "enable_video_sensor";
-    private static final String KEY_SINE_WAVE_SENSOR = "enable_sine_wave_sensor";
     private static final String KEY_DEV_TOOLS = "dev_tools";
     private static final String KEY_LEAK_CANARY = "leak_canary";
     public static final String KEY_DEV_SONIFICATION_TYPES = "enable_dev_sonification_types";
@@ -45,6 +44,16 @@ public class DevOptionsFragment extends PreferenceFragment {
     public static final String KEY_BAROMETER_SENSOR = "enable_barometer_sensor";
     public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
     public static final String KEY_THIRD_PARTY_SENSORS = "enable_third_party_sensors";
+    private final SharedPreferences.OnSharedPreferenceChangeListener
+            mSensorsChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+                String key) {
+            AppSingleton.getInstance(
+                    getActivity()).getSensorRegistry().refreshBuiltinSensors(
+                    getActivity());
+        }
+    };
 
     public static DevOptionsFragment newInstance() {
         return new DevOptionsFragment();
@@ -77,6 +86,20 @@ public class DevOptionsFragment extends PreferenceFragment {
         } else {
             getPreferenceScreen().removePreference(leakPref);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(
+                mSensorsChangedListener);
+    }
+
+    @Override
+    public void onPause() {
+        getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(
+                mSensorsChangedListener);
+        super.onPause();
     }
 
     @VisibleForTesting

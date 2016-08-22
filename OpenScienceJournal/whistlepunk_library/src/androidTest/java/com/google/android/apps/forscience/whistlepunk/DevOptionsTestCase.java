@@ -1,24 +1,34 @@
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
 
 public class DevOptionsTestCase extends AndroidTestCase {
-    private boolean mRememberedThirdParty;
+    private boolean mRememberedPref;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mRememberedThirdParty = DevOptionsFragment.isThirdPartyDiscoveryEnabled(getContext());
+        mRememberedPref = getPrefs().getBoolean(getRememberedPrefKey(), false);
+    }
+
+    @NonNull
+    protected String getRememberedPrefKey() {
+        return DevOptionsFragment.KEY_THIRD_PARTY_SENSORS;
     }
 
     @Override
     protected void tearDown() throws Exception {
-        setThirdParty(mRememberedThirdParty);
+        setPrefValue(mRememberedPref);
         super.tearDown();
     }
 
-    protected void setThirdParty(boolean value) {
-        DevOptionsFragment.getPrefs(getContext()).edit().putBoolean(
-                DevOptionsFragment.KEY_THIRD_PARTY_SENSORS, value).apply();
+    protected void setPrefValue(boolean value) {
+        getPrefs().edit().putBoolean(getRememberedPrefKey(), value).apply();
+    }
+
+    private SharedPreferences getPrefs() {
+        return DevOptionsFragment.getPrefs(getContext());
     }
 }

@@ -23,14 +23,12 @@ import android.util.ArrayMap;
 import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensors.AccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientTemperatureSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
@@ -42,8 +40,10 @@ import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -75,13 +75,32 @@ public class SensorRegistry {
     private Map<String, SensorRegistryItem> mSensorRegistry = new ArrayMap<>();
     private Multimap<String, Consumer<SensorChoice>> mWaitingSensorChoiceOperations =
             HashMultimap.create();
-    private ExternalSensorListener mExternalSensorListener;
+    private SensorRegistryListener mSensorRegistryListener;
     private Map<String, ExternalSensorSpec> mMostRecentExternalSensors;
 
-    public static SensorRegistry createWithBuiltinSensors(Context context) {
-        SensorRegistry sc = new SensorRegistry();
+    public static SensorRegistry createWithBuiltinSensors(final Context context) {
+        final SensorRegistry sc = new SensorRegistry();
         sc.addAvailableBuiltinSensors(context);
         return sc;
+    }
+
+    public void refreshBuiltinSensors(Context context) {
+        removeBuiltInSensors();
+        addAvailableBuiltinSensors(context);
+
+        if (mSensorRegistryListener != null) {
+            mSensorRegistryListener.refreshBuiltinSensors();
+        }
+    }
+
+    private void removeBuiltInSensors() {
+        Iterator<SensorRegistryItem> iter = mSensorRegistry.values().iterator();
+        while (iter.hasNext()) {
+            SensorRegistryItem item = iter.next();
+            if (Objects.equals(WP_HARDWARE_PROVIDER_ID, item.providerId)) {
+                iter.remove();
+            }
+        }
     }
 
     @VisibleForTesting
@@ -95,8 +114,8 @@ public class SensorRegistry {
      * This can happen one of two ways: if the sensor is already in the registry, {@code consumer}
      * is called immediately.
      *
-     * Otherwise, {@code consumer} is remembered, and run when a SensorChoice with the given id gets
-     * added.
+     * Otherwise, {@code consumer} is remembered, and run when a SensorChoice with the given id
+     * gets added.
      *
      * This is needed because especially BluetoothSensors can be added considerably after the rest
      * of the RecordFragment setup.
@@ -133,7 +152,7 @@ public class SensorRegistry {
     private Set<String> getAllExternalSources() {
         Set<String> externalSourceIds = new HashSet<String>();
         for (Map.Entry<String, SensorRegistryItem> entry : mSensorRegistry.entrySet()) {
-            if (!entry.getValue().providerId.equals(WP_HARDWARE_PROVIDER_ID)) {
+            if (!Objects.equals(entry.getValue().providerId, WP_HARDWARE_PROVIDER_ID)) {
                 externalSourceIds.add(entry.getKey());
             }
         }
@@ -220,19 +239,19 @@ public class SensorRegistry {
             mSensorRegistry.remove(externalSensorId);
         }
 
-        if (mExternalSensorListener != null) {
-            mExternalSensorListener.updateExternalSensors(sensors);
+        if (mSensorRegistryListener != null) {
+            mSensorRegistryListener.updateExternalSensors(sensors);
         }
 
         return sensorsActuallyAdded;
     }
 
-    public void setExternalSensorListener(ExternalSensorListener listener) {
-        mExternalSensorListener = listener;
+    public void setSensorRegistryListener(SensorRegistryListener listener) {
+        mSensorRegistryListener = listener;
 
         if (mMostRecentExternalSensors != null) {
             // TODO: write test for this behavior
-            mExternalSensorListener.updateExternalSensors(mMostRecentExternalSensors);
+            mSensorRegistryListener.updateExternalSensors(mMostRecentExternalSensors);
         }
     }
 }

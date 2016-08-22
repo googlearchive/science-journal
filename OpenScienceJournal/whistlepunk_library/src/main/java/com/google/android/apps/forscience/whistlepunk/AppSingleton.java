@@ -192,7 +192,7 @@ public class AppSingleton {
             withRecorderController(TAG, new Consumer<RecorderController>() {
                 @Override
                 public void take(RecorderController rc) {
-                    mSensorRegistry.setExternalSensorListener(rc);
+                    mSensorRegistry.setSensorRegistryListener(rc);
                 }
             });
         }

@@ -17,14 +17,13 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.test.AndroidTestCase;
 
 public class DevOptionsFragmentTest extends DevOptionsTestCase {
     public void testThirdPartyEnable() {
-        setThirdParty(false);
+        setPrefValue(false);
         Context context = getContext();
         assertFalse(DevOptionsFragment.isThirdPartyDiscoveryEnabled(context));
-        setThirdParty(true);
+        setPrefValue(true);
         assertTrue(DevOptionsFragment.isThirdPartyDiscoveryEnabled(context));
     }
 }

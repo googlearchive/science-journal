@@ -33,7 +33,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
-public interface RecorderController extends ExternalSensorListener {
+public interface RecorderController extends SensorRegistryListener {
 
     // Errors when a recording state fails to change.
     int ERROR_START_FAILED = 0;
