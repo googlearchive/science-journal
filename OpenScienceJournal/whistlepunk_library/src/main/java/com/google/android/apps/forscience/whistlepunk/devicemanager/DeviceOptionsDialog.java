@@ -94,8 +94,7 @@ public class DeviceOptionsDialog extends DialogFragment {
                 "Load external sensor with ID = " + sensorId) {
             @Override
             public void success(ExternalSensorSpec sensor) {
-                mViewController.setSensor(sensorId, (BleSensorSpec) sensor,
-                        savedInstanceState);
+                mViewController.setSensor(sensorId, sensor, savedInstanceState);
             }
         });
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())

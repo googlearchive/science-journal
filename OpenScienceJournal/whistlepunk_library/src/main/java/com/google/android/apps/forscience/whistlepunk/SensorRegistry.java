@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -133,7 +134,7 @@ public class SensorRegistry {
     private Set<String> getAllExternalSources() {
         Set<String> externalSourceIds = new HashSet<String>();
         for (Map.Entry<String, SensorRegistryItem> entry : mSensorRegistry.entrySet()) {
-            if (!entry.getValue().providerId.equals(WP_HARDWARE_PROVIDER_ID)) {
+            if (!Objects.equals(entry.getValue().providerId, WP_HARDWARE_PROVIDER_ID)) {
                 externalSourceIds.add(entry.getKey());
             }
         }

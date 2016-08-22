@@ -39,7 +39,7 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
-import com.google.common.base.Joiner;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 public class DeviceOptionsViewController {
     private static String TAG = "DeviceOptionsViewC";
@@ -53,7 +53,7 @@ public class DeviceOptionsViewController {
     private SensorTypeProvider mSensorTypeProvider;
     private PinTypeProvider mPinTypeProvider;
     private String mSensorId;
-    private BleSensorSpec mSensor;
+    private ExternalSensorSpec mSensor;
     private Spinner mSensorTypeSpinner;
     private Spinner mCustomPinSpinner;
     private CheckBox mFrequencyCheckbox;
@@ -120,7 +120,7 @@ public class DeviceOptionsViewController {
     }
 
     public void commit(final DeviceOptionsDialog.DeviceOptionsListener optionsListener) {
-        final BleSensorSpec sensor = getOptions();
+        final ExternalSensorSpec sensor = getOptions();
 
         mDataController.addOrGetExternalSensor(sensor,
                 new LoggingConsumer<String>(TAG, "update external sensor") {
@@ -137,7 +137,7 @@ public class DeviceOptionsViewController {
                 });
     }
 
-    public void setSensor(String sensorId, BleSensorSpec sensor, Bundle savedInstanceState) {
+    public void setSensor(String sensorId, ExternalSensorSpec sensor, Bundle savedInstanceState) {
         mSensorId = sensorId;
         mSensor = sensor;
 
@@ -148,10 +148,13 @@ public class DeviceOptionsViewController {
                     KEY_PIN_STATE));
             mFrequencyCheckbox.onRestoreInstanceState(savedInstanceState.getParcelable(
                     KEY_FREQ_STATE));
-        } else {
+        } else if (mSensor.getType().equals(BleSensorSpec.TYPE)) {
+            // TODO: config for other sensor types?
+
+            BleSensorSpec bleSensor = (BleSensorSpec) mSensor;
             // Load from sensor if we don't have saved state.
             SensorTypeProvider.SensorType[] sensors = mSensorTypeProvider.getSensors();
-            @SensorTypeProvider.SensorKind int type = mSensor.getSensorType();
+            @SensorTypeProvider.SensorKind int type = bleSensor.getSensorType();
             boolean found = false;
             for (int i = 0; i < sensors.length; i++) {
                 if (sensors[i].getSensorKind() == type) {
@@ -164,9 +167,9 @@ public class DeviceOptionsViewController {
                 Log.e(TAG, "Expected to find sensor type " + type + " in " + sensors);
             }
 
-            mCustomPinSpinner.setSelection(findPinIndex(mSensor.getCustomPin()));
+            mCustomPinSpinner.setSelection(findPinIndex(bleSensor.getCustomPin()));
 
-            mFrequencyCheckbox.setChecked(sensor.getCustomFrequencyEnabled());
+            mFrequencyCheckbox.setChecked(bleSensor.getCustomFrequencyEnabled());
         }
     }
 
@@ -186,7 +189,7 @@ public class DeviceOptionsViewController {
         return 0;
     }
 
-    public BleSensorSpec getOptions() {
+    public ExternalSensorSpec getOptions() {
         if (mSensor == null) {
             return null;
         }
@@ -194,12 +197,17 @@ public class DeviceOptionsViewController {
         SensorTypeProvider.SensorType item = (SensorTypeProvider.SensorType)
                 mSensorTypeSpinner.getSelectedItem();
 
-        mSensor.setSensorType(item.getSensorKind());
-        // TODO: test that these are always set correctly.
-        PinTypeProvider.PinType pinItem = (PinTypeProvider.PinType) mCustomPinSpinner
-                .getSelectedItem();
-        mSensor.setCustomPin(pinItem.toString());
-        mSensor.setCustomFrequencyEnabled(mFrequencyCheckbox.isChecked());
+        if (mSensor.getType().equals(BleSensorSpec.TYPE)) {
+            // TODO: what about other sensor types?
+
+            BleSensorSpec bleSensor = (BleSensorSpec) mSensor;
+            bleSensor.setSensorType(item.getSensorKind());
+            // TODO: test that these are always set correctly.
+            PinTypeProvider.PinType pinItem = (PinTypeProvider.PinType) mCustomPinSpinner
+                    .getSelectedItem();
+            bleSensor.setCustomPin(pinItem.toString());
+            bleSensor.setCustomFrequencyEnabled(mFrequencyCheckbox.isChecked());
+        }
         return mSensor;
     }
 
