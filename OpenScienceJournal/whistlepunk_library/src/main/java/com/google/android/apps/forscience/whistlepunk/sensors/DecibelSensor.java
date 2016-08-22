@@ -90,24 +90,30 @@ public class DecibelSensor extends ScalarSensor {
                         short[] tempBuffer = new short[mBytesInBuffer];
 
                         while (mRunning.get()) {
-                            mRecord.read(tempBuffer, 0, mBytesInBuffer);
-                            final long timestampMillis = clock.getNow();
-                            double totalSquared = 0;
-
-                            for (int i = 0; i < mBytesInBuffer; i++) {
-                                short soundbits = tempBuffer[i];
-                                totalSquared += soundbits * soundbits;
+                            int readShorts = mRecord.read(tempBuffer, 0, mBytesInBuffer);
+                            if (readShorts > 0) {
+                                sendBuffer(tempBuffer, readShorts);
                             }
+                        }
+                    }
 
-                            // https://en.wikipedia.org/wiki/Sound_pressure
-                            final double quadraticMeanPressure =
-                                    Math.sqrt(totalSquared / mBytesInBuffer);
-                            final double uncalibratedDecibels =
-                                    20 * Math.log10(quadraticMeanPressure);
+                    private void sendBuffer(short[] tempBuffer, int readShorts) {
+                        final long timestampMillis = clock.getNow();
+                        double totalSquared = 0;
 
-                            if (isValidReading(uncalibratedDecibels)) {
-                                c.addData(timestampMillis, uncalibratedDecibels);
-                            }
+                        for (int i = 0; i < readShorts; i++) {
+                            short soundbits = tempBuffer[i];
+                            totalSquared += soundbits * soundbits;
+                        }
+
+                        // https://en.wikipedia.org/wiki/Sound_pressure
+                        final double quadraticMeanPressure =
+                                Math.sqrt(totalSquared / readShorts);
+                        final double uncalibratedDecibels =
+                                20 * Math.log10(quadraticMeanPressure);
+
+                        if (isValidReading(uncalibratedDecibels)) {
+                            c.addData(timestampMillis, uncalibratedDecibels);
                         }
                     }
                 });
