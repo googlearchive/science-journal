@@ -518,15 +518,18 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (mExperimentRun == null || mCurrentSensorStats == null) {
             return;
         }
+        double yMin = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MIN);
+        double yMax = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MAX);
         if (mExperimentRun.getAutoZoomEnabled()) {
-            double yMin = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MIN);
-            double yMax = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MAX);
             mChartController.setYAxisWithBuffer(yMin, yMax);
         } else {
             GoosciSensorLayout.SensorLayout layout =
                     mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
-            mChartController.setYAxis(layout.minimumYAxisValue,
-                    layout.maximumYAxisValue);
+            // Don't zoom in more than the recorded data.
+            // The layout's min/max y value may be too small to show the recorded data when
+            // recording happened in the background and was stopped by a trigger.
+            mChartController.setYAxis(Math.min(layout.minimumYAxisValue, yMin),
+                    Math.max(layout.maximumYAxisValue, yMax));
         }
         mChartController.refreshChartView();
         // Redraw the thumb after the chart is updated.
