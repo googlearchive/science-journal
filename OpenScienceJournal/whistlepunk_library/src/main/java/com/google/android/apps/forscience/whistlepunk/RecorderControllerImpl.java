@@ -16,6 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -43,6 +46,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
@@ -205,6 +210,7 @@ public class RecorderControllerImpl implements RecorderController {
     private boolean mRecordingStateChangeInProgress;
     private TriggerHelper mTriggerHelper;
     private Uri mAudioAlertUri;
+    private boolean mActivityInForeground = false;
 
     private FailureListener mRemoteFailureListener = new FailureListener() {
         @Override
@@ -570,6 +576,7 @@ public class RecorderControllerImpl implements RecorderController {
                             @Override
                             public void success(ApplicationLabel value) {
                                 trackStopRecording(recorderService.getApplicationContext(), value);
+                                String runId = mRecording.getRunId();
 
                                 // Now actually stop the recording.
                                 mRecording = null;
@@ -589,6 +596,11 @@ public class RecorderControllerImpl implements RecorderController {
                                 }
                                 mServiceObservers.clear();
 
+                                // Only create a notification if we are in the background.
+                                if (!mActivityInForeground) {
+                                    notifyRecordingEnded(runId);
+                                }
+
                                 cleanUpUnusedRecorders();
                                 updateRecordingListeners();
                                 mRecordingStateChangeInProgress = false;
@@ -604,6 +616,29 @@ public class RecorderControllerImpl implements RecorderController {
                         });
             }
         });
+    }
+
+    private void notifyRecordingEnded(String runId) {
+        Intent intent = new Intent(mContext, RunReviewActivity.class);
+
+        intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, runId);
+        intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, 0);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent notificationIntent = PendingIntent.getActivity(mContext,
+                NotificationIds.RECORDING_COMPLETED,intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        ((NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE)).notify(
+                NotificationIds.RECORDING_COMPLETED, new Notification.Builder(mContext)
+                        .setContentTitle(mContext.getString(
+                                R.string.service_notification_content_title))
+                        .setContentText(mContext.getString(
+                                R.string.recording_stopped_notification_text))
+                        .setSubText(mSelectedExperiment.getDisplayTitle(mContext))
+                        .setSmallIcon(R.drawable.ic_notification_24dp)
+                        .setContentIntent(notificationIntent)
+                        .setAutoCancel(true)
+                        .build());
     }
 
     @Override
@@ -747,5 +782,10 @@ public class RecorderControllerImpl implements RecorderController {
     @VisibleForTesting
     void ensureUnarchived(Experiment experiment, Project project, DataController dc) {
         RecordFragment.ensureUnarchived(experiment, project, dc);
+    }
+
+    @Override
+    public void setRecordActivityInForeground(boolean isInForeground) {
+        mActivityInForeground = isInForeground;
     }
 }

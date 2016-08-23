@@ -130,6 +130,11 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
+    public void setRecordActivityInForeground(boolean isInForeground) {
+
+    }
+
+    @Override
     public void updateExternalSensors(Map<String, ExternalSensorSpec> sensors) {
 
     }

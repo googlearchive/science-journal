@@ -174,6 +174,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void take(RecorderController rc) {
                         rc.addRecordingStateListener(TAG, mRecordingStateListener);
+                        rc.setRecordActivityInForeground(true);
                     }
                 });
         mRecordFragment = (RecordFragment) getFragmentManager().findFragmentByTag(
@@ -211,6 +212,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void take(RecorderController rc) {
                         rc.removeRecordingStateListener(TAG);
+                        rc.setRecordActivityInForeground(false);
                     }
                 });
         singleton.removeListeners(TAG);

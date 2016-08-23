@@ -73,8 +73,8 @@ public interface RecorderController extends SensorRegistryListener {
     /**
      * @param pauseId the pauseId returned by a previous call to pauseObservingAll
      * @return true iff we were able to resume streaming to the observers that were paused
-     *         when that pauseId was returned, otherwise false (which means the observers will
-     *         need to be manually reconnected)
+     * when that pauseId was returned, otherwise false (which means the observers will
+     * need to be manually reconnected)
      */
     boolean resumeObservingAll(String pauseId);
 
@@ -97,7 +97,9 @@ public interface RecorderController extends SensorRegistryListener {
 
     interface RecordingStateListener {
         void onRecordingStateChanged(RecordingMetadata currentRecording);
+
         void onRecordingStartFailed(@RecordingStartErrorType int errorType);
+
         void onRecordingStopFailed(@RecordingStopErrorType int errorType);
     }
 
@@ -121,7 +123,6 @@ public interface RecorderController extends SensorRegistryListener {
 
         /**
          * Called when the RecorderController has added a trigger label successfully.
-         * @param label
          */
         void onLabelAdded(Label label);
 
@@ -146,4 +147,6 @@ public interface RecorderController extends SensorRegistryListener {
     void setSelectedExperiment(Experiment experiment);
 
     void setCurrentSensorLayouts(final List<GoosciSensorLayout.SensorLayout> sensorLayouts);
+
+    void setRecordActivityInForeground(boolean isInForeground);
 }
