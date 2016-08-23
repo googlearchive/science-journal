@@ -134,6 +134,11 @@ class MemoryRecorderController implements RecorderController {
 
     }
 
+    @Override
+    public void refreshBuiltinSensors() {
+
+    }
+
     public List<String> getCurrentObservedIds() {
         return Lists.newArrayList(mCurrentObserverIds.keySet());
     }

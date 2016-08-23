@@ -734,6 +734,11 @@ public class RecorderControllerImpl implements RecorderController {
                 AppSingleton.getInstance(mContext).getExternalSensorProviders());
     }
 
+    @Override
+    public void refreshBuiltinSensors() {
+        mSensors.refreshBuiltinSensors(mContext);
+    }
+
     @VisibleForTesting
     public Map<String, StatefulRecorder> getRecorders() {
         return mRecorders;
