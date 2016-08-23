@@ -30,8 +30,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import dagger.Lazy;
-
 /**
  * Application subclass holding shared objects.
  */
@@ -57,6 +55,9 @@ public abstract class WhistlePunkApplication extends Application {
     }
 
     public static UsageTracker getUsageTracker(Context context) {
+        if (context == null) {
+            return UsageTracker.STUB;
+        }
         WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
         return app.mUsageTracker;
     }
