@@ -1135,13 +1135,13 @@ public class SensorCardPresenter {
                 if (isActive) {
                     mCardViewHolder.sensorSelectionArea.setVisibility(View.VISIBLE);
                     mCardViewHolder.sensorSelectionArea.setTranslationY(0);
-                    resetTabTouchDelegates();
                 } else {
                     mCardViewHolder.sensorSelectionArea.setVisibility(View.GONE);
                     mCardViewHolder.sensorSelectionArea.setTranslationY(
                             -1 * mCardViewHolder.getContext().getResources().getDimensionPixelSize(
                                     R.dimen.sensor_tablayout_height));
                 }
+                resetTabTouchDelegates();
                 mCardViewHolder.sensorSelectionArea.invalidate();
             }
         }
@@ -1150,6 +1150,10 @@ public class SensorCardPresenter {
     }
 
     private void resetTabTouchDelegates() {
+        if (!isActive()) {
+            mCardViewHolder.itemView.setTouchDelegate(null);
+            return;
+        }
         // TODO This doesn't need to be called every single time we make the card active, instead
         // we could call it the first time we activate the card with a given set of views.
         int size = mAvailableSensorIds.size();
