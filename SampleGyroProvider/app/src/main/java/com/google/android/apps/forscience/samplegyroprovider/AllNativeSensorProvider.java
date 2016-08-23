@@ -33,12 +33,11 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorDis
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorObserver;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorStatusListener;
 
-public class GyroAddedSensor extends Service {
+import java.util.List;
+
+public class AllNativeSensorProvider extends Service {
     public static final String DEVICE_ID = "onlyDevice";
-    public static final String XID = "gyro.x";
-    public static final String YID = "gyro.y";
-    public static final String ZID = "gyro.z";
-    private static final String TAG = "GyroAddedSensor";
+    private static final String TAG = "AllNativeSensorProvider";
 
     @Override
     public void onCreate() {
@@ -61,15 +60,16 @@ public class GyroAddedSensor extends Service {
     }
 
     private ISensorDiscoverer.Stub createDiscoverer() {
+        final List<Sensor> sensors = getSensorManager().getSensorList(Sensor.TYPE_ALL);
         return new ISensorDiscoverer.Stub() {
             @Override
             public String getName() throws RemoteException {
-                return "GYRO";
+                return "AllNative";
             }
 
             @Override
             public void scanDevices(IDeviceConsumer c) throws RemoteException {
-                c.onDeviceFound(DEVICE_ID, "Phone gyros", null);
+                c.onDeviceFound(DEVICE_ID, "Phone native sensors", null);
             }
 
             @Override
@@ -77,9 +77,9 @@ public class GyroAddedSensor extends Service {
                 if (!DEVICE_ID.equals(deviceId)) {
                     return;
                 }
-                c.onSensorFound("GYRO_X", XID, null);
-                c.onSensorFound("GYRO_Y", YID, null);
-                c.onSensorFound("GYRO_Z", ZID, null);
+                for (Sensor sensor : sensors) {
+                    c.onSensorFound("" + sensor.getType(), sensor.getName(), null);
+                }
             }
 
             @Override
@@ -92,21 +92,26 @@ public class GyroAddedSensor extends Service {
                     public void startObserving(final String sensorId,
                             final ISensorObserver observer, final ISensorStatusListener listener,
                             String settingsKey) throws RemoteException {
+
                         mListener = listener;
-                        listener.onSensorConnected(sensorId);
+                        listener.onSensorConnected();
                         unregister();
-                        Sensor sensor = getSensorManager().getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-                        final int eventIndex = getEventIndexForSensor(sensorId);
+                        int sensorType = getSensorType(sensorId, listener);
+                        if (sensorType < 0) {
+                            return;
+                        }
+                        Sensor sensor = getSensorManager().getDefaultSensor(sensorType);
                         mSensorEventListener = new SensorEventListener() {
                             @Override
                             public void onSensorChanged(SensorEvent event) {
                                 try {
-                                    observer.onNewData(System.currentTimeMillis(),
-                                            event.values[eventIndex]);
+                                    long timestamp = System.currentTimeMillis();
+                                    // TODO: figure out which sensors have vector values
+                                    observer.onNewData(timestamp, event.values[0]);
                                 } catch (RemoteException e) {
                                     try {
                                         reportError(e);
-                                        listener.onSensorError(sensorId, e.getMessage());
+                                        listener.onSensorError(e.getMessage());
                                     } catch (RemoteException e1) {
                                         reportError(e1);
                                     }
@@ -124,24 +129,18 @@ public class GyroAddedSensor extends Service {
                                 // do nothing
                             }
                         };
-                        getSensorManager().registerListener(mSensorEventListener, sensor,
-                                SensorManager.SENSOR_DELAY_UI);
+                        boolean b = getSensorManager().registerListener(mSensorEventListener,
+                                sensor, SensorManager.SENSOR_DELAY_UI);
                     }
 
-                    private int getEventIndexForSensor(String sensorId) {
-                        if (XID.equals(sensorId)) {
-                            return 0;
+                    private int getSensorType(String sensorId, ISensorStatusListener listener)
+                            throws RemoteException {
+                        try {
+                            return Integer.valueOf(sensorId);
+                        } catch (IllegalArgumentException e) {
+                            listener.onSensorError("Not an int: " + sensorId);
+                            return -1;
                         }
-                        if (YID.equals(sensorId)) {
-                            return 1;
-                        }
-                        if (ZID.equals(sensorId)) {
-                            return 2;
-                        }
-                        if (Log.isLoggable(TAG, Log.ERROR)) {
-                            Log.e(TAG, "Don't recognize sensor id: " + sensorId);
-                        }
-                        return 0;
                     }
 
                     private void unregister() {
@@ -155,7 +154,7 @@ public class GyroAddedSensor extends Service {
                     public void stopObserving(String sensorId) throws RemoteException {
                         unregister();
                         if (mListener != null) {
-                            mListener.onSensorDisconnected(sensorId);
+                            mListener.onSensorDisconnected();
                             mListener = null;
                         }
                     }

@@ -114,6 +114,10 @@ public class InMemorySensorDatabase implements SensorDatabase {
         }
     }
 
+    public RecordingDataController makeSimpleRecordingController() {
+        return makeSimpleRecordingController(new MemoryMetadataManager());
+    }
+
     @VisibleForTesting
     public static class Reading {
         private final String mDatabaseTag;

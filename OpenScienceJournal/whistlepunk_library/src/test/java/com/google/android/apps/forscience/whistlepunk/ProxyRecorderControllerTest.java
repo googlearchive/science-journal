@@ -59,7 +59,7 @@ public class ProxyRecorderControllerTest {
     private final RecordingStatusListener mStatusListener = new RecordingStatusListener();
     private SensorRegistry mRegistry = new AllSensorsRegistry();
     private final MemorySensorEnvironment mEnvironment = new MemorySensorEnvironment(
-            new InMemorySensorDatabase().makeSimpleRecordingController(new MemoryMetadataManager()),
+            new InMemorySensorDatabase().makeSimpleRecordingController(),
             new FakeBleClient(null), new MemorySensorHistoryStorage());
 
     @Test
