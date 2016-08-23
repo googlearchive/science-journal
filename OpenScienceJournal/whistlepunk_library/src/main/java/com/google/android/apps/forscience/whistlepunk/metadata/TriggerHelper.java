@@ -60,15 +60,15 @@ public class TriggerHelper {
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             mediaPlayer.setDataSource(context, mNotification);
+            mediaPlayer.setOnPreparedListener(MEDIA_PLAYER_ON_PREPARED_LISTENER);
+            mediaPlayer.setOnCompletionListener(MEDIA_PLAYER_COMPLETION_LISTENER);
+            // Don't prepare the mediaplayer on the UI thread! That's asking for trouble.
+            mediaPlayer.prepareAsync();
         } catch (IOException e) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "error getting notification sound");
             }
         }
-        mediaPlayer.setOnPreparedListener(MEDIA_PLAYER_ON_PREPARED_LISTENER);
-        mediaPlayer.setOnCompletionListener(MEDIA_PLAYER_COMPLETION_LISTENER);
-        // Don't prepare the mediaplayer on the UI thread! That's asking for trouble.
-        mediaPlayer.prepareAsync();
     }
 
     public void doVibrateAlert(Context context) {
