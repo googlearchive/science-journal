@@ -250,12 +250,12 @@ public class ManageDevicesFragment extends PreferenceFragment {
     @NonNull
     public static Preference makePreference(String name, String address, String type,
             boolean paired, Context context) {
-        Preference device = new Preference(context);
-        device.setTitle(name);
-        device.setKey(address);
-        device.getExtras().putBoolean(EXTRA_KEY_PAIRED, paired);
-        device.getExtras().putString(EXTRA_KEY_TYPE, type);
-        return device;
+        Preference pref = new Preference(context);
+        pref.setTitle(name);
+        pref.setKey(address);
+        pref.getExtras().putBoolean(EXTRA_KEY_PAIRED, paired);
+        pref.getExtras().putString(EXTRA_KEY_TYPE, type);
+        return pref;
     }
 
     @NonNull
@@ -373,7 +373,7 @@ public class ManageDevicesFragment extends PreferenceFragment {
     }
 
     private void updateSummary(Preference preference, ExternalSensorSpec sensor) {
-        preference.setSummary(sensor.getSensorAppearance().getNameResource());
+        preference.setSummary(sensor.getSensorAppearance().getName(preference.getContext()));
     }
 
     private void showDeviceOptions(Preference preference) {
@@ -383,8 +383,8 @@ public class ManageDevicesFragment extends PreferenceFragment {
     }
 
     private void showDeviceOptions(String experimentId, String address, String sensorId) {
-        DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId, address,
-                sensorId);
+        DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId,
+                address, sensorId);
         dialog.show(getFragmentManager(), "edit_device");
     }
 }
