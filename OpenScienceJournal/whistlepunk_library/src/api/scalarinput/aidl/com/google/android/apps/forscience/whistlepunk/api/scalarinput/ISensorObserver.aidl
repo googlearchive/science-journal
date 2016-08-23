@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
+// TODO: rename, to not collide with wireapi class.
 interface ISensorObserver {
-    void onNewData(long timestamp, float data) = 0;
+    void onNewData(long timestamp, double data) = 0;
 }
