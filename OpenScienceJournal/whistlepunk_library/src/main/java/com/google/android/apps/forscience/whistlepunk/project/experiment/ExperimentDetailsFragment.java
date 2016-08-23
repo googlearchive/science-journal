@@ -461,8 +461,13 @@ public class ExperimentDetailsFragment extends Fragment
 
         // On undo, re-add the item to the database and the pinned note list.
         bar.setAction(R.string.snackbar_undo, new View.OnClickListener() {
+            boolean mUndone = false;
             @Override
             public void onClick(View v) {
+                if (mUndone) {
+                    return;
+                }
+                mUndone = true;
                 Label label;
                 if (item instanceof TextLabel) {
                     String title = "";

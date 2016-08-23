@@ -207,8 +207,13 @@ public class TriggerListFragment extends Fragment {
                 getActivity().getResources().getString(R.string.sensor_trigger_deleted),
                 Snackbar.LENGTH_SHORT);
         bar.setAction(R.string.snackbar_undo, new View.OnClickListener() {
+            boolean mUndone = false;
             @Override
             public void onClick(View v) {
+                if (mUndone) {
+                    return;
+                }
+                mUndone = true;
                 dc.addSensorTrigger(trigger, mExperimentId,
                         new LoggingConsumer<Success>(TAG, "re-add deleted trigger") {
                             @Override
