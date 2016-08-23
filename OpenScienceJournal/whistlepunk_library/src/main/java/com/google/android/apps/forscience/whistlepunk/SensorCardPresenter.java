@@ -364,6 +364,7 @@ public class SensorCardPresenter {
             return;
         }
         mCardViewHolder.flipButton.setVisibility(View.GONE);
+        mCardViewHolder.statusViewGroup.bringToFront();
         mCardViewHolder.statusViewGroup.setVisibility(View.VISIBLE);
         mCardViewHolder.statusRetryButton.setVisibility(View.GONE);
         if (mHasError) {
