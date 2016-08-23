@@ -135,6 +135,11 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
+    public void clearSensorTriggers(String sensorId) {
+
+    }
+
+    @Override
     public void updateExternalSensors(Map<String, ExternalSensorSpec> sensors) {
 
     }

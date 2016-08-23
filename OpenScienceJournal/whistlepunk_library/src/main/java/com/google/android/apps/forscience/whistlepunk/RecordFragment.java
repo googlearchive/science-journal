@@ -1176,16 +1176,22 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void refreshLabels() {
-        if (mSensorCardAdapter == null) {
+        if (mSensorCardAdapter == null || mSelectedExperiment == null || mExternalAxis == null) {
             return;
         }
-        DataController dataController = getDataController();
-        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            // TODO: instead of having each presenter get the labels from the DC, we should
-            // get the labels here and pass them into all the presenters. This will be much more
-            // efficient with multiple cards!
-            presenter.tryRefreshingLabels(dataController, mExternalAxis, mSelectedExperiment);
-        }
+        getDataController().getLabelsForExperiment(mSelectedExperiment,
+                new LoggingConsumer<List<Label>>(TAG, "retrieving labels") {
+                    @Override
+                    public void success(List<Label> labels) {
+                        for (SensorCardPresenter p : mSensorCardAdapter.getSensorCardPresenters()) {
+                            p.refreshLabels(labels);
+                        }
+                        if (mExternalAxis != null) {
+                            mExternalAxis.onLabelsChanged(labels);
+                        }
+
+                    }
+                });
     }
 
     private void tryStartRecording(final RecorderController rc) {
@@ -1272,12 +1278,34 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                 newDataListener.onNewData(timestamp);
                             }
                         });
-
-                sensorCardPresenter.tryRefreshingLabels(getDataController(), mExternalAxis,
-                        mSelectedExperiment);
+                refreshLabels();
             }
 
         });
+    }
+
+    public void disableAllTriggers(final GoosciSensorLayout.SensorLayout layout,
+            final SensorCardPresenter presenter) {
+        if (mSelectedExperiment == null) {
+            return;
+        }
+        int position = getPositionOfLayout(layout);
+        if (position < 0) {
+            return;
+        }
+        getDataController().updateSensorLayout(mSelectedExperiment.getExperimentId(), position,
+                layout, new LoggingConsumer<Success>(TAG, "disable sensor triggers") {
+                    @Override
+                    public void success(Success value) {
+                        withRecorderController(new Consumer<RecorderController>() {
+                            @Override
+                            public void take(RecorderController recorderController) {
+                                recorderController.clearSensorTriggers(layout.sensorId);
+                                presenter.onSensorTriggersCleared();
+                            }
+                        });
+                    }
+                });
     }
 
     private void doVisualAlert(SensorTrigger trigger) {

@@ -730,6 +730,7 @@ public class SensorCardPresenter {
 
     private void openCardMenu() {
         final Context context = mCardViewHolder.getContext();
+        boolean showDevTools = DevOptionsFragment.isDevToolsEnabled(context);
         mPopupMenu = new PopupMenu(context, mCardViewHolder.menuButton);
         mPopupMenu.getMenuInflater().inflate(R.menu.menu_sensor_card, mPopupMenu.getMenu());
         final Menu menu = mPopupMenu.getMenu();
@@ -737,8 +738,7 @@ public class SensorCardPresenter {
                 !mIsSingleCard && !isRecording());
 
         // Adjusting sensor options through the UI is only a developer option.
-        menu.findItem(R.id.btn_sensor_card_settings).setVisible(
-                DevOptionsFragment.isDevToolsEnabled(context) && !isRecording());
+        menu.findItem(R.id.btn_sensor_card_settings).setVisible(showDevTools && !isRecording());
 
         // Don't show audio options if there is an error or bad status.
         boolean sensorConnected = !mHasError &&
@@ -754,11 +754,15 @@ public class SensorCardPresenter {
         menu.findItem(R.id.btn_sensor_card_audio_settings).setVisible(!isRecording());
 
         // For now, hide triggers behind test options.
-        menu.findItem(R.id.btn_sensor_card_set_triggers).setVisible(
-                DevOptionsFragment.isDevToolsEnabled(context));
+        menu.findItem(R.id.btn_sensor_card_set_triggers).setVisible(showDevTools);
         // Disable trigger settings during recording.
         menu.findItem(R.id.btn_sensor_card_set_triggers).setEnabled(sensorConnected &&
                 !isRecording() && mLayout != null);
+
+        // Show the option to disable all triggers only during recording and if triggers exist
+        // on the card.
+        menu.findItem(R.id.btn_disable_sensor_card_triggers).setVisible(isRecording() &&
+                mLayout != null && mSensorTriggers.size() > 0);
 
         mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
@@ -806,6 +810,8 @@ public class SensorCardPresenter {
                     return true;
                 } else if (itemId == R.id.btn_sensor_card_set_triggers) {
                     return startSetTriggersActivity();
+                } else if (itemId == R.id.btn_disable_sensor_card_triggers) {
+                    return disableTriggers();
                 }
                 return false;
             }
@@ -818,6 +824,22 @@ public class SensorCardPresenter {
         });
 
         mPopupMenu.show();
+    }
+
+    private boolean disableTriggers() {
+        // Disable all triggers on this card.
+        if (mParentFragment == null) {
+            return false;
+        }
+        mLayout.activeSensorTriggerIds = null;
+        mParentFragment.disableAllTriggers(mLayout, this);
+        return true;
+    }
+
+    public void onSensorTriggersCleared() {
+        mSensorTriggers = Collections.emptyList();
+        mSensorPresenter.setTriggers(mSensorTriggers);
+        updateSensorTriggerUi();
     }
 
     private boolean startSetTriggersActivity() {
@@ -1384,27 +1406,10 @@ public class SensorCardPresenter {
                 sensorChoice.getStorageForSensorDefaultOptions(context));
     }
 
-    public void tryRefreshingLabels(DataController dc, final ExternalAxisController externalAxis,
-            Experiment experiment) {
-        if (experiment == null) {
-            return;
+    public void refreshLabels(List<Label> labels) {
+        if (mSensorPresenter != null) {
+            mSensorPresenter.onLabelsChanged(labels);
         }
-        if (mSensorPresenter == null && externalAxis == null) {
-            return;
-        }
-        dc.getLabelsForExperiment(experiment,
-                new LoggingConsumer<List<Label>>(TAG, "retrieving labels") {
-                    @Override
-                    public void success(List<Label> labels) {
-                        if (mSensorPresenter != null) {
-                            mSensorPresenter.onLabelsChanged(labels);
-                        }
-                        if (externalAxis != null) {
-                            externalAxis.onLabelsChanged(labels);
-                        }
-
-                    }
-                });
     }
 
     void setConnectingUI(String sensorId, boolean hasError, Context context, boolean allowRetry) {

@@ -1177,6 +1177,9 @@
     <!-- Notification body text for when recording was completed in the background service [CHAR_LIMIT=50] -->
     <string name="recording_stopped_notification_text">Recording completed.</string>
 
+    <!-- Menu item to disable all active triggers on a card. [CHAR_LIMIT=25] -->
+    <string name="disable_all_triggers">Disable triggers</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

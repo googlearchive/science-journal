@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.VisibleForTesting;
+import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
@@ -384,6 +385,17 @@ public class RecorderControllerImpl implements RecorderController {
     private void startObserving(StatefulRecorder sr) {
         sr.startObserving();
         updateObservedIdListeners();
+    }
+
+    @Override
+    public void clearSensorTriggers(String sensorId) {
+        String observerId = mServiceObservers.get(sensorId);
+        if (!TextUtils.isEmpty(observerId)) {
+            // Remove the old serviceObserver and add a new one with no triggers.
+            mServiceObservers.remove(sensorId);
+            mRegistry.remove(sensorId, observerId);
+            addServiceObserverIfNeeded(sensorId, Collections.<SensorTrigger>emptyList());
+        }
     }
 
     @Override
