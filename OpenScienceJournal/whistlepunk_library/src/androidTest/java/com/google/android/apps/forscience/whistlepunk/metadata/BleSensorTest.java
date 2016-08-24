@@ -75,7 +75,7 @@ public class BleSensorTest extends TestCase {
         ValueFilter computedFilter = new BluetoothSensor("sensorId", bleSensor,
                 BluetoothSensor.ANNING_SERVICE_SPEC).getDeviceDefaultValueFilter();
         assertEquals(0.0, computedFilter.filterValue(0, 0.0), 0.001);
-        assertEquals(50.0, computedFilter.filterValue(0, 512.0), 0.001);
-        assertEquals(100.0, computedFilter.filterValue(0, 1024.0), 0.001);
+        assertEquals(50.0, computedFilter.filterValue(0, 511.5), 0.001);
+        assertEquals(100.0, computedFilter.filterValue(0, 1023.0), 0.001);
     }
 }

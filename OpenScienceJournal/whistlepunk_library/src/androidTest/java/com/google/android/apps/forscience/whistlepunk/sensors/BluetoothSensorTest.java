@@ -28,7 +28,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorO
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StubStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
-import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 
 public class BluetoothSensorTest extends AndroidTestCase {
     private static final BluetoothSensor.BleServiceSpec SPEC =
@@ -62,8 +61,8 @@ public class BluetoothSensorTest extends AndroidTestCase {
         FakeBleClient bleClient = new FakeBleClient(getContext());
         bleClient.expectedAddress = "address";
         MemorySensorEnvironment environment = new MemorySensorEnvironment(
-                new InMemorySensorDatabase().makeSimpleRecordingController(
-                        new MemoryMetadataManager()), bleClient, new MemorySensorHistoryStorage());
+                new InMemorySensorDatabase().makeSimpleRecordingController(), bleClient,
+                new MemorySensorHistoryStorage());
         SensorRecorder recorder = new BluetoothSensor("sensorId", sensor, SPEC).createRecorder(
                 getContext(), new RecordingSensorObserver(), new StubStatusListener(), environment);
         assertEquals(null, bleClient.mostRecentAddress);

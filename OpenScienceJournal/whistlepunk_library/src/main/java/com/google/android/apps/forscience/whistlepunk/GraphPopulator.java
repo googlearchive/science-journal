@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
@@ -40,9 +39,10 @@ public class GraphPopulator {
     private boolean mRequestInFlight = false;
     private final long mRequestId;
 
-    public GraphPopulator(ObservationDisplay observationDisplay) {
+    // TODO: can we pass in the request id, rather than generating it here?
+    public GraphPopulator(ObservationDisplay observationDisplay, Clock clock) {
         mObservationDisplay = observationDisplay;
-        mRequestId = SystemClock.uptimeMillis();
+        mRequestId = clock.getNow();
     }
 
     /**
@@ -76,11 +76,11 @@ public class GraphPopulator {
      * <p/>
      * Call only on the UI thread.
      */
-    public long requestObservations(final GraphStatus graphStatus,
+    public void requestObservations(final GraphStatus graphStatus,
             final DataController dataController, final FailureListener failureListener,
             final int resolutionTier, final String sensorId) {
         if (mRequestInFlight) {
-            return mRequestId;
+            return;
         }
         final TimeRange r = getRequestRange(graphStatus);
         if (r == null) {
@@ -122,7 +122,7 @@ public class GraphPopulator {
                             })
             );
         }
-        return mRequestId;
+        return;
     }
 
     private TimeRange getRequestRange(GraphStatus graphStatus) {
@@ -162,6 +162,10 @@ public class GraphPopulator {
                 throw new IllegalArgumentException(
                         "Unexpected value for enum: " + requested.getOrder());
         }
+    }
+
+    public long getRequestId() {
+        return mRequestId;
     }
 
     public interface GraphStatus {

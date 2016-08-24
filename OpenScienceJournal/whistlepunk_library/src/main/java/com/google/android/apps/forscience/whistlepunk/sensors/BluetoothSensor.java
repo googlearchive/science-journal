@@ -22,6 +22,7 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.ble.BleFlow;
 import com.google.android.apps.forscience.ble.BleFlowListener;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.PacketAssembler;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
@@ -40,6 +41,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 public class BluetoothSensor extends ScalarSensor {
     private static final String TAG = "BluetoothSensor";
@@ -159,11 +161,17 @@ public class BluetoothSensor extends ScalarSensor {
 
     public long getTimeSkew() { return mTimeSkew; }
     public void setTimeSkew(long skew) { mTimeSkew = skew; }
-    BleFlow mFlow;
-    BleFlowListener mBleFlowListener;
+    private BleFlow mFlow;
+    private BleFlowListener mBleFlowListener;
 
     public BluetoothSensor(String sensorId, BleSensorSpec sensor, BleServiceSpec serviceSpec) {
-        super(sensorId);
+        this(sensorId, sensor, serviceSpec, AppSingleton.getUiThreadExecutor());
+    }
+
+    public BluetoothSensor(
+            String sensorId, BleSensorSpec sensor, BleServiceSpec serviceSpec,
+            Executor uiThreadExecutor) {
+        super(sensorId, uiThreadExecutor);
         mSensor = sensor;
         mServiceSpec = serviceSpec;
         mAddress = sensor.getAddress();
@@ -173,7 +181,8 @@ public class BluetoothSensor extends ScalarSensor {
     private BleFlowListener createBleFlowListener(final StreamConsumer c, final Clock defaultClock,
             final SensorStatusListener listener) {
         return new BleFlowListener() {
-            final PacketAssembler mPa = new PacketAssembler(c, defaultClock, BluetoothSensor.this);
+            final PacketAssembler mPa = new PacketAssembler(c, defaultClock, BluetoothSensor.this,
+                    listener);
 
             @Override
             public void onSuccess() {
@@ -208,8 +217,10 @@ public class BluetoothSensor extends ScalarSensor {
             public void onNotification(UUID characteristic, int flags, byte[] value) {
                 mPa.append(value);
             }
+
             @Override
             public void onDisconnect() {
+                mNotificationSubscribed = false;
                 listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
             }
 
@@ -219,7 +230,7 @@ public class BluetoothSensor extends ScalarSensor {
             }
 
             @Override
-            public void onNotificationSubscribed(){
+            public void onNotificationSubscribed() {
                 mNotificationSubscribed = true;
             }
 
@@ -254,7 +265,7 @@ public class BluetoothSensor extends ScalarSensor {
         return mDeviceScaleTransform;
     }
 
-    public byte[] buildConfigProtoForDevice(BleSensorSpec sensor) {
+    private byte[] buildConfigProtoForDevice(BleSensorSpec sensor) {
         GoosciSensor.SensorDataRequest sdr = new GoosciSensor.SensorDataRequest();
         sdr.timestampKey = 42; // arbitrary constant.  TMOLTUAE.
         sdr.interval = new GoosciSensor.Interval();

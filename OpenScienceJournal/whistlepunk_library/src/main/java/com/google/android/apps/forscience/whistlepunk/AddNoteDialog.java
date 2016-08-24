@@ -24,9 +24,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -260,13 +258,13 @@ public class AddNoteDialog extends DialogFragment {
             takePictureBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    boolean grantedCamera = PictureUtils.tryRequestingPermission(getActivity(),
+                    boolean grantedCamera = PermissionUtils.tryRequestingPermission(getActivity(),
                             Manifest.permission.CAMERA,
                             PictureUtils.PERMISSIONS_CAMERA, /* force retry */ true);
                     // If camera permission was not granted, on permission result we try requesting
                     // storage. If it was granted, then check storage separately here.
                     if (grantedCamera) {
-                        boolean grantedStorage = PictureUtils.tryRequestingPermission(
+                        boolean grantedStorage = PermissionUtils.tryRequestingPermission(
                                 getActivity(),
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                 PictureUtils.PERMISSIONS_WRITE_EXTERNAL_STORAGE,

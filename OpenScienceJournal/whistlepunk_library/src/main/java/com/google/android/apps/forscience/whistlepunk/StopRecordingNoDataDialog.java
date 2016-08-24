@@ -30,7 +30,7 @@ public class StopRecordingNoDataDialog extends DialogFragment {
     public static final String KEY_BODY_STRING = "key_body_string";
 
     public interface StopRecordingDialogListener {
-        public void requestStopRecording();
+        public void requestCancelRecording();
 
         public void continueRecording();
     }
@@ -68,7 +68,7 @@ public class StopRecordingNoDataDialog extends DialogFragment {
                 new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ((StopRecordingDialogListener) getParentFragment()).requestStopRecording();
+                ((StopRecordingDialogListener) getParentFragment()).requestCancelRecording();
             }
         });
 

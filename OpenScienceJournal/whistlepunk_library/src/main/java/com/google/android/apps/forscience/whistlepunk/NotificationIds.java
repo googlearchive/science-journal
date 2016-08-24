@@ -21,4 +21,5 @@ package com.google.android.apps.forscience.whistlepunk;
  */
 public class NotificationIds {
     public static final int RECORDER_SERVICE = 1;
+    public static final int RECORDING_COMPLETED = 2;
 }

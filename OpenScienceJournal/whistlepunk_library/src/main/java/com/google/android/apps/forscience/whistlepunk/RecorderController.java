@@ -17,21 +17,48 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Intent;
+import android.support.annotation.IntDef;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.Project;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
-public interface RecorderController extends ExternalSensorListener {
+public interface RecorderController extends SensorRegistryListener {
+
+    // Errors when a recording state fails to change.
+    int ERROR_START_FAILED = 0;
+    int ERROR_START_FAILED_DISCONNECTED = 1;
+
+    @IntDef({ERROR_START_FAILED, ERROR_START_FAILED_DISCONNECTED})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface RecordingStartErrorType {}
+
+    int ERROR_STOP_FAILED_DISCONNECTED = 0;
+    int ERROR_STOP_FAILED_NO_DATA = 1;
+    int ERROR_FAILED_SAVE_RECORDING = 2;
+
+    @IntDef({ERROR_STOP_FAILED_DISCONNECTED, ERROR_STOP_FAILED_NO_DATA,
+            ERROR_FAILED_SAVE_RECORDING})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface RecordingStopErrorType {}
+
     /**
      * @return observerId: should be passed to stopObserving, so that this client only kills
      * observers that it creates.
      */
-    String startObserving(String sensorId, SensorObserver observer,
-            SensorStatusListener listener, TransportableSensorOptions initialOptions);
+    String startObserving(String sensorId, List<SensorTrigger> activeTriggers,
+            SensorObserver observer, SensorStatusListener listener,
+            TransportableSensorOptions initialOptions);
 
     /**
      * @param observerId the observerId returned from the corresponding call to startObserving
@@ -53,10 +80,11 @@ public interface RecorderController extends ExternalSensorListener {
 
     void applyOptions(String sensorId, TransportableSensorOptions settings);
 
-
-    void startRecording(Intent resumeIntent, RecordingMetadata recording);
+    void startRecording(Intent resumeIntent, Project project);
 
     void stopRecording();
+
+    void stopRecordingWithoutSaving();
 
     /**
      * @return the most recently-observed ids when observation was happening.  If observation is
@@ -69,11 +97,44 @@ public interface RecorderController extends ExternalSensorListener {
 
     interface RecordingStateListener {
         void onRecordingStateChanged(RecordingMetadata currentRecording);
+
+        void onRecordingStartFailed(@RecordingStartErrorType int errorType);
+
+        void onRecordingStopFailed(@RecordingStopErrorType int errorType);
     }
 
     void addRecordingStateListener(String listenerId, RecordingStateListener listener);
 
     void removeRecordingStateListener(String listenerId);
+
+    interface TriggerFiredListener {
+        /**
+         * Called any time a trigger fires successfully.
+         * Note that this is not called for a trigger to stop recording when recording is not
+         * yet started, or for a trigger to start recording when a recording going on, or for
+         * an alert type trigger that has no alert types selected.
+         */
+        void onTriggerFired(SensorTrigger trigger);
+
+        /**
+         * Called before the RecorderController tries to start the recording from a trigger.
+         */
+        void onRequestStartRecording();
+
+        /**
+         * Called when the RecorderController has added a trigger label successfully.
+         */
+        void onLabelAdded(Label label);
+
+        /**
+         * Called before the RecorderController tries to stop the recording from a trigger.
+         */
+        void onRequestStopRecording(RecorderController rc);
+    }
+
+    void addTriggerFiredListener(String listenerId, TriggerFiredListener listener);
+
+    void removeTriggerFiredListener(String listenerId);
 
     interface ObservedIdsListener {
         void onObservedIdsChanged(List<String> observedSensorIds);
@@ -82,4 +143,12 @@ public interface RecorderController extends ExternalSensorListener {
     void addObservedIdsListener(String listenerId, ObservedIdsListener listener);
 
     void removeObservedIdsListener(String listenerId);
+
+    void setSelectedExperiment(Experiment experiment);
+
+    void setCurrentSensorLayouts(final List<GoosciSensorLayout.SensorLayout> sensorLayouts);
+
+    void setRecordActivityInForeground(boolean isInForeground);
+
+    void clearSensorTriggers(String sensorId);
 }

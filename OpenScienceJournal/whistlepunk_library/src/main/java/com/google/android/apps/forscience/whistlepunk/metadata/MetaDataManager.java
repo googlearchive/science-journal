@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 
 import java.util.List;
@@ -106,20 +107,25 @@ public interface MetaDataManager {
 
     /**
      * Gets all the external sensors previously saved.
+     * @param providerMap
      */
-    public Map<String, ExternalSensorSpec> getExternalSensors();
+    public Map<String, ExternalSensorSpec> getExternalSensors(
+            Map<String, ExternalSensorProvider> providerMap);
 
     /**
      * Gets the external sensor or {@null} if no sensor with that ID was added.
      */
-    public ExternalSensorSpec getExternalSensorById(String id);
+    public ExternalSensorSpec getExternalSensorById(String id,
+            Map<String, ExternalSensorProvider> providerMap);
 
     /**
      *
      * @param sensor
+     * @param providerMap
      * @return
      */
-    public String addOrGetExternalSensor(ExternalSensorSpec sensor);
+    public String addOrGetExternalSensor(ExternalSensorSpec sensor,
+            Map<String, ExternalSensorProvider> providerMap);
 
     /**
      * Removes an external sensor from the database.
@@ -142,7 +148,8 @@ public interface MetaDataManager {
     /**
      * Gets all the externdal sensors which are linked to an experiment.
      */
-    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId);
+    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId,
+            Map<String, ExternalSensorProvider> providerMap);
 
     /**
      * @returns Last used experiment.
@@ -176,13 +183,20 @@ public interface MetaDataManager {
     /**
      * Set the sensor selection and layout for an experiment
      */
-    void setExperimentSensorLayout(String experimentId,
+    void setExperimentSensorLayouts(String experimentId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts);
 
     /**
      * Retrieve the sensor selection and layout for an experiment
      */
-    List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayout(String experimentId);
+    List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayouts(String experimentId);
+
+    /**
+     * Updates a sensor layout in a given position for an experiment. If the experimentID is
+     * invalid or the position is too large for that experimentID, nothing happens.
+     */
+    void updateSensorLayout(String experimentId, int position,
+            GoosciSensorLayout.SensorLayout layout);
 
     void close();
 
@@ -196,4 +210,38 @@ public interface MetaDataManager {
      * @param runId The ID of the run to delete
      */
     void deleteRun(String runId);
+
+    /**
+     * Adds a new trigger.
+     * @param trigger
+     * @param experimentId The experiment active when the trigger was first added. Note that this is
+     *                     currently not used for retrieval.
+     */
+    void addSensorTrigger(SensorTrigger trigger, String experimentId);
+
+    /**
+     * Updates an existing SensorTrigger. note that only the last used timestamp and
+     * TriggerInformation can be mutated.
+     * @param trigger
+     */
+    void updateSensorTrigger(SensorTrigger trigger);
+
+    /**
+     * Gets a list of SensorTrigger by their IDs.
+     * @param triggerIds
+     */
+    List<SensorTrigger> getSensorTriggers(String[] triggerIds);
+
+    /**
+     * Gets a list of sensor triggers that are applicable to a given Sensor ID.
+     * TODO: Experiment could be added to these params if we decide that is reasonable.
+     * @param sensorId
+     * @return A list of SensorTriggers that apply to that Sensor ID
+     */
+    List<SensorTrigger> getSensorTriggersForSensor(String sensorId);
+
+    /**
+     * Deletes the SensorTrigger from the database.
+     */
+    void deleteSensorTrigger(SensorTrigger trigger);
 }

@@ -29,6 +29,15 @@
         android:id="@+id/btn_sensor_card_audio_settings"
         />
 
+    <item
+        android:title="@string/menu_item_set_triggers"
+        android:id="@+id/btn_sensor_card_set_triggers"
+        />
+
+    <item
+        android:title="@string/disable_all_triggers"
+        android:id="@+id/btn_disable_sensor_card_triggers"
+        />
 
     <item
         android:title="@string/btn_sensor_card_settings"

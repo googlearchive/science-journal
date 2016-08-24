@@ -17,7 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk.sensordb;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -27,6 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.Run;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
@@ -41,6 +44,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -172,12 +176,14 @@ public class MemoryMetadataManager implements MetaDataManager {
     private Map<String, ExternalSensorSpec> mExternalSensors = new HashMap<>();
 
     @Override
-    public Map<String, ExternalSensorSpec> getExternalSensors() {
+    public Map<String, ExternalSensorSpec> getExternalSensors(
+            Map<String, ExternalSensorProvider> providerMap) {
         return mExternalSensors;
     }
 
     @Override
-    public ExternalSensorSpec getExternalSensorById(String id) {
+    public ExternalSensorSpec getExternalSensorById(String id,
+            Map<String, ExternalSensorProvider> providerMap) {
         return mExternalSensors.get(id);
     }
 
@@ -188,7 +194,8 @@ public class MemoryMetadataManager implements MetaDataManager {
 
 
     @Override
-    public String addOrGetExternalSensor(ExternalSensorSpec sensor) {
+    public String addOrGetExternalSensor(ExternalSensorSpec sensor,
+            Map<String, ExternalSensorProvider> providerMap) {
         for (Map.Entry<String, ExternalSensorSpec> entry : mExternalSensors.entrySet()) {
             if (Arrays.equals(entry.getValue().getConfig(), sensor.getConfig())) {
                 return entry.getKey();
@@ -222,7 +229,8 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId) {
+    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId,
+            Map<String, ExternalSensorProvider> providerMap) {
         Map<String, ExternalSensorSpec> specs = new HashMap<>();
         for (String id : mExperimentToSensors.get(experimentId)) {
             specs.put(id, mExternalSensors.get(id));
@@ -277,18 +285,28 @@ public class MemoryMetadataManager implements MetaDataManager {
     Map<String, List<GoosciSensorLayout.SensorLayout>> mLayouts = new HashMap<>();
 
     @Override
-    public void setExperimentSensorLayout(String experimentId,
+    public void setExperimentSensorLayouts(String experimentId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
         mLayouts.put(experimentId, sensorLayouts);
     }
 
     @Override
-    public List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayout(String experimentId) {
+    public List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayouts(String experimentId) {
         List<GoosciSensorLayout.SensorLayout> layouts = mLayouts.get(experimentId);
         if (layouts == null) {
             return Collections.emptyList();
         } else {
             return layouts;
+        }
+    }
+
+    @Override
+    public void updateSensorLayout(String experimentId, int position,
+            GoosciSensorLayout.SensorLayout layout) {
+        List<GoosciSensorLayout.SensorLayout> layouts = mLayouts.get(experimentId);
+        if (layouts.size() > position) {
+            layouts.remove(position);
+            layouts.add(position, layout);
         }
     }
 
@@ -305,5 +323,75 @@ public class MemoryMetadataManager implements MetaDataManager {
     @Override
     public void deleteRun(String runId) {
 
+    }
+
+    private Map<String, List<SensorTrigger>> mSensorTriggers = new HashMap<>();
+
+    @Override
+    public void addSensorTrigger(SensorTrigger trigger, String experimentId) {
+        String sensorId = trigger.getSensorId();
+        if (mSensorTriggers.containsKey(sensorId)) {
+            mSensorTriggers.get(sensorId).add(trigger);
+        } else {
+            List<SensorTrigger> triggers = new ArrayList<>();
+            triggers.add(trigger);
+            mSensorTriggers.put(sensorId, triggers);
+        }
+    }
+
+    @Override
+    public void updateSensorTrigger(SensorTrigger trigger) {
+        if (mSensorTriggers.containsKey(trigger.getSensorId())) {
+            List<SensorTrigger> triggers = mSensorTriggers.get(trigger.getSensorId());
+            int index = -1;
+            for (int i = 0; i < triggers.size(); i++) {
+                if (TextUtils.equals(triggers.get(i).getTriggerId(), trigger.getTriggerId())) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index >= 0) {
+                triggers.remove(index);
+                triggers.add(index, trigger);
+            }
+        }
+    }
+
+    @Override
+    public List<SensorTrigger> getSensorTriggers(String[] triggerIds) {
+        List<SensorTrigger> result = new ArrayList<>();
+        for (List<SensorTrigger> triggers : mSensorTriggers.values()) {
+            for (SensorTrigger trigger : triggers) {
+                for (String triggerId : triggerIds) {
+                    if (TextUtils.equals(trigger.getTriggerId(), triggerId)) {
+                        result.add(trigger);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<SensorTrigger> getSensorTriggersForSensor(String sensorId) {
+        List<SensorTrigger> result = new ArrayList<>();
+        if (mSensorTriggers.containsKey(sensorId)) {
+            Collections.copy(result, mSensorTriggers.get(sensorId));
+        }
+        return result;
+    }
+
+    @Override
+    public void deleteSensorTrigger(SensorTrigger toDelete) {
+        for (List<SensorTrigger> triggers : mSensorTriggers.values()) {
+            Iterator<SensorTrigger> iterator = triggers.iterator();
+            while (iterator.hasNext()) {
+                SensorTrigger trigger = iterator.next();
+                if (TextUtils.equals(trigger.getTriggerId(), toDelete.getTriggerId())) {
+                    iterator.remove();
+                    return;
+                }
+            }
+        }
     }
 }

@@ -36,6 +36,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_TEXT_NOTE = 0;
     private static final int TYPE_PICTURE_NOTE = 1;
     private static final int TYPE_NO_NOTES = 2;
+    private static final int TYPE_TRIGGER_NOTE = 3;
     private static final int TYPE_UNKNOWN = -1;
 
     /**
@@ -64,7 +66,11 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * An interface for listening to when a pinned note is clicked.
      */
     public interface ListItemClickListener {
+        // Anywhere on the item was clicked.
         void onListItemClicked(Label item);
+
+        // The picture of a picture label was clicked
+        void onPictureItemClicked(PictureLabel item);
     }
 
     public class NoteHolder extends RecyclerView.ViewHolder {
@@ -72,6 +78,7 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ImageButton mMenuButton;
         TextView mText;
         ImageView mImage;
+        TextView mAutoText;
 
         public NoteHolder(View v) {
             super(v);
@@ -79,6 +86,7 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             mMenuButton = (ImageButton) v.findViewById(R.id.note_menu_button);
             mText = (TextView) v.findViewById(R.id.note_text);
             mImage = (ImageView) v.findViewById(R.id.note_image);
+            mAutoText = (TextView) v.findViewById(R.id.auto_note_text);
         }
     }
 
@@ -115,6 +123,7 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         switch (viewType) {
             case TYPE_TEXT_NOTE:
             case TYPE_PICTURE_NOTE:
+            case TYPE_TRIGGER_NOTE:
                 View v = LayoutInflater.from(parent.getContext()).inflate(
                         R.layout.pinned_note_item, parent, false);
                 return new NoteHolder(v);
@@ -142,18 +151,25 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (label instanceof TextLabel) {
             text = ((TextLabel) label).getText();
             noteHolder.mImage.setVisibility(View.GONE);
+            noteHolder.mAutoText.setVisibility(View.GONE);
         } else if (label instanceof PictureLabel) {
             text = ((PictureLabel) label).getCaption();
             noteHolder.mImage.setVisibility(View.VISIBLE);
+            noteHolder.mAutoText.setVisibility(View.GONE);
             Glide.with(noteHolder.mImage.getContext())
                     .load(((PictureLabel) label).getFilePath())
                     .into(noteHolder.mImage);
             noteHolder.mImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mClickListener.onListItemClicked(label);
+                    mClickListener.onPictureItemClicked((PictureLabel) label);
                 }
             });
+        } else if (label instanceof SensorTriggerLabel) {
+            text = ((SensorTriggerLabel) label).getCustomText();
+            noteHolder.mImage.setVisibility(View.GONE);
+            noteHolder.mAutoText.setText(((SensorTriggerLabel) label).getAutogenText());
+            noteHolder.mAutoText.setVisibility(View.VISIBLE);
         }
         if (!TextUtils.isEmpty(text)) {
             noteHolder.mText.setText(text);
@@ -204,6 +220,12 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             });
         }
+        noteHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mClickListener.onListItemClicked(label);
+            }
+        });
     }
 
     @Override
@@ -223,6 +245,9 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         if (mPinnedNotes.get(position) instanceof PictureLabel) {
             return TYPE_PICTURE_NOTE;
+        }
+        if (mPinnedNotes.get(position) instanceof SensorTriggerLabel) {
+            return TYPE_TRIGGER_NOTE;
         }
         return TYPE_UNKNOWN;
     }

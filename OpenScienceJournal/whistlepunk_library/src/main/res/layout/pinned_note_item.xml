@@ -77,6 +77,19 @@
             android:layout_marginTop="@dimen/run_review_section_margin"
             />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/auto_note_text"
+            android:textColor="@color/text_color_light_grey"
+            android:textStyle="italic"
+            android:textSize="14sp"
+            android:layout_below="@id/note_text"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="@dimen/run_review_note_text_margin_end"
+            android:visibility="gone"
+            />
+
     </RelativeLayout>
 
     <TextView

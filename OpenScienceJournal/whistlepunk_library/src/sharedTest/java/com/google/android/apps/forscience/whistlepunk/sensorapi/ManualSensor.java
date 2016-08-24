@@ -28,6 +28,8 @@ import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
+import com.google.android.apps.forscience.whistlepunk.scalarchart.UptimeClock;
+import com.google.android.apps.forscience.whistlepunk.sensordb.MonotonicClock;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.List;
@@ -37,11 +39,12 @@ public class ManualSensor extends ScalarSensor {
     private ChartController mChartController;
 
     private MemorySensorHistoryStorage mStorage = new MemorySensorHistoryStorage();
+    private int mThrowawayThreshold = 1;
 
     public ManualSensor(String sensorId, long defaultGraphRange,
             int zoomLevelBetweenResolutionTiers) {
         super(sensorId, defaultGraphRange, MoreExecutors.directExecutor(),
-                zoomLevelBetweenResolutionTiers);
+                zoomLevelBetweenResolutionTiers, new UptimeClock());
     }
 
     public SensorRecorder createRecorder(Context context, RecordingDataController rdc,
@@ -75,6 +78,11 @@ public class ManualSensor extends ScalarSensor {
             }
 
             @Override
+            public boolean hasRecordedData() {
+                return true;
+            }
+
+            @Override
             public void applyOptions(ReadableSensorOptions settings) {
 
             }
@@ -88,7 +96,8 @@ public class ManualSensor extends ScalarSensor {
             long defaultGraphRange) {
         mChartController = new ChartController(
                 ChartOptions.ChartPlacementType.TYPE_OBSERVE,
-                dataViewOptions.getLineGraphOptions(), 1, /* no data loading buffer */ 0);
+                dataViewOptions.getLineGraphOptions(), mThrowawayThreshold,
+                /* no data loading buffer */ 0, new MonotonicClock());
         mChartController.setInteractionListener(interactionListener);
         mChartController.setSensorId(sensorId);
         mChartController.setDefaultGraphRange(defaultGraphRange);
@@ -109,7 +118,7 @@ public class ManualSensor extends ScalarSensor {
         }
     }
 
-    public SensorPresenter createPresenter() {
+    private SensorPresenter createPresenter() {
         StatsListener statsListener = new StubStatsListener();
         ExternalAxisController.InteractionListener interactionListener =
                 new StubInteractionListener();
@@ -128,7 +137,7 @@ public class ManualSensor extends ScalarSensor {
     }
 
     @NonNull
-    public MemorySensorEnvironment makeSensorEnvironment(Context context,
+    private MemorySensorEnvironment makeSensorEnvironment(Context context,
             RecordingDataController rc) {
         return new MemorySensorEnvironment(rc, new FakeBleClient(context), mStorage);
     }
@@ -136,6 +145,7 @@ public class ManualSensor extends ScalarSensor {
     @NonNull
     public SensorPresenter createRecordingPresenter(Context context, RecordingDataController rc,
             String runId, int graphDataThrowawaySizeThreshold) {
+        mThrowawayThreshold = graphDataThrowawaySizeThreshold;
         return createRecordingPresenter(context, rc, runId);
     }
 

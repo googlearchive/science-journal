@@ -27,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
+import com.google.common.base.Preconditions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
     }
 
     public SensorAppearanceProviderImpl(DataController dataController) {
-        mDataController = dataController;
+        mDataController = Preconditions.checkNotNull(dataController);
         // If we add new on-device sensors/icons, they need to be added here.
 
         // TODO: add these when the sensors are added to the adapter?
@@ -122,11 +123,11 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
     }
 
     private void putExternalSensorAppearance(String sensorId, ExternalSensorSpec sensor) {
-        mAppearances.put(sensorId, sensor.getSensorAppearance());
+        putAppearance(sensorId, sensor.getSensorAppearance());
     }
 
     private void putAppearance(String sensorId, SensorAppearance appearance) {
-        mAppearances.put(sensorId, appearance);
+        mAppearances.put(sensorId, Preconditions.checkNotNull(appearance));
     }
 
     @Override

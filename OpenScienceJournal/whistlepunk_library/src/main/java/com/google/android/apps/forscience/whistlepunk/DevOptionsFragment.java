@@ -24,9 +24,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
+import android.support.annotation.VisibleForTesting;
 
 /**
  * Holder for Developer Testing Options
@@ -34,15 +32,28 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayO
 public class DevOptionsFragment extends PreferenceFragment {
     private static final String TAG = "DevOptionsFragment";
 
+    @VisibleForTesting
+    public static final String KEY_SINE_WAVE_SENSOR = "enable_sine_wave_sensor";
+
     private static final String KEY_MAGNETOMETER = "enable_magnetometer_sensor";
     private static final String KEY_VIDEO_SENSOR = "enable_video_sensor";
-    private static final String KEY_SINE_WAVE_SENSOR = "enable_sine_wave_sensor";
     private static final String KEY_DEV_TOOLS = "dev_tools";
     private static final String KEY_LEAK_CANARY = "leak_canary";
     public static final String KEY_DEV_SONIFICATION_TYPES = "enable_dev_sonification_types";
     public static final String KEY_ENABLE_ZOOM_IN = "live_zoom_type";
     public static final String KEY_BAROMETER_SENSOR = "enable_barometer_sensor";
     public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
+    public static final String KEY_THIRD_PARTY_SENSORS = "enable_third_party_sensors";
+    private final SharedPreferences.OnSharedPreferenceChangeListener
+            mSensorsChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+                String key) {
+            AppSingleton.getInstance(
+                    getActivity()).getSensorRegistry().refreshBuiltinSensors(
+                    getActivity());
+        }
+    };
 
     public static DevOptionsFragment newInstance() {
         return new DevOptionsFragment();
@@ -77,7 +88,22 @@ public class DevOptionsFragment extends PreferenceFragment {
         }
     }
 
-    private static SharedPreferences getPrefs(Context context) {
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(
+                mSensorsChangedListener);
+    }
+
+    @Override
+    public void onPause() {
+        getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(
+                mSensorsChangedListener);
+        super.onPause();
+    }
+
+    @VisibleForTesting
+    public static SharedPreferences getPrefs(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
 
@@ -126,5 +152,9 @@ public class DevOptionsFragment extends PreferenceFragment {
             return defaultBool;
         }
         return getPrefs(context).getBoolean(key, defaultBool);
+    }
+
+    public static boolean isThirdPartyDiscoveryEnabled(Context context) {
+        return getBoolean(KEY_THIRD_PARTY_SENSORS, false, context);
     }
 }

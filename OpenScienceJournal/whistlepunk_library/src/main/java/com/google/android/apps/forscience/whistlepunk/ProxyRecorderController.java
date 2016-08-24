@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.wireapi.ISensorStatusListe
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ProxyRecorderController extends IRecorderController.Stub {
@@ -61,8 +62,9 @@ public class ProxyRecorderController extends IRecorderController.Stub {
         }
         mSensorId = sensorId;
         // TODO: enable more than one observer through the service
-        mObserverId = mDelegate.startObserving(sensorId, proxyObserver(observer),
-                proxyStatusListener(listener, mFailureListener), initialOptions);
+        mObserverId = mDelegate.startObserving(sensorId, Collections.EMPTY_LIST,
+                proxyObserver(observer), proxyStatusListener(listener, mFailureListener), 
+                initialOptions);
     }
 
     @Override
@@ -157,6 +159,18 @@ public class ProxyRecorderController extends IRecorderController.Stub {
                 } catch (RemoteException e) {
                     failureListener.fail(e);
                 }
+            }
+
+            @Override
+            public void onRecordingStartFailed(
+                    @RecorderController.RecordingStartErrorType int errorType) {
+
+            }
+
+            @Override
+            public void onRecordingStopFailed(
+                    @RecorderController.RecordingStopErrorType int recordingStateErrorType) {
+
             }
         };
     }

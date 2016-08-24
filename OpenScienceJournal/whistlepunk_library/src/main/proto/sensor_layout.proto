@@ -62,4 +62,7 @@ message SensorLayout {
 
   // The maximum value shown on the Y axis.
   optional double maximumYAxisValue = 8;
+
+  // The IDs of active SensorTriggers for this layout.
+  repeated string activeSensorTriggerIds = 9;
 };

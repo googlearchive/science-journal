@@ -51,7 +51,7 @@ public class ChartData {
     // Larger numbers cause binary search to be faster at the risk of drawing unnecessary points.
     // TODO: Look into tweaking this number for utmost efficency and memory usage!
     @VisibleForTesting
-    public static final int DEFAULT_APPROX_RANGE = 8;
+    private static final int DEFAULT_APPROX_RANGE = 8;
 
     public static final int DEFAULT_THROWAWAY_THRESHOLD = 100;
     private int mThrowawayDataSizeThreshold;
@@ -69,7 +69,7 @@ public class ChartData {
     // The stats for this list.
     private List<StreamStat> mStats = new ArrayList<>();
 
-    public static final Comparator<? super DataPoint> DATA_POINT_COMPARATOR =
+    private static final Comparator<? super DataPoint> DATA_POINT_COMPARATOR =
             new Comparator<DataPoint>() {
         @Override
         public int compare(DataPoint lhs, DataPoint rhs) {
@@ -143,16 +143,7 @@ public class ChartData {
 
     // Searches for the closest index to a given timestamp.
     public int getClosestIndexToTimestamp(long timestamp) {
-        int lowerIndex = exactBinarySearch(timestamp, 0);
-        if (lowerIndex >= mData.size() - 1) {
-            return lowerIndex;
-        }
-        long valueAtLowerIndex = mData.get(lowerIndex).getX();
-        long valueAtUpperIndex = mData.get(lowerIndex + 1).getX();
-        if (timestamp - valueAtLowerIndex < valueAtUpperIndex - timestamp) {
-            return lowerIndex;
-        }
-        return lowerIndex + 1;
+        return exactBinarySearch(timestamp, 0);
     }
 
     /**
@@ -203,14 +194,39 @@ public class ChartData {
     @VisibleForTesting
     int approximateBinarySearch(long searchX, int startIndex, int endIndex,
             boolean preferStart, int searchRange) {
+        if (mData.isEmpty()) {
+            return 0;
+        }
+
+        // See if we're already done (need to do this before calculating distances below, in case
+        // searchX is so big or small we're in danger of overflow).
+
+        long startValue = mData.get(startIndex).getX();
+        if (searchX <= startValue) {
+            return startIndex;
+        }
+        long endValue = mData.get(endIndex).getX();
+        if (searchX >= endValue) {
+            return endIndex;
+        }
         if (endIndex - startIndex <= searchRange) {
             return preferStart ? startIndex: endIndex;
         }
+        if (searchRange == 0 && endIndex - startIndex == 1) {
+            long distanceToStart = searchX - startValue;
+            long distanceToEnd = endValue - searchX;
+            if (distanceToStart < distanceToEnd) {
+                return startIndex;
+            } else {
+                return endIndex;
+            }
+        }
         int mid = (startIndex + endIndex) / 2;
-        if (mData.get(mid).getX() < searchX) {
-            return approximateBinarySearch(searchX, mid + 1, endIndex, preferStart, searchRange);
-        } else if (mData.get(mid).getX() > searchX){
-            return approximateBinarySearch(searchX, startIndex, mid - 1, preferStart, searchRange);
+        long midX = mData.get(mid).getX();
+        if (midX < searchX) {
+            return approximateBinarySearch(searchX, mid, endIndex, preferStart, searchRange);
+        } else if (midX > searchX) {
+            return approximateBinarySearch(searchX, startIndex, mid, preferStart, searchRange);
         } else {
             return mid;
         }
@@ -257,7 +273,7 @@ public class ChartData {
     }
 
     @VisibleForTesting
-    protected boolean tryAddingLabel(Label label) {
+    boolean tryAddingLabel(Label label) {
         long timestamp = label.getTimeStamp();
         if (mData.isEmpty() || timestamp < getXMin() || timestamp > getXMax()) {
             return false;
@@ -300,7 +316,9 @@ public class ChartData {
         if (throwAwayMaxX <= throwAwayMinX) {
             return;
         }
-        int indexEnd = exactBinarySearch(throwAwayMaxX, 0);
+
+        // This should be the index to the right of max
+        int indexEnd = approximateBinarySearch(throwAwayMaxX, 0, mData.size() - 1, false, 1);
         int indexStart = exactBinarySearch(throwAwayMinX, 0);
 
         // Only throw away in bulk once we reach a threshold, so that all the work is not done on

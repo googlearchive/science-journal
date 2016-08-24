@@ -18,8 +18,11 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +37,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
@@ -107,12 +111,14 @@ public class EditNoteDialog extends DialogFragment {
 
         ImageView imageView = (ImageView) rootView.findViewById(R.id.picture_note_preview_image);
         final EditText editText = (EditText) rootView.findViewById(R.id.edit_note_text);
+        TextView autoTextView = (TextView) rootView.findViewById(R.id.auto_note_text);
 
         // Use mSelectedValue to load content, because the user may have changed the value since
         // it was stored in the label. Note that picture labels can't be edited at this time,
         // but in the future this will apply to picture labels as well.
         if (mLabel instanceof PictureLabel) {
             imageView.setVisibility(View.VISIBLE);
+            autoTextView.setVisibility(View.GONE);
             editText.setText(PictureLabel.getCaption(mSelectedValue));
             editText.setHint(R.string.picture_note_caption_hint);
             Glide.with(getActivity())
@@ -127,7 +133,13 @@ public class EditNoteDialog extends DialogFragment {
             });
         } else if (mLabel instanceof TextLabel) {
             imageView.setVisibility(View.GONE);
+            autoTextView.setVisibility(View.GONE);
             editText.setText(TextLabel.getText(mSelectedValue));
+        } else if (mLabel instanceof SensorTriggerLabel) {
+            imageView.setVisibility(View.GONE);
+            autoTextView.setVisibility(View.VISIBLE);
+            editText.setText(SensorTriggerLabel.getCustomText(mSelectedValue));
+            autoTextView.setText(SensorTriggerLabel.getAutogenText(mSelectedValue));
         }
 
         alertDialog.setPositiveButton(R.string.action_save,
@@ -139,6 +151,9 @@ public class EditNoteDialog extends DialogFragment {
                             ((TextLabel) mLabel).setText(editText.getText().toString());
                         } else if (mLabel instanceof PictureLabel) {
                             ((PictureLabel) mLabel).setCaption(editText.getText().toString());
+                        } else if (mLabel instanceof SensorTriggerLabel) {
+                            ((SensorTriggerLabel) mLabel).setCustomText(
+                                    editText.getText().toString());
                         }
                         getDataController().editLabel(mLabel,
                                 ((EditNoteDialogListener) getParentFragment()).onLabelEdit(
@@ -158,26 +173,38 @@ public class EditNoteDialog extends DialogFragment {
         TextView timeTextView = (TextView) rootView.findViewById(R.id.edit_note_time);
         timeTextView.setText(timeText);
         timeTextView.setContentDescription(timeTextContentDescription);
-        timeTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
-                if (mLabel instanceof PictureLabel) {
-                    // Captions can be edited, but the picture path cannot be edited at this time.
-                    PictureLabel.populateStorageValue(value, ((PictureLabel) mLabel).getFilePath(),
-                            editText.getText().toString());
-                    ((EditNoteDialogListener) getParentFragment()).onEditNoteTimestampClicked(
-                            mLabel, value, mTimestamp);
-                } else if (mLabel instanceof TextLabel) {
-                    TextLabel.populateStorageValue(value, editText.getText().toString());
-                    ((EditNoteDialogListener) getParentFragment()).onEditNoteTimestampClicked(
-                            mLabel, value, mTimestamp);
+        if (labelBelongsToRun() && mLabel.canEditTimestamp()) {
+            timeTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
+                    if (mLabel instanceof PictureLabel) {
+                        // Captions can be edited, but the picture path cannot be edited at this
+                        // time.
+                        PictureLabel.populateStorageValue(value,
+                                ((PictureLabel) mLabel).getFilePath(),
+                                editText.getText().toString());
+                        ((EditNoteDialogListener) getParentFragment()).onEditNoteTimestampClicked(
+                                mLabel, value, mTimestamp);
+                    } else if (mLabel instanceof TextLabel) {
+                        TextLabel.populateStorageValue(value, editText.getText().toString());
+                        ((EditNoteDialogListener) getParentFragment()).onEditNoteTimestampClicked(
+                                mLabel, value, mTimestamp);
+                    }
                 }
-            }
-        });
+            });
+        } else if (labelBelongsToRun()) {
+            Drawable lockDrawable = getResources().getDrawable(R.drawable.ic_lock_black_18dp);
+            DrawableCompat.setTint(lockDrawable,
+                    getResources().getColor(R.color.text_color_light_grey));
+            // There is already a start drawable. Use it again.
+            Drawable[] drawables = timeTextView.getCompoundDrawablesRelative();
+            timeTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(drawables[0], null,
+                    lockDrawable, null);
+        }
 
         AlertDialog dialog = alertDialog.create();
-        if (mLabel instanceof TextLabel) {
+        if (mLabel instanceof TextLabel || mLabel instanceof SensorTriggerLabel) {
             dialog.getWindow().setSoftInputMode(
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
@@ -188,4 +215,7 @@ public class EditNoteDialog extends DialogFragment {
         return AppSingleton.getInstance(getActivity()).getDataController();
     }
 
+    private boolean labelBelongsToRun() {
+        return !TextUtils.equals(mLabel.getRunId(), RecordFragment.NOT_RECORDING_RUN_ID);
+    }
 }

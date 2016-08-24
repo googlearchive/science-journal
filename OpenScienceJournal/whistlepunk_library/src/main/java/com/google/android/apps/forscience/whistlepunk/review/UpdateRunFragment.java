@@ -78,6 +78,7 @@ public class UpdateRunFragment extends Fragment {
                     public void success(ExperimentRun run) {
                         mExperimentRun = run;
                         mRunTitle.setText(mExperimentRun.getRunTitle(getActivity()));
+                        mRunTitle.selectAll();
                     }
                 });
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(

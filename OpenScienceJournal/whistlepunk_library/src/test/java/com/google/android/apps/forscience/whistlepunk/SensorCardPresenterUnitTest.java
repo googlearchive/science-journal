@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.BlankReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
@@ -40,6 +41,8 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
+import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
+import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 
 import org.junit.Test;
 
@@ -60,7 +63,7 @@ public class SensorCardPresenterUnitTest {
         };
         MemoryRecorderController rc = new MemoryRecorderController();
         SensorCardPresenter scp = new SensorCardPresenter(dataViewOptions, ssc, rc,
-                new GoosciSensorLayout.SensorLayout(), null);
+                new GoosciSensorLayout.SensorLayout(), "", null);
         SensorPresenter presenter = new MemorySensorPresenter();
         SensorObserver so = new SensorObserver() {
             @Override
@@ -69,7 +72,10 @@ public class SensorCardPresenterUnitTest {
             }
         };
         ManualSensor ds = new ManualSensor("sensorId", 100, 100);
-        scp.startObserving(ds, presenter, new BlankReadableSensorOptions(), so);
+        InMemorySensorDatabase db = new InMemorySensorDatabase();
+        MemoryMetadataManager manager = new MemoryMetadataManager();
+        final DataController dc = db.makeSimpleController(manager);
+        scp.startObserving(ds, presenter, new BlankReadableSensorOptions(), dc, so);
         scp.setAppearanceProvider(new MemoryAppearanceProvider());
         scp.setUiForConnectingNewSensor(ds.getId(), "Display Name", "units", false);
         assertEquals(Arrays.asList(ds.getId()), rc.getCurrentObservedIds());
@@ -161,6 +167,11 @@ public class SensorCardPresenterUnitTest {
 
         @Override
         public void resetView() {
+
+        }
+
+        @Override
+        public void setTriggers(List<SensorTrigger> triggers) {
 
         }
 

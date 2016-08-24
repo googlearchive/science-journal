@@ -60,7 +60,8 @@ public class DeviceOptionsViewControllerTest extends AndroidTestCase {
                         ImmutableMap.of(ExternalSensorSpec.getSensorId(oldSpec, 1),
                                 (ExternalSensorSpec) newSpec)));
 
-        c.getOptions().setSensorType(SensorTypeProvider.TYPE_CUSTOM);
+        ExternalSensorSpec options = c.getOptions();
+        ((BleSensorSpec) options).setSensorType(SensorTypeProvider.TYPE_CUSTOM);
         c.commit(listener);
         assertEquals(ExternalSensorSpec.getSensorId(oldSpec, 1), listener.mostRecentOldSensorId);
         assertEquals(ExternalSensorSpec.getSensorId(oldSpec, 2), listener.mostRecentNewSensorId);

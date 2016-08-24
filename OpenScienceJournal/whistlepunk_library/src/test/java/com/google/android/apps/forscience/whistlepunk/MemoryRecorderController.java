@@ -18,7 +18,11 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Intent;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.Project;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
@@ -34,8 +38,9 @@ class MemoryRecorderController implements RecorderController {
     private int mObserverCount = 0;
 
     @Override
-    public String startObserving(String sensorId, SensorObserver observer,
-            SensorStatusListener listener, TransportableSensorOptions initialOptions) {
+    public String startObserving(String sensorId, List<SensorTrigger> activeTriggers,
+            SensorObserver observer, SensorStatusListener listener,
+            TransportableSensorOptions initialOptions) {
         String observerId = String.valueOf(++mObserverCount);
         mCurrentObserverIds.put(sensorId, observerId);
         return observerId;
@@ -64,12 +69,17 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public void startRecording(Intent resumeIntent, RecordingMetadata recording) {
+    public void startRecording(Intent resumeIntent, Project project) {
 
     }
 
     @Override
     public void stopRecording() {
+
+    }
+
+    @Override
+    public void stopRecordingWithoutSaving() {
 
     }
 
@@ -90,6 +100,17 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
+    public void addTriggerFiredListener(String listenerId,
+            TriggerFiredListener listener) {
+
+    }
+
+    @Override
+    public void removeTriggerFiredListener(String listenerId) {
+
+    }
+
+    @Override
     public void addObservedIdsListener(String listenerId, ObservedIdsListener listener) {
     }
 
@@ -99,7 +120,32 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public void replaceExternalSensors(Map<String, ExternalSensorSpec> sensors) {
+    public void setSelectedExperiment(Experiment experiment) {
+
+    }
+
+    @Override
+    public void setCurrentSensorLayouts(List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+
+    }
+
+    @Override
+    public void setRecordActivityInForeground(boolean isInForeground) {
+
+    }
+
+    @Override
+    public void clearSensorTriggers(String sensorId) {
+
+    }
+
+    @Override
+    public void updateExternalSensors(Map<String, ExternalSensorSpec> sensors) {
+
+    }
+
+    @Override
+    public void refreshBuiltinSensors() {
 
     }
 

@@ -21,6 +21,23 @@ package com.google.android.apps.forscience.whistlepunk.analytics;
  */
 public interface UsageTracker {
 
+    UsageTracker STUB = new UsageTracker() {
+        @Override
+        public void setOptOut(boolean optOut) {
+            // do nothing
+        }
+
+        @Override
+        public void trackScreenView(String screenName) {
+            // do nothing
+        }
+
+        @Override
+        public void trackEvent(String category, String action, String label, long value) {
+            // do nothing
+        }
+    };
+
     /**
      * If {@code true}, disables the tracker. If {@code false}, enables the tracker.
      */

@@ -29,12 +29,13 @@
         android:layout_height="wrap_content">
 
         <EditText
+            android:imeOptions="flagNoExtractUi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="@dimen/accessibility_touch_target_min_size"
             android:layout_marginStart="@dimen/edit_note_dialog_margin"
             android:layout_marginEnd="@dimen/edit_note_dialog_margin"
-            android:layout_marginBottom="@dimen/edit_note_textedit_margin_bottom"
+            android:layout_marginBottom="@dimen/edit_note_dialog_margin"
             android:id="@+id/edit_note_text"
             android:hint="@string/edit_note_hint_text"
             android:textColor="@color/text_color_dark_grey"
@@ -43,6 +44,7 @@
             android:layout_toStartOf="@id/picture_note_preview_image"
             android:layout_alignWithParentIfMissing="true"
             android:layout_centerVertical="true"
+            android:maxLines="@integer/label_edit_max_lines"
             />
 
         <ImageView
@@ -61,6 +63,17 @@
             />
 
     </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/auto_note_text"
+        android:textColor="@color/text_color_light_grey"
+        android:layout_marginStart="@dimen/edit_note_dialog_margin"
+        android:layout_marginEnd="@dimen/edit_note_dialog_margin"
+        android:layout_marginBottom="@dimen/edit_note_dialog_margin"
+        android:textStyle="italic"
+        />
 
     <include layout="@layout/label_dialog_timestamp_section"/>
 

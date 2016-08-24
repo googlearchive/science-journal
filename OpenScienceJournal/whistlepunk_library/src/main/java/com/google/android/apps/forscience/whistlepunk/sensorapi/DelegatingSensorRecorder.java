@@ -16,11 +16,13 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
+import com.google.common.base.Preconditions;
+
 public class DelegatingSensorRecorder implements SensorRecorder {
     private final SensorRecorder mDelegate;
 
     public DelegatingSensorRecorder(SensorRecorder delegate) {
-        mDelegate = delegate;
+        mDelegate = Preconditions.checkNotNull(delegate);
     }
 
     public void startObserving() {
@@ -41,5 +43,10 @@ public class DelegatingSensorRecorder implements SensorRecorder {
 
     public void stopObserving() {
         mDelegate.stopObserving();
+    }
+
+    @Override
+    public boolean hasRecordedData() {
+        return mDelegate.hasRecordedData();
     }
 }

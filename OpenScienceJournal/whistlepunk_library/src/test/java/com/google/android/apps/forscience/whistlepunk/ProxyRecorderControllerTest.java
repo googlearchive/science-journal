@@ -21,17 +21,24 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.Project;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
-import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -39,6 +46,8 @@ import com.google.common.collect.Maps;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ProxyRecorderControllerTest {
     private static final TransportableSensorOptions BLANK_OPTIONS =
@@ -50,21 +59,24 @@ public class ProxyRecorderControllerTest {
     private final RecordingStatusListener mStatusListener = new RecordingStatusListener();
     private SensorRegistry mRegistry = new AllSensorsRegistry();
     private final MemorySensorEnvironment mEnvironment = new MemorySensorEnvironment(
-            new InMemorySensorDatabase().makeSimpleRecordingController(new MemoryMetadataManager()),
+            new InMemorySensorDatabase().makeSimpleRecordingController(),
             new FakeBleClient(null), new MemorySensorHistoryStorage());
 
     @Test
     public void mostRecentSensorIds() throws RemoteException {
         final String id1 = "id1";
         final String id2 = "id2";
-        RecorderControllerImpl rc = makeRecorderController();
+        RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
+        RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
 
         // Blank only at the beginning of time
         assertEquals(Lists.newArrayList(), prc.getMostRecentObservedSensorIds());
-        String observerId1 = rc.startObserving(id1, mObserver, mStatusListener, BLANK_OPTIONS);
+        String observerId1 = rc.startObserving(id1, Collections.<SensorTrigger>emptyList(),
+                mObserver, mStatusListener, BLANK_OPTIONS);
         assertEquals(Lists.newArrayList(id1), prc.getMostRecentObservedSensorIds());
-        String observerId2 = rc.startObserving(id2, mObserver, mStatusListener, BLANK_OPTIONS);
+        String observerId2 = rc.startObserving(id2, Collections.<SensorTrigger>emptyList(),
+                mObserver, mStatusListener, BLANK_OPTIONS);
         assertEquals(Lists.newArrayList(id1, id2), prc.getMostRecentObservedSensorIds());
 
         // Pausing doesn't clear most recent list
@@ -81,7 +93,7 @@ public class ProxyRecorderControllerTest {
         rc.stopObserving(id2, observerId2);
         assertEquals(Lists.newArrayList(id2), prc.getMostRecentObservedSensorIds());
 
-        RecorderControllerImpl rc2 = makeRecorderController();
+        RecorderControllerTestImpl rc2 = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc2 = new ProxyRecorderController(rc2, mPolicy, mFailureListener);
         assertEquals(Lists.newArrayList(id2), prc2.getMostRecentObservedSensorIds());
     }
@@ -90,16 +102,18 @@ public class ProxyRecorderControllerTest {
     public void gettingRecentIdsThroughListener() throws RemoteException {
         final String id1 = "id1";
         final String id2 = "id2";
-        RecorderControllerImpl rc = makeRecorderController();
-
+        RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
+        RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
 
         RecordingStateListener stateListener = new RecordingStateListener();
         prc.addRecordingStateListener("listenerId", stateListener);
         assertEquals(Lists.newArrayList(), stateListener.recentObservedSensorIds);
-        String observerId1 = rc.startObserving(id1, mObserver, mStatusListener, BLANK_OPTIONS);
+        String observerId1 = rc.startObserving(id1, Collections.<SensorTrigger>emptyList(),
+                mObserver, mStatusListener, BLANK_OPTIONS);
         assertEquals(Lists.newArrayList(id1), stateListener.recentObservedSensorIds);
-        String observerId2 = rc.startObserving(id2, mObserver, mStatusListener, BLANK_OPTIONS);
+        String observerId2 = rc.startObserving(id2, Collections.<SensorTrigger>emptyList(),
+                mObserver, mStatusListener, BLANK_OPTIONS);
         assertEquals(Lists.newArrayList(id1, id2), stateListener.recentObservedSensorIds);
 
         // Pausing doesn't clear most recent list
@@ -116,7 +130,8 @@ public class ProxyRecorderControllerTest {
         rc.stopObserving(id2, observerId2);
         assertEquals(Lists.newArrayList(), stateListener.recentObservedSensorIds);
 
-        rc.startObserving(id1, mObserver, mStatusListener, BLANK_OPTIONS);
+        rc.startObserving(id1, Collections.<SensorTrigger>emptyList(), mObserver, mStatusListener,
+                BLANK_OPTIONS);
         assertEquals(Lists.newArrayList(id1), stateListener.recentObservedSensorIds);
 
         // Connecting another proxy finds the same value
@@ -129,7 +144,8 @@ public class ProxyRecorderControllerTest {
 
     @Test
     public void preventMultipleListenersSameId() throws RemoteException {
-        RecorderControllerImpl rc = makeRecorderController();
+        RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
+        RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
 
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
 
@@ -144,23 +160,34 @@ public class ProxyRecorderControllerTest {
 
     @Test
     public void addAndRemoveListeners() throws RemoteException {
-        RecorderControllerImpl rc = makeRecorderController();
+        RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
+        RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
+        Project project = new Project(14159);
+        Experiment experiment = new Experiment(1618);
+        experiment.setTitle("experimentName");
+        rc.setSelectedExperiment(experiment);
 
         RecordingStateListener stateListener = new RecordingStateListener();
         prc.addRecordingStateListener("listenerId", stateListener);
         assertEquals(Lists.newArrayList(), stateListener.recentObservedSensorIds);
-        String observerId1 = rc.startObserving("id1", mObserver, mStatusListener, BLANK_OPTIONS);
+        String observerId1 = rc.startObserving("id1", Collections.<SensorTrigger>emptyList(),
+                mObserver, mStatusListener, BLANK_OPTIONS);
         assertEquals(Arrays.asList("id1"), stateListener.recentObservedSensorIds);
 
+        listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
+
         assertFalse(stateListener.recentIsRecording);
-        rc.startRecording(null, new RecordingMetadata(0, "runId", "experimentName"));
+        rc.startRecording(null, project);
         assertTrue(stateListener.recentIsRecording);
+
+        rc.forceHasData("id1", true);
+
         rc.stopRecording();
         assertFalse(stateListener.recentIsRecording);
         prc.removeRecordingStateListener("listenerId");
         assertFalse(stateListener.recentIsRecording);
-        rc.startRecording(null, new RecordingMetadata(0, "runId", "experimentName"));
+        rc.startRecording(null, project);
         // Still false, because we've stopped listening
         assertFalse(stateListener.recentIsRecording);
         rc.stopRecording();
@@ -171,13 +198,125 @@ public class ProxyRecorderControllerTest {
         assertEquals(Arrays.asList("id1"), stateListener.recentObservedSensorIds);
     }
 
-    @NonNull
-    private RecorderControllerImpl makeRecorderController() {
-        return new RecorderControllerImpl(null, mRegistry, mEnvironment) {
-            @Override
-            protected void withBoundRecorderService(FallibleConsumer<RecorderService> c) {
-                // do nothing
+    @Test
+    public void failsStartRecording() throws RemoteException {
+        RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
+        RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
+        ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
+        Project project = new Project(14159);
+        Experiment experiment = new Experiment(1618);
+        experiment.setTitle("experimentName");
+        rc.setSelectedExperiment(experiment);
+
+        RecordingStateListener stateListener = new RecordingStateListener();
+        prc.addRecordingStateListener("listenerId", stateListener);
+        rc.startObserving("id1", Collections.<SensorTrigger>emptyList(), mObserver, mStatusListener,
+                BLANK_OPTIONS);
+
+        // Not connected - no data
+        assertFalse(stateListener.recentIsRecording);
+        rc.startRecording(null, project);
+        assertFalse(stateListener.recentIsRecording);
+
+        listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTING);
+        rc.startRecording(null, project);
+        assertFalse(stateListener.recentIsRecording);
+
+        listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
+        rc.startRecording(null, project);
+        assertTrue(stateListener.recentIsRecording);
+    }
+
+    @Test
+    public void failsStopRecording() throws RemoteException {
+        RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
+        RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
+        ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
+        Project project = new Project(14159);
+        Experiment experiment = new Experiment(1618);
+        experiment.setTitle("experimentName");
+        rc.setSelectedExperiment(experiment);
+
+        RecordingStateListener stateListener = new RecordingStateListener();
+        prc.addRecordingStateListener("listenerId", stateListener);
+        rc.startObserving("id1", Collections.<SensorTrigger>emptyList(), mObserver, mStatusListener,
+                BLANK_OPTIONS);
+
+        listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
+        rc.startRecording(null, project);
+
+        // No data yet -- stop recording should not actually stop
+        rc.stopRecording();
+        assertTrue(stateListener.recentIsRecording);
+
+        // Forcing stop recording should work, though.
+        rc.stopRecordingWithoutSaving();
+        assertFalse(stateListener.recentIsRecording);
+
+        // This time we will disconnect during recording, and stopRecording should also fail.
+        listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
+        rc.startRecording(null, project);
+        listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_DISCONNECTED);
+        assertTrue(stateListener.recentIsRecording);
+
+        rc.stopRecording();
+        assertTrue(stateListener.recentIsRecording);
+
+        // Forcing stop recording should work, though.
+        rc.stopRecordingWithoutSaving();
+        assertFalse(stateListener.recentIsRecording);
+    }
+
+    private class RecorderControllerTestImpl extends  RecorderControllerImpl {
+        RecorderControllerTestImpl(RecorderListenerRegistry listenerRegistry) {
+            super(null, mRegistry, mEnvironment, listenerRegistry, Uri.EMPTY);
+            this.setRecordActivityInForeground(true);
+        }
+
+        @Override
+        protected void withBoundRecorderService(FallibleConsumer<RecorderService> c) {
+            try {
+                c.take(new MockRecorderService());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        };
+        }
+
+        @Override
+        void trackStopRecording(Context context, ApplicationLabel stopRecordingLabel) {
+            // Do nothing.
+        }
+
+        @Override
+        void ensureUnarchived(Experiment experiment, Project project,
+                DataController dc) {
+            // do nothing
+        }
+
+        void forceHasData(String sensorId, boolean hasData) {
+            StatefulRecorder sr = getRecorders().get(sensorId);
+            sr.forceHasDataForTesting(hasData);
+        }
+
+        @Override
+        protected DataController getDataController(Context context) {
+            return new StubDataController() {
+
+                @Override
+                public void startRun(Experiment experiment,
+                        MaybeConsumer<ApplicationLabel> onSuccess) {
+                    onSuccess.success(new ApplicationLabel(
+                            ApplicationLabel.TYPE_RECORDING_START, "start", "start", 0));
+                }
+
+                @Override
+                public void stopRun(Experiment experiment, String runId,
+                        List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+                        MaybeConsumer<ApplicationLabel> onSuccess) {
+                    onSuccess.success(new ApplicationLabel(
+                            ApplicationLabel.TYPE_RECORDING_STOP, "stop", "start", 10));
+                }
+            };
+        }
     }
 }

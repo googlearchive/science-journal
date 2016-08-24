@@ -29,6 +29,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class MetadataControllerTest extends AndroidTestCase {
     public void testReorderExperiments() {
@@ -36,7 +37,7 @@ public class MetadataControllerTest extends AndroidTestCase {
         Project p = mmm.newProject();
         Experiment e1 = mmm.newExperiment(p, 1, "e1");
         Experiment e2 = mmm.newExperiment(p, 2, "e2");
-        DataControllerImpl dc = buildDataController(mmm);
+        DataController dc = buildDataController(mmm);
         final ExplodingFactory explodingFactory = new ExplodingFactory();
         MetadataController mc = new MetadataController(dc, explodingFactory);
         RecordingMetadataListener listener = new RecordingMetadataListener();
@@ -68,7 +69,7 @@ public class MetadataControllerTest extends AndroidTestCase {
         e1.setTitle("E1 title");
         Experiment e2 = mmm.newExperiment(p, 2, "e2");
         e2.setTitle("E2 title");
-        DataControllerImpl dc = buildDataController(mmm);
+        DataController dc = buildDataController(mmm);
         final ExplodingFactory explodingFactory = new ExplodingFactory();
         MetadataController mc = new MetadataController(dc, explodingFactory);
         RecordingMetadataListener listener = new RecordingMetadataListener();
@@ -82,10 +83,8 @@ public class MetadataControllerTest extends AndroidTestCase {
     }
 
     @NonNull
-    private DataControllerImpl buildDataController(MemoryMetadataManager mmm) {
-        return new DataControllerImpl(new InMemorySensorDatabase(), MoreExecutors.directExecutor(),
-                MoreExecutors.directExecutor(), MoreExecutors.directExecutor(), mmm,
-                new MonotonicClock());
+    private DataController buildDataController(MemoryMetadataManager mmm) {
+        return new InMemorySensorDatabase().makeSimpleController(mmm);
     }
 
     private static class RecordingMetadataListener implements MetadataController

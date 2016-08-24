@@ -21,7 +21,9 @@ import android.test.AndroidTestCase;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
+import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
@@ -255,5 +257,22 @@ public class DataControllerTest extends AndroidTestCase {
                         assertEquals("", sensorLayouts.get(0).sensorId);
                     }
                 }));
+    }
+
+    public void testGenerateLabelId() {
+        IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
+        DataController dc = new DataControllerImpl(null, null, null, null, null,
+                clock, null);
+        clock.increment();
+
+        String firstLabelId = dc.generateNewLabelId();
+        String secondLabelId = dc.generateNewLabelId();
+        String thirdLabelId = dc.generateNewLabelId();
+        assertNotSame(firstLabelId, secondLabelId);
+        assertNotSame(secondLabelId, thirdLabelId);
+
+        clock.increment();
+        String fourthLabelId = dc.generateNewLabelId();
+        assertNotSame(thirdLabelId, fourthLabelId);
     }
 }

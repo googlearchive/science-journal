@@ -999,6 +999,12 @@
     <!-- The summary for the live zoom in Y testing option [CHAR_LIMIT=None] -->
     <string name="live_zoom_type_option_summary">Enable auto zoom-in on the Y axis during Observe, when pinned to now. Default is disabled</string>
 
+    <!-- The title for the option to enable third-party sensors [CHAR_LIMIT=35] -->
+    <string name="third_party_sensors_option_title">Scan for third-party sensors</string>
+-
+    <!-- The summary for the option to enable third-party sensors [CHAR_LIMIT=None] -->
+    <string name="third_party_sensors_option_summary">Look for apps that support the third-party sensor API, and enable adding those sensors to experiments.</string>
+
     <!-- Title of developer option to display a magnetic sensor [CHAR_LIMIT=35]-->
     <string name="enable_magnetometer_sensor_title">Enable magnetometer</string>
 
@@ -1055,6 +1061,127 @@
 
     <!-- Sensor header format when the audio is enabled. The unicode note character is appended to the sensor name. [CHAR_LIMIT = 3] -->
     <string name="audio_enabled_format"><xliff:g id="sensor_display_name">%1s</xliff:g>  \u266A</string>
+
+    <!-- Menu option to set or edit triggers for a particular sensor [CHAR_LIMIT=25]-->
+    <string name="menu_item_set_triggers">Set triggers</string>
+
+    <!-- Title for an activity to view and edit triggers for a particular sensor [CHAR_LIMIT=15]-->
+    <string name="title_activity_trigger_list">Triggers for <xliff:g id="sensor_name">%s</xliff:g></string>
+
+    <!-- Content description for a button to add a new trigger [CHAR_LIMIT=NONE]-->
+    <string name="btn_add_new_trigger">Create trigger</string>
+
+    <!-- Description of a list of triggers which is empty [CHAR_LIMIT=100]-->
+    <string name="empty_trigger_list">No triggers set</string>
+
+    <!-- Title of an activity to edit an existing trigger [CHAR_LIMIT=25]-->
+    <string name="title_activity_edit_trigger">Edit <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
+
+    <!-- Title of an activity to add a new trigger [CHAR_LIMIT=25]-->
+    <string name="title_activity_add_trigger">New <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
+
+    <!-- The label for a drop-down to choose the type of action a trigger will take [CHAR_LIMIT=30]-->
+    <string name="trigger_type_label">Trigger type</string>
+
+    <!-- The label for a drop-down to chose the time when a trigger will fire [CHAR_LIMIT=30]-->
+    <string name="trigger_when_label">Trigger when</string>
+
+    <!-- The name of a trigger type, when the trigger firing causes recording to start [CHAR_LIMIT=30]-->
+    <string name="trigger_type_start_recording">Start recording</string>
+
+    <!-- The name of a trigger type, when the trigger firing causes recording to stop [CHAR_LIMIT=30]-->
+    <string name="trigger_type_stop_recording">Stop recording</string>
+
+    <!-- The name of a trigger type, when the trigger firing causes a note to be made [CHAR_LIMIT=30]-->
+    <string name="trigger_type_note">Make a note</string>
+
+    <!-- The name of a trigger type, when the trigger firing causes an alert to the user [CHAR_LIMIT=30]-->
+    <string name="trigger_type_alert">Alert me</string>
+
+    <!-- The name of an option when the trigger will fire, in this case to fire when the sensor value is *at* the specified trigger value [CHAR_LIMIT=30]-->
+    <string name="trigger_when_at">At</string>
+
+    <!-- The name of an option when the trigger will fire, in this case to fire when the sensor value *falls below* the specified trigger value [CHAR_LIMIT=30]-->
+    <string name="trigger_when_drops_below">Drops below</string>
+
+    <!-- The name of an option when the trigger will fire, in this case to fire when the sensor value *rises above* the specified trigger value [CHAR_LIMIT=30]-->
+    <string name="trigger_when_rises_above">Rises above</string>
+
+    <!-- The hint text for the trigger value field [CHAR_LIMIT=20]-->
+    <string name="trigger_value_hint">Value</string>
+
+    <!-- The label for the trigger note text field [CHAR_LIMIT=30]-->
+    <string name="trigger_note_text_label">Default note text</string>
+
+    <!-- The hint text for the trigger note text field [CHAR_LIMIT=50]-->
+    <string name="trigger_note_text_hint">What should your note say?</string>
+
+    <!-- The name of an alert that makes sound  when triggered [CHAR_LIMIT=20]-->
+    <string name="trigger_audio_alert">Noise</string>
+
+    <!-- The name of an alert that makes haptic feedback or vibration when triggered [CHAR_LIMIT=20]-->
+    <string name="trigger_haptic_alert">Vibrate</string>
+
+    <!-- The name of an alert that makes a visual change when triggered [CHAR_LIMIT=20]-->
+    <string name="trigger_visual_alert">Visual</string>
+
+    <!-- The error shown on a snackbar when the user does not enter a numeric value for a trigger [CHAR_LIMIT=150]-->
+    <string name="cannot_save_invalid_value">You must enter a numeric value at which this trigger will fire.</string>
+
+    <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires at a particular value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
+    <string name="trigger_when_at_description"><xliff:g id="trigger_action">%1s</xliff:g> when the sensor is at <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
+
+    <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires when rising above a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
+    <string name="trigger_when_rises_above_description"><xliff:g id="trigger_action">%1s</xliff:g> when the sensor rises above <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
+
+    <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires when dropping below a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
+    <string name="trigger_when_drops_below_description"><xliff:g id="trigger_action">%1s</xliff:g> when the sensor drops below <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
+
+    <!-- The text on a snackbar alerting the user that a trigger has been deleted [CHAR_LIMIT=100]-->
+    <string name="sensor_trigger_deleted">Trigger deleted</string>
+
+    <!-- NOTE: THIS MUST BE IN THE SAME ORDER AS TriggerInformation.TriggerActionType -->
+    <array name="trigger_type_list">
+        <item>@string/trigger_type_start_recording</item>
+        <item>@string/trigger_type_stop_recording</item>
+        <item>@string/trigger_type_note</item>
+        <item>@string/trigger_type_alert</item>
+    </array>
+
+    <!-- NOTE: THIS MUST BE IN THE SAME ORDER AS TriggerInformation.TriggerWhen -->
+    <array name="trigger_when_list">
+        <item>@string/trigger_when_at</item>
+        <item>@string/trigger_when_rises_above</item>
+        <item>@string/trigger_when_drops_below</item>
+    </array>
+
+    <!-- Past tense of trigger when, to be used in the string formatting string trigger_label_auto_text. -->
+    <array name="trigger_when_list_note_text">
+        <item>at</item>
+        <item>rose above</item>
+        <item>dropped below</item>
+    </array>
+
+    <!-- The auto-generated note text for a note type trigger. For example,this might say, "Auto-generated note create by a Decibel trigger which fired when the value rose above 3.0 db". [CHAR_LIMIT=200]-->
+    <string name="trigger_label_auto_text">Trigger note: <xliff:g id="sensor_name">%1s</xliff:g> <xliff:g id="trigger_when">%2s</xliff:g> <xliff:g id="trigger_value">%.2f</xliff:g> <xliff:g id="sensor_units">%4s</xliff:g></string>
+
+    <!-- The format for a floating point data value when displayed to the user. This has more significant figures than on the Y axis. DO NOT TRANSLATE -->
+    <string name="run_review_chart_label_format"><xliff:g id="value">%.2f</xliff:g></string>
+
+    <!-- Auto-generated text for a snackbar that announces that a trigger has fired. For example, "Ambient light rose above 13 lux". [CHAR_LIMIT=50] -->
+    <string name="trigger_snackbar_auto_text"><xliff:g id="sensor_name">%1s</xliff:g> <xliff:g id="trigger_when">%2s</xliff:g> <xliff:g id="trigger_value">%.2f</xliff:g> <xliff:g id="sensor_units">%4s</xliff:g></string>
+
+    <!-- Action text for a snackbar to scroll to a particular SensorCard. [CHAR_LIMIT=20] -->
+    <string name="scroll_to_card">show</string>
+
+    <!-- Action text for a snackbar to scroll to a particular SensorCard. [CHAR_LIMIT=NONE] -->
+    <string name="could_not_find_service_error">Could not find service: <xliff:g id="service_id">%1s</xliff:g></string>
+
+    <!-- Notification body text for when recording was completed in the background service [CHAR_LIMIT=50] -->
+    <string name="recording_stopped_notification_text">Recording completed.</string>
+
+    <!-- Menu item to disable all active triggers on a card. [CHAR_LIMIT=25] -->
+    <string name="disable_all_triggers">Disable triggers</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

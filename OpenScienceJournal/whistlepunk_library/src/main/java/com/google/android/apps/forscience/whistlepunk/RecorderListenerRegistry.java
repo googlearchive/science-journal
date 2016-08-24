@@ -23,11 +23,12 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusList
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Routes information flowing back from the recorders to the listeners (if any) in the foreground
@@ -55,21 +56,50 @@ public class RecorderListenerRegistry implements SensorStatusListener {
     }
 
     private Map<String, Integer> mCurrentStatus = new HashMap<>();
+    private Map<String, Boolean> mCurrentErrors = new HashMap<>();
     private int mObserverCount = 0;
 
     @Override
     public void onSourceStatus(String id, @Status int status) {
         mCurrentStatus.put(id, status);
         for (ListenerSet set : mListeners.get(id)) {
-            set.statusListener.onSourceStatus(id, status);
+            if (set.statusListener != null) {
+                set.statusListener.onSourceStatus(id, status);
+            }
         }
     }
 
     @Override
     public void onSourceError(String id, @Error int error, String errorMessage) {
-        for (ListenerSet set : mListeners.get(id)) {
-            set.statusListener.onSourceError(id, error, errorMessage);
+        mCurrentErrors.put(id, true);
+        // Since onSourceError can call a disconnect and remove a listener, need to keep this safe
+        // for concurrent modification by copying it elsewhere.
+        List<ListenerSet> listenerList = new ArrayList<>();
+        listenerList.addAll(mListeners.get(id));
+        for (ListenerSet set : listenerList) {
+            if (set.statusListener != null) {
+                set.statusListener.onSourceError(id, error, errorMessage);
+            }
         }
+    }
+
+    public int getSourceStatus(String id) {
+        if (mCurrentStatus.containsKey(id)) {
+            return mCurrentStatus.get(id);
+        }
+        return STATUS_DISCONNECTED;
+    }
+
+    public boolean getSourceHasError(String id) {
+        if (mCurrentErrors.containsKey(id)) {
+            return mCurrentErrors.get(id);
+        }
+        return false;
+    }
+
+    public boolean isSourceConnectedWithoutError(String id) {
+        return !getSourceHasError(id) &&
+                getSourceStatus(id) == SensorStatusListener.STATUS_CONNECTED;
     }
 
     public String putListeners(String sensorId, SensorObserver observer,
@@ -79,26 +109,35 @@ public class RecorderListenerRegistry implements SensorStatusListener {
         mListeners.put(sensorId, new ListenerSet(observerId, listener, observer));
 
         Integer status = mCurrentStatus.get(sensorId);
-        if (status != null) {
+        if (status != null && listener != null) {
             listener.onSourceStatus(sensorId, status);
         }
         return observerId;
     }
 
-    /**
-     * @return true iff we just removed the last observer
-     */
-    public boolean remove(String sensorId, String observerId) {
+    public void remove(String sensorId, String observerId) {
         Collection<ListenerSet> sensorListeners = mListeners.get(sensorId);
-        int size = sensorListeners.size();
         Iterator<ListenerSet> iterator = sensorListeners.iterator();
         while (iterator.hasNext()) {
             if (iterator.next().observerId.equals(observerId)) {
                 iterator.remove();
-                return size == 1;
             }
         }
-        return false;
+        if (sensorListeners.isEmpty()) {
+            // Then we've just removed the last listener for this sensorID.
+            // Remove the status and errors state too.
+            if (mCurrentErrors.containsKey(sensorId)) {
+                mCurrentErrors.remove(sensorId);
+            }
+        }
+    }
+
+    public int countListeners(String sensorId) {
+        Collection<ListenerSet> sensorListeners = mListeners.get(sensorId);
+        if (sensorListeners == null) {
+            return 0;
+        }
+        return sensorListeners.size();
     }
 
     /**

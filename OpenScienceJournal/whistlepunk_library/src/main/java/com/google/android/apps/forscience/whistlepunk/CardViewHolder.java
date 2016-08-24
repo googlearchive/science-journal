@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
@@ -58,7 +59,11 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public ViewGroup statusViewGroup;
     public ProgressBar statusProgressBar;
     public TextView statusMessage;
-    public final Button statusRetryButton;
+    public Button statusRetryButton;
+    public RelativeLayout triggerSection;
+    public ImageView triggerIcon;
+    public TextView triggerText;
+    public View triggerFiredBackground;
 
     public CardViewHolder(CardView itemView) {
         super(itemView);
@@ -87,6 +92,10 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         statusProgressBar = (ProgressBar) itemView.findViewById(R.id.progress_bar);
         statusMessage = (TextView) itemView.findViewById(R.id.status_message);
         statusRetryButton = (Button) itemView.findViewById(R.id.status_retry_button);
+        triggerSection = (RelativeLayout) itemView.findViewById(R.id.sensor_card_trigger_section);
+        triggerIcon = (ImageView) itemView.findViewById(R.id.sensor_trigger_icon);
+        triggerText = (TextView) itemView.findViewById(R.id.sensor_trigger_text);
+        triggerFiredBackground = itemView.findViewById(R.id.sensor_trigger_fired_background);
     }
 
     public Context getContext() {

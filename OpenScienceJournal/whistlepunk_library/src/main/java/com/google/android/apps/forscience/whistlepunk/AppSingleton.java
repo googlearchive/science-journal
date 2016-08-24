@@ -25,10 +25,13 @@ import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleClientImpl;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabaseImpl;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -37,7 +40,7 @@ public class AppSingleton {
     private static final String TAG = "AppSingleton";
     private static AppSingleton sInstance;
     private final Context mApplicationContext;
-    private final DataControllerImpl mDataController;
+    private DataControllerImpl mDataController;
 
     private static Executor sUiThreadExecutor = null;
     private SensorAppearanceProviderImpl mSensorAppearanceProvider;
@@ -47,6 +50,7 @@ public class AppSingleton {
     private MetadataController mMetadataController;
     private SensorRegistry mSensorRegistry;
     private PrefsSensorHistoryStorage mPrefsSensorHistoryStorage;
+    private Map<String, ExternalSensorProvider> mExternalSensorProviders;
 
     private SensorEnvironment mSensorEnvironment = new SensorEnvironment() {
                 @Override
@@ -100,19 +104,23 @@ public class AppSingleton {
 
     private AppSingleton(Context context) {
         mApplicationContext = context.getApplicationContext();
-        mDataController = new DataControllerImpl(new SensorDatabaseImpl(mApplicationContext,
-                SENSOR_DATABASE_NAME), getUiThreadExecutor(), Executors.newSingleThreadExecutor(),
-                Executors.newSingleThreadExecutor(), new SimpleMetaDataManager(mApplicationContext),
-                getDefaultClock());
     }
 
     public DataController getDataController() {
+        if (mDataController == null) {
+            mDataController = new DataControllerImpl(
+                    new SensorDatabaseImpl(mApplicationContext, SENSOR_DATABASE_NAME),
+                    getUiThreadExecutor(), Executors.newSingleThreadExecutor(),
+                    Executors.newSingleThreadExecutor(),
+                    new SimpleMetaDataManager(mApplicationContext), getDefaultClock(),
+                    getExternalSensorProviders());
+        }
         return mDataController;
     }
 
     public SensorAppearanceProvider getSensorAppearanceProvider() {
         if (mSensorAppearanceProvider == null) {
-            mSensorAppearanceProvider = new SensorAppearanceProviderImpl(mDataController);
+            mSensorAppearanceProvider = new SensorAppearanceProviderImpl(getDataController());
         }
         return mSensorAppearanceProvider;
     }
@@ -184,7 +192,7 @@ public class AppSingleton {
             withRecorderController(TAG, new Consumer<RecorderController>() {
                 @Override
                 public void take(RecorderController rc) {
-                    mSensorRegistry.setExternalSensorListener(rc);
+                    mSensorRegistry.setSensorRegistryListener(rc);
                 }
             });
         }
@@ -205,4 +213,15 @@ public class AppSingleton {
         return mMetadataController;
     }
 
+    public Map<String,ExternalSensorProvider> getExternalSensorProviders() {
+        if (mExternalSensorProviders == null) {
+            mExternalSensorProviders = new HashMap<>();
+            Map<String, ExternalSensorDiscoverer> discoverers =
+                    WhistlePunkApplication.getExternalSensorDiscoverers(mApplicationContext);
+            for (Map.Entry<String, ExternalSensorDiscoverer> entry : discoverers.entrySet()) {
+                mExternalSensorProviders.put(entry.getKey(), entry.getValue().getProvider());
+            }
+        }
+        return mExternalSensorProviders;
+    }
 }

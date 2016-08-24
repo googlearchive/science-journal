@@ -18,21 +18,42 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.protobuf.nano.CodedOutputByteBufferNano;
+import com.google.protobuf.nano.MessageNano;
+
+import java.io.IOException;
 
 /**
  * Represents a specification of an external sensor, including its name and address.  Subclasses
  * may include additional options.
  */
 public abstract class ExternalSensorSpec implements Parcelable {
+    private static final String TAG = "ExternalSensorSpec";
+
     protected ExternalSensorSpec(Parcel in) {
         // do nothing
     }
 
     protected ExternalSensorSpec() {
         // do nothing
+    }
+
+    public static byte[] getBytes(MessageNano config) {
+        byte[] output = new byte[config.getSerializedSize()];
+
+        CodedOutputByteBufferNano buffer = CodedOutputByteBufferNano.newInstance(output);
+        try {
+            config.writeTo(buffer);
+        } catch (IOException e) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "Could not serialize config", e);
+            }
+        }
+        return output;
     }
 
     @Override
@@ -72,5 +93,5 @@ public abstract class ExternalSensorSpec implements Parcelable {
     /**
      * Loads internal sensor data from the database.
      */
-    abstract void loadFromConfig(byte[] data);
+    protected abstract void loadFromConfig(byte[] data);
 }

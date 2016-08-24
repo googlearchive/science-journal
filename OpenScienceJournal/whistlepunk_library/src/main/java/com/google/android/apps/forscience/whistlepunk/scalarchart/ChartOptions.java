@@ -26,6 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
 import java.text.NumberFormat;
+import java.util.List;
 
 public class ChartOptions {
 
@@ -34,7 +35,7 @@ public class ChartOptions {
     }
 
     // Factor by which to scale the Y axis range so that all the points fit snugly.
-    private static final double BUFFER_SCALE = .05;
+    private static final double BUFFER_SCALE = .085;
 
     // The minimum spread between the minimum and maximum y values shown on the graph.
     private static final double MINIMUM_Y_SPREAD = 1;
@@ -67,6 +68,8 @@ public class ChartOptions {
     private long mRecordingEndTime;
     private boolean mShowStatsOverlay;
     private ScalarDisplayOptions mScalarDisplayOptions;
+
+    private List<Double> mTriggerValues;
 
     public ChartOptions(ChartPlacementType chartPlacementType) {
         mChartPlacementType = chartPlacementType;
@@ -382,5 +385,13 @@ public class ChartOptions {
 
     public ScalarDisplayOptions getScalarDisplayOptions() {
         return mScalarDisplayOptions;
+    }
+
+    public void setTriggerValues(List<Double> values) {
+        mTriggerValues = values;
+    }
+
+    public List<Double> getTriggerValues() {
+        return mTriggerValues;
     }
 }

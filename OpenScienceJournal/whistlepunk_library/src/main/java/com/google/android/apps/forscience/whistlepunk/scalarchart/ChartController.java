@@ -20,12 +20,12 @@ import android.content.res.ColorStateList;
 import android.graphics.PointF;
 import android.os.Build;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.GraphPopulator;
@@ -34,10 +34,12 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.review.ZoomPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +68,7 @@ public class ChartController {
         void onLoadAttemptStarted();
     }
 
-    public static final String TAG = "ChartController";
+    private static final String TAG = "ChartController";
 
     /**
      * How many (minimum) screenfuls of data should we keep in memory?
@@ -79,7 +81,7 @@ public class ChartController {
      */
     private static final long MAX_BLACKOUT_MILLIS_BEFORE_CLEARING = 5000;
 
-    private static final long DEFAULT_DATA_LOAD_BUFFER_MILLIS =
+    public static final long DEFAULT_DATA_LOAD_BUFFER_MILLIS =
             ExternalAxisController.DEFAULT_GRAPH_RANGE_IN_MILLIS / 4;
 
     private final ChartData mChartData;
@@ -107,22 +109,39 @@ public class ChartController {
     private long mMaxLoadedX;
     private boolean mNeedsForwardLoad = false;
     private List<Long> mCurrentLoadIds = new ArrayList<>();
-    public List<ChartDataLoadedCallback> mChartDataLoadedCallbacks = new ArrayList<>();
+    private final Clock mUptimeClock;
+    private List<ChartDataLoadedCallback> mChartDataLoadedCallbacks = new ArrayList<>();
+
+    public ChartController(ChartOptions.ChartPlacementType type,
+            ScalarDisplayOptions lineGraphOptions, Clock clock) {
+        this(type, lineGraphOptions, ChartData.DEFAULT_THROWAWAY_THRESHOLD,
+                ChartController.DEFAULT_DATA_LOAD_BUFFER_MILLIS, clock);
+    }
 
     public ChartController(ChartOptions.ChartPlacementType chartPlacementType,
             ScalarDisplayOptions scalarDisplayOptions) {
         this(chartPlacementType, scalarDisplayOptions, ChartData.DEFAULT_THROWAWAY_THRESHOLD,
-                DEFAULT_DATA_LOAD_BUFFER_MILLIS);
+                DEFAULT_DATA_LOAD_BUFFER_MILLIS, new UptimeClock());
     }
 
     @VisibleForTesting
     public ChartController(ChartOptions.ChartPlacementType chartPlacementType,
             ScalarDisplayOptions scalarDisplayOptions, int chartDataThrowawayThreshold,
-            long dataLoadBuffer) {
+            long dataLoadBuffer, Clock uptimeClock) {
+        this(chartPlacementType, scalarDisplayOptions, chartDataThrowawayThreshold, dataLoadBuffer,
+                uptimeClock, LoggingConsumer.expectSuccess(TAG, "loading readings"));
+    }
+
+
+    @VisibleForTesting
+    public ChartController(ChartOptions.ChartPlacementType chartPlacementType,
+            ScalarDisplayOptions scalarDisplayOptions, int chartDataThrowawayThreshold,
+            long dataLoadBuffer, Clock uptimeClock, FailureListener dataFailureListener) {
+        mUptimeClock = uptimeClock;
         mChartData = new ChartData(chartDataThrowawayThreshold);
         mChartOptions = new ChartOptions(chartPlacementType);
         mChartOptions.setScalarDisplayOptions(scalarDisplayOptions);
-        mDataFailureListener = LoggingConsumer.expectSuccess(TAG, "loading readings");
+        mDataFailureListener = dataFailureListener;
         mDefaultGraphRange = ExternalAxisController.DEFAULT_GRAPH_RANGE_IN_MILLIS;
         mDataLoadBuffer = dataLoadBuffer;
     }
@@ -185,7 +204,7 @@ public class ChartController {
         mChartOptions.setPinnedToNow(false);
     }
 
-    public void addOrderedGroupOfPoints(List<ChartData.DataPoint> points, long requestId) {
+    private void addOrderedGroupOfPoints(List<ChartData.DataPoint> points, long requestId) {
         if (mCurrentLoadIds.contains(requestId)) {
             mChartData.addOrderedGroupOfPoints(points);
         }
@@ -193,7 +212,7 @@ public class ChartController {
 
     // Clears just the line data, but does not reset the options. This is useful if we need
     // to update zoom levels on the same sensor in the same range, for example.
-    public void clearLineData() {
+    private void clearLineData() {
         mChartData.clear();
         mCurrentLoadIds.clear();
         if (mChartView != null) {
@@ -228,12 +247,20 @@ public class ChartController {
         }
     }
 
-    public void setPinnedToNow(boolean isPinnedToNow) {
+    private void setPinnedToNow(boolean isPinnedToNow) {
         mChartOptions.setPinnedToNow(isPinnedToNow);
     }
 
     public boolean isPinnedToNow() {
         return mChartOptions.isPinnedToNow();
+    }
+
+    public void setTriggers(List<SensorTrigger> triggers) {
+        List<Double> values = new ArrayList<>();
+        for (SensorTrigger trigger : triggers) {
+            values.add(trigger.getValueToTrigger());
+        }
+        mChartOptions.setTriggerValues(values);
     }
 
     public void setLabels(List<Label> labels) {
@@ -249,7 +276,7 @@ public class ChartController {
         }
     }
 
-    public void refreshLabels() {
+    private void refreshLabels() {
         mChartData.setDisplayableLabels(mDisplayableLabels);
         if (mChartView != null) {
             mChartView.postInvalidateOnAnimation();
@@ -428,11 +455,14 @@ public class ChartController {
                 stats, chartDataLoadedCallback);
     }
 
+    // TODO: remove duplication with loadReadings?
     private void tryLoadingChartData(final String runId,
             final GoosciSensorLayout.SensorLayout sensorLayout,
             final DataController dc, final long firstTimestamp, final long lastTimestamp,
             final ChartLoadingStatus status, final RunStats stats,
             final ChartDataLoadedCallback dataLoadedCallback) {
+        Preconditions.checkNotNull(runId);
+
         // If we are currently trying to load something, don't try and load something else.
         // Instead, when loading is completed a callback will check that the correct data
         // was loaded and re-call this function.
@@ -458,6 +488,7 @@ public class ChartController {
             @Override
             public void onFinish(long requestId) {
                 status.setGraphLoadStatus(ChartLoadingStatus.GRAPH_LOAD_STATUS_IDLE);
+
                 if (!runId.equals(status.getRunId()) ||
                         !sensorLayout.sensorId.equals(status.getSensorLayout().sensorId) ||
                         !mCurrentLoadIds.contains(requestId)) {
@@ -474,11 +505,12 @@ public class ChartController {
                     setShowProgress(false);
                 }
             }
-        });
+        }, mUptimeClock);
 
-        mCurrentLoadIds.add(graphPopulator.requestObservations(
+        mCurrentLoadIds.add(graphPopulator.getRequestId());
+        graphPopulator.requestObservations(
                 GraphPopulator.constantGraphStatus(firstTimestamp, lastTimestamp), dc,
-                mDataFailureListener, currentTier, mSensorId));
+                mDataFailureListener, currentTier, mSensorId);
     }
 
     private ZoomPresenter getZoomPresenter(RunStats stats) {
@@ -511,8 +543,7 @@ public class ChartController {
             // Then we aren't loaded all the way, so don't try to load anything else.
             return;
         }
-        boolean isRecording = mChartOptions.getChartPlacementType() ==
-                ChartOptions.ChartPlacementType.TYPE_OBSERVE && isRecording();
+        boolean isRecording = isObserving() && isRecording();
         if (isRunReview || isRecording) {
             long range = xMax - xMin;
             long buffer = isRecording ? mDataLoadBuffer : range / 8;
@@ -521,14 +552,7 @@ public class ChartController {
                 int oldTier = mZoomPresenter.getCurrentTier();
                 int newTier = mZoomPresenter.updateTier(range);
                 if (oldTier != newTier) {
-                    // Replace the old line data with line data at the new zoom level.
-                    setShowProgress(true);
-                    clearLineData();
-                    mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
-                    mMaxLoadedX = Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
-                    mCurrentLoadIds.clear();
-                    loadReadings(dataController, mMinLoadedX, mMaxLoadedX);
-                    setXAxis(xMin, xMax);
+                    reloadAtNewZoomLevel(xMin, xMax, dataController, buffer);
                     return;
                 }
             }
@@ -585,11 +609,28 @@ public class ChartController {
         }
     }
 
+    private boolean isObserving() {
+        return mChartOptions.getChartPlacementType() ==
+                ChartOptions.ChartPlacementType.TYPE_OBSERVE;
+    }
+
+    private void reloadAtNewZoomLevel(long xMin, long xMax, DataController dataController,
+            long buffer) {
+        setShowProgress(true);
+        clearLineData();
+        mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
+        mMaxLoadedX = Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
+        mCurrentLoadIds.clear();
+        loadReadings(dataController, mMinLoadedX, mMaxLoadedX);
+        setXAxis(xMin, xMax);
+    }
+
     private boolean isRecording() {
         return mChartOptions.getRecordingStartTime() != RecordingMetadata.NOT_RECORDING;
     }
 
-    private void loadReadings(DataController dataController, final long minToLoad,
+    @VisibleForTesting
+    public void loadReadings(DataController dataController, final long minToLoad,
             final long maxToLoad) {
         int currentTier = mZoomPresenter == null ? 0 : mZoomPresenter.getCurrentTier();
         GraphPopulator graphPopulator = new GraphPopulator(new GraphPopulator.ObservationDisplay() {
@@ -610,11 +651,10 @@ public class ChartController {
                 refreshChartView();
                 callChartDataLoadedCallbacks(minToLoad, maxToLoad);
             }
-        });
-
-        mCurrentLoadIds.add(graphPopulator.requestObservations(
-                GraphPopulator.constantGraphStatus(minToLoad, maxToLoad),
-                dataController, mDataFailureListener, currentTier, mSensorId));
+        }, mUptimeClock);
+        mCurrentLoadIds.add(graphPopulator.getRequestId());
+        graphPopulator.requestObservations(GraphPopulator.constantGraphStatus(minToLoad, maxToLoad),
+                dataController, mDataFailureListener, currentTier, mSensorId);
 
         callChartDataStartLoadingCallbacks();
     }

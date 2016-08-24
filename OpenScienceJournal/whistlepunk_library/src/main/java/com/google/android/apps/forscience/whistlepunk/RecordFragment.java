@@ -31,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -39,7 +40,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -63,12 +63,13 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesActivity;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryListener;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
-import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
@@ -86,7 +87,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
@@ -123,7 +123,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
      * Used as the Run ID for labels that are created when no run is being recorded.
      */
     public static final String NOT_RECORDING_RUN_ID = "NOT_RECORDING";
-    private String mCurrentRunId = NOT_RECORDING_RUN_ID;
 
     private ImageButton mAddButton;
     private ImageButton mRecordButton;
@@ -163,10 +162,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
      * when we resume
      */
     private String mRecorderPauseId;
+    private Vibrator mVibrator;
+    private boolean mRecordingWasCanceled;
 
     public static RecordFragment newInstance() {
-        RecordFragment fragment = new RecordFragment();
-        return fragment;
+        return new RecordFragment();
     }
 
     @Override
@@ -247,6 +247,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             public void take(RecorderController rc) {
                 mRecorderPauseId = rc.pauseObservingAll();
                 rc.removeRecordingStateListener(TAG);
+                rc.removeTriggerFiredListener(TAG);
             }
         });
         AppSingleton.getInstance(getActivity()).removeListeners(TAG);
@@ -256,6 +257,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     private boolean isRecording() {
         return mCurrentRecording != null;
+    }
+
+    private String getCurrentRunId() {
+        return isRecording() ? mCurrentRecording.getRunId() : NOT_RECORDING_RUN_ID;
     }
 
     @Override
@@ -274,9 +279,72 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 rc.addRecordingStateListener(TAG, new RecorderController.RecordingStateListener() {
                     @Override
                     public void onRecordingStateChanged(RecordingMetadata currentRecording) {
+                        RecordingMetadata prevRecording = mCurrentRecording;
+
                         mCurrentRecording = currentRecording;
+                        onRecordingMetadataUpdated();
+                        // If we have switched from a recording state to a not-recording state,
+                        // update the UI.
+                        if (prevRecording != null && !isRecording()) {
+                            mExternalAxis.onStopRecording();
+                            if (!mRecordingWasCanceled) {
+                                onRecordingStopped(prevRecording.getRunId());
+                            }
+                        }
+                        mRecordingWasCanceled = false;
+                    }
+
+                    @Override
+                    public void onRecordingStartFailed(
+                            @RecorderController.RecordingStartErrorType int errorType) {
+                        if (errorType == RecorderController.ERROR_START_FAILED) {
+                            failedStartRecording(R.string.recording_start_failed);
+                        } else if (errorType ==
+                                RecorderController.ERROR_START_FAILED_DISCONNECTED) {
+                            failedStartRecording(R.string.recording_start_failed_disconnected);
+                        }
+                        updateRecordingUIState();
+                    }
+
+                    @Override
+                    public void onRecordingStopFailed(
+                            @RecorderController.RecordingStopErrorType int errorType) {
+                        if (errorType == RecorderController.ERROR_STOP_FAILED_DISCONNECTED) {
+                            failedStopRecording(R.string.recording_stop_failed_disconnected);
+                        } else if (errorType == RecorderController.ERROR_STOP_FAILED_NO_DATA) {
+                            failedStopRecording(R.string.recording_stop_failed_no_data);
+                        } else if (errorType == RecorderController.ERROR_FAILED_SAVE_RECORDING) {
+                            AccessibilityUtils.makeSnackbar(getView(),
+                                    getActivity().getResources().getString(
+                                            R.string.recording_stop_failed_save),
+                                    Snackbar.LENGTH_LONG).show();
+                        }
+                        updateRecordingUIState();
                     }
                 });
+                rc.addTriggerFiredListener(TAG, new RecorderController.TriggerFiredListener() {
+
+                    @Override
+                    public void onTriggerFired(SensorTrigger trigger) {
+                        doVisualAlert(trigger);
+                    }
+
+                    @Override
+                    public void onRequestStartRecording() {
+                        lockUiForRecording((AppCompatActivity) getActivity());
+                    }
+
+                    @Override
+                    public void onLabelAdded(Label label) {
+                        processAddedLabel(label);
+                    }
+
+                    @Override
+                    public void onRequestStopRecording(RecorderController rc) {
+                        updateRecorderControllerLayouts(rc, buildCurrentLayouts());
+                    }
+                });
+
                 if (!rc.resumeObservingAll(mRecorderPauseId)) {
                     // Force a reload of the current experiment's ob
                     mSelectedExperiment = null;
@@ -296,8 +364,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
                                 // The recording UI shows the current experiment in the toolbar,
                                 // so it cannot be set up until experiments are loaded.
-                                setRecordingMetadata(mCurrentRecording);
-                                updateRecordingUIState();
+                                onRecordingMetadataUpdated();
                             }
                         });
 
@@ -394,6 +461,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         });
 
         mRecordButton = (ImageButton) rootView.findViewById(R.id.btn_record);
+
+        // Hide the record button until we have a RecorderController instance it can use.
         mRecordButton.setVisibility(View.INVISIBLE);
         withRecorderController(new Consumer<RecorderController>() {
             @Override
@@ -512,18 +581,42 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         mSensorLayoutsLoaded = true;
                     }
                 });
+        rc.setSelectedExperiment(mSelectedExperiment);
         setControlButtonsEnabled(true);
     }
 
+    private void updateSensorLayout(GoosciSensorLayout.SensorLayout sensorLayout) {
+        if (mSelectedExperiment == null) {
+            return;
+        }
+        int position = getPositionOfLayout(sensorLayout);
+        if (position < 0) {
+            return;
+        }
+        getDataController().updateSensorLayout(mSelectedExperiment.getExperimentId(), position,
+                sensorLayout, LoggingConsumer.<Success>expectSuccess(TAG, "saving layout"));
+    }
 
     private void saveCurrentLayouts() {
-        if (mSelectedExperiment != null && mSensorLayoutsLoaded) {
-            List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
-            if (layouts != null) {
-                getDataController().setSensorLayouts(mSelectedExperiment.getExperimentId(),
-                        layouts, LoggingConsumer.<Success>expectSuccess(TAG, "saving layouts"));
-            }
+        if (mSelectedExperiment == null || !mSensorLayoutsLoaded) {
+            return;
         }
+        final List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
+        if (layouts != null) {
+            getDataController().setSensorLayouts(mSelectedExperiment.getExperimentId(),
+                    layouts, LoggingConsumer.<Success>expectSuccess(TAG, "saving layouts"));
+        }
+        withRecorderController(new Consumer<RecorderController>() {
+            @Override
+            public void take(RecorderController recorderController) {
+                updateRecorderControllerLayouts(recorderController, layouts);
+            }
+        });
+    }
+
+    private void updateRecorderControllerLayouts(RecorderController rc,
+            List<GoosciSensorLayout.SensorLayout> layouts) {
+        rc.setCurrentSensorLayouts(layouts);
     }
 
     private List<GoosciSensorLayout.SensorLayout> buildCurrentLayouts() {
@@ -578,7 +671,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
     }
 
-    private GoosciSensorLayout.SensorLayout defaultLayout() {
+    public static GoosciSensorLayout.SensorLayout defaultLayout() {
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = null;
         layout.cardView = DEFAULT_CARD_VIEW;
@@ -756,7 +849,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
         final SensorCardPresenter sensorCardPresenter = new SensorCardPresenter(
                 new DataViewOptions(nextSensorCardColor, mScalarDisplayOptions),
-                mSensorSettingsController, rc, layout, this);
+                mSensorSettingsController, rc, layout, mSelectedExperiment.getExperimentId(),
+                this);
 
         final SensorStatusListener sensorStatusListener = new SensorStatusListener() {
             @Override
@@ -784,8 +878,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         // Retry streaming.
                         final String sensorId =
                                 sensorCardPresenter.getSelectedSensorId();
-                        if (sensorId != null
-                                && mSensorCardAdapter.getSensorCardPresenters()
+                        if (sensorId != null && mSensorCardAdapter.getSensorCardPresenters()
                                 .contains(sensorCardPresenter)) {
                             sensorCardPresenter.stopObserving();
                             tryStartObserving(sensorCardPresenter, sensorId, true);
@@ -809,12 +902,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     private void tryStartObserving(SensorCardPresenter sensorCardPresenter, String sensorId,
             boolean retry) {
         if (TextUtils.equals(sensorId, DecibelSensor.ID) && mDecibelSensorCardPresenter == null &&
-                !PictureUtils.tryRequestingPermission(getActivity(),
+                !PermissionUtils.tryRequestingPermission(getActivity(),
                         Manifest.permission.RECORD_AUDIO,
                         MainActivity.PERMISSIONS_AUDIO_RECORD_REQUEST, /* force retry */ retry)) {
             // If we did actually try to request the permission, save this sensorCardPresenter.
             // for when the permission is granted.
-            if (PictureUtils.canRequestAgain(getActivity(), Manifest.permission.RECORD_AUDIO)) {
+            if (PermissionUtils.canRequestAgain(getActivity(), Manifest.permission.RECORD_AUDIO)) {
                 if (retry) {
                     // In this case, we had tried requesting permissions, so save this presenter.
                     mDecibelSensorCardPresenter = sensorCardPresenter;
@@ -836,6 +929,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (!retry) {
             mExternalAxis.resetAxes();
         }
+        updateSensorLayout(sensorCardPresenter.buildLayout());
         updateAvailableSensors();
     }
 
@@ -868,7 +962,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void launchLabelAdd(long timestamp) {
-        final AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, mCurrentRunId,
+        String currentRunId = getCurrentRunId();
+        final AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, currentRunId,
                 mSelectedExperiment.getExperimentId(),
                 isRecording() ? R.string.add_run_note_placeholder_text :
                         R.string.add_experiment_note_placeholder_text);
@@ -887,18 +982,22 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         return new LoggingConsumer<Label>(TAG, "store label") {
             @Override
             public void success(Label value) {
-                refreshLabels();
-                ensureUnarchived();
-                playAddNoteAnimation();
-                String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
-                        TrackerConstants.LABEL_OBSERVE;
-                WhistlePunkApplication.getUsageTracker(getActivity())
-                        .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                TrackerConstants.ACTION_CREATE,
-                                trackerLabel,
-                                TrackerConstants.getLabelValueType(value));
+                processAddedLabel(value);
             }
         };
+    }
+
+    private void processAddedLabel(Label label) {
+        refreshLabels();
+        ensureUnarchived(mSelectedExperiment, mSelectedProject, getDataController());
+        playAddNoteAnimation();
+        String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
+                TrackerConstants.LABEL_OBSERVE;
+        WhistlePunkApplication.getUsageTracker(getActivity())
+                .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                        TrackerConstants.ACTION_CREATE,
+                        trackerLabel,
+                        TrackerConstants.getLabelValueType(label));
     }
 
     private void playAddNoteAnimation() {
@@ -928,7 +1027,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 .scaleX(1.0f)
                 .scaleY(1.0f)
                 .alpha(.2f)
-                .setDuration(500)
+                .setDuration(750)
                 .setInterpolator(new DecelerateInterpolator())
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
@@ -961,37 +1060,23 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         mLaunchIntent = new Intent(activity.getIntent());
     }
 
-    private void setRecording(RecordingMetadata recording, RecorderController rc) {
-        if (mLaunchIntent == null) {
-            Log.wtf(TAG, "Somehow recording before ever once attached to activity...");
-            return;
-        }
-        if (recording != null) {
-            rc.startRecording(mLaunchIntent, recording);
-        } else {
-            rc.stopRecording();
-        }
-        setRecordingMetadata(recording);
-        updateRecordingUIState();
-    }
-
-    private void setRecordingMetadata(RecordingMetadata recording) {
-        boolean isRecording = recording != null;
+    private void onRecordingMetadataUpdated() {
+        boolean isRecording = isRecording();
         if (isRecording) {
-            mCurrentRunId = recording.getRunId();
             mExternalAxis.resetAxes();
-            mExternalAxis.onStartRecording(recording.getStartTime());
-            refreshLabels();
+            mExternalAxis.onStartRecording(mCurrentRecording.getStartTime());
         } else {
-            mCurrentRunId = NOT_RECORDING_RUN_ID;
             mExternalAxis.onStopRecording();
         }
+        refreshLabels();
         if (mSensorCardAdapter != null) {
-            mSensorCardAdapter.setRecording(isRecording, RecordingMetadata.getStartTime(recording));
+            mSensorCardAdapter.setRecording(isRecording, RecordingMetadata.getStartTime(
+                    mCurrentRecording));
             if (!isRecording) {
                 adjustSensorCardAddAlpha();
             }
         }
+        updateRecordingUIState();
     }
 
     private String getExperimentName() {
@@ -1057,6 +1142,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                     R.string.btn_record_description));
             mRecordButton.setImageDrawable(getResources().getDrawable(
                     R.drawable.ic_recording_red_40dp));
+            if (mSensorCardAdapter != null) {
+                mSensorCardAdapter.setUiLockedForRecording(false);
+            }
         }
     }
 
@@ -1088,122 +1176,40 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void refreshLabels() {
-        if (mSensorCardAdapter == null) {
+        if (mSensorCardAdapter == null || mSelectedExperiment == null || mExternalAxis == null) {
             return;
         }
-        DataController dataController = getDataController();
-        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            presenter.tryRefreshingLabels(dataController, mExternalAxis, mSelectedExperiment);
-        }
+        getDataController().getLabelsForExperiment(mSelectedExperiment,
+                new LoggingConsumer<List<Label>>(TAG, "retrieving labels") {
+                    @Override
+                    public void success(List<Label> labels) {
+                        for (SensorCardPresenter p : mSensorCardAdapter.getSensorCardPresenters()) {
+                            p.refreshLabels(labels);
+                        }
+                        if (mExternalAxis != null) {
+                            mExternalAxis.onLabelsChanged(labels);
+                        }
+
+                    }
+                });
     }
 
     private void tryStartRecording(final RecorderController rc) {
-        // Check that all sensors are connected before starting a recording.
-        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (!presenter.isConnected()) {
-                failedStartRecording(R.string.recording_start_failed_disconnected, rc);
-                return;
-            }
+        if (mLaunchIntent == null || mSelectedExperiment == null || mSelectedProject == null) {
+            return;
         }
-        final DataController dataController = getDataController();
-        dataController.startRun(mSelectedExperiment,
-                new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
-                    @Override
-                    public void success(ApplicationLabel label) {
-                        setRecording(new RecordingMetadata(label.getTimeStamp(), label.getRunId(),
-                                mSelectedExperiment.getDisplayTitle(getActivity())),
-                                rc);
-                        ensureUnarchived();
-                    }
-
-                    @Override
-                    public void fail(Exception e) {
-                        super.fail(e);
-                        failedStartRecording(R.string.recording_start_failed, rc);
-                    }
-                });
+        rc.startRecording(mLaunchIntent, mSelectedProject);
     }
 
-    private void failedStartRecording(int stringId, RecorderController rc) {
-        mCurrentRunId = NOT_RECORDING_RUN_ID;
-        setRecording(null, rc);
+    private void failedStartRecording(int stringId) {
         Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
                 getActivity().getResources().getString(stringId), Snackbar.LENGTH_LONG);
-        bar.show();
+        showSnackbar(bar);
     }
 
     private void tryStopRecording(final RecorderController rc) {
-        // First check that all sensors have at least one data point. A recording with no
-        // data is invalid.
-        if (mSensorCardAdapter == null) {
-            return;
-        }
-        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (!presenter.hasRecordedData()) {
-                if (!presenter.isConnected()) {
-                    // If a presenter has no data and is also disconnected.
-                    failedStopRecording(R.string.recording_stop_failed_disconnected);
-                } else {
-                    // Otherwise it just has no data.
-                    failedStopRecording(R.string.recording_stop_failed_no_data);
-                }
-                return;
-            }
-        }
-        getDataController().stopRun(mSelectedExperiment, mCurrentRunId, buildCurrentLayouts(),
-                new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
-                    @Override
-                    public void success(ApplicationLabel value) {
-                        refreshLabels();
-                        mCurrentRunId = NOT_RECORDING_RUN_ID;
-
-                        // Record how long this session was.
-                        // TODO: this is sort of ugly using the mExternalAxis to get the start time
-                        // but due to threading, getRecordingStartTime might be null by the time
-                        // we get here.
-                        WhistlePunkApplication.getUsageTracker(getActivity())
-                                .trackEvent(TrackerConstants.CATEGORY_RUNS,
-                                        TrackerConstants.ACTION_CREATE,
-                                        null,
-                                        value.getTimeStamp() - mExternalAxis
-                                                .getRecordingStartTime());
-                        // Record which sensors were recorded.
-                        String[] sensors = getLoggingIds(mSensorCardAdapter.getSensorTags());
-                        Arrays.sort(sensors);
-                        WhistlePunkApplication.getUsageTracker(getActivity())
-                                .trackEvent(TrackerConstants.CATEGORY_RUNS,
-                                        TrackerConstants.ACTION_RECORDED,
-                                        Joiner.on(",").join(sensors),
-                                        0);
-
-                        mExternalAxis.onStopRecording();
-                        setRecording(null, rc);
-                        // no run is currently happening.
-                        onRecordingStopped(value.getRunId());
-                    }
-
-                    @Override
-                    public void fail(Exception e) {
-                        super.fail(e);
-                        setRecording(null, rc);
-                        AccessibilityUtils.makeSnackbar(getView(),
-                                getActivity().getResources().getString(
-                                        R.string.recording_stop_failed_save),
-                                Snackbar.LENGTH_LONG).show();
-                    }
-                });
-    }
-
-    private String[] getLoggingIds(String[] sensorIds) {
-        if (sensorIds == null || sensorIds.length == 0) {
-            return new String[] {};
-        }
-        final int size = sensorIds.length;
-        String[] loggingIds = new String[size];
-        for (int index = 0; index < size; index++) {
-            loggingIds[index] = mSensorRegistry.getLoggingId(sensorIds[index]);
-        }
-        return loggingIds;
+        rc.setCurrentSensorLayouts(buildCurrentLayouts());
+        rc.stopRecording();
     }
 
     private void failedStopRecording(int stringId) {
@@ -1213,11 +1219,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     @Override
-    public void requestStopRecording() {
+    public void requestCancelRecording() {
+        mRecordingWasCanceled = true;
         withRecorderController(new Consumer<RecorderController>() {
             @Override
             public void take(RecorderController rc) {
-                setRecording(null, rc);
+                rc.stopRecordingWithoutSaving();
             }
         });
     }
@@ -1261,7 +1268,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 sensorPresenter.getOptionsPresenter().applyOptions(readOptions);
 
                 sensorCardPresenter.startObserving(sensorChoice, sensorPresenter, readOptions,
-                        new SensorObserver() {
+                        getDataController(), new SensorObserver() {
                             @Override
                             public void onNewData(long timestamp, Bundle value) {
                                 // TODO: Why is there an occasional errant first point when
@@ -1271,12 +1278,83 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                 newDataListener.onNewData(timestamp);
                             }
                         });
-
-                sensorCardPresenter.tryRefreshingLabels(getDataController(), mExternalAxis,
-                        mSelectedExperiment);
+                refreshLabels();
             }
 
         });
+    }
+
+    public void disableAllTriggers(final GoosciSensorLayout.SensorLayout layout,
+            final SensorCardPresenter presenter) {
+        if (mSelectedExperiment == null) {
+            return;
+        }
+        int position = getPositionOfLayout(layout);
+        if (position < 0) {
+            return;
+        }
+        getDataController().updateSensorLayout(mSelectedExperiment.getExperimentId(), position,
+                layout, new LoggingConsumer<Success>(TAG, "disable sensor triggers") {
+                    @Override
+                    public void success(Success value) {
+                        withRecorderController(new Consumer<RecorderController>() {
+                            @Override
+                            public void take(RecorderController recorderController) {
+                                recorderController.clearSensorTriggers(layout.sensorId);
+                                presenter.onSensorTriggersCleared();
+                            }
+                        });
+                    }
+                });
+    }
+
+    private void doVisualAlert(SensorTrigger trigger) {
+        SensorCardPresenter presenter = getPresenterById(trigger.getSensorId());
+        if (presenter == null) {
+            return;
+        }
+
+        // In any of the presenter is visible, go ahead and pass the trigger to it.
+        presenter.onSensorTriggerFired(trigger);
+
+        // Only need to do a snackbar for off-screen visual alerts.
+        if (!trigger.hasAlertType(TriggerInformation.TRIGGER_ALERT_VISUAL)) {
+            return;
+        }
+        // If a snackbar is already being shown, don't show a new one.
+        if (mVisibleSnackbar != null) {
+            return;
+        }
+
+        // Get the presenter's position.
+        final int position = getPositionOfPresenter(presenter);
+
+        // TODO: Work with UX to tweak this check so that the right amount of the card is shown.
+        // Look to see if the card is outside of the visible presenter range. The alert is shown
+        // near the top of the card, so we check between the first fully visible card and the last
+        // partially visible card.
+        if (position < mSensorCardLayoutManager.findFirstCompletelyVisibleItemPosition() ||
+                position > mSensorCardLayoutManager.findLastVisibleItemPosition()) {
+
+            SensorAppearance appearance = AppSingleton.getInstance(getActivity())
+                    .getSensorAppearanceProvider().getAppearance(trigger.getSensorId());
+            String units = appearance.getUnits(getActivity());
+            String sensorName = appearance.getName(getActivity());
+            String triggerWhenText = getActivity().getResources().getStringArray(
+                    R.array.trigger_when_list_note_text)[trigger.getTriggerWhen()];
+            String message = getActivity().getResources().getString(
+                    R.string.trigger_snackbar_auto_text, sensorName, triggerWhenText,
+                    trigger.getValueToTrigger(), units);
+            final Snackbar bar = AccessibilityUtils.makeSnackbar(getView(), message,
+                    Snackbar.LENGTH_LONG);
+            bar.setAction(R.string.scroll_to_card, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mSensorCardLayoutManager.scrollToPosition(position);
+                }
+            });
+            showSnackbar(bar);
+        }
     }
 
     /**
@@ -1306,8 +1384,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (getActivity() == null) {
             return;
         }
-        List<String> sensorsActuallyAdded = mSensorRegistry
-                .replaceExternalSensors(sensors);
+        List<String> sensorsActuallyAdded = mSensorRegistry.updateExternalSensors(sensors,
+                AppSingleton.getInstance(getActivity()).getExternalSensorProviders());
 
         if (!sensorsActuallyAdded.isEmpty()) {
             boolean discoveryEnabled = mFeatureDiscoveryProvider.isEnabled(
@@ -1393,7 +1471,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
         inflater.inflate(R.menu.menu_record, menu);
         boolean enableDevTools = DevOptionsFragment.isDevToolsEnabled(getActivity());
-        menu.findItem(R.id.action_graph_options).setVisible(enableDevTools);
+        menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
         menu.findItem(R.id.action_level).setVisible(enableDevTools);
         menu.findItem(R.id.action_ruler).setVisible(enableDevTools);
         super.onCreateOptionsMenu(menu, inflater);
@@ -1461,31 +1539,30 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
      * Ensures that the project and experiment are unarchived, in case we make a new run or label
      * on them.
      */
-    private void ensureUnarchived() {
-        if (mSelectedExperiment != null) {
-            if (mSelectedExperiment.isArchived()) {
-                mSelectedExperiment.setArchived(false);
-                getDataController().updateExperiment(mSelectedExperiment,
+    public static void ensureUnarchived(Experiment experiment, Project project, DataController dc) {
+        if (experiment != null) {
+            if (experiment.isArchived()) {
+                experiment.setArchived(false);
+                dc.updateExperiment(experiment,
                         LoggingConsumer.<Success>expectSuccess(TAG, "Unarchiving experiment"));
             }
-            if (mSelectedProject != null) {
-                if (mSelectedExperiment.getProjectId().equals(mSelectedProject.getProjectId())) {
+            if (project != null) {
+                if (experiment.getProjectId().equals(project.getProjectId())) {
                     // Make sure we have the right project.
-                    if (mSelectedProject.isArchived()) {
-                        mSelectedProject.setArchived(false);
-                        getDataController().updateProject(mSelectedProject,
+                    if (project.isArchived()) {
+                        project.setArchived(false);
+                        dc.updateProject(project,
                                 LoggingConsumer.<Success>expectSuccess(TAG, "Unarchiving project"));
                     }
                 } else {
                     throw new IllegalStateException("Selected project "
-                            + mSelectedProject.getProjectId()
+                            + project.getProjectId()
                             + " is not the right parent of selected experiment "
-                            + mSelectedExperiment.getExperimentId()
-                            + " (should be " + mSelectedExperiment.getProjectId() + ")");
+                            + experiment.getExperimentId()
+                            + " (should be " + experiment.getProjectId() + ")");
                 }
             }
         }
-
     }
 
     @Override
@@ -1500,34 +1577,69 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     public void onAudioSettingsPreview(String[] previewSonificationTypes, String[] sensorIds) {
         // During observe, audio settings are only set for one card at a time, so sensorIds is
         // length 1.
-        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (presenter.getSelectedSensorId().equals(sensorIds[0])) {
-                presenter.onAudioSettingsPreview(previewSonificationTypes[0]);
-                return;
-            }
+        SensorCardPresenter presenter = getPresenterById(sensorIds[0]);
+        if (presenter == null) {
+            return;
         }
+        presenter.onAudioSettingsPreview(previewSonificationTypes[0]);
     }
 
     @Override
     public void onAudioSettingsApplied(String[] newSonificationTypes, String[] sensorIds) {
         // During record, audio settings are only set for one card at a time, so sensorIds is length 1.
-        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (presenter.getSelectedSensorId().equals(sensorIds[0])) {
-                presenter.onAudioSettingsApplied(newSonificationTypes[0]);
-                return;
-            }
+        SensorCardPresenter presenter = getPresenterById(sensorIds[0]);
+        if (presenter == null) {
+            return;
         }
+        presenter.onAudioSettingsApplied(newSonificationTypes[0]);
     }
 
     @Override
     public void onAudioSettingsCanceled(String[] originalSonificationTypes, String[] sensorIds) {
         // During record, audio settings are only set for one card at a time, so sensorIds is length 1.
-        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
-            if (presenter.getSelectedSensorId().equals(sensorIds[0])) {
-                presenter.onAudioSettingsCanceled(originalSonificationTypes[0]);
-                return;
+        SensorCardPresenter presenter = getPresenterById(sensorIds[0]);
+        if (presenter == null) {
+            return;
+        }
+        presenter.onAudioSettingsCanceled(originalSonificationTypes[0]);
+    }
+
+    public int getPositionOfLayout(GoosciSensorLayout.SensorLayout layout) {
+        if (mSensorCardAdapter == null) {
+            return -1;
+        }
+        List<SensorCardPresenter> presenters = mSensorCardAdapter.getSensorCardPresenters();
+        for (int i = 0; i < presenters.size(); i++) {
+            if (TextUtils.equals(presenters.get(i).getSelectedSensorId(), layout.sensorId)) {
+                return i;
             }
         }
+        return -1;
+    }
+
+    public int getPositionOfPresenter(SensorCardPresenter presenter) {
+        if (mSensorCardAdapter == null) {
+            return -1;
+        }
+        List<SensorCardPresenter> presenters = mSensorCardAdapter.getSensorCardPresenters();
+        for (int i = 0; i < presenters.size(); i++) {
+            if (Objects.equals(presenter, presenters.get(i))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private SensorCardPresenter getPresenterById(String sensorId) {
+        if (mSensorCardAdapter == null) {
+            return null;
+        }
+        for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
+            if (presenter.getSelectedSensorId().equals(sensorId)) {
+                return presenter;
+            }
+        }
+        return null;
     }
 
     private static class ExperimentsSpinnerAdapter extends ArrayAdapter<Experiment> {
@@ -1571,6 +1683,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void showSnackbar(Snackbar bar) {
+        // TODO: UX asks for the Snackbar to be shown above the external axis...
+        // may need to do a custom snackbar class.
         bar.setCallback(new Snackbar.Callback() {
 
             @Override

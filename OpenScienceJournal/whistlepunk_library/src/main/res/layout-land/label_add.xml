@@ -30,6 +30,7 @@
         >
 
         <EditText
+            android:imeOptions="flagNoExtractUi"
             android:id="@+id/edit_note_text"
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -39,6 +40,7 @@
             android:layout_marginTop="@dimen/edit_note_image_button_margin"
             android:layout_marginBottom="@dimen/edit_note_textedit_margin_bottom"
             android:hint="@string/add_run_note_placeholder_text"
+            android:maxLines="@integer/label_edit_max_lines"
             />
 
         <ImageButton

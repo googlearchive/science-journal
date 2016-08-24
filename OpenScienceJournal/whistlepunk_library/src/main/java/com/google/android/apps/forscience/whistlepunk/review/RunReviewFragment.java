@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -34,7 +33,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -59,8 +57,8 @@ import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
 import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
@@ -75,7 +73,6 @@ import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
-import com.google.android.apps.forscience.whistlepunk.audiogen.SimpleJsynAudioGenerator;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
@@ -521,15 +518,18 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (mExperimentRun == null || mCurrentSensorStats == null) {
             return;
         }
+        double yMin = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MIN);
+        double yMax = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MAX);
         if (mExperimentRun.getAutoZoomEnabled()) {
-            double yMin = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MIN);
-            double yMax = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MAX);
             mChartController.setYAxisWithBuffer(yMin, yMax);
         } else {
             GoosciSensorLayout.SensorLayout layout =
                     mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
-            mChartController.setYAxis(layout.minimumYAxisValue,
-                    layout.maximumYAxisValue);
+            // Don't zoom in more than the recorded data.
+            // The layout's min/max y value may be too small to show the recorded data when
+            // recording happened in the background and was stopped by a trigger.
+            mChartController.setYAxis(Math.min(layout.minimumYAxisValue, yMin),
+                    Math.max(layout.maximumYAxisValue, yMax));
         }
         mChartController.refreshChartView();
         // Redraw the thumb after the chart is updated.
@@ -568,10 +568,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         pinnedNoteList.setLayoutManager(layoutManager);
 
-        final List<TextLabel> textNotes = run.getPinnedNotes();
-        final List<PictureLabel> pictureNotes = run.getPictureLabels();
-        final ArrayList<Label> combinedNotes = combinePinnedNotes(textNotes, pictureNotes);
-        mPinnedNoteAdapter = new PinnedNoteAdapter(combinedNotes, run.getFirstTimestamp());
+        sortPinnedNotes(run.getPinnedNotes());
+        mPinnedNoteAdapter = new PinnedNoteAdapter(run.getPinnedNotes(), run.getFirstTimestamp());
         mPinnedNoteAdapter.setListItemModifyListener(new PinnedNoteAdapter.ListItemEditListener() {
             @Override
             public void onListItemEdit(final Label item) {
@@ -587,8 +585,13 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
                 // On undo, re-add the item to the database and the pinned note list.
                 bar.setAction(R.string.snackbar_undo, new View.OnClickListener() {
+                    boolean mUndone = false;
                     @Override
                     public void onClick(View v) {
+                        if (mUndone) {
+                            return;
+                        }
+                        mUndone = true;
                         Label label;
                         if (item instanceof TextLabel) {
                             String title = ((TextLabel) item).getText();
@@ -598,8 +601,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                             label = new PictureLabel(((PictureLabel) item).getFilePath(),
                                     ((PictureLabel) item).getCaption(), dc.generateNewLabelId(),
                                     item.getRunId(), item.getTimeStamp());
+                        } else if (item instanceof SensorTriggerLabel) {
+                            label = new SensorTriggerLabel(dc.generateNewLabelId(),
+                                    item.getRunId(), item.getTimeStamp(), item.getValue());
                         } else {
-                            // Not a picture or a text label.
+                            // Not a known label type
                             return;
                         }
                         label.setExperimentId(item.getExperimentId());
@@ -637,10 +643,13 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mPinnedNoteAdapter.setListItemClickListener(new PinnedNoteAdapter.ListItemClickListener() {
             @Override
             public void onListItemClicked(Label item) {
-                if (item instanceof PictureLabel) {
-                    PictureLabel pictureLabel = (PictureLabel) item;
-                    launchPicturePreview(pictureLabel);
-                }
+                // TODO: Animate to the active timestamp.
+                mRunReviewOverlay.setActiveTimestamp(item.getTimeStamp());
+            }
+
+            @Override
+            public void onPictureItemClicked(PictureLabel item) {
+                launchPicturePreview(item);
             }
         });
         pinnedNoteList.setAdapter(mPinnedNoteAdapter);
@@ -1178,19 +1187,13 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         return AppSingleton.getInstance(getActivity()).getDataController();
     }
 
-    // Combines two lists of notes into one list in chronological order.
-    private ArrayList<Label> combinePinnedNotes(List<TextLabel> textNotes,
-                                                List<PictureLabel> pictureNotes) {
-        ArrayList<Label> pinnedNotes = new ArrayList<>();
-        pinnedNotes.addAll(textNotes);
-        pinnedNotes.addAll(pictureNotes);
-        Collections.sort(pinnedNotes, new Comparator<Label>() {
+    private void sortPinnedNotes(List<Label> notes) {
+        Collections.sort(notes, new Comparator<Label>() {
             @Override
             public int compare(Label lhs, Label rhs) {
                 return (int) (lhs.getTimeStamp() - rhs.getTimeStamp());
             }
         });
-        return pinnedNotes;
     }
 
 

@@ -106,6 +106,8 @@ public abstract class Label implements Parcelable {
         return mRunId;
     }
 
+    public abstract boolean canEditTimestamp();
+
     @Override
     public int describeContents() {
         return 0;

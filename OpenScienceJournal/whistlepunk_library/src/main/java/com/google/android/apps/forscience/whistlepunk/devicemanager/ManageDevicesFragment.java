@@ -38,7 +38,6 @@ import com.google.android.apps.forscience.whistlepunk.PreferenceProgressCategory
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.common.base.Joiner;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.HashMap;
@@ -143,7 +142,7 @@ public class ManageDevicesFragment extends PreferenceFragment {
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
         if (preference.getKey() != null) {
-            if (!preference.getExtras().getBoolean(EXTRA_KEY_PAIRED)) {
+            if (!getIsPairedFromPreference(preference)) {
                 addExternalSensorIfNecessary(preference);
             } else {
                 showDeviceOptions(preference);
@@ -151,6 +150,10 @@ public class ManageDevicesFragment extends PreferenceFragment {
             return true;
         }
         return false;
+    }
+
+    public static boolean getIsPairedFromPreference(Preference preference) {
+        return preference.getExtras().getBoolean(EXTRA_KEY_PAIRED);
     }
 
     @Override
@@ -225,6 +228,13 @@ public class ManageDevicesFragment extends PreferenceFragment {
             public void addAvailableSensorPreference(Preference newPref) {
                 mAvailableDevices.addPreference(newPref);
             }
+
+            @Override
+            public void onScanError(Exception e) {
+                if (Log.isLoggable(TAG, Log.ERROR)) {
+                    Log.e(TAG, "Exception when discovering sensors", e);
+                }
+            }
         };
 
         boolean started = false;
@@ -240,14 +250,21 @@ public class ManageDevicesFragment extends PreferenceFragment {
     @NonNull
     public static Preference makePreference(String name, String address, String type,
             boolean paired, Context context) {
-        oopsLog("ManageDevicesFragment#makePreference", "name=" + name, "address=" + address,
-                "type=" + type, "paired=" + paired, "context=" + context);
-        Preference device = new Preference(context);
-        device.setTitle(name);
-        device.setKey(address);
-        device.getExtras().putBoolean(EXTRA_KEY_PAIRED, paired);
-        device.getExtras().putString(EXTRA_KEY_TYPE, type);
-        return device;
+        Preference pref = new Preference(context);
+        pref.setTitle(name);
+        pref.setKey(address);
+        pref.getExtras().putBoolean(EXTRA_KEY_PAIRED, paired);
+        pref.getExtras().putString(EXTRA_KEY_TYPE, type);
+        return pref;
+    }
+
+    @NonNull
+    public static String getNameFromPreference(Preference preference) {
+        return preference.getTitle().toString();
+    }
+
+    public static String getAddressFromPreference(Preference preference) {
+        return preference.getKey();
     }
 
     private void scanForDevices() {
@@ -306,10 +323,20 @@ public class ManageDevicesFragment extends PreferenceFragment {
         // TODO: probably shouldn't finish in these cases, instead go into
         // sensor editing.
 
-        String sensorType = preference.getExtras().getString(EXTRA_KEY_TYPE);
+        String sensorType = getTypeFromPreference(preference);
+        if (sensorType == null) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "No sensor type for preference");
+            }
+            return;
+        }
         ExternalSensorDiscoverer discoverer = mDiscoverers.get(sensorType);
-        oopsLog("ManageDevicesFragment#addExternalSensorIfNecessary", "preference=" + preference,
-                "sensorType=" + sensorType, "discoverer=" + discoverer);
+        if (discoverer == null) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "No discoverer for sensor type: " + sensorType);
+            }
+            return;
+        }
         final ExternalSensorSpec sensor = discoverer.extractSensorSpec(preference);
         mDataController.addOrGetExternalSensor(sensor,
                 new LoggingConsumer<String>(TAG, "ensure sensor") {
@@ -329,10 +356,8 @@ public class ManageDevicesFragment extends PreferenceFragment {
                 });
     }
 
-    private static void oopsLog(String methodName, String... params) {
-        // OOPS: delete!
-        String paramString = Joiner.on(", " + "").join(params);
-        Log.e("OOPS", methodName + "(" + paramString + ")");
+    public static String getTypeFromPreference(Preference preference) {
+        return preference.getExtras().getString(EXTRA_KEY_TYPE);
     }
 
     private void reloadAppearancesAndShowOptions(final ExternalSensorSpec sensor,
@@ -348,7 +373,7 @@ public class ManageDevicesFragment extends PreferenceFragment {
     }
 
     private void updateSummary(Preference preference, ExternalSensorSpec sensor) {
-        preference.setSummary(sensor.getSensorAppearance().getNameResource());
+        preference.setSummary(sensor.getSensorAppearance().getName(preference.getContext()));
     }
 
     private void showDeviceOptions(Preference preference) {
@@ -358,8 +383,8 @@ public class ManageDevicesFragment extends PreferenceFragment {
     }
 
     private void showDeviceOptions(String experimentId, String address, String sensorId) {
-        DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId, address,
-                sensorId);
+        DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId,
+                address, sensorId);
         dialog.show(getFragmentManager(), "edit_device");
     }
 }

@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.analytics;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 
 /**
@@ -42,6 +43,8 @@ public final class TrackerConstants {
     public static final String SCREEN_DEVICE_MANAGER = "device_manager";
     public static final String SCREEN_DEVICE_OPTIONS = "device_options";
     public static final String SCREEN_UPDATE_RUN = "run_update";
+    public static final String SCREEN_TRIGGER_LIST = "trigger_list";
+    public static final String SCREEN_TRIGGER_EDIT = "trigger_edit";
 
     // Custom dimension indices.
     public static final int DIMENSION_MODE = 1;
@@ -53,6 +56,7 @@ public final class TrackerConstants {
     public static final String CATEGORY_RUNS = "Runs";
     public static final String CATEGORY_NOTES = "Notes";
     public static final String CATEGORY_APP = "App";
+    public static final String CATEGORY_TRIGGERS = "Triggers";
 
     // Event actions
     public static final String ACTION_CREATE = "Create";
@@ -77,6 +81,7 @@ public final class TrackerConstants {
     // Values
     public static final long VALUE_TYPE_TEXT = 0;
     public static final long VALUE_TYPE_PICTURE = 1;
+    public static final long VALUE_TYPE_SENSOR_TRIGGER = 2;
 
     private TrackerConstants() {}
 
@@ -88,6 +93,8 @@ public final class TrackerConstants {
             return TrackerConstants.VALUE_TYPE_PICTURE;
         } else if (label instanceof TextLabel) {
             return TrackerConstants.VALUE_TYPE_TEXT;
+        } else if (label instanceof SensorTriggerLabel) {
+            return TrackerConstants.VALUE_TYPE_SENSOR_TRIGGER;
         } else {
             throw new IllegalArgumentException("Label type is not supported for logging.");
         }

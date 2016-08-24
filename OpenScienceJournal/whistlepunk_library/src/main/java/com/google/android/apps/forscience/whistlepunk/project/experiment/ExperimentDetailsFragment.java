@@ -59,6 +59,7 @@ import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
@@ -460,8 +461,13 @@ public class ExperimentDetailsFragment extends Fragment
 
         // On undo, re-add the item to the database and the pinned note list.
         bar.setAction(R.string.snackbar_undo, new View.OnClickListener() {
+            boolean mUndone = false;
             @Override
             public void onClick(View v) {
+                if (mUndone) {
+                    return;
+                }
+                mUndone = true;
                 Label label;
                 if (item instanceof TextLabel) {
                     String title = "";
@@ -472,8 +478,11 @@ public class ExperimentDetailsFragment extends Fragment
                     label = new PictureLabel(((PictureLabel) item).getFilePath(),
                             ((PictureLabel) item).getCaption(), dc.generateNewLabelId(),
                             item.getRunId(), item.getTimeStamp());
+                } else if (item instanceof SensorTriggerLabel) {
+                    label = new SensorTriggerLabel(dc.generateNewLabelId(),
+                            item.getRunId(), item.getTimeStamp(), item.getValue());
                 } else {
-                    // This is not a picture label or a text label.
+                    // This is not a label we know how to deal with.
                     return;
                 }
                 label.setExperimentId(item.getExperimentId());
@@ -551,6 +560,7 @@ public class ExperimentDetailsFragment extends Fragment
         private static final int VIEW_TYPE_EXPERIMENT_PICTURE_LABEL = 2;
         private static final int VIEW_TYPE_RUN_CARD = 3;
         private static final int VIEW_TYPE_EMPTY = 4;
+        private static final int VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL = 5;
 
         private final WeakReference<ExperimentDetailsFragment> mParentReference;
         private Experiment mExperiment;
@@ -571,7 +581,8 @@ public class ExperimentDetailsFragment extends Fragment
             View view;
             LayoutInflater inflater =  LayoutInflater.from(parent.getContext());
             if (viewType == VIEW_TYPE_EXPERIMENT_TEXT_LABEL ||
-                    viewType == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL) {
+                    viewType == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL ||
+                    viewType == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL) {
                 view = inflater.inflate(R.layout.exp_card_pinned_note, parent, false);
             } else if (viewType == VIEW_TYPE_EXPERIMENT_DESCRIPTION) {
                 view = inflater.inflate(R.layout.metadata_description, parent, false);
@@ -591,13 +602,18 @@ public class ExperimentDetailsFragment extends Fragment
                 bindRun(holder, item);
             }
             boolean isPictureLabel = type == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
-            if (isPictureLabel || type == VIEW_TYPE_EXPERIMENT_TEXT_LABEL) {
+            boolean isTextLabel = type == VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
+            boolean isTriggerLabel = type == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
+            if (isPictureLabel || isTextLabel || isTriggerLabel) {
                 // TODO: Can this code be reused from PinnedNoteAdapter?
                 TextView textView = (TextView) holder.itemView.findViewById(R.id.note_text);
+                TextView autoText = (TextView) holder.itemView.findViewById(R.id.auto_note_text);
                 final Label label = isPictureLabel ? mItems.get(position).mPictureLabel :
-                        mItems.get(position).mTextLabel;
-                String text = isPictureLabel ? ((PictureLabel) label).getCaption() :
-                        ((TextLabel) label).getText();
+                        isTextLabel ? mItems.get(position).mTextLabel :
+                                mItems.get(position).mSensorTriggerLabel;
+                String text = isPictureLabel ? ((PictureLabel) label).getCaption() : isTextLabel ?
+                        ((TextLabel) label).getText() :
+                        ((SensorTriggerLabel) label).getCustomText();
                 if (!TextUtils.isEmpty(text)) {
                     textView.setText(text);
                     textView.setTextColor(textView.getResources().getColor(
@@ -631,9 +647,9 @@ public class ExperimentDetailsFragment extends Fragment
                         }
                     };
                     holder.itemView.setOnClickListener(clickListener);
+                    autoText.setVisibility(View.GONE);
                 } else {
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
-
                         @Override
                         public void onClick(View v) {
                             if (mParentReference.get() != null) {
@@ -643,6 +659,10 @@ public class ExperimentDetailsFragment extends Fragment
                         }
                     });
                     imageView.setVisibility(View.GONE);
+                    if (isTriggerLabel) {
+                        autoText.setVisibility(View.VISIBLE);
+                        autoText.setText(((SensorTriggerLabel) label).getAutogenText());
+                    }
                 }
             }
             if (type == VIEW_TYPE_EXPERIMENT_DESCRIPTION) {
@@ -695,7 +715,8 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         public void replaceLabelText(Label label) {
-            if (!(label instanceof TextLabel || label instanceof PictureLabel)) {
+            if (!(label instanceof TextLabel || label instanceof PictureLabel ||
+                    label instanceof SensorTriggerLabel)) {
                 if (Log.isLoggable(TAG, Log.WARN)) {
                     Log.w(TAG, "How did we try to replace text on a non-text label?");
                 }
@@ -709,6 +730,9 @@ public class ExperimentDetailsFragment extends Fragment
                 mItems.get(position).mTextLabel.setText(((TextLabel) label).getText());
             } else if (label instanceof PictureLabel) {
                 mItems.get(position).mPictureLabel.setCaption(((PictureLabel) label).getCaption());
+            } else if (label instanceof SensorTriggerLabel) {
+                mItems.get(position).mSensorTriggerLabel.setCustomText(
+                        ((SensorTriggerLabel) label).getCustomText());
             }
             notifyItemChanged(position);
         }
@@ -724,14 +748,17 @@ public class ExperimentDetailsFragment extends Fragment
 
         private int findLabelIndex(Label label) {
             int expectedViewType = label instanceof TextLabel ?
-                    VIEW_TYPE_EXPERIMENT_TEXT_LABEL : VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
+                    VIEW_TYPE_EXPERIMENT_TEXT_LABEL : label instanceof PictureLabel ?
+                    VIEW_TYPE_EXPERIMENT_PICTURE_LABEL : VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
             int position = -1;
             int size = mItems.size();
             for (int i = 0; i < size; i++) {
                 ExperimentDetailItem item = mItems.get(i);
                 if (item.getViewType() == expectedViewType) {
                     Label itemLabel =
-                            label instanceof TextLabel ? item.mTextLabel : item.mPictureLabel;
+                            label instanceof TextLabel ? item.mTextLabel :
+                                    label instanceof PictureLabel ? item.mPictureLabel :
+                                            item.mSensorTriggerLabel;
                     if (TextUtils.equals(label.getLabelId(), itemLabel.getLabelId())) {
                         position = i;
                         break;
@@ -1117,12 +1144,12 @@ public class ExperimentDetailsFragment extends Fragment
          * TODO: might be able to rework this when Run objects exist.
          */
         public static class ExperimentDetailItem {
-
             private final int mViewType;
             private ExperimentRun mRun;
             private int mSensorTagIndex = -1;
             private TextLabel mTextLabel;
             private PictureLabel mPictureLabel;
+            private SensorTriggerLabel mSensorTriggerLabel;
             private long mTimestamp;
             private ChartController mChartController;
 
@@ -1137,16 +1164,20 @@ public class ExperimentDetailsFragment extends Fragment
             }
 
             public static boolean canShowLabel(Label label) {
-                return label instanceof TextLabel || label instanceof PictureLabel;
+                return label instanceof TextLabel || label instanceof PictureLabel ||
+                        label instanceof SensorTriggerLabel;
             }
 
             ExperimentDetailItem(Label label) {
                 if (label instanceof TextLabel) {
                     mTextLabel = (TextLabel) label;
                     mViewType = VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
-                } else {
+                } else if (label instanceof PictureLabel) {
                     mPictureLabel = (PictureLabel) label;
                     mViewType = VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
+                } else {
+                    mSensorTriggerLabel = (SensorTriggerLabel) label;
+                    mViewType = VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
                 }
                 mTimestamp = label.getTimeStamp();
             }

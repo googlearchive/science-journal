@@ -33,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.Run;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -53,16 +54,20 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     private MetaDataManager mMetaDataManager;
     private Clock mClock;
     private Map<String, FailureListener> mSensorFailureListeners = new HashMap<>();
+    private final Map<String, ExternalSensorProvider> mProviderMap;
+    private long mPrevLabelTimestamp = 0;
 
     public DataControllerImpl(SensorDatabase sensorDatabase, Executor uiThread,
             Executor metaDataThread,
-            Executor sensorDataThread, MetaDataManager metaDataManager, Clock clock) {
+            Executor sensorDataThread, MetaDataManager metaDataManager, Clock clock,
+            Map<String, ExternalSensorProvider> providerMap) {
         mSensorDatabase = sensorDatabase;
         mUiThread = uiThread;
         mMetaDataThread = metaDataThread;
         mSensorDataThread = sensorDataThread;
         mMetaDataManager = metaDataManager;
         mClock = clock;
+        mProviderMap = providerMap;
     }
 
     public void replaceSensorInExperiment(final String experimentId, final String oldSensorId,
@@ -79,14 +84,14 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     private void replaceIdInLayouts(String experimentId, String oldSensorId, String newSensorId) {
-        List<GoosciSensorLayout.SensorLayout> layouts = mMetaDataManager.getExperimentSensorLayout(
+        List<GoosciSensorLayout.SensorLayout> layouts = mMetaDataManager.getExperimentSensorLayouts(
                 experimentId);
         for (GoosciSensorLayout.SensorLayout layout : layouts) {
             if (layout.sensorId.equals(oldSensorId)) {
                 layout.sensorId = newSensorId;
             }
         }
-        mMetaDataManager.setExperimentSensorLayout(experimentId, layouts);
+        mMetaDataManager.setExperimentSensorLayouts(experimentId, layouts);
     }
 
     public void stopRun(final Experiment experiment, final String runId,
@@ -294,7 +299,13 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     @Override
     public String generateNewLabelId() {
-        return "label_" + System.currentTimeMillis();
+        long nextLabelTimestamp = mClock.getNow();
+        if (nextLabelTimestamp <= mPrevLabelTimestamp) {
+            // Make sure we never use the same label ID twice.
+            nextLabelTimestamp = mPrevLabelTimestamp + 1;
+        }
+        mPrevLabelTimestamp = nextLabelTimestamp;
+        return "label_" + nextLabelTimestamp;
     }
 
     // TODO(saff): test
@@ -403,7 +414,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<Map<String, ExternalSensorSpec>>() {
             @Override
             public Map<String, ExternalSensorSpec> call() throws Exception {
-                return mMetaDataManager.getExternalSensors();
+                return mMetaDataManager.getExternalSensors(mProviderMap);
             }
         });
     }
@@ -414,7 +425,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<Map<String, ExternalSensorSpec>>() {
             @Override
             public Map<String, ExternalSensorSpec> call() throws Exception {
-                return mMetaDataManager.getExperimentExternalSensors(experimentId);
+                return mMetaDataManager.getExperimentExternalSensors(experimentId, mProviderMap);
             }
         });
     }
@@ -426,7 +437,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<ExternalSensorSpec>() {
             @Override
             public ExternalSensorSpec call() throws Exception {
-                return mMetaDataManager.getExternalSensorById(id);
+                return mMetaDataManager.getExternalSensorById(id, mProviderMap);
             }
         });
     }
@@ -577,7 +588,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {
-                mMetaDataManager.setExperimentSensorLayout(experimentId, layouts);
+                mMetaDataManager.setExperimentSensorLayouts(experimentId, layouts);
                 return Success.SUCCESS;
             }
         });
@@ -591,8 +602,20 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             @Override
             public List<GoosciSensorLayout.SensorLayout> call() throws Exception {
                 List<GoosciSensorLayout.SensorLayout> sensorLayout =
-                        mMetaDataManager.getExperimentSensorLayout(experimentId);
+                        mMetaDataManager.getExperimentSensorLayouts(experimentId);
                 return sensorLayout;
+            }
+        });
+    }
+
+    @Override
+    public void updateSensorLayout(final String experimentId, final int position,
+            final GoosciSensorLayout.SensorLayout layout, MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            @Override
+            public Success call() throws Exception {
+                mMetaDataManager.updateSensorLayout(experimentId, position, layout);
+                return Success.SUCCESS;
             }
         });
     }
@@ -603,7 +626,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSensorId, new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return mMetaDataManager.addOrGetExternalSensor(sensor);
+                return mMetaDataManager.addOrGetExternalSensor(sensor, mProviderMap);
             }
         });
     }
@@ -629,6 +652,63 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                         }
                     });
                 }
+            }
+        });
+    }
+
+
+    @Override
+    public void addSensorTrigger(final SensorTrigger trigger, final String experimentId,
+            MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            @Override
+            public Success call() throws Exception {
+                mMetaDataManager.addSensorTrigger(trigger, experimentId);
+                return Success.SUCCESS;
+            }
+        });
+    }
+
+    @Override
+    public void updateSensorTrigger(final SensorTrigger trigger, MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            @Override
+            public Success call() throws Exception {
+                mMetaDataManager.updateSensorTrigger(trigger);
+                return Success.SUCCESS;
+            }
+        });
+    }
+
+    @Override
+    public void getSensorTriggers(final String[] triggerIds,
+            MaybeConsumer<List<SensorTrigger>> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<List<SensorTrigger>>() {
+            @Override
+            public List<SensorTrigger> call() throws Exception {
+                return mMetaDataManager.getSensorTriggers(triggerIds);
+            }
+        });
+    }
+
+    @Override
+    public void getSensorTriggersForSensor(final String sensorId,
+            MaybeConsumer<List<SensorTrigger>> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<List<SensorTrigger>>() {
+            @Override
+            public List<SensorTrigger> call() throws Exception {
+                return mMetaDataManager.getSensorTriggersForSensor(sensorId);
+            }
+        });
+    }
+
+    @Override
+    public void deleteSensorTrigger(final SensorTrigger trigger, MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            @Override
+            public Success call() throws Exception {
+                mMetaDataManager.deleteSensorTrigger(trigger);
+                return Success.SUCCESS;
             }
         });
     }

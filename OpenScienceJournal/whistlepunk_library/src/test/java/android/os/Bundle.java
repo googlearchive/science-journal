@@ -36,4 +36,8 @@ public class Bundle {
     public double getDouble(String key) {
         return Double.parseDouble(mValues.get(key));
     }
+
+    public boolean containsKey(String key) {
+        return mValues.containsKey(key);
+    }
 }

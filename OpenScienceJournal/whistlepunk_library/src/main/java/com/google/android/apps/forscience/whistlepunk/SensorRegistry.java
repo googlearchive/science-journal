@@ -20,27 +20,30 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.ArrayMap;
+import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensors.AccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientTemperatureSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -49,32 +52,13 @@ import java.util.Set;
  */
 // TODO: Move more functionality into SensorCardPresenter.
 public class SensorRegistry {
-    public interface ExternalSensorProvider {
-        public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec);
-
-        String getProviderId();
-    }
-
-    private Map<String, ExternalSensorProvider> mExternalProviders = new ArrayMap<>();
-
     public static final String WP_NATIVE_BLE_PROVIDER_ID =
             "com.google.android.apps.forscience.whistlepunk.ble";
 
     public static final String WP_HARDWARE_PROVIDER_ID =
             "com.google.android.apps.forscience.whistlepunk.hardware";
 
-    private static final ExternalSensorProvider WINDMILL_PROVIDER = new ExternalSensorProvider() {
-        @Override
-        public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
-            return new BluetoothSensor(sensorId, (BleSensorSpec) spec,
-                    BluetoothSensor.ANNING_SERVICE_SPEC);
-        }
-
-        @Override
-        public String getProviderId() {
-            return WP_NATIVE_BLE_PROVIDER_ID;
-        }
-    };
+    private static final String TAG = "SensorRegistry";
 
     private static class SensorRegistryItem {
         public String providerId;
@@ -83,7 +67,7 @@ public class SensorRegistry {
 
         public SensorRegistryItem(String providerId, SensorChoice choice, String loggingId) {
             this.providerId = providerId;
-            this.choice = choice;
+            this.choice = Preconditions.checkNotNull(choice);
             this.loggingId = loggingId;
         }
     }
@@ -91,21 +75,37 @@ public class SensorRegistry {
     private Map<String, SensorRegistryItem> mSensorRegistry = new ArrayMap<>();
     private Multimap<String, Consumer<SensorChoice>> mWaitingSensorChoiceOperations =
             HashMultimap.create();
-    private ExternalSensorListener mExternalSensorListener;
+    private SensorRegistryListener mSensorRegistryListener;
     private Map<String, ExternalSensorSpec> mMostRecentExternalSensors;
 
-    public static SensorRegistry createWithBuiltinSensors(Context context) {
-        SensorRegistry sc = new SensorRegistry();
+    public static SensorRegistry createWithBuiltinSensors(final Context context) {
+        final SensorRegistry sc = new SensorRegistry();
         sc.addAvailableBuiltinSensors(context);
         return sc;
+    }
+
+    public void refreshBuiltinSensors(Context context) {
+        removeBuiltInSensors();
+        addAvailableBuiltinSensors(context);
+
+        if (mSensorRegistryListener != null) {
+            mSensorRegistryListener.refreshBuiltinSensors();
+        }
+    }
+
+    private void removeBuiltInSensors() {
+        Iterator<SensorRegistryItem> iter = mSensorRegistry.values().iterator();
+        while (iter.hasNext()) {
+            SensorRegistryItem item = iter.next();
+            if (Objects.equals(WP_HARDWARE_PROVIDER_ID, item.providerId)) {
+                iter.remove();
+            }
+        }
     }
 
     @VisibleForTesting
     protected SensorRegistry() {
         // prevent direct construction
-
-        // TODO: more dynamic way to build this?
-        mExternalProviders.put(BleSensorSpec.TYPE, WINDMILL_PROVIDER);
     }
 
     /**
@@ -114,8 +114,8 @@ public class SensorRegistry {
      * This can happen one of two ways: if the sensor is already in the registry, {@code consumer}
      * is called immediately.
      *
-     * Otherwise, {@code consumer} is remembered, and run when a SensorChoice with the given id gets
-     * added.
+     * Otherwise, {@code consumer} is remembered, and run when a SensorChoice with the given id
+     * gets added.
      *
      * This is needed because especially BluetoothSensors can be added considerably after the rest
      * of the RecordFragment setup.
@@ -145,29 +145,18 @@ public class SensorRegistry {
         mWaitingSensorChoiceOperations.removeAll(id);
     }
 
-    private boolean hasSource(String id) {
-        return mSensorRegistry.containsKey(id);
-    }
-
     public Set<String> getAllSources() {
         return mSensorRegistry.keySet();
     }
 
-    public String getLoggingId(String id) {
-        if (mSensorRegistry.containsKey(id)) {
-            return mSensorRegistry.get(id).loggingId;
-        }
-        return null;
-    }
-
-    private void removeAllBluetoothDevices() {
-        for (Iterator<SensorRegistryItem> iterator = mSensorRegistry.values().iterator();
-                iterator.hasNext(); ) {
-            SensorRegistryItem source = iterator.next();
-            if (source.providerId.equals(WP_NATIVE_BLE_PROVIDER_ID)) {
-                iterator.remove();
+    private Set<String> getAllExternalSources() {
+        Set<String> externalSourceIds = new HashSet<String>();
+        for (Map.Entry<String, SensorRegistryItem> entry : mSensorRegistry.entrySet()) {
+            if (!Objects.equals(entry.getValue().providerId, WP_HARDWARE_PROVIDER_ID)) {
+                externalSourceIds.add(entry.getKey());
             }
         }
+        return externalSourceIds;
     }
 
     private void addAvailableBuiltinSensors(Context context) {
@@ -216,39 +205,53 @@ public class SensorRegistry {
     }
 
     @NonNull
-    public List<String> replaceExternalSensors(Map<String, ExternalSensorSpec> sensors) {
+    public List<String> updateExternalSensors(Map<String, ExternalSensorSpec> sensors,
+            Map<String, ExternalSensorProvider> externalProviders) {
         mMostRecentExternalSensors = sensors;
-        removeAllBluetoothDevices();
 
         List<String> sensorsActuallyAdded = new ArrayList<>();
 
-        for (Map.Entry<String, ExternalSensorSpec> entry : sensors.entrySet()) {
-            String sensorId = entry.getKey();
-            if (!hasSource(sensorId)) {
-                ExternalSensorSpec sensor = entry.getValue();
-                ExternalSensorProvider provider = mExternalProviders.get(sensor.getType());
+        Set<String> previousExternalSources = getAllExternalSources();
+
+        // Add previously unknown sensors
+        Set<String> newExternalSensors = Sets.difference(sensors.keySet(),
+                previousExternalSources);
+        for (String externalSensorId : newExternalSensors) {
+            ExternalSensorSpec sensor = sensors.get(externalSensorId);
+            if (sensor != null) {
+                ExternalSensorProvider provider = externalProviders.get(sensor.getType());
                 if (provider != null) {
                     addSource(new SensorRegistryItem(provider.getProviderId(),
-                            provider.buildSensor(sensorId, sensor), entry.getValue()
-                                    .getLoggingId()));
-                    sensorsActuallyAdded.add(sensorId);
+                            provider.buildSensor(externalSensorId, sensor), sensor.getLoggingId()));
+                    sensorsActuallyAdded.add(externalSensorId);
+                }
+            } else {
+                if (Log.isLoggable(TAG, Log.ERROR)) {
+                    Log.e(TAG, "No sensor found for ID: " + externalSensorId);
                 }
             }
         }
 
-        if (mExternalSensorListener != null) {
-            mExternalSensorListener.replaceExternalSensors(sensors);
+        // Remove known sensors that no longer exist
+        Set<String> removedExternalSensors = Sets.difference(previousExternalSources,
+                sensors.keySet());
+        for (String externalSensorId : removedExternalSensors) {
+            mSensorRegistry.remove(externalSensorId);
+        }
+
+        if (mSensorRegistryListener != null) {
+            mSensorRegistryListener.updateExternalSensors(sensors);
         }
 
         return sensorsActuallyAdded;
     }
 
-    public void setExternalSensorListener(ExternalSensorListener listener) {
-        mExternalSensorListener = listener;
+    public void setSensorRegistryListener(SensorRegistryListener listener) {
+        mSensorRegistryListener = listener;
 
         if (mMostRecentExternalSensors != null) {
             // TODO: write test for this behavior
-            mExternalSensorListener.replaceExternalSensors(mMostRecentExternalSensors);
+            mSensorRegistryListener.updateExternalSensors(mMostRecentExternalSensors);
         }
     }
 }

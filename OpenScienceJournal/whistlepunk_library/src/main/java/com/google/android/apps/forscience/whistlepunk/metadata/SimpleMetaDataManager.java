@@ -24,20 +24,19 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.protobuf.nano.CodedOutputByteBufferNano;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-import com.google.protobuf.nano.MessageNano;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -73,6 +72,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         String RUNS = "runs";
         String RUN_SENSORS = "run_sensors";
         String EXPERIMENT_SENSOR_LAYOUT = "experiment_sensor_layout";
+        String SENSOR_TRIGGERS = "sensor_triggers";
     }
 
     public SimpleMetaDataManager(Context context) {
@@ -533,7 +533,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public void setExperimentSensorLayout(String experimentId,
+    public void setExperimentSensorLayouts(String experimentId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -555,7 +555,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayout(String experimentId) {
+    public List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayouts(String experimentId) {
         List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -590,6 +590,20 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
+    public void updateSensorLayout(String experimentId, int position,
+            GoosciSensorLayout.SensorLayout layout) {
+        ContentValues values = new ContentValues();
+        values.put(ExperimentSensorLayoutColumns.LAYOUT, ProtoUtils.makeBlob(layout));
+        String where = ExperimentSensorLayoutColumns.EXPERIMENT_ID + "=? AND " +
+                ExperimentSensorLayoutColumns.POSITION + "=?";
+        String[] params = new String[]{experimentId, String.valueOf(position)};
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.update(Tables.EXPERIMENT_SENSOR_LAYOUT, values, where, params);
+        }
+    }
+
+    @Override
     public void deleteRun(String runId) {
         for (Label label : getLabelsWithStartId(runId)) {
             deleteLabel(label);
@@ -605,7 +619,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public String addOrGetExternalSensor(ExternalSensorSpec sensor) {
+    public String addOrGetExternalSensor(ExternalSensorSpec sensor,
+            Map<String, ExternalSensorProvider> providerMap) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
             String sql = "SELECT IFNULL(MIN(" + SensorColumns.SENSOR_ID + "), '') FROM " + Tables
@@ -621,7 +636,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
 
         int suffix = 0;
-        while (getExternalSensorById(ExternalSensorSpec.getSensorId(sensor, suffix)) != null) {
+        while (getExternalSensorById(ExternalSensorSpec.getSensorId(sensor, suffix), providerMap)
+                != null) {
             suffix++;
         }
 
@@ -738,6 +754,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
                             label = new PictureLabel(labelId, startLabelId, timestamp, value);
                         } else if (ApplicationLabel.isTag(type)) {
                             label = new ApplicationLabel(labelId, startLabelId, timestamp, value);
+                        } else if (SensorTriggerLabel.isTag(type)) {
+                            label = new SensorTriggerLabel(labelId, startLabelId, timestamp, value);
                         } else {
                             throw new IllegalStateException("Unknown label type: " + type);
                         }
@@ -908,7 +926,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public Map<String, ExternalSensorSpec> getExternalSensors() {
+    public Map<String, ExternalSensorSpec> getExternalSensors(
+            Map<String, ExternalSensorProvider> providerMap) {
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
 
         synchronized (mLock) {
@@ -918,8 +937,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 c = db.query(Tables.EXTERNAL_SENSORS, SensorQuery.PROJECTION, null, null, null,
                         null, null);
                 while (c.moveToNext()) {
-                    sensors.put(c.getString(SensorQuery.DATABASE_TAG_INDEX),
-                            loadSensorFromDatabase(c));
+                    ExternalSensorSpec value = loadSensorFromDatabase(c, providerMap);
+                    if (value != null) {
+                        sensors.put(c.getString(SensorQuery.DATABASE_TAG_INDEX), value);
+                    }
                 }
             } finally {
                 if (c != null) {
@@ -932,7 +953,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public ExternalSensorSpec getExternalSensorById(String id) {
+    public ExternalSensorSpec getExternalSensorById(String id,
+            Map<String, ExternalSensorProvider> providerMap) {
         ExternalSensorSpec sensor = null;
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -941,7 +963,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 c = db.query(Tables.EXTERNAL_SENSORS, SensorQuery.PROJECTION,
                         SensorColumns.SENSOR_ID + "=?", new String[]{id}, null, null, null);
                 if (c.moveToNext()) {
-                    sensor = loadSensorFromDatabase(c);
+                    sensor = loadSensorFromDatabase(c, providerMap);
                 }
             } finally {
                 if (c != null) {
@@ -952,14 +974,15 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return sensor;
     }
 
-    private ExternalSensorSpec loadSensorFromDatabase(Cursor c) {
+    private ExternalSensorSpec loadSensorFromDatabase(Cursor c,
+            Map<String, ExternalSensorProvider> providerMap) {
         String type = c.getString(SensorQuery.TYPE_INDEX);
-        if (BleSensorSpec.TYPE.equals(type)) {
-            return new BleSensorSpec(c.getString(SensorQuery.NAME_INDEX),
-                    c.getBlob(SensorQuery.CONFIG_INDEX));
-        } else {
-            throw new IllegalStateException("Unknown sensor type: " + type);
+        ExternalSensorProvider externalSensorProvider = providerMap.get(type);
+        if (externalSensorProvider == null) {
+            throw new IllegalArgumentException("No provider for sensor type: " + type);
         }
+        return externalSensorProvider.buildSensorSpec(c.getString(SensorQuery.NAME_INDEX),
+                c.getBlob(SensorQuery.CONFIG_INDEX));
     }
 
     @Override
@@ -985,7 +1008,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId) {
+    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId,
+            Map<String, ExternalSensorProvider> providerMap) {
         List<String> tags = new ArrayList<>();
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
 
@@ -1008,11 +1032,122 @@ public class SimpleMetaDataManager implements MetaDataManager {
             // This is somewhat inefficient to do nested queries, but in most cases there will
             // only be one or two, so we are trading off code complexity of doing a db join.
             for (String tag : tags) {
-                sensors.put(tag, getExternalSensorById(tag));
+                sensors.put(tag, getExternalSensorById(tag, providerMap));
             }
         }
 
         return sensors;
+    }
+
+    @Override
+    public void addSensorTrigger(SensorTrigger trigger, String experimentId) {
+        ContentValues values = new ContentValues();
+        values.put(SensorTriggerColumns.EXPERIMENT_ID, experimentId);
+        values.put(SensorTriggerColumns.TRIGGER_ID, trigger.getTriggerId());
+        values.put(SensorTriggerColumns.LAST_USED_TIMESTAMP_MS, trigger.getLastUsed());
+        values.put(SensorTriggerColumns.SENSOR_ID, trigger.getSensorId());
+        values.put(SensorTriggerColumns.TRIGGER_INFORMATION,
+                ProtoUtils.makeBlob(trigger.getTriggerInformation()));
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.insert(Tables.SENSOR_TRIGGERS, null, values);
+        }
+    }
+
+    @Override
+    public void updateSensorTrigger(SensorTrigger trigger) {
+        // Only the LastUsedTimestamp and TriggerInformation can be updated.
+        ContentValues values = new ContentValues();
+        values.put(SensorTriggerColumns.LAST_USED_TIMESTAMP_MS, trigger.getLastUsed());
+        values.put(SensorTriggerColumns.TRIGGER_INFORMATION,
+                ProtoUtils.makeBlob(trigger.getTriggerInformation()));
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.update(Tables.SENSOR_TRIGGERS, values, SensorTriggerColumns.TRIGGER_ID + "=?",
+                    new String[]{trigger.getTriggerId()});
+        }
+    }
+
+    @Override
+    public List<SensorTrigger> getSensorTriggers(String[] triggerIds) {
+        List<SensorTrigger> triggers = new ArrayList<>();
+        if (triggerIds == null || triggerIds.length == 0) {
+            return triggers;
+        }
+
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+            String[] whereArr = new String[triggerIds.length];
+            Arrays.fill(whereArr, "?");
+            final String where = TextUtils.join(",", whereArr);
+            final String selection = SensorTriggerColumns.TRIGGER_ID + " IN (" + where + ")";
+            Cursor c = null;
+            try {
+                c = db.query(
+                        Tables.SENSOR_TRIGGERS, new String[]{SensorTriggerColumns.TRIGGER_ID,
+                                SensorTriggerColumns.SENSOR_ID,
+                                SensorTriggerColumns.LAST_USED_TIMESTAMP_MS,
+                                SensorTriggerColumns.TRIGGER_INFORMATION}, selection, triggerIds,
+                        null, null, null, null);
+                if (c == null || !c.moveToFirst()) {
+                    return triggers;
+                }
+                while (!c.isAfterLast()) {
+                    triggers.add(new SensorTrigger(c.getString(0), c.getString(1), c.getLong(2),
+                            GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
+                                    c.getBlob(3))));
+                    c.moveToNext();
+                }
+            } catch (InvalidProtocolBufferNanoException e) {
+                e.printStackTrace();
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
+        }
+        return triggers;
+    }
+
+    @Override
+    public List<SensorTrigger> getSensorTriggersForSensor(String sensorId) {
+        List<SensorTrigger> triggers = new ArrayList<>();
+
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+            Cursor c = null;
+            String selection = SensorTriggerColumns.SENSOR_ID + "=?";
+            String[] selectionArgs = new String[]{sensorId};
+            try {
+                c = db.query(Tables.SENSOR_TRIGGERS, new String[]{
+                        SensorTriggerColumns.TRIGGER_ID,
+                        SensorTriggerColumns.LAST_USED_TIMESTAMP_MS,
+                        SensorTriggerColumns.TRIGGER_INFORMATION},
+                        selection, selectionArgs, null, null,
+                        SensorTriggerColumns.LAST_USED_TIMESTAMP_MS + " DESC");
+                while (c.moveToNext()) {
+                    triggers.add(new SensorTrigger(c.getString(0), sensorId, c.getLong(1),
+                            GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
+                                    c.getBlob(2))));
+                }
+            } catch (InvalidProtocolBufferNanoException e) {
+                e.printStackTrace();
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
+        }
+        return triggers;
+    }
+
+    @Override
+    public void deleteSensorTrigger(SensorTrigger trigger) {
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.delete(Tables.SENSOR_TRIGGERS, SensorTriggerColumns.TRIGGER_ID + "=?",
+                    new String[]{trigger.getTriggerId()});
+        }
     }
 
     public interface ProjectColumns {
@@ -1284,11 +1419,38 @@ public class SimpleMetaDataManager implements MetaDataManager {
         String LAYOUT = "layout";
     }
 
+    public interface SensorTriggerColumns {
+        /**
+         * Trigger ID. THis is unique.
+         */
+        String TRIGGER_ID = "trigger_id";
+
+        /**
+         * Sensor ID for this trigger.
+         */
+        String SENSOR_ID = "sensor_id";
+
+        /**
+         * The timestamp when this trigger was last used.
+         */
+        String LAST_USED_TIMESTAMP_MS = "last_used_timestamp";
+
+        /**
+         * The experiment ID that this trigger is associated with.
+         */
+        String EXPERIMENT_ID = "experiment_id";
+
+        /**
+         * The TriggerInformation proto containing the configuration of this trigger.
+         */
+        String TRIGGER_INFORMATION = "trigger_information";
+    }
+
     /**
      * Manages the SQLite database backing the data for the entire app.
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        private static final int DB_VERSION = 17;
+        private static final int DB_VERSION = 18;
         private static final String DB_NAME = "main.db";
 
         DatabaseHelper(Context context, String filename) {
@@ -1306,6 +1468,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             createRunsTable(db);
             createRunSensorsTable(db);
             createExperimentSensorLayoutTable(db);
+            createSensorTriggersTable(db);
         }
 
         private void createExperimentsTable(SQLiteDatabase db) {
@@ -1455,6 +1618,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
                         " = 1 WHERE " + RunsColumns.AUTO_ZOOM_ENABLED + " IS NULL");
                 version = 17;
             }
+
+            if (version == 17 && version < newVersion) {
+                createSensorTriggersTable(db);
+                version = 18;
+            }
         }
 
         private void createProjectsTable(SQLiteDatabase db) {
@@ -1539,6 +1707,17 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     + ExperimentSensorLayoutColumns.LAYOUT + " BLOB,"
                     + "UNIQUE(" + ExperimentSensorLayoutColumns.EXPERIMENT_ID + ","
                     + ExperimentSensorLayoutColumns.POSITION + "))");
+        }
+
+        private void createSensorTriggersTable(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE " + Tables.SENSOR_TRIGGERS + " ("
+                    + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + SensorTriggerColumns.TRIGGER_ID + " TEXT UNIQUE,"
+                    + SensorTriggerColumns.EXPERIMENT_ID + " TEXT,"
+                    + SensorTriggerColumns.LAST_USED_TIMESTAMP_MS + " INTEGER,"
+                    + SensorTriggerColumns.SENSOR_ID + " TEXT,"
+                    + SensorTriggerColumns.TRIGGER_INFORMATION + " BLOB)"
+            );
         }
 
         private void populateUpgradedRunsTable(SQLiteDatabase db) {

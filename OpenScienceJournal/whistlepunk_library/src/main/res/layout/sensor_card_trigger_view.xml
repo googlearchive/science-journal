@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/text_color_dark_grey"
+    android:id="@+id/sensor_card_trigger_section"
+    android:visibility="gone"
+    >
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/graph_line_color_red"
+        android:id="@+id/sensor_trigger_fired_background"
+        android:layout_alignBottom="@+id/sensor_trigger_text"
+        android:layout_alignTop="@id/sensor_trigger_text"
+        android:visibility="gone"
+        />
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_label_black_24dp"
+        android:tint="@color/text_color_white"
+        android:id="@+id/sensor_trigger_icon"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_margin="16dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
+        android:id="@+id/sensor_trigger_text"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@id/sensor_trigger_icon"
+        android:textColor="@color/text_color_white"
+        android:textSize="16sp"
+        android:paddingTop="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp"
+        />
+
+</RelativeLayout>
