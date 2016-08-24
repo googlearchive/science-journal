@@ -1104,6 +1104,7 @@ public class SensorCardPresenter {
                             new Animator.AnimatorListener() {
                                 @Override
                                 public void onAnimationStart(Animator animation) {
+                                    setSensorSelectionBackgroundColorForAnimation(true);
                                     mCardViewHolder.sensorSelectionArea.setVisibility(View.VISIBLE);
                                     mCardViewHolder.sensorSelectionArea.setTranslationY(-1 *
                                             mCardViewHolder.getContext().getResources()
@@ -1115,6 +1116,7 @@ public class SensorCardPresenter {
                                 public void onAnimationEnd(Animator animation) {
                                     mCardViewHolder.sensorSelectionArea.animate().setListener(null);
                                     resetTabTouchDelegates();
+                                    setSensorSelectionBackgroundColorForAnimation(false);
                                 }
 
                                 @Override
@@ -1134,12 +1136,14 @@ public class SensorCardPresenter {
                                 @Override
                                 public void onAnimationStart(Animator animation) {
                                     mCardViewHolder.sensorSelectionArea.setTranslationY(0);
+                                    setSensorSelectionBackgroundColorForAnimation(true);
                                 }
 
                                 @Override
                                 public void onAnimationEnd(Animator animation) {
                                     mCardViewHolder.sensorSelectionArea.setVisibility(View.GONE);
                                     mCardViewHolder.sensorSelectionArea.animate().setListener(null);
+                                    setSensorSelectionBackgroundColorForAnimation(false);
                                 }
 
                                 @Override
@@ -1170,6 +1174,22 @@ public class SensorCardPresenter {
         }
         updateButtonsVisibility();
         refreshTabLayout();
+    }
+
+    /**
+     * Sets the background of the sensor selection area for animation to avoid seams.
+     *
+     * @param animating if {@code true}, set to color appropriate for animation, otherwise set to
+     *                  color appropriate for static.
+     */
+    private void setSensorSelectionBackgroundColorForAnimation(boolean animating) {
+        if (mLayout.cardView == GoosciSensorLayout.SensorLayout.METER) {
+            // Only care if this is meter mode. If no longer animating, set to null to avoid
+            // overdraw.
+            ((View) mCardViewHolder.sensorSelectionArea.getParent())
+                    .setBackground(animating ?
+                            mCardViewHolder.meterViewGroup.getBackground() : null);
+        }
     }
 
     private void resetTabTouchDelegates() {
