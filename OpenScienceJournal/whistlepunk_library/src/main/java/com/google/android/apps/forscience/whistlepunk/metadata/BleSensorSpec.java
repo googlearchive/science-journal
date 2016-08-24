@@ -26,10 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.protobuf.nano.CodedOutputByteBufferNano;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-
-import java.io.IOException;
 
 /**
  * Represents a specification of a BLE sensor which is exposing the Making Science service.
@@ -113,15 +110,7 @@ public class BleSensorSpec extends ExternalSensorSpec implements Parcelable {
 
     @Override
     public byte[] getConfig() {
-        byte[] output = new byte[mConfig.getSerializedSize()];
-
-        CodedOutputByteBufferNano buffer = CodedOutputByteBufferNano.newInstance(output);
-        try {
-            mConfig.writeTo(buffer);
-        } catch (IOException e) {
-            Log.e(TAG, "Could not serialize config", e);
-        }
-        return output;
+        return getBytes(mConfig);
     }
 
     @VisibleForTesting

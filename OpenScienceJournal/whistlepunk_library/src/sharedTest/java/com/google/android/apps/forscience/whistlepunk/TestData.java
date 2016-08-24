@@ -41,6 +41,14 @@ public class TestData {
         return data;
     }
 
+    public static TestData fromPoints(List<ChartData.DataPoint> points) {
+        TestData data = new TestData();
+        for (ChartData.DataPoint point : points) {
+            data.addPoint(point.getX(), point.getY());
+        }
+        return data;
+    }
+
     private static class Point {
         long x;
         double y;

@@ -19,7 +19,6 @@ package com.google.android.apps.forscience.whistlepunk;
 import static junit.framework.Assert.assertEquals;
 
 import android.net.Uri;
-import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
@@ -30,7 +29,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorO
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StubStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
-import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 
 import org.junit.Test;
 
@@ -49,9 +47,8 @@ public class RecorderControllerTest {
             }
         };
         MemorySensorEnvironment env = new MemorySensorEnvironment(
-                new InMemorySensorDatabase().makeSimpleRecordingController(
-                        new MemoryMetadataManager()), new FakeBleClient(null),
-                new MemorySensorHistoryStorage());
+                new InMemorySensorDatabase().makeSimpleRecordingController(),
+                new FakeBleClient(null), new MemorySensorHistoryStorage());
         RecorderControllerImpl rc = new RecorderControllerImpl(null, registry, env,
                 new RecorderListenerRegistry(), Uri.EMPTY);
         RecordingSensorObserver observer1 = new RecordingSensorObserver();
