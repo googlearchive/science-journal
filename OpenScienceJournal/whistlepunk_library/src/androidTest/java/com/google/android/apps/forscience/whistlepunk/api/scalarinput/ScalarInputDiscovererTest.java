@@ -8,20 +8,22 @@ import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesFragment;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ScalarInputDiscovererTest extends AndroidTestCase {
     public void testExtractFromPreference() {
-        ScalarInputDiscoverer discoverer = new ScalarInputDiscoverer(null);
+        ScalarInputDiscoverer discoverer = new ScalarInputDiscoverer(null, null);
         String name = Arbitrary.string();
         String deviceId = Arbitrary.string();
+        String serviceId = Arbitrary.string();
         Preference pref = ManageDevicesFragment.makePreference(name, deviceId, ScalarInputSpec.TYPE,
                 false, getContext());
-        ExternalSensorSpec spec = discoverer.extractSensorSpec(pref);
+        ScalarInputSpec.addServiceId(pref, serviceId);
+        ScalarInputSpec spec = (ScalarInputSpec) discoverer.extractSensorSpec(pref);
         assertEquals(ScalarInputSpec.TYPE, spec.getType());
+        assertEquals(serviceId, spec.getServiceId());
     }
 
     public void testStartScanning() {
@@ -30,12 +32,13 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
         final String deviceName = Arbitrary.string();
         final String sensorId = Arbitrary.string();
         final String sensorName = Arbitrary.string();
+        final String serviceId = Arbitrary.string();
 
         ScalarInputDiscoverer sid = new ScalarInputDiscoverer(
-                new Consumer<ScalarInputDiscoverer.AppDiscoveryCallbacks>() {
+                new Consumer<AppDiscoveryCallbacks>() {
                     @Override
-                    public void take(ScalarInputDiscoverer.AppDiscoveryCallbacks adc) {
-                        adc.onServiceFound(new TestSensorDiscoverer(serviceName) {
+                    public void take(AppDiscoveryCallbacks adc) {
+                        adc.onServiceFound(serviceId, new TestSensorDiscoverer(serviceName) {
                             @Override
                             public void scanDevices(IDeviceConsumer c) throws RemoteException {
                                 c.onDeviceFound(deviceId, deviceName, null);
@@ -55,7 +58,7 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
                         });
                         adc.onDiscoveryDone();
                     }
-                });
+                }, null);
 
         TestCallbacks callbacks = new TestCallbacks();
         assertEquals(true, sid.startScanning(callbacks, getContext()));
@@ -63,9 +66,10 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
         Preference preference = callbacks.prefsSeen.get(0);
         assertEquals(false, ManageDevicesFragment.getIsPairedFromPreference(preference));
         assertEquals(ScalarInputSpec.TYPE, ManageDevicesFragment.getTypeFromPreference(preference));
-        ExternalSensorSpec spec = sid.extractSensorSpec(preference);
+        ScalarInputSpec spec = (ScalarInputSpec) sid.extractSensorSpec(preference);
         assertEquals(sensorName, spec.getName());
         assertEquals(sensorId, spec.getAddress());
+        assertEquals(serviceId, spec.getServiceId());
     }
 
     public void testScanError() {
@@ -73,10 +77,10 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
         final String errorText = Arbitrary.string();
 
         ScalarInputDiscoverer sid = new ScalarInputDiscoverer(
-                new Consumer<ScalarInputDiscoverer.AppDiscoveryCallbacks>() {
+                new Consumer<AppDiscoveryCallbacks>() {
                     @Override
-                    public void take(ScalarInputDiscoverer.AppDiscoveryCallbacks adc) {
-                        adc.onServiceFound(new TestSensorDiscoverer(serviceName) {
+                    public void take(AppDiscoveryCallbacks adc) {
+                        adc.onServiceFound(null, new TestSensorDiscoverer(serviceName) {
                             @Override
                             public void scanDevices(IDeviceConsumer c) throws RemoteException {
                                 throw new RemoteException(errorText);
@@ -94,7 +98,7 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
                             }
                         });
                     }
-                });
+                }, null);
 
         TestCallbacks callbacks = new TestCallbacks();
         sid.startScanning(callbacks, getContext());

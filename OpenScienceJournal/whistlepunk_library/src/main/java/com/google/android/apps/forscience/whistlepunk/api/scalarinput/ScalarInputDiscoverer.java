@@ -17,94 +17,71 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.app.PendingIntent;
 import android.content.Context;
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.Preference;
 import android.support.annotation.NonNull;
-import android.view.View;
 
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
-import com.google.android.apps.forscience.whistlepunk.StatsListener;
+import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesFragment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 
-import java.util.List;
+import java.util.concurrent.Executor;
 
 public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
-    private Consumer<AppDiscoveryCallbacks> mServiceFinder;
+    public static final String SCALAR_INPUT_PROVIDER_ID =
+            "com.google.android.apps.forscience.whistlepunk.scalarinput";
+    private final Consumer<AppDiscoveryCallbacks> mServiceFinder;
+    private final ScalarInputStringSource mStringSource;
+    private final Executor mUiThreadExecutor;
 
-    /**
-     * Mostly for testing's sake, there's an onion's worth of layers here.
-     *
-     * ScalarInputDiscoverer outsources the actual construction of ISensorDiscoverers to this
-     * interface, so that we can run automated tests against ScalarInputDiscoverer without having
-     * to guarantee that particular apps are actually installed on the test device.
-     */
-    public interface AppDiscoveryCallbacks {
-        // Called with each service found
-        public void onServiceFound(ISensorDiscoverer service);
-
-        // Called after all services have been found
-        public void onDiscoveryDone();
+    public ScalarInputDiscoverer(Consumer<AppDiscoveryCallbacks> serviceFinder,
+            Context context) {
+        this(serviceFinder, defaultStringSource(context), AppSingleton.getUiThreadExecutor());
     }
 
-    public ScalarInputDiscoverer(Consumer<AppDiscoveryCallbacks> serviceFinder) {
+    private static ScalarInputStringSource defaultStringSource(final Context context) {
+        return new ScalarInputStringSource() {
+            @Override
+            public String generateCouldNotFindServiceErrorMessage(String serviceId) {
+                return context.getResources().getString(R.string.could_not_find_service_error,
+                        serviceId);
+            }
+        };
+    }
+
+    public ScalarInputDiscoverer(
+            Consumer<AppDiscoveryCallbacks> serviceFinder, ScalarInputStringSource stringSource,
+            Executor uiThreadExecutor) {
         mServiceFinder = serviceFinder;
+        mStringSource = stringSource;
+        mUiThreadExecutor = uiThreadExecutor;
     }
 
     @NonNull
     @Override
     public ExternalSensorSpec extractSensorSpec(Preference preference) {
+        String serviceId = ScalarInputSpec.getServiceId(preference);
         return new ScalarInputSpec(ManageDevicesFragment.getNameFromPreference(preference),
-                ManageDevicesFragment.getAddressFromPreference(preference));
+                serviceId, ManageDevicesFragment.getAddressFromPreference(preference));
     }
 
     @Override
     public ExternalSensorProvider getProvider() {
-        return new ExternalSensorProvider() {
-            @Override
-            public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
-                // TODO: implement more fully
-                return new ScalarInputSensor(sensorId);
-            }
-
-            @Override
-            public String getProviderId() {
-                // TODO: implement
-                return null;
-            }
-
-            @Override
-            public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
-                return new ScalarInputSpec(name, config);
-            }
-        };
+        return new ScalarInputProvider(mServiceFinder, mStringSource, mUiThreadExecutor);
     }
 
     @Override
     public boolean startScanning(final SensorPrefCallbacks callbacks, final Context context) {
-        final ISensorConsumer.Stub sc = makeSensorConsumer(context, callbacks);
         mServiceFinder.take(new AppDiscoveryCallbacks() {
             @Override
-            public void onServiceFound(final ISensorDiscoverer service) {
+            public void onServiceFound(String serviceId, final ISensorDiscoverer service) {
                 try {
+                    final ISensorConsumer.Stub sc = makeSensorConsumer(serviceId, context,
+                            callbacks);
                     service.scanDevices(makeDeviceConsumer(service, sc));
                 } catch (RemoteException e) {
                     callbacks.onScanError(e);
@@ -133,7 +110,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     }
 
     @NonNull
-    private ISensorConsumer.Stub makeSensorConsumer(final Context context,
+    private ISensorConsumer.Stub makeSensorConsumer(final String serviceId, final Context context,
             final SensorPrefCallbacks callbacks) {
         return new ISensorConsumer.Stub() {
             @Override
@@ -142,6 +119,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 boolean isPaired = false;
                 Preference newPref = ManageDevicesFragment.makePreference(name, sensorId,
                         ScalarInputSpec.TYPE, isPaired, context);
+                ScalarInputSpec.addServiceId(newPref, serviceId);
                 callbacks.addAvailableSensorPreference(newPref);
             }
         };
@@ -149,49 +127,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
     @Override
     public void stopScanning() {
-        // TODO: implement all of these!
+        // TODO: implement!
     }
 
-    private class ScalarInputSensor extends ScalarSensor {
-        public ScalarInputSensor(String id) {
-            super(id);
-        }
-
-        @Override
-        protected SensorRecorder makeScalarControl(StreamConsumer c, SensorEnvironment environment,
-                Context context, SensorStatusListener listener) {
-            return new SensorRecorder() {
-                @Override
-                public void startObserving() {
-                    // TODO: implement all!
-
-                }
-
-                @Override
-                public void startRecording(String runId) {
-
-                }
-
-                @Override
-                public void stopRecording() {
-
-                }
-
-                @Override
-                public void stopObserving() {
-
-                }
-
-                @Override
-                public boolean hasRecordedData() {
-                    return false;
-                }
-
-                @Override
-                public void applyOptions(ReadableSensorOptions settings) {
-
-                }
-            };
-        }
-    }
 }

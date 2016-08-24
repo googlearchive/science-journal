@@ -25,6 +25,8 @@ import android.support.v7.app.AppCompatActivity;
 public class DisplayActivity extends AppCompatActivity {
     private static final String TAG = "DisplayActivity";
 
+    // TODO: rename package/directory?
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

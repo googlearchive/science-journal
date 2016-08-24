@@ -1174,6 +1174,9 @@
     <!-- Action text for a snackbar to scroll to a particular SensorCard. [CHAR_LIMIT=20] -->
     <string name="scroll_to_card">show</string>
 
+    <!-- Action text for a snackbar to scroll to a particular SensorCard. [CHAR_LIMIT=NONE] -->
+    <string name="could_not_find_service_error">Could not find service: <xliff:g id="service_id">%1s</xliff:g></string>
+
     <!-- Notification body text for when recording was completed in the background service [CHAR_LIMIT=50] -->
     <string name="recording_stopped_notification_text">Recording completed.</string>
 

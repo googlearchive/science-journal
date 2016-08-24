@@ -35,7 +35,7 @@ import java.util.Map;
  * Finds services that implement the scalarinput API
  */
 public class ScalarSensorServiceFinder extends
-        Consumer<ScalarInputDiscoverer.AppDiscoveryCallbacks> {
+        Consumer<AppDiscoveryCallbacks> {
     public static final String INTENT_ACTION =
             "com.google.android.apps.forscience.whistlepunk.SCALAR_SENSOR";
 
@@ -47,7 +47,7 @@ public class ScalarSensorServiceFinder extends
     }
 
     @Override
-    public void take(ScalarInputDiscoverer.AppDiscoveryCallbacks callbacks) {
+    public void take(AppDiscoveryCallbacks callbacks) {
         PackageManager pm = mContext.getPackageManager();
         List<ResolveInfo> resolveInfos = pm.queryIntentServices(new Intent(INTENT_ACTION), 0);
         for (ResolveInfo info : resolveInfos) {
@@ -60,16 +60,19 @@ public class ScalarSensorServiceFinder extends
             mConnections.put(packageName, conn);
             mContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
         }
+        // TODO: need to figure out when to call onDiscovery done (after every service we know
+        // about has connected or timed out).
     }
 
     @NonNull
     private ServiceConnection makeServiceConnection(final String packageName,
-            final ScalarInputDiscoverer.AppDiscoveryCallbacks callbacks) {
+            final AppDiscoveryCallbacks callbacks) {
         return new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 // TODO: think harder about threading here?
-                callbacks.onServiceFound(ISensorDiscoverer.Stub.asInterface(service));
+                callbacks.onServiceFound(name.getPackageName(),
+                        ISensorDiscoverer.Stub.asInterface(service));
             }
 
             @Override

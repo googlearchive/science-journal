@@ -16,25 +16,39 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.content.Context;
+import android.preference.Preference;
+import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciScalarInput;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-
-import java.util.Arrays;
+import com.google.common.base.Preconditions;
+import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 public class ScalarInputSpec extends ExternalSensorSpec {
     public static final String TYPE = "ScalarInput";
+    private static final String EXTRA_KEY_SERVICE_ID = "serviceId";
+    private static final String TAG = "ScalarInputSpec";
     private String mName;
-    private String mAddress;
+    private GoosciScalarInput.ScalarInputConfig mConfig;
 
-    public ScalarInputSpec(String sensorName, String address) {
+    public ScalarInputSpec(String sensorName, String serviceId, String address) {
         mName = sensorName;
-        mAddress = address;
+        mConfig = new GoosciScalarInput.ScalarInputConfig();
+        mConfig.serviceId = Preconditions.checkNotNull(serviceId);
+        mConfig.address = address;
     }
 
     public ScalarInputSpec(String sensorName, byte[] config) {
-        this(sensorName, new String(config));
+        mName = sensorName;
+        try {
+            mConfig = GoosciScalarInput.ScalarInputConfig.parseFrom(config);
+        } catch (InvalidProtocolBufferNanoException e) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "error parsing config", e);
+            }
+        }
     }
 
     @Override
@@ -50,7 +64,7 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
     @Override
     public String getAddress() {
-        return mAddress;
+        return mConfig.address;
     }
 
     // TODO: implement all!
@@ -69,7 +83,7 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
     @Override
     public byte[] getConfig() {
-        return mAddress.getBytes();
+        return getBytes(mConfig);
     }
 
     @Override
@@ -80,5 +94,17 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     @Override
     protected void loadFromConfig(byte[] data) {
 
+    }
+
+    public static void addServiceId(Preference pref, String serviceId) {
+        pref.getExtras().putString(EXTRA_KEY_SERVICE_ID, serviceId);
+    }
+
+    public String getServiceId() {
+        return mConfig.serviceId;
+    }
+
+    public static String getServiceId(Preference preference) {
+        return preference.getExtras().getString(EXTRA_KEY_SERVICE_ID);
     }
 }

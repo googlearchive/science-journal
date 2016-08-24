@@ -339,7 +339,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     private Map<String, ExternalSensorProvider> getProviderMap() {
         HashMap<String, ExternalSensorProvider> map = new HashMap<>();
         map.put(BleSensorSpec.TYPE, new NativeBleDiscoverer().getProvider());
-        map.put(ScalarInputSpec.TYPE, new ScalarInputDiscoverer(null).getProvider());
+        map.put(ScalarInputSpec.TYPE, new ScalarInputDiscoverer(null, null).getProvider());
         return map;
     }
 
@@ -403,7 +403,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     public void testGetExternalSensorsWithScalarInput() {
         Map<String, ExternalSensorProvider> providerMap = getProviderMap();
         assertEquals(0, mMetaDataManager.getExternalSensors(providerMap).size());
-        mMetaDataManager.addOrGetExternalSensor(new ScalarInputSpec("name", "address"), providerMap);
+        mMetaDataManager.addOrGetExternalSensor(new ScalarInputSpec("name", "serviceId", "address"),
+                providerMap);
         Map<String, ExternalSensorSpec> newSensors = mMetaDataManager.getExternalSensors(
                 providerMap);
         assertEquals(1, newSensors.size());

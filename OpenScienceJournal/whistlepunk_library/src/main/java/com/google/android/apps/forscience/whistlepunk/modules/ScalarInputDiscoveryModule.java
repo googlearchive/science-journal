@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.AppDiscoveryCallbacks;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarSensorServiceFinder;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
@@ -32,10 +33,10 @@ import dagger.multibindings.StringKey;
 
 @Module
 public class ScalarInputDiscoveryModule {
-    private static final Consumer<ScalarInputDiscoverer.AppDiscoveryCallbacks> NULL_FINDER =
-            new Consumer<ScalarInputDiscoverer.AppDiscoveryCallbacks>() {
+    private static final Consumer<AppDiscoveryCallbacks> NULL_FINDER =
+            new Consumer<AppDiscoveryCallbacks>() {
                 @Override
-                public void take(ScalarInputDiscoverer.AppDiscoveryCallbacks c) {
+                public void take(AppDiscoveryCallbacks c) {
                     // Didn't find any.
                     c.onDiscoveryDone();
                 }
@@ -46,11 +47,11 @@ public class ScalarInputDiscoveryModule {
     @StringKey(ScalarInputSpec.TYPE)
     public ExternalSensorDiscoverer providesScalarInputDiscoverer(Context context) {
         // TODO: return the actual finder when DevOptionsFragment#isThirdPartyDiscoveryEnabled.
-        return new ScalarInputDiscoverer(chooseFinder(context));
+        return new ScalarInputDiscoverer(chooseFinder(context), context);
     }
 
     @NonNull
-    private Consumer<ScalarInputDiscoverer.AppDiscoveryCallbacks> chooseFinder(Context context) {
+    private Consumer<AppDiscoveryCallbacks> chooseFinder(Context context) {
         if (DevOptionsFragment.isThirdPartyDiscoveryEnabled(context)) {
             return new ScalarSensorServiceFinder(context);
         } else {
