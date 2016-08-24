@@ -30,7 +30,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".GyroAddedSensor"
+        <service android:name=".AllNativeSensorProvider"
                  android:enabled="true"
                  android:exported="true">
             <intent-filter>
