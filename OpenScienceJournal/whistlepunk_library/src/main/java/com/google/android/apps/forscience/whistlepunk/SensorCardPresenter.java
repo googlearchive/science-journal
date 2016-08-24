@@ -800,8 +800,6 @@ public class SensorCardPresenter {
                     intent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, mExperimentId);
                     intent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION,
                             mParentFragment.getPositionOfLayout(mLayout));
-                    intent.putExtra(TriggerListActivity.EXTRA_SENSOR_LAYOUT_BLOB,
-                            ProtoUtils.makeBlob(mLayout));
                     mParentFragment.getActivity().startActivity(intent);
                     return true;
                 } else if (itemId == R.id.btn_sensor_card_set_triggers) {
@@ -830,8 +828,6 @@ public class SensorCardPresenter {
         intent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, mExperimentId);
         intent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION,
                 mParentFragment.getPositionOfLayout(mLayout));
-        intent.putExtra(TriggerListActivity.EXTRA_SENSOR_LAYOUT_BLOB,
-                ProtoUtils.makeBlob(mLayout));
         mParentFragment.getActivity().startActivity(intent);
         return true;
     }

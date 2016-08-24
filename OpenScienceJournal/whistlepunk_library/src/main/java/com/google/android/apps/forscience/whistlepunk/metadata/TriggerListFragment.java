@@ -64,7 +64,6 @@ public class TriggerListFragment extends Fragment {
 
     private static final String ARG_SENSOR_ID = "sensor_id";
     private static final String ARG_EXPERIMENT_ID = "experiment_id";
-    private static final String ARG_SENSOR_LAYOUT = "sensor_layout";
     private static final String ARG_LAYOUT_POSITION = "layout_position";
     private static final String TAG = "TriggerListFragment";
 
@@ -75,12 +74,11 @@ public class TriggerListFragment extends Fragment {
     private int mLayoutPosition;
 
     public static TriggerListFragment newInstance(String sensorId, String experimentId,
-            byte[] sensorLayoutBlob, int position) {
+            int position) {
         TriggerListFragment fragment = new TriggerListFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SENSOR_ID, sensorId);
         args.putString(ARG_EXPERIMENT_ID, experimentId);
-        args.putByteArray(ARG_SENSOR_LAYOUT, sensorLayoutBlob);
         args.putInt(ARG_LAYOUT_POSITION, position);
         fragment.setArguments(args);
         return fragment;
@@ -92,27 +90,6 @@ public class TriggerListFragment extends Fragment {
         mSensorId = getArguments().getString(ARG_SENSOR_ID);
         mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
         mLayoutPosition = getArguments().getInt(ARG_LAYOUT_POSITION);
-        if (savedInstanceState == null) {
-            try {
-                mSensorLayout = GoosciSensorLayout.SensorLayout.parseFrom(
-                        getArguments().getByteArray(ARG_SENSOR_LAYOUT));
-            } catch (InvalidProtocolBufferNanoException e) {
-                if (Log.isLoggable(TAG, Log.ERROR)) {
-                    Log.e(TAG, "Error parsing the SensorLayout", e);
-                }
-                mSensorLayout = RecordFragment.defaultLayout();
-            }
-        } else {
-            try {
-                mSensorLayout = GoosciSensorLayout.SensorLayout.parseFrom(
-                        savedInstanceState.getByteArray(ARG_SENSOR_LAYOUT));
-            } catch (InvalidProtocolBufferNanoException e) {
-                if (Log.isLoggable(TAG, Log.ERROR)) {
-                    Log.e(TAG, "Error parsing the SensorLayout", e);
-                }
-                mSensorLayout = RecordFragment.defaultLayout();
-            }
-        }
         setHasOptionsMenu(true);
     }
 
@@ -129,14 +106,19 @@ public class TriggerListFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putByteArray(ARG_SENSOR_LAYOUT, ProtoUtils.makeBlob(mSensorLayout));
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
+        getDataController().getSensorLayouts(mExperimentId,
+                new LoggingConsumer<List<GoosciSensorLayout.SensorLayout>>(TAG, "get layout") {
+                    @Override
+                    public void success(List<GoosciSensorLayout.SensorLayout> value) {
+                        for (GoosciSensorLayout.SensorLayout layout : value) {
+                            if (TextUtils.equals(layout.sensorId, mSensorId)) {
+                                mSensorLayout = layout;
+                            }
+                        }
+                    }
+                });
         getDataController().getSensorTriggersForSensor(mSensorId,
                 new LoggingConsumer<List<SensorTrigger>>(TAG, "get triggers for sensor") {
                     @Override
@@ -191,7 +173,7 @@ public class TriggerListFragment extends Fragment {
 
         // Also send the Sensor Layout and the position so that this fragment can be recreated on
         // completion.
-        intent.putExtra(TriggerListActivity.EXTRA_SENSOR_LAYOUT_BLOB,
+        intent.putExtra(EditTriggerActivity.EXTRA_SENSOR_LAYOUT_BLOB,
                 ProtoUtils.makeBlob(mSensorLayout));
         intent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION, mLayoutPosition);
 
