@@ -31,7 +31,6 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 public class TriggerListActivity extends AppCompatActivity {
     public static final String EXTRA_SENSOR_ID = "sensor_id";
     public static final String EXTRA_EXPERIMENT_ID = "experiment_id";
-    public static final String EXTRA_SENSOR_LAYOUT_BLOB = "sensor_layout_blob";
     public static final String EXTRA_LAYOUT_POSITION = "sensor_layout_position";
 
     @Override
@@ -45,9 +44,8 @@ public class TriggerListActivity extends AppCompatActivity {
             String sensorId = extras.getString(EXTRA_SENSOR_ID, "");
             String experimentId = extras.getString(EXTRA_EXPERIMENT_ID, "");
             int position = extras.getInt(EXTRA_LAYOUT_POSITION);
-            byte[] sensorLayoutBlob = extras.getByteArray(EXTRA_SENSOR_LAYOUT_BLOB);
             TriggerListFragment fragment = TriggerListFragment.newInstance(sensorId, experimentId,
-                    sensorLayoutBlob, position);
+                    position);
             fragment.setRetainInstance(true);
             getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
         }
