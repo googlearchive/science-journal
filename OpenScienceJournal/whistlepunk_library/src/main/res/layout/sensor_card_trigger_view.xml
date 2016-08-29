@@ -14,8 +14,8 @@
         android:layout_height="wrap_content"
         android:background="@color/graph_line_color_red"
         android:id="@+id/sensor_trigger_fired_background"
-        android:layout_alignBottom="@+id/sensor_trigger_text"
-        android:layout_alignTop="@id/sensor_trigger_text"
+        android:layout_alignBottom="@+id/trigger_text_section"
+        android:layout_alignTop="@id/trigger_text_section"
         android:visibility="gone"
         />
 
@@ -33,19 +33,55 @@
         android:contentDescription="@string/trigger_view_icon_content_description"
         />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minHeight="56dp"
-        android:id="@+id/sensor_trigger_text"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:id="@+id/trigger_text_section"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:layout_toEndOf="@id/sensor_trigger_icon"
-        android:textColor="@color/text_color_white"
-        android:textSize="16sp"
-        android:paddingTop="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="16dp"
-        />
+        >
+
+        <TextSwitcher
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/trigger_text_switcher"
+            android:layout_centerVertical="true"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_color_white"
+                android:textSize="16sp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_color_white"
+                android:textSize="16sp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                />
+
+        </TextSwitcher>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/trigger_fired_text"
+            android:textColor="@color/text_color_white"
+            android:textSize="16sp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="@string/trigger_fired_text"
+            android:visibility="gone"
+            android:layout_centerVertical="true"
+            />
+
+    </RelativeLayout>
 
 </RelativeLayout>

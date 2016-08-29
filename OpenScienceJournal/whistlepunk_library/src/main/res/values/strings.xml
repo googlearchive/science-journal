@@ -1165,13 +1165,13 @@
     <string name="cannot_save_invalid_value">You must enter a numeric value at which this trigger will fire.</string>
 
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires at a particular value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
-    <string name="trigger_when_at_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor is at <xliff:g id="value">%2$.2f</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
+    <string name="trigger_when_at_description"><xliff:g id="trigger_action">%1s</xliff:g> when at <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
 
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires when rising above a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
-    <string name="trigger_when_rises_above_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor rises above <xliff:g id="value">%2$.2f</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
+    <string name="trigger_when_rises_above_description"><xliff:g id="trigger_action">%1s</xliff:g> when rising above <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
 
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires when dropping below a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
-    <string name="trigger_when_drops_below_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor drops below <xliff:g id="value">%2$.2f</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
+    <string name="trigger_when_drops_below_description"><xliff:g id="trigger_action">%1s</xliff:g> when dropping below <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
 
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires it is above a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
     <string name="trigger_when_above_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor is above <xliff:g id="value">%2$.2f</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
@@ -1237,6 +1237,9 @@
 
     <!-- Warning for a user that they must select at least one type of alert when making an "alert me" trigger [CHAR_LIMIT=150] -->
     <string name="alert_trigger_needs_alerts">Error: You must select at least one type of alert for this trigger.</string>
+
+    <!-- Text to display when a trigger is activated in the trigger bar [CHAR_LIMIT=25] -->
+    <string name="trigger_fired_text">Trigger activated</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

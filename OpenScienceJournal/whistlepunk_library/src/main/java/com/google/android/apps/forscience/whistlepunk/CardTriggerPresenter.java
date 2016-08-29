@@ -18,12 +18,17 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.Activity;
+import android.app.Fragment;
 import android.os.Build;
+import android.os.Handler;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,29 +37,85 @@ import java.util.List;
  */
 public class CardTriggerPresenter {
 
+    private static final long TRIGGER_TEXT_SWITCHER_DELAY_MS = 3000;
+
     public interface OnCardTriggerClickedListener {
         void onCardTriggerIconClicked();
     }
 
     private final OnCardTriggerClickedListener mListener;
     private List<SensorTrigger> mSensorTriggers = Collections.emptyList();
+    private List<String> mTriggerText = new ArrayList<>();
+    private int mDisplayedTriggerTextIndex = 0;
     private CardViewHolder mCardViewHolder;
+    private Activity mActivity;
+    private Handler mHandler;
+    private Runnable mTriggerRunnable;
 
-    public CardTriggerPresenter(OnCardTriggerClickedListener listener) {
+    public CardTriggerPresenter(OnCardTriggerClickedListener listener, Fragment fragment) {
         mListener = listener;
+        // In tests, the fragment may be null.
+        mActivity = fragment != null ? fragment.getActivity() : null;
+        mHandler = new Handler();
+        mTriggerRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (mTriggerText.size() == 0 || mCardViewHolder == null) {
+                    return;
+                }
+                mDisplayedTriggerTextIndex = (++mDisplayedTriggerTextIndex) % mTriggerText.size();
+                mCardViewHolder.triggerTextSwitcher.setText(
+                        mTriggerText.get(mDisplayedTriggerTextIndex));
+                mHandler.postDelayed(mTriggerRunnable, TRIGGER_TEXT_SWITCHER_DELAY_MS);
+            }
+        };
     }
 
     public void setViews(CardViewHolder cardViewHolder) {
         mCardViewHolder = cardViewHolder;
+        mCardViewHolder.triggerIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onCardTriggerIconClicked();
+            }
+        });
+        if (mSensorTriggers.size() > 0) {
+            trySettingUpTextSwitcher();
+        }
     }
 
     public void onViewRecycled() {
         mCardViewHolder.triggerIcon.setOnClickListener(null);
         mCardViewHolder = null;
+        mHandler.removeCallbacks(mTriggerRunnable);
     }
 
     public void setSensorTriggers(List<SensorTrigger> sensorTriggers) {
         mSensorTriggers = sensorTriggers;
+        if (mDisplayedTriggerTextIndex < mSensorTriggers.size()) {
+            mDisplayedTriggerTextIndex = 0;
+        }
+        createTextForTriggers();
+        if (mCardViewHolder != null) {
+            trySettingUpTextSwitcher();
+        }
+    }
+
+    private void trySettingUpTextSwitcher() {
+        if (mTriggerText.size() == 0) {
+            mCardViewHolder.triggerTextSwitcher.setCurrentText("");
+        } else if (mTriggerText.size() == 1) {
+            // No need for a switcher with one trigger
+            mCardViewHolder.triggerTextSwitcher.setCurrentText(mTriggerText.get(0));
+        } else {
+            mCardViewHolder.triggerTextSwitcher.setCurrentText(mTriggerText.get(
+                    mDisplayedTriggerTextIndex));
+            mCardViewHolder.triggerTextSwitcher.setInAnimation(mCardViewHolder.getContext(),
+                    android.R.anim.fade_in);
+            mCardViewHolder.triggerTextSwitcher.setOutAnimation(mCardViewHolder.getContext(),
+                    android.R.anim.fade_out);
+            mTriggerRunnable.run();
+        }
     }
 
     public List<SensorTrigger> getSensorTriggers() {
@@ -64,21 +125,17 @@ public class CardTriggerPresenter {
     public void updateSensorTriggerUi() {
         if (mSensorTriggers.size() == 0) {
             mCardViewHolder.triggerSection.setVisibility(View.GONE);
-            return;
+        } else {
+            mCardViewHolder.triggerSection.setVisibility(View.VISIBLE);
+            mCardViewHolder.triggerFiredBackground.setVisibility(View.GONE);
         }
-        mCardViewHolder.triggerSection.setVisibility(View.VISIBLE);
-        mCardViewHolder.triggerFiredBackground.setVisibility(View.GONE);
-        mCardViewHolder.triggerIcon.setOnClickListener(new View.OnClickListener() {            @Override
-            public void onClick(View v) {
-                mListener.onCardTriggerIconClicked();
-            }
-        });
-        mCardViewHolder.triggerText.setText(createCardTriggerText(mSensorTriggers.get(0)));
     }
 
-    private String createCardTriggerText(SensorTrigger trigger) {
-        return mCardViewHolder.getContext().getResources()
-                .getStringArray(R.array.trigger_type_list)[trigger.getActionType()];
+    private void createTextForTriggers() {
+        mTriggerText.clear();
+        for (SensorTrigger trigger : mSensorTriggers) {
+            mTriggerText.add(TriggerHelper.buildDescription(trigger, mActivity));
+        }
     }
 
     public void onSensorTriggerFired() {
@@ -101,7 +158,7 @@ public class CardTriggerPresenter {
                     mCardViewHolder.triggerSection.getWidth(), 0);
             animIn.addListener(new AnimatorListenerAdapter() {
                 public void onAnimationStart(Animator animation) {
-                    mCardViewHolder.triggerFiredBackground.setVisibility(View.VISIBLE);
+                    prepareForAnimation();
                 }
 
                 public void onAnimationEnd(Animator animation) {
@@ -112,28 +169,37 @@ public class CardTriggerPresenter {
             animOut.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    if (mCardViewHolder != null) {
-                        mCardViewHolder.triggerFiredBackground.setVisibility(View.GONE);
-                    }
+                    completeAnimation();
                     animOut.removeAllListeners();
                 }
             });
-            animIn.setDuration(200);
-            animOut.setDuration(200);
-            animOut.setStartDelay(500);
+            animIn.setDuration(300);
+            animOut.setDuration(300);
+            animOut.setStartDelay(600);
             animIn.start();
         } else {
             // No animation, so just show and hide the background.
-            mCardViewHolder.triggerFiredBackground.setVisibility(View.VISIBLE);
+            prepareForAnimation();
             mCardViewHolder.triggerFiredBackground.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if (mCardViewHolder != null) {
-                        mCardViewHolder.triggerFiredBackground.setVisibility(
-                                View.GONE);
-                    }
+                    completeAnimation();
                 }
             }, 500);
+        }
+    }
+
+    private void prepareForAnimation() {
+        mCardViewHolder.triggerFiredBackground.setVisibility(View.VISIBLE);
+        mCardViewHolder.triggerFiredText.setVisibility(View.VISIBLE);
+        mCardViewHolder.triggerTextSwitcher.setVisibility(View.INVISIBLE);
+    }
+
+    private void completeAnimation() {
+        if (mCardViewHolder != null) {
+            mCardViewHolder.triggerFiredBackground.setVisibility(View.GONE);
+            mCardViewHolder.triggerFiredText.setVisibility(View.GONE);
+            mCardViewHolder.triggerTextSwitcher.setVisibility(View.VISIBLE);
         }
     }
 }

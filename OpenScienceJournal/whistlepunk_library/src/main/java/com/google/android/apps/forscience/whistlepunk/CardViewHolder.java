@@ -22,12 +22,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextSwitcher;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
@@ -62,8 +62,9 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public Button statusRetryButton;
     public RelativeLayout triggerSection;
     public ImageView triggerIcon;
-    public TextView triggerText;
+    public TextSwitcher triggerTextSwitcher;
     public View triggerFiredBackground;
+    public TextView triggerFiredText;
 
     public CardViewHolder(CardView itemView) {
         super(itemView);
@@ -94,8 +95,9 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         statusRetryButton = (Button) itemView.findViewById(R.id.status_retry_button);
         triggerSection = (RelativeLayout) itemView.findViewById(R.id.sensor_card_trigger_section);
         triggerIcon = (ImageView) itemView.findViewById(R.id.sensor_trigger_icon);
-        triggerText = (TextView) itemView.findViewById(R.id.sensor_trigger_text);
+        triggerTextSwitcher = (TextSwitcher) itemView.findViewById(R.id.trigger_text_switcher);
         triggerFiredBackground = itemView.findViewById(R.id.sensor_trigger_fired_background);
+        triggerFiredText = (TextView) itemView.findViewById(R.id.trigger_fired_text);
     }
 
     public Context getContext() {

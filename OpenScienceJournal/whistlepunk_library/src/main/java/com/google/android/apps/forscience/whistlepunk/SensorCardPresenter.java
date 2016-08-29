@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -47,6 +48,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerListActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
@@ -195,7 +197,7 @@ public class SensorCardPresenter {
                     startSetTriggersActivity();
                 }
             }
-        });
+        }, mParentFragment);
     }
 
     public void onNewData(long timestamp, Bundle bundle) {
