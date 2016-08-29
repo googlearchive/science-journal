@@ -3,7 +3,6 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
@@ -27,12 +26,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.Success;
-import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
-import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
@@ -304,14 +301,15 @@ public class EditTriggerFragment extends Fragment {
         actionBar.setDisplayHomeAsUpEnabled(true);
         if (isNewTrigger()) {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+            actionBar.setHomeActionContentDescription(android.R.string.cancel);
         }
 
         menu.findItem(R.id.action_save).setVisible(isNewTrigger());
 
         SensorAppearance appearance = AppSingleton.getInstance(getActivity())
                 .getSensorAppearanceProvider().getAppearance(mSensorId);
-        String triggerTitle = getString(isNewTrigger() ? R.string.title_activity_add_trigger :
-                R.string.title_activity_edit_trigger);
+        String triggerTitle = getString(isNewTrigger() ? R.string.title_fragment_add_trigger :
+                R.string.title_fragment_edit_trigger);
         actionBar.setTitle(String.format(triggerTitle, appearance.getName(getActivity())));
 
         super.onCreateOptionsMenu(menu, inflater);

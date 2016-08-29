@@ -25,6 +25,7 @@
     android:paddingStart="@dimen/sensor_card_back_padding"
     android:paddingEnd="@dimen/sensor_card_back_padding"
     android:paddingTop="@dimen/sensor_card_back_padding"
+    android:focusable="true"
     >
 
     <RelativeLayout

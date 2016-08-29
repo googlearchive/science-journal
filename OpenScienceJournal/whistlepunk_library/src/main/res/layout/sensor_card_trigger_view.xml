@@ -6,6 +6,7 @@
     android:background="@color/text_color_dark_grey"
     android:id="@+id/sensor_card_trigger_section"
     android:visibility="gone"
+    android:focusable="true"
     >
 
     <View
@@ -18,7 +19,7 @@
         android:visibility="gone"
         />
 
-    <ImageView
+    <ImageButton
         android:layout_width="@dimen/accessibility_touch_target_min_size"
         android:layout_height="@dimen/accessibility_touch_target_min_size"
         android:src="@drawable/ic_label_black_24dp"
@@ -28,6 +29,8 @@
         android:layout_alignParentStart="true"
         android:scaleType="center"
         android:layout_margin="4dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/trigger_view_icon_content_description"
         />
 
     <TextView
