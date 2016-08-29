@@ -512,7 +512,27 @@ public class SensorCardPresenter {
             mCardViewHolder.triggerSection.setVisibility(View.GONE);
             return;
         }
+<<<<<<< 12c4dc4b14b905e87b6e8b7261961cbffeacd40d
+        mCardViewHolder.triggerSection.setVisibility(View.VISIBLE);
+        mCardViewHolder.triggerFiredBackground.setVisibility(View.GONE);
+        mCardViewHolder.triggerIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isRecording() && !mHasError &&
+                        mSourceStatus == SensorStatusListener.STATUS_CONNECTED) {
+                    startSetTriggersActivity();
+                }
+            }
+        });
+        mCardViewHolder.triggerText.setText(createCardTriggerText(mSensorTriggers.get(0)));
+    }
+
+    private String createCardTriggerText(SensorTrigger trigger) {
+        return mCardViewHolder.getContext().getResources()
+                .getStringArray(R.array.trigger_type_list)[trigger.getActionType()];
+=======
         mCardTriggerPresenter.updateSensorTriggerUi();
+>>>>>>> Refactor CardTriggerPresenter out of SensorCardPresenter.
     }
 
     private void updateContentView(boolean animate) {
