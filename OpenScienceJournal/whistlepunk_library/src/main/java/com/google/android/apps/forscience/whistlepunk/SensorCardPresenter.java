@@ -217,7 +217,7 @@ public class SensorCardPresenter {
                 }
                 mCardViewHolder.meterLiveData.setText(spannable, TextView.BufferType.SPANNABLE);
             }
-            if (iconTimeHasElapsed) {
+            if (iconTimeHasElapsed && mSensorPresenter != null) {
                 mSensorAnimationBehavior.updateImageView(mCardViewHolder.meterSensorIcon,
                         value, mSensorPresenter.getMinY(), mSensorPresenter.getMaxY());
             }
@@ -1068,7 +1068,7 @@ public class SensorCardPresenter {
     // When the stats drawer is recycled, this can return the old drawer for a different
     // sensor, so check whether the view is recycled (unavailable) before updating.
     public void updateStats(List<StreamStat> stats) {
-        if (mCardViewHolder != null) {
+        if (mCardViewHolder != null && mSensorPresenter != null) {
             mCardViewHolder.graphStatsList.updateStats(stats);
             mCardViewHolder.meterStatsList.updateStats(stats);
             mSensorPresenter.updateStats(stats);
