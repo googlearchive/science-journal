@@ -583,7 +583,7 @@ public class SensorCardPresenter {
         }
         mCardViewHolder.triggerSection.setVisibility(View.VISIBLE);
         mCardViewHolder.triggerFiredBackground.setVisibility(View.GONE);
-        mCardViewHolder.triggerSection.setOnClickListener(new View.OnClickListener() {
+        mCardViewHolder.triggerIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!isRecording() && !mHasError &&
