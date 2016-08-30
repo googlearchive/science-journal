@@ -17,6 +17,8 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 
 /**
@@ -34,7 +36,8 @@ public interface RecordingDataController {
      *
      * @param runId (previously startLabelId) identifies the run
      */
-    void setStats(String runId, String sensorId, RunStats runStats);
+    void setStats(String runId, String sensorId, RunStats runStats,
+            MaybeConsumer<Success> onSuccess);
 
     /**
      * If an error is encountered storing data or stats for {@code sensorId}, notify {@code

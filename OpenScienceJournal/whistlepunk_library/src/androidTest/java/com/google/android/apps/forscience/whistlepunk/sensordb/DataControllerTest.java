@@ -78,8 +78,8 @@ public class DataControllerTest extends AndroidTestCase {
         stats.putStat(key3, 3);
 
         MemoryMetadataManager mmm = new MemoryMetadataManager();
-        db.makeSimpleRecordingController(mmm).setStats("startLabelId", "sensorId", stats
-        );
+        db.makeSimpleRecordingController(mmm).setStats("startLabelId", "sensorId", stats,
+                TestConsumers.<Success>expectingSuccess());
 
         final AtomicBoolean success = new AtomicBoolean(false);
 
@@ -202,8 +202,9 @@ public class DataControllerTest extends AndroidTestCase {
                 failingMetadata);
         StoringFailureListener listener = new StoringFailureListener();
         String sensorId = Arbitrary.string();
-        rdc.setDataErrorListenerForSensor(sensorId, listener);
-        rdc.setStats("runId", sensorId, new RunStats());
+
+        rdc.setStats("runId", sensorId, new RunStats(),
+                TestConsumers.<Success>expectingFailure(listener));
 
         assertEquals("Failed to store stats for " + sensorId, listener.exception.getMessage());
     }

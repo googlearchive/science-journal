@@ -27,6 +27,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
@@ -389,15 +391,15 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             }
 
             @Override
-            public void stopRecording() {
-                super.stopRecording();
+            public void stopRecording(MaybeConsumer<Success> onSuccess) {
+                super.stopRecording(onSuccess);
 
                 RunStats runStats = statsAccumulator.makeSaveableStats();
                 runStats.putStat(ZoomRecorder.STATS_KEY_TIER_COUNT, zoomRecorder.countTiers());
                 runStats.putStat(ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS,
                         mZoomLevelBetweenTiers);
-                environment.getDataController().setStats(mRunId, getId(), runStats);
                 consumer.stopRecording();
+                environment.getDataController().setStats(mRunId, getId(), runStats, onSuccess);
                 statsAccumulator.clearStats();
             }
 

@@ -23,9 +23,11 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
+import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.TestData;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig
         .ScaleTransform;
@@ -65,7 +67,7 @@ public class ScalarSensorTest {
         recorder.startRecording("runId");
         sensor.pushValue(1, 1);
         sensor.pushValue(2, 2);
-        recorder.stopRecording();
+        recorder.stopRecording(TestConsumers.<Success>expectingSuccess());
         sensor.pushValue(3, 3);
         sensor.pushValue(4, 4);
         sensor.pushValue(5, 5);
@@ -333,14 +335,14 @@ public class ScalarSensorTest {
                 new InMemorySensorDatabase.Reading("test", 50, 50),
                 new InMemorySensorDatabase.Reading("test", 99, 99));
         assertEquals(expected, mDb.getReadings(2));
-        recorder.stopRecording();
+        recorder.stopRecording(TestConsumers.<Success>expectingSuccess());
         RunStats stats = mMetadata.getStats("runId", "test");
         assertEquals(100.0, stats.getStat(StatsAccumulator.KEY_NUM_DATA_POINTS), 0.001);
         assertEquals(3.0, stats.getStat(ZoomRecorder.STATS_KEY_TIER_COUNT), 0.001);
 
         recorder.startRecording("runId2");
         sensor.pushValue(200, 0);
-        recorder.stopRecording();
+        recorder.stopRecording(TestConsumers.<Success>expectingSuccess());
         RunStats stats2 = mMetadata.getStats("runId2", "test");
         assertEquals(1.0, stats2.getStat(StatsAccumulator.KEY_NUM_DATA_POINTS), 0.001);
         assertEquals(1.0, stats2.getStat(ZoomRecorder.STATS_KEY_TIER_COUNT), 0.001);

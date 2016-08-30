@@ -16,6 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
+
 /**
  * An object for controlling when this sensor starts and stops gathering data.
  *
@@ -47,7 +50,7 @@ public interface SensorRecorder extends OptionsListener {
      *
      * @see {@link #onStartRecording} for semantics
      */
-    void stopRecording();
+    void stopRecording(MaybeConsumer<Success> onSuccess);
 
     // TODO: update spec to allow stopObserving to be called when recording should continue?
     // (context: before sensor-as-a-service, nothing could be recorded if it weren't also being
