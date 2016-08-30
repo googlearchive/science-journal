@@ -595,7 +595,6 @@ public class RecorderControllerImpl implements RecorderController {
                                 for (StatefulRecorder recorder : mRecorders.values()) {
                                     recorder.stopRecording();
                                 }
-                                recorderService.endServiceRecording();
                                 // Now stop observing in the service, because after recording
                                 // completes we don't want to keep observing and firing triggers in
                                 // the foreground or background.
@@ -616,6 +615,11 @@ public class RecorderControllerImpl implements RecorderController {
                                 cleanUpUnusedRecorders();
                                 updateRecordingListeners();
                                 mRecordingStateChangeInProgress = false;
+
+                                // Close the service. When the service is closed, if the app is in
+                                // the background, all processes will stop -- so this needs to be
+                                // the last thing to happen!
+                                recorderService.endServiceRecording();
                             }
 
                             @Override
