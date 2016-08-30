@@ -1065,8 +1065,11 @@
     <!-- Menu option to set or edit triggers for a particular sensor [CHAR_LIMIT=25]-->
     <string name="menu_item_set_triggers">Set triggers</string>
 
+    <!-- Title for an activity to a list of triggers for a sensor [CHAR_LIMIT=15]-->
+    <string name="title_activity_trigger_list">Triggers list</string>
+
     <!-- Title for an activity to view and edit triggers for a particular sensor [CHAR_LIMIT=15]-->
-    <string name="title_activity_trigger_list">Triggers for <xliff:g id="sensor_name">%s</xliff:g></string>
+    <string name="title_fragment_trigger_list">Triggers for <xliff:g id="sensor_name">%s</xliff:g></string>
 
     <!-- Content description for a button to add a new trigger [CHAR_LIMIT=NONE]-->
     <string name="btn_add_new_trigger">Create trigger</string>
@@ -1074,17 +1077,26 @@
     <!-- Description of a list of triggers which is empty [CHAR_LIMIT=100]-->
     <string name="empty_trigger_list">No triggers set</string>
 
-    <!-- Title of an activity to edit an existing trigger [CHAR_LIMIT=25]-->
-    <string name="title_activity_edit_trigger">Edit <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
+    <!-- Title of an activity to edit a trigger [CHAR_LIMIT=25] -->
+    <string name="title_activity_edit_trigger">Edit trigger</string>
+
+    <!-- Title of an activity to edit an existing trigger for a specific sensor [CHAR_LIMIT=25]-->
+    <string name="title_fragment_edit_trigger">Edit <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
 
     <!-- Title of an activity to add a new trigger [CHAR_LIMIT=25]-->
-    <string name="title_activity_add_trigger">New <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
+    <string name="title_activity_add_trigger">New trigger</string>
+
+    <!-- Title of an activity to add a new trigger for a specific sensor [CHAR_LIMIT=25]-->
+    <string name="title_fragment_add_trigger">New <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
 
     <!-- The label for a drop-down to choose the type of action a trigger will take [CHAR_LIMIT=30]-->
     <string name="trigger_type_label">Trigger type</string>
 
     <!-- The label for a drop-down to chose the time when a trigger will fire [CHAR_LIMIT=30]-->
     <string name="trigger_when_label">Trigger when</string>
+
+    <!-- Label for trigger value text input field [CHAR_LIMIT=30] -->
+    <string name="trigger_value_label">Trigger value</string>
 
     <!-- The name of a trigger type, when the trigger firing causes recording to start [CHAR_LIMIT=30]-->
     <string name="trigger_type_start_recording">Start recording</string>
@@ -1182,6 +1194,9 @@
 
     <!-- Menu item to disable all active triggers on a card. [CHAR_LIMIT=25] -->
     <string name="disable_all_triggers">Disable triggers</string>
+
+    <!-- Content description of the icon which can be used to jump to the activity to modify current triggers on the card. [CHAR_LIMIT=50] -->
+    <string name="trigger_view_icon_content_description">edit triggers</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

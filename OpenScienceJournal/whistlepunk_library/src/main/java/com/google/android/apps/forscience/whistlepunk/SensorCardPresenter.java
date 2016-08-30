@@ -291,6 +291,7 @@ public class SensorCardPresenter {
             // We are connected with no error! Set everything back to normal.
             mCardViewHolder.flipButton.setVisibility(View.VISIBLE);
             mCardViewHolder.statusViewGroup.setVisibility(View.GONE);
+            updateContentView(false);
             updateSensorTriggerUi();
             return;
         }
@@ -298,6 +299,12 @@ public class SensorCardPresenter {
         mCardViewHolder.statusViewGroup.bringToFront();
         mCardViewHolder.statusViewGroup.setVisibility(View.VISIBLE);
         mCardViewHolder.statusRetryButton.setVisibility(View.GONE);
+
+        // Make the meter and graph view groups not explorable in TalkBack, so the user can't find
+        // those views underneath the error state view.
+        mCardViewHolder.meterViewGroup.setVisibility(View.INVISIBLE);
+        mCardViewHolder.graphViewGroup.setVisibility(View.INVISIBLE);
+
         if (mHasError) {
             // An error
             if (mRetryClickListener != null && mAllowRetry) {

@@ -28,7 +28,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,11 +46,9 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.RecordFragment;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -100,7 +97,7 @@ public class TriggerListFragment extends Fragment {
 
         String sensorName = AppSingleton.getInstance(getActivity())
                 .getSensorAppearanceProvider().getAppearance(mSensorId).getName(getActivity());
-        actionBar.setTitle(getString(R.string.title_activity_trigger_list, sensorName));
+        actionBar.setTitle(getString(R.string.title_fragment_trigger_list, sensorName));
 
         super.onCreateOptionsMenu(menu, inflater);
     }
