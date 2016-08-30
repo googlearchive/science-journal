@@ -48,6 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="16dip"
+        android:visibility="gone"
         style="?android:attr/progressBarStyleSmallTitle"
         />
 
