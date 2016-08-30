@@ -20,6 +20,7 @@ import android.app.Fragment;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -60,6 +61,7 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
@@ -607,7 +609,7 @@ public class ExperimentDetailsFragment extends Fragment
             if (isPictureLabel || isTextLabel || isTriggerLabel) {
                 // TODO: Can this code be reused from PinnedNoteAdapter?
                 TextView textView = (TextView) holder.itemView.findViewById(R.id.note_text);
-                TextView autoText = (TextView) holder.itemView.findViewById(R.id.auto_note_text);
+                TextView autoTextView = (TextView) holder.itemView.findViewById(R.id.auto_note_text);
                 final Label label = isPictureLabel ? mItems.get(position).mPictureLabel :
                         isTextLabel ? mItems.get(position).mTextLabel :
                                 mItems.get(position).mSensorTriggerLabel;
@@ -647,7 +649,7 @@ public class ExperimentDetailsFragment extends Fragment
                         }
                     };
                     holder.itemView.setOnClickListener(clickListener);
-                    autoText.setVisibility(View.GONE);
+                    autoTextView.setVisibility(View.GONE);
                 } else {
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -660,8 +662,11 @@ public class ExperimentDetailsFragment extends Fragment
                     });
                     imageView.setVisibility(View.GONE);
                     if (isTriggerLabel) {
-                        autoText.setVisibility(View.VISIBLE);
-                        autoText.setText(((SensorTriggerLabel) label).getAutogenText());
+                        autoTextView.setVisibility(View.VISIBLE);
+                        String autoText = ((SensorTriggerLabel) label).getAutogenText();
+                        TriggerHelper.populateAutoTextViews(autoTextView, autoText,
+                                R.drawable.ic_label_black_18dp, autoTextView.getResources());
+
                     }
                 }
             }

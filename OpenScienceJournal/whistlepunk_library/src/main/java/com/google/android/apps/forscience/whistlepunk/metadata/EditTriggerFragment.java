@@ -3,6 +3,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
@@ -26,6 +27,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
@@ -467,6 +469,13 @@ public class EditTriggerFragment extends Fragment {
             mValue.requestFocus();
             mValue.setError(getActivity().getResources().getString(
                     R.string.cannot_save_invalid_value));
+            return false;
+        }
+        if (mTypeSpinner.getSelectedItemPosition() == TriggerInformation.TRIGGER_ACTION_ALERT &&
+                getCurrentAlertTypes().length == 0) {
+            AccessibilityUtils.makeSnackbar(getView(),
+                    getResources().getString(R.string.alert_trigger_needs_alerts),
+                    Snackbar.LENGTH_LONG).show();
             return false;
         }
         return true;

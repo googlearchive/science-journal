@@ -45,6 +45,8 @@
             android:minHeight="@dimen/accessibility_touch_target_min_size"
             android:id="@id/trigger_type_spinner"
             android:layout_marginBottom="24dp"
+            style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+            android:popupBackground="@android:color/white"
             />
 
         <TextView
@@ -62,6 +64,8 @@
             android:minHeight="@dimen/accessibility_touch_target_min_size"
             android:id="@id/trigger_when_spinner"
             android:layout_marginBottom="24dp"
+            style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+            android:popupBackground="@android:color/white"
             />
 
         <TextView
