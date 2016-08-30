@@ -161,6 +161,7 @@ public class ManageDevicesFragment extends PreferenceFragment {
         inflater.inflate(R.menu.menu_manage_devices, menu);
         super.onCreateOptionsMenu(menu, inflater);
         mMainMenu = menu;
+        refreshScanningUI();
     }
 
     @Override
@@ -273,7 +274,7 @@ public class ManageDevicesFragment extends PreferenceFragment {
             mHandler.removeMessages(MSG_STOP_SCANNING);
             if (startScanningInDiscoverers()) {
                 mHandler.sendEmptyMessageDelayed(MSG_STOP_SCANNING, SCAN_TIME_MS);
-                setScanningUi(true);
+                refreshScanningUI();
             } else {
                 mScanning = false;
             }
@@ -285,7 +286,7 @@ public class ManageDevicesFragment extends PreferenceFragment {
             mScanning = false;
             stopScanningInDiscoverers();
             mHandler.removeMessages(MSG_STOP_SCANNING);
-            setScanningUi(false);
+            refreshScanningUI();
         }
     }
 
@@ -295,14 +296,16 @@ public class ManageDevicesFragment extends PreferenceFragment {
         }
     }
 
-    private void setScanningUi(boolean scanning) {
-        mAvailableDevices.setProgress(scanning);
+    private void refreshScanningUI() {
+        if (mAvailableDevices != null) {
+            mAvailableDevices.setProgress(mScanning);
+        }
         if (mMainMenu != null) {
             MenuItem refresh = mMainMenu.findItem(R.id.action_refresh);
-            refresh.setEnabled(!scanning);
+            refresh.setEnabled(!mScanning);
             if (getActivity() != null) {
                 refresh.getIcon().setAlpha(getActivity().getResources().getInteger(
-                        scanning ? R.integer.icon_inactive_alpha : R.integer.icon_active_alpha));
+                        mScanning ? R.integer.icon_inactive_alpha : R.integer.icon_active_alpha));
             }
         }
     }
