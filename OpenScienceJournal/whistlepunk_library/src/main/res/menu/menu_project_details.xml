@@ -21,13 +21,13 @@
     <item android:id="@+id/action_edit_project" android:title="@string/action_edit"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_archive_project" android:title="@string/action_archive_project"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="101" app:showAsAction="never" />
     <item android:id="@+id/action_unarchive_project"
           android:title="@string/action_unarchive_project"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="101" app:showAsAction="never" />
     <item android:id="@+id/action_delete_project" android:title="@string/action_delete"
-        android:orderInCategory="100" app:showAsAction="never" android:visible="false"/>
+        android:orderInCategory="102" app:showAsAction="never"/>
     <item android:id="@+id/action_include_archived"
           android:title="@string/action_include_archived_experiments"
-          android:orderInCategory="100" app:showAsAction="never" android:checkable="true"/>
+          android:orderInCategory="103" app:showAsAction="never" android:checkable="true"/>
 </menu>
