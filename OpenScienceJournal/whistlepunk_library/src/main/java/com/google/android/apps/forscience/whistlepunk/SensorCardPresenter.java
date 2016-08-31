@@ -286,13 +286,13 @@ public class SensorCardPresenter {
         if (mCardViewHolder == null) {
             return;
         }
+        updateSensorTriggerUi();
         updateCardMenu();
         if (!mHasError && mSourceStatus == SensorStatusListener.STATUS_CONNECTED) {
             // We are connected with no error! Set everything back to normal.
             mCardViewHolder.flipButton.setVisibility(View.VISIBLE);
             mCardViewHolder.statusViewGroup.setVisibility(View.GONE);
             updateContentView(false);
-            updateSensorTriggerUi();
             return;
         }
         mCardViewHolder.flipButton.setVisibility(View.GONE);
