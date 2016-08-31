@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.project;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -26,7 +25,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -57,7 +55,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
-import com.google.android.apps.forscience.whistlepunk.review.DeleteRunDialog;
+import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,7 +68,7 @@ import java.util.Objects;
  * create an instance of this fragment.
  */
 public class ProjectTabsFragment extends Fragment implements
-        DeleteRunDialog.DeleteRunDialogListener {
+        DeleteMetadataItemDialog.DeleteDialogListener {
 
     private static final String TAG = "ProjectFragment";
 
@@ -218,7 +216,7 @@ public class ProjectTabsFragment extends Fragment implements
     }
 
     @Override
-    public void requestDeleteRun(Bundle extras) {
+    public void requestDelete(Bundle extras) {
         String projectId = extras.getString(ARG_DELETE_PROJECT_ID, "");
         final int position = extras.getInt(ARG_DELETE_PROJECT_POSITION, -1);
         Project project = mAdapter.getItem(position);
@@ -435,10 +433,10 @@ public class ProjectTabsFragment extends Fragment implements
             Bundle extras = new Bundle();
             extras.putString(ARG_DELETE_PROJECT_ID, project.getProjectId());
             extras.putInt(ARG_DELETE_PROJECT_POSITION, position);
-            DeleteRunDialog dialog = DeleteRunDialog.newInstance(
+            DeleteMetadataItemDialog dialog = DeleteMetadataItemDialog.newInstance(
                     R.string.delete_project_dialog_title,
                     R.string.delete_project_dialog_message, extras);
-            dialog.show(getChildFragmentManager(), DeleteRunDialog.TAG);
+            dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
         }
 
         private void showUndoSnackbar(final Project project, final int position) {

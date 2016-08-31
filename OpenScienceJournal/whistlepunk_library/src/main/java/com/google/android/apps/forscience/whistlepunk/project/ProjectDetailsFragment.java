@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.project;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -66,7 +65,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
-import com.google.android.apps.forscience.whistlepunk.review.DeleteRunDialog;
+import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +74,7 @@ import java.util.List;
  * Project detail fragment also contains project experiments list.
  */
 public class ProjectDetailsFragment extends Fragment implements
-        DeleteRunDialog.DeleteRunDialogListener {
+        DeleteMetadataItemDialog.DeleteDialogListener {
 
     private static final String TAG = "ProjectDetailsFragment";
     public static final String ARG_PROJECT_ID = "project_id";
@@ -310,13 +309,13 @@ public class ProjectDetailsFragment extends Fragment implements
     }
 
     private void confirmDelete() {
-        DeleteRunDialog dialog = DeleteRunDialog.newInstance(R.string.delete_project_dialog_title,
-                R.string.delete_project_dialog_message);
-        dialog.show(getChildFragmentManager(), DeleteRunDialog.TAG);
+        DeleteMetadataItemDialog dialog = DeleteMetadataItemDialog.newInstance(
+                R.string.delete_project_dialog_title, R.string.delete_project_dialog_message);
+        dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
     }
 
     @Override
-    public void requestDeleteRun(Bundle extras) {
+    public void requestDelete(Bundle extras) {
         getDataController().deleteProject(mProject, new LoggingConsumer<Success>(TAG,
                 "Delete project") {
             @Override
