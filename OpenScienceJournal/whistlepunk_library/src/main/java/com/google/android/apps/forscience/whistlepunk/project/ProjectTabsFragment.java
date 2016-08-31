@@ -32,6 +32,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -56,6 +57,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
+import com.google.android.apps.forscience.whistlepunk.review.DeleteRunDialog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +69,8 @@ import java.util.Objects;
  * Use the {@link ProjectTabsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProjectTabsFragment extends Fragment {
+public class ProjectTabsFragment extends Fragment implements
+        DeleteRunDialog.DeleteRunDialogListener {
 
     private static final String TAG = "ProjectFragment";
 
@@ -75,6 +78,9 @@ public class ProjectTabsFragment extends Fragment {
      * Boolean extra in instance state if we are including archived items.
      */
     private String EXTRA_INCLUDE_ARCHIVED = "includeArchived";
+
+    private static final String ARG_DELETE_PROJECT_ID = "delete_project_id";
+    private static final String ARG_DELETE_PROJECT_POSITION = "delete_project_position";
 
     private RecyclerView mRecyclerView;
     private TextView mEmptyView;
@@ -211,6 +217,24 @@ public class ProjectTabsFragment extends Fragment {
         });
     }
 
+    @Override
+    public void requestDeleteRun(Bundle extras) {
+        String projectId = extras.getString(ARG_DELETE_PROJECT_ID, "");
+        final int position = extras.getInt(ARG_DELETE_PROJECT_POSITION, -1);
+        Project project = mAdapter.getItem(position);
+        if (project.getProjectId().equals(projectId)) {
+            getDataController().deleteProject(project,
+                    new LoggingConsumer<Success>(TAG, "Delete") {
+                        @Override
+                        public void success(Success value) {
+                            mAdapter.remove(position);
+                        }
+                    });
+        } else {
+            Log.e(TAG, "Could not delete project " + projectId + " since position doesn't match");
+        }
+    }
+
     private class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.CardViewHolder> {
 
         private final List<Project> mProjects;
@@ -231,6 +255,10 @@ public class ProjectTabsFragment extends Fragment {
             mProjects.addAll(projects);
             mActiveProjectId = activeProjectId;
             notifyDataSetChanged();
+        }
+
+        Project getItem(int position) {
+            return mProjects.get(position);
         }
 
         void insert(Project project, int position) {
@@ -403,33 +431,14 @@ public class ProjectTabsFragment extends Fragment {
         /**
          * Show the user a dialog confirming deletion.
          */
-        private void confirmDelete(final Project project, final int position) {
-            AlertDialog dialog = new AlertDialog.Builder(getActivity())
-                    .setTitle(R.string.delete_project_dialog_title)
-                    .setMessage(R.string.delete_project_dialog_message)
-                    .setPositiveButton(R.string.action_delete,
-                            new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            getDataController().deleteProject(project,
-                                    new LoggingConsumer<Success>(TAG, "Delete") {
-                                        @Override
-                                        public void success(Success value) {
-                                            mAdapter.remove(position);
-                                        }
-                                    });
-                        }
-                    })
-                    .setNegativeButton(R.string.action_cancel,
-                            new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Do nothing.
-                        }
-                    })
-                    .setCancelable(true)
-                    .create();
-            dialog.show();
+        private void confirmDelete(Project project, int position) {
+            Bundle extras = new Bundle();
+            extras.putString(ARG_DELETE_PROJECT_ID, project.getProjectId());
+            extras.putInt(ARG_DELETE_PROJECT_POSITION, position);
+            DeleteRunDialog dialog = DeleteRunDialog.newInstance(
+                    R.string.delete_project_dialog_title,
+                    R.string.delete_project_dialog_message, extras);
+            dialog.show(getChildFragmentManager(), DeleteRunDialog.TAG);
         }
 
         private void showUndoSnackbar(final Project project, final int position) {

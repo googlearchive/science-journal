@@ -26,17 +26,38 @@ import android.view.View;
 import com.google.android.apps.forscience.whistlepunk.R;
 
 /**
- * DialogFragment for deleting a run.
+ * DialogFragment for deleting a metadata item.
+ *
+ * TODO: rename this file to DeleteItemDialog
  */
 public class DeleteRunDialog extends DialogFragment {
-    public static final String TAG = "stop_recording_dialog";
+    public static final String TAG = "delete_item_dialog";
+
+    private static final String ARG_TITLE_ID = "title_id";
+    private static final String ARG_MESSAGE_ID = "message_id";
+    private static final String ARG_EXTRAS = "extras";
 
     public interface DeleteRunDialogListener {
-        public void requestDeleteRun();
+
+        /**
+         * Called when the user has confirmed they would like to delete.
+         *
+         * @param extras  Extras bundle passed in to {@link #newInstance(int, int, Bundle)}.
+         */
+        void requestDeleteRun(Bundle extras);
     }
 
-    public static DeleteRunDialog newInstance() {
+    public static DeleteRunDialog newInstance(int titleId, int messageId) {
+        return newInstance(titleId, messageId, new Bundle());
+    }
+
+    public static DeleteRunDialog newInstance(int titleId, int messageId, Bundle extras) {
         DeleteRunDialog dialog = new DeleteRunDialog();
+        Bundle args = new Bundle();
+        args.putInt(ARG_TITLE_ID, titleId);
+        args.putInt(ARG_MESSAGE_ID, messageId);
+        args.putBundle(ARG_EXTRAS, extras);
+        dialog.setArguments(args);
         return dialog;
     }
 
@@ -45,15 +66,15 @@ public class DeleteRunDialog extends DialogFragment {
 
     public AlertDialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-        final View rootView = LayoutInflater.from(getActivity()).inflate(
-                R.layout.delete_run_dialog, null);
-        alertDialog.setView(rootView);
-        alertDialog.setTitle(R.string.delete_run_dialog_title);
+        alertDialog.setTitle(getArguments().getInt(ARG_TITLE_ID));
+        alertDialog.setMessage(getArguments().getInt(ARG_MESSAGE_ID));
 
-        alertDialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+        alertDialog.setPositiveButton(R.string.action_delete,
+                new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ((DeleteRunDialogListener) getParentFragment()).requestDeleteRun();
+                ((DeleteRunDialogListener) getParentFragment()).requestDeleteRun(
+                        getArguments().getBundle(ARG_EXTRAS));
             }
         });
         alertDialog.setNegativeButton(android.R.string.cancel,

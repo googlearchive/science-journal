@@ -39,8 +39,7 @@ public class ProjectDetailsActivity extends MetadataActivity {
             mProjectId = extras.getString(
                     ProjectDetailsFragment.ARG_PROJECT_ID);
             ProjectDetailsFragment fragment = ProjectDetailsFragment.newInstance(mProjectId);
-            fragment.setRetainInstance(true);
-            getSupportFragmentManager().beginTransaction()
+            getFragmentManager().beginTransaction()
                     .add(R.id.container, fragment)
                     .commit();
         } else if (savedInstanceState != null){
