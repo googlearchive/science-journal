@@ -675,7 +675,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     private void deleteThisRun() {
-        DeleteRunDialog dialog = DeleteRunDialog.newInstance();
+        DeleteRunDialog dialog = DeleteRunDialog.newInstance(R.string.delete_run_dialog_title,
+                R.string.run_review_delete_confirm);
         dialog.show(getChildFragmentManager(), DeleteRunDialog.TAG);
     }
 
@@ -776,7 +777,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
-    public void requestDeleteRun() {
+    public void requestDeleteRun(Bundle extras) {
         getDataController().deleteRun(mExperimentRun.getRunId(),
                 new LoggingConsumer<Success>(TAG, "Deleting new experiment") {
                     @Override

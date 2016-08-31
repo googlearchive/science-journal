@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.project;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,13 +28,11 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -67,6 +66,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
+import com.google.android.apps.forscience.whistlepunk.review.DeleteRunDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +74,8 @@ import java.util.List;
 /**
  * Project detail fragment also contains project experiments list.
  */
-public class ProjectDetailsFragment extends Fragment {
+public class ProjectDetailsFragment extends Fragment implements
+        DeleteRunDialog.DeleteRunDialogListener {
 
     private static final String TAG = "ProjectDetailsFragment";
     public static final String ARG_PROJECT_ID = "project_id";
@@ -309,27 +310,13 @@ public class ProjectDetailsFragment extends Fragment {
     }
 
     private void confirmDelete() {
-        AlertDialog dialog = new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.delete_project_dialog_title)
-                .setMessage(R.string.delete_project_dialog_message)
-                .setPositiveButton(R.string.action_delete, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        deleteProject();
-                    }
-                })
-                .setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                })
-                .setCancelable(true)
-                .create();
-        dialog.show();
+        DeleteRunDialog dialog = DeleteRunDialog.newInstance(R.string.delete_project_dialog_title,
+                R.string.delete_project_dialog_message);
+        dialog.show(getChildFragmentManager(), DeleteRunDialog.TAG);
     }
 
-    private void deleteProject() {
+    @Override
+    public void requestDeleteRun(Bundle extras) {
         getDataController().deleteProject(mProject, new LoggingConsumer<Success>(TAG,
                 "Delete project") {
             @Override
