@@ -31,6 +31,8 @@ message TriggerInformation {
     TRIGGER_WHEN_AT = 0;
     TRIGGER_WHEN_RISES_ABOVE = 1;
     TRIGGER_WHEN_DROPS_BELOW = 2;
+    TRIGGER_WHEN_ABOVE = 3;
+    TRIGGER_WHEN_BELOW = 4;
   }
   optional TriggerWhen triggerWhen = 4;
 

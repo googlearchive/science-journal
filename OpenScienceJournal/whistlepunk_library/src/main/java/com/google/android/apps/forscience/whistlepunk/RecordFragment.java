@@ -1694,10 +1694,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
             @Override
             public void onShown(Snackbar snackbar) {
-                mVisibleSnackbar = snackbar;
             }
         });
         bar.show();
+        mVisibleSnackbar = bar;
     }
 
 }

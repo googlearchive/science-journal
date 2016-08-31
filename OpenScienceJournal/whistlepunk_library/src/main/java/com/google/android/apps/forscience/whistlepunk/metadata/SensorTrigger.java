@@ -180,6 +180,10 @@ public class SensorTrigger {
                 result = droppedBelow(newValue, mOldValue);
             } else if (mTriggerInfo.triggerWhen == TriggerInformation.TRIGGER_WHEN_RISES_ABOVE) {
                 result = roseAbove(newValue, mOldValue);
+            } else if (mTriggerInfo.triggerWhen == TriggerInformation.TRIGGER_WHEN_BELOW) {
+                return newValue < mTriggerInfo.valueToTrigger;
+            } else if (mTriggerInfo.triggerWhen == TriggerInformation.TRIGGER_WHEN_ABOVE) {
+                return newValue > mTriggerInfo.valueToTrigger;
             }
         }
         mOldValue = newValue;
