@@ -121,7 +121,6 @@ public class SensorTrigger {
 
     public void setValueToTrigger(double valueToTrigger) {
         mTriggerInfo.valueToTrigger = valueToTrigger;
-        updateLastUsed();
     }
 
     public int getTriggerWhen() {
@@ -130,7 +129,6 @@ public class SensorTrigger {
 
     public void setTriggerWhen(int triggerWhen) {
         mTriggerInfo.triggerWhen = triggerWhen;
-        updateLastUsed();
     }
 
     public int getActionType() {
@@ -148,7 +146,6 @@ public class SensorTrigger {
             mTriggerInfo.triggerAlertTypes = new int[]{};
         }
         mTriggerInfo.triggerActionType = actionType;
-        updateLastUsed();
     }
 
     public long getLastUsed() {
@@ -243,7 +240,6 @@ public class SensorTrigger {
     // For TRIGGER_ACTION_ALERT only.
     public void setAlertTypes(int[] alertTypes) {
         mTriggerInfo.triggerAlertTypes = alertTypes;
-        updateLastUsed();
     }
 
     // For TRIGGER_ACTION_NOTE only.
@@ -254,7 +250,6 @@ public class SensorTrigger {
     // For TRIGGER_ACTION_NOTE only.
     public void setNoteText(String newText) {
         mTriggerInfo.noteText = newText;
-        updateLastUsed();
     }
 
     public Bundle toBundle() {
