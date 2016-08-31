@@ -194,17 +194,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
             List<Experiment> experiments = getExperimentsForProject(project, true);
             db.beginTransaction();
             try {
-                // Delete all the labels and sensors for each experiment.
+                // Delete each experiment.
                 for (Experiment experiment : experiments) {
-                    db.delete(Tables.LABELS, LabelColumns.EXPERIMENT_ID + "=?",
-                            new String[]{experiment.getExperimentId()});
-                    db.delete(Tables.EXPERIMENT_SENSORS, ExperimentSensorColumns.EXPERIMENT_ID +
-                            "=?", new String[]{experiment.getExperimentId()});
+                    deleteExperiment(experiment);
                 }
-
-                // Delete the experiments.
-                db.delete(Tables.EXPERIMENTS, ExperimentColumns.PROJECT_ID + "=?",
-                        new String[]{project.getProjectId()});
 
                 // Delete the project.
                 db.delete(Tables.PROJECTS, ProjectColumns.PROJECT_ID + "=?",
@@ -526,10 +519,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
             }
 
         }
-        Run result = new Run(runId, runIndex, sensorLayouts, autoZoomEnabled);
-        result.setArchived(archived);
-        result.setTitle(title);
-        return result;
+        if (runIndex != -1) {
+            Run result = new Run(runId, runIndex, sensorLayouts, autoZoomEnabled);
+            result.setArchived(archived);
+            result.setTitle(title);
+            return result;
+        } else {
+            return null;
+        }
     }
 
     @Override

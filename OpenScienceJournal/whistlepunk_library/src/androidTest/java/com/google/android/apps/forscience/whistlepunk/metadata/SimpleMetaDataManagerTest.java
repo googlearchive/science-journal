@@ -530,6 +530,54 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(startLabel.getLabelId(), loaded.getId());
         assertEquals(sensorIds, saved.getSensorIds());
         assertEquals(sensorIds, loaded.getSensorIds());
+
+        // Test that runs are deleted.
+        mMetaDataManager.deleteRun(startLabel.getLabelId());
+        loaded = mMetaDataManager.getRun(startLabel.getLabelId());
+        assertNull(loaded);
+    }
+
+    public void testExperimentDelete() {
+        Project project = mMetaDataManager.newProject();
+        Experiment experiment = mMetaDataManager.newExperiment(project);
+        final ApplicationLabel startLabel = newStartLabel("startId", 1);
+        GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
+        layout1.sensorId = "sensor1";
+        GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
+        layout2.sensorId = "sensor2";
+        final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
+                Lists.newArrayList(layout1, layout2);
+        mMetaDataManager.addLabel(experiment, startLabel);
+        mMetaDataManager.newRun(experiment, startLabel.getRunId(), sensorLayouts);
+
+        mMetaDataManager.deleteExperiment(experiment);
+
+        assertNull(mMetaDataManager.getExperimentById(experiment.getExperimentId()));
+        // Test that runs are deleted when deleting experiments.
+        assertNull(mMetaDataManager.getRun(startLabel.getLabelId()));
+    }
+
+    public void testProjectDelete() {
+        Project project = mMetaDataManager.newProject();
+        Experiment experiment = mMetaDataManager.newExperiment(project);
+        final ApplicationLabel startLabel = newStartLabel("startId", 1);
+        GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
+        layout1.sensorId = "sensor1";
+        GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
+        layout2.sensorId = "sensor2";
+        final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
+                Lists.newArrayList(layout1, layout2);
+        mMetaDataManager.addLabel(experiment, startLabel);
+        Run saved = mMetaDataManager.newRun(experiment, startLabel.getRunId(), sensorLayouts);
+
+        mMetaDataManager.deleteProject(project);
+
+        assertNull(mMetaDataManager.getProjectById(project.getProjectId()));
+
+        // Test that experiments and runs are deleted when deleting projects.
+        assertNull(mMetaDataManager.getExperimentById(experiment.getExperimentId()));
+        assertNull(mMetaDataManager.getRun(startLabel.getLabelId()));
+        assertEquals(0, mMetaDataManager.getLabelsWithStartId(startLabel.getLabelId()).size());
     }
 
     public void testExperimentSensorLayout() {
