@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.project;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -32,6 +33,7 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -226,16 +228,20 @@ public class ProjectDetailsFragment extends Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         MenuItem archiveButton = menu.findItem(R.id.action_archive_project);
         MenuItem unarchiveButton = menu.findItem(R.id.action_unarchive_project);
+        MenuItem deleteButton = menu.findItem(R.id.action_delete_project);
 
         // If the project hasn't loaded yet hide both options.
         if (mProject == null) {
             archiveButton.setVisible(false);
             unarchiveButton.setVisible(false);
+            deleteButton.setVisible(false);
         } else {
             // Show the archive button if the project is not already archived.
             archiveButton.setVisible(!mProject.isArchived());
             // Show the unarchive button if it's already archived.
             unarchiveButton.setVisible(mProject.isArchived());
+            deleteButton.setVisible(true);
+            deleteButton.setEnabled(mProject.isArchived());
         }
         MenuItem includeArchived = menu.findItem(R.id.action_include_archived);
         includeArchived.setChecked(mIncludeArchived);
@@ -260,9 +266,7 @@ public class ProjectDetailsFragment extends Fragment {
             return true;
 
         } else if (id == R.id.action_delete_project) {
-            // TODO: Confirm deletion and delete the project and its related assets and
-            // records form the file system and database and close the activity.
-
+            confirmDelete();
             return true;
         } else if (id == R.id.action_include_archived) {
             item.setChecked(!item.isChecked());
@@ -302,6 +306,37 @@ public class ProjectDetailsFragment extends Fragment {
                         archived ? TrackerConstants.ACTION_ARCHIVE :
                                 TrackerConstants.ACTION_UNARCHIVE,
                         null, 0);
+    }
+
+    private void confirmDelete() {
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.delete_project_dialog_title)
+                .setMessage(R.string.delete_project_dialog_message)
+                .setPositiveButton(R.string.action_delete, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteProject();
+                    }
+                })
+                .setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .setCancelable(true)
+                .create();
+        dialog.show();
+    }
+
+    private void deleteProject() {
+        getDataController().deleteProject(mProject, new LoggingConsumer<Success>(TAG,
+                "Delete project") {
+            @Override
+            public void success(Success value) {
+                getActivity().finish();
+            }
+        });
     }
 
     public static class ProjectDetailAdapter extends RecyclerView.Adapter<ViewHolder> {

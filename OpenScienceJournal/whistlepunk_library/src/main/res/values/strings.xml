@@ -53,6 +53,9 @@
     <!-- Menu option for deleting an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_delete">Delete</string>
 
+    <!-- Dialog action for canceling an operation [CHAR_LIMIT=10] -->
+    <string name="action_cancel">Cancel</string>
+
     <!-- Menu option for the ruler tool [CHAR_LIMIT=25] -->
     <string name="action_ruler">Ruler</string>
 
@@ -869,6 +872,12 @@
 
     <!-- Checkable menu item label for viewing all experiments, including the archived ones [CHAR_LIMIT=50]-->
     <string name="action_include_archived_experiments">Include archived experiments</string>
+
+    <!-- Title for alert asking for confirmation to delete a project [CHAR_LIMIT=30] -->
+    <string name="delete_project_dialog_title">Delete this project?</string>
+
+    <!-- Alert content to confirm that a project should really be deleted and that this action is final [CHAR_LIMIT=NONE] -->
+    <string name="delete_project_dialog_message">This project, all its experiments, trials and notes will be deleted. This action cannot be undone.</string>
 
     <!-- Menu item label that creates a new experiment in a popup menu for a project [CHAR_LIMIT=50]-->
     <string name="action_new_experiment">New experiment</string>
