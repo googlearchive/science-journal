@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.project;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -25,11 +26,12 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -114,6 +116,17 @@ public class ProjectTabsFragment extends Fragment {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.projects_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator() {
+            @Override
+            public void onAddFinished(RecyclerView.ViewHolder item) {
+                // The default item animator messes with the alpha, so we need to reset the alpha.
+                ProjectAdapter.CardViewHolder holder = (ProjectAdapter.CardViewHolder) item;
+                holder.itemView.setAlpha(holder.itemView.getResources().getFraction(
+                        holder.archivedIndicator.getVisibility() == View.VISIBLE ?
+                                R.fraction.metadata_card_archived_alpha :
+                                R.fraction.metadata_card_alpha, 1, 1));
+            }
+        });
         mAdapter = new ProjectAdapter();
         mRecyclerView.setAdapter(mAdapter);
         if (savedInstanceState != null) {
@@ -220,6 +233,18 @@ public class ProjectTabsFragment extends Fragment {
             notifyDataSetChanged();
         }
 
+        void insert(Project project, int position) {
+            mProjects.add(position, project);
+            notifyItemInserted(position);
+            notifyItemRangeChanged(position, mAdapter.getItemCount());
+        }
+
+        void remove(int position) {
+            mProjects.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, mAdapter.getItemCount());
+        }
+
         @Override
         public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             CardView view = (CardView) LayoutInflater.from(parent.getContext())
@@ -228,7 +253,7 @@ public class ProjectTabsFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(final CardViewHolder holder, int position) {
+        public void onBindViewHolder(final CardViewHolder holder, final int position) {
             final Project project = mProjects.get(position);
             Resources res = holder.itemView.getContext().getResources();
             String projectText = project.getDisplayTitle(getActivity());
@@ -264,7 +289,7 @@ public class ProjectTabsFragment extends Fragment {
 
                         @Override
                         public void onClick(View v) {
-                            showPopup(v, project);
+                            showPopup(v, project, position);
                         }
                     });
             getDataController().getExperimentsForProject(project, false /* no archived */,
@@ -306,13 +331,14 @@ public class ProjectTabsFragment extends Fragment {
             return mProjects.size();
         }
 
-        private void showPopup(View view, final Project project) {
+        private void showPopup(View view, final Project project, final int position) {
             final Context context = view.getContext();
             PopupMenu menu = new PopupMenu(context, view);
             MenuInflater inflater = menu.getMenuInflater();
             inflater.inflate(R.menu.menu_project_card, menu.getMenu());
             menu.getMenu().findItem(R.id.action_archive_project).setVisible(!project.isArchived());
             menu.getMenu().findItem(R.id.action_unarchive_project).setVisible(project.isArchived());
+            menu.getMenu().findItem(R.id.action_delete_project).setEnabled(project.isArchived());
 
             menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 
@@ -339,7 +365,9 @@ public class ProjectTabsFragment extends Fragment {
                     } else if (itemId == R.id.action_archive_project
                             || itemId == R.id.action_unarchive_project) {
                         setProjectArchived(project,
-                                item.getItemId() == R.id.action_archive_project);
+                                item.getItemId() == R.id.action_archive_project, position);
+                    } else if (itemId == R.id.action_delete_project) {
+                        confirmDelete(project, position);
                     }
                     return true;
                 }
@@ -347,7 +375,8 @@ public class ProjectTabsFragment extends Fragment {
             menu.show();
         }
 
-        private void setProjectArchived(final Project project, final boolean archived) {
+        private void setProjectArchived(final Project project, final boolean archived,
+                final int position) {
             project.setArchived(archived);
             getDataController().updateProject(project,
                     new LoggingConsumer<Success>(TAG, "Update project") {
@@ -357,17 +386,53 @@ public class ProjectTabsFragment extends Fragment {
                                 // Just update, it's cleaner.
                                 notifyDataSetChanged();
                             } else {
-                                // Reload everything, need to kill the item.
-                                loadProjects();
+                                if (archived) {
+                                    mAdapter.remove(position);
+                                } else {
+                                    mAdapter.insert(project, position);
+                                    mRecyclerView.scrollToPosition(position);
+                                }
                             }
                             if (archived) {
-                                showUndoSnackbar(project);
+                                showUndoSnackbar(project, position);
                             }
                         }
                     });
         }
 
-        private void showUndoSnackbar(final Project project) {
+        /**
+         * Show the user a dialog confirming deletion.
+         */
+        private void confirmDelete(final Project project, final int position) {
+            AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.delete_project_dialog_title)
+                    .setMessage(R.string.delete_project_dialog_message)
+                    .setPositiveButton(R.string.action_delete,
+                            new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            getDataController().deleteProject(project,
+                                    new LoggingConsumer<Success>(TAG, "Delete") {
+                                        @Override
+                                        public void success(Success value) {
+                                            mAdapter.remove(position);
+                                        }
+                                    });
+                        }
+                    })
+                    .setNegativeButton(R.string.action_cancel,
+                            new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Do nothing.
+                        }
+                    })
+                    .setCancelable(true)
+                    .create();
+            dialog.show();
+        }
+
+        private void showUndoSnackbar(final Project project, final int position) {
             if (getActivity() == null) {
                 return;
             }
@@ -377,7 +442,7 @@ public class ProjectTabsFragment extends Fragment {
             bar.setAction(R.string.action_undo, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    setProjectArchived(project, false);
+                    setProjectArchived(project, false, position);
                 }
             }).show();
         }
