@@ -62,6 +62,7 @@ import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
+import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
@@ -103,7 +104,7 @@ import java.util.List;
  */
 public class ExperimentDetailsFragment extends Fragment
         implements AddNoteDialog.AddNoteDialogListener, EditNoteDialog.EditNoteDialogListener,
-        Handler.Callback {
+        Handler.Callback, DeleteMetadataItemDialog.DeleteDialogListener {
 
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
     public static final String ARG_CREATE_TASK = "create_task";
@@ -291,6 +292,8 @@ public class ExperimentDetailsFragment extends Fragment
                 !mExperiment.isArchived());
         menu.findItem(R.id.action_unarchive_experiment).setVisible(mExperiment != null &&
                 mExperiment.isArchived());
+        menu.findItem(R.id.action_delete_experiment).setEnabled(mExperiment != null
+                && mExperiment.isArchived());
     }
 
     @Override
@@ -314,6 +317,8 @@ public class ExperimentDetailsFragment extends Fragment
             mIncludeArchived = item.isChecked();
             loadExperimentData(mExperiment);
             return true;
+        } else if (itemId == R.id.action_delete_experiment) {
+            confirmDelete();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -551,6 +556,23 @@ public class ExperimentDetailsFragment extends Fragment
                         launchObserve();
                     }
                 }, getResources().getDrawable(R.drawable.ic_observe_white_24dp));
+    }
+
+    private void confirmDelete() {
+        DeleteMetadataItemDialog dialog = DeleteMetadataItemDialog.newInstance(
+                R.string.delete_experiment_dialog_title, R.string.delete_experiment_dialog_message);
+        dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
+    }
+
+    @Override
+    public void requestDelete(Bundle extras) {
+        getDataController().deleteExperiment(mExperiment, new LoggingConsumer<Success>(TAG,
+                "Delete experiment") {
+            @Override
+            public void success(Success value) {
+                getActivity().finish();
+            }
+        });
     }
 
     public static class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.ViewHolder> {

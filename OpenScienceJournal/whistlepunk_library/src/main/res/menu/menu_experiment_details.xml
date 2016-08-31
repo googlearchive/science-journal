@@ -30,7 +30,10 @@
     <item android:id="@+id/action_unarchive_experiment"
           android:title="@string/action_unarchive_experiment"
           android:orderInCategory="102" app:showAsAction="never" />
+    <item android:id="@+id/action_delete_experiment"
+        android:title="@string/action_delete"
+        android:orderInCategory="103" app:showAsAction="never"/>
     <item android:id="@+id/action_include_archived"
           android:title="@string/include_archived_trials"
-          android:orderInCategory="100" app:showAsAction="never" android:checkable="true"/>
+          android:orderInCategory="104" app:showAsAction="never" android:checkable="true"/>
 </menu>
