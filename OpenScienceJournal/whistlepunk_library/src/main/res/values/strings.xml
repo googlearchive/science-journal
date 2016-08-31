@@ -435,6 +435,9 @@
     <!-- Undo action in the snackbar. [CHAR_LIMIT=15] -->
     <string name="action_undo">Undo</string>
 
+    <!-- Message of alert when the project is deleted [CHAR_LIMIT=100] -->
+    <string name="deleted_project_message">Project deleted.</string>
+
     <!-- Hint (aka. placeholder) for project title input field [CHAR_LIMIT=50] -->
     <string name="project_title_hint">Project title</string>
 

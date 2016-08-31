@@ -19,8 +19,11 @@
     <item android:id="@+id/action_new_experiment" android:title="@string/action_new_experiment"
           android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_archive_project" android:title="@string/action_archive_project"
-          android:orderInCategory="100" app:showAsAction="never" />
+          android:orderInCategory="101" app:showAsAction="never" />
     <item android:id="@+id/action_unarchive_project"
           android:title="@string/action_unarchive_project"
-          android:orderInCategory="100" app:showAsAction="never" />
+          android:orderInCategory="101" app:showAsAction="never" />
+    <item android:id="@+id/action_delete_project"
+        android:title="@string/action_delete"
+        android:orderInCategory="102" app:showAsAction="never" />
 </menu>
