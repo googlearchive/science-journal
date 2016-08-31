@@ -6,6 +6,8 @@ import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 
+import java.util.ArrayList;
+
 /**
  * Activity for adding and editing triggers.
  */
@@ -30,8 +32,10 @@ public class EditTriggerActivity extends AppCompatActivity {
             String triggerId = extras.getString(EXTRA_TRIGGER_ID, "");
             byte[] sensorLayoutBlob = extras.getByteArray(EXTRA_SENSOR_LAYOUT_BLOB);
             int position = extras.getInt(TriggerListActivity.EXTRA_LAYOUT_POSITION);
+            ArrayList<String> triggerOrder = extras.getStringArrayList(
+                    TriggerListActivity.EXTRA_TRIGGER_ORDER);
             EditTriggerFragment fragment = EditTriggerFragment.newInstance(sensorId, experimentId,
-                    triggerId, triggerInfoBlob, sensorLayoutBlob, position);
+                    triggerId, triggerInfoBlob, sensorLayoutBlob, position, triggerOrder);
             getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
         }
     }

@@ -75,7 +75,7 @@ public class EditTriggerFragment extends Fragment {
 
     public static EditTriggerFragment newInstance(String sensorId, String experimentId,
             String triggerId, byte[] triggerInfoBlob, byte[] sensorLayoutBlob,
-            int position) {
+            int position, ArrayList<String> triggerOrder) {
         EditTriggerFragment result = new EditTriggerFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SENSOR_ID, sensorId);
@@ -84,6 +84,7 @@ public class EditTriggerFragment extends Fragment {
         args.putByteArray(ARG_SENSOR_LAYOUT, sensorLayoutBlob);
         args.putByteArray(ARG_TRIGGER_INFO, triggerInfoBlob);
         args.putInt(ARG_LAYOUT_POSITION, position);
+        args.putStringArrayList(TriggerListFragment.ARG_TRIGGER_ORDER, triggerOrder);
         result.setArguments(args);
         return result;
     }
@@ -506,6 +507,8 @@ public class EditTriggerFragment extends Fragment {
         upIntent.putExtra(TriggerListActivity.EXTRA_SENSOR_ID, mSensorId);
         upIntent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, mExperimentId);
         upIntent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION, mSensorLayoutPosition);
+        upIntent.putExtra(TriggerListActivity.EXTRA_TRIGGER_ORDER,
+                getArguments().getStringArrayList(TriggerListActivity.EXTRA_TRIGGER_ORDER));
         if (getActivity() != null) {
             NavUtils.navigateUpTo(getActivity(), upIntent);
         } else {
