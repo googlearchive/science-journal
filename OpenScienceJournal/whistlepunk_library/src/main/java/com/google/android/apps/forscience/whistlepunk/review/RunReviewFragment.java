@@ -106,6 +106,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private static final String KEY_EXTERNAL_AXIS_MINIMUM = "external_axis_min";
     private static final String KEY_EXTERNAL_AXIS_MAXIMUM = "external_axis_max";
     private static final String KEY_RUN_REVIEW_OVERLAY_TIMESTAMP = "run_review_overlay_time";
+    private static final String KEY_STATS_OVERLAY_VISIBLE = "stats_overlay_visible";
 
     private int mLoadingStatus = GRAPH_LOAD_STATUS_IDLE;
 
@@ -206,10 +207,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             mStartLabelId = getArguments().getString(ARG_START_LABEL_ID);
             mSelectedSensorIndex = getArguments().getInt(ARG_SENSOR_INDEX);
         }
-        if (savedInstanceState != null &&
-                savedInstanceState.containsKey(KEY_SELECTED_SENSOR_INDEX)) {
-            // saved instance state is more recent than args, so it takes precedence.
-            mSelectedSensorIndex = savedInstanceState.getInt(KEY_SELECTED_SENSOR_INDEX);
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(KEY_SELECTED_SENSOR_INDEX)) {
+                // saved instance state is more recent than args, so it takes precedence.
+                mSelectedSensorIndex = savedInstanceState.getInt(KEY_SELECTED_SENSOR_INDEX);
+            }
+            mShowStatsOverlay = savedInstanceState.getBoolean(KEY_STATS_OVERLAY_VISIBLE, false);
         }
         mRunReviewExporter = new RunReviewExporter(getDataController(),
                 new RunReviewExporter.Listener() {
@@ -380,6 +383,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mChartController.setChartView((ChartView) rootView.findViewById(R.id.chart_view));
         mChartController.setProgressView((ProgressBar) rootView.findViewById(R.id.chart_progress));
         mChartController.setInteractionListener(mExternalAxis.getInteractionListener());
+        mChartController.setShowStatsOverlay(mShowStatsOverlay);
         mRunReviewOverlay.setChartController(mChartController);
 
         if (savedInstanceState != null) {
@@ -549,6 +553,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         outState.putLong(KEY_EXTERNAL_AXIS_MINIMUM, mExternalAxis.getXMin());
         outState.putLong(KEY_EXTERNAL_AXIS_MAXIMUM, mExternalAxis.getXMax());
         outState.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
+        outState.putBoolean(KEY_STATS_OVERLAY_VISIBLE, mShowStatsOverlay);
     }
 
     private void attachToRun(final Experiment experiment, final ExperimentRun run,
