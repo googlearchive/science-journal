@@ -4,13 +4,17 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
@@ -139,5 +143,16 @@ public class TriggerHelper {
             result = res.getString(R.string.trigger_when_drops_below_description, action, value, units);
         }
         return result;
+    }
+
+    public static void populateAutoTextViews(TextView autoTextView, String autoText,
+            int drawableId, Resources res) {
+        autoTextView.setText(autoText);
+        autoTextView.setContentDescription(res.getString(
+                R.string.trigger_label_icon_content_description, autoText));
+        Drawable drawable = res.getDrawable(drawableId);
+        DrawableCompat.setTint(drawable.mutate(), res.getColor(R.color.text_color_light_grey));
+        autoTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null,
+                null);
     }
 }
