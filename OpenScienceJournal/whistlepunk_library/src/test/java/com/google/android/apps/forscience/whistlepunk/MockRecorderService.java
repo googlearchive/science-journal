@@ -37,7 +37,8 @@ public class MockRecorderService extends RecorderService {
     }
 
     @Override
-    public void endServiceRecording() {
+    public void endServiceRecording(boolean notifyRecordingEnded, String runId,
+            String experimentTitle) {
         // Do nothing.
     }
 }

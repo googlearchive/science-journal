@@ -36,6 +36,8 @@ import android.util.Log;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
@@ -121,8 +123,8 @@ public class RecorderControllerImpl implements RecorderController {
         }
 
 
-        public void stopRecording() {
-            mRecorder.stopRecording();
+        private void stopRecording(MaybeConsumer<Success> onSuccess) {
+            mRecorder.stopRecording(onSuccess);
             mRecording = false;
         }
 
@@ -212,6 +214,7 @@ public class RecorderControllerImpl implements RecorderController {
     private TriggerHelper mTriggerHelper;
     private Uri mAudioAlertUri;
     private boolean mActivityInForeground = false;
+    private int mStatsSaved = 0;
 
     private FailureListener mRemoteFailureListener = new FailureListener() {
         @Override
@@ -588,13 +591,30 @@ public class RecorderControllerImpl implements RecorderController {
                             @Override
                             public void success(ApplicationLabel value) {
                                 trackStopRecording(recorderService.getApplicationContext(), value);
-                                String runId = mRecording.getRunId();
+                                final String runId = mRecording.getRunId();
 
                                 // Now actually stop the recording.
                                 mRecording = null;
+                                mStatsSaved = 0;
+                                final int statsToSave = mRecorders.values().size();
+                                LoggingConsumer<Success> onSuccess =
+                                        new LoggingConsumer<Success>(TAG, "save stats") {
+                                    @Override
+                                    public void success(Success value) {
+                                        if (++mStatsSaved == statsToSave) {
+                                            // Close the service. When the service is closed, if the
+                                            // app is in the background, all processes will stop --
+                                            // so this needs to be the last thing to happen!
+                                            recorderService.endServiceRecording(
+                                                    !mActivityInForeground, runId,
+                                                    mSelectedExperiment.getDisplayTitle(mContext));
+                                        }
+                                    }
+                                };
                                 for (StatefulRecorder recorder : mRecorders.values()) {
-                                    recorder.stopRecording();
+                                    recorder.stopRecording(onSuccess);
                                 }
+
                                 // Now stop observing in the service, because after recording
                                 // completes we don't want to keep observing and firing triggers in
                                 // the foreground or background.
@@ -607,19 +627,9 @@ public class RecorderControllerImpl implements RecorderController {
                                 }
                                 mServiceObservers.clear();
 
-                                // Only create a notification if we are in the background.
-                                if (!mActivityInForeground) {
-                                    notifyRecordingEnded(runId);
-                                }
-
                                 cleanUpUnusedRecorders();
                                 updateRecordingListeners();
                                 mRecordingStateChangeInProgress = false;
-
-                                // Close the service. When the service is closed, if the app is in
-                                // the background, all processes will stop -- so this needs to be
-                                // the last thing to happen!
-                                recorderService.endServiceRecording();
                             }
 
                             @Override
@@ -634,29 +644,6 @@ public class RecorderControllerImpl implements RecorderController {
         });
     }
 
-    private void notifyRecordingEnded(String runId) {
-        Intent intent = new Intent(mContext, RunReviewActivity.class);
-
-        intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, runId);
-        intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, 0);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        PendingIntent notificationIntent = PendingIntent.getActivity(mContext,
-                NotificationIds.RECORDING_COMPLETED,intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        ((NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE)).notify(
-                NotificationIds.RECORDING_COMPLETED, new Notification.Builder(mContext)
-                        .setContentTitle(mContext.getString(
-                                R.string.service_notification_content_title))
-                        .setContentText(mContext.getString(
-                                R.string.recording_stopped_notification_text))
-                        .setSubText(mSelectedExperiment.getDisplayTitle(mContext))
-                        .setSmallIcon(R.drawable.ic_notification_24dp)
-                        .setContentIntent(notificationIntent)
-                        .setAutoCancel(true)
-                        .build());
-    }
-
     @Override
     public void stopRecordingWithoutSaving() {
         if (mRecording == null || mRecordingStateChangeInProgress) {
@@ -664,13 +651,13 @@ public class RecorderControllerImpl implements RecorderController {
         }
         mRecording = null;
         for (StatefulRecorder recorder : mRecorders.values()) {
-            recorder.stopRecording();
+            recorder.stopRecording(LoggingConsumer.<Success>expectSuccess(TAG, "stop recording"));
         }
         mRecordingStateChangeInProgress = true;
         withBoundRecorderService(new FallibleConsumer<RecorderService>() {
             @Override
             public void take(RecorderService recorderService) throws RemoteException {
-                recorderService.endServiceRecording();
+                recorderService.endServiceRecording(false, "", "");
                 mRecordingStateChangeInProgress = false;
             }
         });

@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.app.Fragment;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,8 +26,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
+import com.google.android.apps.forscience.whistlepunk.NotificationIds;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.RecorderService;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.project.MetadataActivity;
 
@@ -59,6 +62,7 @@ public class RunReviewActivity extends MetadataActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_run_review);
+        RecorderService.clearRecordingCompletedNotification(getApplicationContext());
         mFromRecord = getIntent().getExtras().getBoolean(EXTRA_FROM_RECORD, false);
         boolean createTask = getIntent().getExtras().getBoolean(EXTRA_CREATE_TASK, true);
         supportPostponeEnterTransition();

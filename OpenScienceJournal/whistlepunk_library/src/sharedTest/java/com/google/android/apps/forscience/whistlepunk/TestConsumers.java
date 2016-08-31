@@ -17,7 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
 
 import junit.framework.Assert;
 
@@ -79,5 +81,19 @@ public class TestConsumers {
 
             }
         });
+    }
+
+    public static <T> MaybeConsumer expectingFailure(final FailureListener listener) {
+        return new MaybeConsumer<T>() {
+            @Override
+            public void success(T actual) {
+                throw new RuntimeException("Expected failure");
+            }
+
+            @Override
+            public void fail(Exception e) {
+                listener.fail(e);
+            }
+        };
     }
 }

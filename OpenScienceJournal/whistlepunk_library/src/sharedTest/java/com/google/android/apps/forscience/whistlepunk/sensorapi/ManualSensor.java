@@ -19,7 +19,10 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
+import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
@@ -68,7 +71,7 @@ public class ManualSensor extends ScalarSensor {
             }
 
             @Override
-            public void stopRecording() {
+            public void stopRecording(MaybeConsumer<Success> onSuccess) {
 
             }
 
@@ -165,6 +168,6 @@ public class ManualSensor extends ScalarSensor {
             pushValue(i, i);
         }
 
-        recorder.stopRecording();
+        recorder.stopRecording(TestConsumers.<Success>expectingSuccess());
     }
 }

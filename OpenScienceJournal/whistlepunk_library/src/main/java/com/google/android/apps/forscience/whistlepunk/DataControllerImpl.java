@@ -504,20 +504,13 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void setStats(final String runId, final String sensorId, final RunStats runStats) {
-        mMetaDataThread.execute(new Runnable() {
+    public void setStats(final String runId, final String sensorId, final RunStats runStats,
+            final MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
-            public void run() {
-                try {
-                    mMetaDataManager.setStats(runId, sensorId, runStats);
-                } catch (final Exception e) {
-                    mUiThread.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyFailureListener(sensorId, e);
-                        }
-                    });
-                }
+            public Success call() throws Exception {
+                mMetaDataManager.setStats(runId, sensorId, runStats);
+                return Success.SUCCESS;
             }
         });
     }
