@@ -87,14 +87,13 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayO
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
         EditNoteDialog.EditNoteDialogListener, EditTimeDialogListener,
-        DeleteRunDialog.DeleteRunDialogListener, AudioSettingsDialog.AudioSettingsDialogListener,
+        DeleteMetadataItemDialog.DeleteDialogListener, AudioSettingsDialog.AudioSettingsDialogListener,
         ChartController.ChartLoadingStatus {
     public static final String ARG_START_LABEL_ID = "start_label_id";
     public static final String ARG_SENSOR_INDEX = "sensor_tag_index";
@@ -680,9 +679,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     private void deleteThisRun() {
-        DeleteRunDialog dialog = DeleteRunDialog.newInstance(R.string.delete_run_dialog_title,
-                R.string.run_review_delete_confirm);
-        dialog.show(getChildFragmentManager(), DeleteRunDialog.TAG);
+        DeleteMetadataItemDialog dialog = DeleteMetadataItemDialog.newInstance(
+                R.string.delete_run_dialog_title, R.string.run_review_delete_confirm);
+        dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
     }
 
     private void setArchived(final boolean archived) {
@@ -782,7 +781,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
-    public void requestDeleteRun(Bundle extras) {
+    public void requestDelete(Bundle extras) {
         getDataController().deleteRun(mExperimentRun.getRunId(),
                 new LoggingConsumer<Success>(TAG, "Deleting new experiment") {
                     @Override

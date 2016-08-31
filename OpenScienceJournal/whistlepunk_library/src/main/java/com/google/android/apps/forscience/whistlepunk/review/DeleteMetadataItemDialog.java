@@ -20,39 +20,35 @@ import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 
 /**
  * DialogFragment for deleting a metadata item.
- *
- * TODO: rename this file to DeleteItemDialog
  */
-public class DeleteRunDialog extends DialogFragment {
+public class DeleteMetadataItemDialog extends DialogFragment {
     public static final String TAG = "delete_item_dialog";
 
     private static final String ARG_TITLE_ID = "title_id";
     private static final String ARG_MESSAGE_ID = "message_id";
     private static final String ARG_EXTRAS = "extras";
 
-    public interface DeleteRunDialogListener {
+    public interface DeleteDialogListener {
 
         /**
          * Called when the user has confirmed they would like to delete.
          *
          * @param extras  Extras bundle passed in to {@link #newInstance(int, int, Bundle)}.
          */
-        void requestDeleteRun(Bundle extras);
+        void requestDelete(Bundle extras);
     }
 
-    public static DeleteRunDialog newInstance(int titleId, int messageId) {
+    public static DeleteMetadataItemDialog newInstance(int titleId, int messageId) {
         return newInstance(titleId, messageId, new Bundle());
     }
 
-    public static DeleteRunDialog newInstance(int titleId, int messageId, Bundle extras) {
-        DeleteRunDialog dialog = new DeleteRunDialog();
+    public static DeleteMetadataItemDialog newInstance(int titleId, int messageId, Bundle extras) {
+        DeleteMetadataItemDialog dialog = new DeleteMetadataItemDialog();
         Bundle args = new Bundle();
         args.putInt(ARG_TITLE_ID, titleId);
         args.putInt(ARG_MESSAGE_ID, messageId);
@@ -61,7 +57,7 @@ public class DeleteRunDialog extends DialogFragment {
         return dialog;
     }
 
-    public DeleteRunDialog() {
+    public DeleteMetadataItemDialog() {
     }
 
     public AlertDialog onCreateDialog(Bundle savedInstanceState) {
@@ -73,7 +69,7 @@ public class DeleteRunDialog extends DialogFragment {
                 new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ((DeleteRunDialogListener) getParentFragment()).requestDeleteRun(
+                ((DeleteDialogListener) getParentFragment()).requestDelete(
                         getArguments().getBundle(ARG_EXTRAS));
             }
         });
