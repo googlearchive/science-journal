@@ -106,6 +106,9 @@ public class InMemorySensorDatabase implements SensorDatabase {
         return null;
     }
 
+    @Override
+    public void deleteScalarReadings(String sensorTag, TimeRange range) {}
+
     public List<Reading> getReadings(int resolutionTier) {
         if (resolutionTier >= mReadings.size()) {
             return Collections.emptyList();

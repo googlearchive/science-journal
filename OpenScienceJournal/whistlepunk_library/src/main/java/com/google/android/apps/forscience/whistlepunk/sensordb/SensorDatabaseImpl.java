@@ -21,10 +21,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.v4.util.Pair;
 
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.common.base.Joiner;
+import com.google.common.collect.BoundType;
 import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Range;
 
@@ -94,33 +96,54 @@ public class SensorDatabaseImpl implements SensorDatabase {
         mOpenHelper.getWritableDatabase().insert(ScalarSensorsTable.NAME, null, values);
     }
 
-    @Override
-    public ScalarReadingList getScalarReadings(String sensorTag, TimeRange range,
-            int resolutionTier, int maxRecords) {
+    /**
+     * Gets the selection string and selectionArgs based on the tag, range and resolution tier.
+     *
+     * @return a pair where the first element is the selection string and the second element is the
+     * array of selectionArgs.
+     */
+    private Pair<String, String[]> getSelectionAndArgs(String sensorTag, TimeRange range,
+            int resolutionTier) {
         List<String> clauses = new ArrayList<>();
         List<String> values = new ArrayList<>();
 
         clauses.add(ScalarSensorsTable.Column.TAG + " = ?");
         values.add(sensorTag);
 
-        clauses.add(ScalarSensorsTable.Column.RESOLUTION_TIER + " = ?");
-        values.add(String.valueOf(resolutionTier));
+        if (resolutionTier >= 0) {
+            clauses.add(ScalarSensorsTable.Column.RESOLUTION_TIER + " = ?");
+            values.add(String.valueOf(resolutionTier));
+        }
 
         Range<Long> times = range.getTimes();
-        Range<Long> closedOpen = times.canonical(DiscreteDomain.longs());
-        if (closedOpen.hasLowerBound()) {
-            clauses.add(ScalarSensorsTable.Column.TIMESTAMP_MILLIS + " >= ?");
-            values.add(String.valueOf(closedOpen.lowerEndpoint()));
+        Range<Long> canonicalTimes = times.canonical(DiscreteDomain.longs());
+        if (canonicalTimes.hasLowerBound()) {
+            String comparator = (canonicalTimes.lowerBoundType() == BoundType.CLOSED) ?
+                    " >= ?" : " > ?";
+            clauses.add(ScalarSensorsTable.Column.TIMESTAMP_MILLIS + comparator);
+            values.add(String.valueOf(canonicalTimes.lowerEndpoint()));
         }
-        if (closedOpen.hasUpperBound()) {
-            clauses.add(ScalarSensorsTable.Column.TIMESTAMP_MILLIS + " < ?");
-            values.add(String.valueOf(closedOpen.upperEndpoint()));
+        if (canonicalTimes.hasUpperBound()) {
+            String comparator = (canonicalTimes.upperBoundType() == BoundType.CLOSED) ?
+                    " =< ?" : " < ?";
+            clauses.add(ScalarSensorsTable.Column.TIMESTAMP_MILLIS + comparator);
+            values.add(String.valueOf(canonicalTimes.upperEndpoint()));
         }
+
+        return new Pair<>(Joiner.on(" AND ").join(clauses),
+                values.toArray(new String[values.size()]));
+    }
+
+    @Override
+    public ScalarReadingList getScalarReadings(String sensorTag, TimeRange range,
+            int resolutionTier, int maxRecords) {
 
         String[] columns =
                 {ScalarSensorsTable.Column.TIMESTAMP_MILLIS, ScalarSensorsTable.Column.VALUE};
-        String selection = Joiner.on(" AND ").join(clauses);
-        String[] selectionArgs = values.toArray(new String[values.size()]);
+        Pair<String, String[]> selectionAndArgs = getSelectionAndArgs(sensorTag, range,
+                resolutionTier);
+        String selection = selectionAndArgs.first;
+        String[] selectionArgs = selectionAndArgs.second;
         String orderBy = ScalarSensorsTable.Column.TIMESTAMP_MILLIS + (range.getOrder().equals(
                 TimeRange.ObservationOrder.OLDEST_FIRST) ? " ASC" : " DESC");
         String limit = maxRecords <= 0 ? null : String.valueOf(maxRecords);
@@ -181,5 +204,14 @@ public class SensorDatabaseImpl implements SensorDatabase {
         } finally {
             cursor.close();
         }
+    }
+
+    @Override
+    public void deleteScalarReadings(String sensorTag, TimeRange range) {
+        Pair<String, String[]> selectionAndArgs = getSelectionAndArgs(sensorTag, range,
+                -1 /* delete all resolutions */);
+        String selection = selectionAndArgs.first;
+        String[] selectionArgs = selectionAndArgs.second;
+        mOpenHelper.getWritableDatabase().delete(ScalarSensorsTable.NAME, selection, selectionArgs);
     }
 }
