@@ -69,19 +69,23 @@ public class CardTriggerPresenter {
 
     public void setViews(CardViewHolder cardViewHolder) {
         mCardViewHolder = cardViewHolder;
-        mCardViewHolder.triggerIcon.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mListener.onCardTriggerIconClicked();
             }
-        });
+        };
+        // Put the click listener on both the check box button and the trigger icon button.
+        mCardViewHolder.triggerIcon.getChildAt(0).setOnClickListener(listener);
+        mCardViewHolder.triggerIcon.getChildAt(1).setOnClickListener(listener);
         if (mSensorTriggers.size() > 0) {
             trySettingUpTextSwitcher();
         }
     }
 
     public void onViewRecycled() {
-        mCardViewHolder.triggerIcon.setOnClickListener(null);
+        mCardViewHolder.triggerIcon.getChildAt(0).setOnClickListener(null);
+        mCardViewHolder.triggerIcon.getChildAt(1).setOnClickListener(null);
         mCardViewHolder.triggerFiredBackground.setAnimationListener(null);
         mCardViewHolder = null;
         mHandler.removeCallbacks(mTriggerRunnable);
@@ -109,6 +113,7 @@ public class CardTriggerPresenter {
                     public void onAnimationStart() {
                         mCardViewHolder.triggerFiredText.setVisibility(View.VISIBLE);
                         mCardViewHolder.triggerTextSwitcher.setVisibility(View.INVISIBLE);
+                        mCardViewHolder.triggerIcon.showNext();
                     }
 
                     @Override
@@ -116,6 +121,7 @@ public class CardTriggerPresenter {
                         if (mCardViewHolder != null) {
                             mCardViewHolder.triggerFiredText.setVisibility(View.GONE);
                             mCardViewHolder.triggerTextSwitcher.setVisibility(View.VISIBLE);
+                            mCardViewHolder.triggerIcon.showPrevious();
                         }
                     }
                 });

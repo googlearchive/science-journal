@@ -29,6 +29,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 
@@ -61,7 +62,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public TextView statusMessage;
     public Button statusRetryButton;
     public RelativeLayout triggerSection;
-    public ImageView triggerIcon;
+    public ViewSwitcher triggerIcon;
     public TextSwitcher triggerTextSwitcher;
     public TriggerBackgroundView triggerFiredBackground;
     public TextView triggerFiredText;
@@ -94,7 +95,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         statusMessage = (TextView) itemView.findViewById(R.id.status_message);
         statusRetryButton = (Button) itemView.findViewById(R.id.status_retry_button);
         triggerSection = (RelativeLayout) itemView.findViewById(R.id.sensor_card_trigger_section);
-        triggerIcon = (ImageView) itemView.findViewById(R.id.sensor_trigger_icon);
+        triggerIcon = (ViewSwitcher) itemView.findViewById(R.id.trigger_icon_view_switcher);
         triggerTextSwitcher = (TextSwitcher) itemView.findViewById(R.id.trigger_text_switcher);
         triggerFiredBackground = (TriggerBackgroundView) itemView.findViewById(
                 R.id.sensor_trigger_fired_background);

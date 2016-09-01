@@ -18,16 +18,11 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
-
-import com.google.common.base.Strings;
 
 /**
  * A view for the trigger section's background, which can animate its looks for firing triggers.
@@ -87,7 +82,7 @@ public class TriggerBackgroundView extends View {
 
     private void init() {
         int backgroundColor = getResources().getColor(R.color.text_color_dark_grey);
-        int triggerColor = getResources().getColor(R.color.graph_line_color_red);
+        int triggerColor = getResources().getColor(R.color.trigger_fire_color);
 
         mTriggerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTriggerPaint.setColor(triggerColor);

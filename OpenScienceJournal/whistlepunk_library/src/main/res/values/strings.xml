@@ -1232,8 +1232,8 @@
     <!-- Menu item to disable all active triggers on a card. [CHAR_LIMIT=25] -->
     <string name="disable_all_triggers">Disable triggers</string>
 
-    <!-- Content description of the icon which can be used to jump to the activity to modify current triggers on the card. [CHAR_LIMIT=50] -->
-    <string name="trigger_view_icon_content_description">edit triggers</string>
+    <!-- Content description of the triggers icon, which may be used to jump to the activity to modify current triggers on the card. [CHAR_LIMIT=50] -->
+    <string name="trigger_view_icon_content_description">triggers</string>
 
     <!-- Warning for a user that they must select at least one type of alert when making an "alert me" trigger [CHAR_LIMIT=150] -->
     <string name="alert_trigger_needs_alerts">Error: You must select at least one type of alert for this trigger.</string>
