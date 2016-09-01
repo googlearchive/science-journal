@@ -653,6 +653,9 @@ public class SensorCardPresenter {
     }
 
     private void openCardMenu() {
+        if (mPopupMenu != null) {
+            return;
+        }
         final Context context = mCardViewHolder.getContext();
         boolean showDevTools = DevOptionsFragment.isDevToolsEnabled(context);
         mPopupMenu = new PopupMenu(context, mCardViewHolder.menuButton);
