@@ -229,25 +229,36 @@ public class EditTriggerFragment extends Fragment {
                     };
             mAudioAlert.setOnCheckedChangeListener(checkedChangeListener);
             mVisualAlert.setOnCheckedChangeListener(checkedChangeListener);
-
-            mWhenSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position,
-                        long id) {
-                    saveTrigger();
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
         } else {
             // Default to an alert spinner that triggers "at" a value, and does a visual alert.
             mTypeSpinner.setSelection(TriggerInformation.TRIGGER_ACTION_ALERT);
             mWhenSpinner.setSelection(TriggerInformation.TRIGGER_WHEN_AT);
             mVisualAlert.setChecked(true);
         }
+
+        mWhenSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position,
+                    long id) {
+                // Hide all but alert types if this is a ABOVE or BELOW.
+                if (position == TriggerInformation.TRIGGER_WHEN_ABOVE ||
+                        position == TriggerInformation.TRIGGER_WHEN_BELOW) {
+                    mTypeSpinner.setSelection(TriggerInformation.TRIGGER_ACTION_ALERT);
+                    mTypeSpinner.setEnabled(false);
+                    updateViewVisibilities(TriggerInformation.TRIGGER_ACTION_ALERT);
+                } else {
+                    mTypeSpinner.setEnabled(true);
+                }
+                if (!isNewTrigger()) {
+                    saveTrigger();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         mTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

@@ -1137,6 +1137,12 @@
     <!-- The name of an option when the trigger will fire, in this case to fire when the sensor value *rises above* the specified trigger value [CHAR_LIMIT=30]-->
     <string name="trigger_when_rises_above">Rises above</string>
 
+    <!-- The name of an option when the trigger will fire, in this case to fire whenever the sensor value *is below* the specified trigger value [CHAR_LIMIT=30]-->
+    <string name="trigger_when_is_below">Is below</string>
+
+    <!-- The name of an option when the trigger will fire, in this case to fire whenever the sensor value *is above* the specified trigger value [CHAR_LIMIT=30]-->
+    <string name="trigger_when_is_above">Is above</string>
+
     <!-- The hint text for the trigger value field [CHAR_LIMIT=20]-->
     <string name="trigger_value_hint">Value</string>
 
@@ -1167,6 +1173,12 @@
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires when dropping below a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
     <string name="trigger_when_drops_below_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor drops below <xliff:g id="value">%2$.2f</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
 
+    <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires it is above a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
+    <string name="trigger_when_above_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor is above <xliff:g id="value">%2$.2f</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
+
+    <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires it is below a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
+    <string name="trigger_when_below_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor is below <xliff:g id="value">%2$.2f</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
+
     <!-- The text on a snackbar alerting the user that a trigger has been deleted [CHAR_LIMIT=100]-->
     <string name="sensor_trigger_deleted">Trigger deleted</string>
 
@@ -1183,13 +1195,17 @@
         <item>@string/trigger_when_at</item>
         <item>@string/trigger_when_rises_above</item>
         <item>@string/trigger_when_drops_below</item>
+        <item>@string/trigger_when_is_above</item>
+        <item>@string/trigger_when_is_below</item>
     </array>
 
-    <!-- Past tense of trigger when, to be used in the string formatting string trigger_label_auto_text. -->
+    <!-- Lower case, past tense of trigger when, to be used in the string formatting string trigger_label_auto_text. -->
     <array name="trigger_when_list_note_text">
         <item>at</item>
         <item>rose above</item>
         <item>dropped below</item>
+        <item>is above</item>
+        <item>is below</item>
     </array>
 
     <!-- The auto-generated note text for a note type trigger. For example,this might say, "Ambinet light rose above 3.0 lux". [CHAR_LIMIT=200]-->
