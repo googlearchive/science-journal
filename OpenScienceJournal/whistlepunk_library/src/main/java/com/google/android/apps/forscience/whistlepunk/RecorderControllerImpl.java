@@ -582,6 +582,7 @@ public class RecorderControllerImpl implements RecorderController {
             }
         }
         mRecordingStateChangeInProgress = true;
+        final boolean activityInForground = mActivityInForeground;
         withBoundRecorderService(new FallibleConsumer<RecorderService>() {
             @Override
             public void take(final RecorderService recorderService) throws RemoteException {
@@ -606,7 +607,7 @@ public class RecorderControllerImpl implements RecorderController {
                                             // app is in the background, all processes will stop --
                                             // so this needs to be the last thing to happen!
                                             recorderService.endServiceRecording(
-                                                    !mActivityInForeground, runId,
+                                                    !activityInForground, runId,
                                                     mSelectedExperiment.getDisplayTitle(mContext));
                                         }
                                     }
