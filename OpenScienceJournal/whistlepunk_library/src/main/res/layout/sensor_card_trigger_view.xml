@@ -3,20 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/text_color_dark_grey"
     android:id="@+id/sensor_card_trigger_section"
     android:visibility="gone"
     android:focusable="true"
     >
 
-    <View
+    <com.google.android.apps.forscience.whistlepunk.TriggerBackgroundView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/graph_line_color_red"
+        android:layout_height="56dp"
         android:id="@+id/sensor_trigger_fired_background"
-        android:layout_alignBottom="@+id/trigger_text_section"
-        android:layout_alignTop="@id/trigger_text_section"
-        android:visibility="gone"
         />
 
     <ImageButton

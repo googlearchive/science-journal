@@ -63,7 +63,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public RelativeLayout triggerSection;
     public ImageView triggerIcon;
     public TextSwitcher triggerTextSwitcher;
-    public View triggerFiredBackground;
+    public TriggerBackgroundView triggerFiredBackground;
     public TextView triggerFiredText;
 
     public CardViewHolder(CardView itemView) {
@@ -96,7 +96,8 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         triggerSection = (RelativeLayout) itemView.findViewById(R.id.sensor_card_trigger_section);
         triggerIcon = (ImageView) itemView.findViewById(R.id.sensor_trigger_icon);
         triggerTextSwitcher = (TextSwitcher) itemView.findViewById(R.id.trigger_text_switcher);
-        triggerFiredBackground = itemView.findViewById(R.id.sensor_trigger_fired_background);
+        triggerFiredBackground = (TriggerBackgroundView) itemView.findViewById(
+                R.id.sensor_trigger_fired_background);
         triggerFiredText = (TextView) itemView.findViewById(R.id.trigger_fired_text);
     }
 
