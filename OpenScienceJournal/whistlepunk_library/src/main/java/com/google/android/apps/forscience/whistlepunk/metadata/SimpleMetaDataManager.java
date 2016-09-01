@@ -62,6 +62,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
         mDbHelper.close();
     }
 
+    /**
+     * List of table names. NOTE: when adding a new table, make sure to delete the metadata in the
+     * appropriate delete calls: {@link #deleteProject(Project)},
+     * {@link #deleteExperiment(Experiment)}, {@link #deleteLabel(Label)},
+     * {@link #deleteRun(String)}, {@link #deleteSensorTrigger(SensorTrigger)}, etc.
+     */
     interface Tables {
         String PROJECTS = "projects";
         String EXPERIMENTS = "experiments";
@@ -271,6 +277,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
             db.delete(Tables.LABELS, LabelColumns.EXPERIMENT_ID + "=?", experimentArgs);
             db.delete(Tables.EXPERIMENT_SENSORS, ExperimentSensorColumns.EXPERIMENT_ID + "=?",
                     experimentArgs);
+            db.delete(Tables.EXPERIMENT_SENSOR_LAYOUT, ExperimentSensorLayoutColumns.EXPERIMENT_ID
+                    + "=?", experimentArgs);
         }
     }
 

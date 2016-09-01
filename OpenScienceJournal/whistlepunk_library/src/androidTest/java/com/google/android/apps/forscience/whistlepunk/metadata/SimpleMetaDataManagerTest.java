@@ -549,12 +549,16 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
                 Lists.newArrayList(layout1, layout2);
         mMetaDataManager.addLabel(experiment, startLabel);
         mMetaDataManager.newRun(experiment, startLabel.getRunId(), sensorLayouts);
+        mMetaDataManager.setExperimentSensorLayouts(experiment.getExperimentId(), sensorLayouts);
 
         mMetaDataManager.deleteExperiment(experiment);
 
         assertNull(mMetaDataManager.getExperimentById(experiment.getExperimentId()));
         // Test that runs are deleted when deleting experiments.
         assertNull(mMetaDataManager.getRun(startLabel.getLabelId()));
+        // Test that sensor layouts are gone.
+        assertEquals(0, mMetaDataManager.getExperimentSensorLayouts(experiment.getExperimentId())
+                .size());
     }
 
     public void testProjectDelete() {
