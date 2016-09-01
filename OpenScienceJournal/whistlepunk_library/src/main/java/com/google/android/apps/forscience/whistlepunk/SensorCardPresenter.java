@@ -680,8 +680,6 @@ public class SensorCardPresenter {
 
         menu.findItem(R.id.btn_sensor_card_audio_settings).setVisible(!isRecording());
 
-        // For now, hide triggers behind test options.
-        menu.findItem(R.id.btn_sensor_card_set_triggers).setVisible(showDevTools);
         // Disable trigger settings during recording.
         menu.findItem(R.id.btn_sensor_card_set_triggers).setEnabled(sensorConnected &&
                 !isRecording() && mLayout != null);
