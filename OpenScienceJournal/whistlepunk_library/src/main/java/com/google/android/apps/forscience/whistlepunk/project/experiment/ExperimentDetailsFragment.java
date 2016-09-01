@@ -164,6 +164,10 @@ public class ExperimentDetailsFragment extends Fragment
                 new LoggingConsumer<Experiment>(TAG, "retrieve experiment") {
                     @Override
                     public void success(final Experiment experiment) {
+                        if (experiment == null) {
+                            // This was deleted on us.
+                            getActivity().finish();
+                        }
                         attachExperimentDetails(experiment);
                         loadExperimentData(experiment);
                     }
