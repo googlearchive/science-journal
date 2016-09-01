@@ -16,14 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.Fragment;
-import android.os.Build;
 import android.os.Handler;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
@@ -86,6 +82,7 @@ public class CardTriggerPresenter {
 
     public void onViewRecycled() {
         mCardViewHolder.triggerIcon.setOnClickListener(null);
+        mCardViewHolder.triggerFiredBackground.setAnimationListener(null);
         mCardViewHolder = null;
         mHandler.removeCallbacks(mTriggerRunnable);
     }
@@ -104,7 +101,25 @@ public class CardTriggerPresenter {
     private void trySettingUpTextSwitcher() {
         if (mTriggerText.size() == 0) {
             mCardViewHolder.triggerTextSwitcher.setCurrentText("");
-        } else if (mTriggerText.size() == 1) {
+            return;
+        }
+        mCardViewHolder.triggerFiredBackground.setAnimationListener(
+                new TriggerBackgroundView.TriggerAnimationListener() {
+                    @Override
+                    public void onAnimationStart() {
+                        mCardViewHolder.triggerFiredText.setVisibility(View.VISIBLE);
+                        mCardViewHolder.triggerTextSwitcher.setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd() {
+                        if (mCardViewHolder != null) {
+                            mCardViewHolder.triggerFiredText.setVisibility(View.GONE);
+                            mCardViewHolder.triggerTextSwitcher.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+        if (mTriggerText.size() == 1) {
             // No need for a switcher with one trigger
             mCardViewHolder.triggerTextSwitcher.setCurrentText(mTriggerText.get(0));
         } else {
@@ -127,7 +142,6 @@ public class CardTriggerPresenter {
             mCardViewHolder.triggerSection.setVisibility(View.GONE);
         } else {
             mCardViewHolder.triggerSection.setVisibility(View.VISIBLE);
-            mCardViewHolder.triggerFiredBackground.setVisibility(View.GONE);
         }
     }
 
@@ -147,59 +161,6 @@ public class CardTriggerPresenter {
                 !mCardViewHolder.triggerSection.isAttachedToWindow()) {
             return;
         }
-        // TODO: Do not animate a trigger until the animIn is completed. We can interrupt animOut but
-        // should finish animIn even if it means missing a visual notification.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            final Animator animIn = ViewAnimationUtils.createCircularReveal(
-                    mCardViewHolder.triggerFiredBackground, 20, 20, 0,
-                    mCardViewHolder.triggerSection.getWidth());
-            final Animator animOut = ViewAnimationUtils.createCircularReveal(
-                    mCardViewHolder.triggerFiredBackground, 20, 20,
-                    mCardViewHolder.triggerSection.getWidth(), 0);
-            animIn.addListener(new AnimatorListenerAdapter() {
-                public void onAnimationStart(Animator animation) {
-                    prepareForAnimation();
-                }
-
-                public void onAnimationEnd(Animator animation) {
-                    animOut.start();
-                    animIn.removeAllListeners();
-                }
-            });
-            animOut.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    completeAnimation();
-                    animOut.removeAllListeners();
-                }
-            });
-            animIn.setDuration(300);
-            animOut.setDuration(300);
-            animOut.setStartDelay(600);
-            animIn.start();
-        } else {
-            // No animation, so just show and hide the background.
-            prepareForAnimation();
-            mCardViewHolder.triggerFiredBackground.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    completeAnimation();
-                }
-            }, 500);
-        }
-    }
-
-    private void prepareForAnimation() {
-        mCardViewHolder.triggerFiredBackground.setVisibility(View.VISIBLE);
-        mCardViewHolder.triggerFiredText.setVisibility(View.VISIBLE);
-        mCardViewHolder.triggerTextSwitcher.setVisibility(View.INVISIBLE);
-    }
-
-    private void completeAnimation() {
-        if (mCardViewHolder != null) {
-            mCardViewHolder.triggerFiredBackground.setVisibility(View.GONE);
-            mCardViewHolder.triggerFiredText.setVisibility(View.GONE);
-            mCardViewHolder.triggerTextSwitcher.setVisibility(View.VISIBLE);
-        }
+        mCardViewHolder.triggerFiredBackground.onTriggerFired();
     }
 }
