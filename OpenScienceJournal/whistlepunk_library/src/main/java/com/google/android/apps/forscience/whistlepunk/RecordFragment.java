@@ -31,7 +31,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Vibrator;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -162,7 +161,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
      * when we resume
      */
     private String mRecorderPauseId;
-    private Vibrator mVibrator;
     private boolean mRecordingWasCanceled;
 
     public static RecordFragment newInstance() {
@@ -287,6 +285,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         // update the UI.
                         if (prevRecording != null && !isRecording()) {
                             mExternalAxis.onStopRecording();
+                            AddNoteDialog dialog = (AddNoteDialog) getChildFragmentManager()
+                                    .findFragmentByTag(AddNoteDialog.TAG);
+                            if (dialog != null) {
+                                dialog.dismiss();
+                            }
                             if (!mRecordingWasCanceled) {
                                 onRecordingStopped(prevRecording.getRunId());
                             }

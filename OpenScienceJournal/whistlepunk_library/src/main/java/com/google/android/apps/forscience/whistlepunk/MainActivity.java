@@ -252,6 +252,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
+        if (menuItem == null) {
+            return false;
+        }
         if (menuItem.getGroupId() == R.id.navigation_top) {
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
