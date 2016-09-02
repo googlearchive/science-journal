@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -74,6 +75,7 @@ public class TriggerBackgroundView extends View {
         init();
     }
 
+    @TargetApi(21)
     public TriggerBackgroundView(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -94,8 +96,6 @@ public class TriggerBackgroundView extends View {
 
         mTriggerOutline = new RectF();
         mTriggerPath = new Path();
-
-        setClipToOutline(true);
     }
 
     @Override
