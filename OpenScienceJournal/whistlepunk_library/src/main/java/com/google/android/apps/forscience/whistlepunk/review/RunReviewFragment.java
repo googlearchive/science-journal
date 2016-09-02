@@ -307,6 +307,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     @Override
                     public void onTouchStop() {
                         if (mWasPlayingBeforeTouch) {
+                            if (!isResumed()) {
+                                return;
+                            }
                             mWasPlayingBeforeTouch = false;
                             mAudioPlaybackController.startPlayback(mChartController,
                                     getDataController(), mExperimentRun.getFirstTimestamp(),
