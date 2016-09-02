@@ -1316,7 +1316,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void doVisualAlert(SensorTrigger trigger) {
-        SensorCardPresenter presenter = getPresenterById(trigger.getSensorId());
+        final SensorCardPresenter presenter = getPresenterById(trigger.getSensorId());
         if (presenter == null) {
             return;
         }
@@ -1333,15 +1333,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             return;
         }
 
-        // Get the presenter's position.
-        final int position = getPositionOfPresenter(presenter);
-
         // TODO: Work with UX to tweak this check so that the right amount of the card is shown.
         // Look to see if the card is outside of the visible presenter range. The alert is shown
         // near the top of the card, so we check between the first fully visible card and the last
         // partially visible card.
-        if (position < mSensorCardLayoutManager.findFirstCompletelyVisibleItemPosition() ||
-                position > mSensorCardLayoutManager.findLastVisibleItemPosition()) {
+        if (!presenter.isTriggerBarOnScreen()) {
 
             SensorAppearance appearance = AppSingleton.getInstance(getActivity())
                     .getSensorAppearanceProvider().getAppearance(trigger.getSensorId());
@@ -1357,7 +1353,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             bar.setAction(R.string.scroll_to_card, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mSensorCardLayoutManager.scrollToPosition(position);
+                    mSensorCardLayoutManager.scrollToPosition(getPositionOfPresenter(presenter));
                 }
             });
             showSnackbar(bar);
