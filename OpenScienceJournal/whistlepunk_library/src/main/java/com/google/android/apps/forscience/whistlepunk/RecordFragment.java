@@ -69,6 +69,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
@@ -994,13 +995,16 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         refreshLabels();
         ensureUnarchived(mSelectedExperiment, mSelectedProject, getDataController());
         playAddNoteAnimation();
-        String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
-                TrackerConstants.LABEL_OBSERVE;
-        WhistlePunkApplication.getUsageTracker(getActivity())
-                .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                        TrackerConstants.ACTION_CREATE,
-                        trackerLabel,
-                        TrackerConstants.getLabelValueType(label));
+        // Trigger labels are logged in RecorderControllerImpl.
+        if (!(label instanceof SensorTriggerLabel)) {
+            String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
+                    TrackerConstants.LABEL_OBSERVE;
+            WhistlePunkApplication.getUsageTracker(getActivity())
+                    .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                            TrackerConstants.ACTION_CREATE,
+                            trackerLabel,
+                            TrackerConstants.getLabelValueType(label));
+        }
     }
 
     private void playAddNoteAnimation() {

@@ -466,8 +466,13 @@ public class EditTriggerFragment extends Fragment {
                         updateSensorLayoutAndGoToParent(true);
                     }
                 });
+        String triggerTypeString =
+                getResources().getStringArray(R.array.trigger_type_list)[triggerType];
+        String triggerWhenString =
+                getResources().getStringArray(R.array.trigger_when_list)[triggerWhen];
         WhistlePunkApplication.getUsageTracker(getActivity()).trackEvent(
-                TrackerConstants.CATEGORY_TRIGGERS, TrackerConstants.ACTION_CREATE, null, 0);
+                TrackerConstants.CATEGORY_TRIGGERS, TrackerConstants.ACTION_CREATE,
+                triggerTypeString + " when " + triggerWhenString, 0);
     }
 
     private DataController getDataController() {

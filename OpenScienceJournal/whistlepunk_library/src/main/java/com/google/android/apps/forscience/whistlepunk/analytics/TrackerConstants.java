@@ -68,6 +68,9 @@ public final class TrackerConstants {
     public static final String ACTION_DELETE_UNDO = "UndoDelete";
     public static final String ACTION_SET_MODE = "SetMode";
     public static final String ACTION_START_AUDIO_PLAYBACK = "StartAudioPlayback";
+    public static final String ACTION_TRY_RECORDING_FROM_TRIGGER = "TryRecordingFromTrigger";
+    public static final String ACTION_TRY_STOP_RECORDING_FROM_TRIGGER =
+            "TryStopRecordingFromTrigger";
 
     // Labels
     public static final String LABEL_RECORD = "record";

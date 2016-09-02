@@ -321,6 +321,9 @@ public class RecorderControllerImpl implements RecorderController {
                                 startRecording(new Intent(mContext, MainActivity.class), project);
                             }
                         });
+                WhistlePunkApplication.getUsageTracker(mContext).trackEvent(
+                        TrackerConstants.CATEGORY_RUNS,
+                        TrackerConstants.ACTION_TRY_RECORDING_FROM_TRIGGER, null, 0);
             }
         } else if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_STOP_RECORDING &&
                 isRecording()) {
@@ -330,6 +333,9 @@ public class RecorderControllerImpl implements RecorderController {
                     listener.onRequestStopRecording(this);
                 }
                 stopRecording();
+                WhistlePunkApplication.getUsageTracker(mContext).trackEvent(
+                        TrackerConstants.CATEGORY_RUNS,
+                        TrackerConstants.ACTION_TRY_STOP_RECORDING_FROM_TRIGGER, null, 0);
             }
         } else if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_NOTE) {
             triggerWasFired = true;
@@ -374,6 +380,13 @@ public class RecorderControllerImpl implements RecorderController {
                 new LoggingConsumer<Label>(TAG, "add trigger label") {
                     @Override
                     public void success(Label label) {
+                        String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
+                                TrackerConstants.LABEL_OBSERVE;
+                        WhistlePunkApplication.getUsageTracker(mContext)
+                                .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                        TrackerConstants.ACTION_CREATE,
+                                        trackerLabel,
+                                        TrackerConstants.getLabelValueType(label));
                         for (TriggerFiredListener listener : mTriggerListeners.values()) {
                             listener.onLabelAdded(label);
                         }
