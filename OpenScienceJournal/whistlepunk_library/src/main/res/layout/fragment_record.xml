@@ -141,14 +141,4 @@
                 />
         </FrameLayout>
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/add_note_indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_notes_white_24dp"
-        android:tint="@color/text_color_light_grey"
-        android:visibility="invisible"
-        android:layout_centerInParent="true"
-        />
 </RelativeLayout>
