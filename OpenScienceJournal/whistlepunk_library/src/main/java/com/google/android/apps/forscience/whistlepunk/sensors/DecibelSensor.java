@@ -67,6 +67,12 @@ public class DecibelSensor extends ScalarSensor {
             @Override
             public void startObserving() {
                 listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
+                if (mBytesInBuffer < 0) {
+                    // If this is the case, AudioRecord.getMinBufferSize returned an error.
+                    listener.onSourceError(getId(), SensorStatusListener.ERROR_FAILED_TO_CONNECT,
+                            "Could not connect to microphone");
+                    return;
+                }
                 mRunning.set(true);
                 mRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE_IN_HZ,
                         CHANNEL_CONFIG, AUDIO_FORMAT, mBytesInBuffer);
