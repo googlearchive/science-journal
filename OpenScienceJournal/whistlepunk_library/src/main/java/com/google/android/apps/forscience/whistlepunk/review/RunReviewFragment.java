@@ -793,7 +793,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     @Override
     public void requestDelete(Bundle extras) {
-        getDataController().deleteRun(mExperimentRun.getRunId(),
+        getDataController().deleteRun(mExperimentRun,
                 new LoggingConsumer<Success>(TAG, "Deleting new experiment") {
                     @Override
                     public void success(Success value) {
