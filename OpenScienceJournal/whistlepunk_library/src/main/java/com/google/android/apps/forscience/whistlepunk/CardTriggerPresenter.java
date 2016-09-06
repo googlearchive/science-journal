@@ -52,19 +52,6 @@ public class CardTriggerPresenter {
         mListener = listener;
         // In tests, the fragment may be null.
         mActivity = fragment != null ? fragment.getActivity() : null;
-        mHandler = new Handler();
-        mTriggerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (mTriggerText.size() == 0 || mCardViewHolder == null) {
-                    return;
-                }
-                mDisplayedTriggerTextIndex = (++mDisplayedTriggerTextIndex) % mTriggerText.size();
-                mCardViewHolder.triggerTextSwitcher.setText(
-                        mTriggerText.get(mDisplayedTriggerTextIndex));
-                mHandler.postDelayed(mTriggerRunnable, TRIGGER_TEXT_SWITCHER_DELAY_MS);
-            }
-        };
     }
 
     public void setViews(CardViewHolder cardViewHolder) {
@@ -119,6 +106,22 @@ public class CardTriggerPresenter {
         if (mTriggerText.size() == 0) {
             mCardViewHolder.triggerTextSwitcher.setCurrentText("");
             return;
+        }
+        if (mHandler == null) {
+            mHandler = new Handler();
+            mTriggerRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (mTriggerText.size() == 0 || mCardViewHolder == null) {
+                        return;
+                    }
+                    mDisplayedTriggerTextIndex =
+                            (++mDisplayedTriggerTextIndex) % mTriggerText.size();
+                    mCardViewHolder.triggerTextSwitcher.setText(
+                            mTriggerText.get(mDisplayedTriggerTextIndex));
+                    mHandler.postDelayed(mTriggerRunnable, TRIGGER_TEXT_SWITCHER_DELAY_MS);
+                }
+            };
         }
         mCardViewHolder.triggerFiredBackground.setAnimationListener(
                 new TriggerBackgroundView.TriggerAnimationListener() {
