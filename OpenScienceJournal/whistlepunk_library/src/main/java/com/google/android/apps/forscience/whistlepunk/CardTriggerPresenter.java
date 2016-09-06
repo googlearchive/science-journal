@@ -84,11 +84,24 @@ public class CardTriggerPresenter {
     }
 
     public void onViewRecycled() {
-        mCardViewHolder.triggerIcon.getChildAt(0).setOnClickListener(null);
-        mCardViewHolder.triggerIcon.getChildAt(1).setOnClickListener(null);
-        mCardViewHolder.triggerFiredBackground.setAnimationListener(null);
-        mCardViewHolder = null;
-        mHandler.removeCallbacks(mTriggerRunnable);
+        if (mCardViewHolder != null) {
+            mCardViewHolder.triggerIcon.getChildAt(0).setOnClickListener(null);
+            mCardViewHolder.triggerIcon.getChildAt(1).setOnClickListener(null);
+            mCardViewHolder.triggerFiredBackground.setAnimationListener(null);
+            mCardViewHolder = null;
+        }
+        if (mHandler != null) {
+            mHandler.removeCallbacks(mTriggerRunnable);
+            mHandler = null;
+        }
+        mTriggerRunnable = null;
+    }
+
+    public void onDestroy() {
+        if (mCardViewHolder != null) {
+            onViewRecycled();
+        }
+        mActivity = null;
     }
 
     public void setSensorTriggers(List<SensorTrigger> sensorTriggers) {
@@ -153,6 +166,9 @@ public class CardTriggerPresenter {
 
     private void createTextForTriggers() {
         mTriggerText.clear();
+        if (mActivity == null) {
+            return;
+        }
         for (SensorTrigger trigger : mSensorTriggers) {
             mTriggerText.add(TriggerHelper.buildDescription(trigger, mActivity));
         }

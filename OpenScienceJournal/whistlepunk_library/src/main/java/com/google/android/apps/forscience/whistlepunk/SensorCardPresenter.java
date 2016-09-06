@@ -1193,6 +1193,7 @@ public class SensorCardPresenter {
 
     public void destroy() {
         mRecorderController.stopObserving(mSensorId, mObserverId);
+        mCardTriggerPresenter.onDestroy();
         if (mCardViewHolder != null) {
             mCardViewHolder.header.setOnHeaderTouchListener(null);
         }
