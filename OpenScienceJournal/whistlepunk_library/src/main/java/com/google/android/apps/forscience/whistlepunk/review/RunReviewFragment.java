@@ -35,6 +35,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,12 +52,14 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
 import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
+import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
@@ -251,11 +254,27 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_run_review, menu);
+    }
+
+    @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        boolean enableDevTools = DevOptionsFragment.isDevToolsEnabled(getActivity());
+        menu.findItem(R.id.action_export).setVisible(AgeVerifier.isOver13(
+                AgeVerifier.getUserAge(getActivity())));
+        menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
+
+        // TODO: Re-enable this when ready to implement the functionality.
+        menu.findItem(R.id.action_run_review_crop).setVisible(false);
+
         // Hide archive and unarchive buttons if the run isn't loaded yet.
         if (mExperimentRun != null) {
             menu.findItem(R.id.action_run_review_archive).setVisible(!mExperimentRun.isArchived());
             menu.findItem(R.id.action_run_review_unarchive).setVisible(mExperimentRun.isArchived());
+            menu.findItem(R.id.action_run_review_delete).setEnabled(mExperimentRun.isArchived());
+
             menu.findItem(R.id.action_disable_auto_zoom).setVisible(
                     mExperimentRun.getAutoZoomEnabled());
             menu.findItem(R.id.action_enable_auto_zoom).setVisible(
@@ -265,8 +284,14 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
             menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
             menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
+            menu.findItem(R.id.action_run_review_delete).setVisible(false);
         }
         menu.findItem(R.id.action_export).setEnabled(!mRunReviewExporter.isExporting());
+
+        if (((RunReviewActivity) getActivity()).isFromRecord()) {
+            // If this is from record, always enable deletion.
+            menu.findItem(R.id.action_run_review_delete).setEnabled(true);
+        }
 
         super.onPrepareOptionsMenu(menu);
     }
