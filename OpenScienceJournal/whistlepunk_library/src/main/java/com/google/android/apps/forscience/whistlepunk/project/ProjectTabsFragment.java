@@ -121,14 +121,24 @@ public class ProjectTabsFragment extends Fragment implements
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator() {
-            @Override
-            public void onAddFinished(RecyclerView.ViewHolder item) {
+
+            private void setAlpha(RecyclerView.ViewHolder item) {
                 // The default item animator messes with the alpha, so we need to reset the alpha.
                 ProjectAdapter.CardViewHolder holder = (ProjectAdapter.CardViewHolder) item;
                 holder.itemView.setAlpha(holder.itemView.getResources().getFraction(
                         holder.archivedIndicator.getVisibility() == View.VISIBLE ?
                                 R.fraction.metadata_card_archived_alpha :
                                 R.fraction.metadata_card_alpha, 1, 1));
+            }
+
+            @Override
+            public void onAddFinished(RecyclerView.ViewHolder item) {
+                setAlpha(item);
+            }
+
+            @Override
+            public void onChangeFinished(RecyclerView.ViewHolder item, boolean oldItem) {
+                setAlpha(item);
             }
         });
         mAdapter = new ProjectAdapter();
@@ -194,13 +204,7 @@ public class ProjectTabsFragment extends Fragment implements
     }
 
     private void attachToProjects(final List<Project> projects) {
-        if (projects.size() == 0) {
-            mEmptyView.setVisibility(View.VISIBLE);
-            mRecyclerView.setVisibility(View.GONE);
-        } else {
-            mEmptyView.setVisibility(View.GONE);
-            mRecyclerView.setVisibility(View.VISIBLE);
-        }
+        setContentViewVisibility(projects.size() > 0);
 
         final View rootView = getView();
         if (rootView == null) {
@@ -213,6 +217,16 @@ public class ProjectTabsFragment extends Fragment implements
                 mAdapter.setProjects(projects, value != null ? value.getProjectId() : null);
             }
         });
+    }
+
+    private void setContentViewVisibility(boolean visible) {
+        if (visible) {
+            mEmptyView.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+        } else {
+            mEmptyView.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -263,12 +277,14 @@ public class ProjectTabsFragment extends Fragment implements
             mProjects.add(position, project);
             notifyItemInserted(position);
             notifyItemRangeChanged(position, mAdapter.getItemCount());
+            setContentViewVisibility(mAdapter.getItemCount() > 0);
         }
 
         void remove(int position) {
             mProjects.remove(position);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, mAdapter.getItemCount());
+            setContentViewVisibility(mAdapter.getItemCount() > 0);
         }
 
         @Override
