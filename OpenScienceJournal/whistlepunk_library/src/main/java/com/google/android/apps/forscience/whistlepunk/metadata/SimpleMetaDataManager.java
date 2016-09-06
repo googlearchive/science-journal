@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -270,11 +271,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
         for (String runId : runIds) {
             deleteRun(runId);
         }
+        List<Label> labels = getLabelsForExperiment(experiment);
+        for (Label label: labels) {
+            deleteLabel(label);
+        }
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             String[] experimentArgs = new String[]{experiment.getExperimentId()};
             db.delete(Tables.EXPERIMENTS, ExperimentColumns.EXPERIMENT_ID + "=?", experimentArgs);
-            db.delete(Tables.LABELS, LabelColumns.EXPERIMENT_ID + "=?", experimentArgs);
             db.delete(Tables.EXPERIMENT_SENSORS, ExperimentSensorColumns.EXPERIMENT_ID + "=?",
                     experimentArgs);
             db.delete(Tables.EXPERIMENT_SENSOR_LAYOUT, ExperimentSensorLayoutColumns.EXPERIMENT_ID
@@ -888,7 +892,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void deleteLabel(Label label) {
-        // TODO: Delete pictures under deleted picture labels.
+        if (label instanceof PictureLabel) {
+            File file = new File(((PictureLabel) label).getFilePath());
+            file.delete();
+        }
         String selection = LabelColumns.LABEL_ID + "=?";
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();

@@ -22,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.os.Parcel;
@@ -50,6 +51,7 @@ import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -242,7 +244,16 @@ public class SimpleMetaDataManagerTest {
         String testLabelString = "test label";
         TextLabel textLabel = new TextLabel(testLabelString, "textId", Arbitrary.string(), 1);
         mMetaDataManager.addLabel(experiment, textLabel);
-        String testPicturePath = "file://path/to/test/file";
+        File tmpFile;
+        try {
+             tmpFile = File.createTempFile("testfile_" + experiment.getExperimentId(), "png");
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Could not create temp file" + e.getMessage());
+            return;
+        }
+        assertTrue(tmpFile.exists());
+        String testPicturePath = tmpFile.getAbsolutePath();
         String testPictureCaption = "life, the universe, and everything";
         PictureLabel pictureLabel = new PictureLabel(testPicturePath, testPictureCaption,
                 "pictureId", Arbitrary.string(), 2);
@@ -274,6 +285,9 @@ public class SimpleMetaDataManagerTest {
         mMetaDataManager.deleteProject(project);
         labels = mMetaDataManager.getLabelsForExperiment(experiment);
         assertEquals(0, labels.size());
+
+        // Test that the picture file got deleted.
+        assertFalse(tmpFile.exists());
     }
 
     @Test
