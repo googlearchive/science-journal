@@ -1008,9 +1008,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void playAddNoteAnimation() {
-        final View addNoteIndicator = getView().findViewById(R.id.add_note_indicator);
-        final float oldX = addNoteIndicator.getX();
-        final float oldY = addNoteIndicator.getY();
+        final View addNoteIndicator = LayoutInflater.from(getActivity()).inflate(
+                R.layout.note_indicator, (ViewGroup) getView(), false);
+        ((ViewGroup) getView()).addView(addNoteIndicator);
         // NOTE: this is not always guaranteed to find the menu item view.
         View menuItem = getActivity().findViewById(R.id.btn_experiment_details);
         if (menuItem == null) {
@@ -1019,8 +1019,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
         int[] location = new int[2];
         menuItem.getLocationOnScreen(location);
-        addNoteIndicator.setTranslationX(0);
-        addNoteIndicator.setTranslationY(0);
+        // Center in parent view.
+        addNoteIndicator.setX(getView().getWidth() / 2);
+        addNoteIndicator.setY(getView().getHeight() / 2);
         addNoteIndicator.setAlpha(1.0f);
         addNoteIndicator.setScaleX(4.0f);
         addNoteIndicator.setScaleY(4.0f);
@@ -1039,9 +1040,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        addNoteIndicator.setX(oldX);
-                        addNoteIndicator.setY(oldY);
-                        addNoteIndicator.setVisibility(View.INVISIBLE);
+                        if (addNoteIndicator.getParent() != null) {
+                            ((ViewGroup) addNoteIndicator.getParent()).removeView(addNoteIndicator);
+                        }
                     }
                 })
                 .start();
