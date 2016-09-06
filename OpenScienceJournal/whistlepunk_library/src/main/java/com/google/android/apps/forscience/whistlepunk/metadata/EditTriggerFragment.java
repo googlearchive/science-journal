@@ -246,6 +246,7 @@ public class EditTriggerFragment extends Fragment {
                     mTypeSpinner.setSelection(TriggerInformation.TRIGGER_ACTION_ALERT);
                     mTypeSpinner.setEnabled(false);
                     updateViewVisibilities(TriggerInformation.TRIGGER_ACTION_ALERT);
+                    selectAlertTypeIfNeeded();
                 } else {
                     mTypeSpinner.setEnabled(true);
                 }
@@ -264,6 +265,9 @@ public class EditTriggerFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 updateViewVisibilities(position);
+                if (position == TriggerInformation.TRIGGER_ACTION_ALERT) {
+                    selectAlertTypeIfNeeded();
+                }
                 if (!isNewTrigger()) {
                     saveTrigger();
                 }
@@ -304,6 +308,15 @@ public class EditTriggerFragment extends Fragment {
         } else if (actionType == TriggerInformation.TRIGGER_ACTION_NOTE) {
             mNoteGroup.setVisibility(View.VISIBLE);
             mAlertGroup.setVisibility(View.GONE);
+        }
+    }
+
+    private void selectAlertTypeIfNeeded() {
+        // Alert type triggers should have the visual alert field checked by default
+        // when the user switches to this type.
+        if (!mHapticAlert.isChecked() && !mVisualAlert.isChecked() &&
+                !mAudioAlert.isChecked()) {
+            mVisualAlert.setChecked(true);
         }
     }
 
