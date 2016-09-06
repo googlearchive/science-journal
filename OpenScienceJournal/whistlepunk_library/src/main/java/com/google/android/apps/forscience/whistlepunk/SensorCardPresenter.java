@@ -33,6 +33,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.TtsSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -1358,5 +1359,24 @@ public class SensorCardPresenter {
         SensorAppearance appearance = mAppearanceProvider.getAppearance(sensorId);
         setUiForConnectingNewSensor(sensorId,
                 appearance.getSensorDisplayName(context), appearance.getUnits(context), hasError);
+    }
+
+    public boolean isTriggerBarOnScreen() {
+        if (mCardViewHolder == null || mParentFragment == null ||
+                mParentFragment.getActivity() == null) {
+            return false;
+        }
+        Resources res = mCardViewHolder.getContext().getResources();
+        int[] location = new int[2];
+        mCardViewHolder.triggerSection.getLocationInWindow(location);
+        if (location[1] <= res.getDimensionPixelSize(R.dimen.accessibility_touch_target_min_size)) {
+            return false;
+        }
+        DisplayMetrics metrics = new DisplayMetrics();
+        mParentFragment.getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        if (metrics.heightPixels < location[1]) {
+            return false;
+        }
+        return true;
     }
 }
