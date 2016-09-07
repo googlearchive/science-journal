@@ -17,4 +17,6 @@
 # Run this to find java files without appropriate copyright headers
 # Filter results through your own common sense
 
-find . -name build -prune -o -name '*.java' -exec grep -L "Google Inc. All Rights Reserved." {} \;
+find . -name build -prune \
+     -o -name third_party -prune \
+     -o -name '*.java' -exec grep -L "Google Inc. All Rights Reserved." {} \;
