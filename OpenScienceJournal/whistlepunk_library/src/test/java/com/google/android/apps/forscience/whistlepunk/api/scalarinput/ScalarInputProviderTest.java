@@ -17,7 +17,6 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
@@ -59,7 +58,8 @@ public class ScalarInputProviderTest {
                     @Override
                     public void take(AppDiscoveryCallbacks adc) {
                         adc.onServiceFound(serviceId,
-                                new TestDiscoverer(new TestConnector(dataToSend, sensorAddress)));
+                                new TestDiscoverer(new TestConnector(dataToSend,
+                                        serviceId + "&" + sensorAddress)));
                     }
                 };
         ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor);
@@ -154,6 +154,7 @@ public class ScalarInputProviderTest {
         final String sensorId = Arbitrary.string();
         final String sensorAddress = Arbitrary.string();
         final String serviceId = Arbitrary.string();
+        final String fullAddress = serviceId + "&" + sensorAddress;
 
         final List<ChartData.DataPoint> wrongPoints = makeData();
 
@@ -162,9 +163,9 @@ public class ScalarInputProviderTest {
                     @Override
                     public void take(AppDiscoveryCallbacks adc) {
                         adc.onServiceFound(serviceId,
-                                new TestDiscoverer(new TestConnector(dataToSend, sensorAddress)));
+                                new TestDiscoverer(new TestConnector(dataToSend, fullAddress)));
                         adc.onServiceFound(serviceId + "wrong!",
-                                new TestDiscoverer(new TestConnector(wrongPoints, sensorAddress)));
+                                new TestDiscoverer(new TestConnector(wrongPoints, fullAddress)));
                     }
                 };
 
