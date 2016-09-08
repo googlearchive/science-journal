@@ -793,7 +793,7 @@
     <string name="title_activity_sensor_info">Sensor Information</string>
 
     <!-- Programatically generated title of activity that shows more information about a sensor [CHAR_LIMIT=15] -->
-    <string name="title_activity_sensor_info_format"><xliff:g id="sensor_name">%s</xliff:g> Sensor</string>
+    <string name="title_activity_sensor_info_format"><xliff:g id="sensor_name">%s</xliff:g> sensor</string>
 
     <!-- The heading on a sensor info page where the user can learn more about a sensor [CHAR_LIMIT=40] -->
     <string name="heading_info_section">What\'s Going On?</string>
