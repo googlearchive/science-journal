@@ -31,12 +31,14 @@ import java.lang.annotation.RetentionPolicy;
 public class ApplicationLabel extends Label {
 
     // Types of ApplicationLabel. Add more types here as needed.
-    @IntDef({TYPE_RECORDING_START, TYPE_RECORDING_STOP})
+    @IntDef({TYPE_RECORDING_START, TYPE_RECORDING_STOP, TYPE_CROP_START, TYPE_CROP_END})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Type {}
 
     public static final int TYPE_RECORDING_START = 1;
     public static final int TYPE_RECORDING_STOP = 2;
+    public static final int TYPE_CROP_START = 3;
+    public static final int TYPE_CROP_END = 4;
 
     public static final String TAG = "application";
     public static final String VALUE_PREFIX = "application_type_";
