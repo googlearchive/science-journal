@@ -90,6 +90,14 @@ public class SensorDatabaseTest extends AndroidTestCase {
         List<ScalarReading> readings = ScalarReading.slurp(db.getScalarReadings("tag",
                 TimeRange.oldest(Range.closedOpen(2L, 4L)), 0, 0));
         assertEquals(Arrays.asList(new ScalarReading(2, 2.0), new ScalarReading(3, 3.0)), readings);
+
+        readings = ScalarReading.slurp(db.getScalarReadings("tag",
+                TimeRange.oldest(Range.open(2L, 4L)), 0, 0));
+        assertEquals(Arrays.asList(new ScalarReading(3, 3.0)), readings);
+
+        readings = ScalarReading.slurp(db.getScalarReadings("tag",
+                TimeRange.oldest(Range.openClosed(2L, 4L)), 0, 0));
+        assertEquals(Arrays.asList(new ScalarReading(3, 3.0), new ScalarReading(4, 4.0)), readings);
     }
 
     public void testTiers() {
@@ -119,6 +127,40 @@ public class SensorDatabaseTest extends AndroidTestCase {
         db.addScalarReading("tagAfter", 0, 3, 2.0);
         db.addScalarReading("tagFurtherAfter", 0, 5, 3.0);
         assertEquals("tagAfter", db.getFirstDatabaseTagAfter(2));
+    }
+
+    public void testDeleteReadings() {
+        SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+        db.addScalarReading("tag", 0, 0, 0.0);
+        db.addScalarReading("tag", 0, 1, 1.0);
+        db.addScalarReading("tag", 0, 101, 2.0);
+        db.addScalarReading("tag", 0, 102, 2.0);
+        db.addScalarReading("tag", 0, 103, 2.0);
+        db.addScalarReading("tag2", 0, 0, 1.0);
+
+        assertEquals(2, db.getScalarReadings("tag",
+                TimeRange.oldest(Range.closed(0L, 1L)), 0, 0).size());
+
+        assertEquals(3, db.getScalarReadings("tag",
+                TimeRange.oldest(Range.closed(101L, 103L)), 0, 0).size());
+
+        assertEquals(1, db.getScalarReadings("tag2",
+                TimeRange.oldest(Range.closed(0L, 1L)), 0, 0).size());
+
+        // Delete first set of readings.
+        db.deleteScalarReadings("tag", TimeRange.newest(Range.closed(0L, 1L)));
+
+        assertEquals(0, db.getScalarReadings("tag",
+                TimeRange.oldest(Range.closed(0L, 1L)), 0, 0).size());
+
+        // Make sure other records for that tag are unaffected.
+        assertEquals(3, db.getScalarReadings("tag",
+                TimeRange.oldest(Range.closed(101L, 103L)), 0, 0).size());
+
+        // Make sure tag 2 is unaffected.
+        assertEquals(1, db.getScalarReadings("tag2",
+                TimeRange.oldest(Range.closed(0L, 1L)), 0, 0).size());
+
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.project;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -26,7 +27,6 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
@@ -65,6 +65,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
+import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,8 @@ import java.util.List;
 /**
  * Project detail fragment also contains project experiments list.
  */
-public class ProjectDetailsFragment extends Fragment {
+public class ProjectDetailsFragment extends Fragment implements
+        DeleteMetadataItemDialog.DeleteDialogListener {
 
     private static final String TAG = "ProjectDetailsFragment";
     public static final String ARG_PROJECT_ID = "project_id";
@@ -226,16 +228,20 @@ public class ProjectDetailsFragment extends Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         MenuItem archiveButton = menu.findItem(R.id.action_archive_project);
         MenuItem unarchiveButton = menu.findItem(R.id.action_unarchive_project);
+        MenuItem deleteButton = menu.findItem(R.id.action_delete_project);
 
         // If the project hasn't loaded yet hide both options.
         if (mProject == null) {
             archiveButton.setVisible(false);
             unarchiveButton.setVisible(false);
+            deleteButton.setVisible(false);
         } else {
             // Show the archive button if the project is not already archived.
             archiveButton.setVisible(!mProject.isArchived());
             // Show the unarchive button if it's already archived.
             unarchiveButton.setVisible(mProject.isArchived());
+            deleteButton.setVisible(true);
+            deleteButton.setEnabled(mProject.isArchived());
         }
         MenuItem includeArchived = menu.findItem(R.id.action_include_archived);
         includeArchived.setChecked(mIncludeArchived);
@@ -260,9 +266,7 @@ public class ProjectDetailsFragment extends Fragment {
             return true;
 
         } else if (id == R.id.action_delete_project) {
-            // TODO: Confirm deletion and delete the project and its related assets and
-            // records form the file system and database and close the activity.
-
+            confirmDelete();
             return true;
         } else if (id == R.id.action_include_archived) {
             item.setChecked(!item.isChecked());
@@ -302,6 +306,23 @@ public class ProjectDetailsFragment extends Fragment {
                         archived ? TrackerConstants.ACTION_ARCHIVE :
                                 TrackerConstants.ACTION_UNARCHIVE,
                         null, 0);
+    }
+
+    private void confirmDelete() {
+        DeleteMetadataItemDialog dialog = DeleteMetadataItemDialog.newInstance(
+                R.string.delete_project_dialog_title, R.string.delete_project_dialog_message);
+        dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
+    }
+
+    @Override
+    public void requestDelete(Bundle extras) {
+        getDataController().deleteProject(mProject, new LoggingConsumer<Success>(TAG,
+                "Delete project") {
+            @Override
+            public void success(Success value) {
+                getActivity().finish();
+            }
+        });
     }
 
     public static class ProjectDetailAdapter extends RecyclerView.Adapter<ViewHolder> {

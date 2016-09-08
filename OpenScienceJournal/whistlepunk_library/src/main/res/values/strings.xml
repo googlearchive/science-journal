@@ -53,6 +53,9 @@
     <!-- Menu option for deleting an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_delete">Delete</string>
 
+    <!-- Dialog action for canceling an operation [CHAR_LIMIT=10] -->
+    <string name="action_cancel">Cancel</string>
+
     <!-- Menu option for the ruler tool [CHAR_LIMIT=25] -->
     <string name="action_ruler">Ruler</string>
 
@@ -234,7 +237,7 @@
     <string name="elapsed_time_axis_format_large_tenths"><xliff:g id="hours">%1d</xliff:g>:<xliff:g id="minutes">%02d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g>.<xliff:g id="tenths">%1d</xliff:g></string>
 
     <!-- String formatting string for the accessibility description of the RunReview slider [CHAR_LIMIT=None] -->
-    <string name="graph_exploring_seekbar_content_description"><xliff:g id="time">%1s</xliff:g>, <xliff:g id="value">%2s</xliff:g> <xliff:g id="units">%3s</xliff:g>.</string>
+    <string name="graph_exploring_seekbar_content_description"><xliff:g id="time">%1$s</xliff:g>, <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g>.</string>
 
     <!-- The content description for a picture note taken during the run [CHAR_LIMIT=NONE] -->
     <string name="picture_note_description">Picture from trial</string>
@@ -431,6 +434,9 @@
 
     <!-- Undo action in the snackbar. [CHAR_LIMIT=15] -->
     <string name="action_undo">Undo</string>
+
+    <!-- Message of alert when the project is deleted [CHAR_LIMIT=100] -->
+    <string name="deleted_project_message">Project deleted.</string>
 
     <!-- Hint (aka. placeholder) for project title input field [CHAR_LIMIT=50] -->
     <string name="project_title_hint">Project title</string>
@@ -870,6 +876,18 @@
     <!-- Checkable menu item label for viewing all experiments, including the archived ones [CHAR_LIMIT=50]-->
     <string name="action_include_archived_experiments">Include archived experiments</string>
 
+    <!-- Title for alert asking for confirmation to delete a project [CHAR_LIMIT=30] -->
+    <string name="delete_project_dialog_title">Delete this project?</string>
+
+    <!-- Alert content to confirm that a project should really be deleted and that this action is final [CHAR_LIMIT=NONE] -->
+    <string name="delete_project_dialog_message">Are you sure you want to delete this project? All its experiments, trials and notes will be deleted. This action cannot be undone.</string>
+
+    <!-- Dialog title for deleting an experiment [CHAR_LIMIT=30]-->
+    <string name="delete_experiment_dialog_title">Delete this experiment?</string>
+
+    <!-- Dialog message for deleting an experiment, which can't be undone [CHAR_LIMIT=NONE]-->
+    <string name="delete_experiment_dialog_message">Are you sure you want to delete this experiment? All its trials and notes will be deleted. This action cannot be undone.</string>
+
     <!-- Menu item label that creates a new experiment in a popup menu for a project [CHAR_LIMIT=50]-->
     <string name="action_new_experiment">New experiment</string>
 
@@ -1065,8 +1083,11 @@
     <!-- Menu option to set or edit triggers for a particular sensor [CHAR_LIMIT=25]-->
     <string name="menu_item_set_triggers">Set triggers</string>
 
+    <!-- Title for an activity to a list of triggers for a sensor [CHAR_LIMIT=15]-->
+    <string name="title_activity_trigger_list">Triggers list</string>
+
     <!-- Title for an activity to view and edit triggers for a particular sensor [CHAR_LIMIT=15]-->
-    <string name="title_activity_trigger_list">Triggers for <xliff:g id="sensor_name">%s</xliff:g></string>
+    <string name="title_fragment_trigger_list">Triggers for <xliff:g id="sensor_name">%s</xliff:g></string>
 
     <!-- Content description for a button to add a new trigger [CHAR_LIMIT=NONE]-->
     <string name="btn_add_new_trigger">Create trigger</string>
@@ -1074,17 +1095,26 @@
     <!-- Description of a list of triggers which is empty [CHAR_LIMIT=100]-->
     <string name="empty_trigger_list">No triggers set</string>
 
-    <!-- Title of an activity to edit an existing trigger [CHAR_LIMIT=25]-->
-    <string name="title_activity_edit_trigger">Edit <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
+    <!-- Title of an activity to edit a trigger [CHAR_LIMIT=25] -->
+    <string name="title_activity_edit_trigger">Edit trigger</string>
+
+    <!-- Title of an activity to edit an existing trigger for a specific sensor [CHAR_LIMIT=25]-->
+    <string name="title_fragment_edit_trigger">Edit <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
 
     <!-- Title of an activity to add a new trigger [CHAR_LIMIT=25]-->
-    <string name="title_activity_add_trigger">New <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
+    <string name="title_activity_add_trigger">New trigger</string>
+
+    <!-- Title of an activity to add a new trigger for a specific sensor [CHAR_LIMIT=25]-->
+    <string name="title_fragment_add_trigger">New <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
 
     <!-- The label for a drop-down to choose the type of action a trigger will take [CHAR_LIMIT=30]-->
     <string name="trigger_type_label">Trigger type</string>
 
     <!-- The label for a drop-down to chose the time when a trigger will fire [CHAR_LIMIT=30]-->
     <string name="trigger_when_label">Trigger when</string>
+
+    <!-- Label for trigger value text input field [CHAR_LIMIT=30] -->
+    <string name="trigger_value_label">Trigger value</string>
 
     <!-- The name of a trigger type, when the trigger firing causes recording to start [CHAR_LIMIT=30]-->
     <string name="trigger_type_start_recording">Start recording</string>
@@ -1106,6 +1136,12 @@
 
     <!-- The name of an option when the trigger will fire, in this case to fire when the sensor value *rises above* the specified trigger value [CHAR_LIMIT=30]-->
     <string name="trigger_when_rises_above">Rises above</string>
+
+    <!-- The name of an option when the trigger will fire, in this case to fire whenever the sensor value *is below* the specified trigger value [CHAR_LIMIT=30]-->
+    <string name="trigger_when_is_below">Is below</string>
+
+    <!-- The name of an option when the trigger will fire, in this case to fire whenever the sensor value *is above* the specified trigger value [CHAR_LIMIT=30]-->
+    <string name="trigger_when_is_above">Is above</string>
 
     <!-- The hint text for the trigger value field [CHAR_LIMIT=20]-->
     <string name="trigger_value_hint">Value</string>
@@ -1129,13 +1165,19 @@
     <string name="cannot_save_invalid_value">You must enter a numeric value at which this trigger will fire.</string>
 
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires at a particular value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
-    <string name="trigger_when_at_description"><xliff:g id="trigger_action">%1s</xliff:g> when the sensor is at <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
+    <string name="trigger_when_at_description"><xliff:g id="trigger_action">%1s</xliff:g> when at <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
 
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires when rising above a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
-    <string name="trigger_when_rises_above_description"><xliff:g id="trigger_action">%1s</xliff:g> when the sensor rises above <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
+    <string name="trigger_when_rises_above_description"><xliff:g id="trigger_action">%1s</xliff:g> when rising above <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
 
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires when dropping below a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
-    <string name="trigger_when_drops_below_description"><xliff:g id="trigger_action">%1s</xliff:g> when the sensor drops below <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
+    <string name="trigger_when_drops_below_description"><xliff:g id="trigger_action">%1s</xliff:g> when dropping below <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
+
+    <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires it is above a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
+    <string name="trigger_when_above_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor is above <xliff:g id="value">%2$.2f</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
+
+    <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires it is below a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
+    <string name="trigger_when_below_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor is below <xliff:g id="value">%2$.2f</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
 
     <!-- The text on a snackbar alerting the user that a trigger has been deleted [CHAR_LIMIT=100]-->
     <string name="sensor_trigger_deleted">Trigger deleted</string>
@@ -1153,35 +1195,51 @@
         <item>@string/trigger_when_at</item>
         <item>@string/trigger_when_rises_above</item>
         <item>@string/trigger_when_drops_below</item>
+        <item>@string/trigger_when_is_above</item>
+        <item>@string/trigger_when_is_below</item>
     </array>
 
-    <!-- Past tense of trigger when, to be used in the string formatting string trigger_label_auto_text. -->
+    <!-- Lower case, past tense of trigger when, to be used in the string formatting string trigger_label_auto_text. -->
     <array name="trigger_when_list_note_text">
         <item>at</item>
         <item>rose above</item>
         <item>dropped below</item>
+        <item>is above</item>
+        <item>is below</item>
     </array>
 
-    <!-- The auto-generated note text for a note type trigger. For example,this might say, "Auto-generated note create by a Decibel trigger which fired when the value rose above 3.0 db". [CHAR_LIMIT=200]-->
-    <string name="trigger_label_auto_text">Trigger note: <xliff:g id="sensor_name">%1s</xliff:g> <xliff:g id="trigger_when">%2s</xliff:g> <xliff:g id="trigger_value">%.2f</xliff:g> <xliff:g id="sensor_units">%4s</xliff:g></string>
+    <!-- The auto-generated note text for a note type trigger. For example,this might say, "Ambinet light rose above 3.0 lux". [CHAR_LIMIT=200]-->
+    <string name="trigger_label_auto_text"><xliff:g id="sensor_name">%1$s</xliff:g> <xliff:g id="trigger_when">%2$s</xliff:g> <xliff:g id="trigger_value">%3$.2f</xliff:g> <xliff:g id="sensor_units">%4$s</xliff:g></string>
+
+    <!-- The content description for the auto generated text on a note from a trigger [CHAR_LIMIT=NONE] -->
+    <string name="trigger_label_icon_content_description">Trigger note: <xliff:g id="trigger description">%s</xliff:g></string>
 
     <!-- The format for a floating point data value when displayed to the user. This has more significant figures than on the Y axis. DO NOT TRANSLATE -->
     <string name="run_review_chart_label_format"><xliff:g id="value">%.2f</xliff:g></string>
 
     <!-- Auto-generated text for a snackbar that announces that a trigger has fired. For example, "Ambient light rose above 13 lux". [CHAR_LIMIT=50] -->
-    <string name="trigger_snackbar_auto_text"><xliff:g id="sensor_name">%1s</xliff:g> <xliff:g id="trigger_when">%2s</xliff:g> <xliff:g id="trigger_value">%.2f</xliff:g> <xliff:g id="sensor_units">%4s</xliff:g></string>
+    <string name="trigger_snackbar_auto_text"><xliff:g id="sensor_name">%1$s</xliff:g> <xliff:g id="trigger_when">%2$s</xliff:g> <xliff:g id="trigger_value">%3$.2f</xliff:g> <xliff:g id="sensor_units">%4$s</xliff:g></string>
 
     <!-- Action text for a snackbar to scroll to a particular SensorCard. [CHAR_LIMIT=20] -->
     <string name="scroll_to_card">show</string>
 
     <!-- Action text for a snackbar to scroll to a particular SensorCard. [CHAR_LIMIT=NONE] -->
-    <string name="could_not_find_service_error">Could not find service: <xliff:g id="service_id">%1s</xliff:g></string>
+    <string name="could_not_find_service_error">Could not find service: <xliff:g id="service_id">%s</xliff:g></string>
 
     <!-- Notification body text for when recording was completed in the background service [CHAR_LIMIT=50] -->
     <string name="recording_stopped_notification_text">Recording completed.</string>
 
     <!-- Menu item to disable all active triggers on a card. [CHAR_LIMIT=25] -->
     <string name="disable_all_triggers">Disable triggers</string>
+
+    <!-- Content description of the triggers icon, which may be used to jump to the activity to modify current triggers on the card. [CHAR_LIMIT=50] -->
+    <string name="trigger_view_icon_content_description">triggers</string>
+
+    <!-- Warning for a user that they must select at least one type of alert when making an "alert me" trigger [CHAR_LIMIT=150] -->
+    <string name="alert_trigger_needs_alerts">Error: You must select at least one type of alert for this trigger.</string>
+
+    <!-- Text to display when a trigger is activated in the trigger bar [CHAR_LIMIT=25] -->
+    <string name="trigger_fired_text">Trigger activated</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

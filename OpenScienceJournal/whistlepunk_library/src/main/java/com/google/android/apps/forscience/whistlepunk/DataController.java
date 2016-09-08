@@ -53,7 +53,7 @@ public interface DataController {
 
     void updateRun(final Run run, MaybeConsumer<Success> onSuccess);
 
-    void deleteRun(String runId, MaybeConsumer<Success> onSuccess);
+    void deleteRun(ExperimentRun run, MaybeConsumer<Success> onSuccess);
 
     void createExperiment(Project project, MaybeConsumer<Experiment> onSuccess);
 

@@ -39,6 +39,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 /**
@@ -139,7 +140,9 @@ public class EditNoteDialog extends DialogFragment {
             imageView.setVisibility(View.GONE);
             autoTextView.setVisibility(View.VISIBLE);
             editText.setText(SensorTriggerLabel.getCustomText(mSelectedValue));
-            autoTextView.setText(SensorTriggerLabel.getAutogenText(mSelectedValue));
+            String autoText = SensorTriggerLabel.getAutogenText(mSelectedValue);
+            TriggerHelper.populateAutoTextViews(autoTextView, autoText,
+                    R.drawable.ic_label_black_24dp, getResources());
         }
 
         alertDialog.setPositiveButton(R.string.action_save,

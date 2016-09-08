@@ -1,21 +1,22 @@
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +29,8 @@ import java.util.List;
 public class TriggerHelper {
 
     private static final String TAG = "TriggerHelper";
-    private static final long TRIGGER_VIBRATION_DURATION = 200;
+    private static final long TRIGGER_VIBRATION_DURATION_MS = 200;
+    private static final long THROTTLE_LIMIT_MS = 100;
 
     private static final MediaPlayer.OnCompletionListener MEDIA_PLAYER_COMPLETION_LISTENER =
             new MediaPlayer.OnCompletionListener() {
@@ -49,6 +51,8 @@ public class TriggerHelper {
 
     private final Uri mNotification;
     private Vibrator mVibrator;
+    private long mLastVibrationMs;
+    private long mLastAudioMs;
 
     public TriggerHelper(Uri notificationUri) {
         // TODO: Talk to UX about the best sound for this.
@@ -56,6 +60,11 @@ public class TriggerHelper {
     }
 
     public void doAudioAlert(Context context) {
+        // Use a throttler to keep this from interrupting itself too much.
+        if (System.currentTimeMillis() - mLastAudioMs < THROTTLE_LIMIT_MS) {
+            return;
+        }
+        mLastAudioMs = System.currentTimeMillis();
         final MediaPlayer mediaPlayer =  new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
@@ -72,11 +81,15 @@ public class TriggerHelper {
     }
 
     public void doVibrateAlert(Context context) {
-        // TODO: Talk to UX about desired duration or pattern.
+        // Use a throttler to keep this from interrupting itself too much.
+        if (System.currentTimeMillis() - mLastVibrationMs < THROTTLE_LIMIT_MS) {
+            return;
+        }
+        mLastVibrationMs = System.currentTimeMillis();
         if (mVibrator == null) {
             mVibrator = ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE));
         }
-        mVibrator.vibrate(TRIGGER_VIBRATION_DURATION);
+        mVibrator.vibrate(TRIGGER_VIBRATION_DURATION_MS);
     }
 
     /**
@@ -116,13 +129,13 @@ public class TriggerHelper {
         Resources res = activity.getResources();
         int actionType = trigger.getActionType();
         String action = "";
-        if (actionType == GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_ACTION_START_RECORDING) {
+        if (actionType == TriggerInformation.TRIGGER_ACTION_START_RECORDING) {
             action = res.getString(R.string.trigger_type_start_recording);
-        } else if (actionType == GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_ACTION_STOP_RECORDING) {
+        } else if (actionType == TriggerInformation.TRIGGER_ACTION_STOP_RECORDING) {
             action = res.getString(R.string.trigger_type_stop_recording);
-        } else if (actionType == GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_ACTION_NOTE) {
+        } else if (actionType == TriggerInformation.TRIGGER_ACTION_NOTE) {
             action = res.getString(R.string.trigger_type_note);
-        } else if (actionType == GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_ACTION_ALERT) {
+        } else if (actionType == TriggerInformation.TRIGGER_ACTION_ALERT) {
             action = res.getString(R.string.trigger_type_alert);
         }
         String units = AppSingleton.getInstance(activity)
@@ -131,13 +144,30 @@ public class TriggerHelper {
         Double value = trigger.getValueToTrigger();
         String result = "";
         int when = trigger.getTriggerWhen();
-        if (when == GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_AT) {
+        if (when == TriggerInformation.TRIGGER_WHEN_AT) {
             result = res.getString(R.string.trigger_when_at_description, action, value, units);
-        } else if (when == GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_RISES_ABOVE) {
-            result = res.getString(R.string.trigger_when_rises_above_description, action, value, units);
-        } else if (when == GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_DROPS_BELOW) {
-            result = res.getString(R.string.trigger_when_drops_below_description, action, value, units);
+        } else if (when == TriggerInformation.TRIGGER_WHEN_RISES_ABOVE) {
+            result = res.getString(R.string.trigger_when_rises_above_description, action, value,
+                    units);
+        } else if (when == TriggerInformation.TRIGGER_WHEN_DROPS_BELOW) {
+            result = res.getString(R.string.trigger_when_drops_below_description, action, value,
+                    units);
+        } else if (when == TriggerInformation.TRIGGER_WHEN_ABOVE) {
+            result = res.getString(R.string.trigger_when_above_description, action, value, units);
+        } else if (when == TriggerInformation.TRIGGER_WHEN_BELOW) {
+            result = res.getString(R.string.trigger_when_above_description, action, value, units);
         }
         return result;
+    }
+
+    public static void populateAutoTextViews(TextView autoTextView, String autoText,
+            int drawableId, Resources res) {
+        autoTextView.setText(autoText);
+        autoTextView.setContentDescription(res.getString(
+                R.string.trigger_label_icon_content_description, autoText));
+        Drawable drawable = res.getDrawable(drawableId);
+        DrawableCompat.setTint(drawable.mutate(), res.getColor(R.color.text_color_light_grey));
+        autoTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null,
+                null);
     }
 }

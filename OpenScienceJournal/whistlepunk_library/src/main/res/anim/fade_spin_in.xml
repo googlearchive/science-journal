@@ -14,11 +14,20 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:text="@string/run_review_delete_confirm"
-    android:padding="@dimen/edit_note_dialog_margin"
+<set
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:interpolator/accelerate_quad"
+    android:shareInterpolator="true"
+    android:duration="@android:integer/config_mediumAnimTime"
     >
-
-</TextView>
+    <alpha
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0"
+        />
+    <rotate
+        android:fromDegrees="180"
+        android:toDegrees="0"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        />
+</set>

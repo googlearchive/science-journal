@@ -35,6 +35,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,12 +52,14 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
 import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
+import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
@@ -87,14 +90,13 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayO
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
         EditNoteDialog.EditNoteDialogListener, EditTimeDialogListener,
-        DeleteRunDialog.DeleteRunDialogListener, AudioSettingsDialog.AudioSettingsDialogListener,
+        DeleteMetadataItemDialog.DeleteDialogListener, AudioSettingsDialog.AudioSettingsDialogListener,
         ChartController.ChartLoadingStatus {
     public static final String ARG_START_LABEL_ID = "start_label_id";
     public static final String ARG_SENSOR_INDEX = "sensor_tag_index";
@@ -106,6 +108,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private static final String KEY_EXTERNAL_AXIS_MINIMUM = "external_axis_min";
     private static final String KEY_EXTERNAL_AXIS_MAXIMUM = "external_axis_max";
     private static final String KEY_RUN_REVIEW_OVERLAY_TIMESTAMP = "run_review_overlay_time";
+    private static final String KEY_STATS_OVERLAY_VISIBLE = "stats_overlay_visible";
 
     private int mLoadingStatus = GRAPH_LOAD_STATUS_IDLE;
 
@@ -206,10 +209,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             mStartLabelId = getArguments().getString(ARG_START_LABEL_ID);
             mSelectedSensorIndex = getArguments().getInt(ARG_SENSOR_INDEX);
         }
-        if (savedInstanceState != null &&
-                savedInstanceState.containsKey(KEY_SELECTED_SENSOR_INDEX)) {
-            // saved instance state is more recent than args, so it takes precedence.
-            mSelectedSensorIndex = savedInstanceState.getInt(KEY_SELECTED_SENSOR_INDEX);
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(KEY_SELECTED_SENSOR_INDEX)) {
+                // saved instance state is more recent than args, so it takes precedence.
+                mSelectedSensorIndex = savedInstanceState.getInt(KEY_SELECTED_SENSOR_INDEX);
+            }
+            mShowStatsOverlay = savedInstanceState.getBoolean(KEY_STATS_OVERLAY_VISIBLE, false);
         }
         mRunReviewExporter = new RunReviewExporter(getDataController(),
                 new RunReviewExporter.Listener() {
@@ -249,11 +254,27 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_run_review, menu);
+    }
+
+    @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        boolean enableDevTools = DevOptionsFragment.isDevToolsEnabled(getActivity());
+        menu.findItem(R.id.action_export).setVisible(AgeVerifier.isOver13(
+                AgeVerifier.getUserAge(getActivity())));
+        menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
+
+        // TODO: Re-enable this when ready to implement the functionality.
+        menu.findItem(R.id.action_run_review_crop).setVisible(false);
+
         // Hide archive and unarchive buttons if the run isn't loaded yet.
         if (mExperimentRun != null) {
             menu.findItem(R.id.action_run_review_archive).setVisible(!mExperimentRun.isArchived());
             menu.findItem(R.id.action_run_review_unarchive).setVisible(mExperimentRun.isArchived());
+            menu.findItem(R.id.action_run_review_delete).setEnabled(mExperimentRun.isArchived());
+
             menu.findItem(R.id.action_disable_auto_zoom).setVisible(
                     mExperimentRun.getAutoZoomEnabled());
             menu.findItem(R.id.action_enable_auto_zoom).setVisible(
@@ -263,8 +284,14 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
             menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
             menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
+            menu.findItem(R.id.action_run_review_delete).setVisible(false);
         }
         menu.findItem(R.id.action_export).setEnabled(!mRunReviewExporter.isExporting());
+
+        if (((RunReviewActivity) getActivity()).isFromRecord()) {
+            // If this is from record, always enable deletion.
+            menu.findItem(R.id.action_run_review_delete).setEnabled(true);
+        }
 
         super.onPrepareOptionsMenu(menu);
     }
@@ -305,6 +332,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     @Override
                     public void onTouchStop() {
                         if (mWasPlayingBeforeTouch) {
+                            if (!isResumed()) {
+                                return;
+                            }
                             mWasPlayingBeforeTouch = false;
                             mAudioPlaybackController.startPlayback(mChartController,
                                     getDataController(), mExperimentRun.getFirstTimestamp(),
@@ -360,10 +390,18 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 new LoggingConsumer<ExperimentRun>(TAG, "load experiment run") {
                     @Override
                     public void success(final ExperimentRun run) {
+                        if (run == null || run.getExperimentId() == null) {
+                            // This run or experiment no longer exists, finish.
+                            getActivity().finish();
+                        }
                         dc.getExperimentById(run.getExperimentId(),
                                 new LoggingConsumer<Experiment>(TAG, "load experiment") {
                                     @Override
                                     public void success(Experiment experiment) {
+                                        if (experiment == null) {
+                                            // This experiment no longer exists, finish.
+                                            getActivity().finish();
+                                        }
                                         attachToRun(experiment, run, savedInstanceState);
                                     }
                                 });
@@ -380,6 +418,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mChartController.setChartView((ChartView) rootView.findViewById(R.id.chart_view));
         mChartController.setProgressView((ProgressBar) rootView.findViewById(R.id.chart_progress));
         mChartController.setInteractionListener(mExternalAxis.getInteractionListener());
+        mChartController.setShowStatsOverlay(mShowStatsOverlay);
         mRunReviewOverlay.setChartController(mChartController);
 
         if (savedInstanceState != null) {
@@ -549,6 +588,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         outState.putLong(KEY_EXTERNAL_AXIS_MINIMUM, mExternalAxis.getXMin());
         outState.putLong(KEY_EXTERNAL_AXIS_MAXIMUM, mExternalAxis.getXMax());
         outState.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
+        outState.putBoolean(KEY_STATS_OVERLAY_VISIBLE, mShowStatsOverlay);
     }
 
     private void attachToRun(final Experiment experiment, final ExperimentRun run,
@@ -675,8 +715,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     private void deleteThisRun() {
-        DeleteRunDialog dialog = DeleteRunDialog.newInstance();
-        dialog.show(getChildFragmentManager(), DeleteRunDialog.TAG);
+        DeleteMetadataItemDialog dialog = DeleteMetadataItemDialog.newInstance(
+                R.string.delete_run_dialog_title, R.string.run_review_delete_confirm);
+        dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
     }
 
     private void setArchived(final boolean archived) {
@@ -776,8 +817,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
-    public void requestDeleteRun() {
-        getDataController().deleteRun(mExperimentRun.getRunId(),
+    public void requestDelete(Bundle extras) {
+        getDataController().deleteRun(mExperimentRun,
                 new LoggingConsumer<Success>(TAG, "Deleting new experiment") {
                     @Override
                     public void success(Success value) {

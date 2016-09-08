@@ -16,6 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
+
 /**
  * SensorRecorder with stub methods
  */
@@ -33,7 +36,7 @@ public class AbstractSensorRecorder implements SensorRecorder {
     }
 
     @Override
-    public void stopRecording() {
+    public void stopRecording(MaybeConsumer<Success> onSuccess) {
 
     }
 

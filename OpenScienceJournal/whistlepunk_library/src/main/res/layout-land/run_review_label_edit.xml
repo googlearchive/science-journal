@@ -73,6 +73,8 @@
         android:layout_marginEnd="@dimen/edit_note_dialog_margin"
         android:layout_marginBottom="@dimen/edit_note_dialog_margin"
         android:textStyle="italic"
+        android:drawablePadding="@dimen/edit_note_time_drawable_padding"
+        android:gravity="center_vertical"
         />
 
     <include layout="@layout/label_dialog_timestamp_section"/>

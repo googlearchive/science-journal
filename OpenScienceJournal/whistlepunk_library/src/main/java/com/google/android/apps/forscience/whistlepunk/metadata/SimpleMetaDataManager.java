@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,6 +63,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
         mDbHelper.close();
     }
 
+    /**
+     * List of table names. NOTE: when adding a new table, make sure to delete the metadata in the
+     * appropriate delete calls: {@link #deleteProject(Project)},
+     * {@link #deleteExperiment(Experiment)}, {@link #deleteLabel(Label)},
+     * {@link #deleteRun(String)}, {@link #deleteSensorTrigger(SensorTrigger)}, etc.
+     */
     interface Tables {
         String PROJECTS = "projects";
         String EXPERIMENTS = "experiments";
@@ -194,17 +201,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
             List<Experiment> experiments = getExperimentsForProject(project, true);
             db.beginTransaction();
             try {
-                // Delete all the labels and sensors for each experiment.
+                // Delete each experiment.
                 for (Experiment experiment : experiments) {
-                    db.delete(Tables.LABELS, LabelColumns.EXPERIMENT_ID + "=?",
-                            new String[]{experiment.getExperimentId()});
-                    db.delete(Tables.EXPERIMENT_SENSORS, ExperimentSensorColumns.EXPERIMENT_ID +
-                            "=?", new String[]{experiment.getExperimentId()});
+                    deleteExperiment(experiment);
                 }
-
-                // Delete the experiments.
-                db.delete(Tables.EXPERIMENTS, ExperimentColumns.PROJECT_ID + "=?",
-                        new String[]{project.getProjectId()});
 
                 // Delete the project.
                 db.delete(Tables.PROJECTS, ProjectColumns.PROJECT_ID + "=?",
@@ -271,13 +271,18 @@ public class SimpleMetaDataManager implements MetaDataManager {
         for (String runId : runIds) {
             deleteRun(runId);
         }
+        List<Label> labels = getLabelsForExperiment(experiment);
+        for (Label label: labels) {
+            deleteLabel(label);
+        }
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             String[] experimentArgs = new String[]{experiment.getExperimentId()};
             db.delete(Tables.EXPERIMENTS, ExperimentColumns.EXPERIMENT_ID + "=?", experimentArgs);
-            db.delete(Tables.LABELS, LabelColumns.EXPERIMENT_ID + "=?", experimentArgs);
             db.delete(Tables.EXPERIMENT_SENSORS, ExperimentSensorColumns.EXPERIMENT_ID + "=?",
                     experimentArgs);
+            db.delete(Tables.EXPERIMENT_SENSOR_LAYOUT, ExperimentSensorLayoutColumns.EXPERIMENT_ID
+                    + "=?", experimentArgs);
         }
     }
 
@@ -526,10 +531,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
             }
 
         }
-        Run result = new Run(runId, runIndex, sensorLayouts, autoZoomEnabled);
-        result.setArchived(archived);
-        result.setTitle(title);
-        return result;
+        if (runIndex != -1) {
+            Run result = new Run(runId, runIndex, sensorLayouts, autoZoomEnabled);
+            result.setArchived(archived);
+            result.setTitle(title);
+            return result;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -883,7 +892,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void deleteLabel(Label label) {
-        // TODO: Delete pictures under deleted picture labels.
+        if (label instanceof PictureLabel) {
+            File file = new File(((PictureLabel) label).getFilePath());
+            file.delete();
+        }
         String selection = LabelColumns.LABEL_ID + "=?";
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();

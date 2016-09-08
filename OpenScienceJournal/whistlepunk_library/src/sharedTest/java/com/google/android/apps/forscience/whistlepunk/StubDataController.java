@@ -67,7 +67,7 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void deleteRun(String runId, MaybeConsumer<Success> onSuccess) {
+    public void deleteRun(ExperimentRun run, MaybeConsumer<Success> onSuccess) {
 
     }
 

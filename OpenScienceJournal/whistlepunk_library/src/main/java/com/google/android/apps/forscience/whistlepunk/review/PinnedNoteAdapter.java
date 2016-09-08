@@ -38,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -168,8 +169,10 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (label instanceof SensorTriggerLabel) {
             text = ((SensorTriggerLabel) label).getCustomText();
             noteHolder.mImage.setVisibility(View.GONE);
-            noteHolder.mAutoText.setText(((SensorTriggerLabel) label).getAutogenText());
             noteHolder.mAutoText.setVisibility(View.VISIBLE);
+            String autoText = ((SensorTriggerLabel) label).getAutogenText();
+            TriggerHelper.populateAutoTextViews(noteHolder.mAutoText, autoText,
+                    R.drawable.ic_label_black_18dp, noteHolder.mAutoText.getResources());
         }
         if (!TextUtils.isEmpty(text)) {
             noteHolder.mText.setText(text);

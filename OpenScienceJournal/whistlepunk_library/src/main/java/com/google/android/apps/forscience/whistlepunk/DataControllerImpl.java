@@ -38,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Range;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,12 +126,27 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void deleteRun(final String runId, MaybeConsumer<Success> onSuccess) {
+    public void deleteRun(final ExperimentRun run, MaybeConsumer<Success> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {
-                mMetaDataManager.deleteRun(runId);
+                mMetaDataManager.deleteRun(run.getRunId());
+                removeRunSensorData(run);
                 return Success.SUCCESS;
+            }
+        });
+    }
+
+    private void removeRunSensorData(final ExperimentRun run) {
+        mSensorDataThread.execute(new Runnable() {
+
+            @Override
+            public void run() {
+                TimeRange times = TimeRange.oldest(Range.closed(run.getFirstTimestamp(),
+                        run.getLastTimestamp()));
+                for (String tag : run.getSensorTags()) {
+                    mSensorDatabase.deleteScalarReadings(tag, times);
+                }
             }
         });
     }
@@ -268,7 +284,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
             @Override
             public Success call() throws Exception {
+                List<ExperimentRun> runsToDelete = getExperimentRunsOnDataThread(
+                        experiment.getExperimentId(), true);
                 mMetaDataManager.deleteExperiment(experiment);
+                for (ExperimentRun run : runsToDelete) {
+                    removeRunSensorData(run);
+                }
                 return Success.SUCCESS;
             }
         });
@@ -326,18 +347,23 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<List<ExperimentRun>>() {
             @Override
             public List<ExperimentRun> call() throws Exception {
-                final List<ExperimentRun> runs = new ArrayList<>();
-                List<String> startLabelIds = mMetaDataManager.getExperimentRunIds(experimentId,
-                        includeArchived);
-                for (String startLabelId : startLabelIds) {
-                    ExperimentRun run = buildExperimentRunOnDataThread(startLabelId);
-                    if (run.isValidRun()) {
-                        runs.add(run);
-                    }
-                }
-                return runs;
+                return getExperimentRunsOnDataThread(experimentId, includeArchived);
             }
         });
+    }
+
+    private List<ExperimentRun> getExperimentRunsOnDataThread(final String experimentId,
+            final boolean includeArchived) {
+        final List<ExperimentRun> runs = new ArrayList<>();
+        List<String> startLabelIds = mMetaDataManager.getExperimentRunIds(experimentId,
+                includeArchived);
+        for (String startLabelId : startLabelIds) {
+            ExperimentRun run = buildExperimentRunOnDataThread(startLabelId);
+            if (run.isValidRun()) {
+                runs.add(run);
+            }
+        }
+        return runs;
     }
 
     private ExperimentRun buildExperimentRunOnDataThread(String startLabelId) {
@@ -373,7 +399,16 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {
+                List<ExperimentRun> runsToDelete = new ArrayList<>();
+                for (Experiment experiment : mMetaDataManager.getExperimentsForProject(project,
+                        true)) {
+                    runsToDelete.addAll(getExperimentRunsOnDataThread(experiment.getExperimentId(),
+                            true));
+                }
                 mMetaDataManager.deleteProject(project);
+                for (ExperimentRun run : runsToDelete) {
+                    removeRunSensorData(run);
+                }
                 return Success.SUCCESS;
             }
         });
@@ -504,20 +539,13 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void setStats(final String runId, final String sensorId, final RunStats runStats) {
-        mMetaDataThread.execute(new Runnable() {
+    public void setStats(final String runId, final String sensorId, final RunStats runStats,
+            final MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
-            public void run() {
-                try {
-                    mMetaDataManager.setStats(runId, sensorId, runStats);
-                } catch (final Exception e) {
-                    mUiThread.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyFailureListener(sensorId, e);
-                        }
-                    });
-                }
+            public Success call() throws Exception {
+                mMetaDataManager.setStats(runId, sensorId, runStats);
+                return Success.SUCCESS;
             }
         });
     }

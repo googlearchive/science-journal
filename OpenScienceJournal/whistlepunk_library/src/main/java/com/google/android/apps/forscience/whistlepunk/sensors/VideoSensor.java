@@ -28,6 +28,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
@@ -219,7 +221,7 @@ public class VideoSensor extends SensorChoice {
             }
 
             @Override
-            public void stopRecording() {
+            public void stopRecording(MaybeConsumer<Success> onSuccess) {
                 mMediaRecorder.stop();
                 releaseMediaRecorder();
             }

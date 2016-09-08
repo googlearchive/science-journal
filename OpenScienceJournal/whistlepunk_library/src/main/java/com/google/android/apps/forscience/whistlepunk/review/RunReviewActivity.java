@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.app.Fragment;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,8 +26,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
+import com.google.android.apps.forscience.whistlepunk.NotificationIds;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.RecorderService;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.project.MetadataActivity;
 
@@ -39,7 +42,7 @@ public class RunReviewActivity extends MetadataActivity {
      * Launches a new run review activity
      * @param context
      * @param startLabelId The ID of the start run label.
-     * @param sensorId The ID of the sensor which ought to be displayed first.
+     * @param activeSensorIndex The index of the sensor which ought to be displayed first.
      * @param fromRecord Whether we reached the RunReview activity from recording directly or
      *                   from another part of the app.
      * @param options  Options bundle for launch
@@ -59,6 +62,7 @@ public class RunReviewActivity extends MetadataActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_run_review);
+        RecorderService.clearRecordingCompletedNotification(getApplicationContext());
         mFromRecord = getIntent().getExtras().getBoolean(EXTRA_FROM_RECORD, false);
         boolean createTask = getIntent().getExtras().getBoolean(EXTRA_CREATE_TASK, true);
         supportPostponeEnterTransition();
@@ -70,32 +74,6 @@ public class RunReviewActivity extends MetadataActivity {
             getFragmentManager().beginTransaction().add(R.id.container, fragment)
                     .commit();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_run_review, menu);
-        boolean enableDevTools = DevOptionsFragment.isDevToolsEnabled(this);
-        menu.findItem(R.id.action_export).setVisible(AgeVerifier.isOver13(
-                AgeVerifier.getUserAge(this)));
-        menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
-
-        // Delete is only available if we came from record mode directly.
-        menu.findItem(R.id.action_run_review_delete).setVisible(mFromRecord);
-
-        // TODO: Re-enable this when ready to implement the functionality.
-        menu.findItem(R.id.action_run_review_crop).setVisible(false);
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -125,5 +103,9 @@ public class RunReviewActivity extends MetadataActivity {
             }
         }
         super.onBackPressed();
+    }
+
+    boolean isFromRecord() {
+        return mFromRecord;
     }
 }

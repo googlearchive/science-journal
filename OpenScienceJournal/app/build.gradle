@@ -32,7 +32,8 @@ android {
 }
 
 dependencies {
-    compile project(':whistlepunk_library')
+    debugCompile project(path: ':whistlepunk_library', configuration: 'debug')
+    releaseCompile project(path: ':whistlepunk_library', configuration: 'release')
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:support-annotations:23.4.0'

@@ -26,6 +26,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -54,6 +55,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
+import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +67,8 @@ import java.util.Objects;
  * Use the {@link ProjectTabsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProjectTabsFragment extends Fragment {
+public class ProjectTabsFragment extends Fragment implements
+        DeleteMetadataItemDialog.DeleteDialogListener {
 
     private static final String TAG = "ProjectFragment";
 
@@ -73,6 +76,9 @@ public class ProjectTabsFragment extends Fragment {
      * Boolean extra in instance state if we are including archived items.
      */
     private String EXTRA_INCLUDE_ARCHIVED = "includeArchived";
+
+    private static final String ARG_DELETE_PROJECT_ID = "delete_project_id";
+    private static final String ARG_DELETE_PROJECT_POSITION = "delete_project_position";
 
     private RecyclerView mRecyclerView;
     private TextView mEmptyView;
@@ -114,6 +120,27 @@ public class ProjectTabsFragment extends Fragment {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.projects_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator() {
+
+            private void setAlpha(RecyclerView.ViewHolder item) {
+                // The default item animator messes with the alpha, so we need to reset the alpha.
+                ProjectAdapter.CardViewHolder holder = (ProjectAdapter.CardViewHolder) item;
+                holder.itemView.setAlpha(holder.itemView.getResources().getFraction(
+                        holder.archivedIndicator.getVisibility() == View.VISIBLE ?
+                                R.fraction.metadata_card_archived_alpha :
+                                R.fraction.metadata_card_alpha, 1, 1));
+            }
+
+            @Override
+            public void onAddFinished(RecyclerView.ViewHolder item) {
+                setAlpha(item);
+            }
+
+            @Override
+            public void onChangeFinished(RecyclerView.ViewHolder item, boolean oldItem) {
+                setAlpha(item);
+            }
+        });
         mAdapter = new ProjectAdapter();
         mRecyclerView.setAdapter(mAdapter);
         if (savedInstanceState != null) {
@@ -177,13 +204,7 @@ public class ProjectTabsFragment extends Fragment {
     }
 
     private void attachToProjects(final List<Project> projects) {
-        if (projects.size() == 0) {
-            mEmptyView.setVisibility(View.VISIBLE);
-            mRecyclerView.setVisibility(View.GONE);
-        } else {
-            mEmptyView.setVisibility(View.GONE);
-            mRecyclerView.setVisibility(View.VISIBLE);
-        }
+        setContentViewVisibility(projects.size() > 0);
 
         final View rootView = getView();
         if (rootView == null) {
@@ -196,6 +217,34 @@ public class ProjectTabsFragment extends Fragment {
                 mAdapter.setProjects(projects, value != null ? value.getProjectId() : null);
             }
         });
+    }
+
+    private void setContentViewVisibility(boolean visible) {
+        if (visible) {
+            mEmptyView.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+        } else {
+            mEmptyView.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void requestDelete(Bundle extras) {
+        String projectId = extras.getString(ARG_DELETE_PROJECT_ID, "");
+        final int position = extras.getInt(ARG_DELETE_PROJECT_POSITION, -1);
+        Project project = mAdapter.getItem(position);
+        if (project.getProjectId().equals(projectId)) {
+            getDataController().deleteProject(project,
+                    new LoggingConsumer<Success>(TAG, "Delete") {
+                        @Override
+                        public void success(Success value) {
+                            mAdapter.remove(position);
+                        }
+                    });
+        } else {
+            Log.e(TAG, "Could not delete project " + projectId + " since position doesn't match");
+        }
     }
 
     private class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.CardViewHolder> {
@@ -220,6 +269,24 @@ public class ProjectTabsFragment extends Fragment {
             notifyDataSetChanged();
         }
 
+        Project getItem(int position) {
+            return mProjects.get(position);
+        }
+
+        void insert(Project project, int position) {
+            mProjects.add(position, project);
+            notifyItemInserted(position);
+            notifyItemRangeChanged(position, mAdapter.getItemCount());
+            setContentViewVisibility(mAdapter.getItemCount() > 0);
+        }
+
+        void remove(int position) {
+            mProjects.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, mAdapter.getItemCount());
+            setContentViewVisibility(mAdapter.getItemCount() > 0);
+        }
+
         @Override
         public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             CardView view = (CardView) LayoutInflater.from(parent.getContext())
@@ -228,7 +295,7 @@ public class ProjectTabsFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(final CardViewHolder holder, int position) {
+        public void onBindViewHolder(final CardViewHolder holder, final int position) {
             final Project project = mProjects.get(position);
             Resources res = holder.itemView.getContext().getResources();
             String projectText = project.getDisplayTitle(getActivity());
@@ -264,7 +331,7 @@ public class ProjectTabsFragment extends Fragment {
 
                         @Override
                         public void onClick(View v) {
-                            showPopup(v, project);
+                            showPopup(v, project, position);
                         }
                     });
             getDataController().getExperimentsForProject(project, false /* no archived */,
@@ -306,13 +373,14 @@ public class ProjectTabsFragment extends Fragment {
             return mProjects.size();
         }
 
-        private void showPopup(View view, final Project project) {
+        private void showPopup(View view, final Project project, final int position) {
             final Context context = view.getContext();
             PopupMenu menu = new PopupMenu(context, view);
             MenuInflater inflater = menu.getMenuInflater();
             inflater.inflate(R.menu.menu_project_card, menu.getMenu());
             menu.getMenu().findItem(R.id.action_archive_project).setVisible(!project.isArchived());
             menu.getMenu().findItem(R.id.action_unarchive_project).setVisible(project.isArchived());
+            menu.getMenu().findItem(R.id.action_delete_project).setEnabled(project.isArchived());
 
             menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 
@@ -339,7 +407,9 @@ public class ProjectTabsFragment extends Fragment {
                     } else if (itemId == R.id.action_archive_project
                             || itemId == R.id.action_unarchive_project) {
                         setProjectArchived(project,
-                                item.getItemId() == R.id.action_archive_project);
+                                item.getItemId() == R.id.action_archive_project, position);
+                    } else if (itemId == R.id.action_delete_project) {
+                        confirmDelete(project, position);
                     }
                     return true;
                 }
@@ -347,7 +417,8 @@ public class ProjectTabsFragment extends Fragment {
             menu.show();
         }
 
-        private void setProjectArchived(final Project project, final boolean archived) {
+        private void setProjectArchived(final Project project, final boolean archived,
+                final int position) {
             project.setArchived(archived);
             getDataController().updateProject(project,
                     new LoggingConsumer<Success>(TAG, "Update project") {
@@ -357,17 +428,34 @@ public class ProjectTabsFragment extends Fragment {
                                 // Just update, it's cleaner.
                                 notifyDataSetChanged();
                             } else {
-                                // Reload everything, need to kill the item.
-                                loadProjects();
+                                if (archived) {
+                                    mAdapter.remove(position);
+                                } else {
+                                    mAdapter.insert(project, position);
+                                    mRecyclerView.scrollToPosition(position);
+                                }
                             }
                             if (archived) {
-                                showUndoSnackbar(project);
+                                showUndoSnackbar(project, position);
                             }
                         }
                     });
         }
 
-        private void showUndoSnackbar(final Project project) {
+        /**
+         * Show the user a dialog confirming deletion.
+         */
+        private void confirmDelete(Project project, int position) {
+            Bundle extras = new Bundle();
+            extras.putString(ARG_DELETE_PROJECT_ID, project.getProjectId());
+            extras.putInt(ARG_DELETE_PROJECT_POSITION, position);
+            DeleteMetadataItemDialog dialog = DeleteMetadataItemDialog.newInstance(
+                    R.string.delete_project_dialog_title,
+                    R.string.delete_project_dialog_message, extras);
+            dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
+        }
+
+        private void showUndoSnackbar(final Project project, final int position) {
             if (getActivity() == null) {
                 return;
             }
@@ -377,7 +465,7 @@ public class ProjectTabsFragment extends Fragment {
             bar.setAction(R.string.action_undo, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    setProjectArchived(project, false);
+                    setProjectArchived(project, false, position);
                 }
             }).show();
         }

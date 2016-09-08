@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -32,6 +33,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.TtsSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,6 +49,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerListActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
@@ -136,7 +139,7 @@ public class SensorCardPresenter {
     private final RecordFragment mParentFragment;
     private PopupMenu mPopupMenu;
     private boolean mAllowRetry = true;
-    private List<SensorTrigger> mSensorTriggers = Collections.emptyList();
+    private CardTriggerPresenter mCardTriggerPresenter;
 
     private OptionsListener mCommitListener = new OptionsListener() {
         @Override
@@ -186,6 +189,16 @@ public class SensorCardPresenter {
         mCardOptions.putAllExtras(layout.extras);
         mExperimentId = experimentId;
         mParentFragment = fragment; // TODO: Should this use a weak reference?
+        mCardTriggerPresenter = new CardTriggerPresenter(
+                new CardTriggerPresenter.OnCardTriggerClickedListener() {
+            @Override
+            public void onCardTriggerIconClicked() {
+                if (!isRecording() && !mHasError &&
+                        mSourceStatus == SensorStatusListener.STATUS_CONNECTED) {
+                    startSetTriggersActivity();
+                }
+            }
+        }, mParentFragment);
     }
 
     public void onNewData(long timestamp, Bundle bundle) {
@@ -217,7 +230,7 @@ public class SensorCardPresenter {
                 }
                 mCardViewHolder.meterLiveData.setText(spannable, TextView.BufferType.SPANNABLE);
             }
-            if (iconTimeHasElapsed) {
+            if (iconTimeHasElapsed && mSensorPresenter != null) {
                 mSensorAnimationBehavior.updateImageView(mCardViewHolder.meterSensorIcon,
                         value, mSensorPresenter.getMinY(), mSensorPresenter.getMaxY());
             }
@@ -229,86 +242,7 @@ public class SensorCardPresenter {
     }
 
     public void onSensorTriggerFired(SensorTrigger trigger) {
-        // Whenever a trigger fires, we update the header to show an animation. Per UX, it does not
-        // matter, the type of trigger. All triggers show an animation, but visual alert triggers
-        // do nothing else.
-        if (mCardViewHolder == null ||
-                mCardViewHolder.triggerSection.getVisibility() == View.GONE ||
-                !mCardViewHolder.triggerSection.isAttachedToWindow()) {
-            return;
-        }
-        // TODO: Do not animate a trigger until the animIn is completed. We can interrupt animOut but
-        // should finish animIn even if it means missing a visual notification.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            final Animator animIn = ViewAnimationUtils.createCircularReveal(
-                    mCardViewHolder.triggerFiredBackground, 20, 20, 0,
-                    mCardViewHolder.triggerSection.getWidth());
-            final Animator animOut = ViewAnimationUtils.createCircularReveal(
-                    mCardViewHolder.triggerFiredBackground, 20, 20,
-                    mCardViewHolder.triggerSection.getWidth(), 0);
-            animIn.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    mCardViewHolder.triggerFiredBackground.setVisibility(View.VISIBLE);
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    animOut.start();
-                    animIn.removeAllListeners();
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
-            });
-            animOut.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    if (mCardViewHolder != null) {
-                        mCardViewHolder.triggerFiredBackground.setVisibility(View.GONE);
-                    }
-                    animOut.removeAllListeners();
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
-            });
-            animIn.setDuration(200);
-            animOut.setDuration(200);
-            animOut.setStartDelay(500);
-            animIn.start();
-        } else {
-            // No animation, so just show and hide the background.
-            mCardViewHolder.triggerFiredBackground.setVisibility(View.VISIBLE);
-            mCardViewHolder.triggerFiredBackground.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (mCardViewHolder != null) {
-                        mCardViewHolder.triggerFiredBackground.setVisibility(
-                                View.GONE);
-                    }
-                }
-            }, 500);
-        }
+        mCardTriggerPresenter.onSensorTriggerFired();
     }
 
     public void onSourceStatusUpdate(String id, int status) {
@@ -355,18 +289,25 @@ public class SensorCardPresenter {
         if (mCardViewHolder == null) {
             return;
         }
+        updateSensorTriggerUi();
         updateCardMenu();
         if (!mHasError && mSourceStatus == SensorStatusListener.STATUS_CONNECTED) {
             // We are connected with no error! Set everything back to normal.
             mCardViewHolder.flipButton.setVisibility(View.VISIBLE);
             mCardViewHolder.statusViewGroup.setVisibility(View.GONE);
-            updateSensorTriggerUi();
+            updateContentView(false);
             return;
         }
         mCardViewHolder.flipButton.setVisibility(View.GONE);
         mCardViewHolder.statusViewGroup.bringToFront();
         mCardViewHolder.statusViewGroup.setVisibility(View.VISIBLE);
         mCardViewHolder.statusRetryButton.setVisibility(View.GONE);
+
+        // Make the meter and graph view groups not explorable in TalkBack, so the user can't find
+        // those views underneath the error state view.
+        mCardViewHolder.meterViewGroup.setVisibility(View.INVISIBLE);
+        mCardViewHolder.graphViewGroup.setVisibility(View.INVISIBLE);
+
         if (mHasError) {
             // An error
             if (mRetryClickListener != null && mAllowRetry) {
@@ -412,7 +353,7 @@ public class SensorCardPresenter {
 
     private void startObservingWithTriggers(ReadableSensorOptions readOptions,
             final SensorObserver recordFragmentObserver, List<SensorTrigger> triggers) {
-        mSensorTriggers = triggers;
+        mCardTriggerPresenter.setSensorTriggers(triggers);
         mObserverId = mRecorderController.startObserving(mCurrentSource.getId(), triggers,
                 new SensorObserver() {
                     @Override
@@ -426,7 +367,7 @@ public class SensorCardPresenter {
             updateAudio(mLayout.audioEnabled, getSonificationType(mParentFragment.getActivity()));
         }
         mSensorPresenter.setShowStatsOverlay(mLayout.showStatsOverlay);
-        mSensorPresenter.setTriggers(mSensorTriggers);
+        mSensorPresenter.setTriggers(triggers);
         if (mFirstObserving) {
             // The first time we start observing on a sensor, we can load the minimum and maximum
             // y values from the layout. If the sensor is changed, we don't want to keep loading the
@@ -474,6 +415,7 @@ public class SensorCardPresenter {
     public void setViews(CardViewHolder cardViewHolder, OnCloseClickedListener closeListener) {
         mCardViewHolder = cardViewHolder;
         mCloseListener = closeListener;
+        mCardTriggerPresenter.setViews(mCardViewHolder);
 
         updateRecordingUi();
 
@@ -576,28 +518,11 @@ public class SensorCardPresenter {
         if (mCardViewHolder == null) {
             return;
         }
-        if (mSensorTriggers.size() == 0 || mHasError ||
-                mSourceStatus != SensorStatusListener.STATUS_CONNECTED) {
+        if (mHasError || mSourceStatus != SensorStatusListener.STATUS_CONNECTED) {
             mCardViewHolder.triggerSection.setVisibility(View.GONE);
             return;
         }
-        mCardViewHolder.triggerSection.setVisibility(View.VISIBLE);
-        mCardViewHolder.triggerFiredBackground.setVisibility(View.GONE);
-        mCardViewHolder.triggerSection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isRecording() && !mHasError &&
-                        mSourceStatus == SensorStatusListener.STATUS_CONNECTED) {
-                    startSetTriggersActivity();
-                }
-            }
-        });
-        mCardViewHolder.triggerText.setText(createCardTriggerText(mSensorTriggers.get(0)));
-    }
-
-    private String createCardTriggerText(SensorTrigger trigger) {
-        return mCardViewHolder.getContext().getResources()
-                .getStringArray(R.array.trigger_type_list)[trigger.getActionType()];
+        mCardTriggerPresenter.updateSensorTriggerUi();
     }
 
     private void updateContentView(boolean animate) {
@@ -703,10 +628,10 @@ public class SensorCardPresenter {
         mCardViewHolder.menuButton.setOnClickListener(null);
         mCardViewHolder.infoButton.setOnClickListener(null);
         mCardViewHolder.graphStatsList.setOnClickListener(null);
-        mCardViewHolder.triggerSection.setOnClickListener(null);
         if (mSensorPresenter != null) {
             mSensorPresenter.onViewRecycled();
         }
+        mCardTriggerPresenter.onViewRecycled();
         mCloseListener = null;
         mCardViewHolder = null;
     }
@@ -729,6 +654,9 @@ public class SensorCardPresenter {
     }
 
     private void openCardMenu() {
+        if (mPopupMenu != null) {
+            return;
+        }
         final Context context = mCardViewHolder.getContext();
         boolean showDevTools = DevOptionsFragment.isDevToolsEnabled(context);
         mPopupMenu = new PopupMenu(context, mCardViewHolder.menuButton);
@@ -753,8 +681,6 @@ public class SensorCardPresenter {
 
         menu.findItem(R.id.btn_sensor_card_audio_settings).setVisible(!isRecording());
 
-        // For now, hide triggers behind test options.
-        menu.findItem(R.id.btn_sensor_card_set_triggers).setVisible(showDevTools);
         // Disable trigger settings during recording.
         menu.findItem(R.id.btn_sensor_card_set_triggers).setEnabled(sensorConnected &&
                 !isRecording() && mLayout != null);
@@ -762,7 +688,7 @@ public class SensorCardPresenter {
         // Show the option to disable all triggers only during recording and if triggers exist
         // on the card.
         menu.findItem(R.id.btn_disable_sensor_card_triggers).setVisible(isRecording() &&
-                mLayout != null && mSensorTriggers.size() > 0);
+                mLayout != null && mCardTriggerPresenter.getSensorTriggers().size() > 0);
 
         mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
@@ -804,8 +730,6 @@ public class SensorCardPresenter {
                     intent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, mExperimentId);
                     intent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION,
                             mParentFragment.getPositionOfLayout(mLayout));
-                    intent.putExtra(TriggerListActivity.EXTRA_SENSOR_LAYOUT_BLOB,
-                            ProtoUtils.makeBlob(mLayout));
                     mParentFragment.getActivity().startActivity(intent);
                     return true;
                 } else if (itemId == R.id.btn_sensor_card_set_triggers) {
@@ -837,8 +761,8 @@ public class SensorCardPresenter {
     }
 
     public void onSensorTriggersCleared() {
-        mSensorTriggers = Collections.emptyList();
-        mSensorPresenter.setTriggers(mSensorTriggers);
+        mCardTriggerPresenter.setSensorTriggers(Collections.<SensorTrigger>emptyList());
+        mSensorPresenter.setTriggers(Collections.<SensorTrigger>emptyList());
         updateSensorTriggerUi();
     }
 
@@ -852,8 +776,6 @@ public class SensorCardPresenter {
         intent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, mExperimentId);
         intent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION,
                 mParentFragment.getPositionOfLayout(mLayout));
-        intent.putExtra(TriggerListActivity.EXTRA_SENSOR_LAYOUT_BLOB,
-                ProtoUtils.makeBlob(mLayout));
         mParentFragment.getActivity().startActivity(intent);
         return true;
     }
@@ -974,7 +896,7 @@ public class SensorCardPresenter {
             // Clear the active sensor triggers when changing sensors.
             if (!TextUtils.equals(mLayout.sensorId, newSensorId)) {
                 mLayout.activeSensorTriggerIds = new String[]{};
-                mSensorTriggers.clear();
+                mCardTriggerPresenter.setSensorTriggers(Collections.<SensorTrigger>emptyList());
                 updateSensorTriggerUi();
             }
             mOnSensorClickListener.onSensorClicked(newSensorId);
@@ -1072,7 +994,7 @@ public class SensorCardPresenter {
     // When the stats drawer is recycled, this can return the old drawer for a different
     // sensor, so check whether the view is recycled (unavailable) before updating.
     public void updateStats(List<StreamStat> stats) {
-        if (mCardViewHolder != null) {
+        if (mCardViewHolder != null && mSensorPresenter != null) {
             mCardViewHolder.graphStatsList.updateStats(stats);
             mCardViewHolder.meterStatsList.updateStats(stats);
             mSensorPresenter.updateStats(stats);
@@ -1271,6 +1193,7 @@ public class SensorCardPresenter {
 
     public void destroy() {
         mRecorderController.stopObserving(mSensorId, mObserverId);
+        mCardTriggerPresenter.onDestroy();
         if (mCardViewHolder != null) {
             mCardViewHolder.header.setOnHeaderTouchListener(null);
         }
@@ -1437,5 +1360,24 @@ public class SensorCardPresenter {
         SensorAppearance appearance = mAppearanceProvider.getAppearance(sensorId);
         setUiForConnectingNewSensor(sensorId,
                 appearance.getSensorDisplayName(context), appearance.getUnits(context), hasError);
+    }
+
+    public boolean isTriggerBarOnScreen() {
+        if (mCardViewHolder == null || mParentFragment == null ||
+                mParentFragment.getActivity() == null) {
+            return false;
+        }
+        Resources res = mCardViewHolder.getContext().getResources();
+        int[] location = new int[2];
+        mCardViewHolder.triggerSection.getLocationInWindow(location);
+        if (location[1] <= res.getDimensionPixelSize(R.dimen.accessibility_touch_target_min_size)) {
+            return false;
+        }
+        DisplayMetrics metrics = new DisplayMetrics();
+        mParentFragment.getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        if (metrics.heightPixels < location[1]) {
+            return false;
+        }
+        return true;
     }
 }

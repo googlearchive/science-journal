@@ -189,6 +189,7 @@ public class LicenseActivity extends AppCompatActivity {
     }
 
     public static class LicenseFragment extends Fragment {
+        private String mTitleToRestore = null;
 
         private WebView mWebView;
 
@@ -232,7 +233,19 @@ public class LicenseActivity extends AppCompatActivity {
         @Override
         public void onResume() {
             super.onResume();
+            if (mTitleToRestore == null) {
+                mTitleToRestore = getActivity().getTitle().toString();
+            }
             getActivity().setTitle(getArguments().getString(TAG_TITLE));
+        }
+
+        @Override
+        public void onPause() {
+            if (mTitleToRestore != null) {
+                getActivity().setTitle(mTitleToRestore);
+                mTitleToRestore = null;
+            }
+            super.onPause();
         }
     }
 

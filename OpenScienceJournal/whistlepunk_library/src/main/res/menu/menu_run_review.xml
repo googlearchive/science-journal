@@ -35,12 +35,6 @@
         >
         <menu>
             <item
-                android:id="@+id/action_run_review_delete"
-                android:icon="@drawable/ic_delete_black_24dp"
-                android:title="@string/delete_run"
-                app:showAsAction="never"
-                />
-            <item
                 android:id="@+id/action_run_review_crop"
                 android:icon="@drawable/ic_crop_black_24dp"
                 android:title="@string/crop_run"
@@ -50,18 +44,6 @@
                 android:id="@+id/action_run_review_audio_settings"
                 android:icon="@drawable/ic_settings_audio_24dp"
                 android:title="@string/menu_item_audio_settings"
-                app:showAsAction="never"
-                />
-            <item
-                android:id="@+id/action_run_review_archive"
-                android:icon="@drawable/ic_archive_black_24dp"
-                android:title="@string/action_archive_run"
-                app:showAsAction="never"
-                />
-            <item
-                android:id="@+id/action_run_review_unarchive"
-                android:icon="@drawable/ic_unarchive_black_24dp"
-                android:title="@string/action_unarchive_run"
                 app:showAsAction="never"
                 />
             <item
@@ -87,6 +69,24 @@
                 android:title="@string/graph_options"
                 app:showAsAction="never"
                 />
-            </menu>
+            <item
+                android:id="@+id/action_run_review_archive"
+                android:icon="@drawable/ic_archive_black_24dp"
+                android:title="@string/action_archive_run"
+                app:showAsAction="never"
+                />
+            <item
+                android:id="@+id/action_run_review_unarchive"
+                android:icon="@drawable/ic_unarchive_black_24dp"
+                android:title="@string/action_unarchive_run"
+                app:showAsAction="never"
+                />
+            <item
+                android:id="@+id/action_run_review_delete"
+                android:icon="@drawable/ic_delete_black_24dp"
+                android:title="@string/delete_run"
+                app:showAsAction="never"
+                />
+        </menu>
     </item>
 </menu>

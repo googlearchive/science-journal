@@ -14,15 +14,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:text="@string/empty_trigger_list"
-    android:layout_gravity="center"
-    android:gravity="center"
+    android:layout_gravity="center_horizontal"
+    android:gravity="center_horizontal"
     android:padding="24dp"
     android:drawablePadding="24dp"
     android:textColor="@color/text_color_dark_grey"
-    android:drawableTop="@drawable/empty_experiment"
+    android:drawableTop="@drawable/empty_triggers_large"
     style="@style/Base.TextAppearance.AppCompat.Headline"
     />

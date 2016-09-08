@@ -28,7 +28,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,14 +46,14 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.RecordFragment;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -64,8 +63,9 @@ public class TriggerListFragment extends Fragment {
 
     private static final String ARG_SENSOR_ID = "sensor_id";
     private static final String ARG_EXPERIMENT_ID = "experiment_id";
-    private static final String ARG_SENSOR_LAYOUT = "sensor_layout";
     private static final String ARG_LAYOUT_POSITION = "layout_position";
+    public static final String ARG_TRIGGER_ORDER = "trigger_order";
+    private static final String KEY_TRIGGER_ORDER = "trigger_order";
     private static final String TAG = "TriggerListFragment";
 
     private static String mSensorId;
@@ -73,15 +73,16 @@ public class TriggerListFragment extends Fragment {
     private GoosciSensorLayout.SensorLayout mSensorLayout;
     private TriggerListAdapter mTriggerAdapter;
     private int mLayoutPosition;
+    private ArrayList<String> mTriggerOrder;
 
     public static TriggerListFragment newInstance(String sensorId, String experimentId,
-            byte[] sensorLayoutBlob, int position) {
+            int position, ArrayList<String> triggerOrder) {
         TriggerListFragment fragment = new TriggerListFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SENSOR_ID, sensorId);
         args.putString(ARG_EXPERIMENT_ID, experimentId);
-        args.putByteArray(ARG_SENSOR_LAYOUT, sensorLayoutBlob);
         args.putInt(ARG_LAYOUT_POSITION, position);
+        args.putStringArrayList(ARG_TRIGGER_ORDER, triggerOrder);
         fragment.setArguments(args);
         return fragment;
     }
@@ -92,26 +93,10 @@ public class TriggerListFragment extends Fragment {
         mSensorId = getArguments().getString(ARG_SENSOR_ID);
         mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
         mLayoutPosition = getArguments().getInt(ARG_LAYOUT_POSITION);
-        if (savedInstanceState == null) {
-            try {
-                mSensorLayout = GoosciSensorLayout.SensorLayout.parseFrom(
-                        getArguments().getByteArray(ARG_SENSOR_LAYOUT));
-            } catch (InvalidProtocolBufferNanoException e) {
-                if (Log.isLoggable(TAG, Log.ERROR)) {
-                    Log.e(TAG, "Error parsing the SensorLayout", e);
-                }
-                mSensorLayout = RecordFragment.defaultLayout();
-            }
+        if (savedInstanceState != null) {
+            mTriggerOrder = savedInstanceState.getStringArrayList(KEY_TRIGGER_ORDER);
         } else {
-            try {
-                mSensorLayout = GoosciSensorLayout.SensorLayout.parseFrom(
-                        savedInstanceState.getByteArray(ARG_SENSOR_LAYOUT));
-            } catch (InvalidProtocolBufferNanoException e) {
-                if (Log.isLoggable(TAG, Log.ERROR)) {
-                    Log.e(TAG, "Error parsing the SensorLayout", e);
-                }
-                mSensorLayout = RecordFragment.defaultLayout();
-            }
+            mTriggerOrder = getArguments().getStringArrayList(ARG_TRIGGER_ORDER);
         }
         setHasOptionsMenu(true);
     }
@@ -123,29 +108,77 @@ public class TriggerListFragment extends Fragment {
 
         String sensorName = AppSingleton.getInstance(getActivity())
                 .getSensorAppearanceProvider().getAppearance(mSensorId).getName(getActivity());
-        actionBar.setTitle(getString(R.string.title_activity_trigger_list, sensorName));
+        actionBar.setTitle(getString(R.string.title_fragment_trigger_list, sensorName));
 
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putByteArray(ARG_SENSOR_LAYOUT, ProtoUtils.makeBlob(mSensorLayout));
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
+        getDataController().getSensorLayouts(mExperimentId,
+                new LoggingConsumer<List<GoosciSensorLayout.SensorLayout>>(TAG, "get layout") {
+                    @Override
+                    public void success(List<GoosciSensorLayout.SensorLayout> value) {
+                        for (GoosciSensorLayout.SensorLayout layout : value) {
+                            if (TextUtils.equals(layout.sensorId, mSensorId)) {
+                                mSensorLayout = layout;
+                            }
+                        }
+                    }
+                });
         getDataController().getSensorTriggersForSensor(mSensorId,
                 new LoggingConsumer<List<SensorTrigger>>(TAG, "get triggers for sensor") {
                     @Override
                     public void success(List<SensorTrigger> triggers) {
+                        Comparator<SensorTrigger> cp;
+                        if (mTriggerOrder != null) {
+                            // If this is not the first load, use the saved order to define a new
+                            // order, but insert new triggers at the top.
+                            cp = new Comparator<SensorTrigger>() {
+                                @Override
+                                public int compare(SensorTrigger lhs, SensorTrigger rhs) {
+                                    int lhsIndex = mTriggerOrder.indexOf(lhs.getTriggerId());
+                                    int rhsIndex = mTriggerOrder.indexOf(rhs.getTriggerId());
+                                    if (lhsIndex == rhsIndex && lhsIndex == -1) {
+                                        // If they are both not found, they are both new.
+                                        return Long.compare(rhs.getLastUsed(), lhs.getLastUsed());
+                                    }
+                                    return Integer.compare(lhsIndex, rhsIndex);
+                                }
+                            };
+                        } else {
+                            // Only do this sort on the first load.
+                            cp = new Comparator<SensorTrigger>() {
+                                @Override
+                                public int compare(SensorTrigger lhs, SensorTrigger rhs) {
+                                    boolean lhsIsActive = isTriggerActive(lhs);
+                                    boolean rhsIsActive = isTriggerActive(rhs);
+                                    if (lhsIsActive && !rhsIsActive) {
+                                        return -1;
+                                    }
+                                    if (!lhsIsActive && rhsIsActive) {
+                                        return 1;
+                                    }
+                                    return Long.compare(rhs.getLastUsed(), lhs.getLastUsed());
+
+                                }
+                            };
+                        }
+                        // Sort sensor triggers
+                        Collections.sort(triggers, cp);
                         mTriggerAdapter.setSensorTriggers(triggers);
                     }
                 });
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_TRIGGER_LIST);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveTriggerOrder();
+        outState.putStringArrayList(KEY_TRIGGER_ORDER, mTriggerOrder);
     }
 
     private DataController getDataController() {
@@ -190,15 +223,25 @@ public class TriggerListFragment extends Fragment {
         intent.putExtra(EditTriggerActivity.EXTRA_SENSOR_ID, mSensorId);
 
         // Also send the Sensor Layout and the position so that this fragment can be recreated on
-        // completion.
-        intent.putExtra(TriggerListActivity.EXTRA_SENSOR_LAYOUT_BLOB,
+        // completion, and the order in which the triggers are shown so that the order does not
+        // change when the user gets back.
+        intent.putExtra(EditTriggerActivity.EXTRA_SENSOR_LAYOUT_BLOB,
                 ProtoUtils.makeBlob(mSensorLayout));
         intent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION, mLayoutPosition);
+        saveTriggerOrder();
+        intent.putExtra(TriggerListActivity.EXTRA_TRIGGER_ORDER, mTriggerOrder);
 
         getActivity().startActivity(intent);
     }
 
-    private void deleteTrigger(final SensorTrigger trigger) {
+    private void saveTriggerOrder() {
+        mTriggerOrder = new ArrayList<>();
+        for (SensorTrigger trigger : mTriggerAdapter.mSensorTriggers) {
+            mTriggerOrder.add(trigger.getTriggerId());
+        }
+    }
+
+    private void deleteTrigger(final SensorTrigger trigger, final int index) {
         final boolean isActive = isTriggerActive(trigger);
         final DataController dc = getDataController();
 
@@ -227,11 +270,12 @@ public class TriggerListFragment extends Fragment {
                                                     TAG, "add trigger to layout") {
                                                 @Override
                                                 public void success(Success value) {
-                                                    mTriggerAdapter.addTrigger(trigger);
+                                                    mTriggerAdapter.addTriggerAtIndex(trigger,
+                                                            index);
                                                 }
                                             });
                                 } else {
-                                    mTriggerAdapter.addTrigger(trigger);
+                                    mTriggerAdapter.addTriggerAtIndex(trigger, index);
                                 }
                             }
                         });
@@ -280,13 +324,9 @@ public class TriggerListFragment extends Fragment {
                     trigger.getTriggerId());
         }
         getDataController().updateSensorLayout(mExperimentId, mLayoutPosition, mSensorLayout,
-                new LoggingConsumer<Success>(TAG, "updating trigger active state") {
-                    @Override
-                    public void success(Success value) {
-                        mTriggerAdapter.sortSensorTriggers();
-                    }
-                });
-        // TODO: Should we also update the lastUsed time on this trigger when it is toggled? Ask UX!
+                LoggingConsumer.<Success>expectSuccess(TAG, "updating trigger active state"));
+        // Note: Last used time is not updated when the trigger is activated / deactivated, and the
+        // list should not be resorted at this time.
     }
 
     private static class TriggerListAdapter extends
@@ -297,7 +337,6 @@ public class TriggerListFragment extends Fragment {
 
         List<SensorTrigger> mSensorTriggers = new ArrayList<>();
         private final WeakReference<TriggerListFragment> mParentReference;
-
 
         public TriggerListAdapter(TriggerListFragment parent) {
             mParentReference = new WeakReference<TriggerListFragment>(parent);
@@ -316,7 +355,7 @@ public class TriggerListFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, final int position) {
             if (getItemViewType(position) == VIEW_TYPE_EMPTY) {
                 return;
             }
@@ -342,7 +381,8 @@ public class TriggerListFragment extends Fragment {
                                 return true;
                             } else if (item.getItemId() == R.id.delete_trigger) {
                                 if (mParentReference.get() != null) {
-                                    mParentReference.get().deleteTrigger(trigger);
+                                    mParentReference.get().deleteTrigger(trigger,
+                                            mSensorTriggers.indexOf(trigger));
                                 }
                                 return true;
                             }
@@ -391,14 +431,6 @@ public class TriggerListFragment extends Fragment {
 
         public void setSensorTriggers(List<SensorTrigger> sensorTriggers) {
             mSensorTriggers = sensorTriggers;
-            sortSensorTriggers();
-            notifyDataSetChanged();
-        }
-
-        private void sortSensorTriggers() {
-            // TODO: Sort based on activation? Based on last used? Talk with UX!
-            // If this needs to sort based on activation, give it a reference to the sensorLayout
-            // or activeTriggers list.
             notifyDataSetChanged();
         }
 
@@ -409,9 +441,9 @@ public class TriggerListFragment extends Fragment {
             notifyDataSetChanged();
         }
 
-        public void addTrigger(SensorTrigger trigger) {
-            mSensorTriggers.add(trigger);
-            sortSensorTriggers();
+        public void addTriggerAtIndex(SensorTrigger trigger, int index) {
+            mSensorTriggers.add(index, trigger);
+            notifyDataSetChanged();
         }
 
         public static class ViewHolder extends RecyclerView.ViewHolder {

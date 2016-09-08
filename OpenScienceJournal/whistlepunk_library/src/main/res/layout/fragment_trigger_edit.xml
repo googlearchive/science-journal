@@ -45,6 +45,8 @@
             android:minHeight="@dimen/accessibility_touch_target_min_size"
             android:id="@id/trigger_type_spinner"
             android:layout_marginBottom="24dp"
+            style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+            android:popupBackground="@android:color/white"
             />
 
         <TextView
@@ -62,6 +64,17 @@
             android:minHeight="@dimen/accessibility_touch_target_min_size"
             android:id="@id/trigger_when_spinner"
             android:layout_marginBottom="24dp"
+            style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+            android:popupBackground="@android:color/white"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_light_grey"
+            android:textSize="14sp"
+            android:text="@string/trigger_value_label"
+            android:labelFor="@+id/value_input"
             />
 
         <LinearLayout
@@ -75,7 +88,7 @@
                 android:layout_width="wrap_content"
                 android:minWidth="144dp"
                 android:layout_height="@dimen/accessibility_touch_target_min_size"
-                android:id="@+id/value_input"
+                android:id="@id/value_input"
                 android:singleLine="true"
                 android:lines="1"
                 android:inputType="numberDecimal|numberSigned"

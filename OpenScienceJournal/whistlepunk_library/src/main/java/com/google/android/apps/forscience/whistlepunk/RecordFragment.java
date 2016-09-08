@@ -31,7 +31,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Vibrator;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -70,6 +69,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
@@ -162,7 +162,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
      * when we resume
      */
     private String mRecorderPauseId;
-    private Vibrator mVibrator;
     private boolean mRecordingWasCanceled;
 
     public static RecordFragment newInstance() {
@@ -287,6 +286,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         // update the UI.
                         if (prevRecording != null && !isRecording()) {
                             mExternalAxis.onStopRecording();
+                            AddNoteDialog dialog = (AddNoteDialog) getChildFragmentManager()
+                                    .findFragmentByTag(AddNoteDialog.TAG);
+                            if (dialog != null) {
+                                dialog.dismiss();
+                            }
                             if (!mRecordingWasCanceled) {
                                 onRecordingStopped(prevRecording.getRunId());
                             }
@@ -991,19 +995,22 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         refreshLabels();
         ensureUnarchived(mSelectedExperiment, mSelectedProject, getDataController());
         playAddNoteAnimation();
-        String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
-                TrackerConstants.LABEL_OBSERVE;
-        WhistlePunkApplication.getUsageTracker(getActivity())
-                .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                        TrackerConstants.ACTION_CREATE,
-                        trackerLabel,
-                        TrackerConstants.getLabelValueType(label));
+        // Trigger labels are logged in RecorderControllerImpl.
+        if (!(label instanceof SensorTriggerLabel)) {
+            String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
+                    TrackerConstants.LABEL_OBSERVE;
+            WhistlePunkApplication.getUsageTracker(getActivity())
+                    .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                            TrackerConstants.ACTION_CREATE,
+                            trackerLabel,
+                            TrackerConstants.getLabelValueType(label));
+        }
     }
 
     private void playAddNoteAnimation() {
-        final View addNoteIndicator = getView().findViewById(R.id.add_note_indicator);
-        final float oldX = addNoteIndicator.getX();
-        final float oldY = addNoteIndicator.getY();
+        final View addNoteIndicator = LayoutInflater.from(getActivity()).inflate(
+                R.layout.note_indicator, (ViewGroup) getView(), false);
+        ((ViewGroup) getView()).addView(addNoteIndicator);
         // NOTE: this is not always guaranteed to find the menu item view.
         View menuItem = getActivity().findViewById(R.id.btn_experiment_details);
         if (menuItem == null) {
@@ -1012,8 +1019,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
         int[] location = new int[2];
         menuItem.getLocationOnScreen(location);
-        addNoteIndicator.setTranslationX(0);
-        addNoteIndicator.setTranslationY(0);
+        // Center in parent view.
+        addNoteIndicator.setX(getView().getWidth() / 2);
+        addNoteIndicator.setY(getView().getHeight() / 2);
         addNoteIndicator.setAlpha(1.0f);
         addNoteIndicator.setScaleX(4.0f);
         addNoteIndicator.setScaleY(4.0f);
@@ -1032,9 +1040,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        addNoteIndicator.setX(oldX);
-                        addNoteIndicator.setY(oldY);
-                        addNoteIndicator.setVisibility(View.INVISIBLE);
+                        if (addNoteIndicator.getParent() != null) {
+                            ((ViewGroup) addNoteIndicator.getParent()).removeView(addNoteIndicator);
+                        }
                     }
                 })
                 .start();
@@ -1309,7 +1317,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void doVisualAlert(SensorTrigger trigger) {
-        SensorCardPresenter presenter = getPresenterById(trigger.getSensorId());
+        final SensorCardPresenter presenter = getPresenterById(trigger.getSensorId());
         if (presenter == null) {
             return;
         }
@@ -1326,15 +1334,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             return;
         }
 
-        // Get the presenter's position.
-        final int position = getPositionOfPresenter(presenter);
-
         // TODO: Work with UX to tweak this check so that the right amount of the card is shown.
         // Look to see if the card is outside of the visible presenter range. The alert is shown
         // near the top of the card, so we check between the first fully visible card and the last
         // partially visible card.
-        if (position < mSensorCardLayoutManager.findFirstCompletelyVisibleItemPosition() ||
-                position > mSensorCardLayoutManager.findLastVisibleItemPosition()) {
+        if (!presenter.isTriggerBarOnScreen()) {
 
             SensorAppearance appearance = AppSingleton.getInstance(getActivity())
                     .getSensorAppearanceProvider().getAppearance(trigger.getSensorId());
@@ -1350,7 +1354,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             bar.setAction(R.string.scroll_to_card, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mSensorCardLayoutManager.scrollToPosition(position);
+                    mSensorCardLayoutManager.scrollToPosition(getPositionOfPresenter(presenter));
                 }
             });
             showSnackbar(bar);
@@ -1694,10 +1698,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
             @Override
             public void onShown(Snackbar snackbar) {
-                mVisibleSnackbar = snackbar;
             }
         });
         bar.show();
+        mVisibleSnackbar = bar;
     }
 
 }

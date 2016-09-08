@@ -16,12 +16,21 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import android.content.Context;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
-import android.test.AndroidTestCase;
 import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
+import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
@@ -32,6 +41,17 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDis
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Shadows;
+import org.robolectric.annotation.Config;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,12 +60,15 @@ import java.util.Map;
 /**
  * Tests for {@link SimpleMetaDataManager}
  */
-public class SimpleMetaDataManagerTest extends AndroidTestCase {
+@RunWith(RobolectricTestRunner.class)
+@Config(constants = BuildConfig.class)
+public class SimpleMetaDataManagerTest {
 
     private MetaDataManager mMetaDataManager;
     private TestSystemClock mTestSystemClock;
+    private static File sFilePath;
 
-    public class TestSystemClock implements Clock {
+    public static class TestSystemClock implements Clock {
 
         long testTime = 42;
 
@@ -59,20 +82,31 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         }
     };
 
+    @Before
     public void setUp() {
         mMetaDataManager = makeMetaDataManager();
+    }
+
+    private static Context getContext() {
+        return Shadows.shadowOf(RuntimeEnvironment.application).getApplicationContext();
     }
 
     @NonNull
     private SimpleMetaDataManager makeMetaDataManager() {
         mTestSystemClock = new TestSystemClock();
+        sFilePath = getContext().getDatabasePath("test.main.db");
         return new SimpleMetaDataManager(getContext(), "test.main.db", mTestSystemClock);
     }
 
-    public void tearDown() {
-        getContext().getDatabasePath("test.main.db").delete();
+    @AfterClass
+    public static void tearDown() {
+        if (sFilePath != null) {
+            sFilePath.delete();
+            sFilePath = null;
+        }
     }
 
+    @Test
     public void testNewProject() {
         Project project = mMetaDataManager.newProject();
         assertNotNull(project);
@@ -103,6 +137,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertFalse("Project was not deleted", found);
     }
 
+    @Test
     public void testUpdateProject() {
         Project project = mMetaDataManager.newProject();
         project.setTitle("My title");
@@ -125,6 +160,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertTrue(archivedProject.isArchived());
     }
 
+    @Test
     public void testNewExperiment() {
         Project project = mMetaDataManager.newProject();
         Experiment experiment = mMetaDataManager.newExperiment(project);
@@ -155,6 +191,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(0, experiments.size());
     }
 
+    @Test
     public void testUpdateExperiment() {
         Project project = mMetaDataManager.newProject();
         Experiment experiment = mMetaDataManager.newExperiment(project);
@@ -172,6 +209,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertFalse(retrieve.isArchived());
     }
 
+    @Test
     public void testArchiveExperiment() {
         Project project = mMetaDataManager.newProject();
         Experiment experiment = mMetaDataManager.newExperiment(project);
@@ -198,6 +236,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(experiment.getExperimentId(), experiments.get(0).getExperimentId());
     }
 
+    @Test
     public void testNewLabel() {
         Project project = mMetaDataManager.newProject();
         Experiment experiment = mMetaDataManager.newExperiment(project);
@@ -205,7 +244,16 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         String testLabelString = "test label";
         TextLabel textLabel = new TextLabel(testLabelString, "textId", Arbitrary.string(), 1);
         mMetaDataManager.addLabel(experiment, textLabel);
-        String testPicturePath = "file://path/to/test/file";
+        File tmpFile;
+        try {
+             tmpFile = File.createTempFile("testfile_" + experiment.getExperimentId(), "png");
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Could not create temp file" + e.getMessage());
+            return;
+        }
+        assertTrue(tmpFile.exists());
+        String testPicturePath = tmpFile.getAbsolutePath();
         String testPictureCaption = "life, the universe, and everything";
         PictureLabel pictureLabel = new PictureLabel(testPicturePath, testPictureCaption,
                 "pictureId", Arbitrary.string(), 2);
@@ -237,8 +285,12 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         mMetaDataManager.deleteProject(project);
         labels = mMetaDataManager.getLabelsForExperiment(experiment);
         assertEquals(0, labels.size());
+
+        // Test that the picture file got deleted.
+        assertFalse(tmpFile.exists());
     }
 
+    @Test
     public void testLabelsWithStartId() {
         Project project = mMetaDataManager.newProject();
         Experiment experiment = mMetaDataManager.newExperiment(project);
@@ -255,6 +307,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEqualLabels(during2, labels.get(1));
     }
 
+    @Test
     public void testExperimentStartIds() {
         Project project = mMetaDataManager.newProject();
         Experiment experiment = mMetaDataManager.newExperiment(project);
@@ -310,6 +363,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(expected.getRunId(), actualText.getRunId());
     }
 
+    @Test
     public void testAddRemoveExternalSensor() {
         Map<String,ExternalSensorProvider> providerMap = getProviderMap();
         Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExternalSensors(providerMap);
@@ -343,6 +397,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         return map;
     }
 
+    @Test
     public void testSensorsDifferentTypes() {
         Map<String, ExternalSensorProvider> providerMap = null;
         Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExternalSensors(providerMap);
@@ -400,6 +455,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals("wacked-11:22:33:44:55-testName-0", wackedId);
     }
 
+    @Test
     public void testGetExternalSensorsWithScalarInput() {
         Map<String, ExternalSensorProvider> providerMap = getProviderMap();
         assertEquals(0, mMetaDataManager.getExternalSensors(providerMap).size());
@@ -416,6 +472,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals("address", spec.getAddress());
     }
 
+    @Test
     public void testSensorToExperiment() {
         String testAddress = "11:22:33:44:55";
         String testName = "testName";
@@ -440,6 +497,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(0, sensors.size());
     }
 
+    @Test
     public void testRemoveExternalSensorWithExperiment() {
         String testAddress = "11:22:33:44:55";
         String testName = "testName";
@@ -465,6 +523,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(0, sensors.size());
     }
 
+    @Test
     public void testRemoveExternalSensorWithProject() {
         String testAddress = "11:22:33:44:55";
         String testName = "testName";
@@ -490,6 +549,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(0, sensors.size());
     }
 
+    @Test
     public void testStoreStats() {
         final RunStats stats = new RunStats();
 
@@ -513,6 +573,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(3.0, runStats.getStat(key3), 0.001);
     }
 
+    @Test
     public void testRunStorage() {
         Project project = mMetaDataManager.newProject();
         Experiment experiment = mMetaDataManager.newExperiment(project);
@@ -530,8 +591,63 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(startLabel.getLabelId(), loaded.getId());
         assertEquals(sensorIds, saved.getSensorIds());
         assertEquals(sensorIds, loaded.getSensorIds());
+
+        // Test that runs are deleted.
+        mMetaDataManager.deleteRun(startLabel.getLabelId());
+        loaded = mMetaDataManager.getRun(startLabel.getLabelId());
+        assertNull(loaded);
     }
 
+    @Test
+    public void testExperimentDelete() {
+        Project project = mMetaDataManager.newProject();
+        Experiment experiment = mMetaDataManager.newExperiment(project);
+        final ApplicationLabel startLabel = newStartLabel("startId", 1);
+        GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
+        layout1.sensorId = "sensor1";
+        GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
+        layout2.sensorId = "sensor2";
+        final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
+                Lists.newArrayList(layout1, layout2);
+        mMetaDataManager.addLabel(experiment, startLabel);
+        mMetaDataManager.newRun(experiment, startLabel.getRunId(), sensorLayouts);
+        mMetaDataManager.setExperimentSensorLayouts(experiment.getExperimentId(), sensorLayouts);
+
+        mMetaDataManager.deleteExperiment(experiment);
+
+        assertNull(mMetaDataManager.getExperimentById(experiment.getExperimentId()));
+        // Test that runs are deleted when deleting experiments.
+        assertNull(mMetaDataManager.getRun(startLabel.getLabelId()));
+        // Test that sensor layouts are gone.
+        assertEquals(0, mMetaDataManager.getExperimentSensorLayouts(experiment.getExperimentId())
+                .size());
+    }
+
+    @Test
+    public void testProjectDelete() {
+        Project project = mMetaDataManager.newProject();
+        Experiment experiment = mMetaDataManager.newExperiment(project);
+        final ApplicationLabel startLabel = newStartLabel("startId", 1);
+        GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
+        layout1.sensorId = "sensor1";
+        GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
+        layout2.sensorId = "sensor2";
+        final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
+                Lists.newArrayList(layout1, layout2);
+        mMetaDataManager.addLabel(experiment, startLabel);
+        Run saved = mMetaDataManager.newRun(experiment, startLabel.getRunId(), sensorLayouts);
+
+        mMetaDataManager.deleteProject(project);
+
+        assertNull(mMetaDataManager.getProjectById(project.getProjectId()));
+
+        // Test that experiments and runs are deleted when deleting projects.
+        assertNull(mMetaDataManager.getExperimentById(experiment.getExperimentId()));
+        assertNull(mMetaDataManager.getRun(startLabel.getLabelId()));
+        assertEquals(0, mMetaDataManager.getLabelsWithStartId(startLabel.getLabelId()).size());
+    }
+
+    @Test
     public void testExperimentSensorLayout() {
         GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
         layout1.sensorId = "sensorId1";

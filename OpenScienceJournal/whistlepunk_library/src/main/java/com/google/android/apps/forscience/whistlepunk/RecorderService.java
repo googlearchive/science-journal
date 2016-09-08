@@ -17,11 +17,16 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 
 /**
  * Foreground service that keeps our application alive while recorders are recording.
@@ -42,6 +47,7 @@ public class RecorderService extends Service {
     }
 
     public void beginServiceRecording(String experimentName, Intent launchIntent) {
+        clearRecordingCompletedNotification(getApplicationContext());
         final PendingIntent pi = PendingIntent.getActivity(this, 1, launchIntent, 0);
         startForeground(NotificationIds.RECORDER_SERVICE,
                 new Notification.Builder(this)
@@ -53,8 +59,55 @@ public class RecorderService extends Service {
                         .build());
     }
 
-    public void endServiceRecording() {
+    /**
+     * Stop the recording. Create a notification for the user if notifyRecordingEnded is true.
+     * @param notifyRecordingEnded Whether to show a notification to the user that the run is done.
+     * @param runId If notifiyRecordingEnded is false, can be empty.
+     * @param experimentTitle If notifyRecordingEnded is false, can be empty.
+     */
+    public void endServiceRecording(boolean notifyRecordingEnded, String runId,
+            String experimentTitle) {
+        // Remove the recording notification before notifying that recording has stopped, so that
+        // Science Journal only has one notification at a time.
+        clearNotification(getApplicationContext(), NotificationIds.RECORDER_SERVICE);
+        if (notifyRecordingEnded) {
+            notifyRecordingEnded(runId, experimentTitle);
+        }
         stopForeground(true);
         stopSelf();
+    }
+
+    private void notifyRecordingEnded(String runId, String experimentTitle) {
+        Intent intent = new Intent(getApplicationContext(), RunReviewActivity.class);
+
+        intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, runId);
+        intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, 0);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent notificationIntent = PendingIntent.getActivity(getApplicationContext(),
+                NotificationIds.RECORDING_COMPLETED,intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        ((NotificationManager) getApplicationContext()
+                .getSystemService(Context.NOTIFICATION_SERVICE)).notify(
+                NotificationIds.RECORDING_COMPLETED,
+                new Notification.Builder(getApplicationContext())
+                        .setContentTitle(getApplicationContext().getString(
+                                R.string.service_notification_content_title))
+                        .setContentText(getApplicationContext().getString(
+                                R.string.recording_stopped_notification_text))
+                        .setSubText(experimentTitle)
+                        .setSmallIcon(R.drawable.ic_notification_24dp)
+                        .setContentIntent(notificationIntent)
+                        .setAutoCancel(true)
+                        .build());
+    }
+
+    public static void clearRecordingCompletedNotification(Context context) {
+        clearNotification(context, NotificationIds.RECORDING_COMPLETED);
+    }
+
+    private static void clearNotification(Context context, int notificationId) {
+        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE))
+                .cancel(notificationId);
     }
 }

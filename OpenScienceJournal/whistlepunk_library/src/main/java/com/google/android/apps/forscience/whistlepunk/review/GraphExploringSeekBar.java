@@ -73,6 +73,9 @@ public class GraphExploringSeekBar extends AppCompatSeekBar {
 
         Resources res = getContext().getResources();
         mFormat = res.getString(R.string.graph_exploring_seekbar_content_description);
+
+        // Always use LTR layout, since graphs are always LTR.
+        setLayoutDirection(LAYOUT_DIRECTION_LTR);
     }
 
     public void updateValuesForAccessibility(String time, String value) {

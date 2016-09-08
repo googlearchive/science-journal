@@ -21,6 +21,7 @@ package com.google.android.apps.forscience.whistlepunk.sensordb;
  * background thread; all calls are blocking, and do not perform internal synchronization.
  */
 public interface SensorDatabase {
+
     /**
      * See {@link #getScalarReadings(String, TimeRange, int, int)} for semantics of these params
      */
@@ -48,4 +49,9 @@ public interface SensorDatabase {
      * as long as we're only recording one sensor at a time.
      */
     String getFirstDatabaseTagAfter(long timestamp);
+
+    /**
+     * Deletes the scalar records for the given sensor for the given time range.
+     */
+    void deleteScalarReadings(String sensorTag, TimeRange range);
 }

@@ -20,6 +20,7 @@ import android.app.Fragment;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -60,6 +61,8 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
+import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
@@ -101,7 +104,7 @@ import java.util.List;
  */
 public class ExperimentDetailsFragment extends Fragment
         implements AddNoteDialog.AddNoteDialogListener, EditNoteDialog.EditNoteDialogListener,
-        Handler.Callback {
+        Handler.Callback, DeleteMetadataItemDialog.DeleteDialogListener {
 
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
     public static final String ARG_CREATE_TASK = "create_task";
@@ -161,6 +164,10 @@ public class ExperimentDetailsFragment extends Fragment
                 new LoggingConsumer<Experiment>(TAG, "retrieve experiment") {
                     @Override
                     public void success(final Experiment experiment) {
+                        if (experiment == null) {
+                            // This was deleted on us.
+                            getActivity().finish();
+                        }
                         attachExperimentDetails(experiment);
                         loadExperimentData(experiment);
                     }
@@ -289,6 +296,8 @@ public class ExperimentDetailsFragment extends Fragment
                 !mExperiment.isArchived());
         menu.findItem(R.id.action_unarchive_experiment).setVisible(mExperiment != null &&
                 mExperiment.isArchived());
+        menu.findItem(R.id.action_delete_experiment).setEnabled(mExperiment != null
+                && mExperiment.isArchived());
     }
 
     @Override
@@ -312,6 +321,8 @@ public class ExperimentDetailsFragment extends Fragment
             mIncludeArchived = item.isChecked();
             loadExperimentData(mExperiment);
             return true;
+        } else if (itemId == R.id.action_delete_experiment) {
+            confirmDelete();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -551,6 +562,23 @@ public class ExperimentDetailsFragment extends Fragment
                 }, getResources().getDrawable(R.drawable.ic_observe_white_24dp));
     }
 
+    private void confirmDelete() {
+        DeleteMetadataItemDialog dialog = DeleteMetadataItemDialog.newInstance(
+                R.string.delete_experiment_dialog_title, R.string.delete_experiment_dialog_message);
+        dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
+    }
+
+    @Override
+    public void requestDelete(Bundle extras) {
+        getDataController().deleteExperiment(mExperiment, new LoggingConsumer<Success>(TAG,
+                "Delete experiment") {
+            @Override
+            public void success(Success value) {
+                getActivity().finish();
+            }
+        });
+    }
+
     public static class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.ViewHolder> {
 
         private static final String KEY_SAVED_SENSOR_INDICES = "savedSensorIndices";
@@ -607,7 +635,7 @@ public class ExperimentDetailsFragment extends Fragment
             if (isPictureLabel || isTextLabel || isTriggerLabel) {
                 // TODO: Can this code be reused from PinnedNoteAdapter?
                 TextView textView = (TextView) holder.itemView.findViewById(R.id.note_text);
-                TextView autoText = (TextView) holder.itemView.findViewById(R.id.auto_note_text);
+                TextView autoTextView = (TextView) holder.itemView.findViewById(R.id.auto_note_text);
                 final Label label = isPictureLabel ? mItems.get(position).mPictureLabel :
                         isTextLabel ? mItems.get(position).mTextLabel :
                                 mItems.get(position).mSensorTriggerLabel;
@@ -647,7 +675,7 @@ public class ExperimentDetailsFragment extends Fragment
                         }
                     };
                     holder.itemView.setOnClickListener(clickListener);
-                    autoText.setVisibility(View.GONE);
+                    autoTextView.setVisibility(View.GONE);
                 } else {
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -660,8 +688,11 @@ public class ExperimentDetailsFragment extends Fragment
                     });
                     imageView.setVisibility(View.GONE);
                     if (isTriggerLabel) {
-                        autoText.setVisibility(View.VISIBLE);
-                        autoText.setText(((SensorTriggerLabel) label).getAutogenText());
+                        autoTextView.setVisibility(View.VISIBLE);
+                        String autoText = ((SensorTriggerLabel) label).getAutogenText();
+                        TriggerHelper.populateAutoTextViews(autoTextView, autoText,
+                                R.drawable.ic_label_black_18dp, autoTextView.getResources());
+
                     }
                 }
             }

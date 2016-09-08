@@ -79,6 +79,8 @@
             android:layout_marginStart="@dimen/run_review_note_content_margin_start"
             android:layout_marginEnd="@dimen/run_review_note_text_margin_end"
             android:visibility="gone"
+            android:drawablePadding="@dimen/edit_note_time_drawable_padding"
+            android:gravity="center_vertical"
             />
 
         <TextView
