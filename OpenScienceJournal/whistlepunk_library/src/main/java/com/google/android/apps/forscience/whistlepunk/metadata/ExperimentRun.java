@@ -28,16 +28,20 @@ import java.util.List;
 
 // TODO(saff): get all of this from the actual database
 public class ExperimentRun {
+    public static final long NO_TIME_SPECIFIED = -1;
+
     private final long mStartTime;
     private final long mStopTime;
     private final ArrayList<Label> mLabels;
     private final Run mRun;
     private String mExperimentId;
+    private CropUtils.CropLabels mCropLabels;
 
     public static ExperimentRun fromLabels(Run run, List<Label> allLabels) {
-        long startTime = -1;
-        long stopTime = -1;
+        long startTime = NO_TIME_SPECIFIED;
+        long stopTime = NO_TIME_SPECIFIED;
         ArrayList<Label> labels = new ArrayList<>();
+        CropUtils.CropLabels cropLabels = new CropUtils.CropLabels();
         String experimentId = null;
         for (Label label : allLabels) {
             if (label instanceof ApplicationLabel) {
@@ -47,20 +51,25 @@ public class ExperimentRun {
                     experimentId = appLabel.getExperimentId();
                 } else if (appLabel.getType() == ApplicationLabel.TYPE_RECORDING_STOP) {
                     stopTime = appLabel.getTimeStamp();
+                } else if (appLabel.getType() == ApplicationLabel.TYPE_CROP_START) {
+                    cropLabels.cropStartLabel = (ApplicationLabel) label;
+                } else if (appLabel.getType() == ApplicationLabel.TYPE_CROP_END) {
+                    cropLabels.cropEndLabel = (ApplicationLabel) label;
                 }
             } else {
                 labels.add(label);
             }
         }
-        return new ExperimentRun(run, experimentId, startTime, stopTime, labels);
+        return new ExperimentRun(run, experimentId, startTime, stopTime, labels, cropLabels);
     }
 
     private ExperimentRun(Run run, String experimentId, long startTime, long stopTime,
-            ArrayList<Label> labels) {
+            ArrayList<Label> labels, CropUtils.CropLabels cropLabels) {
         mExperimentId = experimentId;
         mStartTime = startTime;
         mStopTime = stopTime;
         mLabels = labels;
+        mCropLabels = cropLabels;
         mRun = run;
     }
 
@@ -86,11 +95,29 @@ public class ExperimentRun {
     }
 
     public long getFirstTimestamp() {
-        return mStartTime;
+        return mCropLabels.cropStartLabel == null ?
+                mStartTime : mCropLabels.cropStartLabel.getTimeStamp();
     }
 
     public long getLastTimestamp() {
+        return mCropLabels.cropEndLabel == null ?
+                mStopTime : mCropLabels.cropEndLabel.getTimeStamp();
+    }
+
+    public long getOriginalFirstTimestamp() {
+        return mStartTime;
+    }
+
+    public long getOriginalLastTimestamp() {
         return mStopTime;
+    }
+
+    public CropUtils.CropLabels getCropLabels() {
+        return mCropLabels;
+    }
+
+    public void setCropLabels(CropUtils.CropLabels cropLabels) {
+        mCropLabels = cropLabels;
     }
 
     public List<String> getSensorTags() {

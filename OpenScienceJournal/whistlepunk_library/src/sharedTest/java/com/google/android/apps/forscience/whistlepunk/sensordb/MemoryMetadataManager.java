@@ -123,7 +123,7 @@ public class MemoryMetadataManager implements MetaDataManager {
 
     @Override
     public void addLabel(String experimentId, Label label) {
-
+        mLabels.put(experimentId, label);
     }
 
     @Override
