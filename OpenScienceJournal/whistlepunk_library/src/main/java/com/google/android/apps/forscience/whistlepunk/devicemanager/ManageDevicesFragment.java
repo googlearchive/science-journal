@@ -386,8 +386,7 @@ public class ManageDevicesFragment extends PreferenceFragment {
     }
 
     private void showDeviceOptions(String experimentId, String address, String sensorId) {
-        DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId,
-                address, sensorId);
+        DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId, sensorId);
         dialog.show(getFragmentManager(), "edit_device");
     }
 }

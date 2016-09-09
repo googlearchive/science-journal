@@ -37,7 +37,7 @@ import java.util.UUID;
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
             if (isScienceSensor(parseUuids(scanRecord))) {
-                addOrUpdateDevice(device, rssi, extractLongName(scanRecord));
+                addOrUpdateDevice(new NativeDevice(device), rssi, extractLongName(scanRecord));
             }
         }
     };

@@ -13,23 +13,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.google.android.apps.forscience.samplegyroprovider;
+package com.google.android.apps.forscience.ble;
 
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.bluetooth.BluetoothDevice;
 
-/**
- * Main point of this activity is so that the app shows up in the launcher, as an easy way to
- * determine whether the app is installed on a particular test device.
- */
-public class DisplayActivity extends AppCompatActivity {
-    private static final String TAG = "DisplayActivity";
+import com.google.android.apps.forscience.whistlepunk.devicemanager.WhistlepunkBleDevice;
 
-    // TODO: rename package/directory?
+public class NativeDevice implements WhistlepunkBleDevice {
+    private BluetoothDevice mDevice;
+
+    public NativeDevice(BluetoothDevice device) {
+        mDevice = device;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display);
+    public String getName() {
+        return mDevice.getName();
+    }
+
+    @Override
+    public String getAddress() {
+        return mDevice.getAddress();
     }
 }

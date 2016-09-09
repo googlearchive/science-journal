@@ -13,15 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
+package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorObserver;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorStatusListener;
+public interface WhistlepunkBleDevice {
+    String getName();
 
-interface ISensorConnector {
-    void startObserving(String sensorAddress,
-                        ISensorObserver observer,
-                        ISensorStatusListener listener,
-                        String settingsKey) = 0;
-    void stopObserving(String sensorAddress) = 1;
+    String getAddress();
 }

@@ -102,7 +102,7 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
     private void onDeviceRecordFound(Context context, DeviceDiscoverer.DeviceRecord record,
             SensorPrefCallbacks sensorPrefCallbacks) {
         // First check if this is a paired device.
-        BluetoothDevice device = record.device;
+        WhistlepunkBleDevice device = record.device;
         String address = device.getAddress();
 
         if (!sensorPrefCallbacks.isSensorAlreadyKnown(address)) {

@@ -37,7 +37,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 public class DeviceOptionsDialog extends DialogFragment {
     private static final String TAG = "DeviceOptionsDialog";
     private static final String KEY_EXPERIMENT_ID = "experiment_id";
-    private static final String KEY_ADDRESS = "address";
     private static final String KEY_SENSOR_ID = "sensor_id";
 
     /**
@@ -56,17 +55,15 @@ public class DeviceOptionsDialog extends DialogFragment {
         /**
          * Called when the user requests to remove the device from the experiment.
          */
-        public void onRemoveDeviceFromExperiment(String experimentId, String address);
+        public void onRemoveDeviceFromExperiment(String experimentId, String sensorId);
     }
 
     private DataController mDataController;
     private DeviceOptionsViewController mViewController;
 
-    public static DeviceOptionsDialog newInstance(String experimentId, String address,
-                                                  String sensorId) {
+    public static DeviceOptionsDialog newInstance(String experimentId, String sensorId) {
         Bundle args = new Bundle();
         args.putString(KEY_EXPERIMENT_ID, experimentId);
-        args.putString(KEY_ADDRESS, address);
         args.putString(KEY_SENSOR_ID, sensorId);
 
         DeviceOptionsDialog dialog = new DeviceOptionsDialog();
@@ -132,7 +129,7 @@ public class DeviceOptionsDialog extends DialogFragment {
     private void removeDeviceFromExperiment() {
         if (getActivity() instanceof DeviceOptionsListener) {
             ((DeviceOptionsListener) getActivity()).onRemoveDeviceFromExperiment(getExperimentId(),
-                    getArguments().getString(KEY_ADDRESS));
+                    getArguments().getString(KEY_SENSOR_ID));
         }
     }
 
