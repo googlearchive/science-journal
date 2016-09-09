@@ -44,7 +44,6 @@
         android:layout_height="match_parent"
         android:paddingBottom="@dimen/list_bottom_padding"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:clipToPadding="false"
         >
 
     </android.support.v7.widget.RecyclerView>

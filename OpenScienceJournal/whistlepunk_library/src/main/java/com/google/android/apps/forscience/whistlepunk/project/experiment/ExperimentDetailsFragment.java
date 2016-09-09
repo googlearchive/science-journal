@@ -20,10 +20,10 @@ import android.app.Fragment;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -127,6 +127,7 @@ public class ExperimentDetailsFragment extends Fragment
     private ScalarDisplayOptions mScalarDisplayOptions;
     private GraphOptionsController mGraphOptionsController;
     private boolean mIncludeArchived;
+    private Toolbar mToolbar;
 
     /**
      * Creates a new instance of this fragment.
@@ -201,8 +202,8 @@ public class ExperimentDetailsFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_experiment_details, container, false);
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        activity.setSupportActionBar(toolbar);
+        mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        activity.setSupportActionBar(mToolbar);
 
         ActionBar actionBar = activity.getSupportActionBar();
         if (actionBar != null) {
@@ -579,6 +580,18 @@ public class ExperimentDetailsFragment extends Fragment
         });
     }
 
+    private void setToolbarScrollFlags(boolean emptyView) {
+        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+        if (emptyView) {
+            // Don't scroll the toolbar if empty view is showing.
+            params.setScrollFlags(0);
+        } else {
+            params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+                    | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
+        }
+        mToolbar.setLayoutParams(params);
+    }
+
     public static class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.ViewHolder> {
 
         private static final String KEY_SAVED_SENSOR_INDICES = "savedSensorIndices";
@@ -709,7 +722,7 @@ public class ExperimentDetailsFragment extends Fragment
                         View.GONE);
             } else if (type == VIEW_TYPE_EMPTY) {
                 TextView view = (TextView) holder.itemView;
-                view.setText(R.string.empty_runs);
+                view.setText(R.string.empty_experiment);
                 view.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, null,
                         view.getResources().getDrawable(R.drawable.empty_run));
 
@@ -775,6 +788,7 @@ public class ExperimentDetailsFragment extends Fragment
             }
             mItems.remove(position);
             notifyItemRemoved(position);
+            updateEmptyView();
         }
 
         private int findLabelIndex(Label label) {
@@ -803,9 +817,13 @@ public class ExperimentDetailsFragment extends Fragment
             int size = mItems.size();
             long timestamp = label.getTimeStamp();
             boolean inserted = false;
+            int emptyIndex = -1;
             for (int i = 0; i < size; i++) {
                 ExperimentDetailItem item = mItems.get(i);
                 if (item.getViewType() == VIEW_TYPE_EXPERIMENT_DESCRIPTION) {
+                    continue;
+                } else if (item.getViewType() == VIEW_TYPE_EMPTY) {
+                    emptyIndex = i;
                     continue;
                 }
                 if (timestamp > item.getTimestamp()) {
@@ -818,6 +836,10 @@ public class ExperimentDetailsFragment extends Fragment
             if (!inserted) {
                 mItems.add(size, new ExperimentDetailItem(label));
                 notifyItemInserted(size);
+            }
+            // Remove the empty type if necessary.
+            if (emptyIndex > -1) {
+                removeEmptyView(emptyIndex, true);
             }
         }
 
@@ -833,6 +855,8 @@ public class ExperimentDetailsFragment extends Fragment
 
         public void setData(Experiment experiment, List<ExperimentRun> runs, List<Label> labels,
                 ScalarDisplayOptions scalarDisplayOptions) {
+            boolean hasRunsOrLabels = false;
+            mExperiment = experiment;
             // TODO: compare data and see if anything has changed. If so, don't reload at all.
             mItems.clear();
             // As a safety check, if mSensorIndices is not the same size as the run list,
@@ -845,29 +869,92 @@ public class ExperimentDetailsFragment extends Fragment
                 ExperimentDetailItem item = new ExperimentDetailItem(run, scalarDisplayOptions);
                 item.setSensorTagIndex(mSensorIndices != null ? mSensorIndices.get(i++) : 0);
                 mItems.add(item);
+                hasRunsOrLabels = true;
             }
             for (Label label : labels) {
                 if (TextUtils.equals(
                         label.getRunId(), RecordFragment.NOT_RECORDING_RUN_ID)) {
                     if (ExperimentDetailItem.canShowLabel(label)) {
                         mItems.add(new ExperimentDetailItem(label));
+                        hasRunsOrLabels = true;
                     }
                 }
             }
             sortItems();
-            addSpecialCards(experiment, runs);
-            notifyDataSetChanged();
-        }
 
-        private void addSpecialCards(Experiment experiment, List<ExperimentRun> runs) {
-            mExperiment = experiment;
-            if (runs.size() == 0) {
-                mItems.add(0, new ExperimentDetailItem(VIEW_TYPE_EMPTY));
-            }
             if (!TextUtils.isEmpty(experiment.getDescription()) || experiment.isArchived()) {
                 mItems.add(0, new ExperimentDetailItem(VIEW_TYPE_EXPERIMENT_DESCRIPTION));
             }
+
+            if (!hasRunsOrLabels) {
+                addEmptyView(false /* don't notify */);
+            }
+
+            if (mParentReference.get() != null) {
+                mParentReference.get().setToolbarScrollFlags(!hasRunsOrLabels);
+            }
+
+            notifyDataSetChanged();
         }
+
+        /**
+         * Checks to see if we have any labels or runs. If so, hides the empty view. Otherwise,
+         * add the empty view at the right location.
+         */
+        private void updateEmptyView() {
+            boolean hasRunsOrLabels = false;
+            int emptyIndex = -1;
+
+            final int count = mItems.size();
+            for (int index = 0; index < count; ++index) {
+                int viewType = mItems.get(index).getViewType();
+                switch (viewType) {
+                    case VIEW_TYPE_EMPTY:
+                        emptyIndex = index;
+                        break;
+                    case VIEW_TYPE_RUN_CARD:
+                    case VIEW_TYPE_EXPERIMENT_PICTURE_LABEL:
+                    case VIEW_TYPE_EXPERIMENT_TEXT_LABEL:
+                    case VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL:
+                        hasRunsOrLabels = true;
+                        break;
+                }
+
+                if (hasRunsOrLabels) {
+                    // Don't need to look anymore.
+                    break;
+                }
+            }
+
+            if (hasRunsOrLabels && emptyIndex != -1) {
+                // We have runs but there is an empty item. Remove it.
+                removeEmptyView(emptyIndex, true);
+            } else if (!hasRunsOrLabels && emptyIndex == -1) {
+                // We have no runs or labels and no empty item. Add it to the end.
+                addEmptyView(true);
+            }
+        }
+
+        void addEmptyView(boolean notifyAdd) {
+            mItems.add(new ExperimentDetailItem(VIEW_TYPE_EMPTY));
+            if (notifyAdd) {
+                notifyItemInserted(mItems.size() - 1);
+            }
+            if (mParentReference.get() != null) {
+                mParentReference.get().setToolbarScrollFlags(true /* has an empty view*/);
+            }
+        }
+
+        void removeEmptyView(int location, boolean notifyRemove) {
+            mItems.remove(location);
+            if (notifyRemove) {
+                notifyItemRemoved(location);
+            }
+            if (mParentReference.get() != null) {
+                mParentReference.get().setToolbarScrollFlags(false /* has an empty view*/);
+            }
+        }
+
 
         void bindRun(final ViewHolder holder, final ExperimentDetailItem item) {
             final ExperimentRun run = item.getRun();
