@@ -83,7 +83,7 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
         assertEquals(ScalarInputSpec.TYPE, ManageDevicesFragment.getTypeFromPreference(preference));
         ScalarInputSpec spec = (ScalarInputSpec) sid.extractSensorSpec(preference);
         assertEquals(sensorName, spec.getName());
-        assertEquals(sensorId, spec.getAddress());
+        assertEquals(serviceId + "&" + sensorId, spec.getAddress());
         assertEquals(serviceId, spec.getServiceId());
     }
 

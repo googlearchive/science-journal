@@ -26,6 +26,8 @@ import com.google.protobuf.nano.CodedOutputByteBufferNano;
 import com.google.protobuf.nano.MessageNano;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Represents a specification of an external sensor, including its name and address.  Subclasses
@@ -80,6 +82,13 @@ public abstract class ExternalSensorSpec implements Parcelable {
 
     public abstract String getType();
 
+    /**
+     * @return the address at which this sensor sits.  This is opaque to whistlepunk; each sensor
+     * that an
+     * {@link com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer}
+     * returns must have a unique address, but that address need not have any specific semantic
+     * relationship to how the sensor is physically addressed.
+     */
     public abstract String getAddress();
 
     public abstract SensorAppearance getSensorAppearance();
@@ -91,7 +100,27 @@ public abstract class ExternalSensorSpec implements Parcelable {
     public abstract byte[] getConfig();
 
     /**
-     * Loads internal sensor data from the database.
+     * @return true iff {@code spec} is the same type, at the same address, and the same
+     * configuration.
      */
-    protected abstract void loadFromConfig(byte[] data);
+    public final boolean isSameSensorAndSpec(ExternalSensorSpec spec) {
+        return isSameType(spec) && Arrays.equals(spec.getConfig(), getConfig());
+    }
+
+    private boolean isSameType(ExternalSensorSpec spec) {
+        return spec != null && Objects.equals(spec.getType(), getType());
+    }
+
+    /**
+     * @return true iff {@code spec} is the same type, at the same address (but potentially
+     * different configuration.
+     */
+    public boolean isSameSensor(ExternalSensorSpec spec) {
+        return isSameType(spec) && Objects.equals(spec.getAddress(), getAddress());
+    }
+
+    @Override
+    public String toString() {
+        return "ExternalSensorSpec(" + getType() + "," + getAddress() + ")";
+    }
 }

@@ -114,7 +114,6 @@ public class BleSensorSpec extends ExternalSensorSpec implements Parcelable {
     }
 
     @VisibleForTesting
-    @Override
     public void loadFromConfig(byte[] data) {
         try {
             mConfig = GoosciSensorConfig.BleSensorConfig.parseFrom(data);

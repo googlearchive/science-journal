@@ -24,12 +24,14 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciScalarInput;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
+import com.google.common.html.HtmlEscapers;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 public class ScalarInputSpec extends ExternalSensorSpec {
     public static final String TYPE = "ScalarInput";
     private static final String EXTRA_KEY_SERVICE_ID = "serviceId";
     private static final String TAG = "ScalarInputSpec";
+
     private String mName;
     private GoosciScalarInput.ScalarInputConfig mConfig;
 
@@ -52,23 +54,6 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     }
 
     @Override
-    public String getName() {
-        return mName;
-    }
-
-
-    @Override
-    public String getType() {
-        return TYPE;
-    }
-
-    @Override
-    public String getAddress() {
-        return mConfig.address;
-    }
-
-    // TODO: implement all!
-    @Override
     public SensorAppearance getSensorAppearance() {
         // TODO: allow no name str id
         // TODO: better icon?
@@ -82,6 +67,29 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     }
 
     @Override
+    public String getName() {
+        return mName;
+    }
+
+    @Override
+    public String getType() {
+        return TYPE;
+    }
+
+    @Override
+    public String getAddress() {
+        return escape(getServiceId()) + "&" + escape(getSensorAddressInService());
+    }
+
+    public String getSensorAddressInService() {
+        return mConfig.address;
+    }
+
+    private String escape(String string) {
+        return HtmlEscapers.htmlEscaper().escape(string);
+    }
+
+    @Override
     public byte[] getConfig() {
         return getBytes(mConfig);
     }
@@ -89,11 +97,6 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    @Override
-    protected void loadFromConfig(byte[] data) {
-
     }
 
     public static void addServiceId(Preference pref, String serviceId) {

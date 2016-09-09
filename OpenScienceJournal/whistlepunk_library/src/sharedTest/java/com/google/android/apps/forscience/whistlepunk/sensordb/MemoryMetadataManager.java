@@ -40,7 +40,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -197,7 +196,7 @@ public class MemoryMetadataManager implements MetaDataManager {
     public String addOrGetExternalSensor(ExternalSensorSpec sensor,
             Map<String, ExternalSensorProvider> providerMap) {
         for (Map.Entry<String, ExternalSensorSpec> entry : mExternalSensors.entrySet()) {
-            if (Arrays.equals(entry.getValue().getConfig(), sensor.getConfig())) {
+            if (sensor.isSameSensorAndSpec(entry.getValue())) {
                 return entry.getKey();
             }
         }
@@ -210,6 +209,7 @@ public class MemoryMetadataManager implements MetaDataManager {
         return newId;
     }
 
+    // TODO: the fact that this only clones BLE sensors is going to be a problem.
     private BleSensorSpec cloneSensor(ExternalSensorSpec sensor) {
         BleSensorSpec newSensor = new BleSensorSpec(sensor.getAddress(), sensor.getName());
         newSensor.loadFromConfig(sensor.getConfig());

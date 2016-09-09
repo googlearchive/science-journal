@@ -16,10 +16,13 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 
 import org.junit.Test;
 
@@ -41,6 +44,34 @@ public class ScalarInputSpecTest {
         ScalarInputSpec spec2 = new ScalarInputSpec(sensorName, spec.getConfig());
         assertEquals(sensorName, spec2.getName());
         assertEquals(serviceId, spec2.getServiceId());
-        assertEquals(address, spec2.getAddress());
+        assertEquals(address, spec2.getSensorAddressInService());
+    }
+
+    @Test public void isSame() {
+        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1");
+        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1");
+        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2");
+        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1");
+        BleSensorSpec bleSpec = new BleSensorSpec("address1", "name");
+        assertTrue(spec11.isSameSensorAndSpec(spec11));
+        assertTrue(spec11.isSameSensorAndSpec(spec11b));
+        assertFalse(spec11.isSameSensorAndSpec(spec12));
+        assertFalse(spec11.isSameSensorAndSpec(spec21));
+        assertFalse(spec11.isSameSensorAndSpec(bleSpec));
+        assertFalse(spec11.isSameSensorAndSpec(null));
+    }
+
+    @Test public void addressIncludesService() {
+        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1");
+        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1");
+        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2");
+        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1");
+        BleSensorSpec bleSpec = new BleSensorSpec("address1", "name");
+        assertTrue(spec11.isSameSensor(spec11));
+        assertTrue(spec11.isSameSensor(spec11b));
+        assertFalse(spec11.isSameSensor(spec12));
+        assertFalse(spec11.isSameSensor(spec21));
+        assertFalse(spec11.isSameSensor(bleSpec));
+        assertFalse(spec11.isSameSensor(null));
     }
 }

@@ -441,11 +441,6 @@ public class SimpleMetaDataManagerTest {
             public byte[] getConfig() {
                 return bleSpec.getConfig();
             }
-
-            @Override
-            protected void loadFromConfig(byte[] data) {
-
-            }
         };
 
         String bleId = mMetaDataManager.addOrGetExternalSensor(bleSpec, providerMap);
@@ -464,12 +459,12 @@ public class SimpleMetaDataManagerTest {
         Map<String, ExternalSensorSpec> newSensors = mMetaDataManager.getExternalSensors(
                 providerMap);
         assertEquals(1, newSensors.size());
-        String id = "ScalarInput-address-name-0";
+        String id = "ScalarInput-serviceId&address-name-0";
         assertEquals(id, newSensors.keySet().iterator().next());
         ExternalSensorSpec spec = newSensors.get(id);
         assertEquals(ScalarInputSpec.TYPE, spec.getType());
         assertEquals("name", spec.getName());
-        assertEquals("address", spec.getAddress());
+        assertEquals("address", ((ScalarInputSpec)spec).getSensorAddressInService());
     }
 
     @Test
