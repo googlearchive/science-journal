@@ -16,29 +16,22 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.content.Context;
-import android.preference.Preference;
-import android.support.annotation.NonNull;
 
+import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 class StubSensorDiscoverer implements ExternalSensorDiscoverer {
     @Override
-    public boolean startScanning(
-            SensorPrefCallbacks sensorPrefCallbacks,
-            Context context) {
+    public boolean startScanning(Consumer<ExternalSensorSpec> onEachSensorFound,
+            FailureListener onScanError, Context context) {
         return false;
     }
 
     @Override
     public void stopScanning() {
 
-    }
-
-    @NonNull
-    @Override
-    public ExternalSensorSpec extractSensorSpec(Preference preference) {
-        return null;
     }
 
     @Override

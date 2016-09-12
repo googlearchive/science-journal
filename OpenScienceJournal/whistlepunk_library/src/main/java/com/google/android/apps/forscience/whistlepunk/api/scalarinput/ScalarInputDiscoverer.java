@@ -18,16 +18,15 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.os.RemoteException;
-import android.preference.Preference;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesFragment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 import java.util.concurrent.Executor;
@@ -63,21 +62,14 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
         mUiThreadExecutor = uiThreadExecutor;
     }
 
-    @NonNull
-    @Override
-    public ExternalSensorSpec extractSensorSpec(Preference preference) {
-        String serviceId = ScalarInputSpec.getServiceId(preference);
-        return new ScalarInputSpec(ManageDevicesFragment.getNameFromPreference(preference),
-                serviceId, ManageDevicesFragment.getAddressFromPreference(preference));
-    }
-
     @Override
     public ExternalSensorProvider getProvider() {
         return new ScalarInputProvider(mServiceFinder, mStringSource, mUiThreadExecutor);
     }
 
     @Override
-    public boolean startScanning(final SensorPrefCallbacks callbacks, final Context context) {
+    public boolean startScanning(final Consumer<ExternalSensorSpec> onEachSensorFound,
+            final FailureListener onScanError, final Context context) {
         mServiceFinder.take(new AppDiscoveryCallbacks() {
             @Override
             public void onServiceFound(String serviceId, final ISensorDiscoverer service) {
@@ -85,11 +77,11 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                     Log.d(TAG, "Found service: " + serviceId);
                 }
                 try {
-                    final ISensorConsumer.Stub sc = makeSensorConsumer(serviceId, context,
-                            callbacks);
+                    final ISensorConsumer.Stub sc = makeSensorConsumer(serviceId,
+                            onEachSensorFound);
                     service.scanDevices(makeDeviceConsumer(service, sc));
                 } catch (RemoteException e) {
-                    callbacks.onScanError(e);
+                    onScanError.fail(e);
                 }
             }
 
@@ -115,17 +107,13 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     }
 
     @NonNull
-    private ISensorConsumer.Stub makeSensorConsumer(final String serviceId, final Context context,
-            final SensorPrefCallbacks callbacks) {
+    private ISensorConsumer.Stub makeSensorConsumer(final String serviceId,
+            final Consumer<ExternalSensorSpec> onEachSensorFound) {
         return new ISensorConsumer.Stub() {
             @Override
-            public void onSensorFound(String sensorId, String name, PendingIntent settingsIntent)
-                    throws RemoteException {
-                boolean isPaired = false;
-                Preference newPref = ManageDevicesFragment.makePreference(name, sensorId,
-                        ScalarInputSpec.TYPE, isPaired, context);
-                ScalarInputSpec.addServiceId(newPref, serviceId);
-                callbacks.addAvailableSensorPreference(newPref);
+            public void onSensorFound(String sensorAddress, String name,
+                    PendingIntent settingsIntent) throws RemoteException {
+                onEachSensorFound.take(new ScalarInputSpec(name, serviceId, sensorAddress));
             }
         };
     }

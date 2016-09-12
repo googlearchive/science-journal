@@ -16,13 +16,11 @@
 
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.hardware.Sensor;
-import android.preference.Preference;
-import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
+import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -34,6 +32,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
  * Discovers BLE sensors that speak our "native" Science Journal protocol.
  */
 public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
+
     private static final ExternalSensorProvider PROVIDER = new ExternalSensorProvider() {
         @Override
         public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
@@ -55,24 +54,16 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
     private DeviceDiscoverer mDeviceDiscoverer;
 
     @Override
-    @NonNull
-    public ExternalSensorSpec extractSensorSpec(Preference preference) {
-        final String address = ManageDevicesFragment.getAddressFromPreference(preference);
-        String name = ManageDevicesFragment.getNameFromPreference(preference);
-        return new BleSensorSpec(address, name);
-    }
-
-    @Override
     public ExternalSensorProvider getProvider() {
         return PROVIDER;
     }
 
     @Override
-    public boolean startScanning(final SensorPrefCallbacks sensorPrefCallbacks,
-            final Context context) {
+    public boolean startScanning(final Consumer<ExternalSensorSpec> onEachSensorFound,
+            FailureListener onScanError, Context context) {
         stopScanning();
 
-        mDeviceDiscoverer = DeviceDiscoverer.getNewInstance(context);
+        mDeviceDiscoverer = createDiscoverer(context);
         if (!mDeviceDiscoverer.canScan()) {
             stopScanning();
             return false;
@@ -80,7 +71,7 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
         mDeviceDiscoverer.startScanning(new DeviceDiscoverer.Callback() {
             @Override
             public void onDeviceFound(final DeviceDiscoverer.DeviceRecord record) {
-                onDeviceRecordFound(context, record, sensorPrefCallbacks);
+                onDeviceRecordFound(record, onEachSensorFound);
             }
 
             @Override
@@ -91,6 +82,10 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
         return true;
     }
 
+    protected DeviceDiscoverer createDiscoverer(Context context) {
+        return DeviceDiscoverer.getNewInstance(context);
+    }
+
     @Override
     public void stopScanning() {
         if (mDeviceDiscoverer != null) {
@@ -99,18 +94,12 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
         }
     }
 
-    private void onDeviceRecordFound(Context context, DeviceDiscoverer.DeviceRecord record,
-            SensorPrefCallbacks sensorPrefCallbacks) {
-        // First check if this is a paired device.
+    private void onDeviceRecordFound(DeviceDiscoverer.DeviceRecord record,
+            Consumer<ExternalSensorSpec> onEachSensorFound) {
         WhistlepunkBleDevice device = record.device;
         String address = device.getAddress();
 
-        if (!sensorPrefCallbacks.isSensorAlreadyKnown(address)) {
-            // If not, add to "available"
-            Preference newPref = ManageDevicesFragment.makePreference(device.getName(), address,
-                    BleSensorSpec.TYPE, false, context);
-            newPref.setWidgetLayoutResource(0);
-            sensorPrefCallbacks.addAvailableSensorPreference(newPref);
-        }
+        // sensorScanCallbacks will handle duplicates
+        onEachSensorFound.take(new BleSensorSpec(address, device.getName()));
     }
 }

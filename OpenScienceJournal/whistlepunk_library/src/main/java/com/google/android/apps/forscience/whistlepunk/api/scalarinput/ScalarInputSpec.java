@@ -16,7 +16,6 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.content.Context;
-import android.preference.Preference;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -29,7 +28,6 @@ import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 public class ScalarInputSpec extends ExternalSensorSpec {
     public static final String TYPE = "ScalarInput";
-    private static final String EXTRA_KEY_SERVICE_ID = "serviceId";
     private static final String TAG = "ScalarInputSpec";
 
     private String mName;
@@ -99,15 +97,7 @@ public class ScalarInputSpec extends ExternalSensorSpec {
         return 0;
     }
 
-    public static void addServiceId(Preference pref, String serviceId) {
-        pref.getExtras().putString(EXTRA_KEY_SERVICE_ID, serviceId);
-    }
-
     public String getServiceId() {
         return mConfig.serviceId;
-    }
-
-    public static String getServiceId(Preference preference) {
-        return preference.getExtras().getString(EXTRA_KEY_SERVICE_ID);
     }
 }

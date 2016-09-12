@@ -177,12 +177,17 @@ public class RecorderControllerImpl implements RecorderController {
     private RecordingMetadata mRecording = null;
 
     public RecorderControllerImpl(Context context) {
+        this(context, AppSingleton.getInstance(context).getDataController());
+    }
+
+    @VisibleForTesting
+    public RecorderControllerImpl(Context context, DataController dataController) {
         this(context, SensorRegistry.createWithBuiltinSensors(context),
                 AppSingleton.getInstance(context).getSensorEnvironment(),
                 new RecorderListenerRegistry(),
                 RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
                 productionConnectionSupplier(context),
-                AppSingleton.getInstance(context).getDataController());
+                dataController);
     }
 
     @VisibleForTesting
