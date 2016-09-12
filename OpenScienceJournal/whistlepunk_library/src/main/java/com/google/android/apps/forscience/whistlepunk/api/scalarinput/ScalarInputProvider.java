@@ -41,7 +41,7 @@ class ScalarInputProvider implements ExternalSensorProvider {
     public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
         ScalarInputSpec sis = (ScalarInputSpec) spec;
         return new ScalarInputSensor(sensorId, mUiThreadExecutor, mServiceFinder, mStringSource,
-                sis.getServiceId(), spec.getAddress()
+                sis.getServiceId(), sis.getSensorAddressInService()
         );
     }
 

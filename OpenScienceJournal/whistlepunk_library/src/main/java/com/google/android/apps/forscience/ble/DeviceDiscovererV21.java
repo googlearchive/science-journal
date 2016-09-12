@@ -27,11 +27,11 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.os.ParcelUuid;
 
+import com.google.android.apps.forscience.whistlepunk.devicemanager.WhistlepunkBleDevice;
 import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Discovers LE devices using API level 21+ methods.
@@ -45,15 +45,19 @@ import java.util.UUID;
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             ScanRecord scanRecord = result.getScanRecord();
-            addOrUpdateDevice(result.getDevice(), result.getRssi(),
+            addOrUpdateDevice(getDevice(result), result.getRssi(),
                     extractLongName(scanRecord.getBytes()));
+        }
+
+        private WhistlepunkBleDevice getDevice(ScanResult result) {
+            return new NativeDevice(result.getDevice());
         }
 
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
             for (ScanResult result : results) {
                 ScanRecord scanRecord = result.getScanRecord();
-                addOrUpdateDevice(result.getDevice(), result.getRssi(),
+                addOrUpdateDevice(getDevice(result), result.getRssi(),
                         extractLongName(scanRecord.getBytes()));
             }
         }

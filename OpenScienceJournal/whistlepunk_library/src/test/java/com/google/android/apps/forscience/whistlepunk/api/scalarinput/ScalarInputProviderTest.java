@@ -58,8 +58,7 @@ public class ScalarInputProviderTest {
                     @Override
                     public void take(AppDiscoveryCallbacks adc) {
                         adc.onServiceFound(serviceId,
-                                new TestDiscoverer(new TestConnector(dataToSend,
-                                        serviceId + "&" + sensorAddress)));
+                                new TestDiscoverer(new TestConnector(dataToSend, sensorAddress)));
                     }
                 };
         ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor);
@@ -154,7 +153,6 @@ public class ScalarInputProviderTest {
         final String sensorId = Arbitrary.string();
         final String sensorAddress = Arbitrary.string();
         final String serviceId = Arbitrary.string();
-        final String fullAddress = serviceId + "&" + sensorAddress;
 
         final List<ChartData.DataPoint> wrongPoints = makeData();
 
@@ -163,9 +161,9 @@ public class ScalarInputProviderTest {
                     @Override
                     public void take(AppDiscoveryCallbacks adc) {
                         adc.onServiceFound(serviceId,
-                                new TestDiscoverer(new TestConnector(dataToSend, fullAddress)));
+                                new TestDiscoverer(new TestConnector(dataToSend, sensorAddress)));
                         adc.onServiceFound(serviceId + "wrong!",
-                                new TestDiscoverer(new TestConnector(wrongPoints, fullAddress)));
+                                new TestDiscoverer(new TestConnector(wrongPoints, sensorAddress)));
                     }
                 };
 

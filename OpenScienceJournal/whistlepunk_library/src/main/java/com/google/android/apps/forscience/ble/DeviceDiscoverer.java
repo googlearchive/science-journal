@@ -17,12 +17,13 @@
 package com.google.android.apps.forscience.ble;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.v4.util.ArrayMap;
+
+import com.google.android.apps.forscience.whistlepunk.devicemanager.WhistlepunkBleDevice;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public abstract class DeviceDiscoverer {
         /**
          * Device that was found.
          */
-        public BluetoothDevice device;
+        public WhistlepunkBleDevice device;
 
         /**
          * Last time this device was seen, in uptimeMillis.
@@ -136,11 +137,7 @@ public abstract class DeviceDiscoverer {
         return mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON;
     }
 
-    protected Context getContext() {
-        return mContext;
-    }
-
-    protected void addOrUpdateDevice(BluetoothDevice device, int rssi, String longName) {
+    protected void addOrUpdateDevice(WhistlepunkBleDevice device, int rssi, String longName) {
         DeviceRecord deviceRecord = mDevices.get(device.getAddress());
         boolean previouslyFound = deviceRecord != null;
         if (!previouslyFound) {
