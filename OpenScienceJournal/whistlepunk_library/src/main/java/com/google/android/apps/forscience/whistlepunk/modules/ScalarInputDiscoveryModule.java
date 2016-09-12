@@ -17,14 +17,15 @@ package com.google.android.apps.forscience.whistlepunk.modules;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.AppDiscoveryCallbacks;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarSensorServiceFinder;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarSensorServiceFinder;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 
 import dagger.Module;
 import dagger.Provides;
@@ -33,6 +34,8 @@ import dagger.multibindings.StringKey;
 
 @Module
 public class ScalarInputDiscoveryModule {
+    private static final String TAG = "SIDModule";
+
     private static final Consumer<AppDiscoveryCallbacks> NULL_FINDER =
             new Consumer<AppDiscoveryCallbacks>() {
                 @Override
@@ -52,7 +55,11 @@ public class ScalarInputDiscoveryModule {
 
     @NonNull
     private Consumer<AppDiscoveryCallbacks> chooseFinder(Context context) {
-        if (DevOptionsFragment.isThirdPartyDiscoveryEnabled(context)) {
+        boolean enabled = DevOptionsFragment.isThirdPartyDiscoveryEnabled(context);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Third party sensor discovery enabled? " + enabled);
+        }
+        if (enabled) {
             return new ScalarSensorServiceFinder(context);
         } else {
             return NULL_FINDER;
