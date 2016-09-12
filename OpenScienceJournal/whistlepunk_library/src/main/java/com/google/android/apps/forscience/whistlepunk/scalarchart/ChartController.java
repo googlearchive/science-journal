@@ -318,6 +318,10 @@ public class ChartController {
         return mChartData.getXMin();
     }
 
+    public long getXMax() {
+        return mChartData.getXMax();
+    }
+
     public long getRenderedXMin() {
         return mChartOptions.getRenderedXMin();
     }

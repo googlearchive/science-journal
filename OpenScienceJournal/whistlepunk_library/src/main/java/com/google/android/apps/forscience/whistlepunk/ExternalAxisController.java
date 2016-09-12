@@ -449,4 +449,8 @@ public class ExternalAxisController {
                 })
                 .start();
     }
+
+    public boolean containsTimestamp(long timestamp) {
+        return mXMin <= timestamp && timestamp <= mXMax;
+    }
 }

@@ -14,7 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<!-- This is the portrait layout for RunReview fragment. There is a Landscape
+<!-- This is the Portrait layout for RunReview fragment. There is a Landscape
      layout as well; any additions or changes should be done to both files. -->
 <com.google.android.apps.forscience.whistlepunk.review.FreezeableCoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -26,18 +26,19 @@
     android:orientation="vertical"
     android:background="@color/run_review_background_color"
     android:id="@+id/run_review_coordinator_layout"
->
+    >
+
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/run_review_background_color"
         android:id="@+id/app_bar_layout"
-    >
+        >
 
         <include
             layout="@layout/run_review_overview"
             android:id="@+id/run_review_overview"
-        />
+            />
 
         <View
             android:layout_height="@dimen/run_review_divider_thickness"
@@ -55,7 +56,7 @@
             android:layout_marginBottom="@dimen/run_review_sensor_section_margin_top_bottom"
             android:paddingStart="@dimen/run_review_margin_sides"
             android:paddingEnd="@dimen/run_review_margin_sides"
-        >
+            >
 
             <include layout="@layout/run_review_sensor_selector_section"/>
 

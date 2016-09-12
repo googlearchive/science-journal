@@ -19,13 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.review;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
-import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.support.v7.widget.AppCompatSeekBar;
 import android.util.AttributeSet;
-import android.view.View;
-import android.view.accessibility.AccessibilityEvent;
 import android.widget.SeekBar;
 
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -39,8 +33,12 @@ public class CropSeekBar extends GraphExploringSeekBar {
     public static final int TYPE_END = 2;
 
     // Progress buffer for non-overlapping crop is 5% of the available seekbar range.
-    private static final int BUFFER = (int) (SEEKBAR_MAX * .05);
+    private static final int BUFFER_RANGE = (int) (SEEKBAR_MAX * .05);
 
+    // Time buffer for non-overlapping crop: We do not allow crop less than 1 second.
+    private static final long BUFFER_MILLIS = 1000;
+
+    private double mMillisPerTick;
     private int mType;
     private CropSeekBar mOtherSeekbar;
     private List<OnSeekBarChangeListener> mSeekBarChangeListeners = new ArrayList<>();
@@ -109,13 +107,15 @@ public class CropSeekBar extends GraphExploringSeekBar {
         addOnSeekBarChangeListener(new OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int bufferTicks = (int) Math.ceil(
+                        Math.max(BUFFER_RANGE, BUFFER_MILLIS / mMillisPerTick));
                 if (mType == TYPE_START) {
-                    if (progress > mOtherSeekbar.getProgress() - BUFFER) {
-                        progress = mOtherSeekbar.getProgress() - BUFFER;
+                    if (progress > mOtherSeekbar.getProgress() - bufferTicks) {
+                        progress = mOtherSeekbar.getProgress() - bufferTicks;
                     }
                 } else {
-                    if (progress < mOtherSeekbar.getProgress() + BUFFER) {
-                        progress = mOtherSeekbar.getProgress() + BUFFER;
+                    if (progress < mOtherSeekbar.getProgress() + bufferTicks) {
+                        progress = mOtherSeekbar.getProgress() + bufferTicks;
                     }
                 }
                 setProgress(progress);
@@ -136,5 +136,9 @@ public class CropSeekBar extends GraphExploringSeekBar {
     // Allows us to have multiple change listeners.
     public void addOnSeekBarChangeListener(OnSeekBarChangeListener onSeekBarChangeListener) {
         mSeekBarChangeListeners.add(onSeekBarChangeListener);
+    }
+
+    public void setMillisecondsInRange(long millisecondsInRange) {
+        mMillisPerTick = millisecondsInRange / GraphExploringSeekBar.SEEKBAR_MAX;
     }
 }

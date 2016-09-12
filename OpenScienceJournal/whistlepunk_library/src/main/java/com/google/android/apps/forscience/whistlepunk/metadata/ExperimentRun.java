@@ -125,7 +125,7 @@ public class ExperimentRun {
     }
 
     public long elapsedSeconds() {
-        return Math.round((mStopTime - mStartTime) / 1000.0);
+        return Math.round((getLastTimestamp() - getFirstTimestamp()) / 1000.0);
     }
 
     public String getRunId() {
