@@ -300,7 +300,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
                     @Override
                     public void onRecordingStartFailed(
-                            @RecorderController.RecordingStartErrorType int errorType) {
+                            @RecorderController.RecordingStartErrorType int errorType, Exception e) {
                         if (errorType == RecorderController.ERROR_START_FAILED) {
                             failedStartRecording(R.string.recording_start_failed);
                         } else if (errorType ==

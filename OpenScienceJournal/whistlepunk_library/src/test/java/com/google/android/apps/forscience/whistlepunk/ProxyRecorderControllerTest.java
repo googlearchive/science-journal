@@ -38,7 +38,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvi
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
-import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -52,6 +51,22 @@ import java.util.List;
 public class ProxyRecorderControllerTest {
     private static final TransportableSensorOptions BLANK_OPTIONS =
             new TransportableSensorOptions(Maps.<String, String>newHashMap());
+    private static final StubDataController DATA_CONTROLLER = new StubDataController() {
+        @Override
+        public void startRun(Experiment experiment,
+                MaybeConsumer<ApplicationLabel> onSuccess) {
+            onSuccess.success(new ApplicationLabel(
+                    ApplicationLabel.TYPE_RECORDING_START, "start", "start", 0));
+        }
+
+        @Override
+        public void stopRun(Experiment experiment, String runId,
+                List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+                MaybeConsumer<ApplicationLabel> onSuccess) {
+            onSuccess.success(new ApplicationLabel(
+                    ApplicationLabel.TYPE_RECORDING_STOP, "stop", "start", 10));
+        }
+    };
     private final AlwaysAllowedPolicy mPolicy = new AlwaysAllowedPolicy();
     private final FailureListener mFailureListener =
             new ExplodingFactory().makeListenerForOperation("test");
@@ -269,7 +284,8 @@ public class ProxyRecorderControllerTest {
 
     private class RecorderControllerTestImpl extends  RecorderControllerImpl {
         RecorderControllerTestImpl(RecorderListenerRegistry listenerRegistry) {
-            super(null, mRegistry, mEnvironment, listenerRegistry, Uri.EMPTY);
+            super(null, mRegistry, mEnvironment, listenerRegistry, Uri.EMPTY, null,
+                    DATA_CONTROLLER);
             this.setRecordActivityInForeground(true);
         }
 
@@ -296,27 +312,6 @@ public class ProxyRecorderControllerTest {
         void forceHasData(String sensorId, boolean hasData) {
             StatefulRecorder sr = getRecorders().get(sensorId);
             sr.forceHasDataForTesting(hasData);
-        }
-
-        @Override
-        protected DataController getDataController(Context context) {
-            return new StubDataController() {
-
-                @Override
-                public void startRun(Experiment experiment,
-                        MaybeConsumer<ApplicationLabel> onSuccess) {
-                    onSuccess.success(new ApplicationLabel(
-                            ApplicationLabel.TYPE_RECORDING_START, "start", "start", 0));
-                }
-
-                @Override
-                public void stopRun(Experiment experiment, String runId,
-                        List<GoosciSensorLayout.SensorLayout> sensorLayouts,
-                        MaybeConsumer<ApplicationLabel> onSuccess) {
-                    onSuccess.success(new ApplicationLabel(
-                            ApplicationLabel.TYPE_RECORDING_STOP, "stop", "start", 10));
-                }
-            };
         }
     }
 }

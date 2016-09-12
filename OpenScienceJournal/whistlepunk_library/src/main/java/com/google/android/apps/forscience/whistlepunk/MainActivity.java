@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onRecordingStartFailed(
-                    @RecorderController.RecordingStartErrorType int errorType) {
+                    @RecorderController.RecordingStartErrorType int errorType, Exception e) {
 
             }
 

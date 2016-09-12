@@ -98,7 +98,7 @@ public interface RecorderController extends SensorRegistryListener {
     interface RecordingStateListener {
         void onRecordingStateChanged(RecordingMetadata currentRecording);
 
-        void onRecordingStartFailed(@RecordingStartErrorType int errorType);
+        void onRecordingStartFailed(@RecordingStartErrorType int errorType, Exception e);
 
         void onRecordingStopFailed(@RecordingStopErrorType int errorType);
     }

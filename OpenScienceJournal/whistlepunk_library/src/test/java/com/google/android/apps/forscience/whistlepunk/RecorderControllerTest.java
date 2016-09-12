@@ -50,7 +50,7 @@ public class RecorderControllerTest {
                 new InMemorySensorDatabase().makeSimpleRecordingController(),
                 new FakeBleClient(null), new MemorySensorHistoryStorage());
         RecorderControllerImpl rc = new RecorderControllerImpl(null, registry, env,
-                new RecorderListenerRegistry(), Uri.EMPTY);
+                new RecorderListenerRegistry(), Uri.EMPTY, null, null);
         RecordingSensorObserver observer1 = new RecordingSensorObserver();
         RecordingSensorObserver observer2 = new RecordingSensorObserver();
 

@@ -49,7 +49,8 @@ public class MetadataActivity extends AppCompatActivity {
 
                                     @Override
                                     public void onRecordingStartFailed(
-                                            @RecorderController.RecordingStartErrorType int type) {
+                                            @RecorderController.RecordingStartErrorType int type,
+                                            Exception e) {
 
                                     }
 

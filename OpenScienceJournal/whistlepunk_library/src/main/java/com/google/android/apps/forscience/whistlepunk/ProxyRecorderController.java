@@ -163,7 +163,7 @@ public class ProxyRecorderController extends IRecorderController.Stub {
 
             @Override
             public void onRecordingStartFailed(
-                    @RecorderController.RecordingStartErrorType int errorType) {
+                    @RecorderController.RecordingStartErrorType int errorType, Exception e) {
 
             }
 
