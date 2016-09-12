@@ -20,6 +20,7 @@ import android.content.Context;
 import android.os.RemoteException;
 import android.preference.Preference;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
@@ -32,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 import java.util.concurrent.Executor;
 
 public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
+    private static String TAG = "SIDiscoverer";
     public static final String SCALAR_INPUT_PROVIDER_ID =
             "com.google.android.apps.forscience.whistlepunk.scalarinput";
     private final Consumer<AppDiscoveryCallbacks> mServiceFinder;
@@ -79,6 +81,9 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
         mServiceFinder.take(new AppDiscoveryCallbacks() {
             @Override
             public void onServiceFound(String serviceId, final ISensorDiscoverer service) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Found service: " + serviceId);
+                }
                 try {
                     final ISensorConsumer.Stub sc = makeSensorConsumer(serviceId, context,
                             callbacks);
