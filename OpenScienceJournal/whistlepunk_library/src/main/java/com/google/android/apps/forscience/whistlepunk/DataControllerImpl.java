@@ -539,6 +539,35 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
+    public void setSensorStatsStatus(final String runId, final String sensorId,
+            @StatsAccumulator.StatStatus final int status, MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            @Override
+            public Success call() throws Exception {
+                // Because MetadataManager saves stats separately (by runId, sensor tag and
+                // stat name), here we can update only the stat we want changed and the rest of the
+                // stats will not be impacted.
+                RunStats runStats = new RunStats();
+                runStats.putStat(StatsAccumulator.KEY_STATUS, status);
+                mMetaDataManager.setStats(runId, sensorId, runStats);
+                return Success.SUCCESS;
+            }
+        });
+    }
+
+    @Override
+    public void updateRunStats(final String runId, final String sensorId, final RunStats runStats,
+            MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            @Override
+            public Success call() throws Exception {
+                mMetaDataManager.setStats(runId, sensorId, runStats);
+                return Success.SUCCESS;
+            }
+        });
+    }
+
+    @Override
     public void setStats(final String runId, final String sensorId, final RunStats runStats,
             final MaybeConsumer<Success> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Success>() {

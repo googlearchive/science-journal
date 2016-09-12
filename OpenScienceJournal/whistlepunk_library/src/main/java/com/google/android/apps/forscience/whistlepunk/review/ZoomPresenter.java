@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ZoomRecorder;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -90,7 +91,7 @@ public class ZoomPresenter {
         if (actualTier < 0) {
             actualTier = 0;
         }
-        int maxTier = runStats.getIntStat(ZoomRecorder.STATS_KEY_TIER_COUNT) - 1;
+        int maxTier = runStats.getIntStat(ZoomRecorder.STATS_KEY_TIER_COUNT, 0) - 1;
         if (actualTier > maxTier) {
             actualTier = maxTier;
         }
@@ -108,7 +109,8 @@ public class ZoomPresenter {
                 expectedTierZeroDatapointsInRange / idealNumberOfDisplayedDatapoints;
 
         int zoomLevelBetweenTiers = runStats.getIntStat(
-                ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS);
+                ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS,
+                ScalarSensor.DEFAULT_ZOOM_LEVEL_BETWEEN_TIERS);
         return Math.log(idealTierZeroDatapointsPerDisplayedPoint) / Math.log(
                 zoomLevelBetweenTiers);
     }

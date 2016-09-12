@@ -35,13 +35,13 @@ public class ExperimentRun {
     private final ArrayList<Label> mLabels;
     private final Run mRun;
     private String mExperimentId;
-    private CropUtils.CropLabels mCropLabels;
+    private CropHelper.CropLabels mCropLabels;
 
     public static ExperimentRun fromLabels(Run run, List<Label> allLabels) {
         long startTime = NO_TIME_SPECIFIED;
         long stopTime = NO_TIME_SPECIFIED;
         ArrayList<Label> labels = new ArrayList<>();
-        CropUtils.CropLabels cropLabels = new CropUtils.CropLabels();
+        CropHelper.CropLabels cropLabels = new CropHelper.CropLabels();
         String experimentId = null;
         for (Label label : allLabels) {
             if (label instanceof ApplicationLabel) {
@@ -64,7 +64,7 @@ public class ExperimentRun {
     }
 
     private ExperimentRun(Run run, String experimentId, long startTime, long stopTime,
-            ArrayList<Label> labels, CropUtils.CropLabels cropLabels) {
+            ArrayList<Label> labels, CropHelper.CropLabels cropLabels) {
         mExperimentId = experimentId;
         mStartTime = startTime;
         mStopTime = stopTime;
@@ -112,11 +112,11 @@ public class ExperimentRun {
         return mStopTime;
     }
 
-    public CropUtils.CropLabels getCropLabels() {
+    public CropHelper.CropLabels getCropLabels() {
         return mCropLabels;
     }
 
-    public void setCropLabels(CropUtils.CropLabels cropLabels) {
+    public void setCropLabels(CropHelper.CropLabels cropLabels) {
         mCropLabels = cropLabels;
     }
 

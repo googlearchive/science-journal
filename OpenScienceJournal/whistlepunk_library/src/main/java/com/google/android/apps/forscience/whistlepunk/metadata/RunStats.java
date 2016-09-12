@@ -50,7 +50,11 @@ public class RunStats {
         return mStats.containsKey(key);
     }
 
-    public int getIntStat(String key) {
-        return (int) Math.round(getStat(key));
+    public int getIntStat(String key, int defaultValue) {
+        if (mStats.containsKey(key)) {
+            return (int) Math.round(getStat(key));
+        } else {
+            return defaultValue;
+        }
     }
 }

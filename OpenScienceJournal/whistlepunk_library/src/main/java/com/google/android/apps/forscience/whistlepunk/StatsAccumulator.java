@@ -17,11 +17,14 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +39,16 @@ public class StatsAccumulator {
     public static final String KEY_AVERAGE = "stats_average";
     public static final String KEY_NUM_DATA_POINTS = "stats_count";
     public static final String KEY_TOTAL_DURATION = "stats_total_duration";
+    public static final String KEY_STATUS = "status";
+
+
+    @IntDef({STATUS_VALID, STATUS_NEEDS_UPDATE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface StatStatus{}
+
+    public static final int STATUS_VALID = 0;
+    public static final int STATUS_NEEDS_UPDATE = 1;
+
 
     public static class StatsDisplay {
         private NumberFormat numberFormat = new AxisNumberFormat();
@@ -145,6 +158,10 @@ public class StatsAccumulator {
 
     private double getAverage() {
         return mSum / mStatSize;
+    }
+
+    public long getLatestTimestamp() {
+        return mLatestTimestamp;
     }
 
     public void addStatsToBundle(Bundle data) {
