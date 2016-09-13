@@ -61,6 +61,25 @@ public class ConnectableSensorRegistry {
         return getSensor(preference).isPaired();
     }
 
+    public boolean startScanningInDiscoverers(final PreferenceCategory availableDevices) {
+        Consumer<ExternalSensorSpec> onEachSensorFound = new Consumer<ExternalSensorSpec>() {
+            @Override
+            public void take(ExternalSensorSpec spec) {
+                onSensorFound(spec, availableDevices);
+            }
+        };
+        boolean started = false;
+        for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
+            if (discoverer.startScanning(onEachSensorFound,
+                    LoggingConsumer.expectSuccess(TAG, "Discovering sensors"),
+                    availableDevices.getContext())) {
+                started = true;
+            }
+        }
+
+        return started;
+    }
+
     private void onSensorFound(ExternalSensorSpec spec, PreferenceCategory availableDevices) {
         String sensorKey = findSensorKey(spec);
 

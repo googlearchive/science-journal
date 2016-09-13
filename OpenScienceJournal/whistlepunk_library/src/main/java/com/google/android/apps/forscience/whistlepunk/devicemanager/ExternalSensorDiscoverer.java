@@ -17,9 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.content.Context;
-import android.preference.Preference;
-import android.support.annotation.NonNull;
 
+import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
@@ -27,26 +27,17 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
  * One way of discovering additional sensors that can be added to an experiment
  */
 public interface ExternalSensorDiscoverer {
-    interface SensorPrefCallbacks {
-        boolean isSensorAlreadyKnown(String key);
-
-        void addAvailableSensorPreference(Preference newPref);
-
-        void onScanError(Exception e);
-    }
-
     /**
+     * @param onEachSensorFound called for each sensor found
      * @return true if starting scanning was successful
      */
-    boolean startScanning(final SensorPrefCallbacks sensorPrefCallbacks, Context context);
+    boolean startScanning(Consumer<ExternalSensorSpec> onEachSensorFound,
+            FailureListener onScanError, Context context);
 
     /**
      * Stops scanning, and discards any state or references acquired during scanning
      */
     void stopScanning();
-
-    @NonNull
-    ExternalSensorSpec extractSensorSpec(Preference preference);
 
     /**
      * @return the provider that can be used to generate a SensorChoice from the stored spec.

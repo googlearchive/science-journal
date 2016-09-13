@@ -83,7 +83,7 @@ public class SensorCardPresenterTest extends AndroidTestCase {
         return new SensorCardPresenter(
                 new DataViewOptions(0, new ScalarDisplayOptions()),
                 new SensorSettingsControllerImpl(getContext()),
-                new RecorderControllerImpl(getContext()),
+                new RecorderControllerImpl(getContext(), null),
                 layout, "", null);
     }
 }
