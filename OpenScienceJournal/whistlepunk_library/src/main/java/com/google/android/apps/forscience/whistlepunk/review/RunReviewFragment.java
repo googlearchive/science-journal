@@ -273,7 +273,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (mExperimentRun != null) {
             menu.findItem(R.id.action_run_review_archive).setVisible(!mExperimentRun.isArchived());
             menu.findItem(R.id.action_run_review_unarchive).setVisible(mExperimentRun.isArchived());
-            menu.findItem(R.id.action_run_review_delete).setEnabled(mExperimentRun.isArchived());
+            menu.findItem(R.id.action_run_review_delete).setEnabled(mExperimentRun.isArchived()
+                    && !mRunReviewExporter.isExporting());
 
             menu.findItem(R.id.action_disable_auto_zoom).setVisible(
                     mExperimentRun.getAutoZoomEnabled());
