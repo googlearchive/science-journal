@@ -101,6 +101,9 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
             @Override
             public void onDeviceFound(String deviceId, String name, PendingIntent settingsIntent)
                     throws RemoteException {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Found device: " + name);
+                }
                 service.scanSensors(deviceId, sc);
             }
         };
@@ -113,6 +116,9 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
             @Override
             public void onSensorFound(String sensorAddress, String name,
                     PendingIntent settingsIntent) throws RemoteException {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Found sensor: " + name);
+                }
                 onEachSensorFound.take(new ScalarInputSpec(name, serviceId, sensorAddress));
             }
         };
