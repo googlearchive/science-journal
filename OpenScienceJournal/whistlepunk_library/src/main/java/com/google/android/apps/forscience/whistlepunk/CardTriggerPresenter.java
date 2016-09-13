@@ -153,6 +153,7 @@ public class CardTriggerPresenter {
                     android.R.anim.fade_out);
             mTriggerRunnable.run();
         }
+        mCardViewHolder.triggerLevelDrawableButton.setImageLevel(mTriggerText.size());
     }
 
     public List<SensorTrigger> getSensorTriggers() {

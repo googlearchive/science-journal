@@ -24,6 +24,6 @@
     android:padding="24dp"
     android:drawablePadding="24dp"
     android:textColor="@color/text_color_dark_grey"
-    android:drawableTop="@drawable/empty_triggers_large"
+    android:drawableBottom="@drawable/empty_trigger"
     style="@style/Base.TextAppearance.AppCompat.Headline"
     />
