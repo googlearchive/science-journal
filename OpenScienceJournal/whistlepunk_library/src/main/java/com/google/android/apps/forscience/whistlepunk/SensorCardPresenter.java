@@ -22,6 +22,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -1147,10 +1148,20 @@ public class SensorCardPresenter {
         if (mCardViewHolder == null) {
             return;
         }
-        int height = isSingleCard ? mSingleCardPresenterHeight :
-                Math.max((int) (MULTIPLE_CARD_HEIGHT_PERCENT * mSingleCardPresenterHeight),
-                        mCardViewHolder.getContext().getResources().getDimensionPixelSize(
-                                R.dimen.sensor_card_content_height_min));
+        int height;
+        boolean alwaysUseMultiCardHeight = mCardViewHolder.getContext().getResources().getBoolean(
+                R.bool.always_use_multi_card_height);
+        if (alwaysUseMultiCardHeight) {
+            // For extra large views, the cards are always shown at the multiple card height.
+            height = Math.max((int) (MULTIPLE_CARD_HEIGHT_PERCENT * mSingleCardPresenterHeight),
+                    mCardViewHolder.getContext().getResources().getDimensionPixelSize(
+                            R.dimen.sensor_card_content_height_min));
+        } else {
+            height = isSingleCard ? mSingleCardPresenterHeight :
+                    Math.max((int) (MULTIPLE_CARD_HEIGHT_PERCENT * mSingleCardPresenterHeight),
+                            mCardViewHolder.getContext().getResources().getDimensionPixelSize(
+                                    R.dimen.sensor_card_content_height_min));
+        }
         ViewGroup.LayoutParams params = mCardViewHolder.graphViewGroup.getLayoutParams();
         params.height = height;
         mCardViewHolder.graphViewGroup.setLayoutParams(params);
