@@ -1011,12 +1011,6 @@
     </string>
     <!-- End of Play Store Listing Strings -->
 
-    <!-- The title for the live zoom in Y testing option [CHAR_LIMIT=35] -->
-    <string name="live_zoom_type_option_title">Auto zoom in during Observe</string>
-
-    <!-- The summary for the live zoom in Y testing option [CHAR_LIMIT=None] -->
-    <string name="live_zoom_type_option_summary">Enable auto zoom-in on the Y axis during Observe, when pinned to now. Default is disabled</string>
-
     <!-- The title for the option to enable third-party sensors [CHAR_LIMIT=35] -->
     <string name="third_party_sensors_option_title">Scan for third-party sensors</string>
 -
