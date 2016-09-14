@@ -63,6 +63,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public Button statusRetryButton;
     public RelativeLayout triggerSection;
     public ViewSwitcher triggerIcon;
+    public ImageButton triggerLevelDrawableButton;
     public TextSwitcher triggerTextSwitcher;
     public TriggerBackgroundView triggerFiredBackground;
     public TextView triggerFiredText;
@@ -96,6 +97,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         statusRetryButton = (Button) itemView.findViewById(R.id.status_retry_button);
         triggerSection = (RelativeLayout) itemView.findViewById(R.id.sensor_card_trigger_section);
         triggerIcon = (ViewSwitcher) itemView.findViewById(R.id.trigger_icon_view_switcher);
+        triggerLevelDrawableButton = (ImageButton) itemView.findViewById(R.id.sensor_trigger_icon);
         triggerTextSwitcher = (TextSwitcher) itemView.findViewById(R.id.trigger_text_switcher);
         triggerFiredBackground = (TriggerBackgroundView) itemView.findViewById(
                 R.id.sensor_trigger_fired_background);
