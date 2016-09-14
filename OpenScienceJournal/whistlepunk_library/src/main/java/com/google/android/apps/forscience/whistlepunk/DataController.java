@@ -134,6 +134,18 @@ public interface DataController {
     void getStats(String runId, String sensorId, MaybeConsumer<RunStats> onSuccess);
 
     /**
+     * Sets the stat status for a sensor and run.
+     */
+    void setSensorStatsStatus(final String runId, final String sensorId,
+            @StatsAccumulator.StatStatus final int status, MaybeConsumer<Success> onSuccess);
+
+    /**
+     * Recalculates the statistics for all the sensors in a run
+     */
+    void updateRunStats(final String runId, final String sensorId, final RunStats runStats,
+            MaybeConsumer<Success> onSuccess);
+
+    /**
      * Get the aggregated stats for an entire experiment for all sensors.
      *
      * @return a Map of sensor ID to run stats

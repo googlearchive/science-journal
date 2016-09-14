@@ -112,6 +112,22 @@ public class StatsList extends FrameLayout {
         }
     }
 
+    public void clearStats() {
+        mStats.clear();
+        String unknownContentDescription = getResources().getString(R.string.stat_unknown);
+        mMinTextView.setContentDescription(getResources().getString(R.string.stat_min) + ": " +
+                unknownContentDescription);
+        mMaxTextView.setContentDescription(getResources().getString(R.string.stat_max) + ": " +
+                unknownContentDescription);
+        mAvgTextView.setContentDescription(getResources().getString(R.string.stat_average) + ": " +
+                unknownContentDescription);
+
+        String unknown = getResources().getString(R.string.indeterminate_value);
+        mMinTextView.setText(unknown);
+        mMaxTextView.setText(unknown);
+        mAvgTextView.setText(unknown);
+    }
+
     public void setTextBold(boolean shouldBeBold) {
         Typeface typeface;
         if (shouldBeBold) {

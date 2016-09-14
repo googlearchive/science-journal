@@ -1241,6 +1241,18 @@
     <!-- Text to display when a trigger is activated in the trigger bar [CHAR_LIMIT=25] -->
     <string name="trigger_fired_text">Trigger activated</string>
 
+    <!-- String formatting string for the accessibility description of the RunReview crop start slider [CHAR_LIMIT=None] -->
+    <string name="crop_start_seekbar_content_description">crop start: <xliff:g id="time">%1$s</xliff:g>, <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
+
+    <!-- String formatting string for the accessibility description of the RunReview crop end slider [CHAR_LIMIT=None] -->
+    <string name="crop_end_seekbar_content_description">crop end: <xliff:g id="time">%1$s</xliff:g>, <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
+
+    <!-- Message to show the user when a crop failed [CHAR_LIMIT=150] -->
+    <string name="crop_failed_message">Failed to save crop.</string>
+
+    <!-- Message to show the suer when a crop succeeded [CHAR_LIMIT=150] -->
+    <string name="crop_completed_message">Trial cropped</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
