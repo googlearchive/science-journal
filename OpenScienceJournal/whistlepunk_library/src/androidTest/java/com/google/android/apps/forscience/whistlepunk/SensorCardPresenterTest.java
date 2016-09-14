@@ -23,7 +23,9 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 
 public class SensorCardPresenterTest extends AndroidTestCase {
@@ -53,6 +55,14 @@ public class SensorCardPresenterTest extends AndroidTestCase {
         ReadableSensorOptions read = scp.getCardOptions(sensor, getContext()).load(
                 explodingListener()).getReadOnly();
         assertEquals(value, read.getString(key, null));
+    }
+
+    public void testCanStillUseCardDefaultsIfNoSensor() {
+        SensorCardPresenter scp = createSCP();
+        NewOptionsStorage storage = scp.getCardOptions(null, getContext());
+        WriteableSensorOptions writeable = storage.load(explodingListener());
+        writeable.put("key", "value");
+        assertEquals("value", writeable.getReadOnly().getString("key", "default"));
     }
 
     public void testExtrasOverrideSensorDefaults() {
