@@ -462,6 +462,14 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
+    public void onDestroyView() {
+        if (mChartController != null) {
+            mChartController.onViewRecycled();
+        }
+        super.onDestroyView();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long

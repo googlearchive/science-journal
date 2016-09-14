@@ -625,16 +625,18 @@ public class SensorCardPresenter {
     }
 
     public void onViewRecycled() {
-        mCardViewHolder.sensorTabLayout.setOnTabSelectedListener(null);
-        mCardViewHolder.sensorTabLayout.setScrollListener(null);
-        mCardViewHolder.flipButton.setOnClickListener(null);
-        mCardViewHolder.menuButton.setOnClickListener(null);
-        mCardViewHolder.infoButton.setOnClickListener(null);
-        mCardViewHolder.graphStatsList.setOnClickListener(null);
-        mCardViewHolder.meterStatsList.clearStats();
-        mCardViewHolder.graphStatsList.clearStats();
-        mCardViewHolder.meterLiveData.setText("");
-        mCardViewHolder.meterLiveData.resetTextSize();
+    	if (mCardViewHolder != null) {
+    	    mCardViewHolder.sensorTabLayout.setOnTabSelectedListener(null);
+    	    mCardViewHolder.sensorTabLayout.setScrollListener(null);
+    	    mCardViewHolder.flipButton.setOnClickListener(null);
+    	    mCardViewHolder.menuButton.setOnClickListener(null);
+    	    mCardViewHolder.infoButton.setOnClickListener(null);
+    	    mCardViewHolder.graphStatsList.setOnClickListener(null);
+    	    mCardViewHolder.meterStatsList.clearStats();
+    	    mCardViewHolder.graphStatsList.clearStats();
+    	    mCardViewHolder.meterLiveData.setText("");
+    	    mCardViewHolder.meterLiveData.resetTextSize();
+    	}
         if (mSensorPresenter != null) {
             mSensorPresenter.onViewRecycled();
         }
@@ -1214,6 +1216,8 @@ public class SensorCardPresenter {
         if (mCardViewHolder != null) {
             mCardViewHolder.header.setOnHeaderTouchListener(null);
         }
+        onViewRecycled();
+
         // Close the menu, because it will reference obsolete views and
         // presenters after resume.
         if (mPopupMenu != null ) {
