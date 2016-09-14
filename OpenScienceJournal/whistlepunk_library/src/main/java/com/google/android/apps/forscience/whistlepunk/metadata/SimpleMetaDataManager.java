@@ -30,6 +30,7 @@ import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -893,8 +894,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
     @Override
     public void deleteLabel(Label label) {
         if (label instanceof PictureLabel) {
-            File file = new File(((PictureLabel) label).getFilePath());
-            file.delete();
+            File file = new File(((PictureLabel) label).getAbsoluteFilePath());
+            boolean deleted = file.delete();
+            if (!deleted) {
+                Log.w(TAG, "Could not delete " + file.toString());
+            }
+            PictureUtils.scanFile(file.getAbsolutePath(), mContext);
         }
         String selection = LabelColumns.LABEL_ID + "=?";
         synchronized (mLock) {

@@ -19,11 +19,14 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -46,7 +49,7 @@ public class PictureUtils {
     public static File createImageFile(long timestamp) throws IOException {
         // Create an image file name
         String timeStamp = String.valueOf(timestamp);
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = "ScienceJournal_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
         File imageFile = File.createTempFile(
@@ -57,13 +60,19 @@ public class PictureUtils {
         return imageFile;
     }
 
-    // From http://developer.android.com/training/camera/photobasics.html.
-    public static void galleryAddPic(String photoPath, Activity activity) {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(photoPath);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        activity.sendBroadcast(mediaScanIntent);
+    /**
+     * Scan the file when adding or deleting so that media scanner aware apps like Gallery apps can
+     * properly index the file.
+     */
+    public static void scanFile(String photoPath, Context context) {
+        MediaScannerConnection.scanFile(context, new String[]{photoPath}, null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    @Override
+                    public void onScanCompleted(String path, Uri uri) {
+                        Log.i(TAG, "Scanned " + path + ":");
+                        Log.i(TAG, "-> uri=" + uri);
+                    }
+                });
     }
 
     // From http://developer.android.com/training/camera/photobasics.html.

@@ -51,6 +51,17 @@ public class PictureLabel extends Label {
         return getFilePath(getValue());
     }
 
+    /**
+     * @return the pure disk path of the file, without any "file" prepending.
+     */
+    public String getAbsoluteFilePath() {
+        String filePath = getFilePath();
+        if (filePath.startsWith("file:")) {
+            filePath = filePath.substring("file:".length());
+        }
+        return filePath;
+    }
+
     public static String getFilePath(GoosciLabelValue.LabelValue value) {
         if (value.data.length > INDEX_FILE_PATH &&
                 TextUtils.equals(value.data[INDEX_FILE_PATH].key, KEY_FILE_PATH)) {

@@ -326,6 +326,7 @@ public class AddNoteDialog extends DialogFragment {
         label.setExperimentId(mExperimentId);
         getDataController().addLabel(label,
                 ((AddNoteDialogListener) getParentFragment()).onLabelAdd());
+        PictureUtils.scanFile(mPictureLabelPath, getParentFragment().getActivity());
         mPictureLabelPath = null;
     }
 

@@ -253,7 +253,8 @@ public class SimpleMetaDataManagerTest {
             return;
         }
         assertTrue(tmpFile.exists());
-        String testPicturePath = tmpFile.getAbsolutePath();
+        // This mimics what PictureUtils does: adds a file scheme to the path.
+        String testPicturePath = "file:" + tmpFile.getAbsolutePath();
         String testPictureCaption = "life, the universe, and everything";
         PictureLabel pictureLabel = new PictureLabel(testPicturePath, testPictureCaption,
                 "pictureId", Arbitrary.string(), 2);
