@@ -37,9 +37,6 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-
-import java.util.Map;
 
 
 public class ManageDevicesActivity extends AppCompatActivity implements
@@ -146,28 +143,10 @@ public class ManageDevicesActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onRemoveDeviceFromExperiment(String experimentId, final String address) {
-        if (mCurrentExperiment != null &&
-                mCurrentExperiment.getExperimentId().equals(experimentId)) {
-            // Need to get the sensor object which is a little silly since we're only going to use
-            // it to get the sensor ID again.
-            // TODO: change the sensor adding / removing to just use strings?
-            mDataController.getExternalSensorsByExperiment(mCurrentExperiment.getExperimentId(),
-                    new LoggingConsumer<Map<String, ExternalSensorSpec>>(TAG,
-                            "load external sensors") {
-                        @Override
-                        public void success(Map<String, ExternalSensorSpec> map) {
-
-
-                            // Loop through searching, then remove.
-                            for (Map.Entry<String, ExternalSensorSpec> entry : map.entrySet()) {
-                                if (entry.getValue().getAddress().equals(address)) {
-                                    removeSensorFromExperiment(entry.getKey());
-                                    break;
-                                }
-                            }
-                        }
-                    });
+    public void onRemoveDeviceFromExperiment(String experimentId, final String sensorId) {
+        if (mCurrentExperiment != null && mCurrentExperiment.getExperimentId().equals(
+                experimentId)) {
+            removeSensorFromExperiment(sensorId);
         }
     }
 
