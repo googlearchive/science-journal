@@ -90,6 +90,7 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayO
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -774,8 +775,13 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     @Override
                     public void success(final RunStats runStats) {
                         mCurrentSensorStats = runStats;
+                        NumberFormat numberFormat = AppSingleton.getInstance(getActivity())
+                                .getSensorAppearanceProvider()
+                                .getAppearance(sensorLayout.sensorId).getNumberFormat();
                         List<StreamStat> streamStats =
-                                new StatsAccumulator.StatsDisplay().updateStreamStats(runStats);
+                                new StatsAccumulator.StatsDisplay(numberFormat)
+                                        .updateStreamStats(runStats);
+                        statsList.clearStats();
                         statsList.updateStats(streamStats);
                         mChartController.updateStats(streamStats);
 

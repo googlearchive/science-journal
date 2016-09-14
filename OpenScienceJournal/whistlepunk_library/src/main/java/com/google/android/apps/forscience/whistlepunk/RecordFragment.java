@@ -89,6 +89,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.collect.Lists;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1261,11 +1262,16 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         mExternalAxis.getInteractionListener();
 
                 // TODO: should dataViewOptions go into sensorCardPresenter?
+                NumberFormat numberFormat = AppSingleton.getInstance(context)
+                        .getSensorAppearanceProvider().getAppearance(sensorId).getNumberFormat();
                 final SensorPresenter sensorPresenter = sensorChoice.createPresenter(
-                        sensorCardPresenter.getDataViewOptions(), new StatsListener() {
+                        sensorCardPresenter.getDataViewOptions(), numberFormat,
+                        new StatsListener() {
                             @Override
                             public void onStatsUpdated(List<StreamStat> stats) {
-                                sensorCardPresenter.updateStats(stats);
+                                if (isRecording()) {
+                                    sensorCardPresenter.updateStats(stats);
+                                }
                             }
                         }, interactionListener);
 

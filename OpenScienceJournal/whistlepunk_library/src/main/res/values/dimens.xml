@@ -116,7 +116,7 @@
     <dimen name="stats_drawer_margin">4dp</dimen>
     <dimen name="stats_drawer_small_icon_padding">4dp</dimen>
     <dimen name="stats_drawer_large_icon_padding">4dp</dimen>
-    <dimen name="stats_drawer_item_width">50dp</dimen>
+    <dimen name="stats_drawer_item_width">42dp</dimen>
     <dimen name="stats_drawer_large_height">36dp</dimen>
     <dimen name="stats_back_text_size">24sp</dimen>
     <dimen name="stats_view_small_text_size">12sp</dimen>
@@ -236,6 +236,9 @@
 
     <dimen name="archive_badge_margin">12dp</dimen>
     <dimen name="path_corner_radius">3dp</dimen>
+
+    <dimen name="min_resizable_text_size">10sp</dimen>
+    <dimen name="one_sp">1sp</dimen>
 
     <!-- Maximum number of lines to show when editing a text label or note. -->
     <integer name="label_edit_max_lines">10</integer>

@@ -42,15 +42,16 @@
             android:focusable="false"
             />
 
-        <TextView
+        <com.google.android.apps.forscience.whistlepunk.SingleLineResizableTextView
             android:id="@id/stats_view_min"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="40sp"
             android:textColor="@color/stats_min_color"
             android:textSize="@dimen/run_review_stat_size"
             android:layout_below="@id/stats_min_label"
             android:layout_centerHorizontal="true"
             android:fontFamily="sans-serif-light"
+            android:textAlignment="center"
             />
 
     </RelativeLayout>
@@ -85,15 +86,16 @@
             android:focusable="false"
             />
 
-        <TextView
+        <com.google.android.apps.forscience.whistlepunk.SingleLineResizableTextView
             android:id="@id/stats_view_avg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="40sp"
             android:textColor="@color/text_color_black"
             android:textSize="@dimen/run_review_stat_size"
             android:layout_below="@id/stats_avg_label"
             android:layout_centerHorizontal="true"
             android:fontFamily="sans-serif-light"
+            android:textAlignment="center"
             />
 
     </RelativeLayout>
@@ -128,15 +130,16 @@
             android:focusable="false"
             />
 
-        <TextView
+        <com.google.android.apps.forscience.whistlepunk.SingleLineResizableTextView
             android:id="@id/stats_view_max"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="40sp"
             android:textColor="@color/stats_max_color"
             android:textSize="@dimen/run_review_stat_size"
             android:layout_below="@id/stats_max_label"
             android:layout_centerHorizontal="true"
             android:fontFamily="sans-serif-light"
+            android:textAlignment="center"
             />
 
     </RelativeLayout>

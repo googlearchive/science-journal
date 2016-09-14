@@ -31,7 +31,8 @@ public class ExternalSensorAppearance extends SensorAppearance {
             int infoDrawableId, SensorAnimationBehavior sensorAnimationBehavior,
             String deviceName) {
         super(nameStringId, drawableId, unitsStringId, shortDescriptionId, firstParagraphStringId,
-                secondParagraphStringId, infoDrawableId, sensorAnimationBehavior);
+                secondParagraphStringId, infoDrawableId, sensorAnimationBehavior,
+                SensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL);
         mDeviceName = deviceName;
     }
 

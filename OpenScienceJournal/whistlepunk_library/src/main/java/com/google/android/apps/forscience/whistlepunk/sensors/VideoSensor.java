@@ -49,6 +49,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -80,8 +81,8 @@ public class VideoSensor extends SensorChoice {
         mCamera = null;
     }
 
-    public SensorPresenter createPresenter(DataViewOptions dataViewOptions,
-            StatsListener statsListener,
+    public SensorPresenter createPresenter(final DataViewOptions dataViewOptions,
+            NumberFormat statsNumberFormat, StatsListener statsListener,
             final ExternalAxisController.InteractionListener interactionListener) {
         mCameraPreview = new CameraPreview(mContext);
 

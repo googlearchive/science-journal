@@ -69,6 +69,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -155,7 +156,7 @@ public class SensorCardPresenter {
     private long mLastUpdatedIconTimestamp = -1;
     private long mLastUpdatedTextTimestamp = -1;
 
-    private AxisNumberFormat mNumberFormat;
+    private NumberFormat mNumberFormat;
     private LocalSensorOptionsStorage mCardOptions = new LocalSensorOptionsStorage();
 
     /**
@@ -185,7 +186,6 @@ public class SensorCardPresenter {
         mSensorSettingsController = sensorSettingsController;
         mRecorderController = recorderController;
         mAvailableSensorIds = new ArrayList<>();
-        mNumberFormat = new AxisNumberFormat();
         mLayout = layout;
         mCardOptions.putAllExtras(layout.extras);
         mExperimentId = experimentId;
@@ -227,7 +227,8 @@ public class SensorCardPresenter {
                 // Note that this does fine if mUnits is empty -- it just reads the value.
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     TtsSpan span = new TtsSpan.TextBuilder(valueString + " " + mUnits).build();
-                    spannable.setSpan(span, 0, valueString.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                    spannable.setSpan(span, 0, valueString.length(),
+                            Spanned.SPAN_INCLUSIVE_INCLUSIVE);
                 }
                 mCardViewHolder.meterLiveData.setText(spannable, TextView.BufferType.SPANNABLE);
             }
@@ -398,8 +399,9 @@ public class SensorCardPresenter {
         // Set sensorId now; if we have to load SensorChoice from database, it may not be available
         // until later.
         mSensorId = sensorId;
-        mSensorAnimationBehavior =
-                mAppearanceProvider.getAppearance(mSensorId).getSensorAnimationBehavior();
+        SensorAppearance appearance = mAppearanceProvider.getAppearance(mSensorId);
+        mNumberFormat = appearance.getNumberFormat();
+        mSensorAnimationBehavior = appearance.getSensorAnimationBehavior();
         mHasError = hasError;
         mSourceStatus = SensorStatusListener.STATUS_CONNECTING;
         if (mCardViewHolder != null) {
@@ -629,6 +631,10 @@ public class SensorCardPresenter {
         mCardViewHolder.menuButton.setOnClickListener(null);
         mCardViewHolder.infoButton.setOnClickListener(null);
         mCardViewHolder.graphStatsList.setOnClickListener(null);
+        mCardViewHolder.meterStatsList.clearStats();
+        mCardViewHolder.graphStatsList.clearStats();
+        mCardViewHolder.meterLiveData.setText("");
+        mCardViewHolder.meterLiveData.resetTextSize();
         if (mSensorPresenter != null) {
             mSensorPresenter.onViewRecycled();
         }
@@ -1260,6 +1266,7 @@ public class SensorCardPresenter {
         mSensorId = "";
         if (mCardViewHolder != null) {
             mCardViewHolder.meterLiveData.setText("");
+            mCardViewHolder.meterLiveData.resetTextSize();
         }
         mLastUpdatedIconTimestamp = -1;
         mLastUpdatedTextTimestamp = -1;

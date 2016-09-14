@@ -24,7 +24,18 @@ import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+
 public class SensorAppearance {
+    public static final int DEFAULT_POINTS_AFTER_DECIMAL = -1;
+
+    // Don't allow more than 10 places after the decimal to be displayed. The UX can't
+    // handle this very well.
+    // TODO: Revisit this constant -- should it be even smaller, like 5?
+    public static final int MAX_POINTS_AFTER_DECIMAL = 10;
+
     /**
      * Human readable name for this source.
      */
@@ -40,6 +51,11 @@ public class SensorAppearance {
      * needed.
      */
     private final int mUnitsStringId;
+
+    /**
+     * The number format to use for this sensor everywhere but the graph Y axis.
+     */
+    private NumberFormat mNumberFormat;
 
     /**
      * The ID of the string that has a short description of this sensor.
@@ -68,10 +84,11 @@ public class SensorAppearance {
         mSecondParagraphStringId = 0;
         mLearnMoreDrawableId = 0;
         mSensorAnimationBehavior = SensorAnimationBehavior.createDefault();
+        mNumberFormat = new AxisNumberFormat();
     }
 
     public SensorAppearance(int nameStringId, int drawableId, int shortDescriptionId,
-                            SensorAnimationBehavior sensorAnimationBehavior) {
+            SensorAnimationBehavior sensorAnimationBehavior) {
         mNameStringId = nameStringId;
         mDrawableId = drawableId;
         mUnitsStringId = 0;
@@ -80,12 +97,13 @@ public class SensorAppearance {
         mSecondParagraphStringId = 0;
         mLearnMoreDrawableId = 0;
         mSensorAnimationBehavior = sensorAnimationBehavior;
+        mNumberFormat = new AxisNumberFormat();
     }
 
     public SensorAppearance(int nameStringId, int drawableId, int unitsStringId,
-                            int shortDescriptionId, int firstParagraphStringId,
-                            int secondParagraphStringId, int infoDrawableId,
-                            SensorAnimationBehavior sensorAnimationBehavior) {
+            int shortDescriptionId, int firstParagraphStringId, int secondParagraphStringId,
+            int infoDrawableId, SensorAnimationBehavior sensorAnimationBehavior,
+            int pointsAfterDecimalInNumberFormat) {
         mNameStringId = nameStringId;
         mDrawableId = drawableId;
         mUnitsStringId = unitsStringId;
@@ -94,6 +112,29 @@ public class SensorAppearance {
         mSecondParagraphStringId = secondParagraphStringId;
         mLearnMoreDrawableId = infoDrawableId;
         mSensorAnimationBehavior = sensorAnimationBehavior;
+        if (pointsAfterDecimalInNumberFormat <= DEFAULT_POINTS_AFTER_DECIMAL) {
+            mNumberFormat = new AxisNumberFormat();
+        } else {
+            pointsAfterDecimalInNumberFormat = Math.min(pointsAfterDecimalInNumberFormat,
+                    MAX_POINTS_AFTER_DECIMAL);
+            final String format = "%." + pointsAfterDecimalInNumberFormat + "f";
+            mNumberFormat = new NumberFormat() {
+                @Override
+                public StringBuffer format(double value, StringBuffer buffer, FieldPosition field) {
+                    return buffer.append(String.format(format, value));
+                }
+
+                @Override
+                public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
+                    return format((double) value, buffer, field);
+                }
+
+                @Override
+                public Number parse(String string, ParsePosition position) {
+                    return null;
+                }
+            };
+        }
     }
 
     public int getNameResource() {
@@ -155,5 +196,9 @@ public class SensorAppearance {
         return TextUtils.isEmpty(units) ?
                 getName(context) : String.format(context.getResources().getString(
                 R.string.header_name_and_units), getName(context), units);
+    }
+
+    public NumberFormat getNumberFormat() {
+        return mNumberFormat;
     }
 }

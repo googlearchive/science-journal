@@ -52,6 +52,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.FrequencyOptions
         .FilterChangeListener;
 import com.google.common.annotations.VisibleForTesting;
 
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -110,7 +111,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
     @Override
     public SensorPresenter createPresenter(final DataViewOptions dataViewOptions,
-            StatsListener statsListener,
+            NumberFormat statsNumberFormat, StatsListener statsListener,
             final ExternalAxisController.InteractionListener interactionListener) {
         final ChartController chartController =
                 getChartController(dataViewOptions, interactionListener, getId(),
@@ -118,7 +119,8 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
         final AudioGenerator audioGenerator = getAudioGenerator();
         final SensorPresenter.OptionsPresenter optionsPresenter = createOptionsPresenter();
-        final StatsAccumulator.StatsDisplay statsDisplay = new StatsAccumulator.StatsDisplay();
+        final StatsAccumulator.StatsDisplay statsDisplay =
+                new StatsAccumulator.StatsDisplay(statsNumberFormat);
         statsDisplay.addStatsListener(statsListener);
 
         return new SensorPresenter() {

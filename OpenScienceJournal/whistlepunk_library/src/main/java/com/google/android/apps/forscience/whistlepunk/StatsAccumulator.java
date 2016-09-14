@@ -51,14 +51,16 @@ public class StatsAccumulator {
 
 
     public static class StatsDisplay {
-        private NumberFormat numberFormat = new AxisNumberFormat();
         private List<StatsListener> mStatsListeners = new ArrayList<StatsListener>();
-        private StreamStat mMinStat = new StreamStat(StreamStat.TYPE_MIN, numberFormat);
-        private StreamStat mMaxStat = new StreamStat(StreamStat.TYPE_MAX, numberFormat);
-        private StreamStat mAvgStat = new StreamStat(StreamStat.TYPE_AVERAGE, numberFormat);
+        private StreamStat mMinStat;
+        private StreamStat mMaxStat;
+        private StreamStat mAvgStat;
         private List<StreamStat> mStreamStats = new ArrayList<>();
 
-        public StatsDisplay() {
+        public StatsDisplay(NumberFormat numberFormat) {
+            mMinStat = new StreamStat(StreamStat.TYPE_MIN, numberFormat);
+            mMaxStat = new StreamStat(StreamStat.TYPE_MAX, numberFormat);
+            mAvgStat = new StreamStat(StreamStat.TYPE_AVERAGE, numberFormat);
             mStreamStats.add(mMinStat);
             mStreamStats.add(mMaxStat);
             mStreamStats.add(mAvgStat);

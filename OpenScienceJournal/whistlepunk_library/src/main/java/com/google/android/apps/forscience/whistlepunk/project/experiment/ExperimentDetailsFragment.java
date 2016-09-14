@@ -56,10 +56,10 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
+import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
@@ -91,6 +91,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 import com.google.android.apps.forscience.whistlepunk.project.ProjectDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
@@ -1048,22 +1049,20 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         private void setIndeterminateSensorData(ViewHolder holder) {
-            holder.min.setText(R.string.indeterminate_value);
-            holder.max.setText(R.string.indeterminate_value);
-            holder.avg.setText(R.string.indeterminate_value);
+            holder.statsLoadStatus = ViewHolder.STATS_LOAD_STATUS_LOADING;
+            holder.statsList.clearStats();
         }
 
         private void loadSensorData(Context appContext, final ViewHolder holder,
                                     final ExperimentDetailItem item) {
             final ExperimentRun run = item.getRun();
-            final NumberFormat numberFormat = new AxisNumberFormat();
-            holder.statsLoadStatus = ViewHolder.STATS_LOAD_STATUS_LOADING;
             final String sensorTag = run.getSensorTags().get(item.getSensorTagIndex());
             final String runId = run.getRunId();
 
             final SensorAppearance appearance = AppSingleton.getInstance(appContext)
                     .getSensorAppearanceProvider()
                     .getAppearance(sensorTag);
+            final NumberFormat numberFormat = appearance.getNumberFormat();
             holder.sensorName.setText(appearance.getSensorDisplayName(appContext));
             final GoosciSensorLayout.SensorLayout sensorLayout = item.getSelectedSensorLayout();
             appearance.applyDrawableToImageView(holder.sensorImage, sensorLayout.color);
@@ -1097,15 +1096,10 @@ public class ExperimentDetailsFragment extends Fragment
                                 return;
                             }
                             holder.statsLoadStatus = ViewHolder.STATS_LOAD_STATUS_IDLE;
-                            holder.min.setText(stats.hasStat(StatsAccumulator.KEY_MIN) ?
-                                    numberFormat.format(stats.getStat(StatsAccumulator.KEY_MIN)) :
-                                    "");
-                            holder.max.setText(stats.hasStat(StatsAccumulator.KEY_MAX) ?
-                                    numberFormat.format(stats.getStat(StatsAccumulator.KEY_MAX)) :
-                                    "");
-                            holder.avg.setText(stats.hasStat(StatsAccumulator.KEY_AVERAGE) ?
-                                    numberFormat.format(stats.getStat(StatsAccumulator.KEY_AVERAGE))
-                                    : "");
+                            List<StreamStat> streamStats =
+                                    new StatsAccumulator.StatsDisplay(numberFormat)
+                                            .updateStreamStats(stats);
+                            holder.statsList.updateStats(streamStats);
 
                             // Save the sensor stats so they can be used to set the Y axis on load.
                             // If too many sensors are loaded in quick succession, having
@@ -1188,9 +1182,7 @@ public class ExperimentDetailsFragment extends Fragment
             ChartView chartView;
 
             // Stats members.
-            TextView min;
-            TextView max;
-            TextView avg;
+            StatsList statsList;
 
             TextView sensorName;
             ImageView sensorImage;
@@ -1209,9 +1201,7 @@ public class ExperimentDetailsFragment extends Fragment
                     DrawableCompat.setTint(noteCount.getCompoundDrawablesRelative()[0].mutate(),
                             noteCount.getResources().getColor(R.color.text_color_light_grey));
                     duration = (TextView) itemView.findViewById(R.id.run_review_duration);
-                    min = (TextView) itemView.findViewById(R.id.stats_view_min);
-                    max = (TextView) itemView.findViewById(R.id.stats_view_max);
-                    avg = (TextView) itemView.findViewById(R.id.stats_view_avg);
+                    statsList = (StatsList) itemView.findViewById(R.id.stats_view);
                     sensorName = (TextView) itemView.findViewById(R.id.run_review_sensor_name);
                     sensorPrev = (ImageButton) itemView.findViewById(
                             R.id.run_review_switch_sensor_btn_prev);

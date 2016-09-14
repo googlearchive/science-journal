@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
@@ -125,8 +126,8 @@ public class ManualSensor extends ScalarSensor {
         StatsListener statsListener = new StubStatsListener();
         ExternalAxisController.InteractionListener interactionListener =
                 new StubInteractionListener();
-        return createPresenter(new DataViewOptions(0, new ScalarDisplayOptions()), statsListener,
-                interactionListener);
+        return createPresenter(new DataViewOptions(0, new ScalarDisplayOptions()),
+                new AxisNumberFormat(), statsListener, interactionListener);
     }
 
     @NonNull
