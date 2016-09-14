@@ -1344,6 +1344,9 @@ public class SensorCardPresenter {
     }
 
     NewOptionsStorage getCardOptions(SensorChoice sensorChoice, Context context) {
+        if (sensorChoice == null) {
+            return mCardOptions;
+        }
         // Use card options if set, otherwise sensor defaults.
         return new OverlayOptionsStorage(mCardOptions,
                 sensorChoice.getStorageForSensorDefaultOptions(context));
