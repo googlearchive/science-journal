@@ -106,9 +106,12 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                     SensorAnimationBehavior.TYPE_RELATIVE_SCALE)));
 
         putAppearance(BarometerSensor.ID, new SensorAppearance(R.string.barometer,
-                R.drawable.ic_sensors_white_24dp, R.string.barometer_units,
-                new SensorAnimationBehavior(R.drawable.bluetooth_level_drawable,
-                        SensorAnimationBehavior.TYPE_STATIC_ICON)));
+                R.drawable.ic_sensor_barometer_white_24dp, R.string.barometer_units,
+                R.string.sensor_desc_short_barometer,
+                R.string.sensor_desc_first_paragraph_barometer,
+                R.string.sensor_desc_second_paragraph_barometer, R.drawable.learnmore_barometer,
+                new SensorAnimationBehavior(R.drawable.barometer_level_drawable,
+                        SensorAnimationBehavior.TYPE_RELATIVE_SCALE)));
 
         putAppearance(AmbientTemperatureSensor.ID, new SensorAppearance(
                 R.string.ambient_temperature, R.drawable.ic_sensors_white_24dp,
