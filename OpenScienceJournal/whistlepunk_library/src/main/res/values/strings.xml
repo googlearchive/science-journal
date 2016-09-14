@@ -111,7 +111,7 @@
     <string name="raw_units">%</string>
 
     <!-- Displayed units for a barometer sensor [CHAR_LIMIT=10] -->
-    <string name="barometer_units">mbar</string>
+    <string name="barometer_units">hPa</string>
 
     <!-- Displayed units for an ambient temperature sensor [CHAR_LIMIT=10] -->
     <string name="temperature_units">\u00B0C</string>
@@ -686,6 +686,9 @@
     <!-- One-sentence description of the raw sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_raw">The percentage of the raw reading from an external sensor.</string>
 
+    <!-- One-sentence description of the raw sensor [CHAR_LIMIT=100] -->
+    <string name="sensor_desc_short_barometer">The atmospheric pressure measured in hectopascals (hPa).</string>
+
     <!-- Long description of a light sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_light">The ambient light sensor measures light in lux, a measure of illumination that depends on the amount of incoming light and the area over which it is spread.
         \n\nA full moon provides about 1 lux of illumination, a typical lamp-lit living room about 50 lux, classroom lighting and sunrise and sunset about 400 lux, daylight (indirect sun) over 10,000 lux, and direct sun over 30,000 lux.
@@ -754,6 +757,15 @@
 
     <!-- Long description of an unknown bluetooth sensor displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_unknown_bluetooth">Bluetooth is a wireless technology standard using radio waves to exchange data over short distances from fixed and mobile devices.</string>
+
+    <!-- Long description of an barometer sensor displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <string name="sensor_desc_first_paragraph_barometer">Though we rarely notice it, all of us live at the bottom of a deep ocean of air: Earth\'s atmosphere, which extends upwards of 40 kilometers (130,000 feet) high. The weight of all that air pushing down on us from above us creates what\'s called atmospheric pressure.
+        \n\nAt sea level, atmospheric pressure applies 14 pounds of force on every square inch—that\'s the equivalent of about 1,300 pounds on an area the size of a standard sheet of paper.</string>
+
+    <!-- Long description of an barometer sensor displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <string name="sensor_desc_second_paragraph_barometer">We don\'t notice this crushing pressure because we\'re used to it—that is, until itchanges, even slightly, as it does when we visit high altitudes or ride in airplanes. Atmospheric pressure also varies with weather conditions, dropping in the presence of stormy, unstable air, and rising when air stabilizes and skies clear.
+        \n\nThe digital barometer in your phone measures atmospheric pressure in hectopascals. (A hectopascal is 100 pascals, where a pascal is one newton of force applied over a square meter of area.) You\'ve probably heard weather forecasters give atmospheric pressure in millibars—this friendlier-sounding unit is equivalent to hectopascals.
+        \n\nYou might be wondering: Why would a phone measure pressure? Atmospheric pressure changes measurably with even slight changes in elevation, say, when you climb a flight of stairs. So a digital barometer in a phone can help detect location changes, for example, telling you what floor of a building you are on, or whether you are driving on the upper or lower deck of a bridge.</string>
 
     <!-- The label for the duration of the experiment run [CHAR_LIMIT=25] -->
     <string name="run_review_duration">Duration</string>

@@ -60,6 +60,8 @@ public class BarometerSensor extends ScalarSensor {
                 mSensorEventListener = new SensorEventListener() {
                     @Override
                     public void onSensorChanged(SensorEvent event) {
+                        // values[0]: Atmospheric pressure in hPa (millibar).
+                        // 1 hPa == 1 millibar
                         c.addData(clock.getNow(), event.values[0]);
                     }
 
