@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- For large views, the cards are always shown at the multiple card height. -->
+    <bool name="always_use_multi_card_height">true</bool>
+</resources>
