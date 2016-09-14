@@ -135,10 +135,6 @@ public class DevOptionsFragment extends PreferenceFragment {
         return getBoolean(KEY_DEV_SONIFICATION_TYPES, false, context);
     }
 
-    public static boolean isEnableZoomInOnY(Context context) {
-        return getBoolean(KEY_ENABLE_ZOOM_IN, false, context);
-    }
-
     public static boolean isBarometerEnabled(Context context) {
         return getBoolean(KEY_BAROMETER_SENSOR, false, context);
     }
