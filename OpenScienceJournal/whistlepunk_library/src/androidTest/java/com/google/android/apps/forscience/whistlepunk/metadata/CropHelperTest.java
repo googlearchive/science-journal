@@ -20,6 +20,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
+import android.test.AndroidTestCase;
+
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
@@ -32,7 +34,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,8 +42,7 @@ import java.util.List;
 /**
  * Tests for {@link CropHelper}
  */
-@RunWith(RobolectricTestRunner.class) // CropHelper uses threads, so we need Robolectric.
-public class CropHelperTest {
+public class CropHelperTest extends AndroidTestCase {
 
     private DataController mDataController;
     private MemoryMetadataManager mMetadataManager;

@@ -83,10 +83,6 @@ dependencies {
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
     testCompile 'junit:junit:4.12'
-    testCompile('org.robolectric:robolectric:3.1.2') {
-        exclude group: 'commons-logging', module: 'commons-logging'
-        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
-    }
     androidTestCompile('junit:junit:4.12') {
         exclude module: 'hamcrest-core'
     }
