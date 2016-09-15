@@ -20,12 +20,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.os.Handler;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
@@ -51,16 +50,6 @@ public class ExternalAxisController {
          *                      is scrolling forward as data is added.
          */
         void onAxisUpdated(long xMin, long xMax, boolean isPinnedToNow);
-    }
-
-    // A listener that can notify this ExternalAxisController that new data has been added.
-    public interface NewDataListener {
-        /**
-         * Called when new data has been added, with the timestamp of that data, so that the
-         * ExternalAxis may update the axis start/stop as needed.
-         * @param timestamp
-         */
-        void onNewData(long timestamp);
     }
 
     // A listener that can notify this ExternalAxisController that an interaction has occured and
@@ -94,7 +83,6 @@ public class ExternalAxisController {
     }
 
     private List<AxisUpdateListener> mAxisUpdateListeners = new ArrayList<>();
-    private NewDataListener mNewDataListener;
     private InteractionListener mInteractionListener;
 
     public static final int MS_IN_SEC = 1000;
@@ -133,6 +121,8 @@ public class ExternalAxisController {
 
     // Whether we are in the live / observe mode, or in a static mode.
     private boolean mIsLive;
+    private Handler mRefreshHandler;
+    private Runnable mRefreshRunnable;
 
     // Used to determine whether the run review data has been set.
     private static final long RUN_REVIEW_DATA_NOT_INITIALIZED = -1;
@@ -150,8 +140,6 @@ public class ExternalAxisController {
     // Whether a user is currently interacting with a graph.
     private boolean mUserIsInteracting = false;
 
-    private long mLastScrolledTimestamp = -1;
-
     private float mResetButtonTranslationPx;
 
     public ExternalAxisController(ExternalAxisView axisView,  AxisUpdateListener listener,
@@ -165,15 +153,32 @@ public class ExternalAxisController {
         mAxisView = axisView;
         mAxisUpdateListeners.add(listener);
         mIsLive = isLive;
-        if (mIsLive) {
-            mAxisView.setNumberFormat(new SecondsAgoFormat(
-                    currentTimeClock, mAxisView.getContext()));
-        }
-        mResetButtonTranslationPx = axisView.getResources().getDimensionPixelSize(
-                R.dimen.reset_btn_holder_width);
         // If we are creating a live mode sensor, it will probably start off pinned to now.
         mIsPinnedToNow = isLive;
         mCurrentTimeClock = currentTimeClock;
+
+        if (mIsLive) {
+            mAxisView.setNumberFormat(new SecondsAgoFormat(
+                    currentTimeClock, mAxisView.getContext()));
+            mRefreshHandler = new Handler();
+            mRefreshRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    long timestamp = mCurrentTimeClock.getNow();
+                    if (!isInitialized) {
+                        mXMax = timestamp;
+                        // The time range is the default time.
+                        mXMin = timestamp - DEFAULT_GRAPH_RANGE_IN_MILLIS;
+                        isInitialized = true;
+                    }
+                    scrollToNowIfPinned(mCurrentTimeClock.getNow(), timestamp);
+                    mRefreshHandler.postDelayed(mRefreshRunnable, UPDATE_TIME_MS);
+                }
+            };
+            mRefreshRunnable.run();
+        }
+        mResetButtonTranslationPx = axisView.getResources().getDimensionPixelSize(
+                R.dimen.reset_btn_holder_width);
 
         mResetButton = resetButton;
         if (mResetButton != null) {
@@ -187,24 +192,6 @@ public class ExternalAxisController {
             // Set this up the first time.
             setUpResetAnimation();
         }
-
-        mNewDataListener = new NewDataListener() {
-
-            @Override
-            public void onNewData(long timestamp) {
-                if (!isInitialized) {
-                    mXMax = timestamp;
-                    // The time range is the default time.
-                    mXMin = timestamp - DEFAULT_GRAPH_RANGE_IN_MILLIS;
-                    isInitialized = true;
-                }
-                // Do a little less scrolling for performance
-                if (timestamp - mLastScrolledTimestamp > UPDATE_TIME_MS) {
-                    mLastScrolledTimestamp = timestamp;
-                    scrollToNowIfPinned(mCurrentTimeClock.getNow(), timestamp);
-                }
-            }
-        };
 
         mInteractionListener = new InteractionListener() {
             @Override
@@ -269,10 +256,6 @@ public class ExternalAxisController {
         return mXMin;
     }
 
-    public NewDataListener getNewDataListener() {
-        return mNewDataListener;
-    }
-
     public InteractionListener getInteractionListener() {
         return mInteractionListener;
     }
@@ -307,8 +290,12 @@ public class ExternalAxisController {
 
     public void destroy() {
         mAxisUpdateListeners.clear();
-        mNewDataListener = null;
         mInteractionListener = null;
+        if (mRefreshHandler != null) {
+            mRefreshHandler.removeCallbacks(mRefreshRunnable);
+            mRefreshRunnable = null;
+            mRefreshHandler = null;
+        }
     }
 
     public void updateAxis() {

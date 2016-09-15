@@ -441,6 +441,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 new ExternalAxisController.AxisUpdateListener() {
                     @Override
                     public void onAxisUpdated(long xMin, long xMax, boolean isPinnedToNow) {
+                        if (mSensorCardAdapter == null) {
+                            return;
+                        }
                         List<SensorCardPresenter> sensorCardPresenters =
                                 mSensorCardAdapter.getSensorCardPresenters();
                         for (SensorCardPresenter sensorCardPresenter : sensorCardPresenters) {
@@ -1255,8 +1258,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         mSensorRegistry.withSensorChoice(sensorId, new Consumer<SensorChoice>() {
             @Override
             public void take(SensorChoice sensorChoice) {
-                final ExternalAxisController.NewDataListener newDataListener = mExternalAxis
-                        .getNewDataListener();
                 ExternalAxisController.InteractionListener interactionListener =
                         mExternalAxis.getInteractionListener();
 
@@ -1283,7 +1284,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                 // sensorPresenter.onNewData is called inside of
                                 // sensorCardPresenter.onNewData?
                                 sensorPresenter.onNewData(timestamp, value);
-                                newDataListener.onNewData(timestamp);
                             }
                         });
                 refreshLabels();
