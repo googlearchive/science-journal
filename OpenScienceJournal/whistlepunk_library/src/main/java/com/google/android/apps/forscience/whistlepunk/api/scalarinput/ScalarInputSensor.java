@@ -78,6 +78,8 @@ class ScalarInputSensor extends ScalarSensor {
                                     makeListener(listener), settingsKey);
                         } catch (RemoteException e) {
                             complain(e);
+                        } catch (RuntimeException e) {
+                            complain(e);
                         }
                     }
 
@@ -94,29 +96,50 @@ class ScalarInputSensor extends ScalarSensor {
                     private ISensorStatusListener makeListener(
                             final SensorStatusListener listener) {
                         return new ISensorStatusListener.Stub() {
+                            // TODO(saff): test threading here!
                             @Override
                             public void onSensorConnecting() throws RemoteException {
-                                listener.onSourceStatus(getId(),
-                                        SensorStatusListener.STATUS_CONNECTING);
+                                runOnMainThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.onSourceStatus(getId(),
+                                                SensorStatusListener.STATUS_CONNECTING);
+                                    }
+                                });
                             }
 
                             @Override
                             public void onSensorConnected() throws RemoteException {
-                                listener.onSourceStatus(getId(),
-                                        SensorStatusListener.STATUS_CONNECTED);
+                                runOnMainThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.onSourceStatus(getId(),
+                                                SensorStatusListener.STATUS_CONNECTED);
+                                    }
+                                });
                             }
 
                             @Override
                             public void onSensorDisconnected() throws RemoteException {
-                                listener.onSourceStatus(getId(),
-                                        SensorStatusListener.STATUS_DISCONNECTED);
+                                runOnMainThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.onSourceStatus(getId(),
+                                                SensorStatusListener.STATUS_DISCONNECTED);
+                                    }
+                                });
                             }
 
                             @Override
-                            public void onSensorError(String errorMessage)
+                            public void onSensorError(final String errorMessage)
                                     throws RemoteException {
-                                listener.onSourceError(getId(),
-                                        SensorStatusListener.ERROR_UNKNOWN, errorMessage);
+                                runOnMainThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.onSourceError(getId(),
+                                                SensorStatusListener.ERROR_UNKNOWN, errorMessage);
+                                    }
+                                });
                             }
                         };
                     }
@@ -147,7 +170,7 @@ class ScalarInputSensor extends ScalarSensor {
                 }
             }
 
-            private void complain(RemoteException e) {
+            private void complain(Throwable e) {
                 listener.onSourceError(getId(), SensorStatusListener.ERROR_UNKNOWN,
                         e.getMessage());
             }

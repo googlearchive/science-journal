@@ -63,6 +63,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+import com.google.common.base.Preconditions;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -456,17 +457,21 @@ public class SensorCardPresenter {
         });
         mCardViewHolder.flipButton.setEnabled(true);
 
-        mCardViewHolder.infoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Context context = v.getContext();
-                Intent intent = new Intent(context, SensorInfoActivity.class);
-                intent.putExtra(SensorInfoActivity.EXTRA_SENSOR_ID, mSensorId);
-                intent.putExtra(SensorInfoActivity.EXTRA_COLOR_ID,
-                        mDataViewOptions.getGraphColor());
-                context.startActivity(intent);
-            }
-        });
+        if (mAppearanceProvider.getAppearance(mSensorId).hasLearnMore()) {
+            mCardViewHolder.infoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Context context = v.getContext();
+                    Intent intent = new Intent(context, SensorInfoActivity.class);
+                    intent.putExtra(SensorInfoActivity.EXTRA_SENSOR_ID, mSensorId);
+                    intent.putExtra(SensorInfoActivity.EXTRA_COLOR_ID,
+                            mDataViewOptions.getGraphColor());
+                    context.startActivity(intent);
+                }
+            });
+        } else {
+            mCardViewHolder.infoButton.setVisibility(View.GONE);
+        }
 
         mCardViewHolder.graphStatsList.setTextBold(mLayout.showStatsOverlay);
         mCardViewHolder.graphStatsList.setTextDarkerColor(mLayout.showStatsOverlay);
