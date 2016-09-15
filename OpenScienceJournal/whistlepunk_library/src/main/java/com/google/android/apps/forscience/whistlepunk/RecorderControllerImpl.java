@@ -163,7 +163,6 @@ public class RecorderControllerImpl implements RecorderController {
     private List<GoosciSensorLayout.SensorLayout> mSensorLayouts = Collections.emptyList();
     private boolean mRecordingStateChangeInProgress;
     private TriggerHelper mTriggerHelper;
-    private Uri mAudioAlertUri;
     private boolean mActivityInForeground = false;
     private int mStatsSaved = 0;
     private final Supplier<RecorderServiceConnection> mConnectionSupplier;
@@ -184,22 +183,18 @@ public class RecorderControllerImpl implements RecorderController {
     public RecorderControllerImpl(Context context, DataController dataController) {
         this(context, SensorRegistry.createWithBuiltinSensors(context),
                 AppSingleton.getInstance(context).getSensorEnvironment(),
-                new RecorderListenerRegistry(),
-                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
-                productionConnectionSupplier(context),
+                new RecorderListenerRegistry(), productionConnectionSupplier(context),
                 dataController);
     }
 
     @VisibleForTesting
     public RecorderControllerImpl(final Context context, SensorRegistry registry,
             SensorEnvironment sensorEnvironment, RecorderListenerRegistry listenerRegistry,
-            Uri audioAlertUri, Supplier<RecorderServiceConnection> connectionSupplier,
-            DataController dataController) {
+            Supplier<RecorderServiceConnection> connectionSupplier, DataController dataController) {
         mContext = context;
         mSensors = registry;
         mSensorEnvironment = sensorEnvironment;
         mRegistry = listenerRegistry;
-        mAudioAlertUri = audioAlertUri;
         mConnectionSupplier = connectionSupplier;
         mDataController = dataController;
     }
@@ -336,7 +331,7 @@ public class RecorderControllerImpl implements RecorderController {
 
     private TriggerHelper getTriggerHelper() {
         if (mTriggerHelper == null) {
-            mTriggerHelper = new TriggerHelper(mAudioAlertUri);
+            mTriggerHelper = new TriggerHelper();
         }
         return mTriggerHelper;
     }

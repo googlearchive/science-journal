@@ -20,12 +20,11 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.net.Uri;
+import android.media.SoundPool;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
@@ -33,7 +32,6 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,54 +43,49 @@ public class TriggerHelper {
 
     private static final String TAG = "TriggerHelper";
     private static final long TRIGGER_VIBRATION_DURATION_MS = 200;
-    private static final long THROTTLE_LIMIT_MS = 100;
+    private static final long THROTTLE_LIMIT_MS = 200;
 
-    private static final MediaPlayer.OnCompletionListener MEDIA_PLAYER_COMPLETION_LISTENER =
-            new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    mp.reset();
-                    mp.release();
-                }
-            };
+    private static int sSoundId = -1;
+    private static SoundPool sSoundPool;
 
-    private static final MediaPlayer.OnPreparedListener MEDIA_PLAYER_ON_PREPARED_LISTENER =
-            new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    mp.start();
-                }
-            };
-
-    private final Uri mNotification;
     private Vibrator mVibrator;
     private long mLastVibrationMs;
     private long mLastAudioMs;
 
-    public TriggerHelper(Uri notificationUri) {
-        // TODO: Talk to UX about the best sound for this.
-        mNotification = notificationUri;
+    public TriggerHelper() {
     }
 
     public void doAudioAlert(Context context) {
         // Use a throttler to keep this from interrupting itself too much.
-        if (System.currentTimeMillis() - mLastAudioMs < THROTTLE_LIMIT_MS) {
+        if (SystemClock.elapsedRealtime() - mLastAudioMs < THROTTLE_LIMIT_MS) {
             return;
         }
-        mLastAudioMs = System.currentTimeMillis();
-        final MediaPlayer mediaPlayer =  new MediaPlayer();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        try {
-            mediaPlayer.setDataSource(context, mNotification);
-            mediaPlayer.setOnPreparedListener(MEDIA_PLAYER_ON_PREPARED_LISTENER);
-            mediaPlayer.setOnCompletionListener(MEDIA_PLAYER_COMPLETION_LISTENER);
-            // Don't prepare the mediaplayer on the UI thread! That's asking for trouble.
-            mediaPlayer.prepareAsync();
-        } catch (IOException e) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "error getting notification sound");
-            }
+        SoundPool soundPool = getSoundPool(context);
+        if (sSoundId != -1) {
+            mLastAudioMs = SystemClock.elapsedRealtime();
+            soundPool.play(sSoundId, .8f, .8f, 0, 0, 1.0f);
         }
+    }
+
+    private SoundPool getSoundPool(Context context) {
+        if (sSoundPool == null) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                sSoundPool = new SoundPool.Builder().build();
+            } else {
+                sSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+            }
+            sSoundPool.load(context, R.raw.trigger_sound1, 0);
+            sSoundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+                @Override
+                public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                    sSoundId = sampleId;
+                    // Always play once directly after load, because only trying to do an
+                    // audio alert triggers a play.
+                    sSoundPool.play(sSoundId, 1.0f, 1.0f, 0, 0, 1.0f);
+                }
+            });
+        }
+        return sSoundPool;
     }
 
     public void doVibrateAlert(Context context) {
