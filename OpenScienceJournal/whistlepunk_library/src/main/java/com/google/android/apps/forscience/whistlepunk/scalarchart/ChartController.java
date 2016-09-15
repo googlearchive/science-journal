@@ -188,9 +188,6 @@ public class ChartController {
         }
 
         mChartData.addPoint(point);
-        if (mChartOptions.isPinnedToNow()) {
-            mChartOptions.adjustYAxisStep(point);
-        }
         if (mChartView != null && mChartView.isDrawn()) {
             mChartView.addPointToEndOfPath(point);
         }
@@ -289,6 +286,10 @@ public class ChartController {
 
     public void setXAxis(long xMin, long xMax) {
         mChartOptions.setRenderedXRange(xMin, xMax);
+        if (mChartOptions.isPinnedToNow() && !mChartData.isEmpty()) {
+            mChartOptions.adjustYAxisStep(
+                    mChartData.getPoints().get(mChartData.getNumPoints() - 1));
+        }
         if (mChartView != null) {
             mChartView.onAxisLimitsAdjusted();
         }
