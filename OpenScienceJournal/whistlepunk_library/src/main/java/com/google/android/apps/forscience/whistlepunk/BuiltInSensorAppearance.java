@@ -23,6 +23,8 @@ import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 
+import com.google.android.apps.forscience.javalib.Consumer;
+
 public class BuiltInSensorAppearance implements SensorAppearance {
     public static final int DEFAULT_POINTS_AFTER_DECIMAL = -1;
 
@@ -153,21 +155,31 @@ public class BuiltInSensorAppearance implements SensorAppearance {
     }
 
     @Override
-    public String getFirstLearnMoreParagraph(Context context) {
-        return getString(context, mFirstParagraphStringId);
+    public boolean hasLearnMore() {
+        return mFirstParagraphStringId != 0;
     }
 
     @Override
-    public String getSecondLearnMoreParagraph(Context context) {
-        return getString(context, mSecondParagraphStringId);
-    }
+    public void loadLearnMore(final Context context, Consumer<LearnMoreContents> onLoad) {
+        onLoad.take(new LearnMoreContents() {
+            @Override
+            public String getFirstParagraph() {
+                return getString(context, mFirstParagraphStringId);
+            }
 
-    @Override
-    public Drawable getLearnMoreDrawable(Context context) {
-        if (mLearnMoreDrawableId != 0) {
-            return context.getResources().getDrawable(mLearnMoreDrawableId);
-        }
-        return null;
+            @Override
+            public Drawable getDrawable() {
+                if (mLearnMoreDrawableId != 0) {
+                    return context.getResources().getDrawable(mLearnMoreDrawableId);
+                }
+                return null;
+            }
+
+            @Override
+            public String getSecondParagraph() {
+                return getString(context, mSecondParagraphStringId);
+            }
+        });
     }
 
     @Override
