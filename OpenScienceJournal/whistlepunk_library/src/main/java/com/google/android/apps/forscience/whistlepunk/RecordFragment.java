@@ -1461,8 +1461,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                             view.performClick();
                         }
                     },
-                    getResources().getDrawable(getSensorAppearanceProvider().getAppearance(
-                            sensorId).getDrawableId()));
+                    getSensorAppearanceProvider().getAppearance(sensorId).getIconDrawable(
+                            getActivity()));
         }
     }
 

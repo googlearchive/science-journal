@@ -19,9 +19,9 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 
 /**
- * Subclass of {@link SensorAppearance} which includes the external device name.
+ * Subclass of {@link BuiltInSensorAppearance} which includes the external device name.
  */
-public class ExternalSensorAppearance extends SensorAppearance {
+public class ExternalSensorAppearance extends BuiltInSensorAppearance {
 
     private String mDeviceName;
 
@@ -32,7 +32,7 @@ public class ExternalSensorAppearance extends SensorAppearance {
             String deviceName) {
         super(nameStringId, drawableId, unitsStringId, shortDescriptionId, firstParagraphStringId,
                 secondParagraphStringId, infoDrawableId, sensorAnimationBehavior,
-                SensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL);
+                BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL);
         mDeviceName = deviceName;
     }
 

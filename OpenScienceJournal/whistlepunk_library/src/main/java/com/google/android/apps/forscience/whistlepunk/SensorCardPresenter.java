@@ -18,11 +18,9 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -35,7 +33,6 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.TtsSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,14 +40,11 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerListActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
@@ -843,7 +837,7 @@ public class SensorCardPresenter {
         final SensorAppearance appearance = mAppearanceProvider.getAppearance(sensorId);
         TabLayout.Tab tab = mCardViewHolder.sensorTabLayout.newTab();
         tab.setContentDescription(appearance.getName(context));
-        tab.setIcon(context.getResources().getDrawable(appearance.getDrawableId()));
+        tab.setIcon(appearance.getIconDrawable(context));
         tab.setTag(sensorId);
         mCardViewHolder.sensorTabLayout.addTab(tab, index, false);
         // HACK: we need to retrieve the view using View#findViewByTag to avoid adding lots of
@@ -1384,7 +1378,8 @@ public class SensorCardPresenter {
         mAllowRetry = allowRetry;
         SensorAppearance appearance = mAppearanceProvider.getAppearance(sensorId);
         setUiForConnectingNewSensor(sensorId,
-                appearance.getSensorDisplayName(context), appearance.getUnits(context), hasError);
+                Appearances.getSensorDisplayName(appearance, context), appearance.getUnits(context),
+                hasError);
     }
 
     public boolean isTriggerBarOnScreen() {

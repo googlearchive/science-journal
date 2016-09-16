@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.android.apps.forscience.whistlepunk.BuiltInSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciScalarInput;
@@ -56,7 +57,7 @@ public class ScalarInputSpec extends ExternalSensorSpec {
         // TODO: allow no name str id
         // TODO: better icon?
         int drawableId = R.drawable.ic_sensor_raw_white_24dp;
-        return new SensorAppearance(0, drawableId) {
+        return new BuiltInSensorAppearance(0, drawableId) {
             @Override
             public String getName(Context context) {
                 return mName;

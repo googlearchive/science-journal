@@ -20,10 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.test.AndroidTestCase;
-import android.test.mock.MockApplication;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
@@ -189,7 +186,7 @@ public class SensorCardPresenterUnitTest {
 
         @Override
         public SensorAppearance getAppearance(String sensorId) {
-            return new SensorAppearance(0, 0);
+            return new BuiltInSensorAppearance(0, 0);
         }
     }
 }
