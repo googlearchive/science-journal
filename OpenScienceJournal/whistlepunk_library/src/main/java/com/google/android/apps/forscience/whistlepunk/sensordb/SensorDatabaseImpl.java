@@ -125,7 +125,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
         }
         if (canonicalTimes.hasUpperBound()) {
             String comparator = (canonicalTimes.upperBoundType() == BoundType.CLOSED) ?
-                    " =< ?" : " < ?";
+                    " <= ?" : " < ?";
             clauses.add(ScalarSensorsTable.Column.TIMESTAMP_MILLIS + comparator);
             values.add(String.valueOf(canonicalTimes.upperEndpoint()));
         }
