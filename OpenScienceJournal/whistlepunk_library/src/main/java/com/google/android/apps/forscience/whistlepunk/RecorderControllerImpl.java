@@ -564,12 +564,15 @@ public class RecorderControllerImpl implements RecorderController {
         withBoundRecorderService(new FallibleConsumer<RecorderService>() {
             @Override
             public void take(final RecorderService recorderService) throws RemoteException {
+                final List<GoosciSensorLayout.SensorLayout> sensorLayoutsAtStop =
+                        new ArrayList<>(mSensorLayouts);
                 mDataController
                         .stopRun(mSelectedExperiment, mRecording.getRunId(), mSensorLayouts,
                         new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
                             @Override
                             public void success(ApplicationLabel value) {
-                                trackStopRecording(recorderService.getApplicationContext(), value);
+                                trackStopRecording(recorderService.getApplicationContext(), value,
+                                        sensorLayoutsAtStop);
                                 final String runId = mRecording.getRunId();
 
                                 // Now actually stop the recording.
@@ -645,22 +648,36 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @VisibleForTesting
-    void trackStopRecording(Context context, ApplicationLabel stopRecordingLabel) {
+    void trackStopRecording(Context context, ApplicationLabel stopRecordingLabel,
+            List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+        SensorRegistry registry = AppSingleton.getInstance(context).getSensorRegistry();
         // Record how long this session was.
         WhistlePunkApplication.getUsageTracker(context)
                 .trackEvent(TrackerConstants.CATEGORY_RUNS,
                         TrackerConstants.ACTION_CREATE, null,
                         stopRecordingLabel.getTimeStamp() - mRecording.getStartTime());
 
-        // Record which sensors were recorded.
-        Set<String> sensors = mRecorders.keySet();
-        String[] sensorArray = sensors.toArray(new String[sensors.size()]);
-        Arrays.sort(sensorArray);
+        // Record which sensors were recorded and information about their layouts.
+        List<String> sensorLogs = new ArrayList<>();
+        for (GoosciSensorLayout.SensorLayout layout : sensorLayouts) {
+            sensorLogs.add(getLayoutLoggingString(registry.getLoggingId(layout.sensorId), layout));
+        }
         WhistlePunkApplication.getUsageTracker(context)
                 .trackEvent(TrackerConstants.CATEGORY_RUNS,
                         TrackerConstants.ACTION_RECORDED,
-                        Joiner.on(",").join(sensorArray),
+                        Joiner.on(",").join(sensorLogs),
                         0);
+    }
+
+    String getLayoutLoggingString(String loggingId, GoosciSensorLayout.SensorLayout layout) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(loggingId);
+        builder.append("|");
+        builder.append(layout.cardView == GoosciSensorLayout.SensorLayout.METER ? "meter" :
+                "graph");
+        builder.append("|");
+        builder.append(layout.audioEnabled ? "audioOn" : "audioOff");
+        return builder.toString();
     }
 
     private void updateRecordingListeners() {

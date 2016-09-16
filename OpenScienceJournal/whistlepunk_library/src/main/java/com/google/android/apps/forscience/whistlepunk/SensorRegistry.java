@@ -254,4 +254,12 @@ public class SensorRegistry {
             mSensorRegistryListener.updateExternalSensors(mMostRecentExternalSensors);
         }
     }
+
+    public String getLoggingId(String sensorId) {
+        if (mSensorRegistry.containsKey(sensorId)) {
+            return mSensorRegistry.get(sensorId).loggingId;
+        } else {
+            return null;
+        }
+    }
 }
