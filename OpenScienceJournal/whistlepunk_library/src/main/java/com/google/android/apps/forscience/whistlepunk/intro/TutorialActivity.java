@@ -346,6 +346,7 @@ public class TutorialActivity extends AppCompatActivity {
                     return true;
                 }
             });
+            mVideo.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
             TextView headerText = (TextView) view.findViewById(R.id.tutorial_header);
             TextView bodyText = (TextView) view.findViewById(R.id.tutorial_body);
             ViewGroup videoContainer = (ViewGroup) view.findViewById(R.id.video_container);
