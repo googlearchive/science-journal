@@ -21,6 +21,8 @@ import static junit.framework.Assert.assertEquals;
 import android.net.Uri;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
@@ -70,4 +72,39 @@ public class RecorderControllerTest {
         TestData.allPointsBetween(2, 3, 1).checkObserver(observer2);
     }
 
+    @Test
+    public void layoutLogging() {
+        final String sensorId = "sensorId";
+        final ManualSensor sensor = new ManualSensor(sensorId, 100, 100);
+        SensorRegistry registry = new SensorRegistry() {
+            @Override
+            public void withSensorChoice(String id, Consumer<SensorChoice> consumer) {
+                assertEquals(sensorId, id);
+                consumer.take(sensor);
+            }
+        };
+        MemorySensorEnvironment env = new MemorySensorEnvironment(
+                new InMemorySensorDatabase().makeSimpleRecordingController(),
+                new FakeBleClient(null), new MemorySensorHistoryStorage());
+        RecorderControllerImpl rc = new RecorderControllerImpl(null, registry, env,
+                new RecorderListenerRegistry(), Uri.EMPTY, null, null);
+
+        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
+        layout.sensorId = "aa:bb:cc:dd";
+        layout.cardView = GoosciSensorLayout.SensorLayout.GRAPH;
+        layout.audioEnabled = false;
+        String loggingId = BleSensorSpec.TYPE;
+
+        assertEquals("bluetooth_le|graph|audioOff", rc.getLayoutLoggingString(loggingId, layout));
+
+        layout.cardView = GoosciSensorLayout.SensorLayout.METER;
+        assertEquals("bluetooth_le|meter|audioOff", rc.getLayoutLoggingString(loggingId, layout));
+
+        layout.audioEnabled = true;
+        assertEquals("bluetooth_le|meter|audioOn", rc.getLayoutLoggingString(loggingId, layout));
+
+        layout.sensorId = "AmbientLight";
+        assertEquals("AmbientLight|meter|audioOn", rc.getLayoutLoggingString("AmbientLight",
+                layout));
+    }
 }

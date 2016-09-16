@@ -78,6 +78,22 @@ public class SensorRegistryTest extends DevOptionsTestCase {
         assertEquals(1, listener.numRefreshes);
     }
 
+    public void testLoggingId() {
+        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(getContext());
+
+        Map<String, ExternalSensorSpec> sensors = new HashMap<>();
+        String bleSensorId = "aa:bb:cc:dd";
+        sensors.put(bleSensorId, new BleSensorSpec(bleSensorId, "name"));
+
+        HashMap<String, ExternalSensorProvider> providers = new HashMap<>();
+        providers.put(BleSensorSpec.TYPE, new NativeBleDiscoverer().getProvider());
+
+        reg.updateExternalSensors(sensors, providers);
+        assertEquals(true, reg.getAllSources().contains(bleSensorId));
+
+        assertEquals(BleSensorSpec.TYPE, reg.getLoggingId(bleSensorId));
+    }
+
     private static class TestSensorRegistryListener implements SensorRegistryListener {
         public int numRefreshes = 0;
 

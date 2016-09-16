@@ -299,7 +299,8 @@ public class ProxyRecorderControllerTest {
         }
 
         @Override
-        void trackStopRecording(Context context, ApplicationLabel stopRecordingLabel) {
+        void trackStopRecording(Context context, ApplicationLabel stopRecordingLabel,
+                List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
             // Do nothing.
         }
 
