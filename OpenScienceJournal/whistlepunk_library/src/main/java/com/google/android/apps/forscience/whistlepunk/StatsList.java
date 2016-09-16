@@ -47,9 +47,9 @@ public class StatsList extends FrameLayout {
     private static final Typeface NORMAL_TYPEFACE = Typeface.create("sans-serif", Typeface.NORMAL);
 
     private List<StreamStat> mStats;
-    private TextView mMinTextView;
-    private TextView mMaxTextView;
-    private TextView mAvgTextView;
+    private SingleLineResizableTextView mMinTextView;
+    private SingleLineResizableTextView mMaxTextView;
+    private SingleLineResizableTextView mAvgTextView;
 
     private int mDarkerColor;
     private int mLighterColor;
@@ -76,9 +76,9 @@ public class StatsList extends FrameLayout {
         } finally {
             a.recycle();
         }
-        mMinTextView = (TextView) this.findViewById(R.id.stats_view_min);
-        mMaxTextView = (TextView) this.findViewById(R.id.stats_view_max);
-        mAvgTextView = (TextView) this.findViewById(R.id.stats_view_avg);
+        mMinTextView = (SingleLineResizableTextView) this.findViewById(R.id.stats_view_min);
+        mMaxTextView = (SingleLineResizableTextView) this.findViewById(R.id.stats_view_max);
+        mAvgTextView = (SingleLineResizableTextView) this.findViewById(R.id.stats_view_avg);
         mStats = new ArrayList<>();
 
         mDarkerColor = context.getResources().getColor(R.color.text_color_dark_grey);
@@ -106,9 +106,10 @@ public class StatsList extends FrameLayout {
             if (next == null) {
                 continue;
             }
-            next.setText(stat.getDisplayValue());
+            String text = stat.getDisplayValue();
+            next.setText(text);
             next.setContentDescription(getResources().getString(
-                    stat.getDisplayTypeStringId()) + ": " + stat.getDisplayValue());
+                    stat.getDisplayTypeStringId()) + ": " + text);
         }
     }
 
@@ -126,6 +127,10 @@ public class StatsList extends FrameLayout {
         mMinTextView.setText(unknown);
         mMaxTextView.setText(unknown);
         mAvgTextView.setText(unknown);
+
+        mMinTextView.resetTextSize();
+        mMaxTextView.resetTextSize();
+        mAvgTextView.resetTextSize();
     }
 
     public void setTextBold(boolean shouldBeBold) {

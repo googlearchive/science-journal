@@ -54,7 +54,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public ImageButton menuButton;
     public Button infoButton;
     public ImageView meterSensorIcon;
-    public TextView meterLiveData;
+    public SingleLineResizableTextView meterLiveData;
     public TextView meterLiveDataUnits;
     public LinearLayout infoSection;
     public ViewGroup statusViewGroup;
@@ -88,7 +88,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         meterViewGroup = (ViewGroup) itemView.findViewById(R.id.back_view_content_group);
         infoButton = (Button) itemView.findViewById(R.id.btn_sensor_learn_more);
         meterSensorIcon = (ImageView) itemView.findViewById(R.id.card_meter_sensor_icon);
-        meterLiveData = (TextView) itemView.findViewById(R.id.live_sensor_value);
+        meterLiveData = (SingleLineResizableTextView) itemView.findViewById(R.id.live_sensor_value);
         meterLiveDataUnits = (TextView) itemView.findViewById(R.id.live_sensor_units);
         infoSection = (LinearLayout) itemView.findViewById(R.id.back_view_info_section);
         statusViewGroup = (ViewGroup) itemView.findViewById(R.id.status_view_content_group);

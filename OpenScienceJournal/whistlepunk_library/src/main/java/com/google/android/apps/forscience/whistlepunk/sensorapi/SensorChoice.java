@@ -23,6 +23,8 @@ import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.PrefsNewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
 
+import java.text.NumberFormat;
+
 /**
  * A choice of data to capture, both for storage in a database and (optionally) real-time display
  */
@@ -54,8 +56,8 @@ public abstract class SensorChoice {
      *         display, or null if the sensor doesn't expect to respond to any events from outside
      *         the content view.
      */
-    public abstract SensorPresenter createPresenter(DataViewOptions dataViewOptions,
-            StatsListener statsListener,
+    public abstract SensorPresenter createPresenter(final DataViewOptions dataViewOptions,
+            NumberFormat statsNumberFormat, StatsListener statsListener,
             final ExternalAxisController.InteractionListener interactionListener);
 
     /**

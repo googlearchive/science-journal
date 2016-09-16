@@ -157,6 +157,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         mPath = new Path();
         mBoxRect = new RectF();
 
+        // TODO: Need to make sure this is at least as detailed as the SensorAppearance number
+        // format!
         mTextFormat = res.getString(R.string.run_review_chart_label_format);
         mTimeFormat = ElapsedTimeAxisFormatter.getInstance(getContext());
     }
