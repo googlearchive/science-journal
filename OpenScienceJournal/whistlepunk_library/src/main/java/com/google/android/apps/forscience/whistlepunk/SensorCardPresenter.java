@@ -1066,8 +1066,12 @@ public class SensorCardPresenter {
 
                                 @Override
                                 public void onAnimationEnd(Animator animation) {
-                                    mCardViewHolder.sensorSelectionArea.setVisibility(View.GONE);
-                                    mCardViewHolder.sensorSelectionArea.animate().setListener(null);
+                                    if (mCardViewHolder != null) {
+                                        mCardViewHolder.sensorSelectionArea.setVisibility(
+                                                View.GONE);
+                                        mCardViewHolder.sensorSelectionArea.animate().setListener(
+                                                null);
+                                    }
                                     setSensorSelectionBackgroundColorForAnimation(false);
                                 }
 
