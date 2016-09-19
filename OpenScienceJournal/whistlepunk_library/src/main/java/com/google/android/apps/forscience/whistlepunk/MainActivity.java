@@ -194,13 +194,17 @@ public class MainActivity extends AppCompatActivity
             setIntent(intent);
         }
         super.onNewIntent(intent);
-        int desiredItemId = -1;
-        if (intent.getExtras() != null) {
-            desiredItemId = intent.getExtras().getInt(ARG_SELECTED_NAV_ITEM_ID, -1);
+
+        if (mNavigationView != null && mNavigationView.getMenu() != null) {
+            int desiredItemId = -1;
+            if (intent.getExtras() != null) {
+                desiredItemId = intent.getExtras().getInt(ARG_SELECTED_NAV_ITEM_ID, -1);
+            }
+            if (desiredItemId != -1 && mSelectedItemId != desiredItemId) {
+                onNavigationItemSelected(mNavigationView.getMenu().findItem(desiredItemId));
+            }
         }
-        if (desiredItemId != -1 && mSelectedItemId != desiredItemId) {
-            onNavigationItemSelected(mNavigationView.getMenu().findItem(desiredItemId));
-        }
+
     }
 
     @Override
