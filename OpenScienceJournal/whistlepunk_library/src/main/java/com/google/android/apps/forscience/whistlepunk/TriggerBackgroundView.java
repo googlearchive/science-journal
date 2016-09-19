@@ -60,6 +60,8 @@ public class TriggerBackgroundView extends View {
     private long mAnimationStateStartTimestamp = NO_TRIGGER_FIRING;
     private int mAnimationState;
 
+    private boolean isLtrLayout;
+
     public TriggerBackgroundView(Context context) {
         super(context);
         init();
@@ -96,6 +98,9 @@ public class TriggerBackgroundView extends View {
 
         mTriggerOutline = new RectF();
         mTriggerPath = new Path();
+
+        isLtrLayout = getResources().getConfiguration().getLayoutDirection() ==
+                View.LAYOUT_DIRECTION_LTR;
     }
 
     @Override
@@ -103,8 +108,9 @@ public class TriggerBackgroundView extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mWidth = getMeasuredWidth();
         mHeight = getMeasuredHeight();
-        mStartCenterX = getResources().getDimensionPixelSize(
+        int centerX = getResources().getDimensionPixelSize(
                 R.dimen.accessibility_touch_target_min_size) / 2;
+        mStartCenterX = isLtrLayout ? centerX : mWidth - centerX;
 
         // When the radius reaches this size, the circle will touch or extend past the
         // top left and lower left corners. At this point, we should start using a path
@@ -197,26 +203,40 @@ public class TriggerBackgroundView extends View {
             }
 
             double fractionFull = calculateFractionFull();
-            double radius = (mWidth * fractionFull);
-            int radInt = (int) radius;
-            mTriggerOutline.set(mStartCenterX - radInt, mHeight / 2 - radInt,
-                    mStartCenterX + radInt, mHeight / 2 + radInt);
-            // For large radiuses, define a path instead of drawing the whole oval, otherwise
-            // the path can get too large to render.
-            if (radInt > mRadiusToUsePath) {
-                mTriggerPath.reset();
-                mTriggerPath.moveTo(0, 0);
-                // Calculate the angle between the horizontal and where the arc intersects the
-                // trigger box.
-                float angle = (float) Math.toDegrees(Math.asin(mHeight / 2 / radius));
-                // arcTo automatically creates a lineTo the start of the arc, so we don't actually
-                // need to do as much math!
-                mTriggerPath.arcTo(mTriggerOutline, -angle, 2 * angle);
-                mTriggerPath.lineTo(0, mHeight);
-                mTriggerPath.lineTo(0, 0);
-                canvas.drawPath(mTriggerPath, mTriggerPaint);
+            if (fractionFull >= 1.0) {
+                canvas.drawRect(0, 0, mWidth, mHeight, mTriggerPaint);
             } else {
-                canvas.drawOval(mTriggerOutline, mTriggerPaint);
+                double radius = (mWidth * fractionFull);
+                int radInt = (int) radius;
+                mTriggerOutline.set(mStartCenterX - radInt, mHeight / 2 - radInt,
+                        mStartCenterX + radInt, mHeight / 2 + radInt);
+                // For large radiuses, define a path instead of drawing the whole oval, otherwise
+                // the path can get too large to render.
+                if (radInt > mRadiusToUsePath) {
+                    // Calculate the angle between the horizontal and where the arc intersects the
+                    // trigger box.
+                    float angle = (float) Math.toDegrees(Math.asin(mHeight / 2 / radius));
+
+                    mTriggerPath.reset();
+                    if (isLtrLayout) {
+                        mTriggerPath.moveTo(0, 0);
+                        // arcTo automatically creates a lineTo the start of the arc, so we don't
+                        // actually need to do as much math!
+                        mTriggerPath.arcTo(mTriggerOutline, -angle, 2 * angle);
+                        mTriggerPath.lineTo(0, mHeight);
+                        mTriggerPath.lineTo(0, 0);
+                    } else {
+                        mTriggerPath.moveTo(mWidth, 0);
+                        mTriggerPath.lineTo(mWidth, mHeight);
+                        // arcTo automatically creates a lineTo the start of the arc, so we don't
+                        // actually need to do as much math!
+                        mTriggerPath.arcTo(mTriggerOutline, 180 - angle, 2 * angle);
+                        mTriggerPath.lineTo(mWidth, 0);
+                    }
+                    canvas.drawPath(mTriggerPath, mTriggerPaint);
+                } else {
+                    canvas.drawOval(mTriggerOutline, mTriggerPaint);
+                }
             }
             postInvalidateOnAnimation();
         }
