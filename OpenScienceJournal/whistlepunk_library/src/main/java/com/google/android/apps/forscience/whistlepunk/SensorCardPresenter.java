@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -1019,106 +1020,48 @@ public class SensorCardPresenter {
         if (isRecording()) {
             isActive = false;
         }
+        int expandedHeight = mCardViewHolder != null ? mCardViewHolder.getContext().getResources()
+                .getDimensionPixelSize(R.dimen.sensor_tablayout_height) : 0;
         // Add animation only if "force" is false -- in other words, if this was user initiated!
         if (mIsActive != isActive && !force) {
             mIsActive = isActive;
             if (mCardViewHolder != null) {
-                if (isActive) {
-                    mCardViewHolder.sensorTabLayout.setOnTabSelectedListener(mOnTabSelectedListener);
-                    mCardViewHolder.sensorSelectionArea.animate().translationY(0).setListener(
-                            new Animator.AnimatorListener() {
-                                @Override
-                                public void onAnimationStart(Animator animation) {
-                                    setSensorSelectionBackgroundColorForAnimation(true);
-                                    mCardViewHolder.sensorSelectionArea.setVisibility(View.VISIBLE);
-                                    mCardViewHolder.sensorSelectionArea.setTranslationY(-1 *
-                                            mCardViewHolder.getContext().getResources()
-                                                    .getDimensionPixelSize(
-                                                            R.dimen.sensor_tablayout_height));
-                                }
-
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    mCardViewHolder.sensorSelectionArea.animate().setListener(null);
-                                    resetTabTouchDelegates();
-                                    setSensorSelectionBackgroundColorForAnimation(false);
-                                }
-
-                                @Override
-                                public void onAnimationCancel(Animator animation) {
-                                }
-
-                                @Override
-                                public void onAnimationRepeat(Animator animation) {
-                                }
-                            }).setDuration(ANIMATION_TIME_MS).start();
-                } else {
-                    mCardViewHolder.sensorTabLayout.setOnTabSelectedListener(null);
-                    mCardViewHolder.sensorSelectionArea.animate().translationY(-1 *
-                            mCardViewHolder.getContext().getResources().getDimensionPixelSize(
-                                    R.dimen.sensor_tablayout_height)).setListener(
-                            new Animator.AnimatorListener() {
-                                @Override
-                                public void onAnimationStart(Animator animation) {
-                                    mCardViewHolder.sensorSelectionArea.setTranslationY(0);
-                                    setSensorSelectionBackgroundColorForAnimation(true);
-                                }
-
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    if (mCardViewHolder != null) {
-                                        mCardViewHolder.sensorSelectionArea.setVisibility(
-                                                View.GONE);
-                                        mCardViewHolder.sensorSelectionArea.animate().setListener(
-                                                null);
-                                    }
-                                    setSensorSelectionBackgroundColorForAnimation(false);
-                                }
-
-                                @Override
-                                public void onAnimationCancel(Animator animation) {
-                                }
-
-                                @Override
-                                public void onAnimationRepeat(Animator animation) {
-                                }
-                            }).setDuration(ANIMATION_TIME_MS).start();
-                }
+                int startHeight = isActive ? 0 : expandedHeight;
+                int endHeight = isActive ? expandedHeight : 0;
+                mCardViewHolder.sensorTabLayout.setOnTabSelectedListener(isActive ?
+                        mOnTabSelectedListener : null);
+                final ValueAnimator animator = new ValueAnimator()
+                        .ofInt(startHeight, endHeight)
+                        .setDuration(ANIMATION_TIME_MS);
+                animator.setTarget(mCardViewHolder.sensorSelectionArea);
+                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        Integer value = (Integer) animation.getAnimatedValue();
+                        mCardViewHolder.sensorSelectionArea.getLayoutParams().height =
+                                value.intValue();
+                        mCardViewHolder.sensorSelectionArea.requestLayout();
+                    }
+                });
+                animator.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        resetTabTouchDelegates();
+                    }
+                });
+                animator.start();
             }
         } else if (force) {
             mIsActive = isActive;
             if (mCardViewHolder != null) {
-                if (isActive) {
-                    mCardViewHolder.sensorSelectionArea.setVisibility(View.VISIBLE);
-                    mCardViewHolder.sensorSelectionArea.setTranslationY(0);
-                } else {
-                    mCardViewHolder.sensorSelectionArea.setVisibility(View.GONE);
-                    mCardViewHolder.sensorSelectionArea.setTranslationY(
-                            -1 * mCardViewHolder.getContext().getResources().getDimensionPixelSize(
-                                    R.dimen.sensor_tablayout_height));
-                }
+                mCardViewHolder.sensorSelectionArea.getLayoutParams().height = isActive ?
+                        expandedHeight : 0;
                 resetTabTouchDelegates();
-                mCardViewHolder.sensorSelectionArea.invalidate();
+                mCardViewHolder.sensorSelectionArea.requestLayout();
             }
         }
-        updateButtonsVisibility();
+        updateButtonsVisibility(!force);
         refreshTabLayout();
-    }
-
-    /**
-     * Sets the background of the sensor selection area for animation to avoid seams.
-     *
-     * @param animating if {@code true}, set to color appropriate for animation, otherwise set to
-     *                  color appropriate for static.
-     */
-    private void setSensorSelectionBackgroundColorForAnimation(boolean animating) {
-        if (mLayout.cardView == GoosciSensorLayout.SensorLayout.METER) {
-            // Only care if this is meter mode. If no longer animating, set to null to avoid
-            // overdraw.
-            ((View) mCardViewHolder.sensorSelectionArea.getParent())
-                    .setBackground(animating ?
-                            mCardViewHolder.meterViewGroup.getBackground() : null);
-        }
     }
 
     private void resetTabTouchDelegates() {
@@ -1190,21 +1133,21 @@ public class SensorCardPresenter {
         mSingleCardPresenterHeight = singleCardPresenterHeight;
     }
 
-    private void updateButtonsVisibility() {
+    private void updateButtonsVisibility(boolean animate) {
         if (mCardViewHolder == null) {
             return;
         }
         Resources resources = mCardViewHolder.toggleButton.getResources();
-        if (mIsActive) {
-            mCardViewHolder.toggleButton.setContentDescription(resources.getString(
-                    R.string.btn_sensor_card_contract));
-            mCardViewHolder.toggleButton.setImageDrawable(resources.getDrawable(
-                    R.drawable.ic_expand_less_white_24dp));
+        mCardViewHolder.toggleButton.setContentDescription(resources.getString(
+                mIsActive ? R.string.btn_sensor_card_contract : R.string.btn_sensor_card_expand));
+        float desiredRotation = mIsActive ? 0 : -180;
+        if (animate) {
+            mCardViewHolder.toggleButton.animate()
+                    .rotation(desiredRotation)
+                    .setDuration(ANIMATION_TIME_MS)
+                    .start();
         } else {
-            mCardViewHolder.toggleButton.setContentDescription(resources.getString(
-                    R.string.btn_sensor_card_expand));
-            mCardViewHolder.toggleButton.setImageDrawable(resources.getDrawable(
-                    R.drawable.ic_expand_more_white_24dp));
+            mCardViewHolder.toggleButton.setRotation(desiredRotation);
         }
     }
 
@@ -1338,7 +1281,7 @@ public class SensorCardPresenter {
             ViewGroup.LayoutParams params = mCardViewHolder.toggleButtonSpacer.getLayoutParams();
             params.width = toggleButtonSpacerWidth;
             mCardViewHolder.toggleButtonSpacer.setLayoutParams(params);
-            updateButtonsVisibility();
+            updateButtonsVisibility(true /* animate */);
             // Close the menu, because options change when recording starts.
             if (mPopupMenu != null) {
                 mPopupMenu.dismiss();
