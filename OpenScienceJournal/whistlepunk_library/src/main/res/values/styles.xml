@@ -97,7 +97,7 @@
     </style>
 
     <style name="NavigationView" parent="NoBarTheme">
-        <item name="colorControlHighlight">@color/background_color</item>
+        <item name="colorControlHighlight">@color/nav_item_background_color</item>
         <item name="colorPrimary">@color/color_primary</item>
     </style>
 

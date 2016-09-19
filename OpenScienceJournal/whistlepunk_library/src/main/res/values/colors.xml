@@ -57,6 +57,7 @@
     <color name="color_accent">#4285F4</color>
     <color name="color_accent_dark">#3367D6</color>
     <color name="background_color">#ebebeb</color>
+    <color name="nav_item_background_color">#e0e0e0</color>
     <color name="sensor_tab_indicator_color">#fff8f081</color>
     <color name="sensor_card_meter_view_color">#f0f0f0</color>
     <color name="recording_toolbar_color">#d9453d</color>
