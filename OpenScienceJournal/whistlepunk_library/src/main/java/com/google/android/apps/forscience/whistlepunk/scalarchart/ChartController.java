@@ -227,11 +227,7 @@ public class ChartController {
     }
 
     public void onDestroy() {
-        if (mChartView != null) {
-            mChartView.clearInteractionListeners();
-            mInteractionListener = null;
-            mChartView = null;
-        }
+        onViewRecycled();
         mChartData.clear();
         mCurrentLoadIds.clear();
         mChartDataLoadedCallbacks.clear();
@@ -240,6 +236,7 @@ public class ChartController {
     public void onViewRecycled() {
         if (mChartView != null) {
             mChartView.clearInteractionListeners();
+            mInteractionListener = null;
             mChartView = null;
         }
     }
