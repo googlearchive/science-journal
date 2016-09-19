@@ -24,13 +24,6 @@
     />
 
     <CheckBoxPreference
-        android:key="enable_barometer_sensor"
-        android:defaultValue="false"
-        android:title="@string/enable_barometer_sensor_title"
-        android:summary="@string/enable_barometer_sensor_summary"
-        />
-
-    <CheckBoxPreference
         android:key="enable_ambient_temp_sensor"
         android:defaultValue="false"
         android:title="@string/enable_temperature_sensor_title"

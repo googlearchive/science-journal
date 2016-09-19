@@ -1035,12 +1035,6 @@
     <!-- Summary of developer option to display a magnetic sensor [CHAR_LIMIT=none] -->
     <string name="enable_magnetometer_sensor_summary">Enable experimental magnetometer sensor</string>
 
-    <!-- Title of developer option to enable a barometer sensor [CHAR_LIMIT=35] -->
-    <string name="enable_barometer_sensor_title">Enable barometer</string>
-
-    <!-- Summary of developer option to display a barometer sensor [CHAR_LIMIT=none] -->
-    <string name="enable_barometer_sensor_summary">Enable experimental barometer sensor</string>
-
     <!-- Title of developer option to enable an ambient temperature sensor [CHAR_LIMIT=35] -->
     <string name="enable_temperature_sensor_title">Enable ambient temperature</string>
 

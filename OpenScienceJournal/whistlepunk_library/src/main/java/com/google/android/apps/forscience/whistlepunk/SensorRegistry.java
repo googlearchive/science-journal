@@ -177,10 +177,8 @@ public class SensorRegistry {
             }
         }
 
-        if (DevOptionsFragment.isBarometerEnabled(context)) {
-            if (BarometerSensor.isBarometerSensorAvailable(context.getApplicationContext())) {
-                addBuiltInSensor(new BarometerSensor());
-            }
+        if (BarometerSensor.isBarometerSensorAvailable(context.getApplicationContext())) {
+            addBuiltInSensor(new BarometerSensor());
         }
 
         if (DevOptionsFragment.isAmbientTemperatureSensorEnabled(context)) {
