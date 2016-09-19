@@ -284,7 +284,7 @@ public class ProxyRecorderControllerTest {
 
     private class RecorderControllerTestImpl extends  RecorderControllerImpl {
         RecorderControllerTestImpl(RecorderListenerRegistry listenerRegistry) {
-            super(null, mRegistry, mEnvironment, listenerRegistry, Uri.EMPTY, null,
+            super(null, mRegistry, mEnvironment, listenerRegistry, null,
                     DATA_CONTROLLER);
             this.setRecordActivityInForeground(true);
         }
