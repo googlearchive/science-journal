@@ -102,7 +102,7 @@
 
     <dimen name="project_thumb_height">150dp</dimen>
 
-    <dimen name="sensor_tablayout_height">40dp</dimen>
+    <dimen name="sensor_tablayout_height">48dp</dimen>
     <dimen name="sensor_tablayout_margin_side">16dp</dimen>
     <dimen name="sensor_tab_indicator_height">4dp</dimen>
     <dimen name="sensor_tab_padding">6dp</dimen>

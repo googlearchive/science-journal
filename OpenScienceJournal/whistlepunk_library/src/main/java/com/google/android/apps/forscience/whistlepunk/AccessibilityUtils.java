@@ -65,54 +65,6 @@ public final class AccessibilityUtils {
         });
     }
 
-    /**
-     * This is specific to SensorTabLayout because it needs to know about the number of ancestors
-     * of the sensor tab, and it only increases the height (not the width).
-     * This may be fragile if the SensorTabLayout is moved in the view tree.
-     * @param viewsToDelegate A list of views who need TouchDelegates to increase their
-     *                        clickable area in one ancestor.
-     * @param ancestor The ancestor on which to set TouchDelegate for the views. This ancestor
-     *                 must contain the full rect for the TouchDelegate for the views.
-     */
-    public static void setTouchDelegateForSensorTabs(final View viewsToDelegate[],
-                                                     final View ancestor) {
-        if (viewsToDelegate == null || viewsToDelegate.length == 0 || ancestor == null ||
-                viewsToDelegate[0] == null) {
-            return;
-        }
-        final View parent = (View) viewsToDelegate[0].getParent();
-        final View gParent = (View) parent.getParent(); // tablayout
-        final View ggParent = (View) gParent.getParent(); // sensor_selection_tab_holder
-        final View gggParent = (View) ggParent.getParent(); // sensor_selection_area
-        ancestor.post(new Runnable() {
-            @Override
-            public void run() {
-                if (viewsToDelegate == null || viewsToDelegate.length == 0 || ancestor == null) {
-                    return;
-                }
-                int a11ySize = ancestor.getContext().getResources()
-                        .getDimensionPixelSize(R.dimen.accessibility_touch_target_min_size);
-                // Need to shift the rect into the coordinates of the rect by adding the top offset
-                // of all the intermediate ancestors.
-                int shift = parent.getTop() + gParent.getTop() + ggParent.getTop() +
-                        gggParent.getTop();
-
-                List<TouchDelegate> touchDelegates = new ArrayList<TouchDelegate>();
-                for (int i = 0; i < viewsToDelegate.length; i++) {
-                    View next = viewsToDelegate[i];
-                    if (next != null) {
-                        Rect rect = new Rect();
-                        next.getHitRect(rect);
-                        rect.top += shift;
-                        rect.bottom = Math.max(rect.top + a11ySize, rect.bottom);
-                        touchDelegates.add(new TouchDelegate(rect, next));
-                    }
-                }
-                ancestor.setTouchDelegate(new TouchDelegateGroup(ancestor, touchDelegates));
-            }
-        });
-    }
-
     @VisibleForTesting
     public static void resizeRect(int a11ySize, Rect rect) {
         int heightToShift = (int) Math.ceil((a11ySize - rect.height()) / 2.0);

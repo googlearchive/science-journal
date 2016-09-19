@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
+import android.support.design.widget.TabLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -40,7 +41,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public ChartView chartView;
     public ViewGroup sensorTabHolder;
     public View sensorSelectionArea;
-    public ScrollListenerTabLayout sensorTabLayout;
+    public TabLayout sensorTabLayout;
     public StatsList graphStatsList;
     public StatsList meterStatsList;
     public SensorCardHeader header;
@@ -72,8 +73,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
         chartView = (ChartView) itemView.findViewById(R.id.chart_view);
         sensorSelectionArea = itemView.findViewById(R.id.sensor_selection_area);
-        sensorTabLayout = (ScrollListenerTabLayout) itemView.findViewById(
-                R.id.sensor_selector_tab_layout);
+        sensorTabLayout = (TabLayout) itemView.findViewById(R.id.sensor_selector_tab_layout);
         sensorTabHolder = (ViewGroup) itemView.findViewById(R.id.sensor_selection_tab_holder);
         graphStatsList = (StatsList) itemView.findViewById(R.id.stats_drawer);
         meterStatsList = (StatsList) itemView.findViewById(R.id.stats_view_meter);

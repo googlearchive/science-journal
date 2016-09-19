@@ -33,9 +33,6 @@
         android:layout_height="wrap_content"
         >
 
-        <!-- NOTE: If any changes are made to ancestry of the TabLayout, compensating changes
-            must be made in AccessibilityUtils.setTouchDelegateForSensorTabs, which assumes
-            ancestry information. -->
         <RelativeLayout
             android:id="@+id/sensor_selection_area"
             android:layout_width="match_parent"

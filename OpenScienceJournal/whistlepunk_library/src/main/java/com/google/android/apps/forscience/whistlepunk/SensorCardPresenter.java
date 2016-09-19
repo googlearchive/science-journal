@@ -490,16 +490,7 @@ public class SensorCardPresenter {
         mCardViewHolder.sensorTabHolder.removeAllViews();
         LayoutInflater.from(mCardViewHolder.getContext()).inflate(
                 R.layout.sensor_selector_tab_layout, mCardViewHolder.sensorTabHolder, true);
-        mCardViewHolder.sensorTabLayout =
-                (ScrollListenerTabLayout) mCardViewHolder.sensorTabHolder.getChildAt(0);
-        mCardViewHolder.sensorTabLayout.setScrollListener(
-                new ScrollListenerTabLayout.TabLayoutScrollListener() {
-                    @Override
-                    public void onScrollChanged(int l, int t, int oldl, int oldt) {
-                        resetTabTouchDelegates();
-                    }
-        });
-
+        mCardViewHolder.sensorTabLayout = (TabLayout) mCardViewHolder.sensorTabHolder.getChildAt(0);
         mCardViewHolder.sensorTabLayout.setOnTabSelectedListener(mOnTabSelectedListener);
         if (!TextUtils.isEmpty(mSensorId)) {
             initializeSensorTabs(mSensorId);
@@ -620,18 +611,17 @@ public class SensorCardPresenter {
     }
 
     public void onViewRecycled() {
-    	if (mCardViewHolder != null) {
-    	    mCardViewHolder.sensorTabLayout.setOnTabSelectedListener(null);
-    	    mCardViewHolder.sensorTabLayout.setScrollListener(null);
-    	    mCardViewHolder.flipButton.setOnClickListener(null);
-    	    mCardViewHolder.menuButton.setOnClickListener(null);
-    	    mCardViewHolder.infoButton.setOnClickListener(null);
-    	    mCardViewHolder.graphStatsList.setOnClickListener(null);
-    	    mCardViewHolder.meterStatsList.clearStats();
-    	    mCardViewHolder.graphStatsList.clearStats();
-    	    mCardViewHolder.meterLiveData.setText("");
-    	    mCardViewHolder.meterLiveData.resetTextSize();
-    	}
+        if (mCardViewHolder != null) {
+            mCardViewHolder.sensorTabLayout.setOnTabSelectedListener(null);
+            mCardViewHolder.flipButton.setOnClickListener(null);
+            mCardViewHolder.menuButton.setOnClickListener(null);
+            mCardViewHolder.infoButton.setOnClickListener(null);
+            mCardViewHolder.graphStatsList.setOnClickListener(null);
+            mCardViewHolder.meterStatsList.clearStats();
+            mCardViewHolder.graphStatsList.clearStats();
+            mCardViewHolder.meterLiveData.setText("");
+            mCardViewHolder.meterLiveData.resetTextSize();
+        }
         if (mSensorPresenter != null) {
             mSensorPresenter.onViewRecycled();
         }
@@ -937,7 +927,6 @@ public class SensorCardPresenter {
             public void run() {
                 if (mCardViewHolder != null) {
                     mCardViewHolder.sensorTabLayout.requestLayout();
-                    resetTabTouchDelegates();
                 }
             }
         });
@@ -1043,12 +1032,6 @@ public class SensorCardPresenter {
                         mCardViewHolder.sensorSelectionArea.requestLayout();
                     }
                 });
-                animator.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        resetTabTouchDelegates();
-                    }
-                });
                 animator.start();
             }
         } else if (force) {
@@ -1056,29 +1039,11 @@ public class SensorCardPresenter {
             if (mCardViewHolder != null) {
                 mCardViewHolder.sensorSelectionArea.getLayoutParams().height = isActive ?
                         expandedHeight : 0;
-                resetTabTouchDelegates();
                 mCardViewHolder.sensorSelectionArea.requestLayout();
             }
         }
         updateButtonsVisibility(!force);
         refreshTabLayout();
-    }
-
-    private void resetTabTouchDelegates() {
-        if (!isActive()) {
-            mCardViewHolder.itemView.setTouchDelegate(null);
-            return;
-        }
-        // TODO This doesn't need to be called every single time we make the card active, instead
-        // we could call it the first time we activate the card with a given set of views.
-        int size = mAvailableSensorIds.size();
-        View[] children = new View[size];
-        for (int i = 0; i < size; i++) {
-            // The tab itself is two views into the tab layout.
-            View child = ((ViewGroup) mCardViewHolder.sensorTabLayout.getChildAt(0)).getChildAt(i);
-            children[i] = child;
-        }
-        AccessibilityUtils.setTouchDelegateForSensorTabs(children, mCardViewHolder.itemView);
     }
 
     public boolean isActive() {
