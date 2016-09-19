@@ -170,7 +170,7 @@ public class TriggerHelper {
         } else if (when == TriggerInformation.TRIGGER_WHEN_ABOVE) {
             result = res.getString(R.string.trigger_when_above_description, action, value, units);
         } else if (when == TriggerInformation.TRIGGER_WHEN_BELOW) {
-            result = res.getString(R.string.trigger_when_above_description, action, value, units);
+            result = res.getString(R.string.trigger_when_below_description, action, value, units);
         }
         return result;
     }
