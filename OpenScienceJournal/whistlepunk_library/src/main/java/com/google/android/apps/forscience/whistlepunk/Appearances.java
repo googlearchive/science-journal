@@ -34,7 +34,7 @@ public final class Appearances {
      * Not thread-safe: only call from main thread!
      */
     public static void applyDrawableToImageView(Drawable drawable, ImageView view, int color) {
-        drawable.setColorFilter(color, PorterDuff.Mode.MULTIPLY);
+        drawable.mutate().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
         view.setImageDrawable(drawable);
     }
 
