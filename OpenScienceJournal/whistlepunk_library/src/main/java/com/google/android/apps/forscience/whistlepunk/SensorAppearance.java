@@ -18,12 +18,34 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
+import com.google.android.apps.forscience.javalib.Consumer;
+
 import java.text.NumberFormat;
 
 /**
  * How a sensor appears in the app
  */
 public interface SensorAppearance {
+    /**
+     * The contents of the LEARN MORE screen
+     */
+    public interface LearnMoreContents {
+        /**
+         * @return the text that appears above the image
+         */
+        String getFirstParagraph();
+
+        /**
+         * @return an optional image that goes in the middle
+         */
+        Drawable getDrawable();
+
+        /**
+         * @return optionally, text that comes after the image in LEARN MORE
+         */
+        String getSecondParagraph();
+    }
+
     /**
      * @return the user-meaningful name of the sensor (localized)
      */
@@ -54,18 +76,7 @@ public interface SensorAppearance {
      */
     NumberFormat getNumberFormat();
 
-    /**
-     * @return in LEARN MORE, the text that appears above the image
-     */
-    String getFirstLearnMoreParagraph(Context context);
+    boolean hasLearnMore();
 
-    /**
-     * @return an optional image that goes in the middle of LEARN MORE
-     */
-    Drawable getLearnMoreDrawable(Context context);
-
-    /**
-     * @return optionally, text that comes after the image in LEARN MORE
-     */
-    String getSecondLearnMoreParagraph(Context context);
+    void loadLearnMore(Context context, Consumer<LearnMoreContents> onLoad);
 }

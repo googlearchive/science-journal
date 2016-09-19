@@ -25,6 +25,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.javalib.Consumer;
+
 /**
  * Activity to display static information about a sensor.
  */
@@ -51,11 +53,11 @@ public class SensorInfoActivity extends AppCompatActivity {
         }
         */
 
-        TextView firstParagraph = (TextView) findViewById(R.id.info_first_paragraph);
-        TextView secondParagraph = (TextView) findViewById(R.id.info_second_paragraph);
-        ImageView imageView = (ImageView) findViewById(R.id.info_image);
+        final TextView firstParagraph = (TextView) findViewById(R.id.info_first_paragraph);
+        final TextView secondParagraph = (TextView) findViewById(R.id.info_second_paragraph);
+        final ImageView imageView = (ImageView) findViewById(R.id.info_image);
 
-        SensorAppearance appearance = AppSingleton.getInstance(this)
+        final SensorAppearance appearance = AppSingleton.getInstance(this)
                 .getSensorAppearanceProvider().getAppearance(sensorId);
         if (appearance == null) {
             firstParagraph.setText(getResources().getString(R.string.unknown_sensor));
@@ -67,18 +69,24 @@ public class SensorInfoActivity extends AppCompatActivity {
                 getResources().getString(R.string.title_activity_sensor_info_format),
                 appearance.getName(this)));
 
-        firstParagraph.setText(appearance.getFirstLearnMoreParagraph(this));
-        secondParagraph.setText(appearance.getSecondLearnMoreParagraph(this));
-        Drawable drawable = appearance.getLearnMoreDrawable(this);
-        if (drawable != null) {
-            ViewGroup.LayoutParams params = imageView.getLayoutParams();
-            params.width = drawable.getIntrinsicWidth();
-            params.height = drawable.getIntrinsicHeight();
-            imageView.setLayoutParams(params);
-            imageView.setImageDrawable(drawable);
-        } else {
-            imageView.setVisibility(View.GONE);
-        }
+        // TODO: loading UX needed?  (b/31589508)
+        appearance.loadLearnMore(this, new Consumer<SensorAppearance.LearnMoreContents>() {
+            @Override
+            public void take(SensorAppearance.LearnMoreContents contents) {
+                firstParagraph.setText(contents.getFirstParagraph());
+                secondParagraph.setText(contents.getSecondParagraph());
+                Drawable drawable = contents.getDrawable();
+                if (drawable != null) {
+                    ViewGroup.LayoutParams params = imageView.getLayoutParams();
+                    params.width = drawable.getIntrinsicWidth();
+                    params.height = drawable.getIntrinsicHeight();
+                    imageView.setLayoutParams(params);
+                    imageView.setImageDrawable(drawable);
+                } else {
+                    imageView.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     @Override
