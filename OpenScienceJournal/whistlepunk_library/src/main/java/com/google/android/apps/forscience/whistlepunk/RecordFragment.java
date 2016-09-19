@@ -940,9 +940,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             startObserving(sensorId, sensorCardPresenter);
             sensorCardPresenter.setRecording(getRecordingStartTime());
         }
-        if (!retry) {
-            mExternalAxis.resetAxes();
-        }
+        mExternalAxis.resetAxes();
         updateSensorLayout(sensorCardPresenter.buildLayout());
         updateAvailableSensors();
     }
