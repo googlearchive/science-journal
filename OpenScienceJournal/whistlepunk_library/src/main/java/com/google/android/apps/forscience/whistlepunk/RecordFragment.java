@@ -784,7 +784,13 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 (RecyclerView) rootView.findViewById(R.id.sensor_card_recycler_view);
         mSensorCardRecyclerView.setLayoutManager(mSensorCardLayoutManager);
         mSensorCardRecyclerView.setAdapter(mSensorCardAdapter);
-        mSensorCardRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mSensorCardRecyclerView.setItemAnimator(new DefaultItemAnimator() {
+
+            @Override
+            public void onMoveFinished(RecyclerView.ViewHolder item) {
+                adjustSensorCardAddAlpha();
+            }
+        });
         mSensorCardRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
             @Override
