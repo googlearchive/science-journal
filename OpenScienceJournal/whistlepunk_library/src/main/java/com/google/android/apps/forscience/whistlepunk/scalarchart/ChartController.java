@@ -416,7 +416,7 @@ public class ChartController {
     public void setRecordingStartTime(long recordingStartTime) {
         mChartOptions.setRecordingStartTime(recordingStartTime);
         if (mChartView != null) {
-            mChartView.invalidate();
+            mChartView.postInvalidateOnAnimation();
         }
     }
 
@@ -430,7 +430,7 @@ public class ChartController {
     public void setShowStatsOverlay(boolean showStatsOverlay) {
         mChartOptions.setShowStatsOverlay(showStatsOverlay);
         if (mChartView != null) {
-            mChartView.invalidate();
+            mChartView.postInvalidateOnAnimation();
         }
     }
 
