@@ -875,12 +875,14 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             @Override
             public void onSourceError(String id, int error, String errorMessage) {
                 if (Objects.equals(id, sensorCardPresenter.getSelectedSensorId())) {
-                    // Surface the error to the user.
-                    sensorCardPresenter.onSourceError(true /* has an error */);
-                    Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
-                            getString(R.string.snackbar_source_error, errorMessage),
-                            Snackbar.LENGTH_LONG);
-                    showSnackbar(bar);
+                    // Surface the error to the user if we haven't already.
+                    if (!sensorCardPresenter.hasError()) {
+                        sensorCardPresenter.onSourceError(true /* has an error */);
+                        Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
+                                getString(R.string.snackbar_source_error, errorMessage),
+                                Snackbar.LENGTH_LONG);
+                        showSnackbar(bar);
+                    }
                 }
             }
         };
@@ -936,10 +938,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         getActivity().getApplicationContext(),
                         /* don't show the retry button */ false);
             }
-        } else {
-            startObserving(sensorId, sensorCardPresenter);
-            sensorCardPresenter.setRecording(getRecordingStartTime());
         }
+        startObserving(sensorId, sensorCardPresenter);
+        sensorCardPresenter.setRecording(getRecordingStartTime());
         mExternalAxis.resetAxes();
         updateSensorLayout(sensorCardPresenter.buildLayout());
         updateAvailableSensors();

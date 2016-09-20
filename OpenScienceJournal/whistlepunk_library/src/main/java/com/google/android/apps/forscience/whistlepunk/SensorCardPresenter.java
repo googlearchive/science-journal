@@ -255,7 +255,6 @@ public class SensorCardPresenter {
     public void onSourceError(boolean hasError) {
         mHasError = hasError;
         updateStatusUi();
-        stopObserving();
     }
 
     private void updateAudio(boolean enabled, String sonificationType) {
@@ -360,12 +359,6 @@ public class SensorCardPresenter {
                     }
                 }, getSensorStatusListener(),
                 AbstractReadableSensorOptions.makeTransportable(readOptions));
-        if (mHasError || mSensorPresenter == null) {
-            // If there was an error when starting observing, then that call may have caused a
-            // cascade that stopped observing. Then the sensor presenter may be null here. Do not
-            // continue starting observing in that case!
-            return;
-        }
         if (mSourceStatus == SensorStatusListener.STATUS_CONNECTED && mParentFragment != null) {
             updateAudio(mLayout.audioEnabled, getSonificationType(mParentFragment.getActivity()));
         }
@@ -375,7 +368,7 @@ public class SensorCardPresenter {
             // The first time we start observing on a sensor, we can load the minimum and maximum
             // y values from the layout. If the sensor is changed, we don't want to keep loading the
             // old min and max values.
-            if (mLayout.minimumYAxisValue < mLayout.maximumYAxisValue){
+            if (mLayout.minimumYAxisValue < mLayout.maximumYAxisValue) {
                 mSensorPresenter.setYAxisRange(mLayout.minimumYAxisValue,
                         mLayout.maximumYAxisValue);
             }
@@ -1317,5 +1310,9 @@ public class SensorCardPresenter {
             return false;
         }
         return true;
+    }
+
+    public boolean hasError() {
+        return mHasError;
     }
 }
