@@ -989,17 +989,17 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
-    public LoggingConsumer<Label> onLabelAdd() {
+    public LoggingConsumer<Label> onLabelAdd(Label label) {
         return  new LoggingConsumer<Label>(TAG, "add label") {
             @Override
-            public void success(Label label) {
-                mPinnedNoteAdapter.insertNote(label);
+            public void success(Label newLabel) {
+                mPinnedNoteAdapter.insertNote(newLabel);
                 mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
                 WhistlePunkApplication.getUsageTracker(getActivity())
                         .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                 TrackerConstants.ACTION_CREATE,
                                 TrackerConstants.LABEL_RUN_REVIEW,
-                                TrackerConstants.getLabelValueType(label));
+                                TrackerConstants.getLabelValueType(newLabel));
             }
         };
     }

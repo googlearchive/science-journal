@@ -67,9 +67,10 @@ public class AddNoteDialog extends DialogFragment {
         /**
          * Called when a label is being added to the database. Return value is passed to data
          * controller during the label add.
+         * @param label    label about to be added. Can be edited here.
          * @return A MaybeConsumer of labels.
          */
-        MaybeConsumer<Label> onLabelAdd();
+        MaybeConsumer<Label> onLabelAdd(Label label);
 
         /**
          * Called when the timestamp section is clicked. Note that this is only used if
@@ -316,7 +317,7 @@ public class AddNoteDialog extends DialogFragment {
                 getDataController().generateNewLabelId(), mRunId, mTimestamp);
         label.setExperimentId(mExperimentId);
         getDataController().addLabel(label,
-                ((AddNoteDialogListener) getParentFragment()).onLabelAdd());
+                ((AddNoteDialogListener) getParentFragment()).onLabelAdd(label));
     }
 
     private void addPictureLabel() {
@@ -325,7 +326,7 @@ public class AddNoteDialog extends DialogFragment {
                 mTimestamp);
         label.setExperimentId(mExperimentId);
         getDataController().addLabel(label,
-                ((AddNoteDialogListener) getParentFragment()).onLabelAdd());
+                ((AddNoteDialogListener) getParentFragment()).onLabelAdd(label));
         PictureUtils.scanFile(mPictureLabelPath, getParentFragment().getActivity());
         mPictureLabelPath = null;
     }
