@@ -426,7 +426,7 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     @Override
-    public LoggingConsumer<Label> onLabelAdd() {
+    public LoggingConsumer<Label> onLabelAdd(Label label) {
         return  new LoggingConsumer<Label>(TAG, "add label") {
             @Override
             public void success(Label value) {

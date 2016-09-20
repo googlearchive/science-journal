@@ -67,6 +67,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
@@ -89,6 +90,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.collect.Lists;
 
+import java.io.File;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,6 +100,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
         Handler.Callback, StopRecordingNoDataDialog.StopRecordingDialogListener,
@@ -990,7 +993,18 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     @Override
-    public LoggingConsumer<Label> onLabelAdd() {
+    public LoggingConsumer<Label> onLabelAdd(Label label) {
+        if (label instanceof PictureLabel) {
+            // We want to set the time stamp of this label to the time of the picture
+            PictureLabel pictureLabel = (PictureLabel) label;
+            File file = new File(pictureLabel.getAbsoluteFilePath());
+            // Check to make sure this value is not crazy: should be within 10 minutes of now and
+            // not from the future.
+            long delta = System.currentTimeMillis() - file.lastModified();
+            if (delta < TimeUnit.MINUTES.toMillis(10) && delta > 0) {
+                label.setTimestamp(file.lastModified());
+            }
+        }
         return new LoggingConsumer<Label>(TAG, "store label") {
             @Override
             public void success(Label value) {
