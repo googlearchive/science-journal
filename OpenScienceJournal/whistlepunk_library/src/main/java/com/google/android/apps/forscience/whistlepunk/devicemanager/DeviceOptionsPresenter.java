@@ -15,9 +15,12 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.app.PendingIntent;
+
 /**
  * interface for presenting options for a given sensor within a given experiment
  */
 public interface DeviceOptionsPresenter {
-    void showDeviceOptions(String experimentId, String sensorId);
+    void showDeviceOptions(String experimentId, String sensorId,
+            PendingIntent externalSettingsIntent);
 }

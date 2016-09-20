@@ -23,7 +23,7 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.AccumulatingConsumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 // TODO: make this a non-device test
@@ -33,9 +33,10 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
         final ScalarInputScenario s = new ScalarInputScenario();
         ScalarInputDiscoverer sid = s.buildDiscoverer();
 
-        AccumulatingConsumer<ExternalSensorSpec> c = new AccumulatingConsumer<>();
+        AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
+                new AccumulatingConsumer<>();
         assertEquals(true, sid.startScanning(c, TestConsumers.expectingSuccess(), getContext()));
-        ExternalSensorSpec sensor = c.getOnlySeen();
+        ExternalSensorSpec sensor = c.getOnlySeen().getSpec();
         ScalarInputSpec spec = (ScalarInputSpec) sensor;
         assertEquals(s.getSensorName(), spec.getName());
         assertEquals(s.getSensorAddress(), spec.getSensorAddressInService());
@@ -71,7 +72,8 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
                     }
                 }, null);
 
-        AccumulatingConsumer<ExternalSensorSpec> c = new AccumulatingConsumer<>();
+        AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
+                new AccumulatingConsumer<>();
         assertEquals(true, sid.startScanning(c, TestConsumers.expectingFailure(
                 new FailureListener() {
                     @Override

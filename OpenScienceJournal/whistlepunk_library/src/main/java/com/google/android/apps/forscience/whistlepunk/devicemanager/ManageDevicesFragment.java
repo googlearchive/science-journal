@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.app.PendingIntent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -129,7 +130,11 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
     }
 
     @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
+            final Preference preference) {
+        final PendingIntent settingsIntent =
+                mConnectableSensorRegistry.getSettingsIntentFromPreference(preference);
+
         if (preference.getKey() != null) {
             if (!mConnectableSensorRegistry.getIsPairedFromPreference(preference)) {
                 mConnectableSensorRegistry.addExternalSensorIfNecessary(mExperimentId, preference,
@@ -139,11 +144,12 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
                                 if (LOCAL_LOGD) {
                                     Log.d(TAG, "Added sensor to experiment " + mExperimentId);
                                 }
-                                reloadAppearancesAndShowOptions(sensor);
+                                reloadAppearancesAndShowOptions(sensor, settingsIntent);
                             }
                         });
             } else {
-                mConnectableSensorRegistry.showDeviceOptions(this, mExperimentId, preference);
+                mConnectableSensorRegistry.showDeviceOptions(this, mExperimentId, preference,
+                        settingsIntent);
             }
             return true;
         }
@@ -234,20 +240,24 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
         }
     }
 
-    private void reloadAppearancesAndShowOptions(final ConnectableSensor sensor) {
+    private void reloadAppearancesAndShowOptions(final ConnectableSensor sensor,
+            final PendingIntent settingsIntent) {
         AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider()
                 .loadAppearances(new LoggingConsumer<Success>(TAG, "Load appearance") {
                     @Override
                     public void success(Success value) {
                         refresh();
-                        showDeviceOptions(mExperimentId, sensor.getConnectedSensorId());
+                        showDeviceOptions(mExperimentId, sensor.getConnectedSensorId(),
+                                settingsIntent);
                     }
                 });
     }
 
     @Override
-    public void showDeviceOptions(String experimentId, String sensorId) {
+    public void showDeviceOptions(String experimentId, String sensorId,
+            PendingIntent externalSettingsIntent) {
         // TODO: use a SettingsController subclass once it's fragmentized.
+        // TODO: use externalSettingsIntent here
         DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId, sensorId);
         dialog.show(getFragmentManager(), "edit_device");
     }

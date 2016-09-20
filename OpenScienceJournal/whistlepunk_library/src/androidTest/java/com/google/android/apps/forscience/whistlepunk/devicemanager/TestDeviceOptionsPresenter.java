@@ -15,12 +15,15 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.app.PendingIntent;
+
 class TestDeviceOptionsPresenter implements DeviceOptionsPresenter {
     public String experimentId;
     public String sensorId;
 
     @Override
-    public void showDeviceOptions(String experimentId, String sensorId) {
+    public void showDeviceOptions(String experimentId, String sensorId,
+            PendingIntent externalSettingsIntent) {
         this.experimentId = experimentId;
         this.sensorId = sensorId;
     }

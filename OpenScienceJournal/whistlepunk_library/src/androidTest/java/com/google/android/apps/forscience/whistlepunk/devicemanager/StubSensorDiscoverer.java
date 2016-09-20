@@ -24,7 +24,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 
 class StubSensorDiscoverer implements ExternalSensorDiscoverer {
     @Override
-    public boolean startScanning(Consumer<ExternalSensorSpec> onEachSensorFound,
+    public boolean startScanning(
+            Consumer<DiscoveredSensor> onEachSensorFound,
             FailureListener onScanError, Context context) {
         return false;
     }

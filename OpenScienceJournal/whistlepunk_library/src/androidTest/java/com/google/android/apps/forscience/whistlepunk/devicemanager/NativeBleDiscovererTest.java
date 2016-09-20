@@ -61,10 +61,11 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
             }
         };
 
-        AccumulatingConsumer<ExternalSensorSpec> sensorsSeen = new AccumulatingConsumer<>();
+        AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> sensorsSeen =
+                new AccumulatingConsumer<>();
         discoverer.startScanning(sensorsSeen, TestConsumers.expectingSuccess(), getContext());
         assertEquals(1, sensorsSeen.seen.size());
-        ExternalSensorSpec sensor = sensorsSeen.seen.get(0);
+        ExternalSensorSpec sensor = sensorsSeen.seen.get(0).getSpec();
         assertEquals(name, sensor.getName());
         assertEquals(address, sensor.getAddress());
         assertEquals(BleSensorSpec.TYPE, sensor.getType());

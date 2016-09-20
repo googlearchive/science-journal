@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.app.PendingIntent;
 import android.content.Context;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
@@ -59,7 +60,7 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
     }
 
     @Override
-    public boolean startScanning(final Consumer<ExternalSensorSpec> onEachSensorFound,
+    public boolean startScanning(final Consumer<DiscoveredSensor> onEachSensorFound,
             FailureListener onScanError, Context context) {
         stopScanning();
 
@@ -95,11 +96,22 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
     }
 
     private void onDeviceRecordFound(DeviceDiscoverer.DeviceRecord record,
-            Consumer<ExternalSensorSpec> onEachSensorFound) {
+            Consumer<DiscoveredSensor> onEachSensorFound) {
         WhistlepunkBleDevice device = record.device;
         String address = device.getAddress();
 
         // sensorScanCallbacks will handle duplicates
-        onEachSensorFound.take(new BleSensorSpec(address, device.getName()));
+        final BleSensorSpec spec = new BleSensorSpec(address, device.getName());
+        onEachSensorFound.take(new DiscoveredSensor() {
+            @Override
+            public ExternalSensorSpec getSpec() {
+                return spec;
+            }
+
+            @Override
+            public PendingIntent getSettingsIntent() {
+                return null;
+            }
+        });
     }
 }
