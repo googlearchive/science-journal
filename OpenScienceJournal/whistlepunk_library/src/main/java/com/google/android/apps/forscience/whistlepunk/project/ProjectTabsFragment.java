@@ -84,6 +84,7 @@ public class ProjectTabsFragment extends Fragment implements
     private TextView mEmptyView;
     private ProjectAdapter mAdapter;
     private boolean mIncludeArchived;
+    private Snackbar mUndoSnackbar;
 
     public static Fragment newInstance() {
         return new ProjectTabsFragment();
@@ -453,19 +454,27 @@ public class ProjectTabsFragment extends Fragment implements
                     R.string.delete_project_dialog_title,
                     R.string.delete_project_dialog_message, extras);
             dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
+            if (mUndoSnackbar != null) {
+                mUndoSnackbar.dismiss();
+            }
         }
 
         private void showUndoSnackbar(final Project project, final int position) {
             if (getActivity() == null) {
                 return;
             }
-            Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
+            mUndoSnackbar = AccessibilityUtils.makeSnackbar(getView(),
                     getView().getResources().getString(R.string.archived_project_message),
                     Snackbar.LENGTH_LONG);
-            bar.setAction(R.string.action_undo, new View.OnClickListener() {
+            mUndoSnackbar.setAction(R.string.action_undo, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     setProjectArchived(project, false, position);
+                }
+            }).setCallback(new Snackbar.Callback() {
+                @Override
+                public void onDismissed(Snackbar snackbar, int event) {
+                    mUndoSnackbar = null;
                 }
             }).show();
         }
