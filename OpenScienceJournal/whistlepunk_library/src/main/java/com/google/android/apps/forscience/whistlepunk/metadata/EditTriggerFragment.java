@@ -41,6 +41,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
@@ -89,6 +90,7 @@ public class EditTriggerFragment extends Fragment {
     private int mSensorLayoutPosition;
     private ViewGroup mNoteGroup;
     private ViewGroup mAlertGroup;
+    private boolean mIsSavingNewTrigger = false;
 
     public static EditTriggerFragment newInstance(String sensorId, String experimentId,
             String triggerId, byte[] triggerInfoBlob, byte[] sensorLayoutBlob,
@@ -351,6 +353,7 @@ public class EditTriggerFragment extends Fragment {
         }
 
         menu.findItem(R.id.action_save).setVisible(isNewTrigger());
+        menu.findItem(R.id.action_save).setEnabled(!mIsSavingNewTrigger);
 
         SensorAppearance appearance = AppSingleton.getInstance(getActivity())
                 .getSensorAppearanceProvider().getAppearance(mSensorId);
@@ -477,6 +480,9 @@ public class EditTriggerFragment extends Fragment {
     // before returning to the parent fragment.
     private void createNewTrigger(DataController dc, int triggerType, int triggerWhen,
             double triggerValue) {
+        // Now that the trigger is verified, make sure the save button can't be pushed again.
+        mIsSavingNewTrigger = true;
+        getActivity().invalidateOptionsMenu();
         SensorTrigger triggerToAdd = null;
         String triggerId = String.valueOf(System.currentTimeMillis());
         if (triggerType == TriggerInformation.TRIGGER_ACTION_START_RECORDING ||
@@ -492,9 +498,17 @@ public class EditTriggerFragment extends Fragment {
         }
         TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout, triggerId);
         dc.addSensorTrigger(triggerToAdd, mExperimentId,
-                new LoggingConsumer<Success>(TAG, "add trigger") {
+                new MaybeConsumer<Success>() {
+                    @Override
+                    public void fail(Exception e) {
+                        mIsSavingNewTrigger = false;
+                        getActivity().invalidateOptionsMenu();
+                    }
+
                     @Override
                     public void success(Success value) {
+                        // Since we can only save the trigger once, no need to reset
+                        // mIsSavingNewTrigger onSuccess.
                         updateSensorLayoutAndGoToParent(true);
                     }
                 });
@@ -576,7 +590,10 @@ public class EditTriggerFragment extends Fragment {
             return true;
         } else if (id == R.id.action_save) {
             // Only available for new triggers.
-            saveTriggerAndReturn();
+            if (!mIsSavingNewTrigger) {
+                // Don't allow multiple saves even if the DB is slow.
+                saveTriggerAndReturn();
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
