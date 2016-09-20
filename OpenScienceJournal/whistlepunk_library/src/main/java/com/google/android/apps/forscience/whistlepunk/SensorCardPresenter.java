@@ -360,6 +360,12 @@ public class SensorCardPresenter {
                     }
                 }, getSensorStatusListener(),
                 AbstractReadableSensorOptions.makeTransportable(readOptions));
+        if (mHasError || mSensorPresenter == null) {
+            // If there was an error when starting observing, then that call may have caused a
+            // cascade that stopped observing. Then the sensor presenter may be null here. Do not
+            // continue starting observing in that case!
+            return;
+        }
         if (mSourceStatus == SensorStatusListener.STATUS_CONNECTED && mParentFragment != null) {
             updateAudio(mLayout.audioEnabled, getSonificationType(mParentFragment.getActivity()));
         }
