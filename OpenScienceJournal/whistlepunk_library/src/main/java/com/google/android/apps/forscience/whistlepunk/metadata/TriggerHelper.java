@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 
@@ -146,10 +147,10 @@ public class TriggerHelper {
         } else if (actionType == TriggerInformation.TRIGGER_ACTION_ALERT) {
             action = res.getString(R.string.trigger_type_alert);
         }
-        String units = AppSingleton.getInstance(activity)
-                .getSensorAppearanceProvider().getAppearance(trigger.getSensorId())
-                .getUnits(activity);
-        Double value = trigger.getValueToTrigger();
+        SensorAppearance appearance = AppSingleton.getInstance(activity)
+                .getSensorAppearanceProvider().getAppearance(trigger.getSensorId());
+        String units = appearance.getUnits(activity);
+        String value = appearance.getNumberFormat().format(trigger.getValueToTrigger());
         String result = "";
         int when = trigger.getTriggerWhen();
         if (when == TriggerInformation.TRIGGER_WHEN_AT) {

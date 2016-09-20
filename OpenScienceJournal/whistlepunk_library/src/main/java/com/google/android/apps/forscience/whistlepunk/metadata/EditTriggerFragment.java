@@ -56,6 +56,8 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 
+
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -184,7 +186,9 @@ public class EditTriggerFragment extends Fragment {
         if (!isNewTrigger()) {
             // Populate the view with the trigger's data.
             int actionType = mTriggerToEdit.getActionType();
-            mValue.setText(mTriggerToEdit.getValueToTrigger().toString());
+            DecimalFormat format = new DecimalFormat("0");
+            format.setMaximumFractionDigits(100);
+            mValue.setText(format.format(mTriggerToEdit.getValueToTrigger()));
             mTypeSpinner.setSelection(actionType);
             mWhenSpinner.setSelection(mTriggerToEdit.getTriggerWhen());
             if (actionType == TriggerInformation.TRIGGER_ACTION_ALERT) {

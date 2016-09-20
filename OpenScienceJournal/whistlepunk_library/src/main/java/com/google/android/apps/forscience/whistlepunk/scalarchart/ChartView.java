@@ -660,6 +660,9 @@ public class ChartView extends View {
         int height = drawable.getIntrinsicHeight();
         for (double value : triggerValues) {
             float y = getScreenY(value);
+            if (y + height < 0 || y  - height > mHeight) {
+                continue;
+            }
             drawable.setBounds((int) (mStartPadding - width - mAxisTextStartPadding),
                     (int) y - height / 2, (int) (mStartPadding - mAxisTextStartPadding),
                     (int) y + height / 2);
