@@ -1165,19 +1165,19 @@
     <string name="cannot_save_invalid_value">You must enter a numeric value at which this trigger will fire.</string>
 
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires at a particular value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
-    <string name="trigger_when_at_description"><xliff:g id="trigger_action">%1s</xliff:g> when at <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
+    <string name="trigger_when_at_description"><xliff:g id="trigger_action">%1$s</xliff:g> when at <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
 
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires when rising above a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
-    <string name="trigger_when_rises_above_description"><xliff:g id="trigger_action">%1s</xliff:g> when rising above <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
+    <string name="trigger_when_rises_above_description"><xliff:g id="trigger_action">%1$s</xliff:g> when rising above <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
 
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires when dropping below a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
-    <string name="trigger_when_drops_below_description"><xliff:g id="trigger_action">%1s</xliff:g> when dropping below <xliff:g id="value">%.2f</xliff:g> <xliff:g id="units">%3s</xliff:g></string>
+    <string name="trigger_when_drops_below_description"><xliff:g id="trigger_action">%1$s</xliff:g> when dropping below <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
 
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires it is above a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
-    <string name="trigger_when_above_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor is above <xliff:g id="value">%2$.2f</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
+    <string name="trigger_when_above_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor is above <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
 
     <!-- String formatting string to turn a trigger into a descriptive sentence, when the trigger fires it is below a value. This should include the action, info about when the trigger is fired, the value, and the units. [CHAR_LIMIT=50]-->
-    <string name="trigger_when_below_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor is below <xliff:g id="value">%2$.2f</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
+    <string name="trigger_when_below_description"><xliff:g id="trigger_action">%1$s</xliff:g> when the sensor is below <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
 
     <!-- The text on a snackbar alerting the user that a trigger has been deleted [CHAR_LIMIT=100]-->
     <string name="sensor_trigger_deleted">Trigger deleted</string>
@@ -1212,7 +1212,7 @@
     <string name="trigger_label_auto_text"><xliff:g id="sensor_name">%1$s</xliff:g> <xliff:g id="trigger_when">%2$s</xliff:g> <xliff:g id="trigger_value">%3$.2f</xliff:g> <xliff:g id="sensor_units">%4$s</xliff:g></string>
 
     <!-- The content description for the auto generated text on a note from a trigger [CHAR_LIMIT=NONE] -->
-    <string name="trigger_label_icon_content_description">Trigger note: <xliff:g id="trigger description">%s</xliff:g></string>
+    <string name="trigger_label_icon_content_description">Trigger note: <xliff:g id="trigger description">%1$s</xliff:g></string>
 
     <!-- The format for a floating point data value when displayed to the user. This has more significant figures than on the Y axis. DO NOT TRANSLATE -->
     <string name="run_review_chart_label_format"><xliff:g id="value">%.2f</xliff:g></string>
