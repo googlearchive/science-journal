@@ -90,7 +90,8 @@ public class ScalarInputScenario {
                                             ISensorConsumer c)
                                             throws RemoteException {
                                         Assert.assertEquals(getDeviceId(), actualDeviceId);
-                                        c.onSensorFound(getSensorAddress(), getSensorName(), null);
+                                        c.onSensorFound(getSensorAddress(), getSensorName(), null,
+                                                null);
                                     }
 
                                     @Override

@@ -32,6 +32,7 @@ android {
             java {
                 srcDir '../../third_party/jsyn'
                 srcDir 'src/api/wireapi/java'
+                srcDir 'src/api/scalarinput/java'
             }
             proto {
                 srcDir 'src/main/proto'

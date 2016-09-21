@@ -135,15 +135,9 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
 
     public void testDuplicateSensorAdded() {
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
-        ExternalSensorDiscoverer dupeDiscoverer = new StubSensorDiscoverer() {
-            @Override
-            public boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
-                    FailureListener onScanError, Context context) {
-                onEachSensorFound.take(discovered(new BleSensorSpec("address", "name")));
-                onEachSensorFound.take(discovered(new BleSensorSpec("address", "name")));
-                return true;
-            }
-        };
+
+        ExternalSensorDiscoverer dupeDiscoverer = makeDiscovererThatWillDiscover(
+                new BleSensorSpec("address", "name"), new BleSensorSpec("address", "name"));
         discoverers.put("type", dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers, getContext());
@@ -170,16 +164,9 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     }
 
     public void testDontAddAvailableWhenAlreadyPaired() {
-        // SAFF: DUP above?
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
-        ExternalSensorDiscoverer dupeDiscoverer = new StubSensorDiscoverer() {
-            @Override
-            public boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
-                    FailureListener onScanError, Context context) {
-                onEachSensorFound.take(discovered(new BleSensorSpec("address", "name")));
-                return true;
-            }
-        };
+        ExternalSensorDiscoverer dupeDiscoverer = makeDiscovererThatWillDiscover(
+                new BleSensorSpec("address", "name"));
         discoverers.put("type", dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers, getContext());
@@ -198,19 +185,11 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
 
     public void testDifferentConfigIsDuplicate() {
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
-        ExternalSensorDiscoverer d = new StubSensorDiscoverer() {
-            @Override
-            public boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
-                    FailureListener onScanError, Context context) {
-                BleSensorSpec spec1 = new BleSensorSpec("address", "name");
-                spec1.setCustomPin("A1");
-                BleSensorSpec spec2 = new BleSensorSpec("address", "name");
-                spec2.setCustomPin("A2");
-                onEachSensorFound.take(discovered(spec1));
-                onEachSensorFound.take(discovered(spec2));
-                return true;
-            }
-        };
+        BleSensorSpec spec1 = new BleSensorSpec("address", "name");
+        spec1.setCustomPin("A1");
+        BleSensorSpec spec2 = new BleSensorSpec("address", "name");
+        spec2.setCustomPin("A2");
+        ExternalSensorDiscoverer d = makeDiscovererThatWillDiscover(spec1, spec2);
         discoverers.put("type", d);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers, getContext());
@@ -238,6 +217,19 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         // Should move sensor from available to paired
         assertEquals(1, mPairedDevices.prefs.size());
         assertEquals(0, mAvailableDevices.prefs.size());
+    }
+
+    ExternalSensorDiscoverer makeDiscovererThatWillDiscover(final ExternalSensorSpec... specs) {
+        return new StubSensorDiscoverer() {
+            @Override
+            public boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
+                    FailureListener onScanError, Context context) {
+                for (ExternalSensorSpec spec : specs) {
+                    onEachSensorFound.take(discovered(spec));
+                }
+                return true;
+            }
+        };
     }
 
     @NonNull
