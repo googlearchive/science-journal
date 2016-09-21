@@ -25,6 +25,9 @@ android {
             aidl {
                 srcDir osj + '/whistlepunk_library/src/api/scalarinput/aidl'
             }
+            java {
+                srcDir osj + '/whistlepunk_library/src/api/scalarinput/java'
+            }
         }
     }
 }
