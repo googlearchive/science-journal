@@ -136,6 +136,7 @@ public class SensorCardPresenter {
     private PopupMenu mPopupMenu;
     private boolean mAllowRetry = true;
     private CardTriggerPresenter mCardTriggerPresenter;
+    private ExternalAxisController.InteractionListener mInteractionListener;
 
     private OptionsListener mCommitListener = new OptionsListener() {
         @Override
@@ -175,10 +176,12 @@ public class SensorCardPresenter {
     public SensorCardPresenter(DataViewOptions dataViewOptions,
             SensorSettingsController sensorSettingsController,
             RecorderController recorderController, GoosciSensorLayout.SensorLayout layout,
-            String experimentId, RecordFragment fragment) {
+            String experimentId, ExternalAxisController.InteractionListener interactionListener,
+            RecordFragment fragment) {
         mDataViewOptions = dataViewOptions;
         mSensorSettingsController = sensorSettingsController;
         mRecorderController = recorderController;
+        mInteractionListener = interactionListener;
         mAvailableSensorIds = new ArrayList<>();
         mLayout = layout;
         mCardOptions.putAllExtras(layout.extras);
@@ -197,8 +200,10 @@ public class SensorCardPresenter {
     }
 
     public void onNewData(long timestamp, Bundle bundle) {
-        boolean iconTimeHasElapsed = timestamp > mLastUpdatedIconTimestamp + MAX_ICON_UPDATE_TIME_MS;
-        boolean textTimeHasElapsed = timestamp > mLastUpdatedTextTimestamp + MAX_TEXT_UPDATE_TIME_MS;
+        boolean iconTimeHasElapsed =
+                timestamp > mLastUpdatedIconTimestamp + MAX_ICON_UPDATE_TIME_MS;
+        boolean textTimeHasElapsed =
+                timestamp > mLastUpdatedTextTimestamp + MAX_TEXT_UPDATE_TIME_MS;
         if (!textTimeHasElapsed && !iconTimeHasElapsed) {
             return;
         }
@@ -374,7 +379,7 @@ public class SensorCardPresenter {
             mFirstObserving = false;
         }
         if (mCardViewHolder != null) {
-            mSensorPresenter.startShowing(mCardViewHolder.chartView);
+            mSensorPresenter.startShowing(mCardViewHolder.chartView, mInteractionListener);
             updateSensorTriggerUi();
         }
         // It is possible we just resumed observing but we are currently recording, in which case
@@ -435,7 +440,7 @@ public class SensorCardPresenter {
         }
 
         if (mSensorPresenter != null) {
-            mSensorPresenter.startShowing(mCardViewHolder.chartView);
+            mSensorPresenter.startShowing(mCardViewHolder.chartView, mInteractionListener);
         }
 
         updateContentView(false);

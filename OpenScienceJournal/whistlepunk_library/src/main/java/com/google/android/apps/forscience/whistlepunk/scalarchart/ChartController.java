@@ -227,11 +227,7 @@ public class ChartController {
     }
 
     public void onDestroy() {
-        if (mChartView != null) {
-            mChartView.clearInteractionListeners();
-            mInteractionListener = null;
-            mChartView = null;
-        }
+        onViewRecycled();
         mChartData.clear();
         mCurrentLoadIds.clear();
         mChartDataLoadedCallbacks.clear();
@@ -240,6 +236,7 @@ public class ChartController {
     public void onViewRecycled() {
         if (mChartView != null) {
             mChartView.clearInteractionListeners();
+            mInteractionListener = null;
             mChartView = null;
         }
     }
@@ -403,14 +400,11 @@ public class ChartController {
     }
 
     public void updateOptions(int graphColor, ScalarDisplayOptions scalarDisplayOptions,
-            ExternalAxisController.InteractionListener interactionListener, String sensorId) {
-        mInteractionListener = interactionListener;
+            String sensorId) {
         mChartOptions.setLineColor(graphColor);
         mChartOptions.setScalarDisplayOptions(scalarDisplayOptions);
         mSensorId = sensorId;
         if (mChartView != null) {
-            mChartView.clearInteractionListeners();
-            mChartView.addInteractionListener(interactionListener);
             mChartView.redraw(); // Full redraw in case the options caused computational changes.
         }
     }
