@@ -82,14 +82,14 @@ public class VideoSensor extends SensorChoice {
     }
 
     public SensorPresenter createPresenter(final DataViewOptions dataViewOptions,
-            NumberFormat statsNumberFormat, StatsListener statsListener,
-            final ExternalAxisController.InteractionListener interactionListener) {
+            NumberFormat statsNumberFormat, StatsListener statsListener) {
         mCameraPreview = new CameraPreview(mContext);
 
         clearParentViewsIfNecessary();
         return new SensorPresenter() {
             @Override
-            public void startShowing(View contentView) {
+            public void startShowing(View contentView,
+                    ExternalAxisController.InteractionListener interactionListener) {
                 ((ViewGroup) contentView).addView(mCameraPreview);
             }
 

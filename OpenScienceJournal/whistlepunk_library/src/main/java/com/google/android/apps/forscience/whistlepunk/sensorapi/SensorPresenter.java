@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
@@ -62,8 +63,9 @@ public interface SensorPresenter extends SensorObserver {
      * The view is ready for the data to be displayed.
      *
      * @param contentView The view onto which to show the data.
+     * @param listener The interaction listener for the view
      */
-    void startShowing(View contentView);
+    void startShowing(View contentView, ExternalAxisController.InteractionListener listener);
 
     /**
      * The SensorPresenter may update its UI to show whether it is currently

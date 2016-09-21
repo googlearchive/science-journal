@@ -96,13 +96,11 @@ public class ManualSensor extends ScalarSensor {
     @NonNull
     @Override
     protected ChartController createChartController(DataViewOptions dataViewOptions,
-            ExternalAxisController.InteractionListener interactionListener, String sensorId,
-            long defaultGraphRange) {
+            String sensorId, long defaultGraphRange) {
         mChartController = new ChartController(
                 ChartOptions.ChartPlacementType.TYPE_OBSERVE,
                 dataViewOptions.getLineGraphOptions(), mThrowawayThreshold,
                 /* no data loading buffer */ 0, new MonotonicClock());
-        mChartController.setInteractionListener(interactionListener);
         mChartController.setSensorId(sensorId);
         mChartController.setDefaultGraphRange(defaultGraphRange);
         return mChartController;
@@ -124,10 +122,8 @@ public class ManualSensor extends ScalarSensor {
 
     private SensorPresenter createPresenter() {
         StatsListener statsListener = new StubStatsListener();
-        ExternalAxisController.InteractionListener interactionListener =
-                new StubInteractionListener();
         return createPresenter(new DataViewOptions(0, new ScalarDisplayOptions()),
-                new AxisNumberFormat(), statsListener, interactionListener);
+                new AxisNumberFormat(), statsListener);
     }
 
     @NonNull

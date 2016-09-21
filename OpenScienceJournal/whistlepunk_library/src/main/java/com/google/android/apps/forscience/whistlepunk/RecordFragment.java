@@ -867,7 +867,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         final SensorCardPresenter sensorCardPresenter = new SensorCardPresenter(
                 new DataViewOptions(nextSensorCardColor, mScalarDisplayOptions),
                 mSensorSettingsController, rc, layout, mSelectedExperiment.getExperimentId(),
-                this);
+                mExternalAxis.getInteractionListener(), this);
 
         final SensorStatusListener sensorStatusListener = new SensorStatusListener() {
             @Override
@@ -1278,9 +1278,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         mSensorRegistry.withSensorChoice(sensorId, new Consumer<SensorChoice>() {
             @Override
             public void take(SensorChoice sensorChoice) {
-                ExternalAxisController.InteractionListener interactionListener =
-                        mExternalAxis.getInteractionListener();
-
                 // TODO: should dataViewOptions go into sensorCardPresenter?
                 NumberFormat numberFormat = AppSingleton.getInstance(context)
                         .getSensorAppearanceProvider().getAppearance(sensorId).getNumberFormat();
@@ -1293,7 +1290,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                     sensorCardPresenter.updateStats(stats);
                                 }
                             }
-                        }, interactionListener);
+                        });
 
                 final WriteableSensorOptions options = sensorCardPresenter.getCardOptions(
                         sensorChoice, context).load(

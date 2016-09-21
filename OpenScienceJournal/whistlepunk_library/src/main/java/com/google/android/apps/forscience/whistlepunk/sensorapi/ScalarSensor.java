@@ -111,11 +111,9 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
     @Override
     public SensorPresenter createPresenter(final DataViewOptions dataViewOptions,
-            NumberFormat statsNumberFormat, StatsListener statsListener,
-            final ExternalAxisController.InteractionListener interactionListener) {
+            NumberFormat statsNumberFormat, StatsListener statsListener) {
         final ChartController chartController =
-                getChartController(dataViewOptions, interactionListener, getId(),
-                        mDefaultGraphRange);
+                getChartController(dataViewOptions, getId(), mDefaultGraphRange);
 
         final AudioGenerator audioGenerator = getAudioGenerator();
         final SensorPresenter.OptionsPresenter optionsPresenter = createOptionsPresenter();
@@ -127,7 +125,9 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             private boolean mAudioEnabled;
 
             @Override
-            public void startShowing(View contentView) {
+            public void startShowing(View contentView,
+                    ExternalAxisController.InteractionListener listener) {
+                chartController.setInteractionListener(listener);
                 chartController.setChartView((ChartView) contentView);
                 if (mAudioEnabled) {
                     audioGenerator.startPlaying();
@@ -260,15 +260,13 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
     // Returns the existing chartController if available, or makes a new one if not.
     @NonNull
-    protected ChartController getChartController(DataViewOptions dataViewOptions,
-            ExternalAxisController.InteractionListener interactionListener, String id,
+    protected ChartController getChartController(DataViewOptions dataViewOptions, String id,
             long defaultGraphRange) {
         if (mChartController == null) {
-            mChartController = createChartController(dataViewOptions, interactionListener, id,
-                    defaultGraphRange);
+            mChartController = createChartController(dataViewOptions, id, defaultGraphRange);
         } else {
             mChartController.updateOptions(dataViewOptions.getGraphColor(),
-                    dataViewOptions.getLineGraphOptions(), interactionListener, id);
+                    dataViewOptions.getLineGraphOptions(), id);
         }
         return mChartController;
     }
@@ -282,13 +280,11 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     }
 
     @NonNull
-    protected ChartController createChartController(DataViewOptions dataViewOptions,
-            ExternalAxisController.InteractionListener interactionListener, String id,
+    protected ChartController createChartController(DataViewOptions dataViewOptions, String id,
             long defaultGraphRange) {
         ChartController chartController = new ChartController(
                 ChartOptions.ChartPlacementType.TYPE_OBSERVE, dataViewOptions.getLineGraphOptions(),
                 mClock);
-        chartController.setInteractionListener(interactionListener);
         chartController.updateColor(dataViewOptions.getGraphColor());
         chartController.setDefaultGraphRange(defaultGraphRange);
         chartController.setSensorId(id);

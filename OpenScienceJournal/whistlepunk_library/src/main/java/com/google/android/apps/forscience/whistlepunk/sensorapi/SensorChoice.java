@@ -57,8 +57,7 @@ public abstract class SensorChoice {
      *         the content view.
      */
     public abstract SensorPresenter createPresenter(final DataViewOptions dataViewOptions,
-            NumberFormat statsNumberFormat, StatsListener statsListener,
-            final ExternalAxisController.InteractionListener interactionListener);
+            NumberFormat statsNumberFormat, StatsListener statsListener);
 
     /**
      * Create a SensorRecorder for starting and stopping this sensor
