@@ -1214,13 +1214,15 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 new LoggingConsumer<List<Label>>(TAG, "retrieving labels") {
                     @Override
                     public void success(List<Label> labels) {
-                        for (SensorCardPresenter p : mSensorCardAdapter.getSensorCardPresenters()) {
-                            p.refreshLabels(labels);
+                        if (mSensorCardAdapter != null) {
+                            for (SensorCardPresenter p :
+                                    mSensorCardAdapter.getSensorCardPresenters()) {
+                                p.refreshLabels(labels);
+                            }
                         }
                         if (mExternalAxis != null) {
                             mExternalAxis.onLabelsChanged(labels);
                         }
-
                     }
                 });
     }
