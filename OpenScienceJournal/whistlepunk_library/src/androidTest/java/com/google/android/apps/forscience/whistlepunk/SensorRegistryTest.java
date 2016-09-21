@@ -91,7 +91,7 @@ public class SensorRegistryTest extends DevOptionsTestCase {
         reg.updateExternalSensors(sensors, providers);
         assertEquals(true, reg.getAllSources().contains(bleSensorId));
 
-        assertEquals(BleSensorSpec.TYPE, reg.getLoggingId(bleSensorId));
+        assertEquals("bluetooth_le:raw", reg.getLoggingId(bleSensorId));
     }
 
     private static class TestSensorRegistryListener implements SensorRegistryListener {
