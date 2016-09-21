@@ -26,4 +26,11 @@ message ScalarInputConfig {
 
     // A service-specific address identifying this sensor
     optional string address = 2;
+
+    // TODO: document on down
+    optional int32 icon_id = 3 [default = -1];
+
+    optional string units = 4 [default = ""];
+
+    optional string short_description = 5 [default = ""];
 }

@@ -14,8 +14,10 @@
  *  limitations under the License.
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.SensorAppearanceResources;
 
 // TODO: doc all these
 interface ISensorConsumer {
-  void onSensorFound(String sensorAddress, String name, in PendingIntent settingsIntent) = 0;
+  void onSensorFound(String sensorAddress, String name, in SensorAppearanceResources appearance,
+                     in PendingIntent settingsIntent) = 0;
 }

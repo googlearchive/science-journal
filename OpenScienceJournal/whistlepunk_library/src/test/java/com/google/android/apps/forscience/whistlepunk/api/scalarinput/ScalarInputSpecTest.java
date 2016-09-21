@@ -40,11 +40,19 @@ public class ScalarInputSpecTest {
         String sensorName = Arbitrary.string();
         String serviceId = Arbitrary.string();
         String address = Arbitrary.string();
-        ScalarInputSpec spec = new ScalarInputSpec(sensorName, serviceId, address);
+        SensorAppearanceResources appearance = new SensorAppearanceResources();
+        appearance.iconId = Arbitrary.integer();
+        appearance.shortDescription = Arbitrary.string();
+        appearance.units = Arbitrary.string();
+        ScalarInputSpec spec = new ScalarInputSpec(sensorName, serviceId, address, appearance);
         ScalarInputSpec spec2 = new ScalarInputSpec(sensorName, spec.getConfig());
         assertEquals(sensorName, spec2.getName());
         assertEquals(serviceId, spec2.getServiceId());
         assertEquals(address, spec2.getSensorAddressInService());
+        SensorAppearance appearance2 = spec2.getSensorAppearance();
+
+        assertEquals(appearance.shortDescription, appearance2.getShortDescription(null));
+        assertEquals(appearance.units, appearance2.getUnits(null));
     }
 
     @Test public void isSame() {
