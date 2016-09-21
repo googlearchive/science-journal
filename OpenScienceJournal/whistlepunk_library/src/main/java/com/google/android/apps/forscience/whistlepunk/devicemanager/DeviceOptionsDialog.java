@@ -18,9 +18,12 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
+import android.view.View;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
@@ -28,7 +31,6 @@ import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
-import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 /**
@@ -38,6 +40,7 @@ public class DeviceOptionsDialog extends DialogFragment {
     private static final String TAG = "DeviceOptionsDialog";
     private static final String KEY_EXPERIMENT_ID = "experiment_id";
     private static final String KEY_SENSOR_ID = "sensor_id";
+    private static final String KEY_SETTINGS_INTENT = "settings_intent";
 
     /**
      * Object listening for options changing.
@@ -61,10 +64,12 @@ public class DeviceOptionsDialog extends DialogFragment {
     private DataController mDataController;
     private DeviceOptionsViewController mViewController;
 
-    public static DeviceOptionsDialog newInstance(String experimentId, String sensorId) {
+    public static DeviceOptionsDialog newInstance(String experimentId, String sensorId,
+            PendingIntent externalSettingsIntent) {
         Bundle args = new Bundle();
         args.putString(KEY_EXPERIMENT_ID, experimentId);
         args.putString(KEY_SENSOR_ID, sensorId);
+        args.putParcelable(KEY_SETTINGS_INTENT, externalSettingsIntent);
 
         DeviceOptionsDialog dialog = new DeviceOptionsDialog();
         dialog.setArguments(args);
@@ -85,25 +90,52 @@ public class DeviceOptionsDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        setupControllers();
         final String sensorId = getArguments().getString(KEY_SENSOR_ID);
-        mDataController.getExternalSensorById(sensorId, new LoggingConsumer<ExternalSensorSpec>(TAG,
-                "Load external sensor with ID = " + sensorId) {
-            @Override
-            public void success(ExternalSensorSpec sensor) {
-                mViewController.setSensor(sensorId, sensor, savedInstanceState);
-            }
-        });
+        final PendingIntent settingsIntent = getArguments().getParcelable(KEY_SETTINGS_INTENT);
+        DialogInterface.OnClickListener onOK;
+        View view;
+        if (settingsIntent == null) {
+            setupControllers();
+            mDataController.getExternalSensorById(sensorId, new LoggingConsumer<ExternalSensorSpec>(TAG,
+                    "Load external sensor with ID = " + sensorId) {
+                @Override
+                public void success(ExternalSensorSpec sensor) {
+                    mViewController.setSensor(sensorId, sensor, savedInstanceState);
+                }
+            });
+            onOK = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mViewController.commit(getOptionsListener());
+                }
+            };
+            view = mViewController.getView();
+        } else {
+            onOK = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            };
+
+            view = LayoutInflater.from(getActivity()).inflate(R.layout.api_device_options_dialog,
+                    null);
+            view.findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        settingsIntent.send();
+                    } catch (PendingIntent.CanceledException e) {
+                        // SAFF: what?
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setView(mViewController.getView())
+                .setView(view)
                 .setTitle(R.string.external_devices_settings_title)
-                .setPositiveButton(R.string.external_devices_settings_ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mViewController.commit(getOptionsListener());
-                            }
-                        })
+                .setPositiveButton(R.string.external_devices_settings_ok, onOK)
                 .setNegativeButton(R.string.external_devices_settings_forget,
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -116,14 +148,16 @@ public class DeviceOptionsDialog extends DialogFragment {
 
     private void setupControllers() {
         mDataController = AppSingleton.getInstance(getActivity()).getDataController();
-        mViewController = new DeviceOptionsViewController(
-                getActivity(), mDataController, getExperimentId());
+        mViewController = new DeviceOptionsViewController(getActivity(), mDataController,
+                getExperimentId());
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        mViewController.onSaveInstanceState(outState);
+        if (mViewController != null) {
+            mViewController.onSaveInstanceState(outState);
+        }
     }
 
     private void removeDeviceFromExperiment() {

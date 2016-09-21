@@ -257,8 +257,8 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
     public void showDeviceOptions(String experimentId, String sensorId,
             PendingIntent externalSettingsIntent) {
         // TODO: use a SettingsController subclass once it's fragmentized.
-        // TODO: use externalSettingsIntent here
-        DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId, sensorId);
+        DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId, sensorId,
+                externalSettingsIntent);
         dialog.show(getFragmentManager(), "edit_device");
     }
 }
