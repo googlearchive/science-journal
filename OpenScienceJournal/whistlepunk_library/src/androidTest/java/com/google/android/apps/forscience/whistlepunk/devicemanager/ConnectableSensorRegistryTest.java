@@ -170,7 +170,6 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     }
 
     public void testDontAddAvailableWhenAlreadyPaired() {
-        // SAFF: DUP above?
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
         ExternalSensorDiscoverer dupeDiscoverer = new StubSensorDiscoverer() {
             @Override

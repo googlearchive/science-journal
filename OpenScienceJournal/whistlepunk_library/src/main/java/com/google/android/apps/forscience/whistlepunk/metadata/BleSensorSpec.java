@@ -201,6 +201,24 @@ public class BleSensorSpec extends ExternalSensorSpec implements Parcelable {
         return null;
     }
 
+    @Override
+    public String getLoggingId() {
+        return super.getLoggingId() + ":" + getLogTagFromType(getSensorType());
+    }
+
+    private String getLogTagFromType(int type) {
+        switch (getSensorType()) {
+            case SensorTypeProvider.TYPE_ROTATION:
+                return "rot";
+            case SensorTypeProvider.TYPE_RAW:
+                return "raw";
+            case SensorTypeProvider.TYPE_CUSTOM:
+                return "cus";
+        }
+        complainSensorType();
+        return null;
+    }
+
     private GoosciSensorConfig.BleSensorConfig.ScaleTransform tenBitsToPercent() {
         GoosciSensorConfig.BleSensorConfig.ScaleTransform transform = new GoosciSensorConfig
                 .BleSensorConfig.ScaleTransform();

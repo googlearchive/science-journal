@@ -13,18 +13,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package com.google.android.apps.forscience.whistlepunk.metadata;
+
+import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig
         .ScaleTransform;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ValueFilter;
 import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
+import com.google.common.util.concurrent.MoreExecutors;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class BleSensorTest extends TestCase {
+public class BleSensorTest {
+    @Test
     public void testPresetsVsCustom() {
         BleSensorSpec bleSensor = new BleSensorSpec("address", "name");
         bleSensor.setCustomFrequencyEnabled(true);
@@ -54,6 +57,7 @@ public class BleSensorTest extends TestCase {
         assertEquals("A7", bleSensor.getPin());
     }
 
+    @Test
     public void testScaleFilter() {
         BleSensorSpec bleSensor = new BleSensorSpec("address", "name");
         bleSensor.setCustomFrequencyEnabled(false);
@@ -73,9 +77,21 @@ public class BleSensorTest extends TestCase {
 
         bleSensor.setSensorType(SensorTypeProvider.TYPE_RAW);
         ValueFilter computedFilter = new BluetoothSensor("sensorId", bleSensor,
-                BluetoothSensor.ANNING_SERVICE_SPEC).getDeviceDefaultValueFilter();
+                BluetoothSensor.ANNING_SERVICE_SPEC,
+                MoreExecutors.directExecutor()).getDeviceDefaultValueFilter();
         assertEquals(0.0, computedFilter.filterValue(0, 0.0), 0.001);
         assertEquals(50.0, computedFilter.filterValue(0, 511.5), 0.001);
         assertEquals(100.0, computedFilter.filterValue(0, 1023.0), 0.001);
+    }
+
+    @Test
+    public void loggingId() {
+        BleSensorSpec spec = new BleSensorSpec("address", "name");
+        spec.setSensorType(SensorTypeProvider.TYPE_ROTATION);
+        assertEquals("bluetooth_le:rot", spec.getLoggingId());
+        spec.setSensorType(SensorTypeProvider.TYPE_CUSTOM);
+        assertEquals("bluetooth_le:cus", spec.getLoggingId());
+        spec.setSensorType(SensorTypeProvider.TYPE_RAW);
+        assertEquals("bluetooth_le:raw", spec.getLoggingId());
     }
 }
