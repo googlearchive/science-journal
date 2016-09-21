@@ -798,9 +798,6 @@
     <!-- The content description for the sensor tab layout [CHAR_LIMIT=none] -->
     <string name="sensor_tab_layout_content_description">available sensors</string>
 
-    <!-- The format for the content description of a selected sensor tab [CHAR_LIMIT=None] -->
-    <string name="sensor_tab_selected_format"><xliff:g id="sensor_name">%s</xliff:g> (selected)</string>
-
     <!-- Title of an activity that shows more information about a sensor, when we don't know the sensor's name [CHAR_LIMIT=25] -->
     <string name="title_activity_sensor_info">Sensor Information</string>
 
