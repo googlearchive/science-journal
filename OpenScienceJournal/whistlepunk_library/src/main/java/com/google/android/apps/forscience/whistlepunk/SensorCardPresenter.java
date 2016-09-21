@@ -132,7 +132,6 @@ public class SensorCardPresenter {
     private boolean mIsSingleCard = true;
     private View.OnClickListener mRetryClickListener;
     private boolean mPaused = false;
-    private String mTabSelectedFormat;
     private final RecordFragment mParentFragment;
     private PopupMenu mPopupMenu;
     private boolean mAllowRetry = true;
@@ -477,11 +476,6 @@ public class SensorCardPresenter {
         });
         updateStatusUi();
         updateAudioEnabledUi(mLayout.audioEnabled);
-
-        if (mTabSelectedFormat == null) {
-            mTabSelectedFormat =
-                    mCardViewHolder.getContext().getString(R.string.sensor_tab_selected_format);
-        }
 
         // The first time a SensorCardPresenter is created, we cannot use the recycled view.
         // Exact reason unknown but this workaround fixes the bug described in b/24611618.
@@ -849,8 +843,6 @@ public class SensorCardPresenter {
                 if (mCardViewHolder != null) {
                     String newSensorId = (String) tab.getTag();
                     trySelectingNewSensor(newSensorId, mSensorId);
-                    tab.setContentDescription(String.format(mTabSelectedFormat,
-                            getSensorName(newSensorId)));
                 }
             }
 

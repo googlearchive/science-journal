@@ -529,7 +529,6 @@ public class EditTriggerFragment extends Fragment {
     private boolean verifyInput() {
         // The user must enter a value at which the trigger happens.
         if (TextUtils.isEmpty(mValue.getText())) {
-            mValue.requestFocus();
             mValue.setError(getActivity().getResources().getString(
                     R.string.cannot_save_invalid_value));
             return false;
