@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.samplegyroprovider;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorCon
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorObserver;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorStatusListener;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.SensorAppearanceResources;
 
 import java.util.List;
 
@@ -78,7 +80,17 @@ public class AllNativeSensorProvider extends Service {
                     return;
                 }
                 for (Sensor sensor : sensors) {
-                    c.onSensorFound("" + sensor.getType(), sensor.getName(), null);
+                    SensorAppearanceResources appearance = new SensorAppearanceResources();
+                    if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                        appearance.iconId = android.R.drawable.ic_media_ff;
+                        appearance.units = "ms/2";
+                        appearance.shortDescription = "Not really a 3-axis accelerometer";
+                    }
+
+                    PendingIntent settingsIntent = DeviceSettingsPopupActivity.getPendingIntent(
+                            AllNativeSensorProvider.this, sensor);
+                    c.onSensorFound("" + sensor.getType(), sensor.getName(), appearance,
+                            settingsIntent);
                 }
             }
 
@@ -92,11 +104,10 @@ public class AllNativeSensorProvider extends Service {
                     public void startObserving(final String sensorId,
                             final ISensorObserver observer, final ISensorStatusListener listener,
                             String settingsKey) throws RemoteException {
-
                         mListener = listener;
                         listener.onSensorConnected();
                         unregister();
-                        int sensorType = getSensorType(sensorId, listener);
+                        final int sensorType = getSensorType(sensorId, listener);
                         if (sensorType < 0) {
                             return;
                         }
@@ -107,7 +118,9 @@ public class AllNativeSensorProvider extends Service {
                                 try {
                                     long timestamp = System.currentTimeMillis();
                                     // TODO: figure out which sensors have vector values
-                                    observer.onNewData(timestamp, event.values[0]);
+                                    int index = DeviceSettingsPopupActivity.getIndexForSensorType(
+                                            sensorType, AllNativeSensorProvider.this);
+                                    observer.onNewData(timestamp, event.values[index]);
                                 } catch (RemoteException e) {
                                     try {
                                         reportError(e);
