@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.preference.Preference;
 import android.support.annotation.NonNull;
@@ -127,7 +128,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         String experimentId = Arbitrary.string();
 
         TestDeviceOptionsPresenter presenter = new TestDeviceOptionsPresenter();
-        registry.showDeviceOptions(presenter, experimentId, pref);
+        registry.showDeviceOptions(presenter, experimentId, pref, null);
         assertEquals(experimentId, presenter.experimentId);
         assertEquals(connectedId, presenter.sensorId);
     }
@@ -136,10 +137,10 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
         ExternalSensorDiscoverer dupeDiscoverer = new StubSensorDiscoverer() {
             @Override
-            public boolean startScanning(Consumer<ExternalSensorSpec> onEachSensorFound,
+            public boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
                     FailureListener onScanError, Context context) {
-                onEachSensorFound.take(new BleSensorSpec("address", "name"));
-                onEachSensorFound.take(new BleSensorSpec("address", "name"));
+                onEachSensorFound.take(discovered(new BleSensorSpec("address", "name")));
+                onEachSensorFound.take(discovered(new BleSensorSpec("address", "name")));
                 return true;
             }
         };
@@ -154,14 +155,28 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         assertEquals(1, mAvailableDevices.prefs.size());
     }
 
+    private ExternalSensorDiscoverer.DiscoveredSensor discovered(final ExternalSensorSpec spec) {
+        return new ExternalSensorDiscoverer.DiscoveredSensor() {
+            @Override
+            public ExternalSensorSpec getSpec() {
+                return spec;
+            }
+
+            @Override
+            public PendingIntent getSettingsIntent() {
+                return null;
+            }
+        };
+    }
+
     public void testDontAddAvailableWhenAlreadyPaired() {
         // SAFF: DUP above?
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
         ExternalSensorDiscoverer dupeDiscoverer = new StubSensorDiscoverer() {
             @Override
-            public boolean startScanning(Consumer<ExternalSensorSpec> onEachSensorFound,
+            public boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
                     FailureListener onScanError, Context context) {
-                onEachSensorFound.take(new BleSensorSpec("address", "name"));
+                onEachSensorFound.take(discovered(new BleSensorSpec("address", "name")));
                 return true;
             }
         };
@@ -185,14 +200,14 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
         ExternalSensorDiscoverer d = new StubSensorDiscoverer() {
             @Override
-            public boolean startScanning(Consumer<ExternalSensorSpec> onEachSensorFound,
+            public boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
                     FailureListener onScanError, Context context) {
                 BleSensorSpec spec1 = new BleSensorSpec("address", "name");
                 spec1.setCustomPin("A1");
                 BleSensorSpec spec2 = new BleSensorSpec("address", "name");
                 spec2.setCustomPin("A2");
-                onEachSensorFound.take(spec1);
-                onEachSensorFound.take(spec2);
+                onEachSensorFound.take(discovered(spec1));
+                onEachSensorFound.take(discovered(spec2));
                 return true;
             }
         };

@@ -14,10 +14,12 @@
  *  limitations under the License.
  */package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.support.annotation.NonNull;
+import android.util.ArrayMap;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
@@ -28,7 +30,6 @@ import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -40,7 +41,8 @@ public class ConnectableSensorRegistry {
 
     private final DataController mDataController;
     private final Map<String, ExternalSensorDiscoverer> mDiscoverers;
-    private final Map<String, ConnectableSensor> mSensors = new HashMap<>();
+    private final Map<String, ConnectableSensor> mSensors = new ArrayMap<>();
+    private final Map<String, PendingIntent> mSettingsIntents = new ArrayMap<>();
 
     private int mKeyNum = 0;
     private Context mContext;
@@ -52,9 +54,12 @@ public class ConnectableSensorRegistry {
         mContext = context;
     }
 
+    // TODO: clear available sensors that are not seen on subsequent scans (b/31644042)
+
     public void showDeviceOptions(DeviceOptionsPresenter presenter, String experimentId,
-            Preference preference) {
-        presenter.showDeviceOptions(experimentId, getSensor(preference).getConnectedSensorId());
+            Preference preference, PendingIntent settingsIntent) {
+        presenter.showDeviceOptions(experimentId, getSensor(preference).getConnectedSensorId(),
+                settingsIntent);
     }
 
     public boolean getIsPairedFromPreference(Preference preference) {
@@ -62,10 +67,11 @@ public class ConnectableSensorRegistry {
     }
 
     public boolean startScanningInDiscoverers(final PreferenceCategory availableDevices) {
-        Consumer<ExternalSensorSpec> onEachSensorFound = new Consumer<ExternalSensorSpec>() {
+        Consumer<ExternalSensorDiscoverer.DiscoveredSensor> onEachSensorFound =
+                new Consumer<ExternalSensorDiscoverer.DiscoveredSensor>() {
             @Override
-            public void take(ExternalSensorSpec spec) {
-                onSensorFound(spec, availableDevices);
+            public void take(ExternalSensorDiscoverer.DiscoveredSensor ds) {
+                onSensorFound(ds, availableDevices);
             }
         };
         boolean started = false;
@@ -80,16 +86,24 @@ public class ConnectableSensorRegistry {
         return started;
     }
 
-    private void onSensorFound(ExternalSensorSpec spec, PreferenceCategory availableDevices) {
-        String sensorKey = findSensorKey(spec);
+    private void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor ds,
+            PreferenceCategory availableDevices) {
+        String sensorKey = findSensorKey(ds.getSpec());
 
         if (sensorKey == null) {
             availableDevices.addPreference(
-                    buildPreference(ConnectableSensor.disconnected(spec)));
+                    buildPreference(ConnectableSensor.disconnected(ds.getSpec()),
+                            ds.getSettingsIntent()));
         } else {
             ConnectableSensor sensor = mSensors.get(sensorKey);
-            if (!sensor.isPaired() && availableDevices.findPreference(sensorKey) == null) {
-                availableDevices.addPreference(makePreference(sensor, sensorKey));
+            if (!sensor.isPaired()) {
+                if (availableDevices.findPreference(sensorKey) == null) {
+                    availableDevices.addPreference(
+                            makePreference(sensor, sensorKey, ds.getSettingsIntent()));
+                }
+            } else {
+                // TODO: UI feedback
+                mSettingsIntents.put(sensorKey, ds.getSettingsIntent());
             }
         }
     }
@@ -110,7 +124,7 @@ public class ConnectableSensorRegistry {
             removeSensorWithSpec(availableDevices, sensor);
 
             ConnectableSensor newSensor = ConnectableSensor.connected(sensor, entry.getKey());
-            Preference pref = buildPreference(newSensor);
+            Preference pref = buildPreference(newSensor, null);
             pref.setWidgetLayoutResource(R.layout.preference_external_device);
             pref.setSummary(sensor.getSensorAppearance().getName(pref.getContext()));
             pairedDevices.addPreference(pref);
@@ -134,6 +148,7 @@ public class ConnectableSensorRegistry {
         if (sensorKey != null) {
             removePref(availableDevices, sensorKey);
             mSensors.remove(sensorKey);
+            mSettingsIntents.remove(sensorKey);
         }
     }
 
@@ -144,17 +159,19 @@ public class ConnectableSensorRegistry {
         }
     }
 
-    private Preference buildPreference(ConnectableSensor sensor) {
+    private Preference buildPreference(ConnectableSensor sensor, PendingIntent settingsIntent) {
         String key = "sensorKey" + (mKeyNum++);
         mSensors.put(key, sensor);
-        return makePreference(sensor, key);
+        return makePreference(sensor, key, settingsIntent);
     }
 
     @NonNull
-    private Preference makePreference(ConnectableSensor sensor, String key) {
+    private Preference makePreference(ConnectableSensor sensor, String key,
+            PendingIntent settingsIntent) {
         Preference pref = new Preference(mContext);
         pref.setTitle(sensor.getName());
         pref.setKey(key);
+        mSettingsIntents.put(key, settingsIntent);
         return pref;
     }
 
@@ -206,5 +223,9 @@ public class ConnectableSensorRegistry {
         for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
             discoverer.stopScanning();
         }
+    }
+
+    public PendingIntent getSettingsIntentFromPreference(Preference preference) {
+        return mSettingsIntents.get(preference.getKey());
     }
 }

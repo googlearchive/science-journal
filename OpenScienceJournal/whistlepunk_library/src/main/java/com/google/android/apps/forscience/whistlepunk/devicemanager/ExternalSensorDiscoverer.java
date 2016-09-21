@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.app.PendingIntent;
 import android.content.Context;
 
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -27,11 +28,16 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
  * One way of discovering additional sensors that can be added to an experiment
  */
 public interface ExternalSensorDiscoverer {
+    public interface DiscoveredSensor {
+        ExternalSensorSpec getSpec();
+        PendingIntent getSettingsIntent();
+    }
+
     /**
      * @param onEachSensorFound called for each sensor found
      * @return true if starting scanning was successful
      */
-    boolean startScanning(Consumer<ExternalSensorSpec> onEachSensorFound,
+    boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
             FailureListener onScanError, Context context);
 
     /**
