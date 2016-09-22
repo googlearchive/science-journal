@@ -33,4 +33,6 @@ message ScalarInputConfig {
     optional string units = 4 [default = ""];
 
     optional string short_description = 5 [default = ""];
+
+    optional string logging_id = 6 [default = ""];
 }

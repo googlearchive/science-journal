@@ -19,11 +19,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.apps.forscience.whistlepunk.BuiltInSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciScalarInput;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -39,17 +36,13 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     private GoosciScalarInput.ScalarInputConfig mConfig;
 
     public ScalarInputSpec(String sensorName, String serviceId, String address,
-            SensorAppearanceResources ids) {
+            String loggingId, SensorAppearanceResources ids) {
         mName = sensorName;
         mConfig = new GoosciScalarInput.ScalarInputConfig();
         mConfig.serviceId = Preconditions.checkNotNull(serviceId);
         mConfig.address = address;
+        mConfig.loggingId = loggingId == null ? "" : loggingId;
         writeResourceIds(mConfig, ids);
-    }
-
-    // TODO: pass explicit ids everywhere!
-    public ScalarInputSpec(String sensorName, String serviceId, String sensorAddress) {
-        this(sensorName, serviceId, sensorAddress, null);
     }
 
     private void writeResourceIds(GoosciScalarInput.ScalarInputConfig config,
@@ -152,4 +145,8 @@ public class ScalarInputSpec extends ExternalSensorSpec {
         return mConfig.serviceId;
     }
 
+    @Override
+    public String getLoggingId() {
+        return escape(getServiceId()) + "&" + escape(mConfig.loggingId);
+    }
 }

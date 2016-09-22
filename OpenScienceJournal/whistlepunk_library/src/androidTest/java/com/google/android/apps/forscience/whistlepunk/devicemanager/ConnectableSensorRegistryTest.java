@@ -74,9 +74,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         String sensorId = Arbitrary.string();
 
         // First it's paired...
-        pairedSensors.put(sensorId,
-                new ScalarInputSpec(s.getSensorName(), s.getServiceId(), s.getSensorAddress(),
-                        null));
+        pairedSensors.put(sensorId, s.makeSpec());
         registry.setPairedSensors(mAvailableDevices, mPairedDevices, pairedSensors);
         registry.startScanningInDiscoverers(mAvailableDevices);
 
@@ -100,7 +98,8 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String sensorName = Arbitrary.string();
-        sensors.put("sensorId", new ScalarInputSpec(sensorName, "serviceId", "address", null));
+        sensors.put("sensorId",
+                new ScalarInputSpec(sensorName, "serviceId", "address", null, null));
 
         registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
         assertEquals(0, mAvailableDevices.prefs.size());
@@ -121,7 +120,8 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         String connectedId = Arbitrary.string();
 
         sensors.put(connectedId,
-                new ScalarInputSpec(sensorName, s.getServiceId(), s.getSensorAddress(), null));
+                new ScalarInputSpec(sensorName, s.getServiceId(), s.getSensorAddress(), null,
+                        null));
 
         registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
         Preference pref = mPairedDevices.prefs.get(0);
@@ -210,8 +210,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         registry.startScanningInDiscoverers(mAvailableDevices);
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
-        ScalarInputSpec spec = new ScalarInputSpec(s.getSensorName(), s.getServiceId(),
-                s.getSensorAddress(), null);
+        ScalarInputSpec spec = s.makeSpec();
         sensors.put(Arbitrary.string(), spec);
         registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
 

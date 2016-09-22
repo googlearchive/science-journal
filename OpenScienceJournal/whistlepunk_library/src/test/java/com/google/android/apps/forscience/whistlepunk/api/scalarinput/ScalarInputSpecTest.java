@@ -30,25 +30,28 @@ public class ScalarInputSpecTest {
     @Test
     public void appearance() {
         String name = Arbitrary.string();
-        SensorAppearance appearance = new ScalarInputSpec(name, "serviceId",
-                "address", null).getSensorAppearance();
+        SensorAppearance appearance = new ScalarInputSpec(name, "serviceId", "address", null,
+                null).getSensorAppearance();
         assertNotNull(appearance);
         assertEquals(name, appearance.getName(null));
     }
 
     @Test public void roundTripConfig() {
         String sensorName = Arbitrary.string();
-        String serviceId = Arbitrary.string();
+        String serviceId = "serviceId";
         String address = Arbitrary.string();
+        String loggingId = "loggingId";
         SensorAppearanceResources appearance = new SensorAppearanceResources();
         appearance.iconId = Arbitrary.integer();
         appearance.shortDescription = Arbitrary.string();
         appearance.units = Arbitrary.string();
-        ScalarInputSpec spec = new ScalarInputSpec(sensorName, serviceId, address, appearance);
+        ScalarInputSpec spec = new ScalarInputSpec(sensorName, serviceId, address, loggingId,
+                appearance);
         ScalarInputSpec spec2 = new ScalarInputSpec(sensorName, spec.getConfig());
         assertEquals(sensorName, spec2.getName());
         assertEquals(serviceId, spec2.getServiceId());
         assertEquals(address, spec2.getSensorAddressInService());
+        assertEquals("serviceId&loggingId", spec2.getLoggingId());
         SensorAppearance appearance2 = spec2.getSensorAppearance();
 
         assertEquals(appearance.shortDescription, appearance2.getShortDescription(null));
@@ -56,10 +59,10 @@ public class ScalarInputSpecTest {
     }
 
     @Test public void isSame() {
-        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1", null);
-        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1", null);
-        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2", null);
-        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1", null);
+        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1", null, null);
+        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1", null, null);
+        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2", null, null);
+        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1", null, null);
         BleSensorSpec bleSpec = new BleSensorSpec("address1", "name");
         assertTrue(spec11.isSameSensorAndSpec(spec11));
         assertTrue(spec11.isSameSensorAndSpec(spec11b));
@@ -70,10 +73,10 @@ public class ScalarInputSpecTest {
     }
 
     @Test public void addressIncludesService() {
-        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1", null);
-        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1", null);
-        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2", null);
-        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1", null);
+        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1", null, null);
+        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1", null, null);
+        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2", null, null);
+        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1", null, null);
         BleSensorSpec bleSpec = new BleSensorSpec("address1", "name");
         assertTrue(spec11.isSameSensor(spec11));
         assertTrue(spec11.isSameSensor(spec11b));

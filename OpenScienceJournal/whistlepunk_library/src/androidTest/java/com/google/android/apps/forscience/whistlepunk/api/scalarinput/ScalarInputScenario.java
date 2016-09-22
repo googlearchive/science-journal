@@ -91,7 +91,7 @@ public class ScalarInputScenario {
                                             throws RemoteException {
                                         Assert.assertEquals(getDeviceId(), actualDeviceId);
                                         c.onSensorFound(getSensorAddress(), getSensorName(), null,
-                                                null);
+                                                null, null);
                                     }
 
                                     @Override
@@ -110,5 +110,10 @@ public class ScalarInputScenario {
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
         discoverers.put(ScalarInputSpec.TYPE, sid);
         return discoverers;
+    }
+
+    @NonNull
+    public ScalarInputSpec makeSpec() {
+        return new ScalarInputSpec(getSensorName(), getServiceId(), getSensorAddress(), null, null);
     }
 }

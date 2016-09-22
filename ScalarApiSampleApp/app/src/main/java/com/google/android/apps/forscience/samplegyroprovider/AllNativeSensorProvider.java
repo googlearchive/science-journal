@@ -90,7 +90,8 @@ public class AllNativeSensorProvider extends Service {
 
                     PendingIntent settingsIntent = DeviceSettingsPopupActivity.getPendingIntent(
                             AllNativeSensorProvider.this, sensor);
-                    c.onSensorFound("" + sensor.getType(), sensor.getName(), appearance,
+                    String loggingId = sensor.getName();
+                    c.onSensorFound("" + sensor.getType(), sensor.getName(), loggingId, appearance,
                             settingsIntent);
                 }
             }
