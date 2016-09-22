@@ -34,7 +34,6 @@
          The Y axis labels will be drawn in this space. -->
     <dimen name="chart_margin_size_left">36dp</dimen>
     <dimen name="chart_labels_padding">14dp</dimen>
-    <dimen name="chart_labels_vertical_padding">-5dp</dimen>
     <dimen name="chart_grid_line_width">1dp</dimen>
 
     <dimen name="options_padding_sides">24dp</dimen>
@@ -72,7 +71,6 @@
     <item name="metadata_card_alpha" type="fraction">100%</item>
     <item name="metadata_card_archived_alpha" type="fraction">60%</item>
 
-    <dimen name="experiment_layout_padding">16dp</dimen>
     <dimen name="experiment_overview_image_size">48dp</dimen>
 
     <dimen name="sensor_card_header_padding">16dp</dimen>
@@ -164,7 +162,6 @@
     <dimen name="run_review_sensor_name_text_size">16sp</dimen>
     <dimen name="run_review_chart_height">160dp</dimen>
     <dimen name="run_review_margin_sides">8dp</dimen>
-    <dimen name="run_review_chart_margin_sides">24dp</dimen>
     <dimen name="run_review_header_text_margin_top">8dp</dimen>
     <dimen name="run_review_external_axis_left_margin">48dp</dimen>
     <dimen name="run_review_external_axis_left_padding">4dp</dimen>
