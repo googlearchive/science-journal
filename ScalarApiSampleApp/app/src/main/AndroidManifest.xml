@@ -30,6 +30,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".DeviceSettingsPopupActivity"
+                  android:excludeFromRecents="true" android:launchMode="singleInstance"
+                  android:taskAffinity="" android:theme="@android:style/Theme.Dialog"/>
         <service android:name=".AllNativeSensorProvider"
                  android:enabled="true"
                  android:exported="true">

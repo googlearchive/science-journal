@@ -51,6 +51,7 @@ import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
+import com.google.android.apps.forscience.whistlepunk.BuiltInSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
@@ -964,8 +965,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private void populateSensorViews(View rootView, GoosciSensorLayout.SensorLayout sensorLayout) {
         final Context context = rootView.getContext();
         final SensorAppearance appearance = AppSingleton.getInstance(context)
-                .getSensorAppearanceProvider()
-                .getAppearance(sensorLayout.sensorId);
+                .getSensorAppearanceProvider().getAppearance(sensorLayout.sensorId);
         final TextView sensorNameText = (TextView) rootView.findViewById(
                 R.id.run_review_sensor_name);
         sensorNameText.setText(Appearances.getSensorDisplayName(appearance, context));
