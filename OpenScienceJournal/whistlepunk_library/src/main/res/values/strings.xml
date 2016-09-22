@@ -970,9 +970,6 @@
     <!-- Content description for Run Review playback button for starting run playback [CHAR_LIMIT=None] -->
     <string name="playback_button_play">start audio playback</string>
 
-    <!-- Title for developer option to add more card sonification types [CHAR_LIMIT=30] -->
-    <string name="sonification_type_card_title">Dev sonification type</string>
-
     <!-- Title for developer option to enable additional sonification types [CHAR_LIMIT=35] -->
     <string name="dev_sonification_types_title">Enable dev sonification types</string>
 
@@ -1097,9 +1094,6 @@
 
     <!-- Title of an activity to edit an existing trigger for a specific sensor [CHAR_LIMIT=25]-->
     <string name="title_fragment_edit_trigger">Edit <xliff:g id="sensor_name">%s</xliff:g> trigger</string>
-
-    <!-- Title of an activity to add a new trigger [CHAR_LIMIT=25]-->
-    <string name="title_activity_add_trigger">New trigger</string>
 
     <!-- Title of an activity to add a new trigger for a specific sensor [CHAR_LIMIT=25]-->
     <string name="title_fragment_add_trigger">New <xliff:g id="sensor_name">%s</xliff:g> trigger</string>

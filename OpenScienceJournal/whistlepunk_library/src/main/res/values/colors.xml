@@ -46,7 +46,6 @@
     <color name="graph_line_color_red">#D32F2F</color>
     <color name="graph_line_color_yellow">#FF5722</color>
     <color name="graph_line_color_grey">#757575</color>
-    <color name="graph_line_color_overlay_blue">#DD4285F4</color>
     <color name="graph_label_fill_color">#F8E71C</color>
     <color name="trigger_fire_color">#DB4437</color>
     <color name="stats_max_color">#DB4437</color>
