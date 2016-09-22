@@ -31,7 +31,7 @@ public class ScalarInputSpecTest {
     public void appearance() {
         String name = Arbitrary.string();
         SensorAppearance appearance = new ScalarInputSpec(name, "serviceId",
-                "address").getSensorAppearance();
+                "address", null).getSensorAppearance();
         assertNotNull(appearance);
         assertEquals(name, appearance.getName(null));
     }
@@ -56,10 +56,10 @@ public class ScalarInputSpecTest {
     }
 
     @Test public void isSame() {
-        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1");
-        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1");
-        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2");
-        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1");
+        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1", null);
+        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1", null);
+        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2", null);
+        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1", null);
         BleSensorSpec bleSpec = new BleSensorSpec("address1", "name");
         assertTrue(spec11.isSameSensorAndSpec(spec11));
         assertTrue(spec11.isSameSensorAndSpec(spec11b));
@@ -70,10 +70,10 @@ public class ScalarInputSpecTest {
     }
 
     @Test public void addressIncludesService() {
-        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1");
-        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1");
-        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2");
-        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1");
+        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1", null);
+        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1", null);
+        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2", null);
+        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1", null);
         BleSensorSpec bleSpec = new BleSensorSpec("address1", "name");
         assertTrue(spec11.isSameSensor(spec11));
         assertTrue(spec11.isSameSensor(spec11b));

@@ -506,7 +506,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             mStatsAccumulator.addStatsToBundle(data);
 
             // TODO: try to remove this allocation
-            mUiThreadExecutor.execute(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
                     mObserver.onNewData(timestampMillis, data);
@@ -538,6 +538,10 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             mBundle.putDouble(BUNDLE_KEY_SENSOR_VALUE, value);
             return mBundle;
         }
+    }
+
+    protected void runOnMainThread(Runnable runnable) {
+        mUiThreadExecutor.execute(runnable);
     }
 
     public static SensorManager getSensorManager(Context context) {
