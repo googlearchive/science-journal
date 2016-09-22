@@ -103,7 +103,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
 
         mConnectableSensorRegistry = new ConnectableSensorRegistry(mDataController, discoverers,
-                getActivity());
+                getActivity().getApplicationContext());
     }
 
     @Override
