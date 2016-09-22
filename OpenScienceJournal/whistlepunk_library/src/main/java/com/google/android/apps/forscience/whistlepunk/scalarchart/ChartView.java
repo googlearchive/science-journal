@@ -125,7 +125,6 @@ public class ChartView extends View {
     private boolean mWasPinnedToNow;
 
     private boolean mIsDrawn = false;
-    private boolean mMeasured = false;
 
     // For drawing the recording overlay
     private Paint mRecordingBackgroundPaint;
@@ -204,14 +203,12 @@ public class ChartView extends View {
         mTopPadding = getPaddingTop();
         mBottomPadding = getPaddingBottom();
 
-        if (mChartOptions == null) {
+        if (mChartOptions == null || mChartData == null) {
             return;
         }
-        measure();
-
         // If the height has changed, need to redraw the whole path!
-        if (prevHeight != mHeight && mIsDrawn) {
-            redraw();
+        if (prevHeight != mHeight) {
+            initialize(mChartOptions, mChartData);
         }
     }
 
@@ -260,8 +257,6 @@ public class ChartView extends View {
 
         mChartRect = new RectF(mStartPadding, mTopPadding, mChartWidth + mStartPadding,
                 mChartHeight + mTopPadding);
-
-        mMeasured = true;
     }
 
     private void makeDashedLinePaint(Paint paint, int colorId, float lineWidth, float dashSize) {
@@ -274,8 +269,9 @@ public class ChartView extends View {
     public void initialize(ChartOptions chartOptions, ChartData chartData) {
         mChartOptions = chartOptions;
         mChartData = chartData;
-        if (!mMeasured) {
-            measure();
+        measure();
+        if (mWidth <= 1 || mHeight <= 1) {
+            return;
         }
         updateColorOptions();
 
