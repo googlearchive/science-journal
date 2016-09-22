@@ -30,7 +30,16 @@
         android:layout_alignParentBottom="true"
         android:text="@string/btn_previous_label"
         android:drawableStart="@drawable/ic_keyboard_arrow_left_black_24dp"
-        android:visibility="invisible"
+        style="?attr/borderlessButtonStyle"
+        />
+
+    <Button
+        android:id="@+id/btn_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:text="@string/btn_skip_label"
         style="?attr/borderlessButtonStyle"
         />
 

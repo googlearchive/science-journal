@@ -71,6 +71,7 @@ public class TutorialActivity extends AppCompatActivity {
     private ViewPager mPager;
     private Button mBtnPrev;
     private Button mBtnNext;
+    private Button mBtnSkip;
     private ViewGroup mDots;
 
     @Override
@@ -103,12 +104,15 @@ public class TutorialActivity extends AppCompatActivity {
 
         mBtnNext = (Button) findViewById(R.id.btn_next);
         mBtnPrev = (Button) findViewById(R.id.btn_prev);
+        mBtnSkip = (Button) findViewById(R.id.btn_skip);
 
         mBtnNext.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                advance();
+                if (isButtonActive(v)) {
+                    advance();
+                }
             }
         });
 
@@ -121,6 +125,27 @@ public class TutorialActivity extends AppCompatActivity {
                 }
             }
         });
+
+        mBtnSkip.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isButtonActive(v)) {
+                    finishTutorial();
+                }
+            }
+        });
+
+        // Set the starting state of the buttons.
+        if (isIntroduction()) {
+            // For the intro, set up the crossfade.
+            mBtnPrev.setAlpha(0f);
+        } else {
+            // For tutorial, there is no skip, so hide that button.
+            mBtnSkip.setVisibility(View.GONE);
+            mBtnPrev.setAlpha(1.0f);
+            mBtnPrev.setVisibility(View.INVISIBLE);
+        }
+
         setupDots(items);
         // This prevents the video views from touching.
         mPager.setPageMargin(1);
@@ -137,11 +162,27 @@ public class TutorialActivity extends AppCompatActivity {
                     setStatusBarColorIfPossible((int) mArgbEvaluator.evaluate(positionOffset,
                             color1, color2));
                 }
+                if (position == 0 && isIntroduction()) {
+                    mBtnSkip.setAlpha(1 - positionOffset);
+                    mBtnPrev.setAlpha(positionOffset);
+                    mBtnSkip.setVisibility(View.VISIBLE);
+                    mBtnPrev.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
             public void onPageSelected(int position) {
-                mBtnPrev.setVisibility(position > 0 ? View.VISIBLE : View.INVISIBLE);
+                if (isIntroduction()) {
+                    Button buttonToShow = position == 0 ? mBtnSkip : mBtnPrev;
+                    Button buttonToHide = position == 0 ? mBtnPrev : mBtnSkip;
+                    buttonToShow.setVisibility(View.VISIBLE);
+                    buttonToShow.setAlpha(1.0f);
+                    buttonToHide.setVisibility(View.INVISIBLE);
+                    buttonToHide.setAlpha(0.0f);
+                    buttonToShow.bringToFront();
+                } else {
+                    mBtnPrev.setVisibility(position > 0 ? View.VISIBLE : View.INVISIBLE);
+                }
                 final int count = mDots.getChildCount();
                 for (int index = 0; index < count; index++) {
                     mDots.getChildAt(index).setSelected(index == position);
@@ -177,6 +218,15 @@ public class TutorialActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * @return true if this button should be considered active. A button that is fading in or out
+     * should not be active.
+     */
+    private boolean isButtonActive(View v) {
+        return v.getAlpha() > 0.8f;
+    }
+
+
     private void finishTutorial() {
         // Need to mark ourselves as done and finish.
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -185,32 +235,37 @@ public class TutorialActivity extends AppCompatActivity {
                 .apply();
 
         ImageView view = (ImageView) findViewById(R.id.logo);
-        view.animate()
-                .scaleXBy(3)
-                .scaleYBy(3)
-                .alpha(.1f)
-                .setDuration(500)
-                .setStartDelay(50)
-                .setInterpolator(new AccelerateInterpolator())
-                .setListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                    }
+        if (view != null) {
+            view.animate()
+                    .scaleXBy(3)
+                    .scaleYBy(3)
+                    .alpha(.1f)
+                    .setDuration(500)
+                    .setStartDelay(50)
+                    .setInterpolator(new AccelerateInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                        }
 
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        launchOrFinish();
-                    }
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            launchOrFinish();
+                        }
 
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-                    }
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                        }
 
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-                    }
-                })
-                .start();
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+                        }
+                    })
+                    .start();
+        } else {
+            // We skipped the tutorial.
+            launchOrFinish();
+        }
     }
 
     private void launchOrFinish() {
