@@ -20,15 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import com.google.android.apps.forscience.javalib.DataRefresher;
-import com.google.android.apps.forscience.javalib.Delay;
-import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.TreeSet;
 
 /**
  * Tests for the Refresher and the DataRefresher classes.
@@ -57,58 +51,6 @@ public class DataRefresherTest {
 
         private boolean dataAdded() {
             return mDataAdded;
-        }
-    }
-
-    // A mock scheduler that executes runnables after a delay.
-    // Note that this does may not run the runnables in order of when they were
-    // scheduled to be run: After time is incremented, any applicable runnable is run
-    // immediately.
-    public class MockScheduler implements Scheduler {
-        class QueuedRunnable implements Comparable<QueuedRunnable> {
-            public long executeAfter;
-            public Runnable runnable;
-
-            @Override
-            public int compareTo(QueuedRunnable another) {
-                return Long.compare(executeAfter, another.executeAfter);
-            }
-        }
-
-        private long mCurrentTime = 0;
-
-        private TreeSet<QueuedRunnable> mRunnables = new TreeSet<>();
-
-        @Override
-        public void schedule(Delay delay, Runnable doThis) {
-            if (delay.asMillis() == 0) {
-                doThis.run();
-            } else {
-                // Add to list of runnables
-                QueuedRunnable qr = new QueuedRunnable();
-                qr.executeAfter = delay.asMillis() + mCurrentTime;
-                qr.runnable = doThis;
-                mRunnables.add(qr);
-            }
-        }
-
-        public Clock getClock() {
-            return new Clock() {
-                @Override
-                public long getNow() {
-                    return mCurrentTime;
-                }
-            };
-        }
-
-        private void incrementTime(long ms) {
-            mCurrentTime += ms;
-
-            while (!mRunnables.isEmpty() && mRunnables.first().executeAfter <= mCurrentTime) {
-                QueuedRunnable first = mRunnables.first();
-                mRunnables.remove(first);
-                first.runnable.run();
-            }
         }
     }
 

@@ -19,6 +19,7 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -48,16 +49,19 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
     @NonNull
     public ScalarInputDiscoverer makeScalarInputDiscoverer(
             final String serviceId) {
-        return new ScalarInputDiscoverer(
-                new Consumer<AppDiscoveryCallbacks>() {
-                    @Override
-                    public void take(AppDiscoveryCallbacks adc) {
-                        adc.onServiceFound(serviceId, TestSensorDiscoverer.this);
-                        adc.onDiscoveryDone();
-                    }
-                },
-                new TestStringSource(),
-                MoreExecutors.directExecutor());
+        return new ScalarInputDiscoverer(makeFinder(serviceId), new TestStringSource(),
+                MoreExecutors.directExecutor(), new MockScheduler(), 100);
+    }
+
+    @NonNull
+    public Consumer<AppDiscoveryCallbacks> makeFinder(final String serviceId) {
+        return new Consumer<AppDiscoveryCallbacks>() {
+            @Override
+            public void take(AppDiscoveryCallbacks adc) {
+                adc.onServiceFound(serviceId, TestSensorDiscoverer.this);
+                adc.onDiscoveryDone();
+            }
+        };
     }
 
     @Override
@@ -78,17 +82,21 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
                     device.deliverTo(c);
                 }
             });
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        c.onScanDone();
-                    } catch (RemoteException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
         }
+        onDevicesDone(c);
+    }
+
+    protected void onDevicesDone(final IDeviceConsumer c) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    c.onScanDone();
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 
     public void addSensor(String deviceId, String sensorAddress, String sensorName) {
@@ -104,17 +112,21 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
                     sensor.deliverTo(c);
                 }
             });
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        c.onScanDone();
-                    } catch (RemoteException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
         }
+        onSensorsDone(c);
+    }
+
+    protected void onSensorsDone(final ISensorConsumer c) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    c.onScanDone();
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 
     @Override

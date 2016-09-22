@@ -14,13 +14,13 @@
  *  limitations under the License.
  */
 
-package com.google.android.apps.forscience.whistlepunk.sensordb;
+package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-class ExplicitExecutor implements Executor {
+public class ExplicitExecutor implements Executor {
     List<Runnable> mQueue = new ArrayList<>();
 
     @Override
