@@ -166,6 +166,8 @@ public class ChartView extends View {
 
     private void finishConstruction() {
         createPaints();
+        mPath = new Path();
+        mStatsPath = new Path();
     }
 
     private void createPaints() {
@@ -274,10 +276,6 @@ public class ChartView extends View {
             return;
         }
         updateColorOptions();
-
-        mPath = new Path();
-        mStatsPath = new Path();
-
         populatePath(false);
 
         if (mChartOptions.canPan() || mChartOptions.canZoom()) {
