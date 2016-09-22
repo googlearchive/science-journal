@@ -23,6 +23,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.DeadObjectException;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -121,13 +122,11 @@ public class AllNativeSensorProvider extends Service {
                                     int index = DeviceSettingsPopupActivity.getIndexForSensorType(
                                             sensorType, AllNativeSensorProvider.this);
                                     observer.onNewData(timestamp, event.values[index]);
+                                } catch (DeadObjectException e) {
+                                    reportError(e);
+                                    unregister();
                                 } catch (RemoteException e) {
-                                    try {
-                                        reportError(e);
-                                        listener.onSensorError(e.getMessage());
-                                    } catch (RemoteException e1) {
-                                        reportError(e1);
-                                    }
+                                    reportError(e);
                                 }
                             }
 
