@@ -1250,6 +1250,9 @@
     <!-- Message to show the suer when a crop succeeded [CHAR_LIMIT=150] -->
     <string name="crop_completed_message">Trial cropped</string>
 
+    <!-- Button to launch settings dialog for a selected sensor [CHAR_LIMIT=20] -->
+    <string name="launch_settings">Launch settings</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

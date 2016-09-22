@@ -22,6 +22,7 @@ import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -95,9 +96,12 @@ public class DeviceOptionsDialog extends DialogFragment {
         DialogInterface.OnClickListener onOK;
         View view;
         if (settingsIntent == null) {
+            // TODO: this is cheating, we're assuming that if there's no settings intent, we
+            // can treat this like a BLE controller.
             setupControllers();
-            mDataController.getExternalSensorById(sensorId, new LoggingConsumer<ExternalSensorSpec>(TAG,
-                    "Load external sensor with ID = " + sensorId) {
+            mDataController.getExternalSensorById(sensorId,
+                    new LoggingConsumer<ExternalSensorSpec>(TAG,
+                            "Load external sensor with ID = " + sensorId) {
                 @Override
                 public void success(ExternalSensorSpec sensor) {
                     mViewController.setSensor(sensorId, sensor, savedInstanceState);
@@ -126,8 +130,9 @@ public class DeviceOptionsDialog extends DialogFragment {
                     try {
                         settingsIntent.send();
                     } catch (PendingIntent.CanceledException e) {
-                        // SAFF: what?
-                        e.printStackTrace();
+                        if (Log.isLoggable(TAG, Log.ERROR)) {
+                            Log.e(TAG, "settings intent cancelled", e);
+                        }
                     }
                 }
             });
