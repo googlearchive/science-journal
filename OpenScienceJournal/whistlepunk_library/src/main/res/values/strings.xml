@@ -1074,8 +1074,11 @@
     <!-- Sensor header format when the audio is enabled. The unicode note character is appended to the sensor name. [CHAR_LIMIT = 3] -->
     <string name="audio_enabled_format"><xliff:g id="sensor_display_name">%1s</xliff:g>  \u266A</string>
 
-    <!-- Menu option to set or edit triggers for a particular sensor [CHAR_LIMIT=25]-->
+    <!-- Menu option to set triggers for a particular sensor [CHAR_LIMIT=25]-->
     <string name="menu_item_set_triggers">Set triggers</string>
+
+    <!-- Menu option to edit triggers for a particular sensor [CHAR_LIMIT=25]-->
+    <string name="menu_item_edit_triggers">Edit triggers</string>
 
     <!-- Title for an activity to a list of triggers for a sensor [CHAR_LIMIT=15]-->
     <string name="title_activity_trigger_list">Triggers list</string>

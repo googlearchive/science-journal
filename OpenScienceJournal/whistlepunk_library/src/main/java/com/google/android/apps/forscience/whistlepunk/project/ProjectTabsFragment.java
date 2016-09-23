@@ -146,6 +146,7 @@ public class ProjectTabsFragment extends Fragment implements
         mRecyclerView.setAdapter(mAdapter);
         if (savedInstanceState != null) {
             mIncludeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
+            getActivity().invalidateOptionsMenu();
         }
         FloatingActionButton createProjectBtn = (FloatingActionButton) view.findViewById(
                 R.id.create_project_button);
@@ -175,16 +176,22 @@ public class ProjectTabsFragment extends Fragment implements
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        MenuItem includeArchived = menu.findItem(R.id.action_include_archived);
-        includeArchived.setChecked(mIncludeArchived);
+        menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
+        menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_include_archived) {
-            item.setChecked(!item.isChecked());
-            mIncludeArchived = item.isChecked();
+            mIncludeArchived = true;
             loadProjects();
+            getActivity().invalidateOptionsMenu();
+            return true;
+        } else if (item.getItemId() == R.id.action_exclude_archived) {
+            mIncludeArchived = false;
+            loadProjects();
+            getActivity().invalidateOptionsMenu();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

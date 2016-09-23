@@ -655,6 +655,7 @@ public class SensorCardPresenter {
             return;
         }
         final Context context = mCardViewHolder.getContext();
+        Resources res = context.getResources();
         boolean showDevTools = DevOptionsFragment.isDevToolsEnabled(context);
         mPopupMenu = new PopupMenu(context, mCardViewHolder.menuButton);
         mPopupMenu.getMenuInflater().inflate(R.menu.menu_sensor_card, mPopupMenu.getMenu());
@@ -672,7 +673,7 @@ public class SensorCardPresenter {
         menu.findItem(R.id.btn_sensor_card_audio_settings).setEnabled(sensorConnected);
 
         menu.findItem(R.id.btn_sensor_card_audio_toggle).setTitle(
-                context.getResources().getString(mLayout.audioEnabled ?
+                res.getString(mLayout.audioEnabled ?
                         R.string.graph_options_audio_feedback_disable :
                         R.string.graph_options_audio_feedback_enable));
 
@@ -681,6 +682,9 @@ public class SensorCardPresenter {
         // Disable trigger settings during recording.
         menu.findItem(R.id.btn_sensor_card_set_triggers).setEnabled(sensorConnected &&
                 !isRecording() && mLayout != null);
+        menu.findItem(R.id.btn_sensor_card_set_triggers).setTitle(
+                res.getString(mCardTriggerPresenter.getSensorTriggers().size() == 0 ?
+                        R.string.menu_item_set_triggers : R.string.menu_item_edit_triggers));
 
         // Show the option to disable all triggers only during recording and if triggers exist
         // on the card.

@@ -41,15 +41,15 @@
                 app:showAsAction="ifRoom"
                 />
             <item
-                android:id="@+id/action_run_review_audio_settings"
-                android:icon="@drawable/ic_settings_audio_24dp"
-                android:title="@string/menu_item_audio_settings"
-                app:showAsAction="never"
-                />
-            <item
                 android:id="@+id/action_export"
                 android:icon="@drawable/ic_share_black_24dp"
                 android:title="@string/export_action"
+                app:showAsAction="never"
+                />
+            <item
+                android:id="@+id/action_run_review_audio_settings"
+                android:icon="@drawable/ic_settings_audio_24dp"
+                android:title="@string/menu_item_audio_settings"
                 app:showAsAction="never"
                 />
             <item
