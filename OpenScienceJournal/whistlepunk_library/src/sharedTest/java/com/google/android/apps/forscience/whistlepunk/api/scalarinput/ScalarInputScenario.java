@@ -15,14 +15,12 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
-import android.os.RemoteException;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
-
-import junit.framework.Assert;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -73,35 +71,19 @@ public class ScalarInputScenario {
 
     @NonNull
     public ScalarInputDiscoverer buildDiscoverer() {
+        final TestSensorDiscoverer discoverer = new TestSensorDiscoverer(getServiceName());
+        discoverer.addDevice(getDeviceId(), getDeviceName());
+        discoverer.addSensor(getDeviceId(), getSensorAddress(), getSensorName());
         return new ScalarInputDiscoverer(
                 new Consumer<AppDiscoveryCallbacks>() {
                     @Override
                     public void take(AppDiscoveryCallbacks adc) {
-                        adc.onServiceFound(getServiceId(),
-                                new TestSensorDiscoverer(getServiceName()) {
-                                    @Override
-                                    public void scanDevices(IDeviceConsumer c)
-                                            throws RemoteException {
-                                        c.onDeviceFound(getDeviceId(), getDeviceName(), null);
-                                    }
-
-                                    @Override
-                                    public void scanSensors(String actualDeviceId,
-                                            ISensorConsumer c)
-                                            throws RemoteException {
-                                        Assert.assertEquals(getDeviceId(), actualDeviceId);
-                                        c.onSensorFound(getSensorAddress(), getSensorName(), null,
-                                                null, null);
-                                    }
-
-                                    @Override
-                                    public ISensorConnector getConnector() throws RemoteException {
-                                        return null;
-                                    }
-                                });
+                        adc.onServiceFound(getServiceId(), discoverer);
                         adc.onDiscoveryDone();
                     }
-                }, null);
+                },
+                new TestStringSource(),
+                MoreExecutors.directExecutor());
     }
 
     @NonNull
