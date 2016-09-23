@@ -21,9 +21,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensors.AccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor;
@@ -73,7 +76,9 @@ public class SensorRegistry {
     }
 
     private Map<String, SensorRegistryItem> mSensorRegistry = new ArrayMap<>();
-    private Multimap<String, Consumer<SensorChoice>> mWaitingSensorChoiceOperations =
+
+    // sensorId -> (tag, op)
+    private Multimap<String, Pair<String, Consumer<SensorChoice>>> mWaitingSensorChoiceOperations =
             HashMultimap.create();
     private SensorRegistryListener mSensorRegistryListener;
     private Map<String, ExternalSensorSpec> mMostRecentExternalSensors;
@@ -120,12 +125,12 @@ public class SensorRegistry {
      * This is needed because especially BluetoothSensors can be added considerably after the rest
      * of the RecordFragment setup.
      */
-    public void withSensorChoice(String sensorId, Consumer<SensorChoice> consumer) {
+    public void withSensorChoice(String tag, String sensorId, Consumer<SensorChoice> consumer) {
         SensorRegistryItem item = mSensorRegistry.get(sensorId);
         if (item != null) {
             consumer.take(item.choice);
         } else {
-            mWaitingSensorChoiceOperations.put(sensorId, consumer);
+            mWaitingSensorChoiceOperations.put(sensorId, Pair.create(tag, consumer));
         }
     }
 
@@ -139,8 +144,8 @@ public class SensorRegistry {
         // TODO: enable per-sensor defaults (b/28036680)
         String id = item.choice.getId();
         mSensorRegistry.put(id, item);
-        for (Consumer<SensorChoice> c : mWaitingSensorChoiceOperations.get(id)) {
-            c.take(item.choice);
+        for (Pair<String, Consumer<SensorChoice>> c : mWaitingSensorChoiceOperations.get(id)) {
+            c.second.take(item.choice);
         }
         mWaitingSensorChoiceOperations.removeAll(id);
     }
@@ -160,29 +165,36 @@ public class SensorRegistry {
     }
 
     private void addAvailableBuiltinSensors(Context context) {
-        if (AccelerometerSensor.isAccelerometerAvailable(context.getApplicationContext())) {
+        final Context appContext = context.getApplicationContext();
+        AvailableSensors available = new AvailableSensors() {
+            @Override
+            public boolean isSensorAvailable(int sensorType) {
+                return ScalarSensor.getSensorManager(appContext).getDefaultSensor(sensorType)
+                        != null;
+            }
+        };
+        if (AccelerometerSensor.isAccelerometerAvailable(available)) {
             addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.X));
             addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.Y));
             addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.Z));
         }
-        if (AmbientLightSensor.isAmbientLightAvailable(context.getApplicationContext())) {
+        if (AmbientLightSensor.isAmbientLightAvailable(available)) {
             addBuiltInSensor(new AmbientLightSensor());
         }
         addBuiltInSensor(new DecibelSensor());
 
         if (DevOptionsFragment.isMagnetometerEnabled(context)) {
-            if (MagneticRotationSensor.isMagneticRotationSensorAvailable(
-                    context.getApplicationContext())) {
+            if (MagneticRotationSensor.isMagneticRotationSensorAvailable(available)) {
                 addBuiltInSensor(new MagneticRotationSensor());
             }
         }
 
-        if (BarometerSensor.isBarometerSensorAvailable(context.getApplicationContext())) {
+        if (BarometerSensor.isBarometerSensorAvailable(available)) {
             addBuiltInSensor(new BarometerSensor());
         }
 
         if (DevOptionsFragment.isAmbientTemperatureSensorEnabled(context)) {
-            if (AmbientTemperatureSensor.isAmbientTemperatureSensorAvailable(context)) {
+            if (AmbientTemperatureSensor.isAmbientTemperatureSensorAvailable(available)) {
                 addBuiltInSensor(new AmbientTemperatureSensor());
             }
         }
@@ -258,6 +270,16 @@ public class SensorRegistry {
             return mSensorRegistry.get(sensorId).loggingId;
         } else {
             return null;
+        }
+    }
+
+    public void removePendingOperations(String tag) {
+        Iterator<Pair<String, Consumer<SensorChoice>>> i =
+                mWaitingSensorChoiceOperations.values().iterator();
+        while (i.hasNext()) {
+            if (i.next().first.equals(tag)) {
+                i.remove();
+            }
         }
     }
 }

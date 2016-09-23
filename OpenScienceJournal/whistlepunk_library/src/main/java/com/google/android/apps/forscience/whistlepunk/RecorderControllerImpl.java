@@ -18,8 +18,6 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.content.Intent;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
@@ -58,7 +56,6 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -66,7 +63,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Keeps track of:
@@ -229,7 +225,7 @@ public class RecorderControllerImpl implements RecorderController {
             RecorderControllerImpl.this.startObserving(sr);
             addServiceObserverIfNeeded(sensorId, activeTriggers);
         } else {
-            mSensors.withSensorChoice(sensorId, new Consumer<SensorChoice>() {
+            mSensors.withSensorChoice(TAG, sensorId, new Consumer<SensorChoice>() {
                 @Override
                 public void take(SensorChoice sensor) {
                     final SensorRecorder recorder = sensor.createRecorder(mContext,

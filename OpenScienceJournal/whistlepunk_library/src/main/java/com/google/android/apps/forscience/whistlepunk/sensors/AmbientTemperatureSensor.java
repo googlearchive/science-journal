@@ -22,10 +22,9 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-import com.google.android.apps.forscience.javalib.DataRefresher;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
@@ -81,7 +80,7 @@ public class AmbientTemperatureSensor extends ScalarSensor {
         };
     }
 
-    public static boolean isAmbientTemperatureSensorAvailable(Context context) {
-        return isSensorAvailable(context, Sensor.TYPE_AMBIENT_TEMPERATURE);
+    public static boolean isAmbientTemperatureSensorAvailable(AvailableSensors availableSensors) {
+        return availableSensors.isSensorAvailable(Sensor.TYPE_AMBIENT_TEMPERATURE);
     }
 }
