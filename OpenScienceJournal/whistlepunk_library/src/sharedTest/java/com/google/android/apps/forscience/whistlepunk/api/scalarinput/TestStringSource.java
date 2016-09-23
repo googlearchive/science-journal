@@ -15,17 +15,9 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
-import android.os.RemoteException;
-
-abstract class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
-    private String mServiceName;
-
-    public TestSensorDiscoverer(String serviceName) {
-        mServiceName = serviceName;
-    }
-
+public class TestStringSource implements ScalarInputStringSource {
     @Override
-    public String getName() throws RemoteException {
-        return mServiceName;
+    public String generateCouldNotFindServiceErrorMessage(String serviceId) {
+        return "No luck finding " + serviceId;
     }
 }
