@@ -119,14 +119,14 @@ public abstract class ExternalAxisView extends View {
 
     public void setRecordingStart(long timestamp) {
         mRecordingStart = timestamp;
-        invalidate();
+        postInvalidateOnAnimation();
     }
 
     public void updateAxis(long xMin, long xMax) {
         mXMin = xMin;
         mXMax = xMax;
         mTimeBetweenTicks = (xMax - xMin) / NUMBER_OF_TICKS;
-        invalidate();
+        postInvalidateOnAnimation();
     }
 
     public void setLabels(List<Long> labels) {

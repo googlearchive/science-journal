@@ -151,6 +151,7 @@ public class SensorCardPresenter {
     // This works unless your phone thinks it is 1970 or earlier!
     private long mLastUpdatedIconTimestamp = -1;
     private long mLastUpdatedTextTimestamp = -1;
+    private boolean mTextTimeHasElapsed = false;
 
     private NumberFormat mNumberFormat;
     private LocalSensorOptionsStorage mCardOptions = new LocalSensorOptionsStorage();
@@ -203,13 +204,12 @@ public class SensorCardPresenter {
     public void onNewData(long timestamp, Bundle bundle) {
         boolean iconTimeHasElapsed =
                 timestamp > mLastUpdatedIconTimestamp + MAX_ICON_UPDATE_TIME_MS;
-        boolean textTimeHasElapsed =
-                timestamp > mLastUpdatedTextTimestamp + MAX_TEXT_UPDATE_TIME_MS;
-        if (!textTimeHasElapsed && !iconTimeHasElapsed) {
+        mTextTimeHasElapsed = timestamp > mLastUpdatedTextTimestamp + MAX_TEXT_UPDATE_TIME_MS;
+        if (!mTextTimeHasElapsed && !iconTimeHasElapsed) {
             return;
         }
 
-        if (textTimeHasElapsed) {
+        if (mTextTimeHasElapsed) {
             mLastUpdatedTextTimestamp = timestamp;
         }
         if (iconTimeHasElapsed) {
@@ -220,7 +220,7 @@ public class SensorCardPresenter {
         }
         if (ScalarSensor.hasValue(bundle)) {
             double value = ScalarSensor.getValue(bundle);
-            if (textTimeHasElapsed) {
+            if (mTextTimeHasElapsed) {
                 String valueString = mNumberFormat.format(value);
                 SpannableString spannable = new SpannableString(valueString);
                 // Use a TtsSpan to tell Screen Readers how to interpret the number.
@@ -999,7 +999,7 @@ public class SensorCardPresenter {
     // When the stats drawer is recycled, this can return the old drawer for a different
     // sensor, so check whether the view is recycled (unavailable) before updating.
     public void updateStats(List<StreamStat> stats) {
-        if (mCardViewHolder != null && mSensorPresenter != null) {
+        if (mCardViewHolder != null && mSensorPresenter != null && mTextTimeHasElapsed) {
             mCardViewHolder.graphStatsList.updateStats(stats);
             mCardViewHolder.meterStatsList.updateStats(stats);
             mSensorPresenter.updateStats(stats);
