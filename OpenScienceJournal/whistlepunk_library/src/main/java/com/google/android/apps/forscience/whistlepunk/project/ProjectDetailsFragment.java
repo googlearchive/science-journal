@@ -105,8 +105,10 @@ public class ProjectDetailsFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mIncludeArchived = (savedInstanceState != null) ? savedInstanceState.getBoolean(
-                EXTRA_INCLUDE_ARCHIVED, false) : false;
+        if (savedInstanceState != null) {
+            mIncludeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
+            getActivity().invalidateOptionsMenu();
+        }
         setHasOptionsMenu(true);
     }
 
@@ -124,6 +126,12 @@ public class ProjectDetailsFragment extends Fragment implements
                         loadExperiments();
                     }
                 });
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(EXTRA_INCLUDE_ARCHIVED, mIncludeArchived);
     }
 
     @Override
@@ -243,8 +251,8 @@ public class ProjectDetailsFragment extends Fragment implements
             deleteButton.setVisible(true);
             deleteButton.setEnabled(mProject.isArchived());
         }
-        MenuItem includeArchived = menu.findItem(R.id.action_include_archived);
-        includeArchived.setChecked(mIncludeArchived);
+        menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
+        menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
     }
 
     @Override
@@ -269,9 +277,14 @@ public class ProjectDetailsFragment extends Fragment implements
             confirmDelete();
             return true;
         } else if (id == R.id.action_include_archived) {
-            item.setChecked(!item.isChecked());
-            mIncludeArchived = item.isChecked();
+            mIncludeArchived = true;
             loadExperiments();
+            getActivity().invalidateOptionsMenu();
+            return true;
+        } else if (id == R.id.action_exclude_archived) {
+            mIncludeArchived = false;
+            loadExperiments();
+            getActivity().invalidateOptionsMenu();
             return true;
         }
 

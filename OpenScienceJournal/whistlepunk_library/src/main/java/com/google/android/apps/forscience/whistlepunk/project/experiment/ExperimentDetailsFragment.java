@@ -244,6 +244,7 @@ public class ExperimentDetailsFragment extends Fragment
 
         if (savedInstanceState != null) {
             mIncludeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
+            getActivity().invalidateOptionsMenu();
         }
 
         return view;
@@ -301,6 +302,8 @@ public class ExperimentDetailsFragment extends Fragment
                 mExperiment.isArchived());
         menu.findItem(R.id.action_delete_experiment).setEnabled(mExperiment != null
                 && mExperiment.isArchived());
+        menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
+        menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
     }
 
     @Override
@@ -320,9 +323,14 @@ public class ExperimentDetailsFragment extends Fragment
             launchLabelAdd();
             return true;
         } else if (itemId == R.id.action_include_archived) {
-            item.setChecked(!item.isChecked());
-            mIncludeArchived = item.isChecked();
+            mIncludeArchived = true;
             loadExperimentData(mExperiment);
+            getActivity().invalidateOptionsMenu();
+            return true;
+        } else if (itemId == R.id.action_exclude_archived) {
+            mIncludeArchived = false;
+            loadExperimentData(mExperiment);
+            getActivity().invalidateOptionsMenu();
             return true;
         } else if (itemId == R.id.action_delete_experiment) {
             confirmDelete();
