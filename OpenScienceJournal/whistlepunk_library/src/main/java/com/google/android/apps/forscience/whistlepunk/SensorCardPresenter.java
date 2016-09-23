@@ -382,6 +382,7 @@ public class SensorCardPresenter {
         if (mCardViewHolder != null) {
             mSensorPresenter.startShowing(mCardViewHolder.chartView, mInteractionListener);
             updateSensorTriggerUi();
+            updateLearnMoreButton();
         }
         // It is possible we just resumed observing but we are currently recording, in which case
         // we need to refresh the recording UI.
@@ -457,21 +458,7 @@ public class SensorCardPresenter {
         });
         mCardViewHolder.flipButton.setEnabled(true);
 
-        if (mAppearanceProvider.getAppearance(mSensorId).hasLearnMore()) {
-            mCardViewHolder.infoButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Context context = v.getContext();
-                    Intent intent = new Intent(context, SensorInfoActivity.class);
-                    intent.putExtra(SensorInfoActivity.EXTRA_SENSOR_ID, mSensorId);
-                    intent.putExtra(SensorInfoActivity.EXTRA_COLOR_ID,
-                            mDataViewOptions.getGraphColor());
-                    context.startActivity(intent);
-                }
-            });
-        } else {
-            mCardViewHolder.infoButton.setVisibility(View.GONE);
-        }
+        updateLearnMoreButton();
 
         mCardViewHolder.graphStatsList.setTextBold(mLayout.showStatsOverlay);
         mCardViewHolder.graphStatsList.setTextDarkerColor(mLayout.showStatsOverlay);
@@ -515,6 +502,26 @@ public class SensorCardPresenter {
             return;
         }
         mCardTriggerPresenter.updateSensorTriggerUi();
+    }
+
+    private void updateLearnMoreButton() {
+        if (mAppearanceProvider.getAppearance(mSensorId).hasLearnMore()) {
+            mCardViewHolder.infoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Context context = v.getContext();
+                    Intent intent = new Intent(context, SensorInfoActivity.class);
+                    intent.putExtra(SensorInfoActivity.EXTRA_SENSOR_ID, mSensorId);
+                    intent.putExtra(SensorInfoActivity.EXTRA_COLOR_ID,
+                            mDataViewOptions.getGraphColor());
+                    context.startActivity(intent);
+                }
+            });
+            mCardViewHolder.infoButton.setVisibility(View.VISIBLE);
+        } else {
+            mCardViewHolder.infoButton.setOnClickListener(null);
+            mCardViewHolder.infoButton.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void updateContentView(boolean animate) {
