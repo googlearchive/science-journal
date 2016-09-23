@@ -422,6 +422,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         mHandler = null;
         mSensorSettingsController = null;
         mGraphOptionsController = null;
+        if (mSensorRegistry != null) {
+            mSensorRegistry.removePendingOperations(TAG);
+        }
         super.onDestroy();
     }
 
@@ -1277,7 +1280,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             final SensorCardPresenter sensorCardPresenter) {
         final Context context = getActivity().getApplicationContext();
         sensorCardPresenter.setConnectingUI(sensorId, false, context, true);
-        mSensorRegistry.withSensorChoice(sensorId, new Consumer<SensorChoice>() {
+        mSensorRegistry.withSensorChoice(TAG, sensorId, new Consumer<SensorChoice>() {
             @Override
             public void take(SensorChoice sensorChoice) {
                 // TODO: should dataViewOptions go into sensorCardPresenter?

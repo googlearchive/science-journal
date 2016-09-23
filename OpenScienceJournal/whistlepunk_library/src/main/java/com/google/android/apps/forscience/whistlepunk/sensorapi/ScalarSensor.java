@@ -548,7 +548,4 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         return (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
     }
 
-    public static boolean isSensorAvailable(Context context, int sensorType) {
-        return getSensorManager(context).getDefaultSensor(sensorType) != null;
-    }
 }

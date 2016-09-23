@@ -24,6 +24,7 @@ import android.hardware.SensorManager;
 
 import com.google.android.apps.forscience.javalib.DataRefresher;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
@@ -97,7 +98,7 @@ public class AmbientLightSensor extends ScalarSensor {
         };
     }
 
-    public static boolean isAmbientLightAvailable(Context context) {
-        return isSensorAvailable(context, Sensor.TYPE_LIGHT);
+    public static boolean isAmbientLightAvailable(AvailableSensors availableSensors) {
+        return availableSensors.isSensorAvailable(Sensor.TYPE_LIGHT);
     }
 }

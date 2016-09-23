@@ -18,8 +18,6 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import static junit.framework.Assert.assertEquals;
 
-import android.net.Uri;
-
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -43,7 +41,7 @@ public class RecorderControllerTest {
         final ManualSensor sensor = new ManualSensor(sensorId, 100, 100);
         SensorRegistry registry = new SensorRegistry() {
             @Override
-            public void withSensorChoice(String id, Consumer<SensorChoice> consumer) {
+            public void withSensorChoice(String tag, String id, Consumer<SensorChoice> consumer) {
                 assertEquals(sensorId, id);
                 consumer.take(sensor);
             }
@@ -78,7 +76,7 @@ public class RecorderControllerTest {
         final ManualSensor sensor = new ManualSensor(sensorId, 100, 100);
         SensorRegistry registry = new SensorRegistry() {
             @Override
-            public void withSensorChoice(String id, Consumer<SensorChoice> consumer) {
+            public void withSensorChoice(String tag, String id, Consumer<SensorChoice> consumer) {
                 assertEquals(sensorId, id);
                 consumer.take(sensor);
             }

@@ -16,19 +16,19 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.support.annotation.NonNull;
-import android.test.AndroidTestCase;
 
+import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
-
-import junit.framework.TestCase;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO: make this a java-only unit test
 public class SensorRegistryTest extends DevOptionsTestCase {
     @NonNull
     @Override
@@ -94,6 +94,27 @@ public class SensorRegistryTest extends DevOptionsTestCase {
         assertEquals("bluetooth_le:raw", reg.getLoggingId(bleSensorId));
     }
 
+    public void testDropWaitingOperations() {
+        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(getContext());
+        StoringConsumer cyes = new StoringConsumer();
+        String tagyes = "yes";
+
+        StoringConsumer cno = new StoringConsumer();
+        String tagno = "no";
+
+        String newSensorId = "newSensorId";
+        reg.withSensorChoice(tagyes, newSensorId, cyes);
+        reg.withSensorChoice(tagno, newSensorId, cno);
+        reg.removePendingOperations(tagno);
+        ExternalSensorSpec spec = new BleSensorSpec("address", "name");
+        reg.updateExternalSensors(
+                ImmutableMap.of(newSensorId, spec),
+                ImmutableMap.<String, ExternalSensorProvider>of(BleSensorSpec.TYPE,
+                        new NativeBleDiscoverer().getProvider()));
+        assertNull(cno.latestChoice);
+        assertNotNull(cyes.latestChoice);
+    }
+
     private static class TestSensorRegistryListener implements SensorRegistryListener {
         public int numRefreshes = 0;
 
@@ -105,6 +126,15 @@ public class SensorRegistryTest extends DevOptionsTestCase {
         @Override
         public void refreshBuiltinSensors() {
             numRefreshes++;
+        }
+    }
+
+    private static class StoringConsumer extends Consumer<SensorChoice> {
+        public SensorChoice latestChoice = null;
+
+        @Override
+        public void take(SensorChoice sensorChoice) {
+            latestChoice = sensorChoice;
         }
     }
 }

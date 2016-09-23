@@ -24,6 +24,7 @@ import android.hardware.SensorManager;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
@@ -83,7 +84,7 @@ public class MagneticRotationSensor extends ScalarSensor {
         };
     }
 
-    public static boolean isMagneticRotationSensorAvailable(Context applicationContext) {
-        return isSensorAvailable(applicationContext, Sensor.TYPE_MAGNETIC_FIELD);
+    public static boolean isMagneticRotationSensorAvailable(AvailableSensors availableSensors) {
+        return availableSensors.isSensorAvailable(Sensor.TYPE_MAGNETIC_FIELD);
     }
 }
