@@ -243,6 +243,11 @@ public class BleSensorSpec extends ExternalSensorSpec implements Parcelable {
                 '}';
     }
 
+    @Override
+    public boolean shouldShowOptionsOnConnect() {
+        return true;
+    }
+
     @VisibleForTesting
     public boolean equals(Object other) {
         // Cheating!  Only for tests

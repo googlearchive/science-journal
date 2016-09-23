@@ -401,6 +401,11 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
             public byte[] getConfig() {
                 return bleSpec.getConfig();
             }
+
+            @Override
+            public boolean shouldShowOptionsOnConnect() {
+                return false;
+            }
         };
 
         String bleId = mMetaDataManager.addOrGetExternalSensor(bleSpec, providerMap);
@@ -414,7 +419,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         Map<String, ExternalSensorProvider> providerMap = getProviderMap();
         assertEquals(0, mMetaDataManager.getExternalSensors(providerMap).size());
         mMetaDataManager.addOrGetExternalSensor(
-                new ScalarInputSpec("name", "serviceId", "address", null, null), providerMap);
+                new ScalarInputSpec("name", "serviceId", "address", null, null, true), providerMap);
         Map<String, ExternalSensorSpec> newSensors = mMetaDataManager.getExternalSensors(
                 providerMap);
         assertEquals(1, newSensors.size());
