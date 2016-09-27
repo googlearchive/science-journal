@@ -98,7 +98,7 @@
     <!-- Displayed units for a magnetic rotation sensor [CHAR_LIMIT=10] -->
     <string name="magnetic_rotation_units">degrees</string>
 
-    <!-- Displayed units for a sound intencity sensor [CHAR_LIMIT=10] -->
+    <!-- Displayed units for a sound intensity sensor, decibels [CHAR_LIMIT=10] -->
     <string name="decibel_units">dB</string>
 
     <!-- Displayed units for an RPM sensor [CHAR_LIMIT=10] -->
@@ -107,10 +107,10 @@
     <!-- Displayed units for a Voltage sensor [CHAR_LIMIT=10] -->
     <string name="voltage_units">V</string>
 
-    <!-- Displayed units for a raw sensor [CHAR_LIMIT=10] -->
+    <!-- Displayed units for a raw sensor, a percentage [CHAR_LIMIT=10] -->
     <string name="raw_units">%</string>
 
-    <!-- Displayed units for a barometer sensor [CHAR_LIMIT=10] -->
+    <!-- Displayed units for a barometer sensor, hectopascals (hPa). [CHAR_LIMIT=10] -->
     <string name="barometer_units">hPa</string>
 
     <!-- Displayed units for an ambient temperature sensor [CHAR_LIMIT=10] -->
