@@ -24,6 +24,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
+import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -36,7 +37,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -84,12 +84,14 @@ public class EditTriggerFragment extends Fragment {
     private AppCompatSpinner mWhenSpinner;
     private EditText mValue;
     private EditText mNoteValue;
-    private CheckBox mAudioAlert;
-    private CheckBox mVisualAlert;
-    private CheckBox mHapticAlert;
+    private SwitchCompat mAudioAlert;
+    private SwitchCompat mVisualAlert;
+    private SwitchCompat mHapticAlert;
+    private SwitchCompat mOnlyWhenRecording;
     private int mSensorLayoutPosition;
     private ViewGroup mNoteGroup;
     private ViewGroup mAlertGroup;
+    private ViewGroup mOnlyWhenRecordingGroup;
     private boolean mIsSavingNewTrigger = false;
 
     public static EditTriggerFragment newInstance(String sensorId, String experimentId,
@@ -157,6 +159,7 @@ public class EditTriggerFragment extends Fragment {
 
         mNoteGroup = (ViewGroup) view.findViewById(R.id.note_type_trigger_section);
         mAlertGroup = (ViewGroup) view.findViewById(R.id.alert_type_trigger_section);
+        mOnlyWhenRecordingGroup = (ViewGroup) view.findViewById(R.id.only_when_recording_section);
 
         mTypeSpinner = (AppCompatSpinner) view.findViewById(R.id.trigger_type_spinner);
         ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(getActivity(),
@@ -172,13 +175,14 @@ public class EditTriggerFragment extends Fragment {
 
         mValue = (EditText) view.findViewById(R.id.value_input);
         mNoteValue = (EditText) view.findViewById(R.id.trigger_note_text);
-        mAudioAlert = (CheckBox) view.findViewById(R.id.alert_type_audio_selector);
-        mVisualAlert = (CheckBox) view.findViewById(R.id.alert_type_visual_selector);
-        mHapticAlert = (CheckBox) view.findViewById(R.id.alert_type_haptic_selector);
+        mAudioAlert = (SwitchCompat) view.findViewById(R.id.alert_type_audio_selector);
+        mVisualAlert = (SwitchCompat) view.findViewById(R.id.alert_type_visual_selector);
+        mHapticAlert = (SwitchCompat) view.findViewById(R.id.alert_type_haptic_selector);
         if (!PermissionUtils.permissionIsGranted(getActivity(), Manifest.permission.VIBRATE)) {
             mHapticAlert.setEnabled(PermissionUtils.canRequestAgain(getActivity(),
                     Manifest.permission.VIBRATE));
         };
+        mOnlyWhenRecording = (SwitchCompat) view.findViewById(R.id.trigger_only_when_recording);
 
         TextView unitsTextView = (TextView) view.findViewById(R.id.units);
         String units = AppSingleton.getInstance(getActivity())
@@ -208,6 +212,7 @@ public class EditTriggerFragment extends Fragment {
             } else if (actionType == TriggerInformation.TRIGGER_ACTION_NOTE) {
                 mNoteValue.setText(mTriggerToEdit.getNoteText());
             }
+            mOnlyWhenRecording.setChecked(mTriggerToEdit.shouldTriggerOnlyWhenRecording());
             updateViewVisibilities(actionType);
 
             // Now add the save listeners if this is an edited trigger (not a new trigger).
@@ -255,6 +260,7 @@ public class EditTriggerFragment extends Fragment {
             mTypeSpinner.setSelection(TriggerInformation.TRIGGER_ACTION_ALERT);
             mWhenSpinner.setSelection(TriggerInformation.TRIGGER_WHEN_AT);
             mVisualAlert.setChecked(true);
+            mOnlyWhenRecording.setChecked(true);
         }
 
         mWhenSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -304,12 +310,21 @@ public class EditTriggerFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    // Don't let them check this checkbox if they deny the vibrate permission.
+                    // Don't let them check this switch if they deny the vibrate permission.
                     if (!PermissionUtils.tryRequestingPermission(getActivity(),
                             Manifest.permission.VIBRATE, PERMISSION_VIBRATE, true)) {
                         mHapticAlert.setChecked(false);
                     };
                 }
+                if (!isNewTrigger()) {
+                    saveTrigger();
+                }
+            }
+        });
+
+        mOnlyWhenRecording.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (!isNewTrigger()) {
                     saveTrigger();
                 }
@@ -323,12 +338,15 @@ public class EditTriggerFragment extends Fragment {
                 actionType == TriggerInformation.TRIGGER_ACTION_STOP_RECORDING) {
             mNoteGroup.setVisibility(View.GONE);
             mAlertGroup.setVisibility(View.GONE);
+            mOnlyWhenRecordingGroup.setVisibility(View.GONE);
         } else if (actionType == TriggerInformation.TRIGGER_ACTION_ALERT) {
             mNoteGroup.setVisibility(View.GONE);
             mAlertGroup.setVisibility(View.VISIBLE);
+            mOnlyWhenRecordingGroup.setVisibility(View.VISIBLE);
         } else if (actionType == TriggerInformation.TRIGGER_ACTION_NOTE) {
             mNoteGroup.setVisibility(View.VISIBLE);
             mAlertGroup.setVisibility(View.GONE);
+            mOnlyWhenRecordingGroup.setVisibility(View.VISIBLE);
         }
     }
 
@@ -405,6 +423,7 @@ public class EditTriggerFragment extends Fragment {
         final DataController dc = getDataController();
         int triggerType = mTypeSpinner.getSelectedItemPosition();
         int triggerWhen = mWhenSpinner.getSelectedItemPosition();
+        boolean triggerOnlyWhenRecording = mOnlyWhenRecording.isChecked();
         double triggerValue = 0;
         try {
             triggerValue = Double.parseDouble(String.valueOf(mValue.getText()));
@@ -414,17 +433,19 @@ public class EditTriggerFragment extends Fragment {
             return;
         }
         if (isNewTrigger()) {
-            createNewTrigger(dc, triggerType, triggerWhen, triggerValue);
+            createNewTrigger(dc, triggerType, triggerWhen, triggerValue, triggerOnlyWhenRecording);
         } else {
-            updateTrigger(dc, triggerType, triggerWhen, triggerValue, returnToParent);
+            updateTrigger(dc, triggerType, triggerWhen, triggerValue, triggerOnlyWhenRecording,
+                    returnToParent);
         }
     }
 
     // Updates a trigger in the database if it has changed, otherwise just returns to the parent
     // fragment.
     private void updateTrigger(DataController dc, int triggerType, int triggerWhen,
-            double triggerValue, final boolean returnToParent) {
-        boolean isUpdated = updateLocalTriggerIfChanged(triggerType, triggerWhen, triggerValue);
+            double triggerValue, boolean triggerOnlyWhenRecording, final boolean returnToParent) {
+        boolean isUpdated = updateLocalTriggerIfChanged(triggerType, triggerWhen, triggerValue,
+                triggerOnlyWhenRecording);
         // Only update and activate if changes were made.
         if (!isUpdated && returnToParent) {
             goToParent();
@@ -446,7 +467,7 @@ public class EditTriggerFragment extends Fragment {
     }
 
     private boolean updateLocalTriggerIfChanged(int triggerType, int triggerWhen,
-            double triggerValue) {
+            double triggerValue, boolean triggerOnlyWhenRecording) {
         boolean isUpdated = false;
         if (mTriggerToEdit.getTriggerWhen() != triggerWhen) {
             mTriggerToEdit.setTriggerWhen(triggerWhen);
@@ -458,6 +479,10 @@ public class EditTriggerFragment extends Fragment {
         }
         if (mTriggerToEdit.getActionType() != triggerType) {
             mTriggerToEdit.setTriggerActionType(triggerType);
+            isUpdated = true;
+        }
+        if (mTriggerToEdit.shouldTriggerOnlyWhenRecording() != triggerOnlyWhenRecording) {
+            mTriggerToEdit.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
             isUpdated = true;
         }
         if (triggerType == TriggerInformation.TRIGGER_ACTION_NOTE) {
@@ -479,7 +504,7 @@ public class EditTriggerFragment extends Fragment {
     // Creates a new trigger in the database, and adds it to the active triggers in the SensorLayout
     // before returning to the parent fragment.
     private void createNewTrigger(DataController dc, int triggerType, int triggerWhen,
-            double triggerValue) {
+            double triggerValue, boolean triggerOnlyWhenRecording) {
         // Now that the trigger is verified, make sure the save button can't be pushed again.
         mIsSavingNewTrigger = true;
         getActivity().invalidateOptionsMenu();
@@ -492,9 +517,11 @@ public class EditTriggerFragment extends Fragment {
         } else if (triggerType == TriggerInformation.TRIGGER_ACTION_NOTE) {
             triggerToAdd = SensorTrigger.newNoteTypeTrigger(triggerId, mSensorId, triggerWhen,
                     String.valueOf(mNoteValue.getText()), triggerValue);
+            triggerToAdd.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
         } else if (triggerType == TriggerInformation.TRIGGER_ACTION_ALERT) {
             triggerToAdd = SensorTrigger.newAlertTypeTrigger(triggerId, mSensorId, triggerWhen,
                     getCurrentAlertTypes(), triggerValue);
+            triggerToAdd.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
         }
         TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout, triggerId);
         dc.addSensorTrigger(triggerToAdd, mExperimentId,

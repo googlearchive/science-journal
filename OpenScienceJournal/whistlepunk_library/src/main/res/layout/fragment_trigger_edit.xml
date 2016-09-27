@@ -25,8 +25,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/update_project_horizontal_padding"
-        android:paddingRight="@dimen/update_project_horizontal_padding"
         android:paddingTop="@dimen/update_project_vertical_padding"
         >
 
@@ -37,16 +35,21 @@
             android:textSize="14sp"
             android:text="@string/trigger_type_label"
             android:labelFor="@+id/trigger_type_spinner"
+            android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
+            android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
             />
 
         <android.support.v7.widget.AppCompatSpinner
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="216dp"
             android:minHeight="@dimen/accessibility_touch_target_min_size"
             android:id="@id/trigger_type_spinner"
             android:layout_marginBottom="24dp"
             style="@style/Base.Widget.AppCompat.Spinner.Underlined"
             android:popupBackground="@android:color/white"
+            android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
+            android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
             />
 
         <TextView
@@ -56,16 +59,21 @@
             android:textSize="14sp"
             android:text="@string/trigger_when_label"
             android:labelFor="@+id/trigger_when_spinner"
+            android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
+            android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
             />
 
         <android.support.v7.widget.AppCompatSpinner
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="216dp"
             android:minHeight="@dimen/accessibility_touch_target_min_size"
             android:id="@id/trigger_when_spinner"
             android:layout_marginBottom="24dp"
             style="@style/Base.Widget.AppCompat.Spinner.Underlined"
             android:popupBackground="@android:color/white"
+            android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
+            android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
             />
 
         <TextView
@@ -75,6 +83,8 @@
             android:textSize="14sp"
             android:text="@string/trigger_value_label"
             android:labelFor="@+id/value_input"
+            android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
+            android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
             />
 
         <LinearLayout
@@ -94,6 +104,7 @@
                 android:inputType="numberDecimal|numberSigned"
                 android:textSize="16sp"
                 android:hint="@string/trigger_value_hint"
+                android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
                 />
 
             <TextView
@@ -110,16 +121,74 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:id="@+id/only_when_recording_section"
+            >
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/run_review_divider_thickness"
+                android:background="@color/run_review_divider_color"
+                android:layout_marginBottom="8dp"
+                />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
+                android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/trigger_only_when_recording"
+                    android:labelFor="@+id/trigger_only_when_recording"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_color_dark_grey"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:layout_width="@dimen/accessibility_touch_target_min_size"
+                    android:layout_height="@dimen/accessibility_touch_target_min_size"
+                    android:id="@id/trigger_only_when_recording"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:id="@+id/note_type_trigger_section"
             android:visibility="gone"
             >
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/run_review_divider_thickness"
+                android:background="@color/run_review_divider_color"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="16dp"
+                />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text_color_light_grey"
-                android:textSize="14sp"
-                android:text="@string/trigger_note_text_label"
+                android:text="@string/trigger_alert_prompt"
+                android:textSize="16sp"
+                android:textColor="@color/color_accent_dark"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"
+                android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
+                android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
                 android:labelFor="@+id/trigger_note_text"
                 />
 
@@ -129,6 +198,8 @@
                 android:minHeight="@dimen/accessibility_touch_target_min_size"
                 android:id="@id/trigger_note_text"
                 android:hint="@string/trigger_note_text_hint"
+                android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
+                android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
                 />
 
         </LinearLayout>
@@ -136,39 +207,115 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:id="@+id/alert_type_trigger_section"
             android:visibility="gone"
             >
 
-            <CheckBox
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/accessibility_touch_target_min_size"
-                android:id="@+id/alert_type_audio_selector"
-                android:text="@string/trigger_audio_alert"
-                android:textSize="16sp"
-                android:textColor="@color/text_color_dark_grey"
-                android:layout_marginEnd="24dp"
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/run_review_divider_thickness"
+                android:background="@color/run_review_divider_color"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="16dp"
                 />
 
-            <CheckBox
+            <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/accessibility_touch_target_min_size"
-                android:id="@+id/alert_type_haptic_selector"
-                android:text="@string/trigger_haptic_alert"
+                android:layout_height="wrap_content"
+                android:text="@string/trigger_alert_prompt"
                 android:textSize="16sp"
-                android:textColor="@color/text_color_dark_grey"
-                android:layout_marginEnd="24dp"
+                android:textColor="@color/color_accent_dark"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"
+                android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
+                android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
                 />
 
-            <CheckBox
+            <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/accessibility_touch_target_min_size"
-                android:id="@+id/alert_type_visual_selector"
-                android:text="@string/trigger_visual_alert"
-                android:textSize="16sp"
-                android:textColor="@color/text_color_dark_grey"
-                />
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
+                android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/trigger_audio_alert"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_color_dark_grey"
+                    android:labelFor="@+id/alert_type_audio_selector"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/accessibility_touch_target_min_size"
+                    android:id="@id/alert_type_audio_selector"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
+                android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/trigger_haptic_alert"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_color_dark_grey"
+                    android:labelFor="@+id/alert_type_haptic_selector"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/accessibility_touch_target_min_size"
+                    android:id="@id/alert_type_haptic_selector"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
+                android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/trigger_visual_alert"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_color_dark_grey"
+                    android:labelFor="@+id/alert_type_visual_selector"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/accessibility_touch_target_min_size"
+                    android:id="@+id/alert_type_visual_selector"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    />
+
+            </RelativeLayout>
 
         </LinearLayout>
 

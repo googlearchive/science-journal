@@ -277,4 +277,12 @@ public class SensorTrigger {
             return null;
         }
     }
+
+    public boolean shouldTriggerOnlyWhenRecording() {
+        return mTriggerInfo.triggerOnlyWhenRecording;
+    }
+
+    public void setTriggerOnlyWhenRecording(boolean triggerOnlyWhenRecording) {
+        mTriggerInfo.triggerOnlyWhenRecording = triggerOnlyWhenRecording;
+    }
 }

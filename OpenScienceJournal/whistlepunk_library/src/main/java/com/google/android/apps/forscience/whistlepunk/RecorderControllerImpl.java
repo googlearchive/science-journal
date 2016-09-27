@@ -255,6 +255,9 @@ public class RecorderControllerImpl implements RecorderController {
                             double value = ScalarSensor.getValue(data);
                             // Fire triggers.
                             for (SensorTrigger trigger : activeTriggers) {
+                                if (!isRecording() && trigger.shouldTriggerOnlyWhenRecording()) {
+                                    continue;
+                                }
                                 if (trigger.isTriggered(value)) {
                                     fireSensorTrigger(trigger, timestamp);
                                 }
