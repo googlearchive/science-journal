@@ -80,4 +80,13 @@ public class RecordingMetadata implements Parcelable {
     public String getExperimentName() {
         return mExperimentName;
     }
+
+    @Override
+    public String toString() {
+        return "RecordingMetadata{" +
+                "mStartTime=" + mStartTime +
+                ", mRunId='" + mRunId + '\'' +
+                ", mExperimentName='" + mExperimentName + '\'' +
+                '}';
+    }
 }

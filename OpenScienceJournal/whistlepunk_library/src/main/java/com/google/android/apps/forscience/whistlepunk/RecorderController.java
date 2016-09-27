@@ -80,6 +80,10 @@ public interface RecorderController extends SensorRegistryListener {
 
     void applyOptions(String sensorId, TransportableSensorOptions settings);
 
+    /**
+     * @param resumeIntent this must be distinct from any other active Intent, as defined by
+     *                     {@link Intent#filterEquals(Intent)}
+     */
     void startRecording(Intent resumeIntent, Project project);
 
     void stopRecording();
