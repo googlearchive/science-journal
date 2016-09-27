@@ -15,8 +15,12 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import android.content.Context;
 import android.os.RemoteException;
-import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
@@ -25,17 +29,20 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.common.util.concurrent.MoreExecutors;
 
-// TODO: make this a non-device test
+import org.junit.Test;
 
-public class ScalarInputDiscovererTest extends AndroidTestCase {
+public class ScalarInputDiscovererTest {
+    @Test
     public void testStartScanning() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ScalarInputDiscoverer sid = s.buildDiscoverer();
 
         AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
                 new AccumulatingConsumer<>();
-        assertEquals(true, sid.startScanning(c, TestConsumers.expectingSuccess(), getContext()));
+        assertEquals(true,
+                sid.startScanning(c, TestConsumers.expectingSuccess(), getContext()));
         ExternalSensorSpec sensor = c.getOnlySeen().getSpec();
         ScalarInputSpec spec = (ScalarInputSpec) sensor;
         assertEquals(s.getSensorName(), spec.getName());
@@ -44,6 +51,7 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
         assertEquals(ScalarInputSpec.TYPE, spec.getType());
     }
 
+    @Test
     public void testScanError() {
         final String serviceName = Arbitrary.string();
         final String errorText = Arbitrary.string();
@@ -70,7 +78,7 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
                             }
                         });
                     }
-                }, null);
+                }, new TestStringSource(), MoreExecutors.directExecutor());
 
         AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
                 new AccumulatingConsumer<>();
@@ -78,10 +86,15 @@ public class ScalarInputDiscovererTest extends AndroidTestCase {
                 new FailureListener() {
                     @Override
                     public void fail(Exception e) {
-                        assertTrue(e.getMessage().contains(errorText));
+                        String message = e.getMessage();
+                        assertTrue(message.contains(errorText));
                     }
                 }), getContext()));
         assertEquals(0, c.seen.size());
+    }
+
+    private Context getContext() {
+        return null;
     }
 
 }
