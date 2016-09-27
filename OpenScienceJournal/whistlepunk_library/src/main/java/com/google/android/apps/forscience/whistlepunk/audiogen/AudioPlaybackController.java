@@ -46,7 +46,6 @@ public class AudioPlaybackController {
     // NOTE: For sensors with more than 100 datapoints in 1 second, these constants may need to be
     // adjusted!
     private static final int DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD = 200;
-    private static final long DURATION_MS_PER_AUDIO_PLAYBACK_LOAD = 2000;
     private static final int PLAYBACK_STATUS_NOT_PLAYING = 0;
     private static final int PLAYBACK_STATUS_LOADING = 1;
     private static final int PLAYBACK_STATUS_PLAYING = 2;
@@ -82,17 +81,21 @@ public class AudioPlaybackController {
                 xMinToLoad = firstTimestamp;
             }
         }
-        long xMaxToLoad = Math.min(xMinToLoad + DURATION_MS_PER_AUDIO_PLAYBACK_LOAD,
-                xMax);
-        final boolean fullyLoaded = xMaxToLoad == xMax;
 
         mHandler = new Handler();
         mPlaybackRunnable = new Runnable() {
-            boolean mFullyLoaded = fullyLoaded;
+            boolean mFullyLoaded = false;
+            boolean mLoading = false;
+
             @Override
             public void run() {
                 if (audioData.size() == 0) {
-                    stopPlayback();
+                    if (mFullyLoaded) {
+                        stopPlayback();
+                    } else {
+                        // Wait for more data to come in.
+                        mHandler.postDelayed(mPlaybackRunnable, LAST_TONE_DURATION_MS);
+                    }
                     return;
                 }
 
@@ -100,21 +103,23 @@ public class AudioPlaybackController {
                 ChartData.DataPoint point = audioData.remove(0);
                 long timestamp = point.getX();
 
-                // Load more data when needed, i.e. when we are within a given duration away from
-                // the last loaded timestamp, and we aren't fully loaded yet.
+                // Load more data when needed, i.e. when only 10% of the loaded data points are
+                // left in the list, and we aren't fully loaded yet.
                 long lastTimestamp = audioData.size() == 0 ? timestamp :
                         audioData.get(audioData.size() - 1).getX();
-                if (timestamp + DURATION_MS_PER_AUDIO_PLAYBACK_LOAD / 2 > lastTimestamp &&
-                        !mFullyLoaded) {
-                    long xMaxToLoad =
-                            Math.min(lastTimestamp + DURATION_MS_PER_AUDIO_PLAYBACK_LOAD, xMax);
-                    mFullyLoaded = xMaxToLoad == xMax;
+                if (audioData.size() < DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD / 10 && !mFullyLoaded &&
+                        !mLoading) {
+                    mLoading = true;
                     dataController.getScalarReadings(sensorId, /* tier 0 */ 0,
-                            TimeRange.oldest(Range.openClosed(lastTimestamp, xMaxToLoad)),
+                            TimeRange.oldest(Range.openClosed(lastTimestamp, xMax)),
                             DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD,
                             new MaybeConsumer<ScalarReadingList>() {
                                 @Override
                                 public void success(ScalarReadingList list) {
+                                    mLoading = false;
+                                    if (list.size() == 0) {
+                                        mFullyLoaded = true;
+                                    }
                                     audioData.addAll(list.asDataPoints());
                                 }
 
@@ -149,7 +154,7 @@ public class AudioPlaybackController {
 
         // Load the first set of scalar readings, and start playing as soon as they are loaded.
         dataController.getScalarReadings(sensorId, /* tier 0 */ 0,
-                TimeRange.oldest(Range.closed(xMinToLoad, xMaxToLoad)),
+                TimeRange.oldest(Range.closed(xMinToLoad, xMax)),
                 DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD, new MaybeConsumer<ScalarReadingList>() {
                     @Override
                     public void success(ScalarReadingList list) {
