@@ -35,13 +35,28 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     private String mName;
     private GoosciScalarInput.ScalarInputConfig mConfig;
 
+    // TODO: remove calls in favor of constructor below.
     public ScalarInputSpec(String sensorName, String serviceId, String address,
-            String loggingId, SensorAppearanceResources ids) {
+            String loggingId, SensorAppearanceResources ids, boolean showOptionsOnConnect) {
         mName = sensorName;
         mConfig = new GoosciScalarInput.ScalarInputConfig();
         mConfig.serviceId = Preconditions.checkNotNull(serviceId);
         mConfig.address = address;
         mConfig.loggingId = loggingId == null ? "" : loggingId;
+        mConfig.shouldShowOptionsOnConnect = showOptionsOnConnect;
+        writeResourceIds(mConfig, ids);
+    }
+
+    public ScalarInputSpec(String sensorName, String serviceId, String address,
+            SensorBehavior behavior, SensorAppearanceResources ids) {
+        // TODO: duplicated with above (because of different null behavior)
+        mName = sensorName;
+        mConfig = new GoosciScalarInput.ScalarInputConfig();
+        mConfig.serviceId = Preconditions.checkNotNull(serviceId);
+        mConfig.address = address;
+        mConfig.loggingId = behavior == null ? "" : behavior.loggingId;
+        mConfig.shouldShowOptionsOnConnect =
+                behavior == null ? true : behavior.shouldShowSettingsOnConnect;
         writeResourceIds(mConfig, ids);
     }
 
@@ -134,6 +149,11 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     @Override
     public byte[] getConfig() {
         return getBytes(mConfig);
+    }
+
+    @Override
+    public boolean shouldShowOptionsOnConnect() {
+        return mConfig.shouldShowOptionsOnConnect;
     }
 
     @Override

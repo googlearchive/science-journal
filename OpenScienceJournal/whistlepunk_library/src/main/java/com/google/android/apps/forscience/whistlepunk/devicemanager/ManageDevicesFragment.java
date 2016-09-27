@@ -247,8 +247,11 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
                     @Override
                     public void success(Success value) {
                         refresh();
-                        showDeviceOptions(mExperimentId, sensor.getConnectedSensorId(),
-                                settingsIntent);
+                        // TODO: make this testable?
+                        if (sensor.shouldShowOptionsOnConnect()) {
+                            showDeviceOptions(mExperimentId, sensor.getConnectedSensorId(),
+                                    settingsIntent);
+                        }
                     }
                 });
     }

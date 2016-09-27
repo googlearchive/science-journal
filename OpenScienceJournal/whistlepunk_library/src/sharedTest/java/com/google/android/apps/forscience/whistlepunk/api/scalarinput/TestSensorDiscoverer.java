@@ -112,7 +112,7 @@ class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
 
         public void deliverTo(ISensorConsumer c) {
             try {
-                c.onSensorFound(mSensorAddress, mSensorName, null, null, null);
+                c.onSensorFound(mSensorAddress, mSensorName, null, null);
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }

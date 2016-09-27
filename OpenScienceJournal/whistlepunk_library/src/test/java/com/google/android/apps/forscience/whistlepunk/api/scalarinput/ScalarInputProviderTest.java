@@ -64,7 +64,7 @@ public class ScalarInputProviderTest {
         ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor);
 
         SensorChoice sensor = provider.buildSensor(sensorId,
-                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null));
+                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null, true));
         SensorRecorder recorder = createRecorder(sensor);
         recorder.startObserving();
         Integer integer = mListener.mostRecentStatuses.get(sensorId);
@@ -109,7 +109,7 @@ public class ScalarInputProviderTest {
 
         ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor);
         SensorChoice sensor = provider.buildSensor(sensorId,
-                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null));
+                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null, true));
         SensorRecorder recorder = createRecorder(sensor);
         recorder.startObserving();
         mListener.assertErrors(errorMessage);
@@ -141,7 +141,7 @@ public class ScalarInputProviderTest {
                 },
                 mExecutor);
         SensorChoice sensor = provider.buildSensor(sensorId,
-                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null));
+                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null, true));
         SensorRecorder recorder = createRecorder(sensor);
         recorder.startObserving();
         mListener.assertErrors("Could not find service: " + serviceId);
@@ -169,7 +169,7 @@ public class ScalarInputProviderTest {
 
         ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor);
         SensorChoice sensor = provider.buildSensor(sensorId,
-                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null));
+                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null, true));
         SensorRecorder recorder = createRecorder(sensor);
         recorder.startObserving();
         recorder.stopObserving();

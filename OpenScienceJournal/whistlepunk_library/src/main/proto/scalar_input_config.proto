@@ -35,4 +35,6 @@ message ScalarInputConfig {
     optional string short_description = 5 [default = ""];
 
     optional string logging_id = 6 [default = ""];
+
+    optional bool should_show_options_on_connect = 7 [default = true];
 }

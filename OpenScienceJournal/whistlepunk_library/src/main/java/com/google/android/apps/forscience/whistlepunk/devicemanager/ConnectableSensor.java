@@ -69,4 +69,8 @@ public class ConnectableSensor {
                 ", mConnectedSensorId='" + mConnectedSensorId + '\'' +
                 '}';
     }
+
+    public boolean shouldShowOptionsOnConnect() {
+        return mSpec.shouldShowOptionsOnConnect();
+    }
 }

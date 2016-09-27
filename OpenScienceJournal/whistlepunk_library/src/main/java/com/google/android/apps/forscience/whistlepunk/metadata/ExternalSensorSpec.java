@@ -123,4 +123,6 @@ public abstract class ExternalSensorSpec implements Parcelable {
     public String toString() {
         return "ExternalSensorSpec(" + getType() + "," + getAddress() + ")";
     }
+
+    public abstract boolean shouldShowOptionsOnConnect();
 }
