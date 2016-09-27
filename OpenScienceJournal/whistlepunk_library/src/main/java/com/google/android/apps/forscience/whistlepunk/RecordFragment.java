@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -158,7 +159,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     private Handler mHandler;
     private FeatureDiscoveryProvider mFeatureDiscoveryProvider;
-    private Intent mLaunchIntent = null;
     private RecordingMetadata mCurrentRecording;
 
     /**
@@ -1091,7 +1091,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         mGraphOptionsController = new GraphOptionsController(activity);
 
         mSensorSettingsController = new SensorSettingsControllerImpl(activity);
-        mLaunchIntent = new Intent(activity.getIntent());
     }
 
     private void onRecordingMetadataUpdated() {
@@ -1231,9 +1230,18 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void tryStartRecording(final RecorderController rc) {
-        if (mLaunchIntent == null || mSelectedExperiment == null || mSelectedProject == null) {
+        if (mSelectedExperiment == null || mSelectedProject == null) {
             return;
         }
+
+
+        Intent mLaunchIntent;
+        mLaunchIntent = MainActivity.launchIntent(getActivity(), R.id.navigation_item_observe);
+        // This isn't currently used, but does ensure this intent doesn't match any other intent.
+        // See b/31616891
+        mLaunchIntent.setData(
+                Uri.fromParts("observe", "experiment=" + mSelectedExperiment.getExperimentId(),
+                        null));
         rc.startRecording(mLaunchIntent, mSelectedProject);
     }
 

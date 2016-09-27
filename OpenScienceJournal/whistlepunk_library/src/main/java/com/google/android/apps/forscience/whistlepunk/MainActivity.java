@@ -25,6 +25,7 @@ import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -198,7 +199,8 @@ public class MainActivity extends AppCompatActivity
         if (mNavigationView != null && mNavigationView.getMenu() != null) {
             int desiredItemId = -1;
             if (intent.getExtras() != null) {
-                desiredItemId = intent.getExtras().getInt(ARG_SELECTED_NAV_ITEM_ID, -1);
+                desiredItemId = intent.getExtras().getInt(ARG_SELECTED_NAV_ITEM_ID,
+                        NO_SELECTED_ITEM);
             }
             if (desiredItemId != -1 && mSelectedItemId != desiredItemId) {
                 onNavigationItemSelected(mNavigationView.getMenu().findItem(desiredItemId));
@@ -411,9 +413,14 @@ public class MainActivity extends AppCompatActivity
      * @param id One of the navigation_item constants.
      */
     public static void launch(Context context, int id) {
+        context.startActivity(launchIntent(context, id));
+    }
+
+    @NonNull
+    public static Intent launchIntent(Context context, int id) {
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(ARG_SELECTED_NAV_ITEM_ID, id);
-        context.startActivity(intent);
+        return intent;
     }
 
 
