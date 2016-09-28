@@ -52,6 +52,7 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
@@ -354,24 +355,6 @@ public class UpdateProjectFragment extends Fragment {
         startActivityForResult(photoPickerIntent, SELECT_PHOTO);
     }
 
-    // From http://developer.android.com/training/camera/photobasics.html.
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-
-        // This file isn't really temporary and actually gets persisted in the users public
-        // directory for the app. We store the path of this file and persist it in SQLite alongside
-        // the project to retrieve it later.
-        File imageFile = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-        return imageFile;
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check for non-null Uri here because of b/27899888
@@ -382,7 +365,7 @@ public class UpdateProjectFragment extends Fragment {
                 // selected photo. We need to copy the selected photo to
                 // to another file to get the real absolute path and store
                 // that file's path into the Project.
-                File imageFile = createImageFile();
+                File imageFile = PictureUtils.createImageFile(System.currentTimeMillis());
                 copyUriToFile(data.getData(), imageFile);
                 String path = "file:" + imageFile.getAbsolutePath();
                 if (mProject != null) {

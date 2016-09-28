@@ -52,6 +52,9 @@ public class PictureUtils {
         String imageFileName = "ScienceJournal_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
+        if (!storageDir.exists()) {
+            storageDir.mkdirs();
+        }
         File imageFile = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
