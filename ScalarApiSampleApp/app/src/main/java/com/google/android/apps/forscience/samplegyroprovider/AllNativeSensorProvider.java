@@ -15,6 +15,8 @@
  */
 package com.google.android.apps.forscience.samplegyroprovider;
 
+import static android.R.attr.name;
+
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -35,6 +37,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorDis
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorObserver;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.SensorAppearanceResources;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.SensorBehavior;
 
 import java.util.List;
 
@@ -82,17 +85,24 @@ public class AllNativeSensorProvider extends Service {
                 }
                 for (Sensor sensor : sensors) {
                     SensorAppearanceResources appearance = new SensorAppearanceResources();
-                    if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                    String name = sensor.getName();
+
+                    SensorBehavior behavior = new SensorBehavior();
+                    behavior.loggingId = name;
+                    behavior.settingsIntent = DeviceSettingsPopupActivity.getPendingIntent(
+                            AllNativeSensorProvider.this, sensor);
+
+                    boolean isAccelerometer = sensor.getType() == Sensor.TYPE_ACCELEROMETER;
+                    if (isAccelerometer) {
                         appearance.iconId = android.R.drawable.ic_media_ff;
                         appearance.units = "ms/2";
                         appearance.shortDescription = "Not really a 3-axis accelerometer";
                     }
 
-                    PendingIntent settingsIntent = DeviceSettingsPopupActivity.getPendingIntent(
-                            AllNativeSensorProvider.this, sensor);
-                    String loggingId = sensor.getName();
-                    c.onSensorFound("" + sensor.getType(), sensor.getName(), loggingId, appearance,
-                            settingsIntent);
+                    behavior.shouldShowSettingsOnConnect = isAccelerometer;
+
+                    String sensorAddress = "" + sensor.getType();
+                    c.onSensorFound(sensorAddress, name, behavior, appearance);
                 }
             }
 
@@ -100,7 +110,7 @@ public class AllNativeSensorProvider extends Service {
             public ISensorConnector getConnector() throws RemoteException {
                 return new ISensorConnector.Stub() {
                     private ISensorStatusListener mListener;
-                    public SensorEventListener mSensorEventListener;
+                    private SensorEventListener mSensorEventListener;
 
                     @Override
                     public void startObserving(final String sensorId,
