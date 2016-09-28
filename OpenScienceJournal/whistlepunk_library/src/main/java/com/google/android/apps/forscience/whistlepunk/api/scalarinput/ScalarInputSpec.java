@@ -21,6 +21,8 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.SensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciScalarInput;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -119,6 +121,12 @@ public class ScalarInputSpec extends ExternalSensorSpec {
             private Resources getResources(Context context)
                     throws PackageManager.NameNotFoundException {
                 return context.getPackageManager().getResourcesForApplication(getServiceId());
+            }
+
+            @Override
+            public SensorAnimationBehavior getSensorAnimationBehavior() {
+                return new SensorAnimationBehavior(R.drawable.api_level_drawable,
+                        SensorAnimationBehavior.TYPE_RELATIVE_SCALE);
             }
         };
     }

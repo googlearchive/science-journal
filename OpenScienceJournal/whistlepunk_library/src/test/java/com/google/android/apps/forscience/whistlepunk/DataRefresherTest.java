@@ -16,20 +16,24 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.test.AndroidTestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import com.google.android.apps.forscience.javalib.DataRefresher;
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.TreeSet;
 
 /**
  * Tests for the Refresher and the DataRefresher classes.
  */
-public class DataRefresherTest extends AndroidTestCase {
-
+public class DataRefresherTest {
     // A stream consumer that can return the most recent data and timestamp it received.
     public class MockStreamConsumer implements StreamConsumer {
         private long mTimestamp;
@@ -61,13 +65,19 @@ public class DataRefresherTest extends AndroidTestCase {
     // scheduled to be run: After time is incremented, any applicable runnable is run
     // immediately.
     public class MockScheduler implements Scheduler {
-        class QueuedRunnable {
+        class QueuedRunnable implements Comparable<QueuedRunnable> {
             public long executeAfter;
             public Runnable runnable;
+
+            @Override
+            public int compareTo(QueuedRunnable another) {
+                return Long.compare(executeAfter, another.executeAfter);
+            }
         }
 
         private long mCurrentTime = 0;
-        private ArrayList<QueuedRunnable> mRunnables = new ArrayList<QueuedRunnable>();
+
+        private TreeSet<QueuedRunnable> mRunnables = new TreeSet<>();
 
         @Override
         public void schedule(Delay delay, Runnable doThis) {
@@ -93,19 +103,19 @@ public class DataRefresherTest extends AndroidTestCase {
 
         private void incrementTime(long ms) {
             mCurrentTime += ms;
-            // Check which runnables can be executed and removed from the list.
-            for (QueuedRunnable qr : mRunnables) {
-                if (qr.executeAfter <= mCurrentTime) {
-                    qr.runnable.run();
-                    mRunnables.remove(qr);
-                }
+
+            while (!mRunnables.isEmpty() && mRunnables.first().executeAfter <= mCurrentTime) {
+                QueuedRunnable first = mRunnables.first();
+                mRunnables.remove(first);
+                first.runnable.run();
             }
         }
     }
 
-    private MockStreamConsumer mStreamConsumer;
-    private MockScheduler mScheduler;
+    private MockStreamConsumer mStreamConsumer = new MockStreamConsumer();
+    private MockScheduler mScheduler = new MockScheduler();
 
+    @Test
     public void testDataRefresherDoesNotRefreshWhenNotStreaming() {
         DataRefresher dr = makeRefresher();
         dr.setStreamConsumer(mStreamConsumer);
@@ -123,6 +133,7 @@ public class DataRefresherTest extends AndroidTestCase {
         assertFalse(mStreamConsumer.dataAdded());
     }
 
+    @Test
     public void testDataRefresherUsesUpdatedValue() {
         DataRefresher dr = makeRefresher();
         dr.setStreamConsumer(mStreamConsumer);
@@ -130,15 +141,16 @@ public class DataRefresherTest extends AndroidTestCase {
 
         dr.setValue(3.14159);
         dr.startStreaming();
-        assertEquals(3.14159, mStreamConsumer.getLastValue());
+        assertEquals(3.14159, mStreamConsumer.getLastValue(), 0.001);
 
         dr.setValue(1.618);
         mScheduler.incrementTime(100);
 
-        assertEquals(1.618, mStreamConsumer.getLastValue());
+        assertEquals(1.618, mStreamConsumer.getLastValue(), 0.001);
 
     }
 
+    @Test
     public void testDataRefresherGetsValueWithOverridableGetValueFunction() {
         DataRefresher dr = new DataRefresher(mScheduler, mScheduler.getClock()) {
             @Override
@@ -148,44 +160,31 @@ public class DataRefresherTest extends AndroidTestCase {
         };
         dr.setStreamConsumer(mStreamConsumer);
         dr.startStreaming();
-        assertEquals(42d, mStreamConsumer.getLastValue());
+        assertEquals(42d, mStreamConsumer.getLastValue(), 0.001);
 
         mScheduler.incrementTime(100);
 
-        assertEquals(42d, mStreamConsumer.getLastValue());
+        assertEquals(42d, mStreamConsumer.getLastValue(), 0.001);
     }
 
+    @Test
     public void testDataRefresherStopsUpdatingValuesOnStopStreaming() {
         DataRefresher dr = makeRefresher();
         dr.setStreamConsumer(mStreamConsumer);
         dr.setValue(255d);
         dr.startStreaming();
 
-        assertEquals(255d, mStreamConsumer.getLastValue());
+        assertEquals(255d, mStreamConsumer.getLastValue(), 0.001);
 
         dr.stopStreaming();
         dr.setValue(254d);
         mScheduler.incrementTime(100);
 
         // The value should not have been updated because we are not streaming.
-        assertEquals(255d, mStreamConsumer.getLastValue());
+        assertEquals(255d, mStreamConsumer.getLastValue(), 0.001);
     }
 
     private DataRefresher makeRefresher() {
         return new DataRefresher(mScheduler, mScheduler.getClock());
     }
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        mStreamConsumer = new MockStreamConsumer();
-        mScheduler = new MockScheduler();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-
 }
