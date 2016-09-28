@@ -55,4 +55,7 @@ message TriggerInformation {
 
   // The text for a note, if this is a TRIGGER_ACTION_NOTE.
   optional string noteText = 7;
+
+  // Whether the trigger should activate only when recording (or all the time)
+  optional bool triggerOnlyWhenRecording = 8 [default = false];
 }

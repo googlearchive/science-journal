@@ -1147,13 +1147,13 @@
     <string name="trigger_note_text_hint">What should your note say?</string>
 
     <!-- The name of an alert that makes sound  when triggered [CHAR_LIMIT=20]-->
-    <string name="trigger_audio_alert">Noise</string>
+    <string name="trigger_audio_alert">Sound</string>
 
     <!-- The name of an alert that makes haptic feedback or vibration when triggered [CHAR_LIMIT=20]-->
-    <string name="trigger_haptic_alert">Vibrate</string>
+    <string name="trigger_haptic_alert">Vibration</string>
 
     <!-- The name of an alert that makes a visual change when triggered [CHAR_LIMIT=20]-->
-    <string name="trigger_visual_alert">Visual</string>
+    <string name="trigger_visual_alert">Visual notification</string>
 
     <!-- The error shown on a snackbar when the user does not enter a numeric value for a trigger [CHAR_LIMIT=150]-->
     <string name="cannot_save_invalid_value">You must enter a numeric value at which this trigger will fire.</string>
@@ -1202,6 +1202,9 @@
         <item>is below</item>
     </array>
 
+    <!-- The option to only use the trigger while the app is recording, instead of all the time [CHAR_LIMIT=30] -->
+    <string name="trigger_only_when_recording">Trigger only when recording</string>
+
     <!-- The auto-generated note text for a note type trigger. For example,this might say, "Ambinet light rose above 3.0 lux". [CHAR_LIMIT=200]-->
     <string name="trigger_label_auto_text"><xliff:g id="sensor_name">%1$s</xliff:g> <xliff:g id="trigger_when">%2$s</xliff:g> <xliff:g id="trigger_value">%3$.2f</xliff:g> <xliff:g id="sensor_units">%4$s</xliff:g></string>
 
@@ -1249,6 +1252,9 @@
 
     <!-- Button to launch settings dialog for a selected sensor [CHAR_LIMIT=20] -->
     <string name="launch_settings">Launch settings</string>
+
+    <!-- Prompt for a user to select what type of trigger alert they want to turn on [CHAR_LIMIT=60] -->
+    <string name="trigger_alert_prompt">Alert me using</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
