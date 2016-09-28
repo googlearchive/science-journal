@@ -29,6 +29,8 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
@@ -69,7 +71,9 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
     @Override
     public boolean startScanning(final Consumer<DiscoveredSensor> onEachSensorFound,
-            final FailureListener onScanError, final Context context) {
+            final Runnable onScanDone, final FailureListener onScanError, final Context context) {
+        final String discoveryTaskId = "DISCOVERY";
+        final TaskPool pool = new TaskPool(onScanDone, discoveryTaskId);
         mServiceFinder.take(new AppDiscoveryCallbacks() {
             @Override
             public void onServiceFound(String serviceId, final ISensorDiscoverer service) {
@@ -77,9 +81,8 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                     Log.d(TAG, "Found service: " + serviceId);
                 }
                 try {
-                    final ISensorConsumer.Stub sc = makeSensorConsumer(serviceId,
-                            onEachSensorFound);
-                    service.scanDevices(makeDeviceConsumer(service, sc));
+                    service.scanDevices(
+                            makeDeviceConsumer(service, serviceId, onEachSensorFound, pool));
                 } catch (RemoteException e) {
                     onScanError.fail(e);
                 }
@@ -87,16 +90,18 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
             @Override
             public void onDiscoveryDone() {
-                // TODO: what to do here?  Somehow plumb back that we're done scanning?
+                pool.taskDone(discoveryTaskId);
             }
         });
-        // TODO: should this ever be false?
         return true;
     }
 
     @NonNull
     private IDeviceConsumer.Stub makeDeviceConsumer(final ISensorDiscoverer service,
-            final ISensorConsumer.Stub sc) {
+            final String serviceId, final Consumer<DiscoveredSensor> onEachSensorFound,
+            final TaskPool pool) {
+        final String serviceTaskId = "SERVICE:" + serviceId;
+        pool.addTask(serviceTaskId);
         return new IDeviceConsumer.Stub() {
             @Override
             public void onDeviceFound(String deviceId, String name, PendingIntent settingsIntent)
@@ -104,14 +109,29 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Found device: " + name);
                 }
-                service.scanSensors(deviceId, sc);
+                final String deviceTaskId = "DEVICE:" + deviceId;
+                pool.addTask(deviceTaskId);
+                // TODO: restructure to create an object per service scan to hold intermediate data.
+                service.scanSensors(deviceId, makeSensorConsumer(serviceId, onEachSensorFound,
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                pool.taskDone(deviceTaskId);
+                            }
+                        }));
+            }
+
+            @Override
+            public void onScanDone() throws RemoteException {
+                pool.taskDone(serviceTaskId);
             }
         };
     }
 
     @NonNull
     private ISensorConsumer.Stub makeSensorConsumer(final String serviceId,
-            final Consumer<DiscoveredSensor> onEachSensorFound) {
+            final Consumer<DiscoveredSensor> onEachSensorFound,
+            final Runnable onScanDone) {
         return new ISensorConsumer.Stub() {
             @Override
             public void onSensorFound(String sensorAddress, String name,
@@ -135,6 +155,11 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                     }
                 });
             }
+
+            @Override
+            public void onScanDone() throws RemoteException {
+                onScanDone.run();
+            }
         };
     }
 
@@ -143,4 +168,28 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
         // TODO: implement!
     }
 
+    private static class TaskPool {
+        private final Set<String> mTaskIds = new HashSet<>();
+        private Runnable mOnDone;
+
+        public TaskPool(Runnable onDone, String initialTaskId, String... moreTaskIds) {
+            mOnDone = onDone;
+            addTask(initialTaskId);
+            for (String taskId : moreTaskIds) {
+                addTask(taskId);
+            }
+        }
+
+        public void addTask(String taskId) {
+            mTaskIds.add(taskId);
+        }
+
+        public void taskDone(String taskId) {
+            mTaskIds.remove(taskId);
+            if (mTaskIds.isEmpty()) {
+                mOnDone.run();
+                mOnDone = null;
+            }
+        }
+    }
 }

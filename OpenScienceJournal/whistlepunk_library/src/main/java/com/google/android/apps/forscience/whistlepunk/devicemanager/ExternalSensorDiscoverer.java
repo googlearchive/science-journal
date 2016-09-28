@@ -35,10 +35,11 @@ public interface ExternalSensorDiscoverer {
 
     /**
      * @param onEachSensorFound called for each sensor found
+     * @param onScanDone called once scan is done
      * @return true if starting scanning was successful
      */
     boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
-            FailureListener onScanError, Context context);
+            Runnable onScanDone, FailureListener onScanError, Context context);
 
     /**
      * Stops scanning, and discards any state or references acquired during scanning

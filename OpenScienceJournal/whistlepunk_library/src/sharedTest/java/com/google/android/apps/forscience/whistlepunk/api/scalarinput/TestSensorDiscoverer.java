@@ -59,6 +59,16 @@ class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
                     device.deliverTo(c);
                 }
             });
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        c.onScanDone();
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
         }
     }
 
@@ -73,6 +83,16 @@ class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
                 @Override
                 public void run() {
                     sensor.deliverTo(c);
+                }
+            });
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        c.onScanDone();
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             });
         }

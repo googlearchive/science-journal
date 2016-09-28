@@ -76,8 +76,14 @@ public class ConnectableSensorRegistry {
         };
         boolean started = false;
         for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
+            Runnable onScanDone = new Runnable() {
+                @Override
+                public void run() {
+                    // TODO: remove sensors that we had marked available, but didn't find this time.
+                }
+            };
             if (discoverer.startScanning(onEachSensorFound,
-                    LoggingConsumer.expectSuccess(TAG, "Discovering sensors"),
+                    onScanDone, LoggingConsumer.expectSuccess(TAG, "Discovering sensors"),
                     availableDevices.getContext())) {
                 started = true;
             }

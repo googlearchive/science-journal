@@ -20,13 +20,12 @@ import android.content.Context;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 class StubSensorDiscoverer implements ExternalSensorDiscoverer {
     @Override
     public boolean startScanning(
             Consumer<DiscoveredSensor> onEachSensorFound,
-            FailureListener onScanError, Context context) {
+            Runnable onScanDone, FailureListener onScanError, Context context) {
         return false;
     }
 
