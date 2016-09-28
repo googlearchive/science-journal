@@ -51,7 +51,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     public void testScalarInputPassthrough() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers(), getContext());
+                s.makeScalarInputDiscoverers());
 
         registry.startScanningInDiscoverers(mAvailableDevices);
 
@@ -69,7 +69,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     public void testForgetSensor() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers(), getContext());
+                s.makeScalarInputDiscoverers());
         Map<String, ExternalSensorSpec> pairedSensors = new HashMap<>();
         String sensorId = Arbitrary.string();
 
@@ -94,7 +94,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     public void testPairedWhenSet() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(
-                makeDataController(), s.makeScalarInputDiscoverers(), getContext());
+                makeDataController(), s.makeScalarInputDiscoverers());
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String sensorName = Arbitrary.string();
@@ -113,7 +113,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     public void testOptionsDialog() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers(), getContext());
+                s.makeScalarInputDiscoverers());
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String sensorName = Arbitrary.string();
@@ -141,7 +141,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
                 new BleSensorSpec("address", "name"), new BleSensorSpec("address", "name"));
         discoverers.put("type", dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                discoverers, getContext());
+                discoverers);
 
         registry.startScanningInDiscoverers(mAvailableDevices);
 
@@ -170,7 +170,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
                 new BleSensorSpec("address", "name"));
         discoverers.put("type", dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                discoverers, getContext());
+                discoverers);
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String connectedId = Arbitrary.string();
@@ -193,7 +193,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         ExternalSensorDiscoverer d = makeDiscovererThatWillDiscover(spec1, spec2);
         discoverers.put("type", d);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                discoverers, getContext());
+                discoverers);
 
         registry.startScanningInDiscoverers(mAvailableDevices);
 
@@ -205,7 +205,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     public void testConnectedReplacesAvailable() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers(), getContext());
+                s.makeScalarInputDiscoverers());
 
         registry.startScanningInDiscoverers(mAvailableDevices);
 

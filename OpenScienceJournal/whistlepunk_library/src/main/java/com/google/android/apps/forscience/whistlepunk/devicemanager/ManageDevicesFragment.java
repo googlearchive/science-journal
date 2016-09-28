@@ -102,8 +102,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
         Map<String, ExternalSensorDiscoverer> discoverers =
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
 
-        mConnectableSensorRegistry = new ConnectableSensorRegistry(mDataController, discoverers,
-                getActivity().getApplicationContext());
+        mConnectableSensorRegistry = new ConnectableSensorRegistry(mDataController, discoverers);
     }
 
     @Override
