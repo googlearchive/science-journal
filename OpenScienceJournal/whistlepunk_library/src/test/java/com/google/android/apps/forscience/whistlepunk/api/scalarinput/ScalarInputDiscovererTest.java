@@ -26,6 +26,7 @@ import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.AccumulatingConsumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
+import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -80,7 +81,7 @@ public class ScalarInputDiscovererTest {
                             }
                         });
                     }
-                }, new TestStringSource(), MoreExecutors.directExecutor());
+                }, new TestStringSource(), MoreExecutors.directExecutor(), new MockScheduler(), 100);
 
         AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
                 new AccumulatingConsumer<>();

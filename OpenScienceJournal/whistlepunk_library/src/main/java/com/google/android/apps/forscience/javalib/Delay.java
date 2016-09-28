@@ -26,7 +26,7 @@ public class Delay {
         return new Delay(secs, TimeUnit.SECONDS);
     }
 
-    public static Delay millis(int millis) {
+    public static Delay millis(long millis) {
         return new Delay(millis, TimeUnit.MILLISECONDS);
     }
 
