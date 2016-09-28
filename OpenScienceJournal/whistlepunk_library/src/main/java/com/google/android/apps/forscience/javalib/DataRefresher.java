@@ -31,7 +31,11 @@ public class DataRefresher extends Refresher {
     private Clock mClock;
 
     public DataRefresher(Scheduler scheduler, Clock clock) {
-        super(scheduler, Delay.millis(SENSOR_REFRESH_RATE));
+        this(scheduler, clock, SENSOR_REFRESH_RATE);
+    }
+
+    public DataRefresher(Scheduler scheduler, Clock clock, int sensorRefreshRateMillis) {
+        super(scheduler, Delay.millis(sensorRefreshRateMillis));
         mClock = clock;
     }
 
