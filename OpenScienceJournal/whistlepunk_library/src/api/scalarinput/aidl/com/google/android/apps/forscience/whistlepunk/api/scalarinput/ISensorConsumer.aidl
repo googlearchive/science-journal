@@ -28,4 +28,5 @@ interface ISensorConsumer {
   // appearance: Controls how the sensor will appear once connected
   void onSensorFound(String sensorAddress, String name, in SensorBehavior behavior,
                      in SensorAppearanceResources appearance) = 0;
+  void onScanDone() = 1;
 }

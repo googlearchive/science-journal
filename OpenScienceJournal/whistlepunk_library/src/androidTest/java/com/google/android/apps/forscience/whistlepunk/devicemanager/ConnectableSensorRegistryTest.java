@@ -223,7 +223,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         return new StubSensorDiscoverer() {
             @Override
             public boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
-                    FailureListener onScanError, Context context) {
+                    Runnable onScanDone, FailureListener onScanError, Context context) {
                 for (ExternalSensorSpec spec : specs) {
                     onEachSensorFound.take(discovered(spec));
                 }

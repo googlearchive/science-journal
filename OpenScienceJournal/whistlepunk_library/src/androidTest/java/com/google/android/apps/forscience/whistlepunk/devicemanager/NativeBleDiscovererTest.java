@@ -22,6 +22,7 @@ import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.AccumulatingConsumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.RecordingRunnable;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
@@ -63,12 +64,16 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
 
         AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> sensorsSeen =
                 new AccumulatingConsumer<>();
-        discoverer.startScanning(sensorsSeen, TestConsumers.expectingSuccess(), getContext());
+        RecordingRunnable onScanDone = new RecordingRunnable();
+        discoverer.startScanning(sensorsSeen, onScanDone, TestConsumers.expectingSuccess(),
+                getContext());
         assertEquals(1, sensorsSeen.seen.size());
         ExternalSensorSpec sensor = sensorsSeen.seen.get(0).getSpec();
         assertEquals(name, sensor.getName());
         assertEquals(address, sensor.getAddress());
         assertEquals(BleSensorSpec.TYPE, sensor.getType());
+        assertFalse(onScanDone.hasRun);
+        discoverer.stopScanning();
+        assertTrue(onScanDone.hasRun);
     }
-
 }
