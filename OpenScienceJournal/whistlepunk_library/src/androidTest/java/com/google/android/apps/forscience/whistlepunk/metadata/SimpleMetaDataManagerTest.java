@@ -419,8 +419,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         Map<String, ExternalSensorProvider> providerMap = getProviderMap();
         assertEquals(0, mMetaDataManager.getExternalSensors(providerMap).size());
         mMetaDataManager.addOrGetExternalSensor(
-                new ScalarInputSpec("name", "serviceId", "address", null, null, true, 0),
-                providerMap);
+                new ScalarInputSpec("name", "serviceId", "address", null, null), providerMap);
         Map<String, ExternalSensorSpec> newSensors = mMetaDataManager.getExternalSensors(
                 providerMap);
         assertEquals(1, newSensors.size());

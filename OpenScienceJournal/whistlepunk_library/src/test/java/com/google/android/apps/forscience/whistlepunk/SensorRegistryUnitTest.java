@@ -34,7 +34,7 @@ public class SensorRegistryUnitTest {
         SensorRegistry registry = new SensorRegistry();
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
-        sensors.put("id", new ScalarInputSpec("name", "serviceId", "address", null, null, true, 1));
+        sensors.put("id", new ScalarInputSpec("name", "serviceId", "address", null, null));
 
         assertEquals(Lists.newArrayList("id"),
                 registry.updateExternalSensors(sensors, getProviders()));

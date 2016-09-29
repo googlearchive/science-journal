@@ -102,7 +102,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String sensorName = Arbitrary.string();
         sensors.put("sensorId",
-                new ScalarInputSpec(sensorName, "serviceId", "address", null, null, true, 0));
+                new ScalarInputSpec(sensorName, "serviceId", "address", null, null));
 
         registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
         assertEquals(0, mAvailableDevices.prefs.size());
@@ -123,8 +123,8 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         String connectedId = Arbitrary.string();
 
         sensors.put(connectedId,
-                new ScalarInputSpec(sensorName, s.getServiceId(), s.getSensorAddress(), null, null,
-                        true, 0));
+                new ScalarInputSpec(sensorName, s.getServiceId(), s.getSensorAddress(), null,
+                        null));
 
         registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
         Preference pref = mPairedDevices.prefs.get(0);

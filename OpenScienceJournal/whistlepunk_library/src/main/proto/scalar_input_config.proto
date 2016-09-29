@@ -48,4 +48,7 @@ message ScalarInputConfig {
     //
     // Only affects appearance.
     optional int32 order_in_experiment_api_sensors = 8 [default = 0];
+
+    // See SensorBehavior#expectedSamplesPerSecond
+    optional float expected_samples_per_second = 9 [default = 10.0];
 }

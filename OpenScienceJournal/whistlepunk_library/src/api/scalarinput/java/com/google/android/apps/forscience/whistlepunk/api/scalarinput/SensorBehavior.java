@@ -47,15 +47,22 @@ public class SensorBehavior implements Parcelable {
      */
     public String loggingId = "";
 
+    /**
+     * This is a hint to Science Journal of how many values per second the sensor plans to publish.
+     * This can help in rendering either very low- or high-throughput sensors.
+     */
+    public float expectedSamplesPerSecond = 10.0f;
+
     public SensorBehavior() {
 
     }
 
-    // TODO(saff): test round-trip parcel!
     protected SensorBehavior(Parcel in) {
         settingsIntent = in.readParcelable(PendingIntent.class.getClassLoader());
-        shouldShowSettingsOnConnect = in.readByte() != 0;
+        byte b = in.readByte();
+        shouldShowSettingsOnConnect = (b != 0);
         loggingId = in.readString();
+        expectedSamplesPerSecond = in.readFloat();
     }
 
     @Override
@@ -63,6 +70,7 @@ public class SensorBehavior implements Parcelable {
         dest.writeParcelable(settingsIntent, 0);
         dest.writeByte((byte) (shouldShowSettingsOnConnect ? 1 : 0));
         dest.writeString(loggingId);
+        dest.writeFloat(expectedSamplesPerSecond);
     }
 
     @Override

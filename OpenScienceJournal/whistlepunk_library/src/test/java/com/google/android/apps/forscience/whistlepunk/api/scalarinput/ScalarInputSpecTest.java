@@ -33,8 +33,8 @@ public class ScalarInputSpecTest {
     @Test
     public void appearance() {
         String name = Arbitrary.string();
-        SensorAppearance appearance = new ScalarInputSpec(name, "serviceId", "address", null, null,
-                true, 1).getSensorAppearance();
+        SensorAppearance appearance = new ScalarInputSpec(name, "serviceId", "address", null,
+                null).getSensorAppearance();
         assertNotNull(appearance);
         assertEquals(name, appearance.getName(null));
     }
@@ -49,8 +49,10 @@ public class ScalarInputSpecTest {
         appearance.iconId = Arbitrary.integer();
         appearance.shortDescription = Arbitrary.string();
         appearance.units = Arbitrary.string();
-        ScalarInputSpec spec = new ScalarInputSpec(sensorName, serviceId, address, loggingId,
-                appearance, true, 1);
+        SensorBehavior behavior = new SensorBehavior();
+        behavior.loggingId = loggingId;
+        ScalarInputSpec spec = new ScalarInputSpec(sensorName, serviceId, address, behavior,
+                appearance);
         ScalarInputSpec spec2 = roundTripConfig(spec);
         assertEquals(sensorName, spec2.getName());
         assertEquals(serviceId, spec2.getServiceId());
@@ -64,14 +66,10 @@ public class ScalarInputSpecTest {
 
     @Test
     public void isSame() {
-        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1", null, null,
-                true, 1);
-        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1", null, null,
-                true, 1);
-        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2", null, null,
-                true, 1);
-        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1", null, null,
-                true, 1);
+        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1", null, null);
+        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1", null, null);
+        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2", null, null);
+        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1", null, null);
         BleSensorSpec bleSpec = new BleSensorSpec("address1", "name");
         assertTrue(spec11.isSameSensorAndSpec(spec11));
         assertTrue(spec11.isSameSensorAndSpec(spec11b));
@@ -83,14 +81,10 @@ public class ScalarInputSpecTest {
 
     @Test
     public void addressIncludesService() {
-        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1", null, null,
-                true, 1);
-        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1", null, null,
-                true, 1);
-        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2", null, null,
-                true, 1);
-        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1", null, null,
-                true, 1);
+        ScalarInputSpec spec11 = new ScalarInputSpec("name", "service1", "address1", null, null);
+        ScalarInputSpec spec11b = new ScalarInputSpec("name2", "service1", "address1", null, null);
+        ScalarInputSpec spec12 = new ScalarInputSpec("name", "service1", "address2", null, null);
+        ScalarInputSpec spec21 = new ScalarInputSpec("name", "service2", "address1", null, null);
         BleSensorSpec bleSpec = new BleSensorSpec("address1", "name");
         assertTrue(spec11.isSameSensor(spec11));
         assertTrue(spec11.isSameSensor(spec11b));
@@ -102,34 +96,45 @@ public class ScalarInputSpecTest {
 
     @Test
     public void shouldShowOptionsOnConnect() {
+        SensorBehavior behavior = new SensorBehavior();
+        behavior.shouldShowSettingsOnConnect = true;
         ScalarInputSpec specYes = roundTripConfig(
-                new ScalarInputSpec("name", "serviceId", "address", "loggingId", null, true, 1));
+                new ScalarInputSpec("name", "serviceId", "address", behavior, null));
         assertTrue(specYes.shouldShowOptionsOnConnect());
 
+        behavior.shouldShowSettingsOnConnect = false;
         ScalarInputSpec specNo = roundTripConfig(
-                new ScalarInputSpec("name", "serviceId", "address", "loggingId", null, false, 1));
+                new ScalarInputSpec("name", "serviceId", "address", behavior, null));
         assertFalse(specNo.shouldShowOptionsOnConnect());
+    }
+
+    @Test public void sampleRateRoundTrip() {
+        SensorBehavior behavior = new SensorBehavior();
+        behavior.expectedSamplesPerSecond = Arbitrary.singleFloat();
+        ScalarInputSpec spec = roundTripConfig(
+                new ScalarInputSpec("sensorName", "serviceId", "address", behavior, null));
+        assertEquals(behavior.expectedSamplesPerSecond, spec.getExpectedSamplesPerSecond(), 0.001);
     }
 
     @Test public void iconsChange() {
         ScalarInputSpec spec1 = roundTripConfig(
-                new ScalarInputSpec("name", "serviceId", "address", "loggingId", null, true, 0));
+                new ScalarInputSpec("name", "serviceId", "address", null, null, 0));
         ScalarInputSpec spec2 = roundTripConfig(
-                new ScalarInputSpec("name", "serviceId", "address", "loggingId", null, true, 1));
+                new ScalarInputSpec("name", "serviceId", "address", null, null, 1));
         ScalarInputSpec spec3 = roundTripConfig(
-                new ScalarInputSpec("name", "serviceId", "address", "loggingId", null, true, 2));
+                new ScalarInputSpec("name", "serviceId", "address", null, null, 2));
         ScalarInputSpec spec4 = roundTripConfig(
-                new ScalarInputSpec("name", "serviceId", "address", "loggingId", null, true, 3));
+                new ScalarInputSpec("name", "serviceId", "address", null, null, 3));
         ScalarInputSpec spec5 = roundTripConfig(
-                new ScalarInputSpec("name", "serviceId", "address", "loggingId", null, true, 4));
+                new ScalarInputSpec("name", "serviceId", "address", null, null, 4));
         ScalarInputSpec spec6 = roundTripConfig(
-                new ScalarInputSpec("name", "serviceId", "address", "loggingId", null, true, 5));
+                new ScalarInputSpec("name", "serviceId", "address", null, null, 5));
         assertEquals(R.drawable.ic_api_01_white_24dp, spec1.getDefaultIconId());
         assertEquals(R.drawable.ic_api_02_white_24dp, spec2.getDefaultIconId());
         assertEquals(R.drawable.ic_api_03_white_24dp, spec3.getDefaultIconId());
         assertEquals(R.drawable.ic_api_04_white_24dp, spec4.getDefaultIconId());
-        assertEquals(R.drawable.ic_api_01_white_24dp, spec1.getDefaultIconId());
-        assertEquals(R.drawable.ic_api_02_white_24dp, spec2.getDefaultIconId());
+        assertEquals(R.drawable.ic_api_01_white_24dp, spec5.getDefaultIconId());
+        assertEquals(R.drawable.ic_api_02_white_24dp, spec6.getDefaultIconId());
     }
 
     @NonNull

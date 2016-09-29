@@ -38,33 +38,27 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     private String mName;
     private GoosciScalarInput.ScalarInputConfig mConfig;
 
-    // TODO: remove calls in favor of constructor below.
     public ScalarInputSpec(String sensorName, String serviceId, String address,
-            String loggingId, SensorAppearanceResources ids, boolean showOptionsOnConnect,
+            SensorBehavior behavior, SensorAppearanceResources ids,
             int orderInExperimentApiSensors) {
         mName = sensorName;
         mConfig = new GoosciScalarInput.ScalarInputConfig();
         mConfig.serviceId = Preconditions.checkNotNull(serviceId);
         mConfig.address = address;
-        mConfig.loggingId = loggingId == null ? "" : loggingId;
-        mConfig.shouldShowOptionsOnConnect = showOptionsOnConnect;
         mConfig.orderInExperimentApiSensors = orderInExperimentApiSensors;
+
+        if (behavior != null) {
+            mConfig.loggingId = behavior.loggingId;
+            mConfig.shouldShowOptionsOnConnect = behavior.shouldShowSettingsOnConnect;
+            mConfig.expectedSamplesPerSecond = behavior.expectedSamplesPerSecond;
+        }
+
         writeResourceIds(mConfig, ids);
     }
 
     public ScalarInputSpec(String sensorName, String serviceId, String address,
-            SensorBehavior behavior, SensorAppearanceResources ids,
-            int orderInExperimentApiSensors) {
-        // TODO: duplicated with above (because of different null behavior)
-        mName = sensorName;
-        mConfig = new GoosciScalarInput.ScalarInputConfig();
-        mConfig.serviceId = Preconditions.checkNotNull(serviceId);
-        mConfig.address = address;
-        mConfig.loggingId = behavior == null ? "" : behavior.loggingId;
-        mConfig.shouldShowOptionsOnConnect =
-                behavior == null ? true : behavior.shouldShowSettingsOnConnect;
-        mConfig.orderInExperimentApiSensors = orderInExperimentApiSensors;
-        writeResourceIds(mConfig, ids);
+            SensorBehavior behavior, SensorAppearanceResources ids) {
+        this(sensorName, serviceId, address, behavior, ids, 0);
     }
 
     private void writeResourceIds(GoosciScalarInput.ScalarInputConfig config,
@@ -200,6 +194,10 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     @Override
     public String getLoggingId() {
         return escape(getServiceId()) + "&" + escape(mConfig.loggingId);
+    }
+
+    public float getExpectedSamplesPerSecond() {
+        return mConfig.expectedSamplesPerSecond;
     }
 
     @Override
