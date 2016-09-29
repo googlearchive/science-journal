@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -39,18 +40,21 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
     // TODO: remove calls in favor of constructor below.
     public ScalarInputSpec(String sensorName, String serviceId, String address,
-            String loggingId, SensorAppearanceResources ids, boolean showOptionsOnConnect) {
+            String loggingId, SensorAppearanceResources ids, boolean showOptionsOnConnect,
+            int orderInExperimentApiSensors) {
         mName = sensorName;
         mConfig = new GoosciScalarInput.ScalarInputConfig();
         mConfig.serviceId = Preconditions.checkNotNull(serviceId);
         mConfig.address = address;
         mConfig.loggingId = loggingId == null ? "" : loggingId;
         mConfig.shouldShowOptionsOnConnect = showOptionsOnConnect;
+        mConfig.orderInExperimentApiSensors = orderInExperimentApiSensors;
         writeResourceIds(mConfig, ids);
     }
 
     public ScalarInputSpec(String sensorName, String serviceId, String address,
-            SensorBehavior behavior, SensorAppearanceResources ids) {
+            SensorBehavior behavior, SensorAppearanceResources ids,
+            int orderInExperimentApiSensors) {
         // TODO: duplicated with above (because of different null behavior)
         mName = sensorName;
         mConfig = new GoosciScalarInput.ScalarInputConfig();
@@ -59,6 +63,7 @@ public class ScalarInputSpec extends ExternalSensorSpec {
         mConfig.loggingId = behavior == null ? "" : behavior.loggingId;
         mConfig.shouldShowOptionsOnConnect =
                 behavior == null ? true : behavior.shouldShowSettingsOnConnect;
+        mConfig.orderInExperimentApiSensors = orderInExperimentApiSensors;
         writeResourceIds(mConfig, ids);
     }
 
@@ -77,13 +82,19 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
     public ScalarInputSpec(String sensorName, byte[] config) {
         mName = sensorName;
+        mConfig = parse(config);
+    }
+
+    @Nullable
+    private GoosciScalarInput.ScalarInputConfig parse(byte[] config) {
         try {
-            mConfig = GoosciScalarInput.ScalarInputConfig.parseFrom(config);
+            return GoosciScalarInput.ScalarInputConfig.parseFrom(config);
         } catch (InvalidProtocolBufferNanoException e) {
             if (Log.isLoggable(TAG, Log.ERROR)) {
                 Log.e(TAG, "error parsing config", e);
             }
         }
+        return null;
     }
 
     @Override
@@ -98,11 +109,11 @@ public class ScalarInputSpec extends ExternalSensorSpec {
             @Override
             public Drawable getIconDrawable(Context context) {
                 if (mConfig.iconId <= 0) {
-                    return super.getIconDrawable(context);
+                    return context.getResources().getDrawable(getDefaultIconId());
                 }
                 try {
                     // TODO: test this?
-                    return getResources(context).getDrawable(mConfig.iconId);
+                    return getApiAppResources(context).getDrawable(mConfig.iconId);
                 } catch (PackageManager.NameNotFoundException e) {
                     throw new RuntimeException(e);
                 }
@@ -118,7 +129,7 @@ public class ScalarInputSpec extends ExternalSensorSpec {
                 return mConfig.shortDescription;
             }
 
-            private Resources getResources(Context context)
+            private Resources getApiAppResources(Context context)
                     throws PackageManager.NameNotFoundException {
                 return context.getPackageManager().getResourcesForApplication(getServiceId());
             }
@@ -129,6 +140,19 @@ public class ScalarInputSpec extends ExternalSensorSpec {
                         SensorAnimationBehavior.TYPE_RELATIVE_SCALE);
             }
         };
+    }
+
+    public int getDefaultIconId() {
+        switch (mConfig.orderInExperimentApiSensors % 4) {
+            case 0: return R.drawable.ic_api_01_white_24dp;
+            case 1: return R.drawable.ic_api_02_white_24dp;
+            case 2: return R.drawable.ic_api_03_white_24dp;
+            case 3: return R.drawable.ic_api_04_white_24dp;
+            default:
+                // Should never happen, if math works.
+                return R.drawable.ic_api_01_white_24dp;
+
+        }
     }
 
     @Override
@@ -176,5 +200,15 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     @Override
     public String getLoggingId() {
         return escape(getServiceId()) + "&" + escape(mConfig.loggingId);
+    }
+
+    @Override
+    public ExternalSensorSpec maybeAdjustBeforePairing(int numPairedBeforeAdded) {
+        if (numPairedBeforeAdded == mConfig.orderInExperimentApiSensors) {
+            return this;
+        }
+        GoosciScalarInput.ScalarInputConfig copyConfig = parse(getBytes(mConfig));
+        copyConfig.orderInExperimentApiSensors = numPairedBeforeAdded;
+        return new ScalarInputSpec(mName, getBytes(copyConfig));
     }
 }

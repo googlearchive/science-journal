@@ -142,7 +142,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 }
 
                 final ScalarInputSpec spec = new ScalarInputSpec(name, serviceId, sensorAddress,
-                        behavior, ids);
+                        behavior, ids, 0);
                 onEachSensorFound.take(new DiscoveredSensor() {
                     @Override
                     public ExternalSensorSpec getSpec() {

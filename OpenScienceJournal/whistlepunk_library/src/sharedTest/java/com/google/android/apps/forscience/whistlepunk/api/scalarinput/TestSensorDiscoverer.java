@@ -16,17 +16,21 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.Run;
+import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
-class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
+public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
     private final Executor mExecutor;
     private String mServiceName;
     private List<Device> mDevices = new ArrayList<>();
@@ -39,6 +43,21 @@ class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
     public TestSensorDiscoverer(String serviceName, Executor executor) {
         mServiceName = serviceName;
         mExecutor = executor;
+    }
+
+    @NonNull
+    public ScalarInputDiscoverer makeScalarInputDiscoverer(
+            final String serviceId) {
+        return new ScalarInputDiscoverer(
+                new Consumer<AppDiscoveryCallbacks>() {
+                    @Override
+                    public void take(AppDiscoveryCallbacks adc) {
+                        adc.onServiceFound(serviceId, TestSensorDiscoverer.this);
+                        adc.onDiscoveryDone();
+                    }
+                },
+                new TestStringSource(),
+                MoreExecutors.directExecutor());
     }
 
     @Override
@@ -101,6 +120,14 @@ class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
     @Override
     public ISensorConnector getConnector() throws RemoteException {
         return null;
+    }
+
+    @NonNull
+    public Map<String, ExternalSensorDiscoverer> makeDiscovererMap(String serviceId) {
+        ScalarInputDiscoverer sid = makeScalarInputDiscoverer(serviceId);
+        Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
+        discoverers.put(ScalarInputSpec.TYPE, sid);
+        return discoverers;
     }
 
     private class Device {
