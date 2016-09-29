@@ -1053,7 +1053,7 @@
     <!-- Additional information about the dev option to add additional sonification types [CHAR_LIMIT=NONE] -->
     <string name="dev_sonification_types_summary">Whether to enable additional sonification options</string>
 
-    <!-- Prompt to tell the user which sensor they are selecting audio settings for [CHAR_LIMIT=40]-->
+    <!-- Label for spinner of which sensor they are selecting audio settings for [CHAR_LIMIT=40]-->
     <string name="audio_settings_sensor_prompt">Select audio settings for:</string>
 
     <!-- Menu option to enable auto scale (zoom in in Y) for a run [CHAR_LIMIT=30] -->

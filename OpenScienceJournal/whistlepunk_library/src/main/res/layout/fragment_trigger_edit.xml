@@ -182,7 +182,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/trigger_alert_prompt"
+                android:text="@string/trigger_note_text_label"
                 android:textSize="16sp"
                 android:textColor="@color/color_accent_dark"
                 android:textStyle="bold"
