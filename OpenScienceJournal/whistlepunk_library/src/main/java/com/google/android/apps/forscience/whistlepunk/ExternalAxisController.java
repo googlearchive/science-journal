@@ -132,8 +132,6 @@ public class ExternalAxisController {
     private long mReviewXMin = RUN_REVIEW_DATA_NOT_INITIALIZED;
     private long mReviewXMax = RUN_REVIEW_DATA_NOT_INITIALIZED;
 
-    private boolean mSeekbarIsDrawn = false;
-
     // Whether the graph is pinned to "now", or we are looking back.
     private boolean mIsPinnedToNow;
 
@@ -260,8 +258,7 @@ public class ExternalAxisController {
         return mInteractionListener;
     }
 
-    public void setReviewData(long runStart, long reviewMin, long reviewMax,
-                              AppCompatSeekBar seekbar) {
+    public void setReviewData(long runStart, long reviewMin, long reviewMax) {
         mAxisView.setNumberFormat(new RelativeTimeFormat(runStart, mAxisView.getContext()));
         mAxisView.setRecordingStart(runStart);
 
@@ -272,20 +269,6 @@ public class ExternalAxisController {
         // Slightly wider than the recording start and end, because of a zoom out to show endpoints.
         mReviewXMin = reviewMin;
         mReviewXMax = reviewMax;
-
-        if (seekbar != null && !mSeekbarIsDrawn) {
-            setupSeekbar(seekbar);
-        }
-    }
-
-    // Because this redraws the seekbar bounds, it needs to get called every time the
-    // view is reloaded after backgrounding / rotation.
-    private void setupSeekbar(AppCompatSeekBar seekbar) {
-        // Seekbar thumb is always blue, no matter the color of the grpah.
-        int color = seekbar.getResources().getColor(R.color.graph_line_color_blue);
-        seekbar.getThumb().setColorFilter(color, PorterDuff.Mode.SRC_IN);
-        seekbar.setVisibility(View.VISIBLE);
-        mSeekbarIsDrawn = true;
     }
 
     public void destroy() {

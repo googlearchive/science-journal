@@ -77,16 +77,16 @@
             android:layout_height="@dimen/external_axis_height"
             android:paddingRight="@dimen/run_review_external_axis_right_padding"
             android:paddingLeft="@dimen/run_review_external_axis_left_padding"
-            android:layout_marginStart="@dimen/run_review_external_axis_left_margin"
+            android:layout_marginLeft="@dimen/run_review_external_axis_left_margin"
             android:layout_width="match_parent"
         />
 
     </FrameLayout>
 
     <include layout="@layout/external_axis_seekbar_holder"
-             android:layout_alignBottom="@id/external_axis_holder"
-             android:layout_height="@dimen/run_review_overlay_height"
-             android:layout_width="match_parent"
+        android:layout_alignBottom="@id/external_axis_holder"
+        android:layout_height="@dimen/run_review_overlay_height"
+        android:layout_width="match_parent"
     />
 
     <FrameLayout
