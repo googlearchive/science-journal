@@ -137,6 +137,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
         if (preference.getKey() != null) {
             if (!mConnectableSensorRegistry.getIsPairedFromPreference(preference)) {
                 mConnectableSensorRegistry.addExternalSensorIfNecessary(mExperimentId, preference,
+                        mPairedDevices.getPreferenceCount(),
                         new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
                             @Override
                             public void success(ConnectableSensor sensor) {

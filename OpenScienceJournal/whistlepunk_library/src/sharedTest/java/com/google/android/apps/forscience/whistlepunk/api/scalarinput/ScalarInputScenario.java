@@ -17,12 +17,9 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.support.annotation.NonNull;
 
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
-import com.google.common.util.concurrent.MoreExecutors;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -71,32 +68,26 @@ public class ScalarInputScenario {
 
     @NonNull
     public ScalarInputDiscoverer buildDiscoverer() {
+        final TestSensorDiscoverer discoverer = makeTestSensorDiscoverer();
+        return discoverer.makeScalarInputDiscoverer(getServiceId());
+    }
+
+    @NonNull
+    private TestSensorDiscoverer makeTestSensorDiscoverer() {
         final TestSensorDiscoverer discoverer = new TestSensorDiscoverer(getServiceName());
         discoverer.addDevice(getDeviceId(), getDeviceName());
         discoverer.addSensor(getDeviceId(), getSensorAddress(), getSensorName());
-        return new ScalarInputDiscoverer(
-                new Consumer<AppDiscoveryCallbacks>() {
-                    @Override
-                    public void take(AppDiscoveryCallbacks adc) {
-                        adc.onServiceFound(getServiceId(), discoverer);
-                        adc.onDiscoveryDone();
-                    }
-                },
-                new TestStringSource(),
-                MoreExecutors.directExecutor());
+        return discoverer;
     }
 
     @NonNull
     public Map<String, ExternalSensorDiscoverer> makeScalarInputDiscoverers() {
-        ScalarInputDiscoverer sid = buildDiscoverer();
-        Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
-        discoverers.put(ScalarInputSpec.TYPE, sid);
-        return discoverers;
+        return makeTestSensorDiscoverer().makeDiscovererMap(this.getServiceId());
     }
 
     @NonNull
     public ScalarInputSpec makeSpec() {
         return new ScalarInputSpec(getSensorName(), getServiceId(), getSensorAddress(), null, null,
-                true);
+                true, 1);
     }
 }

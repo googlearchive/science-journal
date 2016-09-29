@@ -125,4 +125,15 @@ public abstract class ExternalSensorSpec implements Parcelable {
     }
 
     public abstract boolean shouldShowOptionsOnConnect();
+
+    /**
+     * Specs may choose to produce an edited version based on the order within the experiment
+     * (perhaps, as in the case of ScalarInputSpec, to produce a different icon depending on order).
+     *
+     * This should return either a reference to the same object, or to a different spec object with
+     * different values.  It should _not_ mutate the underlying object.
+     */
+    public ExternalSensorSpec maybeAdjustBeforePairing(int numPairedBeforeAdded) {
+        return this;
+    }
 }

@@ -182,19 +182,23 @@ public class ConnectableSensorRegistry {
     /**
      * Pairs to the sensor represented by the given preference, and adds it to the given experiment
      *
+     * @param numPairedBeforeThis how many paired sensors there were in this experiment before
+     *                             this one was added
      * @param onAdded receives the connected ConnectableSensor that's been added to the
-     *                experiment (or gets nothing if the sensor was already added).
      */
     public void addExternalSensorIfNecessary(final String experimentId, Preference preference,
-            final MaybeConsumer<ConnectableSensor> onAdded) {
+            int numPairedBeforeThis, final MaybeConsumer<ConnectableSensor> onAdded) {
         preference.setEnabled(false);
         preference.setSummary(R.string.external_devices_pairing);
         ConnectableSensor connectableSensor = getSensor(preference);
 
         // TODO: probably shouldn't finish in these cases, instead go into sensor editing.
 
-        final ExternalSensorSpec sensor = connectableSensor.getSpec();
-        mDataController.addOrGetExternalSensor(sensor, MaybeConsumers.chainFailure(onAdded,
+        // The paired spec will be stored in the database, and may contain modified/added
+        // information that wasn't supplied by the Discoverer.
+        final ExternalSensorSpec pairedSpec =
+                connectableSensor.getSpec().maybeAdjustBeforePairing(numPairedBeforeThis);
+        mDataController.addOrGetExternalSensor(pairedSpec, MaybeConsumers.chainFailure(onAdded,
                 new Consumer<String>() {
                     @Override
                     public void take(final String sensorId) {
@@ -203,7 +207,7 @@ public class ConnectableSensorRegistry {
                                     @Override
                                     public void success(Success value) {
                                         onAdded.success(
-                                                ConnectableSensor.connected(sensor, sensorId));
+                                                ConnectableSensor.connected(pairedSpec, sensorId));
                                     }
                                 });
                     }

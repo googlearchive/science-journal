@@ -25,9 +25,11 @@ import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputScenario;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.StubPreferenceCategory;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TestSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
@@ -60,7 +62,8 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
 
         Preference pref = mAvailableDevices.prefs.get(0);
         StoringConsumer<ConnectableSensor> stored = new StoringConsumer<>();
-        registry.addExternalSensorIfNecessary("experimentId", pref, stored);
+        registry.addExternalSensorIfNecessary("experimentId", pref,
+                mPairedDevices.getPreferenceCount(), stored);
         ScalarInputSpec sensor = (ScalarInputSpec) stored.getValue().getSpec();
         assertEquals(ScalarInputSpec.TYPE, sensor.getType());
         assertEquals(s.getServiceId(), sensor.getServiceId());
@@ -99,7 +102,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String sensorName = Arbitrary.string();
         sensors.put("sensorId",
-                new ScalarInputSpec(sensorName, "serviceId", "address", null, null, true));
+                new ScalarInputSpec(sensorName, "serviceId", "address", null, null, true, 0));
 
         registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
         assertEquals(0, mAvailableDevices.prefs.size());
@@ -121,7 +124,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
 
         sensors.put(connectedId,
                 new ScalarInputSpec(sensorName, s.getServiceId(), s.getSensorAddress(), null, null,
-                        true));
+                        true, 0));
 
         registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
         Preference pref = mPairedDevices.prefs.get(0);
@@ -217,6 +220,34 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         // Should move sensor from available to paired
         assertEquals(1, mPairedDevices.prefs.size());
         assertEquals(0, mAvailableDevices.prefs.size());
+    }
+
+    public void testOrderOfApiSensors() {
+        TestSensorDiscoverer tsd = new TestSensorDiscoverer("serviceName");
+        tsd.addDevice("deviceId", "deviceName");
+        tsd.addSensor("deviceId", "address1", "name1");
+        tsd.addSensor("deviceId", "address2", "name2");
+
+        ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
+                tsd.makeDiscovererMap("serviceId"));
+
+        registry.startScanningInDiscoverers(mAvailableDevices);
+
+        assertEquals(0, mPairedDevices.prefs.size());
+        assertEquals(2, mAvailableDevices.prefs.size());
+
+        StoringConsumer<ConnectableSensor> stored1 = new StoringConsumer<>();
+        registry.addExternalSensorIfNecessary("experimentId", mAvailableDevices.prefs.get(0), 0,
+                stored1);
+        ScalarInputSpec sensor1 = (ScalarInputSpec) stored1.getValue().getSpec();
+
+        StoringConsumer<ConnectableSensor> stored2 = new StoringConsumer<>();
+        registry.addExternalSensorIfNecessary("experimentId", mAvailableDevices.prefs.get(1), 1,
+                stored2);
+        ScalarInputSpec sensor2 = (ScalarInputSpec) stored2.getValue().getSpec();
+
+        assertEquals(R.drawable.ic_api_01_white_24dp, sensor1.getDefaultIconId());
+        assertEquals(R.drawable.ic_api_02_white_24dp, sensor2.getDefaultIconId());
     }
 
     ExternalSensorDiscoverer makeDiscovererThatWillDiscover(final ExternalSensorSpec... specs) {
