@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.audiogen;
 
 import android.os.Handler;
 import android.util.Log;
+import android.view.ViewTreeObserver;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.DataController;
@@ -55,20 +56,19 @@ public class AudioPlaybackController {
     private Runnable mPlaybackRunnable;
     private AudioPlaybackListener mAudioPlaybackListener;
 
+    private double mYMin;
+    private double mYMax;
+
     public AudioPlaybackController(AudioPlaybackListener listener) {
         mAudioGenerator = new SimpleJsynAudioGenerator();
         mAudioPlaybackListener = listener;
     }
 
-    public void startPlayback(ChartController chartController,
-            final DataController dataController, long firstTimestamp, long lastTimestamp,
-            long xMinToLoad, final String sensorId) {
-        if (!chartController.hasDrawnChart() || mPlaybackStatus != PLAYBACK_STATUS_NOT_PLAYING) {
+    public void startPlayback(final DataController dataController, final long firstTimestamp,
+            final long lastTimestamp, long xMinToLoad, final String sensorId) {
+        if (mPlaybackStatus != PLAYBACK_STATUS_NOT_PLAYING) {
             return;
         }
-
-        final double yMin = chartController.getRenderedYMin();
-        final double yMax = chartController.getRenderedYMax();
         final long xMax = lastTimestamp;
         final List<ChartData.DataPoint> audioData = new ArrayList<>();
 
@@ -133,7 +133,7 @@ public class AudioPlaybackController {
 
                 // Now play the tone, and get set up for the next callback, if one is needed.
                 try {
-                    mAudioGenerator.addData(timestamp, point.getY(), yMin, yMax);
+                    mAudioGenerator.addData(timestamp, point.getY(), mYMin, mYMax);
                     mAudioPlaybackListener.onTimestampUpdated(timestamp);
                 } finally {
                     // If this is the second to last point, some special handling
@@ -197,5 +197,10 @@ public class AudioPlaybackController {
 
     public void setSonificationType(String sonificationType) {
         mAudioGenerator.setSonificationType(sonificationType);
+    }
+
+    public void setYAxisRange(double yMin, double yMax) {
+        mYMin = yMin;
+        mYMax = yMax;
     }
 }

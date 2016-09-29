@@ -380,11 +380,14 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
             mOnDrawListener = new ViewTreeObserver.OnDrawListener() {
                 @Override
                 public void onDraw() {
-                    observer.removeOnDrawListener(mOnDrawListener);
-                    mOnDrawListener = null;
                     RunReviewOverlay.this.post(new Runnable() {
                         @Override
                         public void run() {
+                            // The ViewTreeObserver calls its listeners without an iterator,
+                            // so we need to remove the listener outside the flow or we risk
+                            // an index-out-of-bounds crash in the case of multiple listeners.
+                            observer.removeOnDrawListener(mOnDrawListener);
+                            mOnDrawListener = null;
                             refresh(backUpdateProgressBar);
                         }
                     });

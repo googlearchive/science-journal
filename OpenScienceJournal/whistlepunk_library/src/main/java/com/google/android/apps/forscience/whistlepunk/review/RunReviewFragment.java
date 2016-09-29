@@ -112,6 +112,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private static final String KEY_EXTERNAL_AXIS_MAXIMUM = "external_axis_max";
     private static final String KEY_RUN_REVIEW_OVERLAY_TIMESTAMP = "run_review_overlay_time";
     private static final String KEY_STATS_OVERLAY_VISIBLE = "stats_overlay_visible";
+    private static final String KEY_AUDIO_PLAYBACK_ON = "audio_playback_on";
 
     private int mLoadingStatus = GRAPH_LOAD_STATUS_IDLE;
 
@@ -124,6 +125,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private ImageButton mRunReviewPlaybackButton;
     private AudioPlaybackController mAudioPlaybackController;
     private boolean mWasPlayingBeforeTouch = false;
+    private boolean mAudioWasPlayingBeforePause = false;
 
     private String mStartLabelId;
     private int mSelectedSensorIndex = 0;
@@ -193,6 +195,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     @Override
     public void onPause() {
+        mAudioWasPlayingBeforePause = mAudioPlaybackController.isPlaying();
         mAudioPlaybackController.stopPlayback();
         super.onPause();
     }
@@ -340,8 +343,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                                 return;
                             }
                             mWasPlayingBeforeTouch = false;
-                            mAudioPlaybackController.startPlayback(mChartController,
-                                    getDataController(), mExperimentRun.getFirstTimestamp(),
+                            mAudioPlaybackController.startPlayback(getDataController(),
+                                    mExperimentRun.getFirstTimestamp(),
                                     mExperimentRun.getLastTimestamp(),
                                     mRunReviewOverlay.getTimestamp(),
                                     mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex)
@@ -370,12 +373,10 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 if (mAudioPlaybackController.isPlaying()) {
                     mAudioPlaybackController.stopPlayback();
                 } else if (mAudioPlaybackController.isNotPlaying()){
-                    mAudioPlaybackController.startPlayback(mChartController,
-                            getDataController(), mExperimentRun.getFirstTimestamp(),
-                            mExperimentRun.getLastTimestamp(),
+                    mAudioPlaybackController.startPlayback(getDataController(),
+                            mExperimentRun.getFirstTimestamp(), mExperimentRun.getLastTimestamp(),
                             mRunReviewOverlay.getTimestamp(),
-                            mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex)
-                                    .sensorId);
+                            mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId);
                 }
             }
         });
@@ -583,6 +584,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     Math.max(layout.maximumYAxisValue, yMax));
         }
         mChartController.refreshChartView();
+        mAudioPlaybackController.setYAxisRange(mChartController.getRenderedYMin(),
+                mChartController.getRenderedYMax());
         // Redraw the thumb after the chart is updated.
         mRunReviewOverlay.post(new Runnable() {
             public void run() {
@@ -601,6 +604,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         outState.putLong(KEY_EXTERNAL_AXIS_MAXIMUM, mExternalAxis.getXMax());
         outState.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
         outState.putBoolean(KEY_STATS_OVERLAY_VISIBLE, mShowStatsOverlay);
+        outState.putBoolean(KEY_AUDIO_PLAYBACK_ON, mAudioPlaybackController.isPlaying() ||
+                mAudioWasPlayingBeforePause);
     }
 
     private void attachToRun(final Experiment experiment, final ExperimentRun run,
@@ -718,6 +723,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             long overlayTimestamp = savedInstanceState.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP);
             if (overlayTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
                 mRunReviewOverlay.setActiveTimestamp(overlayTimestamp);
+            }
+            if (savedInstanceState.getBoolean(KEY_AUDIO_PLAYBACK_ON, false)) {
+                mAudioPlaybackController.startPlayback(getDataController(),
+                        mExperimentRun.getFirstTimestamp(), mExperimentRun.getLastTimestamp(),
+                        mRunReviewOverlay.getTimestamp(),
+                        mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId);
             }
         }
         loadRunData(rootView);
