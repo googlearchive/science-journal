@@ -312,6 +312,12 @@ public class ProjectDetailsFragment extends Fragment implements
                             });
                         }
                         bar.show();
+                        if (mProjectDetailAdapter != null) {
+                            mProjectDetailAdapter.notifyDataSetChanged();
+                        }
+                        if (getActivity() != null) {
+                            getActivity().invalidateOptionsMenu();
+                        }
                     }
                 });
         WhistlePunkApplication.getUsageTracker(getActivity())
