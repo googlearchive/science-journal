@@ -168,8 +168,9 @@ public class ExperimentDetailsFragment extends Fragment
                     @Override
                     public void success(final Experiment experiment) {
                         if (experiment == null) {
-                            // This was deleted on us.
+                            // This was deleted on us. Finish and return so we don't try to load.
                             getActivity().finish();
+                            return;
                         }
                         attachExperimentDetails(experiment);
                         loadExperimentData(experiment);
