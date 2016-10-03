@@ -318,6 +318,9 @@ public class MyBleService extends Service {
     public void disconnectDevice(String address) {
         BluetoothGatt bluetoothGatt = addressToGattClient.get(address);
         if (btAdapter == null || address == null || bluetoothGatt == null) {
+            // Broadcast the disconnect so BleFlow doesn't hang waiting for it; something else
+            // already disconnected us in this case.
+            sendGattBroadcast(address, BleEvents.GATT_DISCONNECT, null);
             return;
         }
         BluetoothDevice device = btAdapter.getRemoteDevice(address);
