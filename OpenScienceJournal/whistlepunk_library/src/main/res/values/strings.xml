@@ -1177,30 +1177,30 @@
     <string name="sensor_trigger_deleted">Trigger deleted</string>
 
     <!-- NOTE: THIS MUST BE IN THE SAME ORDER AS TriggerInformation.TriggerActionType -->
-    <array name="trigger_type_list">
+    <string-array name="trigger_type_list">
         <item>@string/trigger_type_start_recording</item>
         <item>@string/trigger_type_stop_recording</item>
         <item>@string/trigger_type_note</item>
         <item>@string/trigger_type_alert</item>
-    </array>
+    </string-array>
 
     <!-- NOTE: THIS MUST BE IN THE SAME ORDER AS TriggerInformation.TriggerWhen -->
-    <array name="trigger_when_list">
+    <string-array name="trigger_when_list">
         <item>@string/trigger_when_at</item>
         <item>@string/trigger_when_rises_above</item>
         <item>@string/trigger_when_drops_below</item>
         <item>@string/trigger_when_is_above</item>
         <item>@string/trigger_when_is_below</item>
-    </array>
+    </string-array>
 
     <!-- Lower case, past tense of trigger when, to be used in the string formatting string trigger_label_auto_text. -->
-    <array name="trigger_when_list_note_text">
+    <string-array name="trigger_when_list_note_text">
         <item>at</item>
         <item>rose above</item>
         <item>dropped below</item>
         <item>is above</item>
         <item>is below</item>
-    </array>
+    </string-array>
 
     <!-- The option to only use the trigger while the app is recording, instead of all the time [CHAR_LIMIT=30] -->
     <string name="trigger_only_when_recording">Trigger only when recording</string>
