@@ -73,14 +73,14 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
         mPairedDevices.setOrder(0);
         mPairedDevices.setSelectable(false);
         PreferenceScreen screen = getPreferenceScreen();
-        mPairedGroup = new SensorPreferenceGroup(screen, mPairedDevices, true);
+        mPairedGroup = new SensorPreferenceGroup(screen, mPairedDevices, true, true);
 
         mAvailableDevices = new PreferenceProgressCategory(getActivity());
         mAvailableDevices.setKey(PREF_KEY_AVAILABLE_DEVICES);
         mAvailableDevices.setTitle(R.string.external_devices_available);
         mAvailableDevices.setOrder(1);
         mAvailableDevices.setSelectable(false);
-        mAvailableGroup = new SensorPreferenceGroup(screen, mAvailableDevices, false);
+        mAvailableGroup = new SensorPreferenceGroup(screen, mAvailableDevices, false, false);
 
         screen.addPreference(mAvailableDevices);
         setHasOptionsMenu(true);

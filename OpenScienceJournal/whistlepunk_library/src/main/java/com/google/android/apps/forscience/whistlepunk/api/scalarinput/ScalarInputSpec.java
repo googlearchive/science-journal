@@ -103,14 +103,23 @@ public class ScalarInputSpec extends ExternalSensorSpec {
             @Override
             public Drawable getIconDrawable(Context context) {
                 if (mConfig.iconId <= 0) {
-                    return context.getResources().getDrawable(getDefaultIconId());
+                    return getDefaultIcon(context);
                 }
                 try {
                     // TODO: test this?
                     return getApiAppResources(context).getDrawable(mConfig.iconId);
                 } catch (PackageManager.NameNotFoundException e) {
                     throw new RuntimeException(e);
+                } catch (Resources.NotFoundException e) {
+                    if (Log.isLoggable(TAG, Log.ERROR)) {
+                        Log.e(TAG, "Didn't find icon", e);
+                    }
+                    return getDefaultIcon(context);
                 }
+            }
+
+            private Drawable getDefaultIcon(Context context) {
+                return context.getResources().getDrawable(getDefaultIconId());
             }
 
             @Override

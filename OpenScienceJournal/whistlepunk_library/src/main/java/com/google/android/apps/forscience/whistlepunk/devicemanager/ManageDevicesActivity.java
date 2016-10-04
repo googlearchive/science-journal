@@ -137,9 +137,7 @@ public class ManageDevicesActivity extends AppCompatActivity implements
 
     @Override
     public void onExperimentSensorReplaced(String oldSensorId, String newSensorId) {
-        if (mManageFragment != null) {
-            mManageFragment.refreshAfterLoad();
-        }
+        refreshAfterLoad();
     }
 
     @Override
@@ -155,10 +153,14 @@ public class ManageDevicesActivity extends AppCompatActivity implements
                 new LoggingConsumer<Success>(TAG, "remove sensor from experiment") {
                     @Override
                     public void success(Success value) {
-                        if (mManageFragment != null) {
-                            mManageFragment.refreshAfterLoad();
-                        }
+                        refreshAfterLoad();
                     }
                 });
+    }
+
+    private void refreshAfterLoad() {
+        if (mManageFragment != null) {
+            mManageFragment.refreshAfterLoad();
+        }
     }
 }

@@ -15,8 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import static android.R.attr.key;
-
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
@@ -28,12 +26,14 @@ class SensorPreferenceGroup implements SensorGroup {
     private PreferenceScreen mScreen;
     private final PreferenceCategory mCategory;
     private boolean mRemoveWhenEmpty;
+    private boolean mIncludeSummary;
 
     public SensorPreferenceGroup(PreferenceScreen screen, PreferenceCategory category,
-            boolean removeWhenEmpty) {
+            boolean removeWhenEmpty, boolean includeSummary) {
         mScreen = screen;
         mCategory = category;
         mRemoveWhenEmpty = removeWhenEmpty;
+        mIncludeSummary = includeSummary;
     }
 
     @Override
@@ -42,35 +42,24 @@ class SensorPreferenceGroup implements SensorGroup {
     }
 
     @Override
-    public void addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
-        Preference preference = buildAvailablePreference(sensorKey, sensor);
-        addPreference(preference);
+    public void addSensor(String sensorKey, ConnectableSensor sensor) {
+        Preference pref = buildAvailablePreference(sensorKey, sensor);
+        if (mIncludeSummary) {
+            pref.setWidgetLayoutResource(R.layout.preference_external_device);
+            pref.setSummary(sensor.getSpec().getSensorAppearance().getName(pref.getContext()));
+        }
+        addPreference(pref);
     }
 
     private void addPreference(Preference preference) {
         if (mRemoveWhenEmpty && !isOnScreen()) {
-            // TODO: adjust tests so screen is never null
-            if (mScreen != null) {
-                mScreen.addPreference(mCategory);
-            }
+            mScreen.addPreference(mCategory);
         }
         mCategory.addPreference(preference);
     }
 
     private boolean isOnScreen() {
-        // TODO: adjust tests so screen is never null
-        if (mScreen == null) {
-            return false;
-        }
         return mScreen.findPreference(mCategory.getKey()) != null;
-    }
-
-    @Override
-    public void addPairedSensor(String key, ConnectableSensor newSensor) {
-        Preference pref = buildAvailablePreference(key, newSensor);
-        pref.setWidgetLayoutResource(R.layout.preference_external_device);
-        pref.setSummary(newSensor.getSpec().getSensorAppearance().getName(pref.getContext()));
-        addPreference(pref);
     }
 
     @NonNull

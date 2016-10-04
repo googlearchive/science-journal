@@ -15,20 +15,14 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.app.PendingIntent;
-import android.content.Context;
-import android.preference.Preference;
 import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
 
-import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputScenario;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.StubPreferenceCategory;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TestSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -40,14 +34,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConnectableSensorRegistryTest extends AndroidTestCase {
-    StubPreferenceCategory mAvailableDevices;
-    StubPreferenceCategory mPairedDevices;
+    private MemorySensorGroup mAvailableDevices;
+    private MemorySensorGroup mPairedDevices;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mAvailableDevices = new StubPreferenceCategory(getContext());
-        mPairedDevices = new StubPreferenceCategory(getContext());
+        mAvailableDevices = new MemorySensorGroup();
+        mPairedDevices = new MemorySensorGroup();
     }
 
     public void testScalarInputPassthrough() {
@@ -55,15 +49,14 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 s.makeScalarInputDiscoverers());
 
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
+        registry.startScanningInDiscoverers(mAvailableDevices, getContext(), null);
 
-        assertEquals(0, mPairedDevices.prefs.size());
-        assertEquals(1, mAvailableDevices.prefs.size());
+        assertEquals(0, mPairedDevices.size());
+        assertEquals(1, mAvailableDevices.size());
 
-        Preference pref = mAvailableDevices.prefs.get(0);
         StoringConsumer<ConnectableSensor> stored = new StoringConsumer<>();
-        registry.addExternalSensorIfNecessary("experimentId", pref.getKey(),
-                mPairedDevices.getPreferenceCount(), stored);
+        registry.addExternalSensorIfNecessary("experimentId", mAvailableDevices.getKey(0),
+                mPairedDevices.size(), stored);
         ScalarInputSpec sensor = (ScalarInputSpec) stored.getValue().getSpec();
         assertEquals(ScalarInputSpec.TYPE, sensor.getType());
         assertEquals(s.getServiceId(), sensor.getServiceId());
@@ -78,24 +71,21 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
 
         // First it's paired...
         pairedSensors.put(sensorId, s.makeSpec());
-        registry.setPairedSensors(availableGroup(), pairedGroup(), pairedSensors);
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
+        registry.setPairedSensors(mAvailableDevices, mPairedDevices, pairedSensors);
+        registry.startScanningInDiscoverers(mAvailableDevices, getContext(), null);
         registry.stopScanningInDiscoverers();
 
-        assertEquals(1, mPairedDevices.prefs.size());
-        assertEquals(0, mAvailableDevices.prefs.size());
+        assertEquals(1, mPairedDevices.size());
+        assertEquals(0, mAvailableDevices.size());
 
         // Then it's forgotten...
         pairedSensors.clear();
         mPairedDevices.removeAll();
-        registry.setPairedSensors(availableGroup(), pairedGroup(),
-                pairedSensors
-        );
-        registry.startScanningInDiscoverers(
-                availableGroup(), mAvailableDevices.getContext(), null);
+        registry.setPairedSensors(mAvailableDevices, mPairedDevices, pairedSensors);
+        registry.startScanningInDiscoverers(mAvailableDevices, getContext(), null);
 
-        assertEquals(0, mPairedDevices.prefs.size());
-        assertEquals(1, mAvailableDevices.prefs.size());
+        assertEquals(0, mPairedDevices.size());
+        assertEquals(1, mAvailableDevices.size());
     }
 
     public void testPairedWhenSet() {
@@ -108,13 +98,12 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         sensors.put("sensorId",
                 new ScalarInputSpec(sensorName, "serviceId", "address", null, null));
 
-        registry.setPairedSensors(availableGroup(), pairedGroup(), sensors);
-        assertEquals(0, mAvailableDevices.prefs.size());
-        assertEquals(1, mPairedDevices.prefs.size());
+        registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
+        assertEquals(0, mAvailableDevices.size());
+        assertEquals(1, mPairedDevices.size());
 
-        Preference preference = mPairedDevices.prefs.get(0);
-        assertTrue(registry.isPaired(preference.getKey()));
-        assertEquals(sensorName, preference.getTitle());
+        assertTrue(registry.isPaired(mPairedDevices.getKey(0)));
+        assertEquals(sensorName, mPairedDevices.getTitle(0));
     }
 
     public void testOptionsDialog() {
@@ -130,13 +119,12 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
                 new ScalarInputSpec(sensorName, s.getServiceId(), s.getSensorAddress(), null,
                         null));
 
-        registry.setPairedSensors(availableGroup(), pairedGroup(), sensors);
-        Preference pref = mPairedDevices.prefs.get(0);
+        registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
 
         String experimentId = Arbitrary.string();
 
         TestDeviceOptionsPresenter presenter = new TestDeviceOptionsPresenter();
-        registry.showDeviceOptions(presenter, experimentId, pref.getKey(), null);
+        registry.showDeviceOptions(presenter, experimentId, mPairedDevices.getKey(0), null);
         assertEquals(experimentId, presenter.experimentId);
         assertEquals(connectedId, presenter.sensorId);
     }
@@ -144,36 +132,22 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     public void testDuplicateSensorAdded() {
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
 
-        ExternalSensorDiscoverer dupeDiscoverer = makeDiscovererThatWillDiscover(
+        ExternalSensorDiscoverer dupeDiscoverer = new EnumeratedDiscoverer(
                 new BleSensorSpec("address", "name"), new BleSensorSpec("address", "name"));
         discoverers.put("type", dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers);
 
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
+        registry.startScanningInDiscoverers(mAvailableDevices, getContext(), null);
 
-        assertEquals(0, mPairedDevices.prefs.size());
+        assertEquals(0, mPairedDevices.size());
         // Only 1 of the 2 duplicates!
-        assertEquals(1, mAvailableDevices.prefs.size());
-    }
-
-    private ExternalSensorDiscoverer.DiscoveredSensor discovered(final ExternalSensorSpec spec) {
-        return new ExternalSensorDiscoverer.DiscoveredSensor() {
-            @Override
-            public ExternalSensorSpec getSpec() {
-                return spec;
-            }
-
-            @Override
-            public PendingIntent getSettingsIntent() {
-                return null;
-            }
-        };
+        assertEquals(1, mAvailableDevices.size());
     }
 
     public void testDontAddAvailableWhenAlreadyPaired() {
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
-        ExternalSensorDiscoverer dupeDiscoverer = makeDiscovererThatWillDiscover(
+        ExternalSensorDiscoverer dupeDiscoverer = new EnumeratedDiscoverer(
                 new BleSensorSpec("address", "name"));
         discoverers.put("type", dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
@@ -182,13 +156,13 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String connectedId = Arbitrary.string();
         sensors.put(connectedId, new BleSensorSpec("address", "name"));
-        registry.setPairedSensors(availableGroup(), pairedGroup(), sensors);
+        registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
 
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
+        registry.startScanningInDiscoverers(mAvailableDevices, getContext(), null);
 
-        assertEquals(1, mPairedDevices.prefs.size());
+        assertEquals(1, mPairedDevices.size());
         // Not added here!
-        assertEquals(0, mAvailableDevices.prefs.size());
+        assertEquals(0, mAvailableDevices.size());
     }
 
     public void testDifferentConfigIsDuplicate() {
@@ -197,16 +171,16 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         spec1.setCustomPin("A1");
         BleSensorSpec spec2 = new BleSensorSpec("address", "name");
         spec2.setCustomPin("A2");
-        ExternalSensorDiscoverer d = makeDiscovererThatWillDiscover(spec1, spec2);
+        ExternalSensorDiscoverer d = new EnumeratedDiscoverer(spec1, spec2);
         discoverers.put("type", d);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers);
 
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
+        registry.startScanningInDiscoverers(mAvailableDevices, getContext(), null);
 
-        assertEquals(0, mPairedDevices.prefs.size());
+        assertEquals(0, mPairedDevices.size());
         // Only 1 of the 2 duplicates!
-        assertEquals(1, mAvailableDevices.prefs.size());
+        assertEquals(1, mAvailableDevices.size());
     }
 
     public void testConnectedReplacesAvailable() {
@@ -214,16 +188,16 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 s.makeScalarInputDiscoverers());
 
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
+        registry.startScanningInDiscoverers(mAvailableDevices, getContext(), null);
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         ScalarInputSpec spec = s.makeSpec();
         sensors.put(Arbitrary.string(), spec);
-        registry.setPairedSensors(availableGroup(), pairedGroup(), sensors);
+        registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
 
         // Should move sensor from available to paired
-        assertEquals(1, mPairedDevices.prefs.size());
-        assertEquals(0, mAvailableDevices.prefs.size());
+        assertEquals(1, mPairedDevices.size());
+        assertEquals(0, mAvailableDevices.size());
     }
 
     public void testOrderOfApiSensors() {
@@ -235,46 +209,23 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 tsd.makeDiscovererMap("serviceId"));
 
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
+        registry.startScanningInDiscoverers(mAvailableDevices, getContext(), null);
 
-        assertEquals(0, mPairedDevices.prefs.size());
-        assertEquals(2, mAvailableDevices.prefs.size());
+        assertEquals(0, mPairedDevices.size());
+        assertEquals(2, mAvailableDevices.size());
 
         StoringConsumer<ConnectableSensor> stored1 = new StoringConsumer<>();
         registry.addExternalSensorIfNecessary("experimentId",
-                mAvailableDevices.prefs.get(0).getKey(), 0, stored1);
+                mAvailableDevices.getKey(0), 0, stored1);
         ScalarInputSpec sensor1 = (ScalarInputSpec) stored1.getValue().getSpec();
 
         StoringConsumer<ConnectableSensor> stored2 = new StoringConsumer<>();
         registry.addExternalSensorIfNecessary("experimentId",
-                mAvailableDevices.prefs.get(1).getKey(), 1, stored2);
+                mAvailableDevices.getKey(1), 1, stored2);
         ScalarInputSpec sensor2 = (ScalarInputSpec) stored2.getValue().getSpec();
 
         assertEquals(R.drawable.ic_api_01_white_24dp, sensor1.getDefaultIconId());
         assertEquals(R.drawable.ic_api_02_white_24dp, sensor2.getDefaultIconId());
-    }
-
-    ExternalSensorDiscoverer makeDiscovererThatWillDiscover(final ExternalSensorSpec... specs) {
-        return new StubSensorDiscoverer() {
-            @Override
-            public boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
-                    Runnable onScanDone, FailureListener onScanError, Context context) {
-                for (ExternalSensorSpec spec : specs) {
-                    onEachSensorFound.take(discovered(spec));
-                }
-                return true;
-            }
-        };
-    }
-
-    @NonNull
-    private SensorPreferenceGroup availableGroup() {
-        return new SensorPreferenceGroup(null, mAvailableDevices, false);
-    }
-
-    @NonNull
-    private SensorPreferenceGroup pairedGroup() {
-        return new SensorPreferenceGroup(null, mPairedDevices, true);
     }
 
     @NonNull

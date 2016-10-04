@@ -110,6 +110,7 @@ public class ConnectableSensorRegistry {
                     if (mScanCount == thisScanCount) {
                         mScanning = false;
                         stopScanningInDiscoverers();
+                        // TODO: test that this actually happens
                         presenter.refreshScanningUI();
                     }
                 }
@@ -124,13 +125,13 @@ public class ConnectableSensorRegistry {
         if (sensorKey == null) {
             ConnectableSensor sensor = ConnectableSensor.disconnected(ds.getSpec());
             String key = registerSensor(null, sensor, ds.getSettingsIntent());
-            sensorGroup.addAvailableSensor(key, sensor);
+            sensorGroup.addSensor(key, sensor);
         } else {
             ConnectableSensor sensor = mSensors.get(sensorKey);
             if (!sensor.isPaired()) {
                 if (!sensorGroup.hasSensorKey(sensorKey)) {
                     registerSensor(sensorKey, sensor, ds.getSettingsIntent());
-                    sensorGroup.addAvailableSensor(sensorKey, sensor);
+                    sensorGroup.addSensor(sensorKey, sensor);
                 }
             } else {
                 // TODO: UI feedback
@@ -156,7 +157,7 @@ public class ConnectableSensorRegistry {
 
             ConnectableSensor newSensor = ConnectableSensor.connected(sensor, entry.getKey());
             String key = registerSensor(null, newSensor, null);
-            paired.addPairedSensor(key, newSensor);
+            paired.addSensor(key, newSensor);
         }
 
         removeMissingPairedSensors(sensors, paired);

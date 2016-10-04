@@ -18,9 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 public interface SensorGroup {
     boolean hasSensorKey(String sensorKey);
 
-    void addAvailableSensor(String sensorKey, ConnectableSensor sensor);
-
-    void addPairedSensor(String key, ConnectableSensor newSensor);
+    void addSensor(String sensorKey, ConnectableSensor sensor);
 
     void removeSensor(String prefKey);
 }
