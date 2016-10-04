@@ -571,7 +571,7 @@
     <string name="dev_tools_leak_detection_title">Enable memory leak detection</string>
 
     <!-- Summary of developer option to enable memory leak detection [CHAR_LIMIT=none] -->
-    <string name="dev_tools_leak_detection_summary">Changes to this setting only take affect after closing the application.</string>
+    <string name="dev_tools_leak_detection_summary">Changes to this setting only take effect after closing the application.</string>
 
     <!-- Default sonification type name [CHAR_LIMIT=30] -->
     <string name="d2p">Default</string>

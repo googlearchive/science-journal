@@ -53,7 +53,6 @@
 
     <CheckBoxPreference
         android:key="leak_canary"
-        android:defaultValue="false"
         android:title="@string/dev_tools_leak_detection_title"
         android:summary="@string/dev_tools_leak_detection_summary"
         />

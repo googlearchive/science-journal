@@ -75,6 +75,7 @@ public class DevOptionsFragment extends PreferenceFragment {
 
         CheckBoxPreference leakPref = (CheckBoxPreference) findPreference(KEY_LEAK_CANARY);
         if (isDebugVersion(getActivity())) {
+            leakPref.setChecked(isLeakCanaryEnabled(getActivity()));
             leakPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -124,7 +125,8 @@ public class DevOptionsFragment extends PreferenceFragment {
     }
 
     public static boolean isLeakCanaryEnabled(Context context) {
-        return getBoolean(KEY_LEAK_CANARY, false, context);
+        // Enable by default for non user builds, otherwise respect the preference.
+        return getBoolean(KEY_LEAK_CANARY, !Build.TYPE.equals("user"), context);
     }
 
     public static boolean isDebugVersion(Context context) {
