@@ -200,6 +200,7 @@ public class ChartView extends View {
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         float prevHeight = mHeight;
+        float prevWidth = mWidth;
         mHeight = getMeasuredHeight();
         mWidth = getMeasuredWidth();
         mTopPadding = getPaddingTop();
@@ -209,7 +210,7 @@ public class ChartView extends View {
             return;
         }
         // If the height has changed, need to redraw the whole path!
-        if (prevHeight != mHeight) {
+        if (prevHeight != mHeight || prevWidth != mWidth) {
             initialize(mChartOptions, mChartData);
         }
     }
