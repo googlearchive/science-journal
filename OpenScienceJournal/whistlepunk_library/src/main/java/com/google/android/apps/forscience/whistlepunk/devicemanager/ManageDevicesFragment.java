@@ -59,6 +59,8 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
 
     private PreferenceCategory mPairedDevices;
     private PreferenceProgressCategory mAvailableDevices;
+    private SensorPreferenceGroup mPairedGroup;
+    private SensorPreferenceGroup mAvailableGroup;
     private Menu mMainMenu;
 
     private boolean mScanning;
@@ -86,16 +88,21 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
         });
         mDataController = AppSingleton.getInstance(getActivity()).getDataController();
         addPreferencesFromResource(R.xml.external_devices);
+
         mPairedDevices = new PreferenceProgressCategory(getActivity());
         mPairedDevices.setKey(PREF_KEY_PAIRED_DEVICES);
         mPairedDevices.setTitle(R.string.external_devices_paired);
         mPairedDevices.setOrder(0);
         mPairedDevices.setSelectable(false);
+        mPairedGroup = new SensorPreferenceGroup(mPairedDevices);
+
         mAvailableDevices = new PreferenceProgressCategory(getActivity());
         mAvailableDevices.setKey(PREF_KEY_AVAILABLE_DEVICES);
         mAvailableDevices.setTitle(R.string.external_devices_available);
         mAvailableDevices.setOrder(1);
         mAvailableDevices.setSelectable(false);
+        mAvailableGroup = new SensorPreferenceGroup(mAvailableDevices);
+
         getPreferenceScreen().addPreference(mAvailableDevices);
         setHasOptionsMenu(true);
 
@@ -132,24 +139,28 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
             final Preference preference) {
         final PendingIntent settingsIntent =
-                mConnectableSensorRegistry.getSettingsIntentFromPreference(preference);
+                mConnectableSensorRegistry.getSettingsIntentFromKey(preference.getKey());
 
         if (preference.getKey() != null) {
-            if (!mConnectableSensorRegistry.getIsPairedFromPreference(preference)) {
-                mConnectableSensorRegistry.addExternalSensorIfNecessary(mExperimentId, preference,
+            if (!mConnectableSensorRegistry.getIsPaired(preference.getKey())) {
+                preference.setEnabled(false);
+                preference.setSummary(R.string.external_devices_pairing);
+                String key = preference.getKey();
+                mConnectableSensorRegistry.addExternalSensorIfNecessary(mExperimentId, key,
                         mPairedDevices.getPreferenceCount(),
                         new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
-                            @Override
-                            public void success(ConnectableSensor sensor) {
-                                if (LOCAL_LOGD) {
-                                    Log.d(TAG, "Added sensor to experiment " + mExperimentId);
-                                }
-                                reloadAppearancesAndShowOptions(sensor, settingsIntent);
-                            }
-                        });
+                                    @Override
+                                    public void success(ConnectableSensor sensor) {
+                                        if (LOCAL_LOGD) {
+                                            Log.d(TAG,
+                                                    "Added sensor to experiment " + mExperimentId);
+                                        }
+                                        reloadAppearancesAndShowOptions(sensor, settingsIntent);
+                                    }
+                                });
             } else {
-                mConnectableSensorRegistry.showDeviceOptions(this, mExperimentId, preference,
-                        settingsIntent);
+                mConnectableSensorRegistry.showDeviceOptions(this, mExperimentId,
+                        preference.getKey(), settingsIntent);
             }
             return true;
         }
@@ -197,8 +208,8 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
                         } else if (sensors.size() > 0 && !hasPairedDevicePref) {
                             getPreferenceScreen().addPreference(mPairedDevices);
                         }
-                        mConnectableSensorRegistry.setPairedSensors(mAvailableDevices,
-                                mPairedDevices, sensors);
+                        mConnectableSensorRegistry.setPairedSensors(mAvailableGroup, mPairedGroup,
+                                sensors);
                         scanForDevices();
                     }
                 });
@@ -208,7 +219,8 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
         if (!mScanning) {
             mScanning = true;
             mHandler.removeMessages(MSG_STOP_SCANNING);
-            if (mConnectableSensorRegistry.startScanningInDiscoverers(mAvailableDevices)) {
+            if (mConnectableSensorRegistry.startScanningInDiscoverers(
+                    mAvailableGroup, mAvailableDevices.getContext())) {
                 mHandler.sendEmptyMessageDelayed(MSG_STOP_SCANNING, SCAN_TIME_MS);
                 refreshScanningUI();
             } else {

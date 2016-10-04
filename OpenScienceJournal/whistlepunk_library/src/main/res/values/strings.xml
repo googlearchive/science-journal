@@ -266,8 +266,11 @@
 
     <string name="title_activity_main">Science Journal - <xliff:g id="section">%s</xliff:g></string>
 
-    <!-- Title for activity that handles adding external devices [CHAR_LIMIT=40] -->
+    <!-- Title for activity that handles adding external devices (deprecated) [CHAR_LIMIT=40] -->
     <string name="title_activity_add_sensor">External devices</string>
+
+    <!-- Title for activity that handles sensor settings [CHAR_LIMIT=40] -->
+    <string name="title_activity_sensor_settings">Sensor settings</string>
 
     <!-- Header for a list of paired external devices [CHAR_LIMIT=40]-->
     <string name="external_devices_paired">Paired devices</string>
