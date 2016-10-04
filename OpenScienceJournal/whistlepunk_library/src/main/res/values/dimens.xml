@@ -174,7 +174,6 @@
     <dimen name="run_review_notes_text_size">16sp</dimen>
     <dimen name="run_review_notes_timestamp_text_size">14sp</dimen>
     <dimen name="run_review_note_content_margin_start">80dp</dimen>
-    <dimen name="run_review_note_text_margin_end">48dp</dimen>
     <dimen name="run_review_note_icon_size">24dp</dimen>
     <dimen name="run_review_note_duration_drawable_padding">8dp</dimen>
     <dimen name="run_review_image_note_preview_size">100dp</dimen>

@@ -50,6 +50,7 @@
         android:layout_alignParentStart="true"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="@dimen/run_review_note_content_margin_start"
+        android:layout_toStartOf="@+id/note_menu_button"
         >
 
         <ImageView
@@ -72,7 +73,6 @@
             android:layout_alignParentStart="true"
             android:layout_below="@id/note_image"
             android:layout_alignWithParentIfMissing="true"
-            android:layout_marginEnd="@dimen/run_review_note_text_margin_end"
             android:text="@string/pinned_note_placeholder_text"
             android:layout_marginTop="@dimen/run_review_section_margin"
             />
@@ -86,7 +86,6 @@
             android:textSize="14sp"
             android:layout_below="@id/note_text"
             android:layout_alignParentStart="true"
-            android:layout_marginEnd="@dimen/run_review_note_text_margin_end"
             android:visibility="gone"
             android:drawablePadding="@dimen/edit_note_time_drawable_padding"
             android:gravity="center_vertical"
@@ -112,7 +111,7 @@
     <ImageButton
         android:layout_width="@dimen/accessibility_touch_target_min_size"
         android:layout_height="@dimen/accessibility_touch_target_min_size"
-        android:id="@+id/note_menu_button"
+        android:id="@id/note_menu_button"
         android:src="@drawable/abc_ic_menu_moreoverflow_mtrl_alpha"
         android:contentDescription="@string/menu_btn_content_description"
         android:layout_alignParentEnd="true"
