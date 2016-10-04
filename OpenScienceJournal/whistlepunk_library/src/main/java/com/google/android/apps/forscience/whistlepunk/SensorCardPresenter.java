@@ -202,6 +202,7 @@ public class SensorCardPresenter {
     }
 
     public void onNewData(long timestamp, Bundle bundle) {
+        mSensorPresenter.onNewData(timestamp, bundle);
         boolean iconTimeHasElapsed =
                 timestamp > mLastUpdatedIconTimestamp + MAX_ICON_UPDATE_TIME_MS;
         mTextTimeHasElapsed = timestamp > mLastUpdatedTextTimestamp + MAX_TEXT_UPDATE_TIME_MS;
@@ -332,20 +333,17 @@ public class SensorCardPresenter {
     }
 
     public void startObserving(SensorChoice sensorChoice, SensorPresenter sensorPresenter,
-            final ReadableSensorOptions readOptions, DataController dataController,
-            final SensorObserver recordFragmentObserver) {
+            final ReadableSensorOptions readOptions, DataController dataController) {
         mCurrentSource = sensorChoice;
         mSensorPresenter = sensorPresenter;
         if (mLayout.activeSensorTriggerIds.length == 0) {
-            startObservingWithTriggers(readOptions, recordFragmentObserver,
-                    Collections.<SensorTrigger>emptyList());
+            startObservingWithTriggers(readOptions, Collections.<SensorTrigger>emptyList());
         } else {
             dataController.getSensorTriggers(mLayout.activeSensorTriggerIds,
                     new LoggingConsumer<List<SensorTrigger>>(TAG, "get sensor triggers") {
                         @Override
                         public void success(List<SensorTrigger> triggers) {
-                            startObservingWithTriggers(readOptions,
-                                    recordFragmentObserver, triggers);
+                            startObservingWithTriggers(readOptions, triggers);
                             updateCardMenu();
                         }
                     });
@@ -353,14 +351,13 @@ public class SensorCardPresenter {
     }
 
     private void startObservingWithTriggers(ReadableSensorOptions readOptions,
-            final SensorObserver recordFragmentObserver, List<SensorTrigger> triggers) {
+            List<SensorTrigger> triggers) {
         mCardTriggerPresenter.setSensorTriggers(triggers);
         mObserverId = mRecorderController.startObserving(mCurrentSource.getId(), triggers,
                 new SensorObserver() {
                     @Override
                     public void onNewData(long timestamp, Bundle value) {
                         SensorCardPresenter.this.onNewData(timestamp, value);
-                        recordFragmentObserver.onNewData(timestamp, value);
                     }
                 }, getSensorStatusListener(),
                 AbstractReadableSensorOptions.makeTransportable(readOptions));

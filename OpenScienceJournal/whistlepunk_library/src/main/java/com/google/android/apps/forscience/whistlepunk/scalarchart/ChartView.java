@@ -53,7 +53,7 @@ public class ChartView extends View {
 
     // If the path contains fewer than this number of points, it will be repopulated instead of
     // transformed. This value can be tweaked for performance as needed.
-    private static final int MAXIMUM_NUM_POINTS_FOR_POPULATE_PATH = 3;
+    private static final int MAXIMUM_NUM_POINTS_FOR_POPULATE_PATH = 10;
 
     // Constants describing the number of Y axis labels to show on a graph. No graph should have
     // more than 6 Y axis labels, or fewer than 3, and 5 is prefered on a new load.
