@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
+import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 
 import java.util.Map;

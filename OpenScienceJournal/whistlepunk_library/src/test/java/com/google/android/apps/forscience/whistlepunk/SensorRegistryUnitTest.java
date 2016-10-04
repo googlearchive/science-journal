@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -43,9 +44,10 @@ public class SensorRegistryUnitTest {
 
     public Map<String,ExternalSensorProvider> getProviders() {
         Map<String, ExternalSensorProvider> providers = new HashMap<>();
+
         providers.put(ScalarInputSpec.TYPE,
                 new ScalarInputDiscoverer(null, null,
-                        MoreExecutors.directExecutor()).getProvider());
+                        MoreExecutors.directExecutor(), new MockScheduler(), 100).getProvider());
         return providers;
     }
 }

@@ -19,31 +19,40 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
 public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
+    private static final long DEFAULT_SCAN_TIMEOUT_MILLIS = 10_000;
     private static String TAG = "SIDiscoverer";
     public static final String SCALAR_INPUT_PROVIDER_ID =
             "com.google.android.apps.forscience.whistlepunk.scalarinput";
+
     private final Consumer<AppDiscoveryCallbacks> mServiceFinder;
     private final ScalarInputStringSource mStringSource;
     private final Executor mUiThreadExecutor;
+    private final Scheduler mScheduler;
+    private final long mScanTimeoutMillis;
 
     public ScalarInputDiscoverer(Consumer<AppDiscoveryCallbacks> serviceFinder,
             Context context) {
-        this(serviceFinder, defaultStringSource(context), AppSingleton.getUiThreadExecutor());
+        this(serviceFinder, defaultStringSource(context), AppSingleton.getUiThreadExecutor(),
+                new SystemScheduler(), DEFAULT_SCAN_TIMEOUT_MILLIS);
     }
 
     private static ScalarInputStringSource defaultStringSource(final Context context) {
@@ -56,12 +65,15 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
         };
     }
 
+    @VisibleForTesting
     public ScalarInputDiscoverer(
             Consumer<AppDiscoveryCallbacks> serviceFinder, ScalarInputStringSource stringSource,
-            Executor uiThreadExecutor) {
+            Executor uiThreadExecutor, Scheduler scheduler, long scanTimeoutMillis) {
         mServiceFinder = serviceFinder;
         mStringSource = stringSource;
         mUiThreadExecutor = uiThreadExecutor;
+        mScheduler = scheduler;
+        mScanTimeoutMillis = scanTimeoutMillis;
     }
 
     @Override
@@ -102,6 +114,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
             final TaskPool pool) {
         final String serviceTaskId = "SERVICE:" + serviceId;
         pool.addTask(serviceTaskId);
+        scheduleTaskTimeout(pool, serviceTaskId);
         return new IDeviceConsumer.Stub() {
             @Override
             public void onDeviceFound(String deviceId, String name, PendingIntent settingsIntent)
@@ -111,6 +124,8 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 }
                 final String deviceTaskId = "DEVICE:" + deviceId;
                 pool.addTask(deviceTaskId);
+                scheduleTaskTimeout(pool, deviceTaskId);
+
                 // TODO: restructure to create an object per service scan to hold intermediate data.
                 service.scanSensors(deviceId, makeSensorConsumer(serviceId, onEachSensorFound,
                         new Runnable() {
@@ -126,6 +141,15 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 pool.taskDone(serviceTaskId);
             }
         };
+    }
+
+    private void scheduleTaskTimeout(final TaskPool pool, final String taskId) {
+        mScheduler.schedule(Delay.millis(mScanTimeoutMillis), new Runnable() {
+            @Override
+            public void run() {
+                pool.taskDone(taskId);
+            }
+        });
     }
 
     @NonNull
