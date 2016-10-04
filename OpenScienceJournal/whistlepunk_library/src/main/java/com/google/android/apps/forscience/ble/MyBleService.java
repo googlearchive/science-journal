@@ -292,7 +292,9 @@ public class MyBleService extends Service {
 
     boolean connect(String address) {
         BluetoothDevice device = btAdapter.getRemoteDevice(address);
-        if (device == null) {
+        //  Explicitly check if Ble is enabled, otherwise it attempts a connection
+        //  that never timesout even though it should.
+        if (device == null || !isBleEnabled()) {
             return false;
         }
         BluetoothGatt bluetoothGatt = addressToGattClient.get(address);
