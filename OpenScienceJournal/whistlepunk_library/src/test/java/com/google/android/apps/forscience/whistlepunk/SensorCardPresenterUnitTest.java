@@ -62,17 +62,11 @@ public class SensorCardPresenterUnitTest {
         SensorCardPresenter scp = new SensorCardPresenter(dataViewOptions, ssc, rc,
                 new GoosciSensorLayout.SensorLayout(), "", null, null);
         SensorPresenter presenter = new MemorySensorPresenter();
-        SensorObserver so = new SensorObserver() {
-            @Override
-            public void onNewData(long timestamp, Bundle data) {
-
-            }
-        };
         ManualSensor ds = new ManualSensor("sensorId", 100, 100);
         InMemorySensorDatabase db = new InMemorySensorDatabase();
         MemoryMetadataManager manager = new MemoryMetadataManager();
         final DataController dc = db.makeSimpleController(manager);
-        scp.startObserving(ds, presenter, new BlankReadableSensorOptions(), dc, so);
+        scp.startObserving(ds, presenter, new BlankReadableSensorOptions(), dc);
         scp.setAppearanceProvider(new MemoryAppearanceProvider());
         scp.setUiForConnectingNewSensor(ds.getId(), "Display Name", "units", false);
         assertEquals(Arrays.asList(ds.getId()), rc.getCurrentObservedIds());

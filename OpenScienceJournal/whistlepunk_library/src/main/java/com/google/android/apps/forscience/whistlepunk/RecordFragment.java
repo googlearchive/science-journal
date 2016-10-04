@@ -1312,15 +1312,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 sensorPresenter.getOptionsPresenter().applyOptions(readOptions);
 
                 sensorCardPresenter.startObserving(sensorChoice, sensorPresenter, readOptions,
-                        getDataController(), new SensorObserver() {
-                            @Override
-                            public void onNewData(long timestamp, Bundle value) {
-                                // TODO: Why is there an occasional errant first point when
-                                // sensorPresenter.onNewData is called inside of
-                                // sensorCardPresenter.onNewData?
-                                sensorPresenter.onNewData(timestamp, value);
-                            }
-                        });
+                        getDataController());
                 refreshLabels();
             }
 
