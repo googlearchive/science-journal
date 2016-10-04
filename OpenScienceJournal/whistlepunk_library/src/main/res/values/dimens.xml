@@ -198,10 +198,8 @@
     <dimen name="run_review_overlay_label_corner_radius">3dp</dimen>
 
     <dimen name="run_review_overlay_height">280dp</dimen>
-    <dimen name="run_review_overlay_margin_bottom">32dp</dimen>
-    <!-- The left padding matches run_review_external_axis_left_margin, and the right matches the right -->
-    <dimen name="run_review_overlay_margin_left">56dp</dimen>
-    <dimen name="run_review_overlay_margin_right">16dp</dimen>
+    <dimen name="run_review_overlay_margin_bottom">42dp</dimen>
+    <dimen name="run_review_overlay_padding_bottom">8dp</dimen>
 
     <dimen name="picture_note_preview_size">300dp</dimen>
 

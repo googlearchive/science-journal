@@ -319,7 +319,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 }, /* IsLive */ false, new CurrentTimeClock());
         mRunReviewOverlay =
                 (RunReviewOverlay) rootView.findViewById(R.id.run_review_chart_overlay);
-        mRunReviewOverlay.setSeekbarView(
+        mRunReviewOverlay.setGraphSeekBar(
                 (GraphExploringSeekBar) rootView.findViewById(R.id.external_axis_seekbar));
         mRunReviewOverlay.setExternalAxisController(mExternalAxis);
         mRunReviewOverlay.setOnSeekbarTouchListener(
@@ -865,15 +865,13 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             // This is the first load. Zoom to fit the run.
             mChartController.setXAxis(renderedXMin, renderedXMax);
             // Display the the graph and overlays.
-            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax,
-                    mRunReviewOverlay.getSeekbar());
+            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
             mExternalAxis.zoomTo(mChartController.getRenderedXMin(),
                     mChartController.getRenderedXMax());
             mRunReviewOverlay.setActiveTimestamp(firstTimestamp);
         } else {
             mExternalAxis.zoomTo(previousXMin, previousXMax);
-            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax,
-                    mRunReviewOverlay.getSeekbar());
+            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
         }
         adjustYAxis();
 

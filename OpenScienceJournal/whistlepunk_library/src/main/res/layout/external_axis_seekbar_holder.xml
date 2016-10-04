@@ -18,9 +18,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/run_review_overlay_height"
-    android:layout_marginStart="8dp"
+    android:layout_marginStart="@dimen/run_review_margin_sides"
     android:layout_marginEnd="@dimen/run_review_margin_sides"
-    android:paddingBottom="@dimen/run_review_seekbar_holder_padding_bottom"
+    android:clipToPadding="false"
+    android:clipChildren="false"
     >
 
     <!-- Here we use left and right instead of start and end because the graph
@@ -31,7 +32,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="@dimen/run_review_external_axis_left_padding"
+        android:layout_marginLeft="@dimen/run_review_external_axis_left_padding"
+        android:layout_marginBottom="@dimen/run_review_seekbar_holder_padding_bottom"
         >
 
         <!-- Set seekbar to invisible until it is loaded, so we don't see it change
@@ -61,10 +63,9 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="@dimen/run_review_overlay_margin_bottom"
-        android:paddingStart="@dimen/run_review_margin_sides"
-        android:paddingEnd="@dimen/run_review_margin_sides"
-        android:layout_marginLeft="@dimen/run_review_overlay_margin_left"
-        android:layout_marginRight="@dimen/run_review_overlay_margin_right"
+        android:layout_marginStart="@dimen/run_review_margin_sides"
+        android:layout_marginEnd="@dimen/run_review_margin_sides"
+        android:paddingBottom="@dimen/run_review_overlay_padding_bottom"
         android:id="@+id/run_review_chart_overlay"
         android:contentDescription="@null"
         android:visibility="invisible"

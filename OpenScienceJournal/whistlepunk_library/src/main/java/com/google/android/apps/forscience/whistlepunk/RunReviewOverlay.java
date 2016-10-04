@@ -24,6 +24,7 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -59,14 +60,16 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
     private int mHeight;
     private int mWidth;
-    private int mPaddingLeft;
+    private int mPaddingBottom;
     private int mChartHeight;
     private int mChartMarginLeft;
+    private int mChartMarginRight;
 
     private int mLabelPadding;
     private int mIntraLabelPadding;
     private int mNotchHeight;
     private int mCornerRadius;
+    private String mSelectedLabel;
 
     private Paint mPaint;
     private Paint mDotPaint;
@@ -169,7 +172,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         Resources res = getResources();
         mHeight = getMeasuredHeight();
         mWidth = getMeasuredWidth();
-        mPaddingLeft = getPaddingLeft();
+        mPaddingBottom = getPaddingBottom();
         mChartHeight = res.getDimensionPixelSize(R.dimen.run_review_chart_height);
 
         mLabelPadding = res.getDimensionPixelSize(R.dimen.run_review_overlay_label_padding);
@@ -184,6 +187,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
         mChartMarginLeft = res.getDimensionPixelSize(R.dimen.chart_margin_size_left) +
                 res.getDimensionPixelSize(R.dimen.stream_presenter_padding_sides);
+        mChartMarginRight = res.getDimensionPixelSize(R.dimen.stream_presenter_padding_sides);
     }
 
     public void onDraw(Canvas canvas) {
@@ -191,45 +195,51 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
             return;
         }
 
-        String label = String.format(mTextFormat, mValue);
-        mSeekbar.updateValuesForAccessibility(mExternalAxis.formatElapsedTimeForAccessibility(
-                mSelectedTimestamp, getContext()), label);
-
-        float nudge = mDotRadius / 2;
-        float cx = mPaddingLeft + mScreenPoint.x - mChartMarginLeft - nudge;
-
-        if (cx < mPaddingLeft + mCornerRadius + mNotchHeight * SQRT_2_OVER_2 ||
-                cx > mWidth - mCornerRadius - mNotchHeight * SQRT_2_OVER_2) {
-            // Then we can't draw the overlay balloon because the point is close to the edge of the
-            // screen or offscreen.
+        if (mScreenPoint.x < mChartMarginLeft || mScreenPoint.x > mWidth - mChartMarginRight) {
+            // The point is off the graph! Don't try to draw it.
             return;
         }
 
-        float cy = mHeight - mChartHeight + mScreenPoint.y - 2 * mDotBackgroundRadius + nudge;
+        float notchBottom = drawFlag(canvas, mSelectedTimestamp, mScreenPoint.x, mSelectedLabel);
 
+        // Draw the vertical line from the point to the bottom of the flag
+        float nudge = mDotRadius / 2;
+        float cy = mHeight - mChartHeight - mPaddingBottom + mScreenPoint.y -
+                2 * mDotBackgroundRadius + nudge;
+        mPath.reset();
+        mPath.moveTo(mScreenPoint.x, notchBottom);
+        mPath.lineTo(mScreenPoint.x, cy);
+        canvas.drawPath(mPath, mLinePaint);
+
+        // Draw the selected point
+        float cySmall = cy + 1.5f * mDotBackgroundRadius;
+        canvas.drawCircle(mScreenPoint.x, cySmall, mDotBackgroundRadius, mDotBackgroundPaint);
+        canvas.drawCircle(mScreenPoint.x, cySmall, mDotRadius, mDotPaint);
+    }
+
+    /**
+     * Draw a flag above a specific timestamp with a given value.
+     * @return The y screen position of the bottom of the notch at the base of the flag.
+     */
+    private float drawFlag(Canvas canvas, long selectedTimestamp, float cx, String label) {
         float labelWidth = mTextPaint.measureText(label);
-        String timeLabel = mTimeFormat.formatToTenths(mSelectedTimestamp -
+        String timeLabel = mTimeFormat.formatToTenths(selectedTimestamp -
                 mExternalAxis.getRecordingStartTime());
         float timeWidth = mTimePaint.measureText(timeLabel);
         float textSize = -1 * mTextPaint.ascent();
 
-        float boxTop = mHeight - mChartHeight - textSize;
+        float boxTop = mHeight - mChartHeight - mPaddingBottom - textSize;
         float boxBottom = boxTop + textSize + mLabelPadding * 2 + 5;
         float width = mIntraLabelPadding + 2 * mLabelPadding + timeWidth + labelWidth;
         float boxStart = cx - width / 2;
         float boxEnd = cx + width / 2;
-        if (boxStart < mPaddingLeft) {
-            boxStart = mPaddingLeft;
+        if (boxStart < 0) {
+            boxStart = 0;
             boxEnd = boxStart + width;
         } else if (boxEnd > mWidth) {
             boxEnd = mWidth;
             boxStart = boxEnd - width;
         }
-
-        mPath.reset();
-        mPath.moveTo(cx, boxTop);
-        mPath.lineTo(cx, cy);
-        canvas.drawPath(mPath, mLinePaint);
 
         mBoxRect.set(boxStart, boxTop, boxEnd, boxBottom);
         canvas.drawRoundRect(mBoxRect, mCornerRadius, mCornerRadius, mPaint);
@@ -240,10 +250,6 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         mPath.lineTo((int) (cx + mNotchHeight * SQRT_2_OVER_2), boxBottom);
         canvas.drawPath(mPath, mPaint);
 
-        float cySmall = cy + 1.5f * mDotBackgroundRadius;
-        canvas.drawCircle(cx, cySmall, mDotBackgroundRadius, mDotBackgroundPaint);
-        canvas.drawCircle(cx, cySmall, mDotRadius, mDotPaint);
-
         float textBase = boxTop + mLabelPadding + textSize;
         canvas.drawText(timeLabel, boxStart + mLabelPadding, textBase, mTimePaint);
         canvas.drawText(label, boxEnd - labelWidth - mLabelPadding, textBase, mTextPaint);
@@ -251,6 +257,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         float center = boxStart + mLabelPadding + timeWidth + mIntraLabelPadding / 2;
         canvas.drawLine(center, boxTop + mLabelPadding, center,
                 boxBottom - mLabelPadding, mCenterLinePaint);
+
+        return boxBottom + mNotchHeight;
     }
 
     public void setChartController(ChartController controller) {
@@ -258,8 +266,13 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         mChartController.addChartDataLoadedCallback(this);
     }
 
-    public void setSeekbarView(final GraphExploringSeekBar seekbar) {
+    public void setGraphSeekBar(final GraphExploringSeekBar seekbar) {
         mSeekbar = seekbar;
+        // Seekbar thumb is always blue, no matter the color of the grpah.
+        int color = getResources().getColor(R.color.graph_line_color_blue);
+        mSeekbar.getThumb().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        mSeekbar.setVisibility(View.VISIBLE);
+
         mThumb = mSeekbar.getThumb();
         mSeekbar.setOnSeekBarChangeListener(new GraphExploringSeekBar.OnSeekBarChangeListener() {
             @Override
@@ -325,6 +338,9 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         // Update the selected timestamp to one available in the chart data.
         mSelectedTimestamp = point.getX();
         mValue = point.getY();
+        mSelectedLabel = String.format(mTextFormat, mValue);
+        mSeekbar.updateValuesForAccessibility(mExternalAxis.formatElapsedTimeForAccessibility(
+                mSelectedTimestamp, getContext()), mSelectedLabel);
 
         redraw(progress, backUpdateProgressBar);
     }
