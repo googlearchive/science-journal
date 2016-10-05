@@ -81,7 +81,7 @@ public class ChartController {
      */
     private static final long MAX_BLACKOUT_MILLIS_BEFORE_CLEARING = 5000;
 
-    public static final long DEFAULT_DATA_LOAD_BUFFER_MILLIS =
+    private static final long DEFAULT_DATA_LOAD_BUFFER_MILLIS =
             ExternalAxisController.DEFAULT_GRAPH_RANGE_IN_MILLIS / 4;
 
     private final ChartData mChartData;
@@ -318,10 +318,6 @@ public class ChartController {
         return mChartData.getXMin();
     }
 
-    public long getXMax() {
-        return mChartData.getXMax();
-    }
-
     public long getRenderedXMin() {
         return mChartOptions.getRenderedXMin();
     }
@@ -346,10 +342,6 @@ public class ChartController {
 
     public ChartData.DataPoint getClosestDataPointToTimestamp(long timestamp) {
         return mChartData.getClosestDataPointToTimestamp(timestamp);
-    }
-
-    public int getClosestIndexToTimestamp(long timestamp) {
-        return mChartData.getClosestIndexToTimestamp(timestamp);
     }
 
     public boolean hasDrawnChart() {

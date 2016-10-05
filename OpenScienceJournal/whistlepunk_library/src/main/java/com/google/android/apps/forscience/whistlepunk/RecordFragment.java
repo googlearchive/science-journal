@@ -82,7 +82,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorag
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
@@ -1350,7 +1349,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
 
         // In any of the presenter is visible, go ahead and pass the trigger to it.
-        presenter.onSensorTriggerFired(trigger);
+        presenter.onSensorTriggerFired();
 
         // Only need to do a snackbar for off-screen visual alerts.
         if (!trigger.hasAlertType(TriggerInformation.TRIGGER_ALERT_VISUAL)) {

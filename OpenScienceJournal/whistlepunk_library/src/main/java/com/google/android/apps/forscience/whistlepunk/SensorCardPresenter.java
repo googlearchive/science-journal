@@ -63,7 +63,6 @@ import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
-import com.google.common.base.Preconditions;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -244,7 +243,7 @@ public class SensorCardPresenter {
         }
     }
 
-    public void onSensorTriggerFired(SensorTrigger trigger) {
+    public void onSensorTriggerFired() {
         mCardTriggerPresenter.onSensorTriggerFired();
     }
 
@@ -1057,14 +1056,6 @@ public class SensorCardPresenter {
 
     public boolean isActive() {
         return mIsActive && !isRecording();
-    }
-
-    public boolean isAudioEnabled() {
-        return mLayout.audioEnabled;
-    }
-
-    public boolean isShowStatsOverlay() {
-        return mLayout.showStatsOverlay;
     }
 
     public void setIsSingleCard(boolean isSingleCard) {

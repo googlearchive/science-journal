@@ -133,11 +133,6 @@ public class SensorCardPresenterUnitTest {
         }
 
         @Override
-        public boolean hasOptionsPresenter() {
-            return false;
-        }
-
-        @Override
         public void updateAudioSettings(boolean audioEnabled, String sonificationType) {
 
         }

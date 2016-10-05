@@ -90,7 +90,7 @@ public interface SensorPresenter extends SensorObserver {
      * @param xMin The minimum X axis value.
      * @param xMax The maximum X axis value.
      * @param isPinnedToNow Whether the X axis is currently "pinned" to now.
-     * @param dataController
+     * @param dataController For potentially loading sensor data that was forgotten
      */
     void onGlobalXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,
             DataController dataController);
@@ -120,8 +120,6 @@ public interface SensorPresenter extends SensorObserver {
     void onViewRecycled();
 
     OptionsPresenter getOptionsPresenter();
-
-    boolean hasOptionsPresenter();
 
     void updateAudioSettings(boolean audioEnabled, String sonificationType);
 

@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.javalib;
 
-// TODO(saff): synchronize with similar classes from Weather app
 public abstract class Refresher {
     private final Scheduler mScheduler;
 

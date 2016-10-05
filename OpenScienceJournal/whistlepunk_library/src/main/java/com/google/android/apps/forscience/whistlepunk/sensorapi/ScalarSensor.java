@@ -199,11 +199,6 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             }
 
             @Override
-            public boolean hasOptionsPresenter() {
-                return optionsPresenter != null;
-            }
-
-            @Override
             public void updateAudioSettings(boolean audioEnabled, String sonificationType) {
                 setAudioEnabled(audioEnabled);
                 mAudioGenerator.setSonificationType(sonificationType);

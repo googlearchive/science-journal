@@ -33,7 +33,6 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
@@ -132,11 +131,6 @@ public class VideoSensor extends SensorChoice {
             @Override
             public void onViewRecycled() {
 
-            }
-
-            @Override
-            public boolean hasOptionsPresenter() {
-                return true;
             }
 
             @Override
