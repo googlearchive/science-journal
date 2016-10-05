@@ -15,17 +15,25 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import static android.R.attr.key;
+
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 
 class SensorPreferenceGroup implements SensorGroup {
+    private PreferenceScreen mScreen;
     private final PreferenceCategory mCategory;
+    private boolean mRemoveWhenEmpty;
 
-    public SensorPreferenceGroup(PreferenceCategory category) {
+    public SensorPreferenceGroup(PreferenceScreen screen, PreferenceCategory category,
+            boolean removeWhenEmpty) {
+        mScreen = screen;
         mCategory = category;
+        mRemoveWhenEmpty = removeWhenEmpty;
     }
 
     @Override
@@ -34,8 +42,27 @@ class SensorPreferenceGroup implements SensorGroup {
     }
 
     @Override
-    public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
-        return mCategory.addPreference(buildAvailablePreference(sensorKey, sensor));
+    public void addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
+        Preference preference = buildAvailablePreference(sensorKey, sensor);
+        addPreference(preference);
+    }
+
+    private void addPreference(Preference preference) {
+        if (mRemoveWhenEmpty && !isOnScreen()) {
+            // TODO: adjust tests so screen is never null
+            if (mScreen != null) {
+                mScreen.addPreference(mCategory);
+            }
+        }
+        mCategory.addPreference(preference);
+    }
+
+    private boolean isOnScreen() {
+        // TODO: adjust tests so screen is never null
+        if (mScreen == null) {
+            return false;
+        }
+        return mScreen.findPreference(mCategory.getKey()) != null;
     }
 
     @Override
@@ -43,7 +70,7 @@ class SensorPreferenceGroup implements SensorGroup {
         Preference pref = buildAvailablePreference(key, newSensor);
         pref.setWidgetLayoutResource(R.layout.preference_external_device);
         pref.setSummary(newSensor.getSpec().getSensorAppearance().getName(pref.getContext()));
-        mCategory.addPreference(pref);
+        addPreference(pref);
     }
 
     @NonNull
@@ -59,6 +86,9 @@ class SensorPreferenceGroup implements SensorGroup {
         Preference preference = mCategory.findPreference(key);
         if (preference != null) {
             mCategory.removePreference(preference);
+        }
+        if (mRemoveWhenEmpty && mCategory.getPreferenceCount() == 0 && isOnScreen()) {
+            mCategory.removePreference(mCategory);
         }
     }
 }

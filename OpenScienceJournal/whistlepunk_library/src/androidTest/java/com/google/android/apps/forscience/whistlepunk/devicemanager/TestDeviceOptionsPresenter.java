@@ -22,6 +22,11 @@ class TestDeviceOptionsPresenter implements DeviceOptionsPresenter {
     public String sensorId;
 
     @Override
+    public void refreshScanningUI() {
+
+    }
+
+    @Override
     public void showDeviceOptions(String experimentId, String sensorId,
             PendingIntent externalSettingsIntent) {
         this.experimentId = experimentId;

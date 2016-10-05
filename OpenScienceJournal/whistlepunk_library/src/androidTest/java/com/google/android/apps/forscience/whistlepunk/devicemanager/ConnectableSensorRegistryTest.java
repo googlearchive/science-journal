@@ -55,7 +55,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 s.makeScalarInputDiscoverers());
 
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext());
+        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
 
         assertEquals(0, mPairedDevices.prefs.size());
         assertEquals(1, mAvailableDevices.prefs.size());
@@ -79,7 +79,8 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         // First it's paired...
         pairedSensors.put(sensorId, s.makeSpec());
         registry.setPairedSensors(availableGroup(), pairedGroup(), pairedSensors);
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext());
+        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
+        registry.stopScanningInDiscoverers();
 
         assertEquals(1, mPairedDevices.prefs.size());
         assertEquals(0, mAvailableDevices.prefs.size());
@@ -91,7 +92,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
                 pairedSensors
         );
         registry.startScanningInDiscoverers(
-                availableGroup(), mAvailableDevices.getContext());
+                availableGroup(), mAvailableDevices.getContext(), null);
 
         assertEquals(0, mPairedDevices.prefs.size());
         assertEquals(1, mAvailableDevices.prefs.size());
@@ -112,7 +113,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         assertEquals(1, mPairedDevices.prefs.size());
 
         Preference preference = mPairedDevices.prefs.get(0);
-        assertTrue(registry.getIsPaired(preference.getKey()));
+        assertTrue(registry.isPaired(preference.getKey()));
         assertEquals(sensorName, preference.getTitle());
     }
 
@@ -149,7 +150,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers);
 
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext());
+        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
 
         assertEquals(0, mPairedDevices.prefs.size());
         // Only 1 of the 2 duplicates!
@@ -183,7 +184,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         sensors.put(connectedId, new BleSensorSpec("address", "name"));
         registry.setPairedSensors(availableGroup(), pairedGroup(), sensors);
 
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext());
+        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
 
         assertEquals(1, mPairedDevices.prefs.size());
         // Not added here!
@@ -201,7 +202,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers);
 
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext());
+        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
 
         assertEquals(0, mPairedDevices.prefs.size());
         // Only 1 of the 2 duplicates!
@@ -213,7 +214,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 s.makeScalarInputDiscoverers());
 
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext());
+        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         ScalarInputSpec spec = s.makeSpec();
@@ -234,7 +235,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 tsd.makeDiscovererMap("serviceId"));
 
-        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext());
+        registry.startScanningInDiscoverers(availableGroup(), mAvailableDevices.getContext(), null);
 
         assertEquals(0, mPairedDevices.prefs.size());
         assertEquals(2, mAvailableDevices.prefs.size());
@@ -268,12 +269,12 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
 
     @NonNull
     private SensorPreferenceGroup availableGroup() {
-        return new SensorPreferenceGroup(mAvailableDevices);
+        return new SensorPreferenceGroup(null, mAvailableDevices, false);
     }
 
     @NonNull
     private SensorPreferenceGroup pairedGroup() {
-        return new SensorPreferenceGroup(mPairedDevices);
+        return new SensorPreferenceGroup(null, mPairedDevices, true);
     }
 
     @NonNull
