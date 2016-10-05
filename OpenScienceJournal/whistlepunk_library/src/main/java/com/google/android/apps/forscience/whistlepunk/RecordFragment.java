@@ -1511,11 +1511,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     @Override
     public void onPrepareOptionsMenu(final Menu menu) {
-        boolean hasBluetoothLe = getActivity() != null && getActivity().getPackageManager()
-                .hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
         MenuItem addSensors = menu.findItem(R.id.btn_add_sensors);
         if (addSensors != null) {
-            addSensors.setVisible(!isRecording() && hasBluetoothLe);
+            addSensors.setVisible(!isRecording());
         }
         MenuItem expDetails = menu.findItem(R.id.btn_experiment_details);
         if (expDetails != null) {
