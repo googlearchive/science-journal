@@ -21,6 +21,8 @@ import android.app.PendingIntent;
  * interface for presenting options for a given sensor within a given experiment
  */
 public interface DeviceOptionsPresenter {
+    void refreshScanningUI();
+
     void showDeviceOptions(String experimentId, String sensorId,
             PendingIntent externalSettingsIntent);
 }
