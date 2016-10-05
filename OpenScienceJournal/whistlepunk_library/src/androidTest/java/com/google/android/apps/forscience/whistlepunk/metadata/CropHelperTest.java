@@ -99,13 +99,13 @@ public class CropHelperTest extends AndroidTestCase {
         labels.add(new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "10", "0", 10));
 
         ExperimentRun run = ExperimentRun.fromLabels(mRun, labels);
-        CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor());
-        cropHelper.cropRun(mDataController, run, -1, 10, mCropRunListener);
+        CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), mDataController);
+        cropHelper.cropRun(null, run, -1, 10, mCropRunListener);
         assertTrue(mCropFailed);
         assertFalse(mCropCompleted);
 
         resetCropRunListener();
-        cropHelper.cropRun(mDataController, run, 1, 20, mCropRunListener);
+        cropHelper.cropRun(null, run, 1, 20, mCropRunListener);
         assertTrue(mCropFailed);
         assertFalse(mCropCompleted);
     }
@@ -128,8 +128,9 @@ public class CropHelperTest extends AndroidTestCase {
         mDataController.getExperimentRun("0", new LoggingConsumer<ExperimentRun>("test", "test") {
             @Override
             public void success(ExperimentRun run) {
-                CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor());
-                cropHelper.cropRun(mDataController, run, 4, 6, mCropRunListener);
+                CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(),
+                        mDataController);
+                cropHelper.cropRun(null, run, 4, 6, mCropRunListener);
                 assertTrue(mCropCompleted);
                 assertEquals(run.getFirstTimestamp(), 4);
                 assertEquals(run.getLastTimestamp(), 6);
@@ -158,8 +159,9 @@ public class CropHelperTest extends AndroidTestCase {
         mDataController.getExperimentRun("0", new LoggingConsumer<ExperimentRun>("test", "test") {
             @Override
             public void success(ExperimentRun run) {
-                CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor());
-                cropHelper.cropRun(mDataController, run, 2, 8, mCropRunListener);
+                CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(),
+                        mDataController);
+                cropHelper.cropRun(null, run, 2, 8, mCropRunListener);
                 assertTrue(mCropCompleted);
                 assertEquals(run.getFirstTimestamp(), 2);
                 assertEquals(run.getLastTimestamp(), 8);
