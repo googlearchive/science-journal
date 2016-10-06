@@ -23,14 +23,16 @@ import com.google.android.apps.forscience.whistlepunk.SensorHistoryStorage;
 
 public class MemorySensorEnvironment implements SensorEnvironment {
     private final RecordingDataController mDataController;
+    private final Clock mClock;
     private FakeBleClient mBleClient;
     private SensorHistoryStorage mHistoryStorage;
 
     public MemorySensorEnvironment(RecordingDataController dataController, FakeBleClient bleClient,
-            SensorHistoryStorage shs) {
+            SensorHistoryStorage shs, Clock clock) {
         mDataController = dataController;
         mBleClient = bleClient;
         mHistoryStorage = shs;
+        mClock = clock;
     }
 
     @Override
@@ -45,7 +47,7 @@ public class MemorySensorEnvironment implements SensorEnvironment {
 
     @Override
     public Clock getDefaultClock() {
-        return null;
+        return mClock;
     }
 
     @Override

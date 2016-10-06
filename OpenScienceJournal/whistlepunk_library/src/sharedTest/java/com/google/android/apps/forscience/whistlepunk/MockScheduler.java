@@ -20,6 +20,7 @@ import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.google.common.collect.ComparisonChain;
 
+import java.util.Iterator;
 import java.util.TreeSet;
 
 // A mock scheduler that executes runnables after a delay.
@@ -27,6 +28,7 @@ import java.util.TreeSet;
 // scheduled to be run: After time is incremented, any applicable runnable is run
 // immediately.
 public class MockScheduler implements Scheduler {
+
     class QueuedRunnable implements Comparable<QueuedRunnable> {
         public long executeAfter;
         public Runnable runnable;
@@ -44,11 +46,12 @@ public class MockScheduler implements Scheduler {
     }
 
     private long mCurrentTime = 0;
-
     private TreeSet<QueuedRunnable> mRunnables = new TreeSet<>();
+    private int mScheduleCount = 0;
 
     @Override
     public void schedule(Delay delay, Runnable doThis) {
+        mScheduleCount++;
         if (delay.asMillis() == 0) {
             doThis.run();
         } else {
@@ -58,6 +61,20 @@ public class MockScheduler implements Scheduler {
             qr.runnable = doThis;
             mRunnables.add(qr);
         }
+    }
+
+    @Override
+    public void unschedule(Runnable removeThis) {
+        Iterator<QueuedRunnable> iter = mRunnables.iterator();
+        while (iter.hasNext()) {
+            if (iter.next().runnable == removeThis) {
+                iter.remove();
+            }
+        }
+    }
+
+    public int getScheduleCount() {
+        return mScheduleCount;
     }
 
     public Clock getClock() {
@@ -70,12 +87,14 @@ public class MockScheduler implements Scheduler {
     }
 
     public void incrementTime(long ms) {
-        mCurrentTime += ms;
+        long targetTime = mCurrentTime + ms;
 
-        while (!mRunnables.isEmpty() && mRunnables.first().executeAfter <= mCurrentTime) {
+        while (!mRunnables.isEmpty() && mRunnables.first().executeAfter <= targetTime) {
             QueuedRunnable first = mRunnables.first();
             mRunnables.remove(first);
+            mCurrentTime = first.executeAfter;
             first.runnable.run();
         }
+        mCurrentTime = targetTime;
     }
 }

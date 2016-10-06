@@ -32,4 +32,9 @@ public class SystemScheduler implements Scheduler {
     public void schedule(Delay delay, Runnable doThis) {
         mHandler.postDelayed(doThis, delay.asMillis());
     }
+
+    @Override
+    public void unschedule(Runnable removeThis) {
+        mHandler.removeCallbacks(removeThis);
+    }
 }
