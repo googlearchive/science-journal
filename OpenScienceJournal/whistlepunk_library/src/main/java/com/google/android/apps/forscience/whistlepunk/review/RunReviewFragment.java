@@ -436,6 +436,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 new AudioPlaybackController.AudioPlaybackListener() {
                     @Override
                     public void onAudioPlaybackStarted() {
+                        if (!isAdded()) {
+                            return;
+                        }
                         WhistlePunkApplication.getUsageTracker(getActivity()).trackEvent(
                                 TrackerConstants.CATEGORY_RUNS,
                                 TrackerConstants.ACTION_START_AUDIO_PLAYBACK,
@@ -454,6 +457,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     @Override
                     public void onAudioPlaybackStopped() {
                         mAudioPlaybackController.stopPlayback();
+                        if (!isAdded()) {
+                            return;
+                        }
                         mRunReviewPlaybackButton.setImageDrawable(
                                 getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
                         mRunReviewPlaybackButton.setContentDescription(
