@@ -48,7 +48,9 @@ public class ScalarInputSpec extends ExternalSensorSpec {
         mConfig.orderInExperimentApiSensors = orderInExperimentApiSensors;
 
         if (behavior != null) {
-            mConfig.loggingId = behavior.loggingId;
+            if (behavior.loggingId != null) {
+                mConfig.loggingId = behavior.loggingId;
+            }
             mConfig.shouldShowOptionsOnConnect = behavior.shouldShowSettingsOnConnect;
             mConfig.expectedSamplesPerSecond = behavior.expectedSamplesPerSecond;
         }

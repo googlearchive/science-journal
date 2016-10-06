@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.RemoteException;
 
 import com.google.android.apps.forscience.javalib.FailureListener;

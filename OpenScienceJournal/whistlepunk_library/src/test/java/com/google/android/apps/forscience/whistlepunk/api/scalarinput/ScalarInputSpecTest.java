@@ -141,4 +141,12 @@ public class ScalarInputSpecTest {
     private ScalarInputSpec roundTripConfig(ScalarInputSpec spec) {
         return new ScalarInputSpec(spec.getName(), spec.getConfig());
     }
+
+    @Test public void dontTakeNullLoggingId() {
+        SensorBehavior behavior = new SensorBehavior();
+        behavior.loggingId = null;
+        ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", behavior,
+                null);
+        assertEquals("serviceId&", spec.getLoggingId());
+    }
 }

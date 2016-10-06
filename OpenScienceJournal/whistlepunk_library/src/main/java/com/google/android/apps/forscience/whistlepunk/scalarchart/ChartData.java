@@ -45,6 +45,14 @@ public class ChartData {
         public double getY() {
             return mY;
         }
+
+        /**
+         * For debugging only
+         */
+        @Override
+        public String toString() {
+            return String.format("(%d,%.3g)", mX, mY);
+        }
     }
 
     // The number of indicies that an approximate binary search may be off.
