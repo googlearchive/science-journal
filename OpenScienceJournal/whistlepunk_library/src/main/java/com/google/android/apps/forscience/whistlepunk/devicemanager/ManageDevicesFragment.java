@@ -41,7 +41,7 @@ import java.util.Map;
 /**
  * Searches for Bluetooth LE devices that are supported.
  */
-public class ManageDevicesFragment extends PreferenceFragment implements DeviceOptionsPresenter {
+public class ManageDevicesFragment extends PreferenceFragment implements DevicesPresenter {
     private static final String TAG = "ManageDevices";
 
     private static final String PREF_KEY_PAIRED_DEVICES = "paired_devices";
@@ -182,8 +182,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
     }
 
     private void scanForDevices() {
-        mConnectableSensorRegistry.startScanningInDiscoverers(mAvailableGroup,
-                mAvailableDevices.getContext(), this);
+        mConnectableSensorRegistry.startScanningInDiscoverers(mAvailableDevices.getContext(), this);
         refreshScanningUI();
     }
 
@@ -239,5 +238,15 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
         DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId, sensorId,
                 externalSettingsIntent);
         dialog.show(getFragmentManager(), "edit_device");
+    }
+
+    @Override
+    public SensorGroup getPairedSensorGroup() {
+        return mPairedGroup;
+    }
+
+    @Override
+    public SensorGroup getAvailableSensorGroup() {
+        return mAvailableGroup;
     }
 }

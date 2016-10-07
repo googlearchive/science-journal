@@ -20,9 +20,13 @@ import android.app.PendingIntent;
 /**
  * interface for presenting options for a given sensor within a given experiment
  */
-public interface DeviceOptionsPresenter {
+public interface DevicesPresenter {
     void refreshScanningUI();
 
     void showDeviceOptions(String experimentId, String sensorId,
             PendingIntent externalSettingsIntent);
+
+    SensorGroup getPairedSensorGroup();
+
+    SensorGroup getAvailableSensorGroup();
 }

@@ -17,7 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.PendingIntent;
 
-class TestDeviceOptionsPresenter implements DeviceOptionsPresenter {
+class TestDevicesPresenter implements DevicesPresenter {
     public String experimentId;
     public String sensorId;
 
@@ -31,5 +31,15 @@ class TestDeviceOptionsPresenter implements DeviceOptionsPresenter {
             PendingIntent externalSettingsIntent) {
         this.experimentId = experimentId;
         this.sensorId = sensorId;
+    }
+
+    @Override
+    public SensorGroup getPairedSensorGroup() {
+        return null;
+    }
+
+    @Override
+    public SensorGroup getAvailableSensorGroup() {
+        return null;
     }
 }
