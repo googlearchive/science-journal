@@ -91,7 +91,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
     @Override
     public boolean startScanning(final Consumer<DiscoveredSensor> onEachSensorFound,
-            final Runnable onScanDone, final FailureListener onScanError, final Context context) {
+            final Runnable onScanDone, final FailureListener onScanError) {
         final String discoveryTaskId = "DISCOVERY";
         final TaskPool pool = new TaskPool(onScanDone, discoveryTaskId);
         mServiceFinder.take(new AppDiscoveryCallbacks() {

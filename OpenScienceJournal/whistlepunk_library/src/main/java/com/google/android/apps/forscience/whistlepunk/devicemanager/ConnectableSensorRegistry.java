@@ -16,7 +16,6 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.PendingIntent;
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.ArrayMap;
 
@@ -28,6 +27,7 @@ import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 
@@ -42,6 +42,9 @@ public class ConnectableSensorRegistry {
 
     private final DataController mDataController;
     private final Map<String, ExternalSensorDiscoverer> mDiscoverers;
+    private final SensorGroup mPairedGroup;
+    private final SensorGroup mAvailableGroup;
+    private final DevicesPresenter mPresenter;
     private final Map<String, ConnectableSensor> mSensors = new ArrayMap<>();
     private final Map<String, PendingIntent> mSettingsIntents = new ArrayMap<>();
     private final Scheduler mScheduler;
@@ -51,25 +54,65 @@ public class ConnectableSensorRegistry {
     private int mKeyNum = 0;
 
     public ConnectableSensorRegistry(DataController dataController,
-            Map<String, ExternalSensorDiscoverer> discoverers) {
+            Map<String, ExternalSensorDiscoverer> discoverers, DevicesPresenter presenter) {
         mDataController = dataController;
         mDiscoverers = discoverers;
+        mPairedGroup = presenter.getPairedSensorGroup();
+        mAvailableGroup = presenter.getAvailableSensorGroup();
+        mPresenter = presenter;
         mScheduler = new SystemScheduler();
+    }
+
+    public void pair(final String experimentId, String sensorKey,
+            final SensorAppearanceProvider appearanceProvider) {
+        final PendingIntent settingsIntent = mSettingsIntents.get(sensorKey);
+        addExternalSensorIfNecessary(experimentId, sensorKey, mPairedGroup.getSensorCount(),
+                new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
+                    @Override
+                    public void success(final ConnectableSensor sensor) {
+                        appearanceProvider.loadAppearances(
+                                new LoggingConsumer<Success>(TAG, "Load appearance") {
+                                    @Override
+                                    public void success(Success value) {
+                                        refresh(experimentId);
+                                        if (sensor.shouldShowOptionsOnConnect()) {
+                                            mPresenter.showDeviceOptions(experimentId,
+                                                    sensor.getConnectedSensorId(), settingsIntent);
+                                        }
+                                    }
+                                });
+                    }
+                });
+    }
+
+    public void refresh(String experimentId) {
+        stopScanningInDiscoverers();
+        mDataController.getExternalSensorsByExperiment(experimentId,
+                new LoggingConsumer<Map<String, ExternalSensorSpec>>(TAG, "Load external sensors") {
+                    @Override
+                    public void success(Map<String, ExternalSensorSpec> sensors) {
+                        setPairedAndStartScanning(sensors);
+                    }
+                });
+    }
+
+    private void setPairedAndStartScanning(Map<String, ExternalSensorSpec> sensors) {
+        setPairedSensors(sensors);
+        startScanningInDiscoverers();
     }
 
     // TODO: clear available sensors that are not seen on subsequent scans (b/31644042)
 
-    public void showDeviceOptions(DevicesPresenter presenter, String experimentId,
-            String uiSensorKey, PendingIntent settingsIntent) {
-        presenter.showDeviceOptions(experimentId, getSensor(uiSensorKey).getConnectedSensorId(),
-                settingsIntent);
+    public void showDeviceOptions(String experimentId, String uiSensorKey) {
+        mPresenter.showDeviceOptions(experimentId, getSensor(uiSensorKey).getConnectedSensorId(),
+                mSettingsIntents.get(uiSensorKey));
     }
 
     public boolean isPaired(String uiSensorKey) {
         return getSensor(uiSensorKey).isPaired();
     }
 
-    public void startScanningInDiscoverers(Context context, final DevicesPresenter presenter) {
+    public void startScanningInDiscoverers() {
         if (mScanning) {
             return;
         }
@@ -77,7 +120,7 @@ public class ConnectableSensorRegistry {
                 new Consumer<ExternalSensorDiscoverer.DiscoveredSensor>() {
                     @Override
                     public void take(ExternalSensorDiscoverer.DiscoveredSensor ds) {
-                        onSensorFound(ds, presenter.getAvailableSensorGroup());
+                        onSensorFound(ds, mAvailableGroup);
                     }
                 };
         for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
@@ -89,16 +132,17 @@ public class ConnectableSensorRegistry {
                 }
             };
             if (discoverer.startScanning(onEachSensorFound, onScanDone,
-                    LoggingConsumer.expectSuccess(TAG, "Discovering sensors"), context)) {
-                onScanStarted(presenter);
+                    LoggingConsumer.expectSuccess(TAG, "Discovering sensors"))) {
+                onScanStarted();
             }
         }
+        mPresenter.refreshScanningUI();
     }
 
     /**
      * Scan has started; starts a 10-second timer that will stop scanning.
      */
-    private void onScanStarted(final DevicesPresenter presenter) {
+    private void onScanStarted() {
         if (!mScanning) {
             mScanning = true;
             mScanCount++;
@@ -110,7 +154,7 @@ public class ConnectableSensorRegistry {
                         mScanning = false;
                         stopScanningInDiscoverers();
                         // TODO: test that this actually happens
-                        presenter.refreshScanningUI();
+                        mPresenter.refreshScanningUI();
                     }
                 }
             });
@@ -148,28 +192,26 @@ public class ConnectableSensorRegistry {
         return null;
     }
 
-    public void setPairedSensors(SensorGroup available, SensorGroup paired,
-            Map<String, ExternalSensorSpec> sensors) {
+    public void setPairedSensors(Map<String, ExternalSensorSpec> sensors) {
         for (Map.Entry<String, ExternalSensorSpec> entry : sensors.entrySet()) {
             ExternalSensorSpec sensor = entry.getValue();
-            removeSensorWithSpec(available, sensor);
+            removeSensorWithSpec(mAvailableGroup, sensor);
 
             ConnectableSensor newSensor = ConnectableSensor.connected(sensor, entry.getKey());
             String key = registerSensor(null, newSensor, null);
-            paired.addSensor(key, newSensor);
+            mPairedGroup.addSensor(key, newSensor);
         }
 
-        removeMissingPairedSensors(sensors, paired);
+        removeMissingPairedSensors(sensors);
     }
 
 
-    private void removeMissingPairedSensors(Map<String, ExternalSensorSpec> sensors,
-            SensorGroup paired) {
+    private void removeMissingPairedSensors(Map<String, ExternalSensorSpec> sensors) {
         for (String sensorKey : mSensors.keySet()) {
             ConnectableSensor sensor = mSensors.get(sensorKey);
             if (sensor.isPaired() && !sensors.containsKey(sensor.getConnectedSensorId())) {
                 mSensors.put(sensorKey, ConnectableSensor.disconnected(sensor.getSpec()));
-                paired.removeSensor(sensorKey);
+                mPairedGroup.removeSensor(sensorKey);
             }
         }
     }
@@ -241,10 +283,7 @@ public class ConnectableSensorRegistry {
             discoverer.stopScanning();
         }
         mScanning = false;
-    }
-
-    public PendingIntent getSettingsIntentFromKey(String key) {
-        return mSettingsIntents.get(key);
+        mPresenter.refreshScanningUI();
     }
 
     public boolean isScanning() {

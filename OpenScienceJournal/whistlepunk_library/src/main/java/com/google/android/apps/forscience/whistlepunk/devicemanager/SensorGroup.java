@@ -21,4 +21,6 @@ public interface SensorGroup {
     void addSensor(String sensorKey, ConnectableSensor sensor);
 
     void removeSensor(String prefKey);
+
+    int getSensorCount();
 }

@@ -33,7 +33,7 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
         final String name = Arbitrary.string();
         final String address = Arbitrary.string();
 
-        NativeBleDiscoverer discoverer = new NativeBleDiscoverer() {
+        NativeBleDiscoverer discoverer = new NativeBleDiscoverer(getContext()) {
             @Override
             protected DeviceDiscoverer createDiscoverer(Context context) {
                 return new DeviceDiscoverer(context) {
@@ -65,8 +65,8 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
         AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> sensorsSeen =
                 new AccumulatingConsumer<>();
         RecordingRunnable onScanDone = new RecordingRunnable();
-        discoverer.startScanning(sensorsSeen, onScanDone, TestConsumers.expectingSuccess(),
-                getContext());
+        discoverer.startScanning(sensorsSeen, onScanDone, TestConsumers.expectingSuccess()
+        );
         assertEquals(1, sensorsSeen.seen.size());
         ExternalSensorSpec sensor = sensorsSeen.seen.get(0).getSpec();
         assertEquals(name, sensor.getName());

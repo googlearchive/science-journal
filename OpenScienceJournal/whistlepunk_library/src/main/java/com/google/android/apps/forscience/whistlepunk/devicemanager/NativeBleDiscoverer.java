@@ -54,6 +54,11 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
 
     private DeviceDiscoverer mDeviceDiscoverer;
     private Runnable mOnScanDone;
+    private Context mContext;
+
+    public NativeBleDiscoverer(Context context) {
+        mContext = context;
+    }
 
     @Override
     public ExternalSensorProvider getProvider() {
@@ -62,14 +67,14 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
 
     @Override
     public boolean startScanning(final Consumer<DiscoveredSensor> onEachSensorFound,
-            Runnable onScanDone, FailureListener onScanError, Context context) {
+            Runnable onScanDone, FailureListener onScanError) {
         stopScanning();
 
         // BLE scan is only done when it times out (which is imposed from fragment)
         // TODO: consider making that timeout internal (like it is for API sensor services)
         mOnScanDone = onScanDone;
 
-        mDeviceDiscoverer = createDiscoverer(context);
+        mDeviceDiscoverer = createDiscoverer(mContext);
         if (!mDeviceDiscoverer.canScan()) {
             stopScanning();
             return false;

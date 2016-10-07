@@ -37,44 +37,22 @@ import java.util.Map;
 public class ConnectableSensorRegistryTest extends AndroidTestCase {
     private MemorySensorGroup mAvailableDevices;
     private MemorySensorGroup mPairedDevices;
-    private DevicesPresenter mPresenter;
+    private TestDevicesPresenter mPresenter;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         mAvailableDevices = new MemorySensorGroup();
         mPairedDevices = new MemorySensorGroup();
-
-        mPresenter = new DevicesPresenter() {
-            @Override
-            public void refreshScanningUI() {
-
-            }
-
-            @Override
-            public void showDeviceOptions(String experimentId, String sensorId,
-                    PendingIntent externalSettingsIntent) {
-
-            }
-
-            @Override
-            public SensorGroup getPairedSensorGroup() {
-                return mPairedDevices;
-            }
-
-            @Override
-            public SensorGroup getAvailableSensorGroup() {
-                return mAvailableDevices;
-            }
-        };
+        mPresenter = new TestDevicesPresenter();
     }
 
     public void testScalarInputPassthrough() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers());
+                s.makeScalarInputDiscoverers(), mPresenter);
 
-        registry.startScanningInDiscoverers(getContext(), mPresenter);
+        registry.startScanningInDiscoverers();
 
         assertEquals(0, mPairedDevices.size());
         assertEquals(1, mAvailableDevices.size());
@@ -90,14 +68,14 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     public void testForgetSensor() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers());
+                s.makeScalarInputDiscoverers(), mPresenter);
         Map<String, ExternalSensorSpec> pairedSensors = new HashMap<>();
         String sensorId = Arbitrary.string();
 
         // First it's paired...
         pairedSensors.put(sensorId, s.makeSpec());
-        registry.setPairedSensors(mAvailableDevices, mPairedDevices, pairedSensors);
-        registry.startScanningInDiscoverers(getContext(), mPresenter);
+        registry.setPairedSensors(pairedSensors);
+        registry.startScanningInDiscoverers();
         registry.stopScanningInDiscoverers();
 
         assertEquals(1, mPairedDevices.size());
@@ -106,8 +84,8 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         // Then it's forgotten...
         pairedSensors.clear();
         mPairedDevices.removeAll();
-        registry.setPairedSensors(mAvailableDevices, mPairedDevices, pairedSensors);
-        registry.startScanningInDiscoverers(getContext(), mPresenter);
+        registry.setPairedSensors(pairedSensors);
+        registry.startScanningInDiscoverers();
 
         assertEquals(0, mPairedDevices.size());
         assertEquals(1, mAvailableDevices.size());
@@ -115,15 +93,15 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
 
     public void testPairedWhenSet() {
         final ScalarInputScenario s = new ScalarInputScenario();
-        ConnectableSensorRegistry registry = new ConnectableSensorRegistry(
-                makeDataController(), s.makeScalarInputDiscoverers());
+        ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
+                s.makeScalarInputDiscoverers(), mPresenter);
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String sensorName = Arbitrary.string();
         sensors.put("sensorId",
                 new ScalarInputSpec(sensorName, "serviceId", "address", null, null));
 
-        registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
+        registry.setPairedSensors(sensors);
         assertEquals(0, mAvailableDevices.size());
         assertEquals(1, mPairedDevices.size());
 
@@ -134,7 +112,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     public void testOptionsDialog() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers());
+                s.makeScalarInputDiscoverers(), mPresenter);
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String sensorName = Arbitrary.string();
@@ -144,14 +122,13 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
                 new ScalarInputSpec(sensorName, s.getServiceId(), s.getSensorAddress(), null,
                         null));
 
-        registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
+        registry.setPairedSensors(sensors);
 
         String experimentId = Arbitrary.string();
 
-        TestDevicesPresenter presenter = new TestDevicesPresenter();
-        registry.showDeviceOptions(presenter, experimentId, mPairedDevices.getKey(0), null);
-        assertEquals(experimentId, presenter.experimentId);
-        assertEquals(connectedId, presenter.sensorId);
+        registry.showDeviceOptions(experimentId, mPairedDevices.getKey(0));
+        assertEquals(experimentId, mPresenter.experimentId);
+        assertEquals(connectedId, mPresenter.sensorId);
     }
 
     public void testDuplicateSensorAdded() {
@@ -161,9 +138,9 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
                 new BleSensorSpec("address", "name"), new BleSensorSpec("address", "name"));
         discoverers.put("type", dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                discoverers);
+                discoverers, mPresenter);
 
-        registry.startScanningInDiscoverers(getContext(), mPresenter);
+        registry.startScanningInDiscoverers();
 
         assertEquals(0, mPairedDevices.size());
         // Only 1 of the 2 duplicates!
@@ -176,14 +153,14 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
                 new BleSensorSpec("address", "name"));
         discoverers.put("type", dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                discoverers);
+                discoverers, mPresenter);
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String connectedId = Arbitrary.string();
         sensors.put(connectedId, new BleSensorSpec("address", "name"));
-        registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
+        registry.setPairedSensors(sensors);
 
-        registry.startScanningInDiscoverers(getContext(), mPresenter);
+        registry.startScanningInDiscoverers();
 
         assertEquals(1, mPairedDevices.size());
         // Not added here!
@@ -199,9 +176,9 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         ExternalSensorDiscoverer d = new EnumeratedDiscoverer(spec1, spec2);
         discoverers.put("type", d);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                discoverers);
+                discoverers, mPresenter);
 
-        registry.startScanningInDiscoverers(getContext(), mPresenter);
+        registry.startScanningInDiscoverers();
 
         assertEquals(0, mPairedDevices.size());
         // Only 1 of the 2 duplicates!
@@ -211,14 +188,14 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     public void testConnectedReplacesAvailable() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers());
+                s.makeScalarInputDiscoverers(), mPresenter);
 
-        registry.startScanningInDiscoverers(getContext(), mPresenter);
+        registry.startScanningInDiscoverers();
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         ScalarInputSpec spec = s.makeSpec();
         sensors.put(Arbitrary.string(), spec);
-        registry.setPairedSensors(mAvailableDevices, mPairedDevices, sensors);
+        registry.setPairedSensors(sensors);
 
         // Should move sensor from available to paired
         assertEquals(1, mPairedDevices.size());
@@ -232,9 +209,9 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         tsd.addSensor("deviceId", "address2", "name2");
 
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                tsd.makeDiscovererMap("serviceId"));
+                tsd.makeDiscovererMap("serviceId"), mPresenter);
 
-        registry.startScanningInDiscoverers(getContext(), mPresenter);
+        registry.startScanningInDiscoverers();
 
         assertEquals(0, mPairedDevices.size());
         assertEquals(2, mAvailableDevices.size());
@@ -256,5 +233,32 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     @NonNull
     private DataController makeDataController() {
         return new InMemorySensorDatabase().makeSimpleController(new MemoryMetadataManager());
+    }
+
+    private class TestDevicesPresenter implements DevicesPresenter {
+        public String experimentId;
+        public String sensorId;
+
+        @Override
+        public void refreshScanningUI() {
+
+        }
+
+        @Override
+        public void showDeviceOptions(String experimentId, String sensorId,
+                PendingIntent externalSettingsIntent) {
+            this.experimentId = experimentId;
+            this.sensorId = sensorId;
+        }
+
+        @Override
+        public SensorGroup getPairedSensorGroup() {
+            return mPairedDevices;
+        }
+
+        @Override
+        public SensorGroup getAvailableSensorGroup() {
+            return mAvailableDevices;
+        }
     }
 }

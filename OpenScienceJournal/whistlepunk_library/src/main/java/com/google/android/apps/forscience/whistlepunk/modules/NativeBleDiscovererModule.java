@@ -32,7 +32,7 @@ public class NativeBleDiscovererModule {
     @Provides
     @IntoMap
     @StringKey(BleSensorSpec.TYPE)
-    public ExternalSensorDiscoverer providesNativeDiscoverer() {
-        return new NativeBleDiscoverer();
+    public ExternalSensorDiscoverer providesNativeDiscoverer(Context context) {
+        return new NativeBleDiscoverer(context);
     }
 }

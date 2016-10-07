@@ -47,7 +47,7 @@ public class ScalarInputDiscovererTest {
                 new AccumulatingConsumer<>();
         RecordingRunnable onScanDone = new RecordingRunnable();
         assertEquals(true,
-                sid.startScanning(c, onScanDone, TestConsumers.expectingSuccess(), getContext()));
+                sid.startScanning(c, onScanDone, TestConsumers.expectingSuccess()));
         ExternalSensorSpec sensor = c.getOnlySeen().getSpec();
         ScalarInputSpec spec = (ScalarInputSpec) sensor;
         assertEquals(s.getSensorName(), spec.getName());
@@ -97,7 +97,7 @@ public class ScalarInputDiscovererTest {
                         String message = e.getMessage();
                         assertTrue(message.contains(errorText));
                     }
-                }), getContext()));
+                })));
         assertEquals(0, c.seen.size());
         assertFalse(onScanDone.hasRun);
     }
@@ -136,7 +136,7 @@ public class ScalarInputDiscovererTest {
                 assertEquals(2, c.seen.size());
             }
         };
-        sid.startScanning(c, onScanDone, TestConsumers.expectingSuccess(), getContext());
+        sid.startScanning(c, onScanDone, TestConsumers.expectingSuccess());
 
         assertFalse(onScanDone.hasRun);
         executor.drain();
@@ -171,7 +171,7 @@ public class ScalarInputDiscovererTest {
                 new AccumulatingConsumer<>();
         RecordingRunnable onScanDone = new RecordingRunnable();
         assertEquals(true,
-                sid.startScanning(c, onScanDone, TestConsumers.expectingSuccess(), getContext()));
+                sid.startScanning(c, onScanDone, TestConsumers.expectingSuccess()));
         ExternalSensorSpec sensor = c.getOnlySeen().getSpec();
         ScalarInputSpec spec = (ScalarInputSpec) sensor;
         assertEquals(s.getSensorName(), spec.getName());

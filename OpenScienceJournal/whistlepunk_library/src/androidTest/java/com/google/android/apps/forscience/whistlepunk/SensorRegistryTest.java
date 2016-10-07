@@ -61,7 +61,7 @@ public class SensorRegistryTest extends DevOptionsTestCase {
         sensors.put(bleSensorId, new BleSensorSpec("address", "name"));
 
         HashMap<String, ExternalSensorProvider> providers = new HashMap<>();
-        providers.put(BleSensorSpec.TYPE, new NativeBleDiscoverer().getProvider());
+        providers.put(BleSensorSpec.TYPE, bleProvider());
 
         reg.updateExternalSensors(sensors, providers);
         assertEquals(true, reg.getAllSources().contains(bleSensorId));
@@ -86,7 +86,7 @@ public class SensorRegistryTest extends DevOptionsTestCase {
         sensors.put(bleSensorId, new BleSensorSpec(bleSensorId, "name"));
 
         HashMap<String, ExternalSensorProvider> providers = new HashMap<>();
-        providers.put(BleSensorSpec.TYPE, new NativeBleDiscoverer().getProvider());
+        providers.put(BleSensorSpec.TYPE, bleProvider());
 
         reg.updateExternalSensors(sensors, providers);
         assertEquals(true, reg.getAllSources().contains(bleSensorId));
@@ -109,10 +109,13 @@ public class SensorRegistryTest extends DevOptionsTestCase {
         ExternalSensorSpec spec = new BleSensorSpec("address", "name");
         reg.updateExternalSensors(
                 ImmutableMap.of(newSensorId, spec),
-                ImmutableMap.<String, ExternalSensorProvider>of(BleSensorSpec.TYPE,
-                        new NativeBleDiscoverer().getProvider()));
+                ImmutableMap.<String, ExternalSensorProvider>of(BleSensorSpec.TYPE, bleProvider()));
         assertNull(cno.latestChoice);
         assertNotNull(cyes.latestChoice);
+    }
+
+    private ExternalSensorProvider bleProvider() {
+        return new NativeBleDiscoverer(getContext()).getProvider();
     }
 
     private static class TestSensorRegistryListener implements SensorRegistryListener {

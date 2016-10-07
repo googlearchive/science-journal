@@ -80,4 +80,9 @@ class SensorPreferenceGroup implements SensorGroup {
             mCategory.removePreference(mCategory);
         }
     }
+
+    @Override
+    public int getSensorCount() {
+        return mCategory.getPreferenceCount();
+    }
 }

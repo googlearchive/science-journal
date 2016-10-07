@@ -26,14 +26,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.PreferenceProgressCategory;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.Map;
@@ -42,8 +39,6 @@ import java.util.Map;
  * Searches for Bluetooth LE devices that are supported.
  */
 public class ManageDevicesFragment extends PreferenceFragment implements DevicesPresenter {
-    private static final String TAG = "ManageDevices";
-
     private static final String PREF_KEY_PAIRED_DEVICES = "paired_devices";
     private static final String PREF_KEY_AVAILABLE_DEVICES = "available_devices";
 
@@ -88,7 +83,8 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
         Map<String, ExternalSensorDiscoverer> discoverers =
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
 
-        mConnectableSensorRegistry = new ConnectableSensorRegistry(mDataController, discoverers);
+        mConnectableSensorRegistry = new ConnectableSensorRegistry(mDataController, discoverers,
+                this);
     }
 
     @Override
@@ -118,28 +114,20 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
             final Preference preference) {
         String sensorKey = preference.getKey();
-        final PendingIntent settingsIntent = mConnectableSensorRegistry.getSettingsIntentFromKey(
-                sensorKey);
-
-        if (sensorKey != null) {
-            if (!mConnectableSensorRegistry.isPaired(sensorKey)) {
-                preference.setEnabled(false);
-                preference.setSummary(R.string.external_devices_pairing);
-                mConnectableSensorRegistry.addExternalSensorIfNecessary(mExperimentId, sensorKey,
-                        mPairedDevices.getPreferenceCount(),
-                        new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
-                            @Override
-                            public void success(ConnectableSensor sensor) {
-                                reloadAppearancesAndShowOptions(sensor, settingsIntent);
-                            }
-                        });
-            } else {
-                mConnectableSensorRegistry.showDeviceOptions(this, mExperimentId,
-                        sensorKey, settingsIntent);
-            }
-            return true;
+        if (sensorKey == null) {
+            return false;
         }
-        return false;
+        if (mAvailableDevices.findPreference(preference.getKey()) != null) {
+            preference.setEnabled(false);
+            preference.setSummary(R.string.external_devices_pairing);
+        }
+        if (!mConnectableSensorRegistry.isPaired(sensorKey)) {
+            mConnectableSensorRegistry.pair(mExperimentId, sensorKey,
+                    AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider());
+        } else {
+            mConnectableSensorRegistry.showDeviceOptions(mExperimentId, sensorKey);
+        }
+        return true;
     }
 
     @Override
@@ -159,36 +147,17 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
         return super.onOptionsItemSelected(item);
     }
 
+    private void refresh() {
+        mConnectableSensorRegistry.refresh(mExperimentId);
+    }
+
     public void refreshAfterLoad() {
         mExperimentId = getArguments().getString(ManageDevicesActivity.EXTRA_EXPERIMENT_ID);
         refresh();
     }
 
-    private void refresh() {
-        stopScanning();
-        mDataController.getExternalSensorsByExperiment(mExperimentId,
-                new LoggingConsumer<Map<String, ExternalSensorSpec>>(TAG, "Load external sensors") {
-                    @Override
-                    public void success(Map<String, ExternalSensorSpec> sensors) {
-                        if (getActivity() == null) {
-                            return;
-                        }
-
-                        mConnectableSensorRegistry.setPairedSensors(mAvailableGroup, mPairedGroup,
-                                sensors);
-                        scanForDevices();
-                    }
-                });
-    }
-
-    private void scanForDevices() {
-        mConnectableSensorRegistry.startScanningInDiscoverers(mAvailableDevices.getContext(), this);
-        refreshScanningUI();
-    }
-
     private void stopScanning() {
         mConnectableSensorRegistry.stopScanningInDiscoverers();
-        refreshScanningUI();
     }
 
     @Override
@@ -208,22 +177,6 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
         }
     }
 
-    private void reloadAppearancesAndShowOptions(final ConnectableSensor sensor,
-            final PendingIntent settingsIntent) {
-        AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider()
-                .loadAppearances(new LoggingConsumer<Success>(TAG, "Load appearance") {
-                    @Override
-                    public void success(Success value) {
-                        refresh();
-                        // TODO: make this testable?
-                        if (sensor.shouldShowOptionsOnConnect()) {
-                            showDeviceOptions(mExperimentId, sensor.getConnectedSensorId(),
-                                    settingsIntent);
-                        }
-                    }
-                });
-    }
-
     @Override
     public void showDeviceOptions(String experimentId, String sensorId,
             PendingIntent externalSettingsIntent) {
@@ -234,7 +187,6 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
             //       up on resume.
             return;
         }
-        // TODO: use a SettingsController subclass once it's fragmentized.
         DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId, sensorId,
                 externalSettingsIntent);
         dialog.show(getFragmentManager(), "edit_device");

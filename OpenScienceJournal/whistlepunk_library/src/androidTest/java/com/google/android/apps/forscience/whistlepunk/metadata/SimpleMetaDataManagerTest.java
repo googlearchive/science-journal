@@ -353,7 +353,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
     private Map<String, ExternalSensorProvider> getProviderMap() {
         HashMap<String, ExternalSensorProvider> map = new HashMap<>();
-        map.put(BleSensorSpec.TYPE, new NativeBleDiscoverer().getProvider());
+        map.put(BleSensorSpec.TYPE, new NativeBleDiscoverer(getContext()).getProvider());
         map.put(ScalarInputSpec.TYPE, new ScalarInputDiscoverer(null, null).getProvider());
         return map;
     }
