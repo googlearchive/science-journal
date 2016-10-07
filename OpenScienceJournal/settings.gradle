@@ -1,1 +1,2 @@
-include ':app', ':whistlepunk_library'
+include ':app', ':whistlepunk_library', ':scalarinputapi'
+project(':scalarinputapi').projectDir = new File('../api/ScalarInputApi')
