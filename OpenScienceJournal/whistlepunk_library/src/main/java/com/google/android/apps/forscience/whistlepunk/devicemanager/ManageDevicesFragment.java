@@ -228,6 +228,13 @@ public class ManageDevicesFragment extends PreferenceFragment implements DeviceO
     @Override
     public void showDeviceOptions(String experimentId, String sensorId,
             PendingIntent externalSettingsIntent) {
+        if (! isResumed()) {
+            // Fragment has paused between pairing and popping up options.
+            // TODO: if the sensor says that immediate options must be shown, then in this case
+            //       we should probably remember that we never showed the options, and pop them
+            //       up on resume.
+            return;
+        }
         // TODO: use a SettingsController subclass once it's fragmentized.
         DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId, sensorId,
                 externalSettingsIntent);
