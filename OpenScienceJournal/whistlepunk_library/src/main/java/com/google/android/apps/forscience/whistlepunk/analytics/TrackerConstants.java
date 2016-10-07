@@ -57,6 +57,7 @@ public final class TrackerConstants {
     public static final String CATEGORY_NOTES = "Notes";
     public static final String CATEGORY_APP = "App";
     public static final String CATEGORY_TRIGGERS = "Triggers";
+    public static final String CATEGORY_API = "API";
 
     // Event actions
     public static final String ACTION_CREATE = "Create";
@@ -71,6 +72,7 @@ public final class TrackerConstants {
     public static final String ACTION_TRY_RECORDING_FROM_TRIGGER = "TryRecordingFromTrigger";
     public static final String ACTION_TRY_STOP_RECORDING_FROM_TRIGGER =
             "TryStopRecordingFromTrigger";
+    public static final String ACTION_API_SCAN_TIMEOUT = "ApiScanTimeout";
 
     // Labels
     public static final String LABEL_RECORD = "record";

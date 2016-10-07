@@ -29,6 +29,9 @@ import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
@@ -48,11 +51,13 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     private final Executor mUiThreadExecutor;
     private final Scheduler mScheduler;
     private final long mScanTimeoutMillis;
+    private UsageTracker mUsageTracker;
 
     public ScalarInputDiscoverer(Consumer<AppDiscoveryCallbacks> serviceFinder,
             Context context) {
         this(serviceFinder, defaultStringSource(context), AppSingleton.getUiThreadExecutor(),
-                new SystemScheduler(), DEFAULT_SCAN_TIMEOUT_MILLIS);
+                new SystemScheduler(), DEFAULT_SCAN_TIMEOUT_MILLIS,
+                WhistlePunkApplication.getUsageTracker(context));
     }
 
     private static ScalarInputStringSource defaultStringSource(final Context context) {
@@ -68,12 +73,14 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     @VisibleForTesting
     public ScalarInputDiscoverer(
             Consumer<AppDiscoveryCallbacks> serviceFinder, ScalarInputStringSource stringSource,
-            Executor uiThreadExecutor, Scheduler scheduler, long scanTimeoutMillis) {
+            Executor uiThreadExecutor, Scheduler scheduler, long scanTimeoutMillis,
+            UsageTracker usageTracker) {
         mServiceFinder = serviceFinder;
         mStringSource = stringSource;
         mUiThreadExecutor = uiThreadExecutor;
         mScheduler = scheduler;
         mScanTimeoutMillis = scanTimeoutMillis;
+        mUsageTracker = usageTracker;
     }
 
     @Override
@@ -147,7 +154,10 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
         mScheduler.schedule(Delay.millis(mScanTimeoutMillis), new Runnable() {
             @Override
             public void run() {
-                pool.taskDone(taskId);
+                if (pool.taskDone(taskId)) {
+                    mUsageTracker.trackEvent(TrackerConstants.CATEGORY_API,
+                            TrackerConstants.ACTION_API_SCAN_TIMEOUT, taskId, mScanTimeoutMillis);
+                }
             }
         });
     }
@@ -208,12 +218,13 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
             mTaskIds.add(taskId);
         }
 
-        public void taskDone(String taskId) {
-            mTaskIds.remove(taskId);
+        public boolean taskDone(String taskId) {
+            boolean wasRemoved = mTaskIds.remove(taskId);
             if (mTaskIds.isEmpty()) {
                 mOnDone.run();
                 mOnDone = null;
             }
+            return wasRemoved;
         }
     }
 }

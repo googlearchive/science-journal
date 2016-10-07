@@ -19,6 +19,5 @@
 
 find . -name build -prune \
      -o -name third_party -prune \
-     -o -name '*.java' \
-     -o -name '*.aidl' \
+     -o \( -name '*.java' -o -name '*.aidl' \) \
      -exec grep -L "Google Inc. All Rights Reserved." {} \;

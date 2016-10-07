@@ -34,6 +34,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Test;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ScalarInputDiscovererTest {
     @Test
     public void testStartScanning() {
@@ -81,7 +84,8 @@ public class ScalarInputDiscovererTest {
                             }
                         });
                     }
-                }, new TestStringSource(), MoreExecutors.directExecutor(), new MockScheduler(), 100);
+                }, new TestStringSource(), MoreExecutors.directExecutor(), new MockScheduler(), 100,
+                new RecordingUsageTracker());
 
         AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
                 new AccumulatingConsumer<>();
@@ -110,6 +114,7 @@ public class ScalarInputDiscovererTest {
         service2.addDevice("deviceId2", "deviceName2");
         service2.addSensor("deviceId2", "sensorAddress2", "sensorName2");
 
+        RecordingUsageTracker usageTracker = new RecordingUsageTracker();
         ScalarInputDiscoverer sid = new ScalarInputDiscoverer(
                 new Consumer<AppDiscoveryCallbacks>() {
                     @Override
@@ -118,7 +123,8 @@ public class ScalarInputDiscovererTest {
                         adc.onServiceFound("serviceId2", service2);
                         adc.onDiscoveryDone();
                     }
-                }, new TestStringSource(), executor, new MockScheduler(), 100);
+                }, new TestStringSource(), executor, new MockScheduler(), 100,
+                usageTracker);
         final AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
                 new AccumulatingConsumer<>();
         RecordingRunnable onScanDone = new RecordingRunnable() {
@@ -135,6 +141,7 @@ public class ScalarInputDiscovererTest {
         assertFalse(onScanDone.hasRun);
         executor.drain();
         assertTrue(onScanDone.hasRun);
+        assertTrue(usageTracker.events.isEmpty());
     }
 
     @Test
@@ -155,8 +162,10 @@ public class ScalarInputDiscovererTest {
         discoverer.addSensor(s.getDeviceId(), s.getSensorAddress(), s.getSensorName());
         MockScheduler scheduler = new MockScheduler();
 
+        RecordingUsageTracker usageTracker = new RecordingUsageTracker();
         ScalarInputDiscoverer sid = new ScalarInputDiscoverer(discoverer.makeFinder("serviceId"),
-                new TestStringSource(), MoreExecutors.directExecutor(), scheduler, 100);
+                new TestStringSource(), MoreExecutors.directExecutor(), scheduler, 100,
+                usageTracker);
 
         AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
                 new AccumulatingConsumer<>();
@@ -170,6 +179,13 @@ public class ScalarInputDiscovererTest {
         assertFalse(onScanDone.hasRun);
         scheduler.incrementTime(200);
         assertTrue(onScanDone.hasRun);
+        assertEquals(2, usageTracker.events.size());
+        Set<String> eventLabels = new HashSet<>();
+        for (TrackedEvent event : usageTracker.events) {
+            eventLabels.add(event.getLabel());
+        }
+        assertTrue(eventLabels.toString(), eventLabels.contains("SERVICE:serviceId"));
+        assertTrue(eventLabels.toString(), eventLabels.contains("DEVICE:" + s.getDeviceId()));
     }
 
     private Context getContext() {

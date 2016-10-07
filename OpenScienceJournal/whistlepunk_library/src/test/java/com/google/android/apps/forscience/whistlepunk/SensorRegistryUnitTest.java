@@ -17,10 +17,10 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import static org.junit.Assert.assertEquals;
 
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.RecordingUsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -47,7 +47,8 @@ public class SensorRegistryUnitTest {
 
         providers.put(ScalarInputSpec.TYPE,
                 new ScalarInputDiscoverer(null, null,
-                        MoreExecutors.directExecutor(), new MockScheduler(), 100).getProvider());
+                        MoreExecutors.directExecutor(), new MockScheduler(), 100,
+                        new RecordingUsageTracker()).getProvider());
         return providers;
     }
 }

@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -50,7 +51,8 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
     public ScalarInputDiscoverer makeScalarInputDiscoverer(
             final String serviceId) {
         return new ScalarInputDiscoverer(makeFinder(serviceId), new TestStringSource(),
-                MoreExecutors.directExecutor(), new MockScheduler(), 100);
+                MoreExecutors.directExecutor(), new MockScheduler(), 100,
+                new RecordingUsageTracker());
     }
 
     @NonNull
