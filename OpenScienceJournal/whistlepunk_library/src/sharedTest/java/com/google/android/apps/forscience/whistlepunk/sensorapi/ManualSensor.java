@@ -22,7 +22,6 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
-import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
@@ -139,7 +138,7 @@ public class ManualSensor extends ScalarSensor {
     @NonNull
     private MemorySensorEnvironment makeSensorEnvironment(Context context,
             RecordingDataController rc) {
-        return new MemorySensorEnvironment(rc, new FakeBleClient(context), mStorage);
+        return new MemorySensorEnvironment(rc, new FakeBleClient(context), mStorage, null);
     }
 
     @NonNull

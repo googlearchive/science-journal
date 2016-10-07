@@ -85,7 +85,8 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
     @Override
     public ExternalSensorProvider getProvider() {
-        return new ScalarInputProvider(mServiceFinder, mStringSource, mUiThreadExecutor);
+        return new ScalarInputProvider(mServiceFinder, mStringSource, mUiThreadExecutor,
+                mScheduler);
     }
 
     @Override

@@ -75,7 +75,7 @@ public class ProxyRecorderControllerTest {
     private SensorRegistry mRegistry = new AllSensorsRegistry();
     private final MemorySensorEnvironment mEnvironment = new MemorySensorEnvironment(
             new InMemorySensorDatabase().makeSimpleRecordingController(),
-            new FakeBleClient(null), new MemorySensorHistoryStorage());
+            new FakeBleClient(null), new MemorySensorHistoryStorage(), null);
 
     @Test
     public void mostRecentSensorIds() throws RemoteException {

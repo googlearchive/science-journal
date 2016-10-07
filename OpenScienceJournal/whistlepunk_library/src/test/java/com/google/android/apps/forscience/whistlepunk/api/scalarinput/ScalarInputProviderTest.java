@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.TestData;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
@@ -61,7 +62,8 @@ public class ScalarInputProviderTest {
                                 new TestDiscoverer(new TestConnector(dataToSend, sensorAddress)));
                     }
                 };
-        ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor);
+        ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor,
+                new MockScheduler());
 
         SensorChoice sensor = provider.buildSensor(sensorId,
                 new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null));
@@ -107,7 +109,8 @@ public class ScalarInputProviderTest {
                     }
                 };
 
-        ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor);
+        ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor,
+                new MockScheduler());
         SensorChoice sensor = provider.buildSensor(sensorId,
                 new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null));
         SensorRecorder recorder = createRecorder(sensor);
@@ -139,7 +142,7 @@ public class ScalarInputProviderTest {
                         return "Could not find service: " + serviceId;
                     }
                 },
-                mExecutor);
+                mExecutor, new MockScheduler());
         SensorChoice sensor = provider.buildSensor(sensorId,
                 new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null));
         SensorRecorder recorder = createRecorder(sensor);
@@ -167,7 +170,8 @@ public class ScalarInputProviderTest {
                     }
                 };
 
-        ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor);
+        ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor,
+                new MockScheduler());
         SensorChoice sensor = provider.buildSensor(sensorId,
                 new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null));
         SensorRecorder recorder = createRecorder(sensor);
@@ -189,6 +193,6 @@ public class ScalarInputProviderTest {
     @NonNull
     private MemorySensorEnvironment createEnvironment() {
         return new MemorySensorEnvironment(
-                new InMemorySensorDatabase().makeSimpleRecordingController(), null, null);
+                new InMemorySensorDatabase().makeSimpleRecordingController(), null, null, null);
     }
 }

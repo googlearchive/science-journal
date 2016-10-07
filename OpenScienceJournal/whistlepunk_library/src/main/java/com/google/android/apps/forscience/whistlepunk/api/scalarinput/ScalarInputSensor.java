@@ -19,6 +19,9 @@ import android.content.Context;
 import android.os.RemoteException;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.javalib.Delay;
+import com.google.android.apps.forscience.javalib.Scheduler;
+import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
@@ -33,9 +36,10 @@ import java.util.concurrent.Executor;
  * Sensor that receives data through the scalar input API.
  */
 class ScalarInputSensor extends ScalarSensor {
-
+    private static final int MINIMUM_REFRESH_RATE_MILLIS = 1000;
     private final String mAddress;
     private final String mServiceId;
+    private final Scheduler mScheduler;
     private Consumer<AppDiscoveryCallbacks> mServiceFinder;
     private ScalarInputStringSource mStringSource;
 
@@ -45,21 +49,45 @@ class ScalarInputSensor extends ScalarSensor {
             Executor uiThreadExecutor,
             final Consumer<AppDiscoveryCallbacks> serviceFinder,
             final ScalarInputStringSource stringSource,
-            String serviceId,
-            String sensorAddress) {
+            ScalarInputSpec spec,
+            Scheduler scheduler) {
         super(sensorId, uiThreadExecutor);
-        mAddress = sensorAddress;
-        mServiceId = serviceId;
+        mAddress = spec.getSensorAddressInService();
+        mServiceId = spec.getServiceId();
         mServiceFinder = serviceFinder;
         mStringSource = stringSource;
+        mScheduler = scheduler;
     }
 
     @Override
     protected SensorRecorder makeScalarControl(final StreamConsumer c,
             SensorEnvironment environment,
             Context context, final SensorStatusListener listener) {
+        final Clock clock = environment.getDefaultClock();
         return new AbstractSensorRecorder() {
             private ISensorConnector mConnector = null;
+            private double mLatestData;
+            private long mLatestTimestamp = -1;
+
+            public Runnable mRefreshRunnable;
+
+            class RefreshableObserver extends ISensorObserver.Stub {
+                private final StreamConsumer mConsumer;
+
+                public RefreshableObserver(StreamConsumer consumer) {
+                    mConsumer = consumer;
+                }
+
+                @Override
+                public void onNewData(long timestamp, double data) {
+                    mLatestTimestamp = timestamp;
+                    mLatestData = data;
+                    mScheduler.unschedule(mRefreshRunnable);
+                    mScheduler.schedule(Delay.millis(MINIMUM_REFRESH_RATE_MILLIS),
+                            mRefreshRunnable);
+                    mConsumer.addData(timestamp, data);
+                }
+            }
 
             @Override
             public void startObserving() {
@@ -84,13 +112,18 @@ class ScalarInputSensor extends ScalarSensor {
                     }
 
                     private ISensorObserver makeObserver(final StreamConsumer c) {
-                        return new ISensorObserver.Stub() {
+                        final RefreshableObserver observer = new RefreshableObserver(c);
+
+                        // TODO: only refresh if expected sample rate is low
+                        removeOldRefresh();
+                        mRefreshRunnable = new Runnable() {
                             @Override
-                            public void onNewData(long timestamp, double data)
-                                    throws RemoteException {
-                                c.addData(timestamp, data);
+                            public void run() {
+                                observer.onNewData(clock.getNow(), mLatestData);
                             }
                         };
+
+                        return observer;
                     }
 
                     private ISensorStatusListener makeListener(
@@ -167,6 +200,14 @@ class ScalarInputSensor extends ScalarSensor {
                         complain(e);
                     }
                     mConnector = null;
+                    removeOldRefresh();
+                }
+            }
+
+            private void removeOldRefresh() {
+                if (mRefreshRunnable != null) {
+                    mScheduler.unschedule(mRefreshRunnable);
+                    mRefreshRunnable = null;
                 }
             }
 

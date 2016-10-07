@@ -48,7 +48,7 @@ public class RecorderControllerTest {
         };
         MemorySensorEnvironment env = new MemorySensorEnvironment(
                 new InMemorySensorDatabase().makeSimpleRecordingController(),
-                new FakeBleClient(null), new MemorySensorHistoryStorage());
+                new FakeBleClient(null), new MemorySensorHistoryStorage(), null);
         RecorderControllerImpl rc = new RecorderControllerImpl(null, registry, env,
                 new RecorderListenerRegistry(), null, null);
         RecordingSensorObserver observer1 = new RecordingSensorObserver();
@@ -83,7 +83,7 @@ public class RecorderControllerTest {
         };
         MemorySensorEnvironment env = new MemorySensorEnvironment(
                 new InMemorySensorDatabase().makeSimpleRecordingController(),
-                new FakeBleClient(null), new MemorySensorHistoryStorage());
+                new FakeBleClient(null), new MemorySensorHistoryStorage(), null);
         RecorderControllerImpl rc = new RecorderControllerImpl(null, registry, env,
                 new RecorderListenerRegistry(), null, null);
 

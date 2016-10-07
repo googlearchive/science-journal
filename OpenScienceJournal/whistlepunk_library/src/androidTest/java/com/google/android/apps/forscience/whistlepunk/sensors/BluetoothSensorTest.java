@@ -62,7 +62,7 @@ public class BluetoothSensorTest extends AndroidTestCase {
         bleClient.expectedAddress = "address";
         MemorySensorEnvironment environment = new MemorySensorEnvironment(
                 new InMemorySensorDatabase().makeSimpleRecordingController(), bleClient,
-                new MemorySensorHistoryStorage());
+                new MemorySensorHistoryStorage(), null);
         SensorRecorder recorder = new BluetoothSensor("sensorId", sensor, SPEC).createRecorder(
                 getContext(), new RecordingSensorObserver(), new StubStatusListener(), environment);
         assertEquals(null, bleClient.mostRecentAddress);
