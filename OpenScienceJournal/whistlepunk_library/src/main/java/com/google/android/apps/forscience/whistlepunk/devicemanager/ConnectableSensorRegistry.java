@@ -59,7 +59,7 @@ public class ConnectableSensorRegistry {
 
     // TODO: clear available sensors that are not seen on subsequent scans (b/31644042)
 
-    public void showDeviceOptions(DeviceOptionsPresenter presenter, String experimentId,
+    public void showDeviceOptions(DevicesPresenter presenter, String experimentId,
             String uiSensorKey, PendingIntent settingsIntent) {
         presenter.showDeviceOptions(experimentId, getSensor(uiSensorKey).getConnectedSensorId(),
                 settingsIntent);
@@ -69,8 +69,7 @@ public class ConnectableSensorRegistry {
         return getSensor(uiSensorKey).isPaired();
     }
 
-    public void startScanningInDiscoverers(final SensorGroup available, Context context,
-            DeviceOptionsPresenter presenter) {
+    public void startScanningInDiscoverers(Context context, final DevicesPresenter presenter) {
         if (mScanning) {
             return;
         }
@@ -78,7 +77,7 @@ public class ConnectableSensorRegistry {
                 new Consumer<ExternalSensorDiscoverer.DiscoveredSensor>() {
                     @Override
                     public void take(ExternalSensorDiscoverer.DiscoveredSensor ds) {
-                        onSensorFound(ds, available);
+                        onSensorFound(ds, presenter.getAvailableSensorGroup());
                     }
                 };
         for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
@@ -99,7 +98,7 @@ public class ConnectableSensorRegistry {
     /**
      * Scan has started; starts a 10-second timer that will stop scanning.
      */
-    private void onScanStarted(final DeviceOptionsPresenter presenter) {
+    private void onScanStarted(final DevicesPresenter presenter) {
         if (!mScanning) {
             mScanning = true;
             mScanCount++;
