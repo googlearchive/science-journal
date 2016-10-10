@@ -134,7 +134,9 @@ public class AudioPlaybackController {
                 // Now play the tone, and get set up for the next callback, if one is needed.
                 try {
                     mAudioGenerator.addData(timestamp, point.getY(), mYMin, mYMax);
-                    mAudioPlaybackListener.onTimestampUpdated(timestamp);
+                    if (mAudioPlaybackListener != null) {
+                        mAudioPlaybackListener.onTimestampUpdated(timestamp);
+                    }
                 } finally {
                     // If this is the second to last point, some special handling
                     // needs to be done to determine when to make the last tone.
@@ -158,11 +160,15 @@ public class AudioPlaybackController {
                 DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD, new MaybeConsumer<ScalarReadingList>() {
                     @Override
                     public void success(ScalarReadingList list) {
-                        audioData.addAll(list.asDataPoints());
-                        mAudioGenerator.startPlaying();
-                        mPlaybackRunnable.run();
-                        mPlaybackStatus = PLAYBACK_STATUS_PLAYING;
-                        mAudioPlaybackListener.onAudioPlaybackStarted();
+                        if (mAudioPlaybackListener != null) {
+                            audioData.addAll(list.asDataPoints());
+                            mAudioGenerator.startPlaying();
+                            mPlaybackRunnable.run();
+                            mPlaybackStatus = PLAYBACK_STATUS_PLAYING;
+                            mAudioPlaybackListener.onAudioPlaybackStarted();
+                        } else {
+                            stopPlayback();
+                        }
                     }
 
                     @Override
@@ -184,7 +190,13 @@ public class AudioPlaybackController {
         mHandler.removeCallbacks(mPlaybackRunnable);
         mAudioGenerator.stopPlaying();
         mPlaybackStatus = PLAYBACK_STATUS_NOT_PLAYING;
-        mAudioPlaybackListener.onAudioPlaybackStopped();
+        if (mAudioPlaybackListener != null) {
+            mAudioPlaybackListener.onAudioPlaybackStopped();
+        }
+    }
+
+    public void clearListener() {
+        mAudioPlaybackListener = null;
     }
 
     public boolean isPlaying() {

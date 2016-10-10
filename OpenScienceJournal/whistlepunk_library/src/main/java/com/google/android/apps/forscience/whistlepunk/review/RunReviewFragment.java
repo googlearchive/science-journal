@@ -176,7 +176,10 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     @Override
     public void onDestroy() {
-        mAudioPlaybackController.stopPlayback();
+        if (mAudioPlaybackController != null) {
+            clearAudioPlaybackController();
+            mAudioPlaybackController = null;
+        }
         mGraphOptionsController = null;
         if (mExternalAxis != null) {
             mExternalAxis.destroy();
@@ -254,6 +257,40 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                                     getString(R.string.export_error), Snackbar.LENGTH_LONG);
                             bar.show();
                         }
+                    }
+                });
+        mAudioPlaybackController = new AudioPlaybackController(
+                new AudioPlaybackController.AudioPlaybackListener() {
+                    @Override
+                    public void onAudioPlaybackStarted() {
+                        if (!isAdded()) {
+                            return;
+                        }
+                        WhistlePunkApplication.getUsageTracker(getActivity()).trackEvent(
+                                TrackerConstants.CATEGORY_RUNS,
+                                TrackerConstants.ACTION_START_AUDIO_PLAYBACK,
+                                TrackerConstants.LABEL_RUN_REVIEW, 0);
+                        mRunReviewPlaybackButton.setImageDrawable(
+                                getResources().getDrawable(R.drawable.ic_pause_black_24dp));
+                        mRunReviewPlaybackButton.setContentDescription(
+                                getResources().getString(R.string.playback_button_pause));
+                    }
+
+                    @Override
+                    public void onTimestampUpdated(long activeTimestamp) {
+                        mRunReviewOverlay.setActiveTimestamp(activeTimestamp);
+                    }
+
+                    @Override
+                    public void onAudioPlaybackStopped() {
+                        mAudioPlaybackController.stopPlayback();
+                        if (!isAdded()) {
+                            return;
+                        }
+                        mRunReviewPlaybackButton.setImageDrawable(
+                                getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
+                        mRunReviewPlaybackButton.setContentDescription(
+                                getResources().getString(R.string.playback_button_play));
                     }
                 });
         setHasOptionsMenu(true);
@@ -432,41 +469,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             }
         }
 
-        mAudioPlaybackController = new AudioPlaybackController(
-                new AudioPlaybackController.AudioPlaybackListener() {
-                    @Override
-                    public void onAudioPlaybackStarted() {
-                        if (!isAdded()) {
-                            return;
-                        }
-                        WhistlePunkApplication.getUsageTracker(getActivity()).trackEvent(
-                                TrackerConstants.CATEGORY_RUNS,
-                                TrackerConstants.ACTION_START_AUDIO_PLAYBACK,
-                                TrackerConstants.LABEL_RUN_REVIEW, 0);
-                        mRunReviewPlaybackButton.setImageDrawable(
-                                getResources().getDrawable(R.drawable.ic_pause_black_24dp));
-                        mRunReviewPlaybackButton.setContentDescription(
-                                getResources().getString(R.string.playback_button_pause));
-                    }
-
-                    @Override
-                    public void onTimestampUpdated(long activeTimestamp) {
-                        mRunReviewOverlay.setActiveTimestamp(activeTimestamp);
-                    }
-
-                    @Override
-                    public void onAudioPlaybackStopped() {
-                        mAudioPlaybackController.stopPlayback();
-                        if (!isAdded()) {
-                            return;
-                        }
-                        mRunReviewPlaybackButton.setImageDrawable(
-                                getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
-                        mRunReviewPlaybackButton.setContentDescription(
-                                getResources().getString(R.string.playback_button_play));
-                    }
-                });
-
         return rootView;
     }
 
@@ -552,6 +554,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             launchAudioSettings();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void clearAudioPlaybackController() {
+        mAudioPlaybackController.stopPlayback();
+        mAudioPlaybackController.clearListener();
     }
 
     private void setAutoZoomEnabled(boolean enableAutoZoom) {
