@@ -32,6 +32,7 @@ import android.view.Menu;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -51,7 +52,7 @@ public class ManageDevicesActivity extends AppCompatActivity implements
 
     private BroadcastReceiver mBtReceiver;
     private DataController mDataController;
-    private ManageDevicesFragment mManageFragment;
+    private ManageFragment mManageFragment;
     private Experiment mCurrentExperiment;
 
     @Override
@@ -100,8 +101,12 @@ public class ManageDevicesActivity extends AppCompatActivity implements
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         Fragment fragment;
         if (adapter.isEnabled() && ScanDisabledFragment.hasScanPermission(this)) {
-            mManageFragment = new ManageDevicesFragment();
-            fragment = mManageFragment;
+            if (DevOptionsFragment.shouldUseNewManageDevicesUx(this)) {
+                fragment = new ManageDevicesRecyclerFragment();
+            } else {
+                fragment = new ManageDevicesFragment();
+            }
+            mManageFragment = (ManageFragment) fragment;
         } else {
             fragment = new ScanDisabledFragment();
             mManageFragment = null;

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- TODO: this is very preliminary to get something in place. -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_margin="12dp"
+          android:orientation="vertical"
+          android:textSize="14sp"
+          android:textColor="@color/graph_line_color_blue"
+>
+
+</TextView>
