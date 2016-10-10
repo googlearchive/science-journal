@@ -51,7 +51,6 @@ import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
-import com.google.android.apps.forscience.whistlepunk.BuiltInSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
@@ -143,6 +142,10 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private RunStats mCurrentSensorStats;
     private boolean mShowStatsOverlay = false;
 
+    // Save the savedInstanceState between onCreateView and loading the run data, in case
+    // an onPause happens during that time.
+    private Bundle mSavedInstanceStateForLoad;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -175,6 +178,13 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
+    public void onPause() {
+        mAudioWasPlayingBeforePause = mAudioPlaybackController.isPlaying();
+        mAudioPlaybackController.stopPlayback();
+        super.onPause();
+    }
+
+    @Override
     public void onDestroy() {
         if (mAudioPlaybackController != null) {
             clearAudioPlaybackController();
@@ -194,21 +204,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             mChartController.onDestroy();
         }
         super.onDestroy();
-    }
-
-    @Override
-    public void onPause() {
-        mAudioWasPlayingBeforePause = mAudioPlaybackController.isPlaying();
-        mAudioPlaybackController.stopPlayback();
-        super.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        if (mRunReviewExporter.isExporting()) {
-            mRunReviewExporter.stop();
-        }
-        super.onStop();
     }
 
     @Override
@@ -297,52 +292,17 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_run_review, menu);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        boolean enableDevTools = DevOptionsFragment.isDevToolsEnabled(getActivity());
-        menu.findItem(R.id.action_export).setVisible(AgeVerifier.isOver13(
-                AgeVerifier.getUserAge(getActivity())));
-        menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
-
-        // TODO: Re-enable this when ready to implement the functionality.
-        menu.findItem(R.id.action_run_review_crop).setVisible(false);
-
-        // Hide archive and unarchive buttons if the run isn't loaded yet.
-        if (mExperimentRun != null) {
-            menu.findItem(R.id.action_run_review_archive).setVisible(!mExperimentRun.isArchived());
-            menu.findItem(R.id.action_run_review_unarchive).setVisible(mExperimentRun.isArchived());
-            menu.findItem(R.id.action_run_review_delete).setEnabled(mExperimentRun.isArchived()
-                    && !mRunReviewExporter.isExporting());
-
-            menu.findItem(R.id.action_disable_auto_zoom).setVisible(
-                    mExperimentRun.getAutoZoomEnabled());
-            menu.findItem(R.id.action_enable_auto_zoom).setVisible(
-                    !mExperimentRun.getAutoZoomEnabled());
-        } else {
-            menu.findItem(R.id.action_run_review_archive).setVisible(false);
-            menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
-            menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
-            menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
-            menu.findItem(R.id.action_run_review_delete).setVisible(false);
+    public void onStop() {
+        if (mRunReviewExporter.isExporting()) {
+            mRunReviewExporter.stop();
         }
-        menu.findItem(R.id.action_export).setEnabled(!mRunReviewExporter.isExporting());
-
-        if (((RunReviewActivity) getActivity()).isFromRecord()) {
-            // If this is from record, always enable deletion.
-            menu.findItem(R.id.action_run_review_delete).setEnabled(true);
-        }
-
-        super.onPrepareOptionsMenu(menu);
+        super.onStop();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             final Bundle savedInstanceState) {
+        mSavedInstanceStateForLoad = savedInstanceState;
         final View rootView = inflater.inflate(R.layout.fragment_run_review, container, false);
         mExportProgress = (ProgressBar) rootView.findViewById(R.id.export_progress);
         AppBarLayout appBarLayout = (AppBarLayout) rootView.findViewById(R.id.app_bar_layout);
@@ -444,7 +404,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                                             // This experiment no longer exists, finish.
                                             getActivity().finish();
                                         }
-                                        attachToRun(experiment, run, savedInstanceState);
+                                        attachToRun(experiment, run);
                                     }
                                 });
                     }
@@ -463,6 +423,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mChartController.setShowStatsOverlay(mShowStatsOverlay);
         mRunReviewOverlay.setChartController(mChartController);
 
+        // If this isn't the first time we've made a view, check if the timepicker UI is up.
         if (savedInstanceState != null) {
             if (getChildFragmentManager().findFragmentByTag(EditTimeDialog.TAG) != null) {
                 setTimepickerUi(rootView, true);
@@ -478,6 +439,50 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             mChartController.onViewRecycled();
         }
         super.onDestroyView();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_run_review, menu);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        boolean enableDevTools = DevOptionsFragment.isDevToolsEnabled(getActivity());
+        menu.findItem(R.id.action_export).setVisible(AgeVerifier.isOver13(
+                AgeVerifier.getUserAge(getActivity())));
+        menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
+
+        // TODO: Re-enable this when ready to implement the functionality.
+        menu.findItem(R.id.action_run_review_crop).setVisible(false);
+
+        // Hide archive and unarchive buttons if the run isn't loaded yet.
+        if (mExperimentRun != null) {
+            menu.findItem(R.id.action_run_review_archive).setVisible(!mExperimentRun.isArchived());
+            menu.findItem(R.id.action_run_review_unarchive).setVisible(mExperimentRun.isArchived());
+            menu.findItem(R.id.action_run_review_delete).setEnabled(mExperimentRun.isArchived()
+                    && !mRunReviewExporter.isExporting());
+
+            menu.findItem(R.id.action_disable_auto_zoom).setVisible(
+                    mExperimentRun.getAutoZoomEnabled());
+            menu.findItem(R.id.action_enable_auto_zoom).setVisible(
+                    !mExperimentRun.getAutoZoomEnabled());
+        } else {
+            menu.findItem(R.id.action_run_review_archive).setVisible(false);
+            menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
+            menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
+            menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
+            menu.findItem(R.id.action_run_review_delete).setVisible(false);
+        }
+        menu.findItem(R.id.action_export).setEnabled(!mRunReviewExporter.isExporting());
+
+        if (((RunReviewActivity) getActivity()).isFromRecord()) {
+            // If this is from record, always enable deletion.
+            menu.findItem(R.id.action_run_review_delete).setEnabled(true);
+        }
+
+        super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -613,16 +618,33 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         outState.putInt(KEY_SELECTED_SENSOR_INDEX, mSelectedSensorIndex);
         outState.putBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE, getChildFragmentManager()
                 .findFragmentByTag(EditTimeDialog.TAG) != null);
-        outState.putLong(KEY_EXTERNAL_AXIS_MINIMUM, mExternalAxis.getXMin());
-        outState.putLong(KEY_EXTERNAL_AXIS_MAXIMUM, mExternalAxis.getXMax());
-        outState.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
-        outState.putBoolean(KEY_STATS_OVERLAY_VISIBLE, mShowStatsOverlay);
-        outState.putBoolean(KEY_AUDIO_PLAYBACK_ON, mAudioPlaybackController.isPlaying() ||
-                mAudioWasPlayingBeforePause);
+        if (mSavedInstanceStateForLoad != null) {
+            // We haven't finished loading the run from the database yet in onCreateView.
+            // Go ahead and use the old savedInstanceState since we haven't reconstructed
+            // everything yet.
+            outState.putLong(KEY_EXTERNAL_AXIS_MINIMUM,
+                    mSavedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_MINIMUM));
+            outState.putLong(KEY_EXTERNAL_AXIS_MAXIMUM,
+                    mSavedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_MAXIMUM));
+            outState.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP,
+                    mSavedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP));
+            outState.putBoolean(KEY_STATS_OVERLAY_VISIBLE,
+                    mSavedInstanceStateForLoad.getBoolean(KEY_STATS_OVERLAY_VISIBLE));
+            outState.putBoolean(KEY_AUDIO_PLAYBACK_ON,
+                    mSavedInstanceStateForLoad.getBoolean(KEY_AUDIO_PLAYBACK_ON));
+        } else {
+            outState.putBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE, getChildFragmentManager()
+                    .findFragmentByTag(EditTimeDialog.TAG) != null);
+            outState.putLong(KEY_EXTERNAL_AXIS_MINIMUM, mExternalAxis.getXMin());
+            outState.putLong(KEY_EXTERNAL_AXIS_MAXIMUM, mExternalAxis.getXMax());
+            outState.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
+            outState.putBoolean(KEY_STATS_OVERLAY_VISIBLE, mShowStatsOverlay);
+            outState.putBoolean(KEY_AUDIO_PLAYBACK_ON, mAudioPlaybackController.isPlaying() ||
+                    mAudioWasPlayingBeforePause);
+        }
     }
 
-    private void attachToRun(final Experiment experiment, final ExperimentRun run,
-                             final Bundle savedInstanceState) {
+    private void attachToRun(final Experiment experiment, final ExperimentRun run) {
         mExperimentRun = run;
         mExperiment = experiment;
         final View rootView = getView();
@@ -730,19 +752,21 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         hookUpExperimentDetailsArea(run, rootView);
 
         // Load the data for the first sensor only.
-        if (savedInstanceState != null) {
-            mExternalAxis.zoomTo(savedInstanceState.getLong(KEY_EXTERNAL_AXIS_MINIMUM),
-                    savedInstanceState.getLong(KEY_EXTERNAL_AXIS_MAXIMUM));
-            long overlayTimestamp = savedInstanceState.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP);
+        if (mSavedInstanceStateForLoad != null) {
+            mExternalAxis.zoomTo(mSavedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_MINIMUM),
+                    mSavedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_MAXIMUM));
+            long overlayTimestamp =
+                    mSavedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP);
             if (overlayTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
                 mRunReviewOverlay.setActiveTimestamp(overlayTimestamp);
             }
-            if (savedInstanceState.getBoolean(KEY_AUDIO_PLAYBACK_ON, false)) {
+            if (mSavedInstanceStateForLoad.getBoolean(KEY_AUDIO_PLAYBACK_ON, false)) {
                 mAudioPlaybackController.startPlayback(getDataController(),
                         mExperimentRun.getFirstTimestamp(), mExperimentRun.getLastTimestamp(),
                         mRunReviewOverlay.getTimestamp(),
                         mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId);
             }
+            mSavedInstanceStateForLoad = null;
         }
         loadRunData(rootView);
         if (getActivity() != null) {
