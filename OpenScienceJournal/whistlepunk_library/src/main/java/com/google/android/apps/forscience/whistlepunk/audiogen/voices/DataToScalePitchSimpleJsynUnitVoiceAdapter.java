@@ -36,7 +36,7 @@ import java.util.Arrays;
  * </p>
  */
 public class DataToScalePitchSimpleJsynUnitVoiceAdapter extends JsynUnitVoiceAdapter {
-    private final int[] mPitches;
+    protected final int[] mPitches;
 
     public DataToScalePitchSimpleJsynUnitVoiceAdapter(Synthesizer synth, int[] scale,
                                                               int pitchMin, int pitchMax) {
