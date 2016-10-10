@@ -1,1 +1,2 @@
-include ':app'
+include ':app', ':scalarinputapi'
+project(':scalarinputapi').projectDir = new File('../api/ScalarInputApi')

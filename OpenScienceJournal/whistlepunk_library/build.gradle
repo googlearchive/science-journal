@@ -32,14 +32,12 @@ android {
             java {
                 srcDir '../../third_party/jsyn'
                 srcDir 'src/api/wireapi/java'
-                srcDir 'src/api/scalarinput/java'
             }
             proto {
                 srcDir 'src/main/proto'
             }
             aidl {
                 srcDir 'src/api/wireapi/aidl'
-                srcDir 'src/api/scalarinput/aidl'
             }
         }
         String sharedTestDir = 'src/sharedTest/java'
@@ -68,6 +66,7 @@ protobuf {
 }
 
 dependencies {
+    compile project(':scalarinputapi')
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-3.1'
     compile 'com.android.support:support-annotations:23.4.0'
