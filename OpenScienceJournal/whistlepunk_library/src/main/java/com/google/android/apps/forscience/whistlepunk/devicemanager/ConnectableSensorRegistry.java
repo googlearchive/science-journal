@@ -29,7 +29,6 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 
 import java.util.Map;
 
@@ -54,13 +53,14 @@ public class ConnectableSensorRegistry {
     private int mKeyNum = 0;
 
     public ConnectableSensorRegistry(DataController dataController,
-            Map<String, ExternalSensorDiscoverer> discoverers, DevicesPresenter presenter) {
+            Map<String, ExternalSensorDiscoverer> discoverers, DevicesPresenter presenter,
+            Scheduler scheduler) {
         mDataController = dataController;
         mDiscoverers = discoverers;
         mPairedGroup = presenter.getPairedSensorGroup();
         mAvailableGroup = presenter.getAvailableSensorGroup();
         mPresenter = presenter;
-        mScheduler = new SystemScheduler();
+        mScheduler = scheduler;
     }
 
     public void pair(final String experimentId, String sensorKey,
@@ -194,12 +194,22 @@ public class ConnectableSensorRegistry {
 
     public void setPairedSensors(Map<String, ExternalSensorSpec> sensors) {
         for (Map.Entry<String, ExternalSensorSpec> entry : sensors.entrySet()) {
+            String sensorId = entry.getKey();
             ExternalSensorSpec sensor = entry.getValue();
-            removeSensorWithSpec(mAvailableGroup, sensor);
-
-            ConnectableSensor newSensor = ConnectableSensor.connected(sensor, entry.getKey());
-            String key = registerSensor(null, newSensor, null);
-            mPairedGroup.addSensor(key, newSensor);
+            String sensorKey = findSensorKey(sensor);
+            ConnectableSensor newSensor = ConnectableSensor.connected(sensor, sensorId);
+            if (sensorKey != null) {
+                if (mAvailableGroup.removeSensor(sensorKey)) {
+                    mPairedGroup.addSensor(sensorKey, newSensor);
+                } else {
+                    mPairedGroup.replaceSensor(sensorKey, newSensor);
+                }
+            } else {
+                sensorKey = registerSensor(null, newSensor, null);
+                mPairedGroup.addSensor(sensorKey, newSensor);
+            }
+            // TODO(saff): test that this happens?
+            mSensors.put(sensorKey, newSensor);
         }
 
         removeMissingPairedSensors(sensors);
@@ -213,15 +223,6 @@ public class ConnectableSensorRegistry {
                 mSensors.put(sensorKey, ConnectableSensor.disconnected(sensor.getSpec()));
                 mPairedGroup.removeSensor(sensorKey);
             }
-        }
-    }
-
-    private void removeSensorWithSpec(SensorGroup availableDevices, ExternalSensorSpec sensor) {
-        String sensorKey = findSensorKey(sensor);
-        if (sensorKey != null) {
-            availableDevices.removeSensor(sensorKey);
-            mSensors.remove(sensorKey);
-            mSettingsIntents.remove(sensorKey);
         }
     }
 
