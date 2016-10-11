@@ -15,12 +15,16 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import android.app.PendingIntent;
 import android.support.annotation.NonNull;
-import android.test.AndroidTestCase;
 
+import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputScenario;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
@@ -31,31 +35,28 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDat
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConnectableSensorRegistryTest extends AndroidTestCase {
-    private MemorySensorGroup mAvailableDevices;
-    private MemorySensorGroup mPairedDevices;
-    private TestDevicesPresenter mPresenter;
+public class ConnectableSensorRegistryTest {
+    private final Scheduler mScheduler = new MockScheduler();
+    private MemorySensorGroup mAvailableDevices = new MemorySensorGroup();
+    private MemorySensorGroup mPairedDevices = new MemorySensorGroup();
+    private TestDevicesPresenter mPresenter = new TestDevicesPresenter();
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        mAvailableDevices = new MemorySensorGroup();
-        mPairedDevices = new MemorySensorGroup();
-        mPresenter = new TestDevicesPresenter();
-    }
-
+    @Test
     public void testScalarInputPassthrough() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers(), mPresenter);
+                s.makeScalarInputDiscoverers(), mPresenter, mScheduler);
 
         registry.startScanningInDiscoverers();
 
-        assertEquals(0, mPairedDevices.size());
-        assertEquals(1, mAvailableDevices.size());
+        Assert.assertEquals(0, mPairedDevices.size());
+        Assert.assertEquals(1, mAvailableDevices.size());
 
         StoringConsumer<ConnectableSensor> stored = new StoringConsumer<>();
         registry.addExternalSensorIfNecessary("experimentId", mAvailableDevices.getKey(0),
@@ -65,10 +66,11 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         assertEquals(s.getServiceId(), sensor.getServiceId());
     }
 
+    @Test
     public void testForgetSensor() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers(), mPresenter);
+                s.makeScalarInputDiscoverers(), mPresenter, mScheduler);
         Map<String, ExternalSensorSpec> pairedSensors = new HashMap<>();
         String sensorId = Arbitrary.string();
 
@@ -78,8 +80,8 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         registry.startScanningInDiscoverers();
         registry.stopScanningInDiscoverers();
 
-        assertEquals(1, mPairedDevices.size());
-        assertEquals(0, mAvailableDevices.size());
+        Assert.assertEquals(1, mPairedDevices.size());
+        Assert.assertEquals(0, mAvailableDevices.size());
 
         // Then it's forgotten...
         pairedSensors.clear();
@@ -87,14 +89,15 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         registry.setPairedSensors(pairedSensors);
         registry.startScanningInDiscoverers();
 
-        assertEquals(0, mPairedDevices.size());
-        assertEquals(1, mAvailableDevices.size());
+        Assert.assertEquals(0, mPairedDevices.size());
+        Assert.assertEquals(1, mAvailableDevices.size());
     }
 
+    @Test
     public void testPairedWhenSet() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers(), mPresenter);
+                s.makeScalarInputDiscoverers(), mPresenter, mScheduler);
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String sensorName = Arbitrary.string();
@@ -102,17 +105,18 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
                 new ScalarInputSpec(sensorName, "serviceId", "address", null, null));
 
         registry.setPairedSensors(sensors);
-        assertEquals(0, mAvailableDevices.size());
-        assertEquals(1, mPairedDevices.size());
+        Assert.assertEquals(0, mAvailableDevices.size());
+        Assert.assertEquals(1, mPairedDevices.size());
 
         assertTrue(registry.isPaired(mPairedDevices.getKey(0)));
-        assertEquals(sensorName, mPairedDevices.getTitle(0));
+        Assert.assertEquals(sensorName, mPairedDevices.getTitle(0));
     }
 
+    @Test
     public void testOptionsDialog() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers(), mPresenter);
+                s.makeScalarInputDiscoverers(), mPresenter, mScheduler);
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String sensorName = Arbitrary.string();
@@ -131,6 +135,7 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         assertEquals(connectedId, mPresenter.sensorId);
     }
 
+    @Test
     public void testDuplicateSensorAdded() {
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
 
@@ -138,22 +143,23 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
                 new BleSensorSpec("address", "name"), new BleSensorSpec("address", "name"));
         discoverers.put("type", dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                discoverers, mPresenter);
+                discoverers, mPresenter, mScheduler);
 
         registry.startScanningInDiscoverers();
 
-        assertEquals(0, mPairedDevices.size());
+        Assert.assertEquals(0, mPairedDevices.size());
         // Only 1 of the 2 duplicates!
-        assertEquals(1, mAvailableDevices.size());
+        Assert.assertEquals(1, mAvailableDevices.size());
     }
 
+    @Test
     public void testDontAddAvailableWhenAlreadyPaired() {
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
         ExternalSensorDiscoverer dupeDiscoverer = new EnumeratedDiscoverer(
                 new BleSensorSpec("address", "name"));
         discoverers.put("type", dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                discoverers, mPresenter);
+                discoverers, mPresenter, mScheduler);
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String connectedId = Arbitrary.string();
@@ -162,11 +168,12 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
 
         registry.startScanningInDiscoverers();
 
-        assertEquals(1, mPairedDevices.size());
+        Assert.assertEquals(1, mPairedDevices.size());
         // Not added here!
-        assertEquals(0, mAvailableDevices.size());
+        Assert.assertEquals(0, mAvailableDevices.size());
     }
 
+    @Test
     public void testDifferentConfigIsDuplicate() {
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
         BleSensorSpec spec1 = new BleSensorSpec("address", "name");
@@ -176,19 +183,20 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         ExternalSensorDiscoverer d = new EnumeratedDiscoverer(spec1, spec2);
         discoverers.put("type", d);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                discoverers, mPresenter);
+                discoverers, mPresenter, mScheduler);
 
         registry.startScanningInDiscoverers();
 
-        assertEquals(0, mPairedDevices.size());
+        Assert.assertEquals(0, mPairedDevices.size());
         // Only 1 of the 2 duplicates!
-        assertEquals(1, mAvailableDevices.size());
+        Assert.assertEquals(1, mAvailableDevices.size());
     }
 
+    @Test
     public void testConnectedReplacesAvailable() {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                s.makeScalarInputDiscoverers(), mPresenter);
+                s.makeScalarInputDiscoverers(), mPresenter, mScheduler);
 
         registry.startScanningInDiscoverers();
 
@@ -198,10 +206,11 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         registry.setPairedSensors(sensors);
 
         // Should move sensor from available to paired
-        assertEquals(1, mPairedDevices.size());
-        assertEquals(0, mAvailableDevices.size());
+        Assert.assertEquals(1, mPairedDevices.size());
+        Assert.assertEquals(0, mAvailableDevices.size());
     }
 
+    @Test
     public void testOrderOfApiSensors() {
         TestSensorDiscoverer tsd = new TestSensorDiscoverer("serviceName");
         tsd.addDevice("deviceId", "deviceName");
@@ -209,12 +218,12 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
         tsd.addSensor("deviceId", "address2", "name2");
 
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                tsd.makeDiscovererMap("serviceId"), mPresenter);
+                tsd.makeDiscovererMap("serviceId"), mPresenter, mScheduler);
 
         registry.startScanningInDiscoverers();
 
-        assertEquals(0, mPairedDevices.size());
-        assertEquals(2, mAvailableDevices.size());
+        Assert.assertEquals(0, mPairedDevices.size());
+        Assert.assertEquals(2, mAvailableDevices.size());
 
         StoringConsumer<ConnectableSensor> stored1 = new StoringConsumer<>();
         registry.addExternalSensorIfNecessary("experimentId",
@@ -233,6 +242,25 @@ public class ConnectableSensorRegistryTest extends AndroidTestCase {
     @NonNull
     private DataController makeDataController() {
         return new InMemorySensorDatabase().makeSimpleController(new MemoryMetadataManager());
+    }
+
+    @Test
+    public void testDontDuplicatePairedSensors() {
+        final ScalarInputScenario s = new ScalarInputScenario();
+        ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
+                s.makeScalarInputDiscoverers(), mPresenter, mScheduler);
+
+        Map<String, ExternalSensorSpec> sensors = new HashMap<>();
+        ScalarInputSpec spec = s.makeSpec();
+        sensors.put(Arbitrary.string(), spec);
+
+        // Call it twice, to make sure that we're replacing, not appending, duplicate paired
+        // sensors.
+        registry.setPairedSensors(sensors);
+        registry.setPairedSensors(sensors);
+
+        Assert.assertEquals(1, mPairedDevices.size());
+        Assert.assertEquals(0, mAvailableDevices.size());
     }
 
     private class TestDevicesPresenter implements DevicesPresenter {

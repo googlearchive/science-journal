@@ -30,7 +30,8 @@ public class EnumeratedDiscoverer extends StubSensorDiscoverer {
     }
 
     @Override
-    public boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
+    public boolean startScanning(
+            Consumer<ExternalSensorDiscoverer.DiscoveredSensor> onEachSensorFound,
             Runnable onScanDone, FailureListener onScanError) {
         for (ExternalSensorSpec spec : mSpecs) {
             onEachSensorFound.take(getDiscovered(spec));
@@ -39,8 +40,8 @@ public class EnumeratedDiscoverer extends StubSensorDiscoverer {
     }
 
     @NonNull
-    private DiscoveredSensor getDiscovered(final ExternalSensorSpec spec) {
-        return new DiscoveredSensor() {
+    private ExternalSensorDiscoverer.DiscoveredSensor getDiscovered(final ExternalSensorSpec spec) {
+        return new ExternalSensorDiscoverer.DiscoveredSensor() {
             @Override
             public ExternalSensorSpec getSpec() {
                 return spec;

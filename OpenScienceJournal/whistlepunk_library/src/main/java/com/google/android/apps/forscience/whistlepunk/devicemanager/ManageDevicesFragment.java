@@ -31,6 +31,7 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.PreferenceProgressCategory;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.Map;
@@ -84,7 +85,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
 
         mConnectableSensorRegistry = new ConnectableSensorRegistry(mDataController, discoverers,
-                this);
+                this, new SystemScheduler());
     }
 
     @Override

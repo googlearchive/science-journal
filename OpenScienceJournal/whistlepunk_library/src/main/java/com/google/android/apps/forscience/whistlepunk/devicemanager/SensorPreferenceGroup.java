@@ -34,6 +34,7 @@ class SensorPreferenceGroup implements SensorGroup {
         mCategory = category;
         mRemoveWhenEmpty = removeWhenEmpty;
         mIncludeSummary = includeSummary;
+        mCategory.setOrderingAsAdded(false);
     }
 
     @Override
@@ -43,12 +44,17 @@ class SensorPreferenceGroup implements SensorGroup {
 
     @Override
     public void addSensor(String sensorKey, ConnectableSensor sensor) {
+        addPreference(buildFullPreference(sensorKey, sensor));
+    }
+
+    @NonNull
+    private Preference buildFullPreference(String sensorKey, ConnectableSensor sensor) {
         Preference pref = buildAvailablePreference(sensorKey, sensor);
         if (mIncludeSummary) {
             pref.setWidgetLayoutResource(R.layout.preference_external_device);
             pref.setSummary(sensor.getSpec().getSensorAppearance().getName(pref.getContext()));
         }
-        addPreference(pref);
+        return pref;
     }
 
     private void addPreference(Preference preference) {
@@ -71,13 +77,28 @@ class SensorPreferenceGroup implements SensorGroup {
     }
 
     @Override
-    public void removeSensor(String key) {
+    public boolean removeSensor(String key) {
         Preference preference = mCategory.findPreference(key);
         if (preference != null) {
             mCategory.removePreference(preference);
         }
         if (mRemoveWhenEmpty && mCategory.getPreferenceCount() == 0 && isOnScreen()) {
             mCategory.removePreference(mCategory);
+        }
+        return preference != null;
+    }
+
+    @Override
+    public void replaceSensor(String sensorKey, ConnectableSensor sensor) {
+        Preference oldPref = mCategory.findPreference(sensorKey);
+        if (oldPref == null) {
+            addSensor(sensorKey, sensor);
+        } else {
+            mCategory.removePreference(oldPref);
+            Preference newPref = buildFullPreference(sensorKey, sensor);
+            newPref.setOrder(oldPref.getOrder());
+            // TODO: can I test this directly?
+            mCategory.addPreference(newPref);
         }
     }
 

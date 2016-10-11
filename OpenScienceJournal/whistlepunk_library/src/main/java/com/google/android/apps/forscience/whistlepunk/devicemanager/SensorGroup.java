@@ -20,7 +20,12 @@ public interface SensorGroup {
 
     void addSensor(String sensorKey, ConnectableSensor sensor);
 
-    void removeSensor(String prefKey);
+    /**
+     * @return true if the given sensorKey existed and was removed.
+     */
+    boolean removeSensor(String sensorKey);
+
+    void replaceSensor(String sensorKey, ConnectableSensor sensor);
 
     int getSensorCount();
 }

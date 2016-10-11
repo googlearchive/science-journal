@@ -32,8 +32,13 @@ class MemorySensorGroup implements SensorGroup {
     }
 
     @Override
-    public void removeSensor(String prefKey) {
-        mSensors.remove(prefKey);
+    public boolean removeSensor(String prefKey) {
+        return mSensors.remove(prefKey) != null;
+    }
+
+    @Override
+    public void replaceSensor(String sensorKey, ConnectableSensor sensor) {
+        mSensors.put(sensorKey, sensor);
     }
 
     @Override
