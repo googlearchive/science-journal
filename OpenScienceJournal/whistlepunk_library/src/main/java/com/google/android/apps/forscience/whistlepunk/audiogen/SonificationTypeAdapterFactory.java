@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.audiogen;
 
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices
         .DataToAmplitudeSimpleJsynUnitVoiceAdapter;
+import com.google.android.apps.forscience.whistlepunk.audiogen.voices.ConductorVoice;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices
         .DataToPentatonicScalePitchSimpleJsynUnitVoiceAdapter;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices
@@ -40,6 +41,8 @@ public class SonificationTypeAdapterFactory {
             return new DataToPitchEnvelopeSimpleJsynUnitVoiceAdapter(synth);
         } else if (sonification_type.equals("d2ps")) {
             return new DataToPentatonicScalePitchSimpleJsynUnitVoiceAdapter(synth);
+        } else if (sonification_type.equals("conductor")) {
+                return new ConductorVoice(synth);
         } else {
             return null;
         }

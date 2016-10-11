@@ -585,6 +585,9 @@
     <!-- Name for sonification type from data to a pentatonic scale [CHAR_LIMIT=30] -->
     <string name="d2ps">Scale</string>
 
+    <!-- Name for sonification type from data to a pentatonic scale with silence for low values[CHAR_LIMIT=30] -->
+    <string name="conductor">Conductor</string>
+
     <!-- List of entries for the sonification type selection -->
     <string-array name="sonification_types_prod">
         <item>@string/d2p</item>
@@ -594,6 +597,7 @@
 
     <string-array name="sonification_types_dev">
         <item>@string/d2a</item>
+        <item>@string/conductor</item>
     </string-array>
 
     <!-- List of aliases for the sonification type selection. Note that this must be in the order of types_prod + types_dev. [CHAR_LIMIT=none] -->
@@ -602,6 +606,7 @@
         <item>d2ps</item>
         <item>d2pe</item>
         <item>d2a</item>
+        <item>conductor</item>
     </string-array>
 
     <!-- Label for a spinner item which creates a new experiment. [CHAR_LIMIT=40]-->
