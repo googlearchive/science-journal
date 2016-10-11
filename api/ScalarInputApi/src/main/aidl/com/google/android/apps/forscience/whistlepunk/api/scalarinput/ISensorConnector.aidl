@@ -19,9 +19,9 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorObs
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorStatusListener;
 
 interface ISensorConnector {
-    void startObserving(String sensorAddress,
-                        ISensorObserver observer,
-                        ISensorStatusListener listener,
-                        String settingsKey) = 0;
-    void stopObserving(String sensorAddress) = 1;
+    oneway void startObserving(String sensorAddress,
+                               ISensorObserver observer,
+                               ISensorStatusListener listener,
+                               String settingsKey) = 0;
+    oneway void stopObserving(String sensorAddress) = 1;
 }
