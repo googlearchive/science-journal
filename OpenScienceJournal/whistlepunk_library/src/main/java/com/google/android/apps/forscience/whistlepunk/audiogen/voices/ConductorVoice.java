@@ -28,7 +28,7 @@ import com.softsynth.shared.time.TimeStamp;
  * silence for small values.
  * <p>
  * Adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator.
- * This implementation maps the data from the range (min+10%-max) linearly pitches in the pentatonic
+ * This implementation maps the data from the range (min+5%-max) linearly pitches in the pentatonic
  * C major scale covering a wide range of frequencies,
  * Values lower than min+5% are mapped to silence.
  * </p>
@@ -57,15 +57,13 @@ public class ConductorVoice extends JsynUnitVoiceAdapter {
     }
 
     public void noteOn(double value, double unusedMin, double unusedMax, TimeStamp timeStamp) {
-        // Default implementation (or any implementation with no pitches) does nothing.
-        if (mPitches.length == 0) return;
         // Range checking, in case min or max needs adjustment
         if (value < min) min = value;
         if (value > max) max = value;
-        // If value < min+10%, map to silence
+        // If value < min+5%, map to silence
         double thresh = min + (max - min) * .05;
         if (LOCAL_LOGV) {
-            Log.d(TAG, "value: " + value + " min: " + min + " max: " + max + " threshold: " + thresh);
+            Log.v(TAG, "value: " + value + " min: " + min + " max: " + max + " threshold: " + thresh);
         }
         if (value >= thresh) {
             int index = (int) Math.floor((value - thresh) / (max - thresh) * (mPitches.length - 1));
