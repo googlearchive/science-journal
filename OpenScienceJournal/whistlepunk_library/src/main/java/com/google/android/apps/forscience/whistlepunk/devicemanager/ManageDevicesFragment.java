@@ -39,7 +39,8 @@ import java.util.Map;
 /**
  * Searches for Bluetooth LE devices that are supported.
  */
-public class ManageDevicesFragment extends PreferenceFragment implements DevicesPresenter {
+public class ManageDevicesFragment extends PreferenceFragment implements DevicesPresenter,
+        ManageFragment {
     private static final String PREF_KEY_PAIRED_DEVICES = "paired_devices";
     private static final String PREF_KEY_AVAILABLE_DEVICES = "available_devices";
 
@@ -49,9 +50,6 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
     private SensorPreferenceGroup mAvailableGroup;
     private Menu mMainMenu;
 
-    private DataController mDataController;
-
-    private String mExperimentId;
     private ConnectableSensorRegistry mConnectableSensorRegistry;
 
     public ManageDevicesFragment() {
@@ -60,7 +58,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDataController = AppSingleton.getInstance(getActivity()).getDataController();
+        DataController dc = AppSingleton.getInstance(getActivity()).getDataController();
         addPreferencesFromResource(R.xml.external_devices);
 
         mPairedDevices = new PreferenceProgressCategory(getActivity());
@@ -84,8 +82,8 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
         Map<String, ExternalSensorDiscoverer> discoverers =
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
 
-        mConnectableSensorRegistry = new ConnectableSensorRegistry(mDataController, discoverers,
-                this, new SystemScheduler());
+        mConnectableSensorRegistry = new ConnectableSensorRegistry(dc, discoverers, this,
+                new SystemScheduler());
     }
 
     @Override
@@ -123,10 +121,10 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
             preference.setSummary(R.string.external_devices_pairing);
         }
         if (!mConnectableSensorRegistry.isPaired(sensorKey)) {
-            mConnectableSensorRegistry.pair(mExperimentId, sensorKey,
+            mConnectableSensorRegistry.pair(sensorKey,
                     AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider());
         } else {
-            mConnectableSensorRegistry.showDeviceOptions(mExperimentId, sensorKey);
+            mConnectableSensorRegistry.showDeviceOptions(sensorKey);
         }
         return true;
     }
@@ -149,12 +147,12 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
     }
 
     private void refresh() {
-        mConnectableSensorRegistry.refresh(mExperimentId);
+        mConnectableSensorRegistry.refresh();
     }
 
     public void refreshAfterLoad() {
-        mExperimentId = getArguments().getString(ManageDevicesActivity.EXTRA_EXPERIMENT_ID);
-        refresh();
+        mConnectableSensorRegistry.setExperimentId(
+                getArguments().getString(ManageDevicesActivity.EXTRA_EXPERIMENT_ID));
     }
 
     private void stopScanning() {

@@ -44,6 +44,7 @@ public class DevOptionsFragment extends PreferenceFragment {
     public static final String KEY_BAROMETER_SENSOR = "enable_barometer_sensor";
     public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
     public static final String KEY_THIRD_PARTY_SENSORS = "enable_third_party_sensors";
+    public static final String KEY_USE_NEW_MANAGE = "use_new_manage_devices_ux";
     private final SharedPreferences.OnSharedPreferenceChangeListener
             mSensorsChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
         @Override
@@ -143,6 +144,10 @@ public class DevOptionsFragment extends PreferenceFragment {
 
     public static boolean isAmbientTemperatureSensorEnabled(Context context) {
         return getBoolean(KEY_AMBIENT_TEMPERATURE_SENSOR, false, context);
+    }
+
+    public static boolean shouldUseNewManageDevicesUx(Context context) {
+        return getBoolean(KEY_USE_NEW_MANAGE, false, context);
     }
 
     private static boolean getBoolean(String key, boolean defaultBool, Context context) {

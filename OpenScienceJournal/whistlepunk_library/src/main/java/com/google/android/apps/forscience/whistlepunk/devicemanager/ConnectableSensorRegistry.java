@@ -51,6 +51,7 @@ public class ConnectableSensorRegistry {
     private int mScanCount = 0;
 
     private int mKeyNum = 0;
+    private String mExperimentId = null;
 
     public ConnectableSensorRegistry(DataController dataController,
             Map<String, ExternalSensorDiscoverer> discoverers, DevicesPresenter presenter,
@@ -63,10 +64,9 @@ public class ConnectableSensorRegistry {
         mScheduler = scheduler;
     }
 
-    public void pair(final String experimentId, String sensorKey,
-            final SensorAppearanceProvider appearanceProvider) {
+    public void pair(String sensorKey, final SensorAppearanceProvider appearanceProvider) {
         final PendingIntent settingsIntent = mSettingsIntents.get(sensorKey);
-        addExternalSensorIfNecessary(experimentId, sensorKey, mPairedGroup.getSensorCount(),
+        addExternalSensorIfNecessary(sensorKey, mPairedGroup.getSensorCount(),
                 new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
                     @Override
                     public void success(final ConnectableSensor sensor) {
@@ -74,9 +74,9 @@ public class ConnectableSensorRegistry {
                                 new LoggingConsumer<Success>(TAG, "Load appearance") {
                                     @Override
                                     public void success(Success value) {
-                                        refresh(experimentId);
+                                        refresh();
                                         if (sensor.shouldShowOptionsOnConnect()) {
-                                            mPresenter.showDeviceOptions(experimentId,
+                                            mPresenter.showDeviceOptions(mExperimentId,
                                                     sensor.getConnectedSensorId(), settingsIntent);
                                         }
                                     }
@@ -85,9 +85,9 @@ public class ConnectableSensorRegistry {
                 });
     }
 
-    public void refresh(String experimentId) {
+    public void refresh() {
         stopScanningInDiscoverers();
-        mDataController.getExternalSensorsByExperiment(experimentId,
+        mDataController.getExternalSensorsByExperiment(mExperimentId,
                 new LoggingConsumer<Map<String, ExternalSensorSpec>>(TAG, "Load external sensors") {
                     @Override
                     public void success(Map<String, ExternalSensorSpec> sensors) {
@@ -103,8 +103,8 @@ public class ConnectableSensorRegistry {
 
     // TODO: clear available sensors that are not seen on subsequent scans (b/31644042)
 
-    public void showDeviceOptions(String experimentId, String uiSensorKey) {
-        mPresenter.showDeviceOptions(experimentId, getSensor(uiSensorKey).getConnectedSensorId(),
+    public void showDeviceOptions(String uiSensorKey) {
+        mPresenter.showDeviceOptions(mExperimentId, getSensor(uiSensorKey).getConnectedSensorId(),
                 mSettingsIntents.get(uiSensorKey));
     }
 
@@ -244,8 +244,8 @@ public class ConnectableSensorRegistry {
      *                            this one was added
      * @param onAdded             receives the connected ConnectableSensor that's been added to the
      */
-    public void addExternalSensorIfNecessary(final String experimentId, String key,
-            int numPairedBeforeThis, final MaybeConsumer<ConnectableSensor> onAdded) {
+    public void addExternalSensorIfNecessary(String key, int numPairedBeforeThis,
+            final MaybeConsumer<ConnectableSensor> onAdded) {
         ConnectableSensor connectableSensor = getSensor(key);
 
         // TODO: probably shouldn't finish in these cases, instead go into sensor editing.
@@ -258,7 +258,7 @@ public class ConnectableSensorRegistry {
                 new Consumer<String>() {
                     @Override
                     public void take(final String sensorId) {
-                        mDataController.addSensorToExperiment(experimentId, sensorId,
+                        mDataController.addSensorToExperiment(mExperimentId, sensorId,
                                 new LoggingConsumer<Success>(TAG, "add sensor to experiment") {
                                     @Override
                                     public void success(Success value) {
@@ -289,5 +289,10 @@ public class ConnectableSensorRegistry {
 
     public boolean isScanning() {
         return mScanning;
+    }
+
+    public void setExperimentId(String experimentId) {
+        mExperimentId = experimentId;
+        refresh();
     }
 }
