@@ -28,7 +28,7 @@ import com.softsynth.math.AudioMath;
  *
  * </p>
  */
-public class DataToPentatonicScalePitchSimpleJsynUnitVoiceAdapter extends
+public class ScaleVoice extends
         DataToScalePitchSimpleJsynUnitVoiceAdapter {
     public static final String TAG = "DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter";
 
@@ -37,7 +37,7 @@ public class DataToPentatonicScalePitchSimpleJsynUnitVoiceAdapter extends
     private static final int PITCH_MIN = (int) Math.floor(AudioMath.frequencyToPitch(FREQ_MIN));
     private static final int PITCH_MAX = (int) Math.floor(AudioMath.frequencyToPitch(FREQ_MAX));
 
-    public DataToPentatonicScalePitchSimpleJsynUnitVoiceAdapter(Synthesizer synth) {
+    public ScaleVoice(Synthesizer synth) {
         super(synth, scale, PITCH_MIN, PITCH_MAX);
     }
 

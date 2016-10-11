@@ -20,13 +20,10 @@ import com.google.android.apps.forscience.whistlepunk.audiogen.voices
         .DataToAmplitudeSimpleJsynUnitVoiceAdapter;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices.ConductorVoice;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices
-        .DataToPentatonicScalePitchSimpleJsynUnitVoiceAdapter;
-import com.google.android.apps.forscience.whistlepunk.audiogen.voices
-        .DataToPitchEnvelopeSimpleJsynUnitVoiceAdapter;
+        .NotesVoice;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices
         .DataToPitchSimpleJsynUnitVoiceAdapter;
-import com.google.android.apps.forscience.whistlepunk.audiogen.voices
-        .DataToPitchSimpleJsynUnitVoiceAdapter;
+import com.google.android.apps.forscience.whistlepunk.audiogen.voices.ScaleVoice;
 import com.jsyn.Synthesizer;
 
 public class SonificationTypeAdapterFactory {
@@ -37,10 +34,10 @@ public class SonificationTypeAdapterFactory {
             return new DataToPitchSimpleJsynUnitVoiceAdapter(synth);
         } else if (sonification_type.equals("d2a")) {
             return new DataToAmplitudeSimpleJsynUnitVoiceAdapter(synth);
-        } else if (sonification_type.equals("d2pe")) {
-            return new DataToPitchEnvelopeSimpleJsynUnitVoiceAdapter(synth);
-        } else if (sonification_type.equals("d2ps")) {
-            return new DataToPentatonicScalePitchSimpleJsynUnitVoiceAdapter(synth);
+        } else if (sonification_type.equals("notes")) {
+            return new NotesVoice(synth);
+        } else if (sonification_type.equals("scale")) {
+            return new ScaleVoice(synth);
         } else if (sonification_type.equals("conductor")) {
                 return new ConductorVoice(synth);
         } else {

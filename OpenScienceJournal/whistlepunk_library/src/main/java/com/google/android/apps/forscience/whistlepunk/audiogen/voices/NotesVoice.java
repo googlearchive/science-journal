@@ -29,7 +29,7 @@ import com.softsynth.shared.time.TimeStamp;
  * FREQ_MIN-FREQ_MAX and converts the pitches to notes by modulating them through an envelope.
  * </p>
  */
-public class DataToPitchEnvelopeSimpleJsynUnitVoiceAdapter extends JsynUnitVoiceAdapter {
+public class NotesVoice extends JsynUnitVoiceAdapter {
     private static final double MIN_VALUE_PERCENT_CHANGE = 10.; // min value percent delta trigger
     private static final long MIN_TIME_VALUE_CHANGE_MS = 125; // min time delta to trigger new audio
     private static final long MIN_TIME_CHANGE_MS = 1000; // min time change to trigger new audio
@@ -37,7 +37,7 @@ public class DataToPitchEnvelopeSimpleJsynUnitVoiceAdapter extends JsynUnitVoice
     private long mOldTime = System.currentTimeMillis();
     private double mOldValue = Double.MIN_VALUE;
 
-    public DataToPitchEnvelopeSimpleJsynUnitVoiceAdapter(Synthesizer synth) {
+    public NotesVoice(Synthesizer synth) {
         mVoice = new SineEnvelope();
         synth.add(mVoice);
     }
