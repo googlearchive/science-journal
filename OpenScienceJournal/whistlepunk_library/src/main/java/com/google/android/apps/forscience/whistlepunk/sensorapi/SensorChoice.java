@@ -17,11 +17,10 @@
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import android.content.Context;
-import android.os.Bundle;
 
-import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.PrefsNewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
+import com.google.common.net.UrlEscapers;
 
 import java.text.NumberFormat;
 
@@ -83,6 +82,7 @@ public abstract class SensorChoice {
      * TODO: actually use and apply these defaults, create a UI to change them.
      */
     public NewOptionsStorage getStorageForSensorDefaultOptions(Context context) {
-        return new PrefsNewOptionsStorage("sensor_options_" + getId(), context);
+        return new PrefsNewOptionsStorage(
+                "sensor_options_" + UrlEscapers.urlPathSegmentEscaper().escape(getId()), context);
     }
 }

@@ -22,8 +22,10 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 
@@ -34,10 +36,10 @@ import java.util.Map;
 /**
  * Finds services that implement the scalarinput API
  */
-public class ScalarSensorServiceFinder extends
-        Consumer<AppDiscoveryCallbacks> {
+public class ScalarSensorServiceFinder extends Consumer<AppDiscoveryCallbacks> {
     public static final String INTENT_ACTION =
             "com.google.android.apps.forscience.whistlepunk.SCALAR_SENSOR";
+    public static final String METADATA_KEY_CLASS_NAME_OVERRIDE = "api_service_logical_name";
 
     private final Context mContext;
     private final Map<String, ServiceConnection> mConnections = new HashMap<>();
@@ -49,14 +51,16 @@ public class ScalarSensorServiceFinder extends
     @Override
     public void take(AppDiscoveryCallbacks callbacks) {
         PackageManager pm = mContext.getPackageManager();
-        List<ResolveInfo> resolveInfos = pm.queryIntentServices(new Intent(INTENT_ACTION), 0);
+        List<ResolveInfo> resolveInfos = pm.queryIntentServices(new Intent(INTENT_ACTION),
+                PackageManager.GET_META_DATA);
         for (ResolveInfo info : resolveInfos) {
             ServiceInfo serviceInfo = info.serviceInfo;
             String packageName = serviceInfo.packageName;
             ComponentName name = new ComponentName(packageName, serviceInfo.name);
             Intent intent = new Intent();
             intent.setComponent(name);
-            final ServiceConnection conn = makeServiceConnection(packageName, callbacks);
+            final ServiceConnection conn = makeServiceConnection(mConnections, packageName,
+                    callbacks, serviceInfo.metaData);
             mConnections.put(packageName, conn);
             mContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
         }
@@ -65,20 +69,31 @@ public class ScalarSensorServiceFinder extends
     }
 
     @NonNull
-    private ServiceConnection makeServiceConnection(final String packageName,
-            final AppDiscoveryCallbacks callbacks) {
+    @VisibleForTesting
+    public static ServiceConnection makeServiceConnection(
+            final Map<String, ServiceConnection> connections, final String packageName,
+            final AppDiscoveryCallbacks callbacks, final Bundle metaData) {
         return new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 // TODO: think harder about threading here?
-                callbacks.onServiceFound(name.getPackageName(),
+                callbacks.onServiceFound(extractServiceId(name),
                         ISensorDiscoverer.Stub.asInterface(service));
+            }
+
+            private String extractServiceId(ComponentName name) {
+                if (metaData.containsKey(METADATA_KEY_CLASS_NAME_OVERRIDE)) {
+                    return name.getPackageName() + "/" + metaData.getString(
+                            METADATA_KEY_CLASS_NAME_OVERRIDE);
+                } else {
+                    return name.flattenToShortString();
+                }
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 // TODO: when should disconnection happen?
-                mConnections.remove(packageName);
+                connections.remove(packageName);
             }
         };
     }

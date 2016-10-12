@@ -55,6 +55,11 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
                     }
 
                     @Override
+                    public boolean canScan() {
+                        return true;
+                    }
+
+                    @Override
                     public void onStopScanning() {
 
                     }
