@@ -71,4 +71,11 @@
         android:summary="@string/third_party_sensors_option_summary"
     />
 
+    <CheckBoxPreference
+        android:key="use_new_manage_devices_ux"
+        android:defaultValue="false"
+        android:title="@string/use_new_manage_devices_ux_option_title"
+        android:summary="@string/use_new_manage_devices_ux_option_summary"
+    />
+
 </PreferenceScreen>
