@@ -574,10 +574,10 @@
     <string name="dev_tools_leak_detection_summary">Changes to this setting only take effect after closing the application.</string>
 
     <!-- Default sonification type name [CHAR_LIMIT=30] -->
-    <string name="d2p">Default</string>
+    <string name="default_sonification">Default</string>
 
     <!-- Name for sonification type from data to volume / amplitude of sound [CHAR_LIMIT=30] -->
-    <string name="d2a">Amplitude</string>
+    <string name="amplitude">Amplitude</string>
 
     <!-- Name for sonification type from data to a pitch envelope [CHAR_LIMIT=30] -->
     <string name="notes">Notes</string>
@@ -590,22 +590,22 @@
 
     <!-- List of entries for the sonification type selection -->
     <string-array name="sonification_types_prod">
-        <item>@string/d2p</item>
+        <item>@string/default_sonification</item>
         <item>@string/scale</item>
         <item>@string/notes</item>
     </string-array>
 
     <string-array name="sonification_types_dev">
-        <item>@string/d2a</item>
+        <item>@string/amplitude</item>
         <item>@string/conductor</item>
     </string-array>
 
     <!-- List of aliases for the sonification type selection. Note that this must be in the order of types_prod + types_dev. [CHAR_LIMIT=none] -->
     <string-array name="sonification_type_aliases">
-        <item>d2p</item>
+        <item>default_sonification</item>
         <item>scale</item>
         <item>notes</item>
-        <item>d2a</item>
+        <item>amplitude</item>
         <item>conductor</item>
     </string-array>
 

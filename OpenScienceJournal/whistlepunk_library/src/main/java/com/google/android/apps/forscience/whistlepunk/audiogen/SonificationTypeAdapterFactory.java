@@ -17,12 +17,12 @@
 package com.google.android.apps.forscience.whistlepunk.audiogen;
 
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices
-        .DataToAmplitudeSimpleJsynUnitVoiceAdapter;
+        .DefaultVoice;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices.ConductorVoice;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices
         .NotesVoice;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices
-        .DataToPitchSimpleJsynUnitVoiceAdapter;
+        .AmplitudeVoice;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices.ScaleVoice;
 import com.jsyn.Synthesizer;
 
@@ -30,10 +30,10 @@ public class SonificationTypeAdapterFactory {
 
     public static JsynUnitVoiceAdapterInterface getSonificationTypeAdapter(
             Synthesizer synth, String sonification_type) {
-        if (sonification_type.equals("d2p")) {
-            return new DataToPitchSimpleJsynUnitVoiceAdapter(synth);
-        } else if (sonification_type.equals("d2a")) {
-            return new DataToAmplitudeSimpleJsynUnitVoiceAdapter(synth);
+        if (sonification_type.equals("default_sonification")) {
+            return new DefaultVoice(synth);
+        } else if (sonification_type.equals("amplitude")) {
+            return new AmplitudeVoice(synth);
         } else if (sonification_type.equals("notes")) {
             return new NotesVoice(synth);
         } else if (sonification_type.equals("scale")) {

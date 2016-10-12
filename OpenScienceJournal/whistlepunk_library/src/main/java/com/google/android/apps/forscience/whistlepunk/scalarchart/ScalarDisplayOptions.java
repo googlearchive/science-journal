@@ -89,7 +89,7 @@ public class ScalarDisplayOptions {
     private @BlurType int mBlurType = DEFAULT_BLUR_TYPE;
     private float mGaussianSigma = DEFAULT_GAUSSIAN_SIGMA;
 
-    public static final String DEFAULT_SONIFICATION_TYPE = "d2p";
+    public static final String DEFAULT_SONIFICATION_TYPE = "default_sonification";
     private String mSonificationType = DEFAULT_SONIFICATION_TYPE;
 
     Set<ScalarDisplayOptionsListener> mListeners = Collections.newSetFromMap(new WeakHashMap());
