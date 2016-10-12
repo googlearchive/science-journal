@@ -27,6 +27,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.PreferenceProgressCategory;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -58,7 +59,8 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DataController dc = AppSingleton.getInstance(getActivity()).getDataController();
+        AppSingleton appSingleton = AppSingleton.getInstance(getActivity());
+        DataController dc = appSingleton.getDataController();
         addPreferencesFromResource(R.xml.external_devices);
 
         mPairedDevices = new PreferenceProgressCategory(getActivity());
@@ -83,7 +85,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
 
         mConnectableSensorRegistry = new ConnectableSensorRegistry(dc, discoverers, this,
-                new SystemScheduler());
+                new SystemScheduler(), appSingleton.getSensorEnvironment().getDefaultClock());
     }
 
     @Override
@@ -140,14 +142,14 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_refresh) {
-            refresh();
+            refresh(true);
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void refresh() {
-        mConnectableSensorRegistry.refresh();
+    private void refresh(boolean clearSensorCache) {
+        mConnectableSensorRegistry.refresh(clearSensorCache);
     }
 
     public void refreshAfterLoad() {

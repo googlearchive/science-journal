@@ -109,13 +109,4 @@ class SensorPreferenceGroup implements SensorGroup {
     public int getSensorCount() {
         return mCategory.getPreferenceCount();
     }
-
-    @Override
-    public List<String> getAllKeys() {
-        List<String> allKeys = new ArrayList<>();
-        for (int i = 0; i < mCategory.getPreferenceCount(); i++) {
-            allKeys.add(mCategory.getPreference(i).getKey());
-        }
-        return allKeys;
-    }
 }

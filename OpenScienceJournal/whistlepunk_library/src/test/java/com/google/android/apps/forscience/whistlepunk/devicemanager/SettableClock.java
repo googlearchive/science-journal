@@ -15,19 +15,17 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import java.util.List;
+import com.google.android.apps.forscience.whistlepunk.Clock;
 
-public interface SensorGroup {
-    boolean hasSensorKey(String sensorKey);
+class SettableClock implements Clock {
+    private int mNow = 0;
 
-    void addSensor(String sensorKey, ConnectableSensor sensor);
+    public void setNow(int now) {
+        mNow = now;
+    }
 
-    /**
-     * @return true if the given sensorKey existed and was removed.
-     */
-    boolean removeSensor(String sensorKey);
-
-    void replaceSensor(String sensorKey, ConnectableSensor sensor);
-
-    int getSensorCount();
+    @Override
+    public long getNow() {
+        return mNow;
+    }
 }

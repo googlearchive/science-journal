@@ -25,12 +25,17 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Remembers sensors that have been found during scanning, and can expose them by adding them
@@ -38,6 +43,9 @@ import java.util.Map;
  */
 public class ConnectableSensorRegistry {
     private static final String TAG = "ConSensorRegistry";
+
+    // Don't remove a sensor unless it's been gone 15 seconds
+    private static final long ASSUME_GONE_TIMEOUT_MILLIS = 15_000;
 
     private final DataController mDataController;
     private final Map<String, ExternalSensorDiscoverer> mDiscoverers;
@@ -48,16 +56,21 @@ public class ConnectableSensorRegistry {
     private boolean mScanning = false;
     private int mScanCount = 0;
 
+    // Maps from sensorKey to the timestamp (from mClock) of the last time it showed up in a scan.
+    private Map<String, Long> mMostRecentlySeen = new ArrayMap<>();
+
     private int mKeyNum = 0;
     private String mExperimentId = null;
+    private Clock mClock;
 
     public ConnectableSensorRegistry(DataController dataController,
             Map<String, ExternalSensorDiscoverer> discoverers, DevicesPresenter presenter,
-            Scheduler scheduler) {
+            Scheduler scheduler, Clock clock) {
         mDataController = dataController;
         mDiscoverers = discoverers;
         mPresenter = presenter;
         mScheduler = scheduler;
+        mClock = clock;
     }
 
     public void pair(String sensorKey, final SensorAppearanceProvider appearanceProvider) {
@@ -70,7 +83,7 @@ public class ConnectableSensorRegistry {
                                 new LoggingConsumer<Success>(TAG, "Load appearance") {
                                     @Override
                                     public void success(Success value) {
-                                        refresh();
+                                        refresh(false);
                                         if (sensor.shouldShowOptionsOnConnect()) {
                                             mPresenter.showDeviceOptions(mExperimentId,
                                                     sensor.getConnectedSensorId(), settingsIntent);
@@ -81,20 +94,21 @@ public class ConnectableSensorRegistry {
                 });
     }
 
-    public void refresh() {
+    public void refresh(final boolean clearSensorCache) {
         stopScanningInDiscoverers();
         mDataController.getExternalSensorsByExperiment(mExperimentId,
                 new LoggingConsumer<Map<String, ExternalSensorSpec>>(TAG, "Load external sensors") {
                     @Override
                     public void success(Map<String, ExternalSensorSpec> sensors) {
-                        setPairedAndStartScanning(sensors);
+                        setPairedAndStartScanning(sensors, clearSensorCache);
                     }
                 });
     }
 
-    private void setPairedAndStartScanning(Map<String, ExternalSensorSpec> sensors) {
+    private void setPairedAndStartScanning(Map<String, ExternalSensorSpec> sensors,
+            boolean clearSensorCache) {
         setPairedSensors(sensors);
-        startScanningInDiscoverers();
+        startScanningInDiscoverers(clearSensorCache);
     }
 
     // TODO: clear available sensors that are not seen on subsequent scans (b/31644042)
@@ -108,23 +122,47 @@ public class ConnectableSensorRegistry {
         return getSensor(uiSensorKey).isPaired();
     }
 
-    public void startScanningInDiscoverers() {
+    public void startScanningInDiscoverers(boolean clearDeviceCache) {
         if (mScanning) {
             return;
         }
-        Consumer<ExternalSensorDiscoverer.DiscoveredSensor> onEachSensorFound =
+        final long timeout = clearDeviceCache ? 0 : ASSUME_GONE_TIMEOUT_MILLIS;
+        final Set<String> keysSeen = new HashSet<>();
+        final Consumer<ExternalSensorDiscoverer.DiscoveredSensor> onEachSensorFound =
                 new Consumer<ExternalSensorDiscoverer.DiscoveredSensor>() {
                     @Override
                     public void take(ExternalSensorDiscoverer.DiscoveredSensor ds) {
-                        onSensorFound(ds, getAvailableGroup());
+                        onSensorFound(ds, keysSeen);
                     }
                 };
-        for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
-            Runnable onScanDone = new Runnable() {
+
+        final TaskPool pool = new TaskPool(new Runnable() {
+            @Override
+            public void run() {
+                long nowMillis = mClock.getNow();
+
+                for (String key : keysSeen) {
+                    mMostRecentlySeen.put(key, nowMillis);
+                }
+
+                Set<Map.Entry<String, Long>> entries = mMostRecentlySeen.entrySet();
+                Iterator<Map.Entry<String, Long>> iter = entries.iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<String, Long> entry = iter.next();
+                    if (nowMillis - entry.getValue() > timeout) {
+                        mAvailableGroup.removeSensor(entry.getKey());
+                        iter.remove();
+                    }
+                }
+            }
+        });
+        for (final ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
+            final String providerId = discoverer.getProvider().getProviderId();
+            pool.addTask(providerId);
+            final Runnable onScanDone = new Runnable() {
                 @Override
                 public void run() {
-                    // TODO: remove sensors that we had marked available, but didn't find this time.
-
+                    pool.taskDone(providerId);
                 }
             };
             if (discoverer.startScanning(onEachSensorFound, onScanDone,
@@ -158,19 +196,21 @@ public class ConnectableSensorRegistry {
     }
 
     private void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor ds,
-            SensorGroup sensorGroup) {
+            Set<String> availableKeysSeen) {
         String sensorKey = findSensorKey(ds.getSpec());
 
         if (sensorKey == null) {
             ConnectableSensor sensor = ConnectableSensor.disconnected(ds.getSpec());
             String key = registerSensor(null, sensor, ds.getSettingsIntent());
-            sensorGroup.addSensor(key, sensor);
+            mAvailableGroup.addSensor(key, sensor);
+            availableKeysSeen.add(key);
         } else {
             ConnectableSensor sensor = mSensors.get(sensorKey);
             if (!sensor.isPaired()) {
-                if (!sensorGroup.hasSensorKey(sensorKey)) {
+                availableKeysSeen.add(sensorKey);
+                if (!mAvailableGroup.hasSensorKey(sensorKey)) {
                     registerSensor(sensorKey, sensor, ds.getSettingsIntent());
-                    sensorGroup.addSensor(sensorKey, sensor);
+                    mAvailableGroup.addSensor(sensorKey, sensor);
                 }
             } else {
                 // TODO: UI feedback
@@ -289,7 +329,7 @@ public class ConnectableSensorRegistry {
 
     public void setExperimentId(String experimentId) {
         mExperimentId = experimentId;
-        refresh();
+        refresh(false);
     }
 
     private SensorGroup getPairedGroup() {

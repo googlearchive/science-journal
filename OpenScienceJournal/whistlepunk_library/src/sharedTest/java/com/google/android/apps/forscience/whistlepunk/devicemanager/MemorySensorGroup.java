@@ -47,11 +47,6 @@ class MemorySensorGroup implements SensorGroup {
         return mSensors.size();
     }
 
-    @Override
-    public List<String> getAllKeys() {
-        return new ArrayList<>(mSensors.keySet());
-    }
-
     public String getKey(int location) {
         return new ArrayList<>(mSensors.keySet()).get(location);
     }

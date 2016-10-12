@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
@@ -55,7 +56,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
         DataController dc = AppSingleton.getInstance(getActivity()).getDataController();
         Map<String, ExternalSensorDiscoverer> discoverers =
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
-        mRegistry = new ConnectableSensorRegistry(dc, discoverers, this, new SystemScheduler());
+        mRegistry = new ConnectableSensorRegistry(dc, discoverers, this, new SystemScheduler(), new CurrentTimeClock());
         SensorAppearanceProvider appearanceProvider = AppSingleton.getInstance(
                 getActivity()).getSensorAppearanceProvider();
         mMyDevices = new DeviceAdapter(true, mRegistry, appearanceProvider);
@@ -116,20 +117,20 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_refresh) {
-            refresh();
+            refresh(true);
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void refresh() {
-        mRegistry.refresh();
+    private void refresh(boolean clearSensorCache) {
+        mRegistry.refresh(clearSensorCache);
     }
 
     public void refreshAfterLoad() {
         mRegistry.setExperimentId(
                 getArguments().getString(ManageDevicesActivity.EXTRA_EXPERIMENT_ID));
-        refresh();
+        refresh(false);
     }
 
     private void stopScanning() {
