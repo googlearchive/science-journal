@@ -19,9 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
-import android.graphics.PorterDuff;
 import android.os.Handler;
-import android.support.v7.widget.AppCompatSeekBar;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -139,6 +137,11 @@ public class ExternalAxisController {
     private boolean mUserIsInteracting = false;
 
     private float mResetButtonTranslationPx;
+
+    /**
+     * Tracks if we are animating the reset button out or not.
+     */
+    private boolean mResetAnimatingOut = false;
 
     public ExternalAxisController(ExternalAxisView axisView,  AxisUpdateListener listener,
                                   boolean isLive, CurrentTimeClock currentTimeClock) {
@@ -412,15 +415,24 @@ public class ExternalAxisController {
     }
 
     private void animateButtonOut() {
+        if (mResetAnimatingOut) {
+            // Don't animate if we are already doing it.
+            return;
+        }
         mResetButton.animate()
                 .translationX(mResetButtonTranslationPx)
                 .rotation(180)
                 .setInterpolator(new AccelerateInterpolator())
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
+                    public void onAnimationStart(Animator animation) {
+                        mResetAnimatingOut = true;
+                    }
+
+                    @Override
                     public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
                         mResetButton.setVisibility(View.INVISIBLE);
+                        mResetAnimatingOut = false;
                     }
                 })
                 .start();
