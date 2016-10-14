@@ -624,7 +624,7 @@
     <!-- Window title label for the experiment details activity [CHAR_LIMIT=25] -->
     <string name="title_activity_experiment_details">Experiment Details</string>
 
-    <!-- Message shown to user if they have no trials or notes yet. [CHAR_LIMIT=50]-->
+    <!-- Message shown to user if they have no trials or notes yet. [CHAR_LIMIT=60]-->
     <string name="empty_experiment">This experiment has no trials or notes.</string>
 
     <!-- Alert message when user deny access to external storage [CHAR_LIMIT=100] -->
