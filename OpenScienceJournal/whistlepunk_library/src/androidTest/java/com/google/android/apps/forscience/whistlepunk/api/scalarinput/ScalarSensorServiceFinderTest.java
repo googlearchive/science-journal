@@ -26,10 +26,8 @@ import java.util.HashMap;
 public class ScalarSensorServiceFinderTest extends AndroidTestCase {
     public void testUseFlattenedComponentName() {
         RecordingCallbacks callbacks = new RecordingCallbacks();
-        Bundle metaData = new Bundle();
         ServiceConnection connection = ScalarSensorServiceFinder.makeServiceConnection(
-                new HashMap<String, ServiceConnection>(), "packageName", callbacks,
-                metaData);
+                new HashMap<String, ServiceConnection>(), "packageName", callbacks, null);
         connection.onServiceConnected(new ComponentName("packageName", "packageName.MyClass"),
                 new TestSensorDiscoverer("serviceName"));
         assertEquals("packageName/.MyClass", callbacks.serviceId);

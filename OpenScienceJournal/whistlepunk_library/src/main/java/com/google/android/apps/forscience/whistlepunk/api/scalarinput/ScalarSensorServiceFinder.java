@@ -82,7 +82,7 @@ public class ScalarSensorServiceFinder extends Consumer<AppDiscoveryCallbacks> {
             }
 
             private String extractServiceId(ComponentName name) {
-                if (metaData.containsKey(METADATA_KEY_CLASS_NAME_OVERRIDE)) {
+                if (metaData != null && metaData.containsKey(METADATA_KEY_CLASS_NAME_OVERRIDE)) {
                     return name.getPackageName() + "/" + metaData.getString(
                             METADATA_KEY_CLASS_NAME_OVERRIDE);
                 } else {
