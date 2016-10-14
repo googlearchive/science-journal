@@ -1007,9 +1007,9 @@
 
     <!-- Change log for Science Journal (note: this is multiline, with \n to separate lines) [CHAR LIMIT=500] -->
     <string name="listing_changelog">New features and improvements:
-        \n\u2022 Add captions to picture notes.
-        \n\u2022 Audio settings for data sonification.
-        \n\u2022 Performance improvements for very long trials.
+        \n\u2022 Sensor triggers: Alert, make notes or start and stop recording when specific sensor values are met. Access these through the sensor card menu.
+        \n\u2022 Delete archived trials, experiments and runs.
+        \n\u2022 More things work with Science Journal: access more types of external sensors. For more information, please see https://makingscience.withgoogle.com/science-journal/materials
         \n\u2022 Bug fixes.
     </string>
 
