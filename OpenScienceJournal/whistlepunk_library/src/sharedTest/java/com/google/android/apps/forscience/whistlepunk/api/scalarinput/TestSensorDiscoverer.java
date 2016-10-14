@@ -27,7 +27,9 @@ import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -105,6 +107,16 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
         mSensors.put(deviceId, new TestSensor(sensorAddress, sensorName));
     }
 
+    public void removeSensor(String deviceId, String address) {
+        Collection<TestSensor> testSensors = mSensors.get(deviceId);
+        Iterator<TestSensor> iter = testSensors.iterator();
+        while (iter.hasNext()) {
+            if (iter.next().getSensorAddress().equals(address)) {
+                iter.remove();
+            }
+        }
+    }
+
     @Override
     public void scanSensors(String deviceId, final ISensorConsumer c) throws RemoteException {
         for (final TestSensor sensor : mSensors.get(deviceId)) {
@@ -178,6 +190,10 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        public String getSensorAddress() {
+            return mSensorAddress;
         }
     }
 }

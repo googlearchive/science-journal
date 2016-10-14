@@ -36,8 +36,6 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSens
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
@@ -203,29 +201,4 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
         // TODO: implement!
     }
 
-    private static class TaskPool {
-        private final Set<String> mTaskIds = new HashSet<>();
-        private Runnable mOnDone;
-
-        public TaskPool(Runnable onDone, String initialTaskId, String... moreTaskIds) {
-            mOnDone = onDone;
-            addTask(initialTaskId);
-            for (String taskId : moreTaskIds) {
-                addTask(taskId);
-            }
-        }
-
-        public void addTask(String taskId) {
-            mTaskIds.add(taskId);
-        }
-
-        public boolean taskDone(String taskId) {
-            boolean wasRemoved = mTaskIds.remove(taskId);
-            if (mTaskIds.isEmpty()) {
-                mOnDone.run();
-                mOnDone = null;
-            }
-            return wasRemoved;
-        }
-    }
 }

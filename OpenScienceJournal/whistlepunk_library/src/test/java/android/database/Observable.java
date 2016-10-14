@@ -13,23 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.google.android.apps.forscience.whistlepunk.devicemanager;
+package android.database;
 
-import java.util.List;
+import java.util.ArrayList;
 
-public interface SensorGroup {
-    boolean hasSensorKey(String sensorKey);
-
-    void addSensor(String sensorKey, ConnectableSensor sensor);
-
-    /**
-     * @return true if the given sensorKey existed and was removed.
-     */
-    boolean removeSensor(String sensorKey);
-
-    void replaceSensor(String sensorKey, ConnectableSensor sensor);
-
-    int getSensorCount();
-
-    List<String> getAllKeys();
+/**
+ * Fake implementation of Observable for local tests.  For details, see {@link android.os.Bundle} in
+ * this folder.
+ */
+public class Observable<T> {
+    protected final ArrayList<T> mObservers = new ArrayList<T>();
 }
