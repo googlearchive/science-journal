@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 class MemorySensorGroup implements SensorGroup {
     private LinkedHashMap<String, ConnectableSensor> mSensors = new LinkedHashMap<>();
@@ -44,6 +45,11 @@ class MemorySensorGroup implements SensorGroup {
     @Override
     public int getSensorCount() {
         return mSensors.size();
+    }
+
+    @Override
+    public List<String> getAllKeys() {
+        return new ArrayList<>(mSensors.keySet());
     }
 
     public String getKey(int location) {

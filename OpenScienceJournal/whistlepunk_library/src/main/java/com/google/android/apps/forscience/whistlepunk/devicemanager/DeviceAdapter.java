@@ -117,6 +117,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         return mSensors.size();
     }
 
+    @Override
+    public List<String> getAllKeys() {
+        return new ArrayList<>(mSensorKeys);
+    }
+
     public void setProgress(boolean isScanning) {
         // TODO: update UI to show scan status
     }

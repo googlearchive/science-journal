@@ -22,6 +22,9 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class SensorPreferenceGroup implements SensorGroup {
     private PreferenceScreen mScreen;
     private final PreferenceCategory mCategory;
@@ -105,5 +108,14 @@ class SensorPreferenceGroup implements SensorGroup {
     @Override
     public int getSensorCount() {
         return mCategory.getPreferenceCount();
+    }
+
+    @Override
+    public List<String> getAllKeys() {
+        List<String> allKeys = new ArrayList<>();
+        for (int i = 0; i < mCategory.getPreferenceCount(); i++) {
+            allKeys.add(mCategory.getPreference(i).getKey());
+        }
+        return allKeys;
     }
 }
