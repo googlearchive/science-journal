@@ -95,7 +95,14 @@ class ScalarInputSensor extends ScalarSensor {
                     @Override
                     public void onServiceFound(String serviceId, ISensorDiscoverer service) {
                         if (!Objects.equals(serviceId, mServiceId)) {
-                            return;
+                            // For beta compatibility, check if the sensor was stored with a
+                            // beta-style serviceId (just package name) and finder is reporting
+                            // correct style ("$package/$class").  In this case, the first found
+                            // service in the package will be used (which matches beta behavior)
+                            String[] idParts = serviceId.split("/");
+                            if (idParts.length != 2 || !Objects.equals(idParts[0], mServiceId)) {
+                                return;
+                            }
                         }
 
                         try {

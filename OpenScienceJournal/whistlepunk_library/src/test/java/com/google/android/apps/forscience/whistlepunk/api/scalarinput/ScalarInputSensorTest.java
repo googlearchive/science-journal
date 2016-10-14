@@ -34,27 +34,22 @@ import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.Test;
 
 public class ScalarInputSensorTest {
+    private final MockScheduler mScheduler = new MockScheduler();
+    private final SensorBehavior mBehavior = new SensorBehavior();
+
     @Test
     public void useRefresherWhenRight() throws RemoteException {
-        final TestFinder serviceFinder = new TestFinder();
-        MockScheduler scheduler = new MockScheduler();
-        SensorBehavior behavior = new SensorBehavior();
-        behavior.expectedSamplesPerSecond = 0.1f;
-        ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", behavior,
+        final TestFinder serviceFinder = new TestFinder("serviceId");
+        mBehavior.expectedSamplesPerSecond = 0.1f;
+        ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
                 null);
         ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
-                serviceFinder, new TestStringSource(),
-                spec,
-                scheduler);
+                serviceFinder, new TestStringSource(), spec, mScheduler);
         RecordingSensorObserver observer = new RecordingSensorObserver();
-        SensorRecorder recorder = sis.createRecorder(null, observer,
-                new RecordingStatusListener(),
-                new MemorySensorEnvironment(
-                        new InMemorySensorDatabase().makeSimpleRecordingController(), null, null,
-                        scheduler.getClock()));
+        SensorRecorder recorder = makeRecorder(sis, observer);
         recorder.startObserving();
         serviceFinder.observer.onNewData(0, 0.0);
-        scheduler.schedule(Delay.millis(2500), new Runnable() {
+        mScheduler.schedule(Delay.millis(2500), new Runnable() {
             @Override
             public void run() {
                 try {
@@ -64,7 +59,7 @@ public class ScalarInputSensorTest {
                 }
             }
         });
-        scheduler.incrementTime(6000);
+        mScheduler.incrementTime(6000);
 
         TestData testData = new TestData();
         testData.addPoint(0, 0.0);
@@ -75,20 +70,48 @@ public class ScalarInputSensorTest {
         testData.addPoint(4500, 2.5);
         testData.addPoint(5500, 2.5);
         testData.checkObserver(observer);
-        assertEquals(8, scheduler.getScheduleCount());
+        assertEquals(8, mScheduler.getScheduleCount());
 
         recorder.stopObserving();
-        scheduler.incrementTime(6000);
-        assertEquals(8, scheduler.getScheduleCount());
+        mScheduler.incrementTime(6000);
+        assertEquals(8, mScheduler.getScheduleCount());
     }
 
+    @Test
+    public void backwardCompatibleServiceId() throws RemoteException {
+        final TestFinder serviceFinder = new TestFinder("serviceId/ServiceClassName");
+        ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
+                null);
+        ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
+                serviceFinder, new TestStringSource(), spec, mScheduler);
+        RecordingSensorObserver observer = new RecordingSensorObserver();
+        SensorRecorder recorder = makeRecorder(sis, observer);
+        recorder.startObserving();
+        serviceFinder.observer.onNewData(0, 0.0);
+
+        TestData testData = new TestData();
+        testData.addPoint(0, 0.0);
+        testData.checkObserver(observer);
+    }
+
+    private SensorRecorder makeRecorder(ScalarInputSensor sis, RecordingSensorObserver observer) {
+        return sis.createRecorder(null, observer, new RecordingStatusListener(),
+                new MemorySensorEnvironment(
+                        new InMemorySensorDatabase().makeSimpleRecordingController(), null, null,
+                        mScheduler.getClock()));
+    }
 
     private static class TestFinder extends Consumer<AppDiscoveryCallbacks> {
+        private final String mServiceId;
         public ISensorObserver observer;
+
+        public TestFinder(String serviceId) {
+            mServiceId = serviceId;
+        }
 
         @Override
         public void take(AppDiscoveryCallbacks adc) {
-            adc.onServiceFound("serviceId", new ISensorDiscoverer.Stub() {
+            adc.onServiceFound(mServiceId, new ISensorDiscoverer.Stub() {
                 @Override
                 public String getName() throws RemoteException {
                     return null;
