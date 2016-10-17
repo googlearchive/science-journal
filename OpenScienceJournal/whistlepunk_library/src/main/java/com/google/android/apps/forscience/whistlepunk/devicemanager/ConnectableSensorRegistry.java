@@ -150,7 +150,7 @@ public class ConnectableSensorRegistry {
                 while (iter.hasNext()) {
                     Map.Entry<String, Long> entry = iter.next();
                     if (nowMillis - entry.getValue() > timeout) {
-                        mAvailableGroup.removeSensor(entry.getKey());
+                        getAvailableGroup().removeSensor(entry.getKey());
                         iter.remove();
                     }
                 }
@@ -202,15 +202,15 @@ public class ConnectableSensorRegistry {
         if (sensorKey == null) {
             ConnectableSensor sensor = ConnectableSensor.disconnected(ds.getSpec());
             String key = registerSensor(null, sensor, ds.getSettingsIntent());
-            mAvailableGroup.addSensor(key, sensor);
+            getAvailableGroup().addSensor(key, sensor);
             availableKeysSeen.add(key);
         } else {
             ConnectableSensor sensor = mSensors.get(sensorKey);
             if (!sensor.isPaired()) {
                 availableKeysSeen.add(sensorKey);
-                if (!mAvailableGroup.hasSensorKey(sensorKey)) {
+                if (!getAvailableGroup().hasSensorKey(sensorKey)) {
                     registerSensor(sensorKey, sensor, ds.getSettingsIntent());
-                    mAvailableGroup.addSensor(sensorKey, sensor);
+                    getAvailableGroup().addSensor(sensorKey, sensor);
                 }
             } else {
                 // TODO: UI feedback
