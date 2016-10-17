@@ -13,23 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package android.util;
+package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
-public class Log {
-    /**
-     * Priority constant for the println method; use Log.e.
-     */
-    public static final int ERROR = 6;
+import static org.junit.Assert.*;
 
-    public static boolean isLoggable(String tag, int level) {
-        return level == ERROR;
-    }
+import org.junit.Test;
 
-    public static int e(String tag, String message) {
-        throw new RuntimeException(tag + ": " + message);
-    }
-
-    public static int e(String tag, String message, Exception e) {
-        throw new RuntimeException(tag + ": " + message, e);
+public class TestSensorDiscovererTest {
+    @Test
+    public void providerMap() {
+        TestSensorDiscoverer discoverer = new TestSensorDiscoverer("serviceName");
+        discoverer.makeProviderMap("serviceId").containsKey(ScalarInputSpec.TYPE);
     }
 }

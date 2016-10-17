@@ -49,6 +49,7 @@ public class ConnectableSensorRegistry {
 
     private final DataController mDataController;
     private final Map<String, ExternalSensorDiscoverer> mDiscoverers;
+
     private final DevicesPresenter mPresenter;
     private final Map<String, ConnectableSensor> mSensors = new ArrayMap<>();
     private final Map<String, PendingIntent> mSettingsIntents = new ArrayMap<>();
@@ -221,7 +222,18 @@ public class ConnectableSensorRegistry {
                 // TODO: UI feedback
                 mSettingsIntents.put(sensorKey, ds.getSettingsIntent());
                 if (!newSpec.isSameSensorAndSpec(sensor.getSpec())) {
-                    // TODO: replace sensor!
+                    final String oldSensorId = sensor.getConnectedSensorId();
+                    DeviceOptionsViewController.maybeReplaceSensor(mDataController, mExperimentId,
+                            oldSensorId, newSpec,
+                            new LoggingConsumer<String>(TAG, "replacing sensor on scan") {
+                                @Override
+                                public void success(String newSensorId) {
+                                    mOptionsListener.onExperimentSensorReplaced(oldSensorId,
+                                            newSensorId);
+                                    mSensors.put(sensorKey,
+                                            ConnectableSensor.connected(newSpec, newSensorId));
+                                }
+                            });
                 }
             }
         }
