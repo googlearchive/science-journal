@@ -1,5 +1,3 @@
-package android.util;
-
 /*
  *  Copyright 2016 Google Inc. All Rights Reserved.
  *
@@ -15,8 +13,11 @@ package android.util;
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package android.util;
+
 public class Log {
     public static boolean isLoggable(String tag, int level) {
         return false;
     }
+    public static int e(String tag, String message) { return 0; }
 }

@@ -42,6 +42,7 @@ class ScalarInputSensor extends ScalarSensor {
     private final Scheduler mScheduler;
     private Consumer<AppDiscoveryCallbacks> mServiceFinder;
     private ScalarInputStringSource mStringSource;
+    private int mMostRecentStatus = -1;
 
     // TODO: find a way to reduce parameters?
     public ScalarInputSensor(
@@ -67,7 +68,6 @@ class ScalarInputSensor extends ScalarSensor {
         return new AbstractSensorRecorder() {
             private ISensorConnector mConnector = null;
             private double mLatestData;
-            private long mLatestTimestamp = -1;
 
             public Runnable mRefreshRunnable;
 
@@ -80,12 +80,18 @@ class ScalarInputSensor extends ScalarSensor {
 
                 @Override
                 public void onNewData(long timestamp, double data) {
-                    mLatestTimestamp = timestamp;
                     mLatestData = data;
                     mScheduler.unschedule(mRefreshRunnable);
                     mScheduler.schedule(Delay.millis(MINIMUM_REFRESH_RATE_MILLIS),
                             mRefreshRunnable);
                     mConsumer.addData(timestamp, data);
+
+                    // Some sensors may forget to set to connected, but if we're getting data,
+                    //   we're probably connected.  (This actually happened in a version of the
+                    //   Vernier implementation.)
+                    if (mMostRecentStatus != SensorStatusListener.STATUS_CONNECTED) {
+                        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
+                    }
                 }
             }
 
@@ -142,8 +148,7 @@ class ScalarInputSensor extends ScalarSensor {
                                 runOnMainThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        listener.onSourceStatus(getId(),
-                                                SensorStatusListener.STATUS_CONNECTING);
+                                        setStatus(SensorStatusListener.STATUS_CONNECTING);
                                     }
                                 });
                             }
@@ -153,19 +158,19 @@ class ScalarInputSensor extends ScalarSensor {
                                 runOnMainThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        listener.onSourceStatus(getId(),
-                                                SensorStatusListener.STATUS_CONNECTED);
+                                        setStatus(SensorStatusListener.STATUS_CONNECTED);
                                     }
                                 });
                             }
 
                             @Override
                             public void onSensorDisconnected() throws RemoteException {
+                                // TODO: test for call to removeOldRefresh here.
                                 runOnMainThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        listener.onSourceStatus(getId(),
-                                                SensorStatusListener.STATUS_DISCONNECTED);
+                                        setStatus(SensorStatusListener.STATUS_DISCONNECTED);
+                                        removeOldRefresh();
                                     }
                                 });
                             }
@@ -178,8 +183,14 @@ class ScalarInputSensor extends ScalarSensor {
                                     public void run() {
                                         listener.onSourceError(getId(),
                                                 SensorStatusListener.ERROR_UNKNOWN, errorMessage);
+                                        removeOldRefresh();
                                     }
                                 });
+                            }
+
+                            private void setStatus(int statusCode) {
+                                listener.onSourceStatus(getId(), statusCode);
+                                mMostRecentStatus = statusCode;
                             }
                         };
                     }

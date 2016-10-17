@@ -41,8 +41,6 @@ public class ConnectableSensorRegistry {
 
     private final DataController mDataController;
     private final Map<String, ExternalSensorDiscoverer> mDiscoverers;
-    private final SensorGroup mPairedGroup;
-    private final SensorGroup mAvailableGroup;
     private final DevicesPresenter mPresenter;
     private final Map<String, ConnectableSensor> mSensors = new ArrayMap<>();
     private final Map<String, PendingIntent> mSettingsIntents = new ArrayMap<>();
@@ -58,15 +56,13 @@ public class ConnectableSensorRegistry {
             Scheduler scheduler) {
         mDataController = dataController;
         mDiscoverers = discoverers;
-        mPairedGroup = presenter.getPairedSensorGroup();
-        mAvailableGroup = presenter.getAvailableSensorGroup();
         mPresenter = presenter;
         mScheduler = scheduler;
     }
 
     public void pair(String sensorKey, final SensorAppearanceProvider appearanceProvider) {
         final PendingIntent settingsIntent = mSettingsIntents.get(sensorKey);
-        addExternalSensorIfNecessary(sensorKey, mPairedGroup.getSensorCount(),
+        addExternalSensorIfNecessary(sensorKey, getPairedGroup().getSensorCount(),
                 new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
                     @Override
                     public void success(final ConnectableSensor sensor) {
@@ -120,7 +116,7 @@ public class ConnectableSensorRegistry {
                 new Consumer<ExternalSensorDiscoverer.DiscoveredSensor>() {
                     @Override
                     public void take(ExternalSensorDiscoverer.DiscoveredSensor ds) {
-                        onSensorFound(ds, mAvailableGroup);
+                        onSensorFound(ds, getAvailableGroup());
                     }
                 };
         for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
@@ -199,14 +195,14 @@ public class ConnectableSensorRegistry {
             String sensorKey = findSensorKey(sensor);
             ConnectableSensor newSensor = ConnectableSensor.connected(sensor, sensorId);
             if (sensorKey != null) {
-                if (mAvailableGroup.removeSensor(sensorKey)) {
-                    mPairedGroup.addSensor(sensorKey, newSensor);
+                if (getAvailableGroup().removeSensor(sensorKey)) {
+                    getPairedGroup().addSensor(sensorKey, newSensor);
                 } else {
-                    mPairedGroup.replaceSensor(sensorKey, newSensor);
+                    getPairedGroup().replaceSensor(sensorKey, newSensor);
                 }
             } else {
                 sensorKey = registerSensor(null, newSensor, null);
-                mPairedGroup.addSensor(sensorKey, newSensor);
+                getPairedGroup().addSensor(sensorKey, newSensor);
             }
             // TODO(saff): test that this happens?
             mSensors.put(sensorKey, newSensor);
@@ -221,7 +217,7 @@ public class ConnectableSensorRegistry {
             ConnectableSensor sensor = mSensors.get(sensorKey);
             if (sensor.isPaired() && !sensors.containsKey(sensor.getConnectedSensorId())) {
                 mSensors.put(sensorKey, ConnectableSensor.disconnected(sensor.getSpec()));
-                mPairedGroup.removeSensor(sensorKey);
+                getPairedGroup().removeSensor(sensorKey);
             }
         }
     }
@@ -294,5 +290,13 @@ public class ConnectableSensorRegistry {
     public void setExperimentId(String experimentId) {
         mExperimentId = experimentId;
         refresh();
+    }
+
+    private SensorGroup getPairedGroup() {
+        return mPresenter.getPairedSensorGroup();
+    }
+
+    private SensorGroup getAvailableGroup() {
+        return mPresenter.getAvailableSensorGroup();
     }
 }

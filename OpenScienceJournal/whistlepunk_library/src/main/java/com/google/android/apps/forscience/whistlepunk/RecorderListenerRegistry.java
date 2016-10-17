@@ -62,6 +62,7 @@ public class RecorderListenerRegistry implements SensorStatusListener {
     @Override
     public void onSourceStatus(String id, @Status int status) {
         mCurrentStatus.put(id, status);
+        mCurrentErrors.put(id, false);
         for (ListenerSet set : mListeners.get(id)) {
             if (set.statusListener != null) {
                 set.statusListener.onSourceStatus(id, status);

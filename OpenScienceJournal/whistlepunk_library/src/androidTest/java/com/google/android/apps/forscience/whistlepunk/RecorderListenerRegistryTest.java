@@ -19,7 +19,9 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 
+// TODO: these could be unit tests.
 public class RecorderListenerRegistryTest extends AndroidTestCase {
     public void testImmediatelyUpdateStatus() {
         RecorderListenerRegistry r = new RecorderListenerRegistry();
@@ -32,6 +34,15 @@ public class RecorderListenerRegistryTest extends AndroidTestCase {
         RecordingStatusListener afterListener = new RecordingStatusListener();
         r.putListeners("sensorId", new RecordingSensorObserver(), afterListener);
         assertEquals((Integer) status, afterListener.mostRecentStatuses.get("sensorId"));
+    }
+
+    public void testConnectedClearsError() {
+        RecorderListenerRegistry r = new RecorderListenerRegistry();
+        r.onSourceError("sensorId", SensorStatusListener.ERROR_FAILED_TO_CONNECT,
+                "Failed to connect!");
+        assertTrue(r.getSourceHasError("sensorId"));
+        r.onSourceStatus("sensorId", SensorStatusListener.STATUS_CONNECTED);
+        assertFalse(r.getSourceHasError("sensorId"));
     }
 
 }

@@ -77,6 +77,46 @@ import java.util.Set;
 public class SensorCardPresenter {
     private static final String TAG = "SensorCardPres";
 
+    @VisibleForTesting
+    public static class CardStatus {
+        private int mSourceStatus = SensorStatusListener.STATUS_CONNECTING;
+        private boolean mHasError = false;
+
+        public void setStatus(int status) {
+            mSourceStatus = status;
+        }
+
+        public void setHasError(boolean hasError) {
+            mHasError = hasError;
+        }
+
+        public boolean isConnecting() {
+            return mSourceStatus == SensorStatusListener.STATUS_CONNECTING;
+        }
+
+        public boolean isConnected() {
+            return !mHasError && mSourceStatus == SensorStatusListener.STATUS_CONNECTED;
+        }
+
+        public boolean shouldShowRetry() {
+            // if there's an error, or the sensor disconnected, we should allow an attempt to
+            // reconnect.
+            return mHasError || mSourceStatus == SensorStatusListener.STATUS_DISCONNECTED;
+        }
+
+        public boolean hasError() {
+            return mHasError;
+        }
+
+        @Override
+        public String toString() {
+            return "CardStatus{" +
+                    "mSourceStatus=" + mSourceStatus +
+                    ", mHasError=" + mHasError +
+                    '}';
+        }
+    }
+
     /**
      * Object listening for when Sensor Selector tab items are clicked.
      */
@@ -97,6 +137,7 @@ public class SensorCardPresenter {
          */
         void onCloseClicked();
     }
+
     private OnCloseClickedListener mCloseListener;
 
     // The height of a sensor presenter when multiple cards are visible is 60% of maximum.
@@ -137,6 +178,7 @@ public class SensorCardPresenter {
     private boolean mAllowRetry = true;
     private CardTriggerPresenter mCardTriggerPresenter;
     private ExternalAxisController.InteractionListener mInteractionListener;
+    private final CardStatus mCardStatus = new CardStatus();
 
     private OptionsListener mCommitListener = new OptionsListener() {
         @Override
@@ -169,8 +211,6 @@ public class SensorCardPresenter {
 
     private GoosciSensorLayout.SensorLayout mLayout;
 
-    private int mSourceStatus = SensorStatusListener.STATUS_CONNECTING;
-    private boolean mHasError = false;
     private boolean mIsActive = false;
     private boolean mFirstObserving = true;
 
@@ -192,8 +232,7 @@ public class SensorCardPresenter {
                 new CardTriggerPresenter.OnCardTriggerClickedListener() {
             @Override
             public void onCardTriggerIconClicked() {
-                if (!isRecording() && !mHasError &&
-                        mSourceStatus == SensorStatusListener.STATUS_CONNECTED) {
+                if (!isRecording() && mCardStatus.isConnected()) {
                     startSetTriggersActivity();
                 }
             }
@@ -251,14 +290,14 @@ public class SensorCardPresenter {
         if (!TextUtils.equals(id, mSensorId)) {
             return;
         }
-        mSourceStatus = status;
+        mCardStatus.setStatus(status);
         if (!mPaused) {
             updateStatusUi();
         }
     }
 
     public void onSourceError(boolean hasError) {
-        mHasError = hasError;
+        mCardStatus.setHasError(hasError);
         updateStatusUi();
     }
 
@@ -279,8 +318,7 @@ public class SensorCardPresenter {
     private void updateStatusUi() {
         // Turn off the audio unless it is connected.
         if (mSensorPresenter != null) {
-            if (!mHasError && mSourceStatus == SensorStatusListener.STATUS_CONNECTED
-                    && mCurrentSource != null) {
+            if (mCardStatus.isConnected() && mCurrentSource != null) {
                 updateAudio(mLayout.audioEnabled, getSonificationType(
                         mParentFragment.getActivity()));
             } else {
@@ -292,7 +330,7 @@ public class SensorCardPresenter {
         }
         updateSensorTriggerUi();
         updateCardMenu();
-        if (!mHasError && mSourceStatus == SensorStatusListener.STATUS_CONNECTED) {
+        if (mCardStatus.isConnected()) {
             // We are connected with no error! Set everything back to normal.
             mCardViewHolder.flipButton.setVisibility(View.VISIBLE);
             mCardViewHolder.statusViewGroup.setVisibility(View.GONE);
@@ -309,25 +347,21 @@ public class SensorCardPresenter {
         mCardViewHolder.meterViewGroup.setVisibility(View.INVISIBLE);
         mCardViewHolder.graphViewGroup.setVisibility(View.INVISIBLE);
 
-        if (mHasError) {
-            // An error
-            if (mRetryClickListener != null && mAllowRetry) {
-                mCardViewHolder.statusRetryButton.setVisibility(View.VISIBLE);
-                mCardViewHolder.statusRetryButton.setOnClickListener(mRetryClickListener);
-            }
-            mCardViewHolder.statusMessage.setText(
-                    mCardViewHolder.getContext().getText(R.string.sensor_card_error_text));
-            mCardViewHolder.statusProgressBar.setVisibility(View.GONE);
-        } else if (mSourceStatus != SensorStatusListener.STATUS_CONNECTING) {
-            // Unknown status.
-            mCardViewHolder.statusMessage.setText(
-                    mCardViewHolder.getContext().getText(R.string.sensor_card_error_text));
-            mCardViewHolder.statusProgressBar.setVisibility(View.GONE);
-        } else {
+        if (mCardStatus.isConnecting()) {
             // Show a progress bar inside the card while connecting.
             mCardViewHolder.statusMessage.setText(
                     mCardViewHolder.getContext().getText(R.string.sensor_card_loading_text));
             mCardViewHolder.statusProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            mCardViewHolder.statusMessage.setText(
+                    mCardViewHolder.getContext().getText(R.string.sensor_card_error_text));
+            mCardViewHolder.statusProgressBar.setVisibility(View.GONE);
+
+            // An error
+            if (mCardStatus.shouldShowRetry() && mRetryClickListener != null && mAllowRetry) {
+                mCardViewHolder.statusRetryButton.setVisibility(View.VISIBLE);
+                mCardViewHolder.statusRetryButton.setOnClickListener(mRetryClickListener);
+            }
         }
     }
 
@@ -360,7 +394,7 @@ public class SensorCardPresenter {
                     }
                 }, getSensorStatusListener(),
                 AbstractReadableSensorOptions.makeTransportable(readOptions));
-        if (mSourceStatus == SensorStatusListener.STATUS_CONNECTED && mParentFragment != null) {
+        if (mCardStatus.isConnected() && mParentFragment != null) {
             updateAudio(mLayout.audioEnabled, getSonificationType(mParentFragment.getActivity()));
         }
         mSensorPresenter.setShowStatsOverlay(mLayout.showStatsOverlay);
@@ -398,8 +432,8 @@ public class SensorCardPresenter {
         SensorAppearance appearance = mAppearanceProvider.getAppearance(mSensorId);
         mNumberFormat = appearance.getNumberFormat();
         mSensorAnimationBehavior = appearance.getSensorAnimationBehavior();
-        mHasError = hasError;
-        mSourceStatus = SensorStatusListener.STATUS_CONNECTING;
+        mCardStatus.setHasError(hasError);
+        mCardStatus.setStatus(SensorStatusListener.STATUS_CONNECTING);
         if (mCardViewHolder != null) {
             mCardViewHolder.headerText.setText(mSensorDisplayName);
             mCardViewHolder.meterLiveDataUnits.setText(mUnits);
@@ -493,7 +527,7 @@ public class SensorCardPresenter {
         if (mCardViewHolder == null) {
             return;
         }
-        if (mHasError || mSourceStatus != SensorStatusListener.STATUS_CONNECTED) {
+        if (!mCardStatus.isConnected()) {
             mCardViewHolder.triggerSection.setVisibility(View.GONE);
             return;
         }
@@ -670,8 +704,7 @@ public class SensorCardPresenter {
         menu.findItem(R.id.btn_sensor_card_settings).setVisible(showDevTools && !isRecording());
 
         // Don't show audio options if there is an error or bad status.
-        boolean sensorConnected = !mHasError &&
-                mSourceStatus == SensorStatusListener.STATUS_CONNECTED;
+        boolean sensorConnected = mCardStatus.isConnected();
         menu.findItem(R.id.btn_sensor_card_audio_toggle).setEnabled(sensorConnected);
         menu.findItem(R.id.btn_sensor_card_audio_settings).setEnabled(sensorConnected);
 
@@ -894,7 +927,7 @@ public class SensorCardPresenter {
     // Selects the new sensor if it is different from the old sensor or if no sensor is currently
     // selected.
     private void trySelectingNewSensor(String newSensorId, String oldSensorId) {
-        if ((mCurrentSource == null && !mHasError) || !TextUtils.equals(newSensorId, oldSensorId)) {
+        if ((mCurrentSource == null && !mCardStatus.hasError()) || !TextUtils.equals(newSensorId, oldSensorId)) {
             // Clear the active sensor triggers when changing sensors.
             if (!TextUtils.equals(mLayout.sensorId, newSensorId)) {
                 mLayout.activeSensorTriggerIds = new String[]{};
@@ -1164,7 +1197,7 @@ public class SensorCardPresenter {
         mCurrentSource = null;
         mSensorAnimationBehavior = null;
         mRecorderController.stopObserving(mSensorId, mObserverId);
-        if (!mHasError) {
+        if (!mCardStatus.hasError()) {
             // Only clear the data if the disconnect didn't come from an error.
             clearSensorStreamData();
         }
@@ -1219,10 +1252,6 @@ public class SensorCardPresenter {
 
     private boolean isRecording() {
         return mRecordingStart != RecordingMetadata.NOT_RECORDING;
-    }
-
-    public boolean isConnected() {
-        return !mHasError && mSourceStatus == SensorStatusListener.STATUS_CONNECTED;
     }
 
     private void updateRecordingUi() {
@@ -1314,6 +1343,6 @@ public class SensorCardPresenter {
     }
 
     public boolean hasError() {
-        return mHasError;
+        return mCardStatus.hasError();
     }
 }

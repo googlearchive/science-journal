@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.TestData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -46,7 +47,7 @@ public class ScalarInputSensorTest {
         ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
                 serviceFinder, new TestStringSource(), spec, mScheduler);
         RecordingSensorObserver observer = new RecordingSensorObserver();
-        SensorRecorder recorder = makeRecorder(sis, observer);
+        SensorRecorder recorder = makeRecorder(sis, observer, new RecordingStatusListener());
         recorder.startObserving();
         serviceFinder.observer.onNewData(0, 0.0);
         mScheduler.schedule(Delay.millis(2500), new Runnable() {
@@ -85,7 +86,7 @@ public class ScalarInputSensorTest {
         ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
                 serviceFinder, new TestStringSource(), spec, mScheduler);
         RecordingSensorObserver observer = new RecordingSensorObserver();
-        SensorRecorder recorder = makeRecorder(sis, observer);
+        SensorRecorder recorder = makeRecorder(sis, observer, new RecordingStatusListener());
         recorder.startObserving();
         serviceFinder.observer.onNewData(0, 0.0);
 
@@ -94,8 +95,24 @@ public class ScalarInputSensorTest {
         testData.checkObserver(observer);
     }
 
-    private SensorRecorder makeRecorder(ScalarInputSensor sis, RecordingSensorObserver observer) {
-        return sis.createRecorder(null, observer, new RecordingStatusListener(),
+    @Test public void connectedOnDataPoint() throws RemoteException {
+        final TestFinder serviceFinder = new TestFinder("serviceId");
+        ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
+                null);
+        ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
+                serviceFinder, new TestStringSource(), spec, mScheduler);
+        RecordingSensorObserver observer = new RecordingSensorObserver();
+        RecordingStatusListener listener = new RecordingStatusListener();
+        SensorRecorder recorder = makeRecorder(sis, observer, listener);
+        recorder.startObserving();
+        serviceFinder.observer.onNewData(0, 0.0);
+        assertEquals(SensorStatusListener.STATUS_CONNECTED,
+                (int) listener.mostRecentStatuses.get("sensorId"));
+    }
+
+    private SensorRecorder makeRecorder(ScalarInputSensor sis, RecordingSensorObserver observer,
+            RecordingStatusListener listener) {
+        return sis.createRecorder(null, observer, listener,
                 new MemorySensorEnvironment(
                         new InMemorySensorDatabase().makeSimpleRecordingController(), null, null,
                         mScheduler.getClock()));
@@ -104,6 +121,7 @@ public class ScalarInputSensorTest {
     private static class TestFinder extends Consumer<AppDiscoveryCallbacks> {
         private final String mServiceId;
         public ISensorObserver observer;
+        public ISensorStatusListener listener;
 
         public TestFinder(String serviceId) {
             mServiceId = serviceId;
@@ -137,6 +155,7 @@ public class ScalarInputSensorTest {
                                 ISensorObserver observer,
                                 ISensorStatusListener listener, String settingsKey)
                                 throws RemoteException {
+                            TestFinder.this.listener = listener;
                             TestFinder.this.observer = observer;
                         }
 

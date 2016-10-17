@@ -16,6 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -136,7 +137,12 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
             private Resources getApiAppResources(Context context)
                     throws PackageManager.NameNotFoundException {
-                return context.getPackageManager().getResourcesForApplication(getServiceId());
+                return context.getPackageManager().getResourcesForApplication(getPackageId());
+            }
+
+            private String getPackageId() {
+                // TODO: write test!
+                return getServiceId().split("/")[0];
             }
 
             @Override

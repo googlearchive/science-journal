@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.OptionsListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
@@ -72,6 +74,13 @@ public class SensorCardPresenterUnitTest {
         assertEquals(Arrays.asList(ds.getId()), rc.getCurrentObservedIds());
         scp.stopObserving();
         assertEquals(Arrays.asList(), rc.getCurrentObservedIds());
+    }
+
+    @Test public void disconnectAllowsRetry() {
+        SensorCardPresenter.CardStatus cardStatus = new SensorCardPresenter.CardStatus();
+        cardStatus.setStatus(SensorStatusListener.STATUS_DISCONNECTED);
+        cardStatus.setHasError(false);
+        assertTrue(cardStatus.shouldShowRetry());
     }
 
     private static class MemorySensorPresenter implements SensorPresenter {

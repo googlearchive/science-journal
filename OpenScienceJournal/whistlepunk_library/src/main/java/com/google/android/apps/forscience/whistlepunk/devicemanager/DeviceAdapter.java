@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     public DeviceAdapter(boolean isPaired, final ConnectableSensorRegistry registry,
             SensorAppearanceProvider appearanceProvider) {
         mIsPaired = isPaired;
-        mRegistry = registry;
+        mRegistry = Preconditions.checkNotNull(registry);
         mSensorAppearanceProvider = appearanceProvider;
     }
 

@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.squareup.leakcanary.RefWatcher;
@@ -54,11 +55,11 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
         DataController dc = AppSingleton.getInstance(getActivity()).getDataController();
         Map<String, ExternalSensorDiscoverer> discoverers =
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
-        mMyDevices = new DeviceAdapter(true, mRegistry, AppSingleton.getInstance(
-                getActivity()).getSensorAppearanceProvider());
-        mAvailableDevices = new DeviceAdapter(false, mRegistry, AppSingleton.getInstance(
-                getActivity()).getSensorAppearanceProvider());
         mRegistry = new ConnectableSensorRegistry(dc, discoverers, this, new SystemScheduler());
+        SensorAppearanceProvider appearanceProvider = AppSingleton.getInstance(
+                getActivity()).getSensorAppearanceProvider();
+        mMyDevices = new DeviceAdapter(true, mRegistry, appearanceProvider);
+        mAvailableDevices = new DeviceAdapter(false, mRegistry, appearanceProvider);
         setHasOptionsMenu(true);
     }
 
