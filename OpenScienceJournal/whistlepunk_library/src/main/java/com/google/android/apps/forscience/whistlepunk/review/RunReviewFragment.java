@@ -64,6 +64,7 @@ import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.PreviewNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment;
+import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.RunReviewOverlay;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
@@ -936,8 +937,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         final TextView runTitle = (TextView) rootView.findViewById(R.id.run_title_text);
         runTitle.setText(run.getRunTitle(rootView.getContext()));
 
-        final TextView runDetailsText = (TextView) rootView.findViewById(R.id.run_details_text);
-        runDetailsText.setText(run.getDisplayTime(runDetailsText.getContext()));
+        final RelativeTimeTextView runDetailsText = (RelativeTimeTextView) rootView.findViewById(
+                R.id.run_details_text);
+        runDetailsText.setTime(run.getFirstTimestamp());
 
         final TextView durationText = (TextView) rootView.findViewById(R.id.run_review_duration);
         ElapsedTimeFormatter formatter = ElapsedTimeFormatter.getInstance(

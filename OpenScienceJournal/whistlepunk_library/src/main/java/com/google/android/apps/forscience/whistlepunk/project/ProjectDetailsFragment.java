@@ -56,6 +56,7 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -491,12 +492,7 @@ public class ProjectDetailsFragment extends Fragment implements
             final String experimentId = holder.experimentId;
             if (runs.size() > 0) {
                 // Take the first run, which should be the last created run.
-                holder.experimentLastRun.setText(
-                        DateUtils.getRelativeDateTimeString(context,
-                                runs.get(0).getFirstTimestamp(),
-                                DateUtils.MINUTE_IN_MILLIS,
-                                DateUtils.MINUTE_IN_MILLIS,
-                                DateUtils.FORMAT_ABBREV_RELATIVE));
+                holder.experimentLastRun.setTime(runs.get(0).getFirstTimestamp());
 
                 PictureLabel expPhoto = null;
                 for (ExperimentRun run : runs) {
@@ -582,7 +578,7 @@ public class ProjectDetailsFragment extends Fragment implements
         int labelLoadStatus;
 
         TextView experimentTitle;
-        TextView experimentLastRun;
+        RelativeTimeTextView experimentLastRun;
         TextView experimentRunTotals;
         ImageView experimentImage;
         View archivedIndicator;
@@ -595,7 +591,8 @@ public class ProjectDetailsFragment extends Fragment implements
             if (viewType == ProjectDetailAdapter.VIEW_TYPE_EXPERIMENT) {
                 experimentImage = (ImageView) itemView.findViewById(R.id.experiment_image);
                 experimentTitle = (TextView) itemView.findViewById(R.id.experiment_title);
-                experimentLastRun = (TextView) itemView.findViewById(R.id.experiment_last_run);
+                experimentLastRun = (RelativeTimeTextView) itemView.findViewById(
+                        R.id.experiment_last_run);
                 experimentRunTotals = (TextView) itemView.findViewById(R.id.experiment_total_runs);
                 archivedIndicator = (View) itemView.findViewById(R.id.archived_indicator);
             }

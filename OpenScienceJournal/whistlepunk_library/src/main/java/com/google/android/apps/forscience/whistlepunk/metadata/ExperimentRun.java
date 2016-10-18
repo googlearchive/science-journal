@@ -164,12 +164,6 @@ public class ExperimentRun {
         mRun.setArchived(isArchived);
     }
 
-    public CharSequence getDisplayTime(Context context) {
-        return DateUtils.getRelativeDateTimeString(context, getFirstTimestamp(),
-                DateUtils.MINUTE_IN_MILLIS, DateUtils.MINUTE_IN_MILLIS,
-                DateUtils.FORMAT_ABBREV_RELATIVE);
-    }
-
     public Run getRun() {
         return mRun;
     }

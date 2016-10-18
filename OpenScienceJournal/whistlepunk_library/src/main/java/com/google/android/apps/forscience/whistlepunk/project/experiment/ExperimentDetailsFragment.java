@@ -65,6 +65,7 @@ import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment;
+import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
@@ -973,7 +974,7 @@ public class ExperimentDetailsFragment extends Fragment
             holder.setRunId(run.getRunId());
             String title = run.getRunTitle(applicationContext);
             holder.runTitle.setText(title);
-            holder.date.setText(run.getDisplayTime(applicationContext));
+            holder.date.setTime(run.getFirstTimestamp());
             ElapsedTimeFormatter formatter = ElapsedTimeFormatter.getInstance(applicationContext);
             holder.duration.setText(formatter.format(run.elapsedSeconds()));
             holder.duration.setContentDescription(
@@ -1187,7 +1188,7 @@ public class ExperimentDetailsFragment extends Fragment
 
             // Run members.
             TextView runTitle;
-            TextView date;
+            RelativeTimeTextView date;
             TextView duration;
             TextView noteCount;
             ChartView chartView;
@@ -1207,7 +1208,7 @@ public class ExperimentDetailsFragment extends Fragment
                 mViewType = viewType;
                 if (mViewType == VIEW_TYPE_RUN_CARD) {
                     runTitle = (TextView) itemView.findViewById(R.id.run_title_text);
-                    date = (TextView) itemView.findViewById(R.id.run_details_text);
+                    date = (RelativeTimeTextView) itemView.findViewById(R.id.run_details_text);
                     noteCount = (TextView) itemView.findViewById(R.id.notes_count);
                     DrawableCompat.setTint(noteCount.getCompoundDrawablesRelative()[0].mutate(),
                             noteCount.getResources().getColor(R.color.text_color_light_grey));

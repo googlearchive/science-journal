@@ -50,7 +50,7 @@
             style="@style/TextAppearance.AppCompat.Medium"
             />
 
-        <TextView
+        <com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView
             android:id="@+id/experiment_last_run"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

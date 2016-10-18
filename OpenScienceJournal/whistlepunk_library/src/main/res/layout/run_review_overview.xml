@@ -53,7 +53,7 @@
                 android:layout_alignWithParentIfMissing="true"
                 />
 
-            <TextView
+            <com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/run_details_text"
