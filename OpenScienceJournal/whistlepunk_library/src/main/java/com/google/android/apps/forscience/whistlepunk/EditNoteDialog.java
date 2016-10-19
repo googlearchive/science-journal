@@ -74,6 +74,19 @@ public class EditNoteDialog extends DialogFragment {
                 GoosciLabelValue.LabelValue selectedValue, long selectedTimestamp);
     }
 
+    /**
+     * Create an instance of the edit note dialog which uses a relative time that updates every
+     * minute.
+     */
+    public static EditNoteDialog newInstance(Label label,
+            GoosciLabelValue.LabelValue selectedValue, long timestamp) {
+        return newInstance(label, selectedValue, null, timestamp, null);
+    }
+
+    /**
+     * Create an instance of the edit note dialog which uses a set time that doesn't change, for
+     * example an elapsed time.
+     */
     public static EditNoteDialog newInstance(Label label,
             GoosciLabelValue.LabelValue selectedValue, String timeText, long timestamp,
             String timeTextDescription) {
@@ -173,9 +186,14 @@ public class EditNoteDialog extends DialogFragment {
                 });
         alertDialog.setCancelable(true);
 
-        TextView timeTextView = (TextView) rootView.findViewById(R.id.edit_note_time);
-        timeTextView.setText(timeText);
-        timeTextView.setContentDescription(timeTextContentDescription);
+        RelativeTimeTextView timeTextView = (RelativeTimeTextView) rootView.findViewById(
+                R.id.edit_note_time);
+        if (labelBelongsToRun()) {
+            timeTextView.setText(timeText);
+            timeTextView.setContentDescription(timeTextContentDescription);
+        } else {
+            timeTextView.setTime(mLabel.getTimeStamp());
+        }
         if (labelBelongsToRun() && mLabel.canEditTimestamp()) {
             timeTextView.setOnClickListener(new View.OnClickListener() {
                 @Override

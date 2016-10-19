@@ -31,7 +31,7 @@
         android:layout_marginEnd="@dimen/edit_note_dialog_margin"
         >
 
-        <TextView
+        <com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/edit_note_time"
