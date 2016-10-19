@@ -91,6 +91,23 @@ public abstract class ExternalSensorSpec implements Parcelable {
      */
     public abstract String getAddress();
 
+    /**
+     * @return an "address" for the device that hosts this sensor.  This is opaque to whistlepunk;
+     * each device that is referred to by a sensor that an
+     * {@link com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer}
+     * returns must have a unique address, but that address need not have any specific semantic
+     * relationship to how the device is physically addressed.
+     *
+     * Device addresses and sensor addresses are in two different namespaces; it is not a problem if
+     * a device and the sensor on it have the same address.
+     *
+     * The default implementation uses the sensor address for the device address, assuming that each
+     * device has exactly one sensor, and vice versa
+     */
+    public String getDeviceAddress() {
+        return getAddress();
+    };
+
     public abstract SensorAppearance getSensorAppearance();
 
     /**
@@ -135,5 +152,10 @@ public abstract class ExternalSensorSpec implements Parcelable {
      */
     public ExternalSensorSpec maybeAdjustBeforePairing(int numPairedBeforeAdded) {
         return this;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 }
