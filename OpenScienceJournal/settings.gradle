@@ -1,2 +1,2 @@
 include ':app', ':whistlepunk_library', ':scalarinputapi'
-project(':scalarinputapi').projectDir = new File('../api/ScalarInputApi')
+project(':scalarinputapi').projectDir = new File('../api/ScienceJournalApi')
