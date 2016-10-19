@@ -15,9 +15,6 @@
  */
 package com.google.android.apps.forscience.samplegyroprovider;
 
-import static android.R.attr.name;
-
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +22,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.DeadObjectException;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
@@ -92,16 +90,26 @@ public class AllNativeSensorProvider extends Service {
                     behavior.settingsIntent = DeviceSettingsPopupActivity.getPendingIntent(
                             AllNativeSensorProvider.this, sensor);
 
-                    boolean isAccelerometer = sensor.getType() == Sensor.TYPE_ACCELEROMETER;
-                    if (isAccelerometer) {
+                    int sensorType = sensor.getType();
+                    if (sensorType == Sensor.TYPE_ACCELEROMETER) {
                         appearance.iconId = android.R.drawable.ic_media_ff;
                         appearance.units = "ms/2";
                         appearance.shortDescription = "Not really a 3-axis accelerometer";
+                        behavior.shouldShowSettingsOnConnect = true;
                     }
 
-                    behavior.shouldShowSettingsOnConnect = isAccelerometer;
+                    if (isTemperature(sensorType)) {
+                        appearance.iconId = android.R.drawable.star_on;
+                        String unitString = TemperatureSettingsPopupActivity.getUnitString(
+                                AllNativeSensorProvider.this);
+                        appearance.units = unitString;
+                        appearance.shortDescription =
+                                "Ambient temperature (settings to change units!)";
+                        behavior.settingsIntent = TemperatureSettingsPopupActivity.getPendingIntent(
+                                AllNativeSensorProvider.this, sensor);
+                    }
 
-                    String sensorAddress = "" + sensor.getType();
+                    String sensorAddress = "" + sensorType;
                     c.onSensorFound(sensorAddress, name, behavior, appearance);
                 }
             }
@@ -124,21 +132,31 @@ public class AllNativeSensorProvider extends Service {
                             return;
                         }
                         Sensor sensor = getSensorManager().getDefaultSensor(sensorType);
+                        // TODO: figure out which sensors have vector values
+                        final int index = DeviceSettingsPopupActivity.getIndexForSensorType(
+                                sensorType, AllNativeSensorProvider.this);
                         mSensorEventListener = new SensorEventListener() {
                             @Override
                             public void onSensorChanged(SensorEvent event) {
                                 try {
                                     long timestamp = System.currentTimeMillis();
-                                    // TODO: figure out which sensors have vector values
-                                    int index = DeviceSettingsPopupActivity.getIndexForSensorType(
-                                            sensorType, AllNativeSensorProvider.this);
-                                    observer.onNewData(timestamp, event.values[index]);
+                                    float value = event.values[index];
+                                    observer.onNewData(timestamp, maybeModify(value));
                                 } catch (DeadObjectException e) {
                                     reportError(e);
                                     unregister();
                                 } catch (RemoteException e) {
                                     reportError(e);
                                 }
+                            }
+
+                            private float maybeModify(float value) {
+                                if (isTemperature(sensorType)
+                                        && !TemperatureSettingsPopupActivity.isCelsius(
+                                        AllNativeSensorProvider.this)) {
+                                    return value * 1.8f + 32f;
+                                }
+                                return value;
                             }
 
                             private void reportError(RemoteException e) {
@@ -184,6 +202,14 @@ public class AllNativeSensorProvider extends Service {
                 };
             }
         };
+    }
+
+    private boolean isTemperature(int sensorType) {
+        return sensorType == Sensor.TYPE_AMBIENT_TEMPERATURE || isNexus6pThermometer(sensorType);
+    }
+
+    private boolean isNexus6pThermometer(int sensorType) {
+        return Build.MODEL == "angler" && sensorType == 65536;
     }
 
 

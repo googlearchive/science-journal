@@ -32,7 +32,10 @@
         </activity>
         <activity android:name=".DeviceSettingsPopupActivity"
                   android:excludeFromRecents="true" android:launchMode="singleInstance"
-                  android:taskAffinity="" android:theme="@android:style/Theme.Dialog"/>
+                  android:taskAffinity="" android:theme="@style/Theme.AppCompat.Light.Dialog.Alert"/>
+        <activity android:name=".TemperatureSettingsPopupActivity"
+                  android:excludeFromRecents="true" android:launchMode="singleInstance"
+                  android:taskAffinity="" android:theme="@style/Theme.AppCompat.Light.Dialog.Alert"/>
         <service android:name=".AllNativeSensorProvider"
                  android:enabled="true"
                  android:exported="true">

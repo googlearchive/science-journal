@@ -1,0 +1,89 @@
+/*
+ *  Copyright 2016 Google Inc. All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package com.google.android.apps.forscience.samplegyroprovider;
+
+import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import java.util.Arrays;
+
+public class TemperatureSettingsPopupActivity extends Activity {
+    private static final String EXTRA_SENSOR_NAME = "extra_sensor_name";
+
+    private static final String PREF_KEY_TEMP_UNIT = "C";
+    private static final String SENSOR_PREF_NAME = "sensors";
+    public static final String CELSIUS_UNIT_STRING = "°C";
+    private static final String FAHRENHEIT_UNIT_STRING = "°F";
+    private static final String[] UNIT_STRINGS = {CELSIUS_UNIT_STRING,  FAHRENHEIT_UNIT_STRING};
+
+    public static PendingIntent getPendingIntent(Context context, Sensor sensor) {
+        int flags = 0;
+        Intent intent = new Intent(context, TemperatureSettingsPopupActivity.class);
+        intent.putExtra(EXTRA_SENSOR_NAME, sensor.getName());
+        return PendingIntent.getActivity(context, sensor.getType(), intent, flags);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.accelerometer_settings);
+
+        Bundle extras = getIntent().getExtras();
+        String sensorName = extras.getString(EXTRA_SENSOR_NAME, "Unknown");
+        TextView header = (TextView) findViewById(R.id.header);
+        header.setText("Select temperature unit for " + sensorName + ":");
+
+        Spinner spinner = (Spinner) findViewById(R.id.axis_spinner);
+        spinner.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+                UNIT_STRINGS));
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                SharedPreferences prefs = getSensorPreferences(
+                        TemperatureSettingsPopupActivity.this);
+                prefs.edit().putString(PREF_KEY_TEMP_UNIT, UNIT_STRINGS[position]).apply();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        spinner.setSelection(Arrays.binarySearch(UNIT_STRINGS, getUnitString(this)));
+    }
+
+    private static SharedPreferences getSensorPreferences(Context context) {
+        return context.getSharedPreferences(SENSOR_PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    public static String getUnitString(Context context) {
+        return getSensorPreferences(context).getString(PREF_KEY_TEMP_UNIT, UNIT_STRINGS[0]);
+    }
+
+    public static boolean isCelsius(Context context) {
+        return getUnitString(context).equals(CELSIUS_UNIT_STRING);
+    }
+}
