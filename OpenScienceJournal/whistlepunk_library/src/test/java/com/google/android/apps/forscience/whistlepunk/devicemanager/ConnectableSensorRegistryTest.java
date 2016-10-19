@@ -26,11 +26,14 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputScenario;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.SensorAppearanceResources;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TestSensor;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TestSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -46,13 +49,16 @@ import java.util.Map;
 
 public class ConnectableSensorRegistryTest {
     private final Scheduler mScheduler = new MockScheduler();
+    private final MemoryMetadataManager
+            mMetadataManager = new MemoryMetadataManager();
+    private final Map<String, ExternalSensorProvider> mProviderMap = new HashMap<>();
     private MemorySensorGroup mAvailableDevices = new MemorySensorGroup();
     private MemorySensorGroup mPairedDevices = new MemorySensorGroup();
     private TestDevicesPresenter mPresenter = new TestDevicesPresenter();
 
     @Test
     public void testScalarInputPassthrough() {
-        final ScalarInputScenario s = new ScalarInputScenario();
+        final ScalarInputScenario s = makeScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock());
 
@@ -117,7 +123,7 @@ public class ConnectableSensorRegistryTest {
 
     @Test
     public void testOptionsDialog() {
-        final ScalarInputScenario s = new ScalarInputScenario();
+        final ScalarInputScenario s = makeScenario();
         final DataController dc = makeDataController();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock());
@@ -137,6 +143,11 @@ public class ConnectableSensorRegistryTest {
         registry.showDeviceOptions(mPairedDevices.getKey(0));
         assertEquals(experimentId, mPresenter.experimentId);
         assertEquals(sensorId, mPresenter.sensorId);
+    }
+
+    @NonNull
+    private ScalarInputScenario makeScenario() {
+        return new ScalarInputScenario();
     }
 
     @Test
@@ -218,8 +229,11 @@ public class ConnectableSensorRegistryTest {
     public void testOrderOfApiSensors() {
         TestSensorDiscoverer tsd = new TestSensorDiscoverer("serviceName");
         tsd.addDevice("deviceId", "deviceName");
-        tsd.addSensor("deviceId", "address1", "name1");
-        tsd.addSensor("deviceId", "address2", "name2");
+        final SensorAppearanceResources appearance = new SensorAppearanceResources();
+        tsd.addSensor("deviceId", new TestSensor("address1", "name1", appearance));
+        final SensorAppearanceResources appearance1 = new SensorAppearanceResources();
+        tsd.addSensor("deviceId", new TestSensor("address2", "name2", appearance1));
+        mProviderMap.putAll(tsd.makeProviderMap("serviceId"));
 
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 tsd.makeDiscovererMap("serviceId"), mPresenter, mScheduler, new CurrentTimeClock());
@@ -241,11 +255,14 @@ public class ConnectableSensorRegistryTest {
         assertEquals(R.drawable.ic_api_02_white_24dp, sensor2.getDefaultIconId());
     }
 
-    @Test public void testNoLongerAvailable() {
+    @Test
+    public void testNoLongerAvailable() {
         TestSensorDiscoverer tsd = new TestSensorDiscoverer("serviceName");
         tsd.addDevice("deviceId", "deviceName");
-        tsd.addSensor("deviceId", "address1", "name1");
-        tsd.addSensor("deviceId", "address2", "name2");
+        final SensorAppearanceResources appearance = new SensorAppearanceResources();
+        tsd.addSensor("deviceId", new TestSensor("address1", "name1", appearance));
+        final SensorAppearanceResources appearance1 = new SensorAppearanceResources();
+        tsd.addSensor("deviceId", new TestSensor("address2", "name2", appearance1));
 
         SettableClock clock = new SettableClock();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
@@ -264,16 +281,21 @@ public class ConnectableSensorRegistryTest {
         assertEquals(1, mAvailableDevices.size());
     }
 
-    @Test public void testNoLongerAvailableMultipleDiscoverers() {
+    @Test
+    public void testNoLongerAvailableMultipleDiscoverers() {
         TestSensorDiscoverer tsd1 = new TestSensorDiscoverer("serviceName");
         tsd1.addDevice("deviceId", "deviceName");
-        tsd1.addSensor("deviceId", "address1", "name1");
-        tsd1.addSensor("deviceId", "address2", "name2");
+        final SensorAppearanceResources appearance = new SensorAppearanceResources();
+        tsd1.addSensor("deviceId", new TestSensor("address1", "name1", appearance));
+        final SensorAppearanceResources appearance1 = new SensorAppearanceResources();
+        tsd1.addSensor("deviceId", new TestSensor("address2", "name2", appearance1));
 
         TestSensorDiscoverer tsd2 = new TestSensorDiscoverer("serviceName2");
         tsd2.addDevice("deviceId2", "deviceName2");
-        tsd2.addSensor("deviceId2", "address3", "name3");
-        tsd2.addSensor("deviceId2", "address4", "name4");
+        final SensorAppearanceResources appearance2 = new SensorAppearanceResources();
+        tsd2.addSensor("deviceId2", new TestSensor("address3", "name3", appearance2));
+        final SensorAppearanceResources appearance3 = new SensorAppearanceResources();
+        tsd2.addSensor("deviceId2", new TestSensor("address4", "name4", appearance3));
 
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
         discoverers.put(ScalarInputSpec.TYPE, tsd1.makeScalarInputDiscoverer("serviceId"));
@@ -298,7 +320,7 @@ public class ConnectableSensorRegistryTest {
 
     @NonNull
     private DataController makeDataController() {
-        return new InMemorySensorDatabase().makeSimpleController(new MemoryMetadataManager());
+        return new InMemorySensorDatabase().makeSimpleController(mMetadataManager);
     }
 
     @Test
