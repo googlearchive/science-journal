@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputScenario;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.SensorAppearanceResources;
@@ -52,8 +53,9 @@ public class ConnectableSensorRegistryTest {
     private final MemoryMetadataManager
             mMetadataManager = new MemoryMetadataManager();
     private final Map<String, ExternalSensorProvider> mProviderMap = new HashMap<>();
-    private MemorySensorGroup mAvailableDevices = new MemorySensorGroup();
-    private MemorySensorGroup mPairedDevices = new MemorySensorGroup();
+    private DeviceRegistry mDeviceRegistry = new DeviceRegistry();
+    private MemorySensorGroup mAvailableDevices = new MemorySensorGroup(mDeviceRegistry);
+    private MemorySensorGroup mPairedDevices = new MemorySensorGroup(mDeviceRegistry);
     private TestDevicesPresenter mPresenter = new TestDevicesPresenter();
 
     @Test
@@ -104,6 +106,9 @@ public class ConnectableSensorRegistryTest {
 
     @Test
     public void testPairedWhenSet() {
+        String deviceName = Arbitrary.string();
+        mDeviceRegistry.addDevice(ScalarInputSpec.TYPE,
+                new InputDeviceSpec("serviceId&deviceId", deviceName));
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock());
@@ -111,14 +116,15 @@ public class ConnectableSensorRegistryTest {
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String sensorName = Arbitrary.string();
         sensors.put("sensorId",
-                new ScalarInputSpec(sensorName, "serviceId", "address", null, null));
+                new ScalarInputSpec(sensorName, "serviceId", "address", null, null, "deviceId"));
 
         registry.setPairedSensors(sensors);
         Assert.assertEquals(0, mAvailableDevices.size());
         Assert.assertEquals(1, mPairedDevices.size());
 
         assertTrue(registry.isPaired(mPairedDevices.getKey(0)));
-        Assert.assertEquals(sensorName, mPairedDevices.getTitle(0));
+        assertEquals(sensorName, mPairedDevices.getTitle(0));
+        assertEquals(deviceName, mPairedDevices.getDeviceName(0));
     }
 
     @Test
@@ -131,7 +137,7 @@ public class ConnectableSensorRegistryTest {
         String sensorName = Arbitrary.string();
 
         ScalarInputSpec spec = new ScalarInputSpec(sensorName, s.getServiceId(),
-                s.getSensorAddress(), null, null);
+                s.getSensorAddress(), null, null, "deviceId");
 
         final String experimentId = Arbitrary.string();
         StoringConsumer<String> storeSensorId = new StoringConsumer<>();

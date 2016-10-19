@@ -54,6 +54,7 @@ public class ScalarInputDiscovererTest {
         assertEquals(s.getSensorAddress(), spec.getSensorAddressInService());
         assertEquals(s.getServiceId(), spec.getServiceId());
         assertEquals(ScalarInputSpec.TYPE, spec.getType());
+        assertEquals(s.getServiceId() + "&" + s.getDeviceId(), spec.getDeviceAddress());
         assertTrue(onScanDone.hasRun);
     }
 

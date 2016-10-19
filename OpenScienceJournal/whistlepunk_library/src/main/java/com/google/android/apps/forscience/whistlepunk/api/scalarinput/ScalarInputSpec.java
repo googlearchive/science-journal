@@ -16,7 +16,6 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -29,7 +28,6 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciScalarInput;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
-import com.google.common.html.HtmlEscapers;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 public class ScalarInputSpec extends ExternalSensorSpec {
@@ -40,13 +38,14 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     private GoosciScalarInput.ScalarInputConfig mConfig;
 
     public ScalarInputSpec(String sensorName, String serviceId, String address,
-            SensorBehavior behavior, SensorAppearanceResources ids,
+            SensorBehavior behavior, SensorAppearanceResources ids, String deviceId,
             int orderInExperimentApiSensors) {
         mName = sensorName;
         mConfig = new GoosciScalarInput.ScalarInputConfig();
         mConfig.serviceId = Preconditions.checkNotNull(serviceId);
         mConfig.address = address;
         mConfig.orderInExperimentApiSensors = orderInExperimentApiSensors;
+        mConfig.deviceId = deviceId;
 
         if (behavior != null) {
             if (behavior.loggingId != null) {
@@ -60,8 +59,9 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     }
 
     public ScalarInputSpec(String sensorName, String serviceId, String address,
-            SensorBehavior behavior, SensorAppearanceResources ids) {
-        this(sensorName, serviceId, address, behavior, ids, 0);
+            SensorBehavior behavior, SensorAppearanceResources ids, String deviceId) {
+        // TODO: inline?
+        this(sensorName, serviceId, address, behavior, ids, deviceId, 0);
     }
 
     private void writeResourceIds(GoosciScalarInput.ScalarInputConfig config,
@@ -178,15 +178,11 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
     @Override
     public String getAddress() {
-        return escape(getServiceId()) + "&" + escape(getSensorAddressInService());
+        return InputDeviceSpec.joinAddresses(getServiceId(), getSensorAddressInService());
     }
 
     public String getSensorAddressInService() {
         return mConfig.address;
-    }
-
-    private String escape(String string) {
-        return HtmlEscapers.htmlEscaper().escape(string);
     }
 
     @Override
@@ -200,8 +196,8 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     }
 
     @Override
-    public int describeContents() {
-        return 0;
+    public String getDeviceAddress() {
+        return InputDeviceSpec.joinAddresses(getServiceId(), mConfig.deviceId);
     }
 
     public String getServiceId() {
@@ -210,7 +206,7 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
     @Override
     public String getLoggingId() {
-        return escape(getServiceId()) + "&" + escape(mConfig.loggingId);
+        return InputDeviceSpec.joinAddresses(getServiceId(), mConfig.loggingId);
     }
 
     public float getExpectedSamplesPerSecond() {

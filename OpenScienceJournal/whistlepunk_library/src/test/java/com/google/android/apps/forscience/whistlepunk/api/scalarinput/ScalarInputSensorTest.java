@@ -44,7 +44,7 @@ public class ScalarInputSensorTest {
         final TestFinder serviceFinder = new TestFinder("serviceId");
         mBehavior.expectedSamplesPerSecond = 0.1f;
         ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
-                null);
+                null, "devId");
         ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
                 serviceFinder, new TestStringSource(), spec, mScheduler);
         RecordingSensorObserver observer = new RecordingSensorObserver();
@@ -83,7 +83,7 @@ public class ScalarInputSensorTest {
     public void backwardCompatibleServiceId() throws RemoteException {
         final TestFinder serviceFinder = new TestFinder("serviceId/ServiceClassName");
         ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
-                null);
+                null, "devId");
         ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
                 serviceFinder, new TestStringSource(), spec, mScheduler);
         RecordingSensorObserver observer = new RecordingSensorObserver();
@@ -96,10 +96,11 @@ public class ScalarInputSensorTest {
         testData.checkObserver(observer);
     }
 
-    @Test public void connectedOnDataPoint() throws RemoteException {
+    @Test
+    public void connectedOnDataPoint() throws RemoteException {
         final TestFinder serviceFinder = new TestFinder("serviceId");
         ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
-                null);
+                null, "devId");
         ExplicitExecutor uiThread = new ExplicitExecutor();
         ScalarInputSensor sis = new ScalarInputSensor("sensorId", uiThread, serviceFinder,
                 new TestStringSource(), spec, mScheduler);

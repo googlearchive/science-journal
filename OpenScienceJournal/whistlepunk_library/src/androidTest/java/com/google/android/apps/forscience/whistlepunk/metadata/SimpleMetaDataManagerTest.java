@@ -368,11 +368,6 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         final BleSensorSpec bleSpec = new BleSensorSpec(testAddress, testName);
         ExternalSensorSpec wackedSpec = new ExternalSensorSpec() {
             @Override
-            public int describeContents() {
-                return 0;
-            }
-
-            @Override
             public void writeToParcel(Parcel dest, int flags) {
 
             }
@@ -419,7 +414,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         Map<String, ExternalSensorProvider> providerMap = getProviderMap();
         assertEquals(0, mMetaDataManager.getExternalSensors(providerMap).size());
         mMetaDataManager.addOrGetExternalSensor(
-                new ScalarInputSpec("name", "serviceId", "address", null, null), providerMap);
+                new ScalarInputSpec("name", "serviceId", "address", null, null, "deviceId"),
+                providerMap);
         Map<String, ExternalSensorSpec> newSensors = mMetaDataManager.getExternalSensors(
                 providerMap);
         assertEquals(1, newSensors.size());

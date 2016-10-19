@@ -15,12 +15,20 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+
+import org.junit.Assert;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 class MemorySensorGroup implements SensorGroup {
     private LinkedHashMap<String, ConnectableSensor> mSensors = new LinkedHashMap<>();
+    private DeviceRegistry mDeviceRegistry;
+
+    public MemorySensorGroup(DeviceRegistry deviceRegistry) {
+        mDeviceRegistry = deviceRegistry;
+    }
 
     @Override
     public boolean hasSensorKey(String sensorKey) {
@@ -60,6 +68,18 @@ class MemorySensorGroup implements SensorGroup {
     }
 
     public String getTitle(int i) {
-        return new ArrayList<>(mSensors.values()).get(i).getName();
+        return getSensor(i).getName();
+    }
+
+    public String getDeviceName(int i) {
+        ConnectableSensor sensor = getSensor(i);
+        String address = sensor.getDeviceAddress();
+        InputDeviceSpec device = mDeviceRegistry.getDevice(sensor.getSpec().getType(), address);
+        Assert.assertNotNull(address + " not in " + mDeviceRegistry, device);
+        return device.getName();
+    }
+
+    private ConnectableSensor getSensor(int i) {
+        return new ArrayList<>(mSensors.values()).get(i);
     }
 }
