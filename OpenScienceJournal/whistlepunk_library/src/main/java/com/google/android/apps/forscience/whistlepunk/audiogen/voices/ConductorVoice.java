@@ -49,6 +49,9 @@ public class ConductorVoice extends JsynUnitVoiceAdapter {
     private double min = Double.MAX_VALUE;
     private double max = Double.MIN_VALUE;
     private int prevIndex = -1;
+    double prevThresh = Double.MIN_VALUE;
+    boolean playing = false;
+    double oldValue = Double.MIN_VALUE;
 
     public ConductorVoice(Synthesizer synth) {
         mPitches = PitchGenerator.generatePitches(scale, PITCH_MIN, PITCH_MAX);
@@ -58,22 +61,49 @@ public class ConductorVoice extends JsynUnitVoiceAdapter {
 
     public void noteOn(double value, double unusedMin, double unusedMax, TimeStamp timeStamp) {
         // Range checking, in case min or max needs adjustment
-        if (value < min) min = value;
-        if (value > max) max = value;
+        if (value < min) {
+            if (LOCAL_LOGV) {
+                Log.v(TAG, "new min: " + value);
+            }
+            min = value;
+        }
+        if (value > max) {
+            if (LOCAL_LOGV) {
+                Log.v(TAG, "new max: " + value);
+            }
+            max = value;
+        }
         // If value < min+5%, map to silence
         double thresh = min + (max - min) * .05;
-        if (LOCAL_LOGV) {
-            Log.v(TAG, "value: " + value + " min: " + min + " max: " + max + " threshold: " + thresh);
+        if (thresh != prevThresh) {
+            if (LOCAL_LOGV) {
+                Log.v(TAG, "new thresh: " + thresh);
+            }
+            prevThresh = thresh;
         }
-        if (value >= thresh) {
+
+        oldValue = value;
+        if (value > thresh) {
+            if (LOCAL_LOGV && oldValue != value) {
+                Log.v(TAG, "value: " + value + " above threshold: " + thresh);
+            }
             int index = (int) Math.floor((value - thresh) / (max - thresh) * (mPitches.length - 1));
             if (index != prevIndex) {
+                if (LOCAL_LOGV) {
+                    Log.v(TAG, "New Index: " + index);
+                }
                 double freq = AudioMath.pitchToFrequency(mPitches[index]);
                 mVoice.noteOn(freq, AMP_VALUE, timeStamp);
+                playing = true;
+                prevIndex = index;
             }
-            prevIndex = index;
         } else {
+            if (playing && LOCAL_LOGV) {
+                Log.v(TAG, "Note off with value: " + value + " and threshold " + thresh);
+            }
             mVoice.noteOff(timeStamp);
+            playing = false;
+            prevIndex = -1;
         }
     }
 }
