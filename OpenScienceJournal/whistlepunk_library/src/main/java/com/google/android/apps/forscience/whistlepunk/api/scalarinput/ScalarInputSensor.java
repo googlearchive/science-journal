@@ -68,7 +68,12 @@ class ScalarInputSensor extends ScalarSensor {
         return new AbstractSensorRecorder() {
             private ISensorConnector mConnector = null;
             private double mLatestData;
-
+            private ApiStatusListener mSensorStatusListener = new ApiStatusListener(listener) {
+                @Override
+                protected void onNoLongerStreaming() {
+                    removeOldRefresh();
+                }
+            };
             public Runnable mRefreshRunnable;
 
             class RefreshableObserver extends ISensorObserver.Stub {
@@ -90,7 +95,7 @@ class ScalarInputSensor extends ScalarSensor {
                     //   we're probably connected.  (This actually happened in a version of the
                     //   Vernier implementation.)
                     if (mMostRecentStatus != SensorStatusListener.STATUS_CONNECTED) {
-                        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
+                        mSensorStatusListener.onSensorConnected();
                     }
                 }
             }
@@ -116,7 +121,7 @@ class ScalarInputSensor extends ScalarSensor {
                             String settingsKey = null;
                             mConnector = service.getConnector();
                             mConnector.startObserving(mAddress, makeObserver(c),
-                                    makeListener(listener), settingsKey);
+                                    mSensorStatusListener, settingsKey);
                         } catch (RemoteException e) {
                             complain(e);
                         } catch (RuntimeException e) {
@@ -137,62 +142,6 @@ class ScalarInputSensor extends ScalarSensor {
                         };
 
                         return observer;
-                    }
-
-                    private ISensorStatusListener makeListener(
-                            final SensorStatusListener listener) {
-                        return new ISensorStatusListener.Stub() {
-                            // TODO(saff): test threading here!
-                            @Override
-                            public void onSensorConnecting() throws RemoteException {
-                                runOnMainThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        setStatus(SensorStatusListener.STATUS_CONNECTING);
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onSensorConnected() throws RemoteException {
-                                runOnMainThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        setStatus(SensorStatusListener.STATUS_CONNECTED);
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onSensorDisconnected() throws RemoteException {
-                                // TODO: test for call to removeOldRefresh here.
-                                runOnMainThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        setStatus(SensorStatusListener.STATUS_DISCONNECTED);
-                                        removeOldRefresh();
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onSensorError(final String errorMessage)
-                                    throws RemoteException {
-                                runOnMainThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listener.onSourceError(getId(),
-                                                SensorStatusListener.ERROR_UNKNOWN, errorMessage);
-                                        removeOldRefresh();
-                                    }
-                                });
-                            }
-
-                            private void setStatus(int statusCode) {
-                                listener.onSourceStatus(getId(), statusCode);
-                                mMostRecentStatus = statusCode;
-                            }
-                        };
                     }
 
                     @Override
@@ -234,5 +183,64 @@ class ScalarInputSensor extends ScalarSensor {
                         e.getMessage());
             }
         };
+    }
+
+    private abstract class ApiStatusListener extends ISensorStatusListener.Stub {
+        private final SensorStatusListener mListener;
+
+        public ApiStatusListener(SensorStatusListener listener) {
+            mListener = listener;
+        }
+
+        @Override
+        public void onSensorConnecting() throws RemoteException {
+            runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    setStatus(SensorStatusListener.STATUS_CONNECTING);
+                }
+            });
+        }
+
+        @Override
+        public void onSensorConnected() {
+            runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    setStatus(SensorStatusListener.STATUS_CONNECTED);
+                }
+            });
+        }
+
+        @Override
+        public void onSensorDisconnected() throws RemoteException {
+            runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    setStatus(SensorStatusListener.STATUS_DISCONNECTED);
+                    onNoLongerStreaming();
+                }
+            });
+        }
+
+        @Override
+        public void onSensorError(final String errorMessage)
+                throws RemoteException {
+            runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    mListener.onSourceError(getId(),
+                            SensorStatusListener.ERROR_UNKNOWN, errorMessage);
+                    onNoLongerStreaming();
+                }
+            });
+        }
+
+        protected abstract void onNoLongerStreaming();
+
+        private void setStatus(int statusCode) {
+            mListener.onSourceStatus(getId(), statusCode);
+            mMostRecentStatus = statusCode;
+        }
     }
 }
