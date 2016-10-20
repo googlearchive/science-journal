@@ -33,17 +33,14 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Tests for {@link CropHelper}
  */
 public class CropHelperTest extends AndroidTestCase {
-
     private DataController mDataController;
     private MemoryMetadataManager mMetadataManager;
     private Run mRun;

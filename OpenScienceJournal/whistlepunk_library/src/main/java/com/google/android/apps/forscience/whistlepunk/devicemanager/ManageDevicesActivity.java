@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothAdapter;
@@ -54,6 +55,14 @@ public class ManageDevicesActivity extends AppCompatActivity implements
     private DataController mDataController;
     private ManageFragment mManageFragment;
     private Experiment mCurrentExperiment;
+
+    public static DeviceOptionsDialog.DeviceOptionsListener getOptionsListener(Activity activity) {
+        if (activity instanceof DeviceOptionsDialog.DeviceOptionsListener) {
+            return (DeviceOptionsDialog.DeviceOptionsListener) activity;
+        } else {
+            return DeviceOptionsDialog.NULL_LISTENER;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

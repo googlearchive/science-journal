@@ -42,7 +42,7 @@ import java.util.Set;
  * to a PreferenceCategory.
  */
 public class ConnectableSensorRegistry {
-    private static final String TAG = "ConSensorRegistry";
+    public static final String TAG = "ConSensorRegistry";
 
     // Don't remove a sensor unless it's been gone 15 seconds
     private static final long ASSUME_GONE_TIMEOUT_MILLIS = 15_000;
@@ -62,15 +62,19 @@ public class ConnectableSensorRegistry {
     private int mKeyNum = 0;
     private String mExperimentId = null;
     private Clock mClock;
+    private DeviceOptionsDialog.DeviceOptionsListener mOptionsListener;
 
+    // TODO: reduce parameter list?
     public ConnectableSensorRegistry(DataController dataController,
             Map<String, ExternalSensorDiscoverer> discoverers, DevicesPresenter presenter,
-            Scheduler scheduler, Clock clock) {
+            Scheduler scheduler, Clock clock,
+            DeviceOptionsDialog.DeviceOptionsListener optionsListener) {
         mDataController = dataController;
         mDiscoverers = discoverers;
         mPresenter = presenter;
         mScheduler = scheduler;
         mClock = clock;
+        mOptionsListener = optionsListener;
     }
 
     public void pair(String sensorKey, final SensorAppearanceProvider appearanceProvider) {
@@ -197,15 +201,16 @@ public class ConnectableSensorRegistry {
 
     private void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor ds,
             Set<String> availableKeysSeen) {
-        String sensorKey = findSensorKey(ds.getSpec());
+        final ExternalSensorSpec newSpec = ds.getSpec();
+        final String sensorKey = findSensorKey(newSpec);
 
         if (sensorKey == null) {
-            ConnectableSensor sensor = ConnectableSensor.disconnected(ds.getSpec());
+            ConnectableSensor sensor = ConnectableSensor.disconnected(newSpec);
             String key = registerSensor(null, sensor, ds.getSettingsIntent());
             getAvailableGroup().addSensor(key, sensor);
             availableKeysSeen.add(key);
         } else {
-            ConnectableSensor sensor = mSensors.get(sensorKey);
+            final ConnectableSensor sensor = mSensors.get(sensorKey);
             if (!sensor.isPaired()) {
                 availableKeysSeen.add(sensorKey);
                 if (!getAvailableGroup().hasSensorKey(sensorKey)) {
@@ -215,6 +220,9 @@ public class ConnectableSensorRegistry {
             } else {
                 // TODO: UI feedback
                 mSettingsIntents.put(sensorKey, ds.getSettingsIntent());
+                if (!newSpec.isSameSensorAndSpec(sensor.getSpec())) {
+                    // TODO: replace sensor!
+                }
             }
         }
     }

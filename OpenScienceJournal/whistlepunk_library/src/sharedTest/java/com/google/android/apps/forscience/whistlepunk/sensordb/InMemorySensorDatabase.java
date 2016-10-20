@@ -35,19 +35,24 @@ import java.util.Map;
 public class InMemorySensorDatabase implements SensorDatabase {
     private List<List<Reading>> mReadings = new ArrayList<>();
 
+    public DataController makeSimpleController(MemoryMetadataManager mmm) {
+        return makeSimpleController(mmm, null);
+    }
+
     @NonNull
-    public DataController makeSimpleController(MemoryMetadataManager manager) {
-        return makeDataControllerImpl(manager);
+    public DataController makeSimpleController(MemoryMetadataManager manager,
+            Map<String, ExternalSensorProvider> providerMap) {
+        return makeDataControllerImpl(manager, providerMap);
     }
 
     public RecordingDataController makeSimpleRecordingController(
             MemoryMetadataManager memoryMetadataManager) {
-        return makeDataControllerImpl(memoryMetadataManager);
+        return makeDataControllerImpl(memoryMetadataManager, null);
     }
 
     @NonNull
-    private DataControllerImpl makeDataControllerImpl(MemoryMetadataManager manager) {
-        Map<String, ExternalSensorProvider> providerMap = null;
+    private DataControllerImpl makeDataControllerImpl(MemoryMetadataManager manager,
+            Map<String, ExternalSensorProvider> providerMap) {
         return new DataControllerImpl(this, MoreExecutors.directExecutor(),
                 MoreExecutors.directExecutor(), MoreExecutors.directExecutor(), manager,
                 new MonotonicClock(), providerMap);

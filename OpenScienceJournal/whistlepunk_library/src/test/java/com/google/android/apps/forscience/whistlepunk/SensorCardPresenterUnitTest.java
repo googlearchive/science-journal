@@ -24,8 +24,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
@@ -36,7 +34,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.OptionsListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
@@ -177,15 +174,4 @@ public class SensorCardPresenterUnitTest {
         }
     }
 
-    private static class MemoryAppearanceProvider implements SensorAppearanceProvider {
-        @Override
-        public void loadAppearances(MaybeConsumer<Success> onSuccess) {
-
-        }
-
-        @Override
-        public SensorAppearance getAppearance(String sensorId) {
-            return new BuiltInSensorAppearance(0, 0);
-        }
-    }
 }

@@ -20,9 +20,11 @@ import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.sensordb.DataControllerTest;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
@@ -33,7 +35,7 @@ import java.util.Map;
 public class DeviceOptionsViewControllerTest extends AndroidTestCase {
     public void testCommit() {
         DataController dc = new InMemorySensorDatabase().makeSimpleController(
-                new MemoryMetadataManager());
+                new MemoryMetadataManager(), DataControllerTest.bleProviderMap(getContext()));
 
         BleSensorSpec oldSpec = new BleSensorSpec("address", "name");
         StoringConsumer<String> cOldSensorId = new StoringConsumer<>();

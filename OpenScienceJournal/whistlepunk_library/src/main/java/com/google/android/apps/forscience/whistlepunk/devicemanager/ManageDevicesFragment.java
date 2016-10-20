@@ -27,7 +27,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.PreferenceProgressCategory;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -85,7 +84,12 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
 
         mConnectableSensorRegistry = new ConnectableSensorRegistry(dc, discoverers, this,
-                new SystemScheduler(), appSingleton.getSensorEnvironment().getDefaultClock());
+                new SystemScheduler(), appSingleton.getSensorEnvironment().getDefaultClock(),
+                getOptionsListener());
+    }
+
+    private DeviceOptionsDialog.DeviceOptionsListener getOptionsListener() {
+        return ManageDevicesActivity.getOptionsListener(getActivity());
     }
 
     @Override

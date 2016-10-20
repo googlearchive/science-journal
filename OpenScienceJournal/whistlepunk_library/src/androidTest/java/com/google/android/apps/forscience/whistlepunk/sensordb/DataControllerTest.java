@@ -16,18 +16,21 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensordb;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
-import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -35,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -130,8 +134,7 @@ public class DataControllerTest extends AndroidTestCase {
     }
 
     public void testLayouts() {
-        final DataController dc = new InMemorySensorDatabase().makeSimpleController(
-                new MemoryMetadataManager());
+        final DataController dc = makeSimpleController();
 
         String experimentId = Arbitrary.string();
         List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
@@ -148,10 +151,14 @@ public class DataControllerTest extends AndroidTestCase {
         assertEquals(layout.sensorId, retrievedLayouts.get(0).sensorId);
     }
 
+    private DataController makeSimpleController() {
+        return new InMemorySensorDatabase().makeSimpleController(new MemoryMetadataManager());
+    }
+
     public void testEnsureSensor() {
         BleSensorSpec spec = new BleSensorSpec("address", "name");
         final DataController dc = new InMemorySensorDatabase().makeSimpleController(
-                new MemoryMetadataManager());
+                new MemoryMetadataManager(), bleProviderMap(this.getContext()));
         StoringConsumer<String> cSensorId = new StoringConsumer<>();
         String expectedId = ExternalSensorSpec.getSensorId(spec, 0);
 
@@ -164,6 +171,12 @@ public class DataControllerTest extends AndroidTestCase {
         StoringConsumer<ExternalSensorSpec> cSpec = new StoringConsumer<>();
         dc.getExternalSensorById(expectedId, cSpec);
         assertEquals(spec.toString(), cSpec.getValue().toString());
+    }
+
+    @NonNull
+    public static ImmutableMap<String, ExternalSensorProvider> bleProviderMap(Context context) {
+        return ImmutableMap.<String, ExternalSensorProvider>of(BleSensorSpec.TYPE,
+                new NativeBleDiscoverer(context).getProvider());
     }
 
     public void testAddDataError() {
@@ -210,8 +223,7 @@ public class DataControllerTest extends AndroidTestCase {
     }
 
     public void testReplaceChangesLayout() {
-        final DataController dc = new InMemorySensorDatabase().makeSimpleController(
-                new MemoryMetadataManager());
+        final DataController dc = makeSimpleController();
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = "oldSensorId";
         dc.addSensorToExperiment("experimentId", "oldSensorId",
@@ -239,8 +251,7 @@ public class DataControllerTest extends AndroidTestCase {
     }
 
     public void testRemoveChangesLayout() {
-        final DataController dc = new InMemorySensorDatabase().makeSimpleController(
-                new MemoryMetadataManager());
+        final DataController dc = makeSimpleController();
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = "oldSensorId";
         dc.addSensorToExperiment("experimentId", "oldSensorId",

@@ -34,8 +34,6 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.Bl
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;

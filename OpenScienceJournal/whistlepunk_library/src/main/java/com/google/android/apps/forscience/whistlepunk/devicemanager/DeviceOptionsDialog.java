@@ -42,6 +42,17 @@ public class DeviceOptionsDialog extends DialogFragment {
     private static final String KEY_EXPERIMENT_ID = "experiment_id";
     private static final String KEY_SENSOR_ID = "sensor_id";
     private static final String KEY_SETTINGS_INTENT = "settings_intent";
+    public static final DeviceOptionsListener NULL_LISTENER = new DeviceOptionsListener() {
+        @Override
+        public void onExperimentSensorReplaced(String oldSensorId, String newSensorId) {
+            // do nothing
+        }
+
+        @Override
+        public void onRemoveDeviceFromExperiment(String experimentId, String sensorId) {
+            // do nothing
+        }
+    };
 
     /**
      * Object listening for options changing.
