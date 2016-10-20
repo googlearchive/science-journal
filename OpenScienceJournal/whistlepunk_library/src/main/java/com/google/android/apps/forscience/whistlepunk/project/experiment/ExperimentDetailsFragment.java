@@ -403,17 +403,15 @@ public class ExperimentDetailsFragment extends Fragment
                 });
     }
 
-    private void launchPicturePreview(PictureLabel label, String timeString,
-            String timeTextContentDescription) {
+    private void launchPicturePreview(PictureLabel label) {
         EditNoteDialog dialog = EditNoteDialog.newInstance(label, label.getValue(),
-                timeString, label.getTimeStamp(), timeTextContentDescription);
+                label.getTimeStamp());
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
-    private void launchLabelEdit(final Label label, String timeString,
-            String timeTextContentDescription) {
+    private void launchLabelEdit(final Label label) {
         EditNoteDialog dialog = EditNoteDialog.newInstance(label, label.getValue(),
-                timeString, label.getTimeStamp(), timeTextContentDescription);
+                label.getTimeStamp());
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
@@ -679,11 +677,10 @@ public class ExperimentDetailsFragment extends Fragment
                             textView.getResources().getColor(R.color.text_color_light_grey));
                 }
                 Context appContext = holder.itemView.getContext().getApplicationContext();
-                final String timeString = formatAbsoluteTime(appContext, label.getTimeStamp())
-                        .toString();
-                ((TextView) holder.itemView.findViewById(R.id.duration_text)).setText(timeString);
+                ((RelativeTimeTextView) holder.itemView.findViewById(R.id.duration_text)).setTime(
+                        label.getTimeStamp());
                 setupNoteMenu(label, holder.itemView.findViewById(R.id.note_menu_button),
-                        timeString);
+                        label.getTimeStamp());
                 ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.note_image);
                 if (isPictureLabel) {
                     imageView.setVisibility(View.VISIBLE);
@@ -694,8 +691,7 @@ public class ExperimentDetailsFragment extends Fragment
                         @Override
                         public void onClick(View v) {
                             if (mParentReference.get() != null) {
-                                mParentReference.get().launchPicturePreview((PictureLabel) label,
-                                        timeString, timeString);
+                                mParentReference.get().launchPicturePreview((PictureLabel) label);
                             }
                         }
                     };
@@ -706,8 +702,7 @@ public class ExperimentDetailsFragment extends Fragment
                         @Override
                         public void onClick(View v) {
                             if (mParentReference.get() != null) {
-                                mParentReference.get().launchLabelEdit(label, timeString,
-                                        timeString);
+                                mParentReference.get().launchLabelEdit(label);
                             }
                         }
                     });
@@ -741,7 +736,7 @@ public class ExperimentDetailsFragment extends Fragment
             }
         }
 
-        private void setupNoteMenu(final Label label, final View menu, final String timeString) {
+        private void setupNoteMenu(final Label label, final View menu, final long timestamp) {
             menu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -752,8 +747,7 @@ public class ExperimentDetailsFragment extends Fragment
                         public boolean onMenuItemClick(MenuItem item) {
                             if (item.getItemId() == R.id.btn_edit_note) {
                                 if (mParentReference.get() != null) {
-                                    mParentReference.get().launchLabelEdit(label, timeString,
-                                            timeString);
+                                    mParentReference.get().launchLabelEdit(label);
                                 }
                                 return true;
                             } else if (item.getItemId() == R.id.btn_delete_note) {
@@ -1342,12 +1336,5 @@ public class ExperimentDetailsFragment extends Fragment
                 return mChartController;
             }
         }
-
-        public static CharSequence formatAbsoluteTime(Context applicationContext, long timestampms) {
-            return DateUtils.getRelativeDateTimeString(applicationContext, timestampms,
-                    DateUtils.MINUTE_IN_MILLIS, DateUtils.MINUTE_IN_MILLIS,
-                    DateUtils.FORMAT_ABBREV_RELATIVE);
-        }
-
     }
 }

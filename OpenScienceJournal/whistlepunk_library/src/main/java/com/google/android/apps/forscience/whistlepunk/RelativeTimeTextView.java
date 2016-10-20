@@ -26,8 +26,13 @@ import android.widget.TextView;
 
 /**
  * TextView which takes a relative time parameter and updates itself every minute.
+ *
+ * To use, call {@link #setTime(long)}. If no time is set or the time is set to {@link #NOT_SET},
+ * then this functions like a regular TextView.
  */
 public class RelativeTimeTextView extends TextView implements View.OnAttachStateChangeListener {
+
+    public static final long NOT_SET = -1;
 
     private long mTimeMs;
 
@@ -70,12 +75,15 @@ public class RelativeTimeTextView extends TextView implements View.OnAttachState
     }
 
     public void updateText() {
-        setText(DateUtils.getRelativeDateTimeString(getContext(),
-                mTimeMs, DateUtils.MINUTE_IN_MILLIS, DateUtils.MINUTE_IN_MILLIS * 30,
-                DateUtils.FORMAT_ABBREV_RELATIVE));
+        if (mTimeMs > 0) {
+            setText(DateUtils.getRelativeDateTimeString(getContext(),
+                    mTimeMs, DateUtils.MINUTE_IN_MILLIS, DateUtils.MINUTE_IN_MILLIS * 30,
+                    DateUtils.FORMAT_ABBREV_RELATIVE));
+        }
     }
 
     private void init() {
+        mTimeMs = NOT_SET;
         addOnAttachStateChangeListener(this);
     }
 
