@@ -19,8 +19,8 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
-import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -103,8 +103,8 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
         });
     }
 
-    public void addSensor(String deviceId, String sensorAddress, String sensorName) {
-        mSensors.put(deviceId, new TestSensor(sensorAddress, sensorName));
+    public void addSensor(String deviceId, TestSensor sensor) {
+        mSensors.put(deviceId, sensor);
     }
 
     public void removeSensor(String deviceId, String address) {
@@ -156,6 +156,16 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
         return discoverers;
     }
 
+    @NonNull
+    public Map<String, ExternalSensorProvider> makeProviderMap(String serviceId) {
+        Map<String, ExternalSensorProvider> providers = new HashMap<>();
+        Map<String, ExternalSensorDiscoverer> discoverers = makeDiscovererMap(serviceId);
+        for (Map.Entry<String, ExternalSensorDiscoverer> entry : discoverers.entrySet()) {
+            providers.put(entry.getKey(), entry.getValue().getProvider());
+        }
+        return providers;
+    }
+
     private class Device {
         private final String mDeviceId;
         private final String mName;
@@ -174,26 +184,4 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
         }
     }
 
-    private class TestSensor {
-        private final String mSensorAddress;
-        private final String mSensorName;
-
-        public TestSensor(String sensorAddress, String sensorName) {
-            mSensorAddress = sensorAddress;
-            mSensorName = sensorName;
-        }
-
-        public void deliverTo(ISensorConsumer c) {
-            try {
-                c.onSensorFound(mSensorAddress, mSensorName, new SensorBehavior(),
-                        new SensorAppearanceResources());
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public String getSensorAddress() {
-            return mSensorAddress;
-        }
-    }
 }

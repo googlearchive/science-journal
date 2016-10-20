@@ -108,11 +108,15 @@ public class ScalarInputDiscovererTest {
 
         final TestSensorDiscoverer service1 = new TestSensorDiscoverer("service1", executor);
         service1.addDevice("deviceId1", "deviceName1");
-        service1.addSensor("deviceId1", "sensorAddress1", "sensorName1");
+        final SensorAppearanceResources appearance = new SensorAppearanceResources();
+        service1.addSensor("deviceId1",
+                new TestSensor("sensorAddress1", "sensorName1", appearance));
 
         final TestSensorDiscoverer service2 = new TestSensorDiscoverer("service2", executor);
         service2.addDevice("deviceId2", "deviceName2");
-        service2.addSensor("deviceId2", "sensorAddress2", "sensorName2");
+        final SensorAppearanceResources appearance1 = new SensorAppearanceResources();
+        service2.addSensor("deviceId2",
+                new TestSensor("sensorAddress2", "sensorName2", appearance1));
 
         RecordingUsageTracker usageTracker = new RecordingUsageTracker();
         ScalarInputDiscoverer sid = new ScalarInputDiscoverer(
@@ -159,7 +163,9 @@ public class ScalarInputDiscovererTest {
             }
         };
         discoverer.addDevice(s.getDeviceId(), s.getDeviceName());
-        discoverer.addSensor(s.getDeviceId(), s.getSensorAddress(), s.getSensorName());
+        final SensorAppearanceResources appearance = new SensorAppearanceResources();
+        discoverer.addSensor(s.getDeviceId(),
+                new TestSensor(s.getSensorAddress(), s.getSensorName(), appearance));
         MockScheduler scheduler = new MockScheduler();
 
         RecordingUsageTracker usageTracker = new RecordingUsageTracker();

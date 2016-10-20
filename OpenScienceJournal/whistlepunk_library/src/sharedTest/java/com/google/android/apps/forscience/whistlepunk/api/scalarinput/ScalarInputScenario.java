@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
-import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 
 import java.util.Map;
@@ -77,7 +76,9 @@ public class ScalarInputScenario {
     private TestSensorDiscoverer makeTestSensorDiscoverer() {
         final TestSensorDiscoverer discoverer = new TestSensorDiscoverer(getServiceName());
         discoverer.addDevice(getDeviceId(), getDeviceName());
-        discoverer.addSensor(getDeviceId(), getSensorAddress(), getSensorName());
+        final SensorAppearanceResources appearance = new SensorAppearanceResources();
+        discoverer.addSensor(getDeviceId(),
+                new TestSensor(getSensorAddress(), getSensorName(), appearance));
         return discoverer;
     }
 
