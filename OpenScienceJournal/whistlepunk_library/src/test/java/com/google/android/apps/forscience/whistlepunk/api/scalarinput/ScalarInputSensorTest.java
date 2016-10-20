@@ -16,6 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -99,13 +100,20 @@ public class ScalarInputSensorTest {
         final TestFinder serviceFinder = new TestFinder("serviceId");
         ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
                 null);
-        ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
-                serviceFinder, new TestStringSource(), spec, mScheduler);
+        ExplicitExecutor uiThread = new ExplicitExecutor();
+        ScalarInputSensor sis = new ScalarInputSensor("sensorId", uiThread, serviceFinder,
+                new TestStringSource(), spec, mScheduler);
         RecordingSensorObserver observer = new RecordingSensorObserver();
         RecordingStatusListener listener = new RecordingStatusListener();
         SensorRecorder recorder = makeRecorder(sis, observer, listener);
         recorder.startObserving();
+        uiThread.drain();
         serviceFinder.observer.onNewData(0, 0.0);
+
+        // Make sure we aren't updated until the UI thread fires
+        assertTrue(listener.mostRecentStatuses.isEmpty());
+        uiThread.drain();
+
         assertEquals(SensorStatusListener.STATUS_CONNECTED,
                 (int) listener.mostRecentStatuses.get("sensorId"));
     }
