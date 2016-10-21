@@ -123,17 +123,22 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private final TextView mNameView;
         private final View mItemView;
+        private final TextView mNameView;
+        private final TextView mDeviceNameView;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mNameView = (TextView) itemView.findViewById(R.id.sensor_name);
+            mDeviceNameView = (TextView) itemView.findViewById(R.id.device_name);
             mItemView = itemView;
         }
 
         public void bind(ConnectableSensor connectableSensor) {
             mNameView.setText(connectableSensor.getName());
+
+            // TODO: need to get name
+            mDeviceNameView.setText(connectableSensor.getDeviceAddress());
         }
 
         public void setIsPairing() {

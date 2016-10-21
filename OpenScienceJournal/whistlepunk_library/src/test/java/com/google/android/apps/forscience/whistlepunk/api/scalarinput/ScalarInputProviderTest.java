@@ -65,8 +65,7 @@ public class ScalarInputProviderTest {
         ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor,
                 new MockScheduler());
 
-        SensorChoice sensor = provider.buildSensor(sensorId,
-                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null));
+        SensorChoice sensor = provider.buildSensor(sensorId, makeSpec(sensorAddress, serviceId));
         SensorRecorder recorder = createRecorder(sensor);
         recorder.startObserving();
         Integer integer = mListener.mostRecentStatuses.get(sensorId);
@@ -111,8 +110,7 @@ public class ScalarInputProviderTest {
 
         ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor,
                 new MockScheduler());
-        SensorChoice sensor = provider.buildSensor(sensorId,
-                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null));
+        SensorChoice sensor = provider.buildSensor(sensorId, makeSpec(sensorAddress, serviceId));
         SensorRecorder recorder = createRecorder(sensor);
         recorder.startObserving();
         mListener.assertErrors(errorMessage);
@@ -143,11 +141,15 @@ public class ScalarInputProviderTest {
                     }
                 },
                 mExecutor, new MockScheduler());
-        SensorChoice sensor = provider.buildSensor(sensorId,
-                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null));
+        SensorChoice sensor = provider.buildSensor(sensorId, makeSpec(sensorAddress, serviceId));
         SensorRecorder recorder = createRecorder(sensor);
         recorder.startObserving();
         mListener.assertErrors("Could not find service: " + serviceId);
+    }
+
+    @NonNull
+    private ScalarInputSpec makeSpec(String sensorAddress, String serviceId) {
+        return new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null, "deviceId");
     }
 
     @Test
@@ -173,7 +175,7 @@ public class ScalarInputProviderTest {
         ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor,
                 new MockScheduler());
         SensorChoice sensor = provider.buildSensor(sensorId,
-                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null));
+                new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null, "devId"));
         SensorRecorder recorder = createRecorder(sensor);
         recorder.startObserving();
         recorder.stopObserving();

@@ -51,4 +51,7 @@ message ScalarInputConfig {
 
     // See SensorBehavior#expectedSamplesPerSecond
     optional float expected_samples_per_second = 9 [default = 10.0];
+
+    // service-specific id identifying the device (there may be more than one sensor per device)
+    optional string device_id = 10 [default = ""];
 }

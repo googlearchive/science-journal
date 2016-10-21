@@ -90,6 +90,6 @@ public class ScalarInputScenario {
     @NonNull
     public ScalarInputSpec makeSpec() {
         return new ScalarInputSpec(getSensorName(), getServiceId(), getSensorAddress(),
-                new SensorBehavior(), null);
+                new SensorBehavior(), null, mDeviceId);
     }
 }

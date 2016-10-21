@@ -73,4 +73,8 @@ public class ConnectableSensor {
     public boolean shouldShowOptionsOnConnect() {
         return mSpec.shouldShowOptionsOnConnect();
     }
+
+    public String getDeviceAddress() {
+        return mSpec.getDeviceAddress();
+    }
 }

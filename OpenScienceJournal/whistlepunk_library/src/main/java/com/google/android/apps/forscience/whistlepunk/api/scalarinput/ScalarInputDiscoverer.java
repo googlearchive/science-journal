@@ -133,8 +133,8 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 scheduleTaskTimeout(pool, deviceTaskId);
 
                 // TODO: restructure to create an object per service scan to hold intermediate data.
-                service.scanSensors(deviceId, makeSensorConsumer(serviceId, onEachSensorFound,
-                        new Runnable() {
+                service.scanSensors(deviceId,
+                        makeSensorConsumer(serviceId, onEachSensorFound, deviceId, new Runnable() {
                             @Override
                             public void run() {
                                 pool.taskDone(deviceTaskId);
@@ -164,7 +164,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     @NonNull
     private ISensorConsumer.Stub makeSensorConsumer(final String serviceId,
             final Consumer<DiscoveredSensor> onEachSensorFound,
-            final Runnable onScanDone) {
+            final String deviceId, final Runnable onScanDone) {
         return new ISensorConsumer.Stub() {
             @Override
             public void onSensorFound(String sensorAddress, String name,
@@ -175,7 +175,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 }
 
                 final ScalarInputSpec spec = new ScalarInputSpec(name, serviceId, sensorAddress,
-                        behavior, ids);
+                        behavior, ids, deviceId);
                 onEachSensorFound.take(new DiscoveredSensor() {
                     @Override
                     public ExternalSensorSpec getSpec() {

@@ -56,11 +56,6 @@ public class BleSensorSpec extends ExternalSensorSpec implements Parcelable {
         dest.writeByteArray(config);
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
     public static final Creator<BleSensorSpec> CREATOR = new Creator<BleSensorSpec>() {
         @Override
         public BleSensorSpec createFromParcel(Parcel in) {
