@@ -101,7 +101,6 @@
                 android:id="@id/value_input"
                 android:singleLine="true"
                 android:lines="1"
-                android:inputType="numberDecimal|numberSigned"
                 android:textSize="16sp"
                 android:hint="@string/trigger_value_hint"
                 android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
