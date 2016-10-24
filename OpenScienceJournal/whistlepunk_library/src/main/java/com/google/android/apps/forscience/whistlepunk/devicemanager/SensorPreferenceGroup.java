@@ -22,9 +22,6 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 
-import java.util.ArrayList;
-import java.util.List;
-
 class SensorPreferenceGroup implements SensorGroup {
     private PreferenceScreen mScreen;
     private final PreferenceCategory mCategory;

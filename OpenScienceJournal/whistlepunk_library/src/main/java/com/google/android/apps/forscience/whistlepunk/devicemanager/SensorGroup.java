@@ -15,6 +15,8 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+
 import java.util.List;
 
 public interface SensorGroup {

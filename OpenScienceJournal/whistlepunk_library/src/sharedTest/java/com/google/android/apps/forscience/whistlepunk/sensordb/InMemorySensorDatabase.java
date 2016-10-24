@@ -35,6 +35,10 @@ import java.util.Map;
 public class InMemorySensorDatabase implements SensorDatabase {
     private List<List<Reading>> mReadings = new ArrayList<>();
 
+    public static DataController makeSimpleController() {
+        return new InMemorySensorDatabase().makeSimpleController(new MemoryMetadataManager());
+    }
+
     public DataController makeSimpleController(MemoryMetadataManager mmm) {
         return makeSimpleController(mmm, null);
     }

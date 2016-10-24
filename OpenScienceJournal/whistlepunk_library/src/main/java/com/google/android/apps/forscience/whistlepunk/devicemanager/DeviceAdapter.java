@@ -46,7 +46,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View viewGroup = LayoutInflater.from(parent.getContext()).inflate(
-                R.layout.device_recycler_item, parent, false);
+                R.layout.device_collapsed_recycler_item, parent, false);
         return new ViewHolder(viewGroup);
     }
 
@@ -70,7 +70,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        return R.layout.device_recycler_item;
+        return R.layout.device_collapsed_recycler_item;
     }
 
     @Override

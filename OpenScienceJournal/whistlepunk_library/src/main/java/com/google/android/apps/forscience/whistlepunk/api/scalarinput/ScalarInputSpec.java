@@ -197,7 +197,11 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
     @Override
     public String getDeviceAddress() {
-        return InputDeviceSpec.joinAddresses(getServiceId(), mConfig.deviceId);
+        return InputDeviceSpec.joinAddresses(getServiceId(), getDeviceId());
+    }
+
+    public String getDeviceId() {
+        return mConfig.deviceId;
     }
 
     public String getServiceId() {

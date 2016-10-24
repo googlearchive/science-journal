@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import android.util.ArrayMap;
 
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,12 +29,18 @@ import java.util.Map;
 public class DeviceRegistry {
     private Map<String, InputDeviceSpec> mDevices = new ArrayMap<>();
 
+    // TODO: start calling this during scan
     public void addDevice(String type, InputDeviceSpec spec) {
         mDevices.put(InputDeviceSpec.joinAddresses(type, spec.getDeviceAddress()), spec);
     }
 
     public InputDeviceSpec getDevice(String type, String deviceAddress) {
-        return mDevices.get(InputDeviceSpec.joinAddresses(type, deviceAddress));
+        String key = InputDeviceSpec.joinAddresses(type, deviceAddress);
+        InputDeviceSpec spec = mDevices.get(key);
+        if (spec == null) {
+            throw new IllegalArgumentException(key + " not found in " + mDevices.keySet());
+        }
+        return spec;
     }
 
     @Override
@@ -41,5 +48,9 @@ public class DeviceRegistry {
         return "DeviceRegistry{" +
                 "mDevices=" + mDevices +
                 '}';
+    }
+
+    InputDeviceSpec getDevice(ExternalSensorSpec spec) {
+        return getDevice(spec.getType(), spec.getDeviceAddress());
     }
 }

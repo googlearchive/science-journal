@@ -47,6 +47,10 @@ public class Arbitrary {
         return memberOf("Ganymede", "Io", "Callisto", "Europa");
     }
 
+    public static String string(String prefix) {
+        return prefix + "=" + string();
+    }
+
     private static <T> T memberOf(T... items) {
         return items[integer(items.length)];
     }
