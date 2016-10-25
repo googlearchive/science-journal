@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
@@ -26,6 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -59,8 +61,12 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Fragment for adding or editing a trigger.
@@ -93,6 +99,7 @@ public class EditTriggerFragment extends Fragment {
     private ViewGroup mAlertGroup;
     private ViewGroup mOnlyWhenRecordingGroup;
     private boolean mIsSavingNewTrigger = false;
+    private NumberFormat mNumberFormat;
 
     public static EditTriggerFragment newInstance(String sensorId, String experimentId,
             String triggerId, byte[] triggerInfoBlob, byte[] sensorLayoutBlob,
@@ -174,6 +181,18 @@ public class EditTriggerFragment extends Fragment {
         mWhenSpinner.setAdapter(whenAdapter);
 
         mValue = (EditText) view.findViewById(R.id.value_input);
+
+        NumberFormat format = getValueNumberFormat();
+        if (format instanceof  DecimalFormat) {
+            DecimalFormatSymbols symbols = ((DecimalFormat) format).getDecimalFormatSymbols();
+            // We can only dependably do this if the decimal separator is a fullstop.
+            // http://b/8319249
+            if (symbols.getDecimalSeparator() == '.') {
+                mValue.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
+                        | InputType.TYPE_NUMBER_FLAG_SIGNED);
+            }
+        }
+
         mNoteValue = (EditText) view.findViewById(R.id.trigger_note_text);
         mAudioAlert = (SwitchCompat) view.findViewById(R.id.alert_type_audio_selector);
         mVisualAlert = (SwitchCompat) view.findViewById(R.id.alert_type_visual_selector);
@@ -192,8 +211,6 @@ public class EditTriggerFragment extends Fragment {
         if (!isNewTrigger()) {
             // Populate the view with the trigger's data.
             int actionType = mTriggerToEdit.getActionType();
-            DecimalFormat format = new DecimalFormat("0");
-            format.setMaximumFractionDigits(100);
             mValue.setText(format.format(mTriggerToEdit.getValueToTrigger()));
             mTypeSpinner.setSelection(actionType);
             mWhenSpinner.setSelection(mTriggerToEdit.getTriggerWhen());
@@ -260,7 +277,7 @@ public class EditTriggerFragment extends Fragment {
             mTypeSpinner.setSelection(TriggerInformation.TRIGGER_ACTION_ALERT);
             mWhenSpinner.setSelection(TriggerInformation.TRIGGER_WHEN_AT);
             mVisualAlert.setChecked(true);
-            mOnlyWhenRecording.setChecked(true);
+            mOnlyWhenRecording.setChecked(false);
         }
 
         mWhenSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -331,6 +348,16 @@ public class EditTriggerFragment extends Fragment {
             }
         });
         return view;
+    }
+
+    @NonNull
+    private NumberFormat getValueNumberFormat() {
+        if (mNumberFormat == null) {
+            mNumberFormat = NumberFormat.getNumberInstance(getResources().getConfiguration()
+                    .locale);
+            mNumberFormat.setMaximumFractionDigits(100);
+        }
+        return mNumberFormat;
     }
 
     private void updateViewVisibilities(int actionType) {
@@ -426,8 +453,10 @@ public class EditTriggerFragment extends Fragment {
         boolean triggerOnlyWhenRecording = mOnlyWhenRecording.isChecked();
         double triggerValue = 0;
         try {
-            triggerValue = Double.parseDouble(String.valueOf(mValue.getText()));
-        } catch (NumberFormatException ex) {
+            NumberFormat format = getValueNumberFormat();
+            Number number = format.parse(mValue.getText().toString());
+            triggerValue = number.doubleValue();
+        } catch (ParseException ex) {
             mValue.setError(getActivity().getResources().getString(
                     R.string.cannot_save_invalid_value));
             return;
