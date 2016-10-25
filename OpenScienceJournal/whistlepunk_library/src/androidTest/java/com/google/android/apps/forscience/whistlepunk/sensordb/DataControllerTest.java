@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -44,7 +45,6 @@ import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DataControllerTest extends AndroidTestCase {
@@ -152,13 +152,13 @@ public class DataControllerTest extends AndroidTestCase {
     }
 
     private DataController makeSimpleController() {
-        return new InMemorySensorDatabase().makeSimpleController(new MemoryMetadataManager());
+        return new InMemorySensorDatabase().makeSimpleController(new MemoryMetadataManager(),
+                bleProviderMap(getContext()));
     }
 
     public void testEnsureSensor() {
         BleSensorSpec spec = new BleSensorSpec("address", "name");
-        final DataController dc = new InMemorySensorDatabase().makeSimpleController(
-                new MemoryMetadataManager(), bleProviderMap(this.getContext()));
+        final DataController dc = makeSimpleController();
         StoringConsumer<String> cSensorId = new StoringConsumer<>();
         String expectedId = ExternalSensorSpec.getSensorId(spec, 0);
 
@@ -231,13 +231,17 @@ public class DataControllerTest extends AndroidTestCase {
         dc.setSensorLayouts("experimentId", Lists.newArrayList(layout),
                 TestConsumers.<Success>expectingSuccess());
 
-        dc.replaceSensorInExperiment("experimentId", "oldSensorId", "newSensorId",
+        StoringConsumer<String> cid = new StoringConsumer<>();
+        dc.addOrGetExternalSensor(new BleSensorSpec("address", "name"), cid);
+        final String newSensorId = cid.getValue();
+        dc.replaceSensorInExperiment("experimentId", "oldSensorId", newSensorId,
                 TestConsumers.<Success>expectingSuccess());
         dc.getExternalSensorsByExperiment("experimentId", TestConsumers.expectingSuccess(
-                new Consumer<Map<String, ExternalSensorSpec>>() {
+                new Consumer<List<ConnectableSensor>>() {
                     @Override
-                    public void take(Map<String, ExternalSensorSpec> map) {
-                        assertEquals(Sets.newHashSet("newSensorId"), map.keySet());
+                    public void take(List<ConnectableSensor> sensors) {
+                        assertEquals(Sets.newHashSet(newSensorId),
+                                ConnectableSensor.makeMap(sensors).keySet());
                     }
                 }));
         dc.getSensorLayouts("experimentId", TestConsumers.expectingSuccess(
@@ -245,7 +249,7 @@ public class DataControllerTest extends AndroidTestCase {
                     @Override
                     public void take(List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
                         assertEquals(1, sensorLayouts.size());
-                        assertEquals("newSensorId", sensorLayouts.get(0).sensorId);
+                        assertEquals(newSensorId, sensorLayouts.get(0).sensorId);
                     }
                 }));
     }

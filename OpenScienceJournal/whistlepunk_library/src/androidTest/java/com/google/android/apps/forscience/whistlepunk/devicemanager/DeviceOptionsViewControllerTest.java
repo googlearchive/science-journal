@@ -20,7 +20,6 @@ import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -28,9 +27,9 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.DataControllerTes
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
-import java.util.Map;
+import java.util.List;
 
 public class DeviceOptionsViewControllerTest extends AndroidTestCase {
     public void testCommit() {
@@ -58,9 +57,9 @@ public class DeviceOptionsViewControllerTest extends AndroidTestCase {
         assertEquals(ExternalSensorSpec.getSensorId(oldSpec, 1), listener.mostRecentNewSensorId);
 
         dc.getExternalSensorsByExperiment(experimentId,
-                TestConsumers.<Map<String, ExternalSensorSpec>>expecting(
-                        ImmutableMap.of(ExternalSensorSpec.getSensorId(oldSpec, 1),
-                                (ExternalSensorSpec) newSpec)));
+                TestConsumers.<List<ConnectableSensor>>expecting(
+                        Lists.newArrayList(ConnectableSensor.connected(newSpec,
+                                ExternalSensorSpec.getSensorId(oldSpec, 1)))));
 
         ExternalSensorSpec options = c.getOptions();
         ((BleSensorSpec) options).setSensorType(SensorTypeProvider.TYPE_CUSTOM);

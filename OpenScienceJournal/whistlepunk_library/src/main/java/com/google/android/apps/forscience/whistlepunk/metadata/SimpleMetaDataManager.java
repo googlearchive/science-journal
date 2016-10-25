@@ -34,6 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.io.File;
@@ -1025,21 +1026,27 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public Map<String, ExternalSensorSpec> getExperimentExternalSensors(String experimentId,
+    public List<ConnectableSensor> getExperimentExternalSensors(String experimentId,
             Map<String, ExternalSensorProvider> providerMap) {
         List<String> tags = new ArrayList<>();
-        Map<String, ExternalSensorSpec> sensors = new HashMap<>();
+        List<ConnectableSensor> sensors = new ArrayList<>();
 
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
             Cursor c = null;
             try {
+                // Explicitly order by ascending rowid, to preserve insertion order
                 c = db.query(Tables.EXPERIMENT_SENSORS,
                         new String[] {ExperimentSensorColumns.SENSOR_TAG},
                         ExperimentSensorColumns.EXPERIMENT_ID + "=?",
-                        new String[] {experimentId}, null, null, null);
+                        new String[] {experimentId}, null, null, BaseColumns._ID + " ASC");
                 while (c.moveToNext()) {
-                    tags.add(c.getString(0));
+                    String tag = c.getString(0);
+
+                    // We don't expect to get duplicates, but we can deal with them gracefully.
+                    if (! tags.contains(tag)) {
+                        tags.add(tag);
+                    }
                 }
             } finally {
                 if (c != null) {
@@ -1049,7 +1056,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
             // This is somewhat inefficient to do nested queries, but in most cases there will
             // only be one or two, so we are trading off code complexity of doing a db join.
             for (String tag : tags) {
-                sensors.put(tag, getExternalSensorById(tag, providerMap));
+                sensors.add(
+                        ConnectableSensor.connected(getExternalSensorById(tag, providerMap), tag));
             }
         }
 

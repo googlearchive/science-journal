@@ -34,6 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -102,10 +103,11 @@ public class ConnectableSensorRegistry {
     public void refresh(final boolean clearSensorCache) {
         stopScanningInDiscoverers();
         mDataController.getExternalSensorsByExperiment(mExperimentId,
-                new LoggingConsumer<Map<String, ExternalSensorSpec>>(TAG, "Load external sensors") {
+                new LoggingConsumer<List<ConnectableSensor>>(TAG, "Load external sensors") {
                     @Override
-                    public void success(Map<String, ExternalSensorSpec> sensors) {
-                        setPairedAndStartScanning(sensors, clearSensorCache);
+                    public void success(List<ConnectableSensor> sensors) {
+                        setPairedAndStartScanning(ConnectableSensor.makeMap(sensors),
+                                clearSensorCache);
                     }
                 });
     }
