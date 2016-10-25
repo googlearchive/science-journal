@@ -59,7 +59,7 @@ public class ScalarSensorServiceFinder extends Consumer<AppDiscoveryCallbacks> {
             ComponentName name = new ComponentName(packageName, serviceInfo.name);
             Intent intent = new Intent();
             intent.setComponent(name);
-            final ServiceConnection conn = makeServiceConnection(mConnections, packageName,
+            final ServiceConnection conn = makeServiceConnection(mConnections, name,
                     callbacks, serviceInfo.metaData);
             mConnections.put(packageName, conn);
             mContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
@@ -71,30 +71,32 @@ public class ScalarSensorServiceFinder extends Consumer<AppDiscoveryCallbacks> {
     @NonNull
     @VisibleForTesting
     public static ServiceConnection makeServiceConnection(
-            final Map<String, ServiceConnection> connections, final String packageName,
+            final Map<String, ServiceConnection> connections, final ComponentName name,
             final AppDiscoveryCallbacks callbacks, final Bundle metaData) {
-        return new ServiceConnection() {
+        final String serviceId = extractServiceId(name, metaData);
+        ServiceConnection connection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 // TODO: think harder about threading here?
-                callbacks.onServiceFound(extractServiceId(name),
-                        ISensorDiscoverer.Stub.asInterface(service));
-            }
-
-            private String extractServiceId(ComponentName name) {
-                if (metaData != null && metaData.containsKey(METADATA_KEY_CLASS_NAME_OVERRIDE)) {
-                    return name.getPackageName() + "/" + metaData.getString(
-                            METADATA_KEY_CLASS_NAME_OVERRIDE);
-                } else {
-                    return name.flattenToShortString();
-                }
+                callbacks.onServiceFound(serviceId, ISensorDiscoverer.Stub.asInterface(service));
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 // TODO: when should disconnection happen?
-                connections.remove(packageName);
+                connections.remove(serviceId);
             }
         };
+        connections.put(serviceId, connection);
+        return connection;
+    }
+
+    private static String extractServiceId(ComponentName name, Bundle metaData) {
+        if (metaData != null && metaData.containsKey(METADATA_KEY_CLASS_NAME_OVERRIDE)) {
+            return name.getPackageName() + "/" + metaData.getString(
+                    METADATA_KEY_CLASS_NAME_OVERRIDE);
+        } else {
+            return name.flattenToShortString();
+        }
     }
 }
