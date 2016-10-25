@@ -27,7 +27,6 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
-import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MemoryAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -372,8 +371,9 @@ public class ConnectableSensorRegistryTest {
         s.appearance.units = "newUnits";
         registry.refresh(false);
 
-        Map<String, ExternalSensorSpec> sensors = mMetadataManager.getExperimentExternalSensors(
-                "experimentId", mProviderMap);
+        Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
+                mMetadataManager.getExperimentExternalSensors(
+                        "experimentId", mProviderMap));
         ScalarInputSpec retrievedSpec = (ScalarInputSpec) sensors.values().iterator().next();
         SensorAppearance appearance = retrievedSpec.getSensorAppearance();
         assertEquals("newUnits", appearance.getUnits(null));

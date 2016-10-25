@@ -24,6 +24,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
@@ -456,10 +457,10 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     @Override
     public void getExternalSensorsByExperiment(final String experimentId,
-            final MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Map<String, ExternalSensorSpec>>() {
+            final MaybeConsumer<List<ConnectableSensor>> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<List<ConnectableSensor>>() {
             @Override
-            public Map<String, ExternalSensorSpec> call() throws Exception {
+            public List<ConnectableSensor> call() throws Exception {
                 return mMetaDataManager.getExperimentExternalSensors(experimentId, mProviderMap);
             }
         });

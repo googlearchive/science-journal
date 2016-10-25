@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
@@ -161,7 +162,7 @@ public class StubDataController implements DataController {
 
     @Override
     public void getExternalSensorsByExperiment(String experimentId,
-            MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess) {
+            MaybeConsumer<List<ConnectableSensor>> onSuccess) {
 
     }
 

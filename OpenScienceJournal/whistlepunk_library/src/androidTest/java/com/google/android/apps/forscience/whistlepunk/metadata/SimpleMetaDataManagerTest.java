@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -439,15 +440,17 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
         mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
-        Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExperimentExternalSensors(
-                experiment.getExperimentId(), providerMap);
+        Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
+                mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                        providerMap));
         assertEquals(1, sensors.size());
         assertEquals(databaseTag, sensors.keySet().iterator().next());
 
         mMetaDataManager.removeSensorFromExperiment(databaseTag, experiment.getExperimentId());
 
-        sensors = mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
-                providerMap);
+        sensors = ConnectableSensor.makeMap(
+                mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                        providerMap));
         assertEquals(0, sensors.size());
     }
 
@@ -463,16 +466,18 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
         mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
-        Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExperimentExternalSensors(
-                experiment.getExperimentId(), providerMap);
+        Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
+                mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                        providerMap));
         assertEquals(1, sensors.size());
         assertEquals(databaseTag, sensors.keySet().iterator().next());
 
         mMetaDataManager.removeExternalSensor(databaseTag);
 
         // This should be gone now.
-        sensors = mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
-                providerMap);
+        sensors = ConnectableSensor.makeMap(
+                mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                        providerMap));
         assertEquals(0, sensors.size());
     }
 
@@ -488,16 +493,18 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
         mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
-        Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExperimentExternalSensors(
-                experiment.getExperimentId(), providerMap);
+        Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
+                mMetaDataManager.getExperimentExternalSensors(
+                        experiment.getExperimentId(), providerMap));
         assertEquals(1, sensors.size());
         assertEquals(databaseTag, sensors.keySet().iterator().next());
 
         mMetaDataManager.deleteProject(project);
 
         // This should be gone now.
-        sensors = mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
-                providerMap);
+        sensors = ConnectableSensor.makeMap(
+                mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                        providerMap));
         assertEquals(0, sensors.size());
     }
 
@@ -620,6 +627,35 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         // duplicates are removed
         assertEquals(Lists.newArrayList(layout3.sensorId),
                 getIds(mMetaDataManager.getExperimentSensorLayouts(experimentId)));
+    }
+
+    public void testExternalSensorOrder() {
+        Map<String,ExternalSensorProvider> providerMap = getProviderMap();
+        String id1 = mMetaDataManager.addOrGetExternalSensor(new BleSensorSpec("address1", "name1"),
+                providerMap);
+        String id2 = mMetaDataManager.addOrGetExternalSensor(new BleSensorSpec("address2", "name2"),
+                providerMap);
+        String id3 = mMetaDataManager.addOrGetExternalSensor(new BleSensorSpec("address3", "name3"),
+                providerMap);
+        mMetaDataManager.addSensorToExperiment(id1, "experimentId");
+        mMetaDataManager.addSensorToExperiment(id2, "experimentId");
+        mMetaDataManager.addSensorToExperiment(id3, "experimentId");
+        List<ConnectableSensor> sensors =
+                mMetaDataManager.getExperimentExternalSensors("experimentId", providerMap);
+        assertEquals(id1, sensors.get(0).getConnectedSensorId());
+        assertEquals(id2, sensors.get(1).getConnectedSensorId());
+        assertEquals(id3, sensors.get(2).getConnectedSensorId());
+    }
+
+    public void testExternalSensorDuplication() {
+        Map<String,ExternalSensorProvider> providerMap = getProviderMap();
+        String id1 = mMetaDataManager.addOrGetExternalSensor(new BleSensorSpec("address1", "name1"),
+                providerMap);
+        mMetaDataManager.addSensorToExperiment(id1, "experimentId");
+        mMetaDataManager.addSensorToExperiment(id1, "experimentId");
+        List<ConnectableSensor> sensors = mMetaDataManager.getExperimentExternalSensors(
+                "experimentId", providerMap);
+        assertEquals(1, sensors.size());
     }
 
     private List<String> getIds(List<GoosciSensorLayout.SensorLayout> layouts) {
