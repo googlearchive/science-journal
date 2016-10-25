@@ -23,4 +23,8 @@ import java.util.ArrayList;
  */
 public class Observable<T> {
     protected final ArrayList<T> mObservers = new ArrayList<T>();
+
+    public void registerObserver(T observer) {
+        mObservers.add(observer);
+    }
 }
