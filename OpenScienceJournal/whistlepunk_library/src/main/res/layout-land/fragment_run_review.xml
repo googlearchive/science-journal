@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2016 Google Inc. All Rights Reserved.
 
@@ -13,6 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
+<!-- This is the Landscape layout for RunReview fragment. There is a Portrait
+     layout as well; any additions or changes should be done to both files. -->
 <com.google.android.apps.forscience.whistlepunk.review.FreezeableCoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -70,7 +73,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="150dp"
+            android:minHeight="170dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             >
 

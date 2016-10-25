@@ -48,7 +48,6 @@
             android:visibility="invisible"
             android:indeterminate="false"
             android:background="@null"
-            android:max="300"
             android:layout_marginLeft="42dp"
             android:layout_marginRight="8dp"
             android:thumb="@drawable/run_review_thumb"

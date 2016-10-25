@@ -56,7 +56,6 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     private OnSeekbarTouchListener mOnSeekbarTouchListener;
 
     private static double SQRT_2_OVER_2 = Math.sqrt(2) / 2;
-    private static final double SEEKBAR_MAX = 300.0;
 
     private int mHeight;
     private int mWidth;
@@ -351,8 +350,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         }
         if (backUpdateProgressBar) {
             long axisDuration = mExternalAxis.mXMax - mExternalAxis.mXMin;
-            int newProgress = (int) Math.round((
-                    SEEKBAR_MAX * (mSelectedTimestamp - mExternalAxis.mXMin)) / axisDuration);
+            int newProgress = (int) Math.round((GraphExploringSeekBar.SEEKBAR_MAX *
+                    (mSelectedTimestamp - mExternalAxis.mXMin)) / axisDuration);
             if (progress != newProgress) {
                 mSeekbar.setProgress(newProgress);
             }
@@ -368,7 +367,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     }
 
     private ChartData.DataPoint getDataPointAtProgress(int progress) {
-        double percent = progress / SEEKBAR_MAX;
+        double percent = progress / GraphExploringSeekBar.SEEKBAR_MAX;
         long axisDuration = mExternalAxis.mXMax - mExternalAxis.mXMin;
         long timestamp = (long) (percent * axisDuration +
                 mExternalAxis.mXMin);
@@ -436,7 +435,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         if (mExternalAxis.mXMin < mSelectedTimestamp  &&
                 mSelectedTimestamp < mExternalAxis.mXMax) {
             mSeekbar.setThumb(mThumb);
-            double progress = (int) ((SEEKBAR_MAX * (timestamp - mExternalAxis.mXMin)) /
+            double progress = (int) ((GraphExploringSeekBar.SEEKBAR_MAX *
+                    (timestamp - mExternalAxis.mXMin)) /
                     (mExternalAxis.mXMax - mExternalAxis.mXMin));
             setVisibility(View.VISIBLE);
             mIsActive = false;
