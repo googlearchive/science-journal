@@ -22,6 +22,9 @@ import java.util.List;
 public interface SensorGroup {
     boolean hasSensorKey(String sensorKey);
 
+    /**
+     * Add {@code sensor} with key {@code sensorKey}.
+     */
     void addSensor(String sensorKey, ConnectableSensor sensor);
 
     /**
@@ -29,6 +32,13 @@ public interface SensorGroup {
      */
     boolean removeSensor(String sensorKey);
 
+    /**
+     * Replace the sensor (if any) currently at {@code sensorKey} with {@code sensor}.
+     *
+     * Note that there are situations in which multiple asynchronous processes mean that sensorKey
+     * is already gone before this executes, in which case this method should do the same thing as
+     * addSensor.
+     */
     void replaceSensor(String sensorKey, ConnectableSensor sensor);
 
     int getSensorCount();
