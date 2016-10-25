@@ -909,6 +909,8 @@ public class SensorCardPresenter {
                     String newSensorId = (String) tab.getTag();
                     if (TextUtils.equals(mSensorId, newSensorId) && mSensorPresenter != null) {
                         mSensorPresenter.resetView();
+                        // Also need to pin the graph to now again.
+                        mInteractionListener.requestResetPinnedState();
                     } else {
                         trySelectingNewSensor(mSensorId, newSensorId);
                     }

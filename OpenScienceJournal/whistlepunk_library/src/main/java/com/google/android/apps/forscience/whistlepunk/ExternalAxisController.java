@@ -78,6 +78,11 @@ public class ExternalAxisController {
          * @param xMax
          */
         void onZoom(double xMin, double xMax);
+
+        /**
+         * Called when the user does an action that should cause the pinned state to be reset.
+         */
+        void requestResetPinnedState();
     }
 
     private List<AxisUpdateListener> mAxisUpdateListeners = new ArrayList<>();
@@ -245,6 +250,13 @@ public class ExternalAxisController {
                 mXMin = (long) xMin;
                 mXMax = (long) xMax;
                 updateAxis();
+            }
+
+            @Override
+            public void requestResetPinnedState() {
+                if (!mIsPinnedToNow) {
+                    mResetButton.callOnClick();
+                }
             }
         };
     }
