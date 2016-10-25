@@ -13,23 +13,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package android.util;
+package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-public class Log {
-    /**
-     * Priority constant for the println method; use Log.e.
-     */
-    public static final int ERROR = 6;
+import static org.junit.Assert.assertTrue;
 
-    public static boolean isLoggable(String tag, int level) {
-        return level == ERROR;
+/**
+ * Little utility class for when you want to be sure a callback was called.
+ */
+public class TestFlag {
+    private boolean mSet = false;
+    private String mTitle;
+
+    public TestFlag(String title) {
+        mTitle = title;
     }
 
-    public static int e(String tag, String message) {
-        throw new RuntimeException(tag + ": " + message);
+    public void set() {
+        mSet = true;
     }
 
-    public static int e(String tag, String message, Exception e) {
-        throw new RuntimeException(tag + ": " + message, e);
+    public void assertSet() {
+        assertTrue(mTitle, mSet);
     }
 }

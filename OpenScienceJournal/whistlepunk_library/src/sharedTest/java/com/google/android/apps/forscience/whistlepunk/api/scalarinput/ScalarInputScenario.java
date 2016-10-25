@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 
 import java.util.Map;
@@ -26,6 +27,7 @@ import java.util.Map;
  * Creates a scenario in which scanning is guaranteed to find a single device and a single sensor.
  */
 public class ScalarInputScenario {
+    public final SensorAppearanceResources appearance = new SensorAppearanceResources();
     private String mServiceName;
     private String mDeviceId;
     private String mDeviceName;
@@ -34,12 +36,12 @@ public class ScalarInputScenario {
     private String mServiceId;
 
     public ScalarInputScenario() {
-        mServiceName = Arbitrary.string();
-        mDeviceId = Arbitrary.string();
-        mDeviceName = Arbitrary.string();
-        mSensorAddress = Arbitrary.string();
-        mSensorName = Arbitrary.string();
-        mServiceId = Arbitrary.string();
+        mServiceName = Arbitrary.string("serviceName");
+        mDeviceId = Arbitrary.string("deviceId");
+        mDeviceName = Arbitrary.string("deviceName");
+        mSensorAddress = Arbitrary.string("sensorAddress");
+        mSensorName = Arbitrary.string("sensorName");
+        mServiceId = Arbitrary.string("serviceId");
     }
 
     public String getServiceName() {
@@ -76,7 +78,6 @@ public class ScalarInputScenario {
     private TestSensorDiscoverer makeTestSensorDiscoverer() {
         final TestSensorDiscoverer discoverer = new TestSensorDiscoverer(getServiceName());
         discoverer.addDevice(getDeviceId(), getDeviceName());
-        final SensorAppearanceResources appearance = new SensorAppearanceResources();
         discoverer.addSensor(getDeviceId(),
                 new TestSensor(getSensorAddress(), getSensorName(), appearance));
         return discoverer;
@@ -84,12 +85,16 @@ public class ScalarInputScenario {
 
     @NonNull
     public Map<String, ExternalSensorDiscoverer> makeScalarInputDiscoverers() {
-        return makeTestSensorDiscoverer().makeDiscovererMap(this.getServiceId());
+        return makeTestSensorDiscoverer().makeDiscovererMap(getServiceId());
     }
 
     @NonNull
     public ScalarInputSpec makeSpec() {
         return new ScalarInputSpec(getSensorName(), getServiceId(), getSensorAddress(),
-                new SensorBehavior(), null, mDeviceId);
+                new SensorBehavior(), appearance, mDeviceId);
+    }
+
+    public Map<String, ExternalSensorProvider> makeScalarInputProviders() {
+        return makeTestSensorDiscoverer().makeProviderMap(getServiceId());
     }
 }

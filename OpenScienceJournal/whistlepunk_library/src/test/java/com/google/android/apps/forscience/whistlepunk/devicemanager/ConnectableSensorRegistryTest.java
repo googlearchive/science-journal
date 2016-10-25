@@ -27,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MemoryAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -142,14 +143,9 @@ public class ConnectableSensorRegistryTest {
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
                 mOptionsListener);
 
-        String sensorName = Arbitrary.string();
-
-        ScalarInputSpec spec = new ScalarInputSpec(sensorName, s.getServiceId(),
-                s.getSensorAddress(), null, null, "deviceId");
-
-        final String experimentId = Arbitrary.string();
+        final String experimentId = Arbitrary.string("experimentId");
         StoringConsumer<String> storeSensorId = new StoringConsumer<>();
-        dc.addOrGetExternalSensor(spec, storeSensorId);
+        dc.addOrGetExternalSensor(s.makeSpec(), storeSensorId);
         String sensorId = storeSensorId.getValue();
         dc.addSensorToExperiment(experimentId, sensorId, TestConsumers.<Success>expectingSuccess());
 
@@ -161,7 +157,9 @@ public class ConnectableSensorRegistryTest {
 
     @NonNull
     private ScalarInputScenario makeScenarioWithProviders() {
-        return new ScalarInputScenario();
+        final ScalarInputScenario s = new ScalarInputScenario();
+        mProviderMap.putAll(s.makeScalarInputProviders());
+        return s;
     }
 
     @Test
@@ -358,6 +356,27 @@ public class ConnectableSensorRegistryTest {
 
         Assert.assertEquals(1, mPairedDevices.size());
         Assert.assertEquals(0, mAvailableDevices.size());
+    }
+
+    @Test
+    public void reloadAppearances() {
+        final ScalarInputScenario s = new ScalarInputScenario();
+        s.appearance.units = "oldUnits";
+        mProviderMap.putAll(s.makeScalarInputProviders());
+        DataController dc = makeDataController();
+        ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
+                s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
+                mOptionsListener);
+        registry.setExperimentId("experimentId");
+        registry.pair(mAvailableDevices.getKey(0), new MemoryAppearanceProvider());
+        s.appearance.units = "newUnits";
+        registry.refresh(false);
+
+        Map<String, ExternalSensorSpec> sensors = mMetadataManager.getExperimentExternalSensors(
+                "experimentId", mProviderMap);
+        ScalarInputSpec retrievedSpec = (ScalarInputSpec) sensors.values().iterator().next();
+        SensorAppearance appearance = retrievedSpec.getSensorAppearance();
+        assertEquals("newUnits", appearance.getUnits(null));
     }
 
     private class TestDevicesPresenter implements DevicesPresenter {

@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.Run;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
@@ -50,6 +51,14 @@ import java.util.Map;
 public class MemoryMetadataManager implements MetaDataManager {
     private Project mLastUsedProject = null;
     private ListMultimap<String, Experiment> mExperimentsPerProject = ArrayListMultimap.create();
+    private Multimap<String, String> mExperimentToSensors = HashMultimap.create();
+    private ListMultimap<String, Label> mLabels = LinkedListMultimap.create();
+    private Table<String, String, RunStats> mStats = HashBasedTable.create();
+    private Map<String, List<GoosciSensorLayout.SensorLayout>> mLayouts = new HashMap<>();
+    private Map<String, ExternalSensorSpec> mExternalSensors = new HashMap<>();
+    private Map<String, Run> mRuns = new HashMap<>();
+    private ListMultimap<String, String> mExperimentIdsToRunIds = LinkedListMultimap.create();
+    private Map<String, List<SensorTrigger>> mSensorTriggers = new HashMap<>();
 
     @Override
     public Project getProjectById(String projectId) {
@@ -114,8 +123,6 @@ public class MemoryMetadataManager implements MetaDataManager {
         return Lists.newArrayList(mExperimentsPerProject.get(project.getProjectId()));
     }
 
-    private ListMultimap<String, Label> mLabels = LinkedListMultimap.create();
-
     @Override
     public void addLabel(Experiment experiment, Label label) {
         mLabels.put(experiment.getExperimentId(), label);
@@ -142,8 +149,6 @@ public class MemoryMetadataManager implements MetaDataManager {
         return labels;
     }
 
-    Table<String, String, RunStats> mStats = HashBasedTable.create();
-
     @Override
     public void setStats(String startLabelId, String sensorId, RunStats stats) {
         mStats.put(startLabelId, sensorId, stats);
@@ -153,9 +158,6 @@ public class MemoryMetadataManager implements MetaDataManager {
     public RunStats getStats(String startLabelId, String sensorId) {
         return mStats.get(startLabelId, sensorId);
     }
-
-    private Map<String, Run> mRuns = new HashMap<>();
-    private ListMultimap<String, String> mExperimentIdsToRunIds = LinkedListMultimap.create();
 
     @Override
     public List<String> getExperimentRunIds(String experimentId, boolean includeArchived) {
@@ -171,8 +173,6 @@ public class MemoryMetadataManager implements MetaDataManager {
     public void deleteLabel(Label label) {
 
     }
-
-    private Map<String, ExternalSensorSpec> mExternalSensors = new HashMap<>();
 
     @Override
     public Map<String, ExternalSensorSpec> getExternalSensors(
@@ -205,18 +205,19 @@ public class MemoryMetadataManager implements MetaDataManager {
             suffix++;
         }
         String newId = ExternalSensorSpec.getSensorId(sensor, suffix);
-        mExternalSensors.put(newId, cloneSensor(sensor));
+        mExternalSensors.put(newId, cloneSensor(sensor, providerMap));
         return newId;
     }
 
-    // TODO: the fact that this only clones BLE sensors is going to be a problem.
-    private BleSensorSpec cloneSensor(ExternalSensorSpec sensor) {
-        BleSensorSpec newSensor = new BleSensorSpec(sensor.getAddress(), sensor.getName());
-        newSensor.loadFromConfig(sensor.getConfig());
-        return newSensor;
+    private ExternalSensorSpec cloneSensor(ExternalSensorSpec sensor,
+            Map<String, ExternalSensorProvider> providerMap) {
+        Preconditions.checkNotNull(sensor);
+        Preconditions.checkNotNull(providerMap);
+        ExternalSensorProvider provider = providerMap.get(sensor.getType());
+        String sensorName = sensor.getName();
+        byte[] sensorConfig = sensor.getConfig();
+        return provider.buildSensorSpec(sensorName, sensorConfig);
     }
-
-    private Multimap<String, String> mExperimentToSensors = HashMultimap.create();
 
     @Override
     public void addSensorToExperiment(String databaseTag, String experimentId) {
@@ -281,9 +282,6 @@ public class MemoryMetadataManager implements MetaDataManager {
         return mRuns.get(runId);
     }
 
-
-    Map<String, List<GoosciSensorLayout.SensorLayout>> mLayouts = new HashMap<>();
-
     @Override
     public void setExperimentSensorLayouts(String experimentId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
@@ -324,8 +322,6 @@ public class MemoryMetadataManager implements MetaDataManager {
     public void deleteRun(String runId) {
 
     }
-
-    private Map<String, List<SensorTrigger>> mSensorTriggers = new HashMap<>();
 
     @Override
     public void addSensorTrigger(SensorTrigger trigger, String experimentId) {

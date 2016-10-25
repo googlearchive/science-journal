@@ -34,6 +34,9 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
@@ -122,16 +125,40 @@ public class DeviceOptionsViewController {
     public void commit(final DeviceOptionsDialog.DeviceOptionsListener optionsListener) {
         final ExternalSensorSpec sensor = getOptions();
 
-        mDataController.addOrGetExternalSensor(sensor,
-                new LoggingConsumer<String>(TAG, "update external sensor") {
+        maybeReplaceSensor(mDataController, mExperimentId, mSensorId, sensor,
+                new LoggingConsumer<String>(TAG, "replacing sensor") {
                     @Override
                     public void success(String newSensorId) {
-                        if (!newSensorId.equals(mSensorId)) {
-                            mDataController.replaceSensorInExperiment(mExperimentId, mSensorId,
+                        optionsListener.onExperimentSensorReplaced(mSensorId, newSensorId);
+                        mSensorId = newSensorId;
+                    }
+                });
+    }
+
+    /**
+     * In experiment {@code experimentId}, replace the sensor with id {@code oldSensorId} with a
+     * new sensor built from spec {@code newSensor}.  If the replacement actually changes anything,
+     * {@code onNewSensorId} is called with the id of the newly-built sensor.
+     */
+    public static void maybeReplaceSensor(final DataController dataController,
+            final String experimentId,
+            final String oldSensorId,
+            ExternalSensorSpec newSensor,
+            final MaybeConsumer<String> onNewSensorId) {
+        dataController.addOrGetExternalSensor(newSensor,
+                new LoggingConsumer<String>(TAG, "update external sensor") {
+                    @Override
+                    public void success(final String newSensorId) {
+                        if (!newSensorId.equals(oldSensorId)) {
+                            Consumer<Success> onSuccess = new Consumer<Success>() {
+                                @Override
+                                public void take(Success success) {
+                                    onNewSensorId.success(newSensorId);
+                                }
+                            };
+                            dataController.replaceSensorInExperiment(experimentId, oldSensorId,
                                     newSensorId,
-                                    LoggingConsumer.<Success>expectSuccess(TAG, "replacing sensor"));
-                            optionsListener.onExperimentSensorReplaced(mSensorId, newSensorId);
-                            mSensorId = newSensorId;
+                                    MaybeConsumers.chainFailure(onNewSensorId, onSuccess));
                         }
                     }
                 });

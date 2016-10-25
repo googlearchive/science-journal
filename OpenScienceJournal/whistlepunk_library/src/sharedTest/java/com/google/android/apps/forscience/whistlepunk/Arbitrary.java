@@ -43,6 +43,15 @@ public class Arbitrary {
         return getRandom().nextInt(n);
     }
 
+    /**
+     * Return an arbitrary string using the given prefix, which can help with debugging (calling
+     * Arbitrary.string("deviceName") can give you a string that makes it easier to tell when
+     * you're erroneously using a device name as a device id.)
+     */
+    public static String string(String prefix) {
+        return prefix + "=" + string();
+    }
+
     public static String string() {
         return memberOf("Ganymede", "Io", "Callisto", "Europa");
     }
