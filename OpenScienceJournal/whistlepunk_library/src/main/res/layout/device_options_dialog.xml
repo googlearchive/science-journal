@@ -25,20 +25,25 @@
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:id="@+id/ble_settings"
+                  android:orientation="vertical"
     >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/device_options_sensor_label_text"
-            android:id="@+id/sensor_label"
-            android:labelFor="@+id/sensor_type_spinner"/>
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal">
+            <TextView
+                android:id="@+id/sensor_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/sensor_type_spinner"
+                android:text="@string/device_options_sensor_label_text"/>
 
-        <Spinner
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="@dimen/accessibility_touch_target_min_size"
-            android:id="@+id/sensor_type_spinner"
-            android:spinnerMode="dropdown" />
+            <Spinner
+                android:id="@+id/sensor_type_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/accessibility_touch_target_min_size"
+                android:spinnerMode="dropdown"/>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/spinner_custom_layout"
