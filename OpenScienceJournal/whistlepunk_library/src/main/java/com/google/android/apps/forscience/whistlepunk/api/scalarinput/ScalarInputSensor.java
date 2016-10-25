@@ -85,6 +85,10 @@ class ScalarInputSensor extends ScalarSensor {
 
                 @Override
                 public void onNewData(long timestamp, double data) {
+                    if (mConnector == null) {
+                        // We're disconnected, nothing to do here.
+                        return;
+                    }
                     mLatestData = data;
                     mScheduler.unschedule(mRefreshRunnable);
                     mScheduler.schedule(Delay.millis(MINIMUM_REFRESH_RATE_MILLIS),
@@ -167,6 +171,9 @@ class ScalarInputSensor extends ScalarSensor {
                         complain(e);
                     }
                     mConnector = null;
+                    if (mSensorStatusListener != null) {
+                        mSensorStatusListener.disconnect();
+                    }
                     removeOldRefresh();
                 }
             }
@@ -186,10 +193,15 @@ class ScalarInputSensor extends ScalarSensor {
     }
 
     private abstract class ApiStatusListener extends ISensorStatusListener.Stub {
-        private final SensorStatusListener mListener;
+        private SensorStatusListener mListener;
 
         public ApiStatusListener(SensorStatusListener listener) {
             mListener = listener;
+        }
+
+        public void disconnect() {
+            mListener = null;
+            onNoLongerStreaming();
         }
 
         @Override
@@ -229,6 +241,9 @@ class ScalarInputSensor extends ScalarSensor {
             runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
+                    if (mListener == null) {
+                        return;
+                    }
                     mListener.onSourceError(getId(),
                             SensorStatusListener.ERROR_UNKNOWN, errorMessage);
                     onNoLongerStreaming();
@@ -239,6 +254,9 @@ class ScalarInputSensor extends ScalarSensor {
         protected abstract void onNoLongerStreaming();
 
         private void setStatus(int statusCode) {
+            if (mListener == null) {
+                return;
+            }
             mListener.onSourceStatus(getId(), statusCode);
             mMostRecentStatus = statusCode;
         }

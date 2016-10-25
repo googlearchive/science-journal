@@ -18,10 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
@@ -119,6 +117,30 @@ public class ScalarInputSensorTest {
                 (int) listener.mostRecentStatuses.get("sensorId"));
     }
 
+    @Test public void stopObservingAndListening() throws RemoteException {
+        final TestFinder serviceFinder = new TestFinder("serviceId");
+        ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
+                null, "devId");
+        ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
+                serviceFinder, new TestStringSource(), spec, mScheduler);
+        RecordingSensorObserver observer = new RecordingSensorObserver();
+        RecordingStatusListener listener = new RecordingStatusListener();
+        SensorRecorder recorder = makeRecorder(sis, observer, listener);
+        recorder.startObserving();
+        serviceFinder.observer.onNewData(0, 0.0);
+        recorder.stopObserving();
+
+        // More stuff after we stop observing
+        serviceFinder.observer.onNewData(1, 1.0);
+        serviceFinder.listener.onSensorError("Error after disconnect!");
+
+        TestData testData = new TestData();
+        testData.addPoint(0, 0.0);
+        testData.checkObserver(observer);
+
+        listener.assertNoErrors();
+    }
+
     private SensorRecorder makeRecorder(ScalarInputSensor sis, RecordingSensorObserver observer,
             RecordingStatusListener listener) {
         return sis.createRecorder(null, observer, listener,
@@ -127,60 +149,4 @@ public class ScalarInputSensorTest {
                         mScheduler.getClock()));
     }
 
-    private static class TestFinder extends Consumer<AppDiscoveryCallbacks> {
-        private final String mServiceId;
-        public ISensorObserver observer;
-        public ISensorStatusListener listener;
-
-        public TestFinder(String serviceId) {
-            mServiceId = serviceId;
-        }
-
-        @Override
-        public void take(AppDiscoveryCallbacks adc) {
-            adc.onServiceFound(mServiceId, new ISensorDiscoverer.Stub() {
-                @Override
-                public String getName() throws RemoteException {
-                    return null;
-                }
-
-                @Override
-                public void scanDevices(IDeviceConsumer c) throws RemoteException {
-
-                }
-
-                @Override
-                public void scanSensors(String deviceId, ISensorConsumer c)
-                        throws RemoteException {
-
-                }
-
-                @Override
-                public ISensorConnector getConnector() throws RemoteException {
-                    return new ISensorConnector() {
-
-                        @Override
-                        public void startObserving(String sensorAddress,
-                                ISensorObserver observer,
-                                ISensorStatusListener listener, String settingsKey)
-                                throws RemoteException {
-                            TestFinder.this.listener = listener;
-                            TestFinder.this.observer = observer;
-                        }
-
-                        @Override
-                        public void stopObserving(String sensorAddress)
-                                throws RemoteException {
-
-                        }
-
-                        @Override
-                        public IBinder asBinder() {
-                            return null;
-                        }
-                    };
-                }
-            });
-        }
-    }
 }
