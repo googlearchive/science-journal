@@ -19,6 +19,8 @@ package com.google.android.apps.forscience.javalib;
 import java.util.concurrent.TimeUnit;
 
 public class Delay {
+    public static final Delay ZERO = millis(0);
+
     private final long mDelay;
     private final TimeUnit mUnit;
 
@@ -79,5 +81,9 @@ public class Delay {
 
     public long asMillis() {
         return TimeUnit.MILLISECONDS.convert(mDelay, mUnit);
+    }
+
+    public boolean isZero() {
+        return mDelay == 0;
     }
 }

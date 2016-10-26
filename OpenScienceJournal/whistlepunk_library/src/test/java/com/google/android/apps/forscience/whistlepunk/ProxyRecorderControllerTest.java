@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.os.RemoteException;
 
+import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
@@ -283,8 +284,8 @@ public class ProxyRecorderControllerTest {
 
     private class RecorderControllerTestImpl extends  RecorderControllerImpl {
         RecorderControllerTestImpl(RecorderListenerRegistry listenerRegistry) {
-            super(null, mRegistry, mEnvironment, listenerRegistry, null,
-                    DATA_CONTROLLER);
+            super(null, mRegistry, mEnvironment, listenerRegistry, null, DATA_CONTROLLER, null,
+                    Delay.millis(0));
             this.setRecordActivityInForeground(true);
         }
 

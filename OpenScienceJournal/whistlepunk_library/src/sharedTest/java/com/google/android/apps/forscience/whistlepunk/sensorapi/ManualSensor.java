@@ -166,4 +166,8 @@ public class ManualSensor extends ScalarSensor {
 
         recorder.stopRecording(TestConsumers.<Success>expectingSuccess());
     }
+
+    public boolean isObserving() {
+        return mConsumer != null;
+    }
 }

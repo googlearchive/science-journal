@@ -27,16 +27,19 @@ import android.util.ArrayMap;
 import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
+        .TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
@@ -49,6 +52,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironmen
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
+import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
 import com.google.common.base.Joiner;
@@ -75,32 +79,66 @@ import java.util.Objects;
  */
 public class RecorderControllerImpl implements RecorderController {
     private static final String TAG = "RecorderController";
-    private DataController mDataController;
+
+    /**
+     * Default delay to wait after the last observer stops before asking the sensor to stop
+     * collecting.
+     */
+    private static final Delay DEFAULT_STOP_DELAY = Delay.seconds(5);
+
+    // TODO: remove this comment when we're sure about the delay.
+    // To disable delayed stop, comment out the above line, and uncomment this one.
+    // private static final Delay DEFAULT_STOP_DELAY = Delay.ZERO;
 
     @VisibleForTesting
     static class StatefulRecorder {
         private boolean mObserving = false;
         private boolean mRecording = false;
         private final SensorRecorder mRecorder;
+        private final Scheduler mScheduler;
+        private Delay mStopDelay;
         private boolean mForceHasDataForTesting = false;
+        private Runnable mStopRunnable;
 
-        private StatefulRecorder(SensorRecorder mRecorder) {
-            this.mRecorder = mRecorder;
+        private StatefulRecorder(SensorRecorder recorder, Scheduler scheduler, Delay stopDelay) {
+            mRecorder = recorder;
+            mScheduler = scheduler;
+            mStopDelay = stopDelay;
         }
 
         public void startObserving() {
+            cancelCurrentStopRunnable();
             if (!isStillRunning()) {
                 mRecorder.startObserving();
             }
             mObserving = true;
         }
 
-        // TODO: Note that this doesn't necessarily call mRecorder.stopObserving, because
-        // the current SensorRecorder spec assumes stopObserving also stops recording.  Should that
-        // change?
+        private void cancelCurrentStopRunnable() {
+            if (mStopRunnable != null) {
+                mScheduler.unschedule(mStopRunnable);
+                mStopRunnable = null;
+            }
+        }
+
         public void stopObserving() {
-            mObserving = false;
-            maybeStopObserving();
+            if (mStopRunnable != null) {
+                // Already stopping.
+                return;
+            }
+            Runnable stopRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    mObserving = false;
+                    maybeStopObserving();
+                }
+            };
+            if (mScheduler != null && !mStopDelay.isZero()) {
+                mStopRunnable = stopRunnable;
+                mScheduler.schedule(mStopDelay, mStopRunnable);
+            } else {
+                stopRunnable.run();
+            }
         }
 
         /**
@@ -144,8 +182,15 @@ public class RecorderControllerImpl implements RecorderController {
         void forceHasDataForTesting(boolean hasDataForTesting) {
             mForceHasDataForTesting = hasDataForTesting;
         }
+
+        public boolean isRecording() {
+            return mRecording;
+        }
     }
 
+    private DataController mDataController;
+    private final Scheduler mScheduler;
+    private final Delay mStopDelay;
     private Map<String, StatefulRecorder> mRecorders = new LinkedHashMap<>();
     private final Context mContext;
     private SensorRegistry mSensors;
@@ -180,19 +225,26 @@ public class RecorderControllerImpl implements RecorderController {
         this(context, SensorRegistry.createWithBuiltinSensors(context),
                 AppSingleton.getInstance(context).getSensorEnvironment(),
                 new RecorderListenerRegistry(), productionConnectionSupplier(context),
-                dataController);
+                dataController, new SystemScheduler(), DEFAULT_STOP_DELAY);
     }
 
+    /**
+     * @param scheduler for scheduling delayed stops if desired (to prevent sensor stop/start churn)
+     * @param stopDelay how long to wait before stopping sensors.
+     */
     @VisibleForTesting
     public RecorderControllerImpl(final Context context, SensorRegistry registry,
             SensorEnvironment sensorEnvironment, RecorderListenerRegistry listenerRegistry,
-            Supplier<RecorderServiceConnection> connectionSupplier, DataController dataController) {
+            Supplier<RecorderServiceConnection> connectionSupplier, DataController dataController,
+            Scheduler scheduler, Delay stopDelay) {
         mContext = context;
         mSensors = registry;
         mSensorEnvironment = sensorEnvironment;
         mRegistry = listenerRegistry;
         mConnectionSupplier = connectionSupplier;
         mDataController = dataController;
+        mScheduler = scheduler;
+        mStopDelay = stopDelay;
     }
 
     @NonNull
@@ -232,7 +284,8 @@ public class RecorderControllerImpl implements RecorderController {
                             mRegistry.makeObserverForRecorder(sensorId), mRegistry,
                             mSensorEnvironment);
                     recorder.applyOptions(new ReadableTransportableSensorOptions(initialOptions));
-                    StatefulRecorder newStatefulRecorder = new StatefulRecorder(recorder);
+                    StatefulRecorder newStatefulRecorder = new StatefulRecorder(recorder,
+                            mScheduler, mStopDelay);
                     mRecorders.put(sensorId, newStatefulRecorder);
                     addServiceObserverIfNeeded(sensorId, activeTriggers);
                     RecorderControllerImpl.this.startObserving(newStatefulRecorder);
@@ -399,8 +452,8 @@ public class RecorderControllerImpl implements RecorderController {
         final StatefulRecorder r = mRecorders.get(sensorId);
         if (r != null) {
             r.stopObserving();
-            if (!r.isStillRunning()) {
-                // Then it was not recording, so we can also remove our service-level observers.
+            if (!r.isRecording()) {
+                // If it was not recording, we can also remove our service-level observers.
                 if (mServiceObservers.containsKey(sensorId)) {
                     String serviceObserverId = mServiceObservers.get(sensorId);
                     mRegistry.remove(sensorId, serviceObserverId);
@@ -451,7 +504,7 @@ public class RecorderControllerImpl implements RecorderController {
         }
         if (!isRecording()) {
             for (StatefulRecorder recorder : mRecorders.values()) {
-                RecorderControllerImpl.this.startObserving(recorder);
+                startObserving(recorder);
             }
         }
         return true;
