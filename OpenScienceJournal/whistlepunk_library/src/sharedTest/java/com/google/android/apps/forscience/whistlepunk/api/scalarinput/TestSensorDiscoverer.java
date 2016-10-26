@@ -50,11 +50,10 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
     }
 
     @NonNull
-    public ScalarInputDiscoverer makeScalarInputDiscoverer(
-            final String serviceId) {
-        return new ScalarInputDiscoverer(makeFinder(serviceId), new TestStringSource(),
-                MoreExecutors.directExecutor(), new MockScheduler(), 100,
-                new RecordingUsageTracker());
+    public ScalarInputDiscoverer makeScalarInputDiscoverer(final String serviceId) {
+        return new ScalarInputDiscoverer(makeFinder(serviceId),
+                new TestStringSource(), MoreExecutors.directExecutor(), new MockScheduler(),
+                100, new RecordingUsageTracker());
     }
 
     @NonNull

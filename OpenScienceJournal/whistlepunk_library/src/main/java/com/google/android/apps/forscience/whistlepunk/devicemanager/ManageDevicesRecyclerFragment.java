@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPresenter,
         ManageFragment {
-    private DeviceAdapter mMyDevices;
+    private ExpandableDeviceAdapter mMyDevices;
     private DeviceAdapter mAvailableDevices;
     private Menu mMainMenu;
     private ConnectableSensorRegistry mRegistry;
@@ -61,7 +61,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
                         .getActivity()), new DeviceRegistry());
         SensorAppearanceProvider appearanceProvider = AppSingleton.getInstance(
                 getActivity()).getSensorAppearanceProvider();
-        mMyDevices = new DeviceAdapter(true, mRegistry, appearanceProvider);
+        mMyDevices = ExpandableDeviceAdapter.createEmpty(mRegistry, new DeviceRegistry());
         mAvailableDevices = new DeviceAdapter(false, mRegistry, appearanceProvider);
         setHasOptionsMenu(true);
     }

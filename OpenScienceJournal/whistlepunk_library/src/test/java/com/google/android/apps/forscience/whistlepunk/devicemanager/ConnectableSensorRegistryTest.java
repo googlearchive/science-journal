@@ -382,6 +382,21 @@ public class ConnectableSensorRegistryTest {
         assertEquals("newUnits", appearance.getUnits(null));
     }
 
+    @Test public void addDevicesAsFound() {
+        final ScalarInputScenario s = new ScalarInputScenario();
+        mProviderMap.putAll(s.makeScalarInputProviders());
+        DataController dc = makeDataController();
+        DeviceRegistry deviceRegistry = new DeviceRegistry();
+        ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
+                s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
+                mOptionsListener, deviceRegistry);
+        registry.setExperimentId("experimentId");
+
+        InputDeviceSpec device = deviceRegistry.getDevice(ScalarInputSpec.TYPE,
+                ScalarInputSpec.makeApiDeviceAddress(s.getServiceId(), s.getDeviceId()));
+        assertEquals(s.getDeviceName(), device.getName());
+    }
+
     private class TestDevicesPresenter implements DevicesPresenter {
         public String experimentId;
         public String sensorId;

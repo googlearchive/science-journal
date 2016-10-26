@@ -46,7 +46,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public StatsList meterStatsList;
     public SensorCardHeader header;
     public TextView headerText;
-    public ImageButton toggleButton;
+    public ToggleArrow toggleButton;
     public View toggleButtonSpacer;
     public TextView meterViewDescription;
     public ViewGroup graphViewGroup;
@@ -79,7 +79,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         meterStatsList = (StatsList) itemView.findViewById(R.id.stats_view_meter);
         header = (SensorCardHeader) itemView.findViewById(R.id.sensor_card_header);
         headerText = (TextView) itemView.findViewById(R.id.sensor_card_header_title);
-        toggleButton = (ImageButton) itemView.findViewById(R.id.btn_sensor_card_toggle);
+        toggleButton = (ToggleArrow) itemView.findViewById(R.id.btn_sensor_card_toggle);
         toggleButtonSpacer = itemView.findViewById(R.id.sensor_card_toggle_spacer);
         meterViewDescription = (TextView) itemView.findViewById(R.id.back_view_description);
         flipButton = (ImageButton) itemView.findViewById(R.id.btn_sensor_card_flip);

@@ -46,9 +46,8 @@ public class SensorRegistryUnitTest {
         Map<String, ExternalSensorProvider> providers = new HashMap<>();
 
         providers.put(ScalarInputSpec.TYPE,
-                new ScalarInputDiscoverer(null, null,
-                        MoreExecutors.directExecutor(), new MockScheduler(), 100,
-                        new RecordingUsageTracker()).getProvider());
+                new ScalarInputDiscoverer(null, null, MoreExecutors.directExecutor(),
+                        new MockScheduler(), 100, new RecordingUsageTracker()).getProvider());
         return providers;
     }
 }

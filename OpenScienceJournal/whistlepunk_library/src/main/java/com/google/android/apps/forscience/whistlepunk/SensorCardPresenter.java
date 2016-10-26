@@ -154,7 +154,7 @@ public class SensorCardPresenter {
     // Update the back data imageview every .05 seconds maximum.
     private static final int MAX_ICON_UPDATE_TIME_MS = 25;
 
-    private static final int ANIMATION_TIME_MS = 200;
+    public static final int ANIMATION_TIME_MS = 200;
 
     private long mRecordingStart = RecordingMetadata.NOT_RECORDING;
     private List<String> mAvailableSensorIds;
@@ -452,6 +452,8 @@ public class SensorCardPresenter {
 
         updateRecordingUi();
 
+        mCardViewHolder.toggleButton.setActionStrings(R.string.btn_sensor_card_expand,
+                R.string.btn_sensor_card_contract);
         mCardViewHolder.headerText.setText(mSensorDisplayName);
         mCardViewHolder.meterLiveDataUnits.setText(mUnits);
         if (!TextUtils.isEmpty(mSensorId)) {
@@ -1137,18 +1139,7 @@ public class SensorCardPresenter {
         if (mCardViewHolder == null) {
             return;
         }
-        Resources resources = mCardViewHolder.toggleButton.getResources();
-        mCardViewHolder.toggleButton.setContentDescription(resources.getString(
-                mIsActive ? R.string.btn_sensor_card_contract : R.string.btn_sensor_card_expand));
-        float desiredRotation = mIsActive ? 0 : -180;
-        if (animate) {
-            mCardViewHolder.toggleButton.animate()
-                    .rotation(desiredRotation)
-                    .setDuration(ANIMATION_TIME_MS)
-                    .start();
-        } else {
-            mCardViewHolder.toggleButton.setRotation(desiredRotation);
-        }
+        mCardViewHolder.toggleButton.setActive(mIsActive, animate);
     }
 
     public void destroy() {

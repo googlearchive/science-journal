@@ -1277,6 +1277,12 @@
     <!-- Section label for sensed devices that could be connected to [CHAR_LIMIT=30] -->
     <string name="available_devices">Available Devices</string>
 
+    <!-- Content description for arrow button that reveals sensors available on a paired device [CHAR_LIMIT=NONE] -->
+    <string name="btn_expand_device">Reveal device sensors</string>
+
+    <!-- Content description for arrow button that hides sensors available on a paired device [CHAR_LIMIT=NONE] -->
+    <string name="btn_contract_device">Hide device sensors</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
