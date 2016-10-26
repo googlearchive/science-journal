@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.PendingIntent;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.util.ArrayMap;
 
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -29,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
@@ -65,18 +67,21 @@ public class ConnectableSensorRegistry {
     private String mExperimentId = null;
     private Clock mClock;
     private DeviceOptionsDialog.DeviceOptionsListener mOptionsListener;
+    private DeviceRegistry mDeviceRegistry;
 
     // TODO: reduce parameter list?
     public ConnectableSensorRegistry(DataController dataController,
             Map<String, ExternalSensorDiscoverer> discoverers, DevicesPresenter presenter,
             Scheduler scheduler, Clock clock,
-            DeviceOptionsDialog.DeviceOptionsListener optionsListener) {
+            DeviceOptionsDialog.DeviceOptionsListener optionsListener,
+            DeviceRegistry deviceRegistry) {
         mDataController = dataController;
         mDiscoverers = discoverers;
         mPresenter = presenter;
         mScheduler = scheduler;
         mClock = clock;
         mOptionsListener = optionsListener;
+        mDeviceRegistry = deviceRegistry;
     }
 
     public void pair(String sensorKey, final SensorAppearanceProvider appearanceProvider) {
@@ -135,13 +140,7 @@ public class ConnectableSensorRegistry {
         }
         final long timeout = clearDeviceCache ? 0 : ASSUME_GONE_TIMEOUT_MILLIS;
         final Set<String> keysSeen = new HashSet<>();
-        final Consumer<ExternalSensorDiscoverer.DiscoveredSensor> onEachSensorFound =
-                new Consumer<ExternalSensorDiscoverer.DiscoveredSensor>() {
-                    @Override
-                    public void take(ExternalSensorDiscoverer.DiscoveredSensor ds) {
-                        onSensorFound(ds, keysSeen);
-                    }
-                };
+
 
         final TaskPool pool = new TaskPool(new Runnable() {
             @Override
@@ -163,16 +162,31 @@ public class ConnectableSensorRegistry {
                 }
             }
         });
-        for (final ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
+        for (final Map.Entry<String, ExternalSensorDiscoverer> entry : mDiscoverers.entrySet()) {
+            ExternalSensorDiscoverer discoverer = entry.getValue();
+            final String type = entry.getKey();
             final String providerId = discoverer.getProvider().getProviderId();
             pool.addTask(providerId);
-            final Runnable onScanDone = new Runnable() {
-                @Override
-                public void run() {
-                    pool.taskDone(providerId);
-                }
-            };
-            if (discoverer.startScanning(onEachSensorFound, onScanDone,
+            ExternalSensorDiscoverer.ScanListener listener =
+                    new ExternalSensorDiscoverer.ScanListener() {
+                        @Override
+                        public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
+                            onSensorFound(sensor, keysSeen);
+                        }
+
+                        @Override
+                        public void onDeviceFound(InputDeviceSpec device) {
+                            if (mDeviceRegistry != null) {
+                                mDeviceRegistry.addDevice(type, device);
+                            }
+                        }
+
+                        @Override
+                        public void onScanDone() {
+                            pool.taskDone(providerId);
+                        }
+                    };
+            if (discoverer.startScanning(listener,
                     LoggingConsumer.expectSuccess(TAG, "Discovering sensors"))) {
                 onScanStarted();
             }

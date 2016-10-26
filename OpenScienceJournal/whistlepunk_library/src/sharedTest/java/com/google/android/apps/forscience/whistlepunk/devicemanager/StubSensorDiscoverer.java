@@ -23,9 +23,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 
 class StubSensorDiscoverer implements ExternalSensorDiscoverer {
     @Override
-    public boolean startScanning(
-            Consumer<DiscoveredSensor> onEachSensorFound,
-            Runnable onScanDone, FailureListener onScanError) {
+    public boolean startScanning(ScanListener listener, FailureListener onScanError) {
         return false;
     }
 

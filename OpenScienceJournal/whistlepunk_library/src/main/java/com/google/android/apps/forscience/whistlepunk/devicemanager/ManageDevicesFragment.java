@@ -85,7 +85,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
 
         mConnectableSensorRegistry = new ConnectableSensorRegistry(dc, discoverers, this,
                 new SystemScheduler(), appSingleton.getSensorEnvironment().getDefaultClock(),
-                getOptionsListener());
+                getOptionsListener(), new DeviceRegistry());
     }
 
     private DeviceOptionsDialog.DeviceOptionsListener getOptionsListener() {

@@ -53,7 +53,8 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
     public ScalarInputDiscoverer(Consumer<AppDiscoveryCallbacks> serviceFinder,
             Context context) {
-        this(serviceFinder, defaultStringSource(context), AppSingleton.getUiThreadExecutor(),
+        this(serviceFinder, defaultStringSource(context),
+                AppSingleton.getUiThreadExecutor(),
                 new SystemScheduler(), DEFAULT_SCAN_TIMEOUT_MILLIS,
                 WhistlePunkApplication.getUsageTracker(context));
     }
@@ -70,7 +71,8 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
     @VisibleForTesting
     public ScalarInputDiscoverer(
-            Consumer<AppDiscoveryCallbacks> serviceFinder, ScalarInputStringSource stringSource,
+            Consumer<AppDiscoveryCallbacks> serviceFinder,
+            ScalarInputStringSource stringSource,
             Executor uiThreadExecutor, Scheduler scheduler, long scanTimeoutMillis,
             UsageTracker usageTracker) {
         mServiceFinder = serviceFinder;
@@ -88,10 +90,14 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     }
 
     @Override
-    public boolean startScanning(final Consumer<DiscoveredSensor> onEachSensorFound,
-            final Runnable onScanDone, final FailureListener onScanError) {
+    public boolean startScanning(final ScanListener listener, final FailureListener onScanError) {
         final String discoveryTaskId = "DISCOVERY";
-        final TaskPool pool = new TaskPool(onScanDone, discoveryTaskId);
+        final TaskPool pool = new TaskPool(new Runnable() {
+            @Override
+            public void run() {
+                listener.onScanDone();
+            }
+        }, discoveryTaskId);
         mServiceFinder.take(new AppDiscoveryCallbacks() {
             @Override
             public void onServiceFound(String serviceId, final ISensorDiscoverer service) {
@@ -100,7 +106,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 }
                 try {
                     service.scanDevices(
-                            makeDeviceConsumer(service, serviceId, onEachSensorFound, pool));
+                            makeDeviceConsumer(service, serviceId, listener, pool));
                 } catch (RemoteException e) {
                     onScanError.fail(e);
                 }
@@ -116,7 +122,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
     @NonNull
     private IDeviceConsumer.Stub makeDeviceConsumer(final ISensorDiscoverer service,
-            final String serviceId, final Consumer<DiscoveredSensor> onEachSensorFound,
+            final String serviceId, final ScanListener scanListener,
             final TaskPool pool) {
         final String serviceTaskId = "SERVICE:" + serviceId;
         pool.addTask(serviceTaskId);
@@ -132,9 +138,12 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 pool.addTask(deviceTaskId);
                 scheduleTaskTimeout(pool, deviceTaskId);
 
-                // TODO: restructure to create an object per service scan to hold intermediate data.
+                scanListener.onDeviceFound(new InputDeviceSpec(
+                        ScalarInputSpec.makeApiDeviceAddress(serviceId, deviceId), name));
+
+                // TODO: restructure to create an object-per-service-scan to hold intermediate data.
                 service.scanSensors(deviceId,
-                        makeSensorConsumer(serviceId, onEachSensorFound, deviceId, new Runnable() {
+                        makeSensorConsumer(serviceId, scanListener, deviceId, new Runnable() {
                             @Override
                             public void run() {
                                 pool.taskDone(deviceTaskId);
@@ -163,7 +172,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
     @NonNull
     private ISensorConsumer.Stub makeSensorConsumer(final String serviceId,
-            final Consumer<DiscoveredSensor> onEachSensorFound,
+            final ScanListener onEachSensorFound,
             final String deviceId, final Runnable onScanDone) {
         return new ISensorConsumer.Stub() {
             @Override
@@ -176,7 +185,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
                 final ScalarInputSpec spec = new ScalarInputSpec(name, serviceId, sensorAddress,
                         behavior, ids, deviceId);
-                onEachSensorFound.take(new DiscoveredSensor() {
+                onEachSensorFound.onSensorFound(new DiscoveredSensor() {
                     @Override
                     public ExternalSensorSpec getSpec() {
                         return spec;

@@ -15,12 +15,12 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.support.annotation.NonNull;
 import android.util.ArrayMap;
 
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,18 +29,23 @@ import java.util.Map;
 public class DeviceRegistry {
     private Map<String, InputDeviceSpec> mDevices = new ArrayMap<>();
 
-    // TODO: start calling this during scan
+    // TODO: store and retrieve "My Devices" from database
     public void addDevice(String type, InputDeviceSpec spec) {
         mDevices.put(InputDeviceSpec.joinAddresses(type, spec.getDeviceAddress()), spec);
     }
 
     public InputDeviceSpec getDevice(String type, String deviceAddress) {
         String key = InputDeviceSpec.joinAddresses(type, deviceAddress);
-        InputDeviceSpec spec = mDevices.get(key);
+        InputDeviceSpec spec = getDevice(key);
         if (spec == null) {
             throw new IllegalArgumentException(key + " not found in " + mDevices.keySet());
         }
         return spec;
+    }
+
+    @NonNull
+    private InputDeviceSpec getDevice(String deviceGlobalAddress) {
+        return mDevices.get(deviceGlobalAddress);
     }
 
     @Override
@@ -51,6 +56,11 @@ public class DeviceRegistry {
     }
 
     InputDeviceSpec getDevice(ExternalSensorSpec spec) {
-        return getDevice(spec.getType(), spec.getDeviceAddress());
+        InputDeviceSpec device = getDevice(spec.getGlobalDeviceAddress());
+        if (device == null) {
+            // generate imaginary device to hold the sensor
+            return new InputDeviceSpec(spec.getDeviceAddress(), spec.getName());
+        }
+        return device;
     }
 }

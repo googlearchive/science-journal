@@ -22,6 +22,7 @@ import android.content.Context;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 /**
@@ -33,13 +34,27 @@ public interface ExternalSensorDiscoverer {
         PendingIntent getSettingsIntent();
     }
 
+    public interface ScanListener {
+        /**
+         * Called when a scan finds a new device
+         */
+        void onDeviceFound(InputDeviceSpec device);
+
+        /**
+         * Called when a scan finds a new sensor on a device.
+         */
+        void onSensorFound(DiscoveredSensor sensor);
+
+        /**
+         * Called when all devices and sensors are found.
+         */
+        void onScanDone();
+    }
+
     /**
-     * @param onEachSensorFound called for each sensor found
-     * @param onScanDone called once scan is done
      * @return true if starting scanning was successful
      */
-    boolean startScanning(Consumer<DiscoveredSensor> onEachSensorFound,
-            Runnable onScanDone, FailureListener onScanError);
+    boolean startScanning(ScanListener listener, FailureListener onScanError);
 
     /**
      * Stops scanning, and discards any state or references acquired during scanning
