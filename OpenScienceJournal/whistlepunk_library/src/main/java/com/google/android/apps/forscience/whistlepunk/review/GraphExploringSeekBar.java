@@ -33,6 +33,11 @@ import com.google.android.apps.forscience.whistlepunk.R;
  * (time, value) pairs for accessibility.
  */
 public class GraphExploringSeekBar extends AppCompatSeekBar {
+    // The maximum range of the progress bar for a graph seekbar. Smaller values will have less
+    // resolution, but very large ranges may have worse performance due to more calculations being
+    // needed. This is applied to the seekbar using the setMax function.
+    public static final double SEEKBAR_MAX = 500.0;
+
     private String mTimeString = "";
     private String mValueString = "";
     private String mUnits = "";
@@ -76,6 +81,8 @@ public class GraphExploringSeekBar extends AppCompatSeekBar {
 
         // Always use LTR layout, since graphs are always LTR.
         setLayoutDirection(LAYOUT_DIRECTION_LTR);
+
+        setMax((int) SEEKBAR_MAX);
     }
 
     public void updateValuesForAccessibility(String time, String value) {
@@ -89,5 +96,9 @@ public class GraphExploringSeekBar extends AppCompatSeekBar {
 
     private String generateEventText() {
         return String.format(mFormat, mTimeString, mValueString, mUnits);
+    }
+
+    protected void setFormat(String format) {
+        mFormat = format;
     }
 }
