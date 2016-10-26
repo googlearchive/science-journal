@@ -26,10 +26,10 @@ import java.util.HashMap;
 public class ScalarSensorServiceFinderTest extends AndroidTestCase {
     public void testUseFlattenedComponentName() {
         RecordingCallbacks callbacks = new RecordingCallbacks();
+        ComponentName name = new ComponentName("packageName", "packageName.MyClass");
         ServiceConnection connection = ScalarSensorServiceFinder.makeServiceConnection(
-                new HashMap<String, ServiceConnection>(), "packageName", callbacks, null);
-        connection.onServiceConnected(new ComponentName("packageName", "packageName.MyClass"),
-                new TestSensorDiscoverer("serviceName"));
+                new HashMap<String, ServiceConnection>(), name, callbacks, null);
+        connection.onServiceConnected(name, new TestSensorDiscoverer("serviceName"));
         assertEquals("packageName/.MyClass", callbacks.serviceId);
     }
 
@@ -37,12 +37,32 @@ public class ScalarSensorServiceFinderTest extends AndroidTestCase {
         RecordingCallbacks callbacks = new RecordingCallbacks();
         Bundle metaData = new Bundle();
         metaData.putString(ScalarSensorServiceFinder.METADATA_KEY_CLASS_NAME_OVERRIDE, "YourClass");
+        ComponentName name = new ComponentName("packageName", "packageName.MyClass");
         ServiceConnection connection = ScalarSensorServiceFinder.makeServiceConnection(
-                new HashMap<String, ServiceConnection>(), "packageName", callbacks,
-                metaData);
-        connection.onServiceConnected(new ComponentName("packageName", "packageName.MyClass"),
-                new TestSensorDiscoverer("serviceName"));
+                new HashMap<String, ServiceConnection>(), name, callbacks, metaData);
+        connection.onServiceConnected(name, new TestSensorDiscoverer("serviceName"));
         assertEquals("packageName/YourClass", callbacks.serviceId);
+    }
+
+    public void testDontGarbageCollectSecondServiceInSamePackage() {
+        RecordingCallbacks callbacks = new RecordingCallbacks();
+        HashMap<String, ServiceConnection> connections = new HashMap<>();
+
+        ComponentName name1 = new ComponentName("packageName", "packageName.Class1");
+        ServiceConnection connection1 = ScalarSensorServiceFinder.makeServiceConnection(connections,
+                name1, callbacks, null);
+        assertEquals(1, connections.size());
+
+        ComponentName name2 = new ComponentName("packageName", "packageName.Class2");
+        ServiceConnection connection2 = ScalarSensorServiceFinder.makeServiceConnection(connections,
+                name2, callbacks, null);
+        assertEquals(2, connections.size());
+
+        connection1.onServiceDisconnected(name1);
+        assertEquals(1, connections.size());
+
+        connection2.onServiceDisconnected(name2);
+        assertEquals(0, connections.size());
     }
 
     private static class RecordingCallbacks implements AppDiscoveryCallbacks {
