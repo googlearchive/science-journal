@@ -20,7 +20,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
@@ -66,13 +65,17 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
     }
 
     @Override
-    public boolean startScanning(final Consumer<DiscoveredSensor> onEachSensorFound,
-            Runnable onScanDone, FailureListener onScanError) {
+    public boolean startScanning(final ScanListener listener, FailureListener onScanError) {
         stopScanning();
 
         // BLE scan is only done when it times out (which is imposed from fragment)
         // TODO: consider making that timeout internal (like it is for API sensor services)
-        mOnScanDone = onScanDone;
+        mOnScanDone = new Runnable() {
+            @Override
+            public void run() {
+                listener.onScanDone();
+            }
+        };
 
         mDeviceDiscoverer = createDiscoverer(mContext);
         if (!mDeviceDiscoverer.canScan()) {
@@ -82,7 +85,7 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
         mDeviceDiscoverer.startScanning(new DeviceDiscoverer.Callback() {
             @Override
             public void onDeviceFound(final DeviceDiscoverer.DeviceRecord record) {
-                onDeviceRecordFound(record, onEachSensorFound);
+                onDeviceRecordFound(record, listener);
             }
 
             @Override
@@ -110,13 +113,15 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
     }
 
     private void onDeviceRecordFound(DeviceDiscoverer.DeviceRecord record,
-            Consumer<DiscoveredSensor> onEachSensorFound) {
+            ScanListener onEachSensorFound) {
         WhistlepunkBleDevice device = record.device;
         String address = device.getAddress();
 
         // sensorScanCallbacks will handle duplicates
         final BleSensorSpec spec = new BleSensorSpec(address, device.getName());
-        onEachSensorFound.take(new DiscoveredSensor() {
+
+        // TODO: call onDevice, too!
+        onEachSensorFound.onSensorFound(new DiscoveredSensor() {
             @Override
             public ExternalSensorSpec getSpec() {
                 return spec;

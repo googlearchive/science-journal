@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import android.app.PendingIntent;
 import android.support.annotation.NonNull;
 
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
@@ -30,11 +29,9 @@ public class EnumeratedDiscoverer extends StubSensorDiscoverer {
     }
 
     @Override
-    public boolean startScanning(
-            Consumer<ExternalSensorDiscoverer.DiscoveredSensor> onEachSensorFound,
-            Runnable onScanDone, FailureListener onScanError) {
+    public boolean startScanning(ScanListener listener, FailureListener onScanError) {
         for (ExternalSensorSpec spec : mSpecs) {
-            onEachSensorFound.take(getDiscovered(spec));
+            listener.onSensorFound(getDiscovered(spec));
         }
         return true;
     }

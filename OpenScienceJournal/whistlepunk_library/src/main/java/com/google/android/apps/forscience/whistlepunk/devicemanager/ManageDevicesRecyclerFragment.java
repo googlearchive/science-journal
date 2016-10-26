@@ -58,7 +58,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
         mRegistry = new ConnectableSensorRegistry(dc, discoverers, this, new SystemScheduler(),
                 new CurrentTimeClock(), ManageDevicesActivity.getOptionsListener(this
-                        .getActivity()));
+                        .getActivity()), new DeviceRegistry());
         SensorAppearanceProvider appearanceProvider = AppSingleton.getInstance(
                 getActivity()).getSensorAppearanceProvider();
         mMyDevices = new DeviceAdapter(true, mRegistry, appearanceProvider);

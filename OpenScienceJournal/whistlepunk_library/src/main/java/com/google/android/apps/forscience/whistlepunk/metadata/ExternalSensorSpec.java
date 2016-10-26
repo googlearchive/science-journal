@@ -21,6 +21,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.nano.CodedOutputByteBufferNano;
 import com.google.protobuf.nano.MessageNano;
@@ -107,6 +108,14 @@ public abstract class ExternalSensorSpec implements Parcelable {
     public String getDeviceAddress() {
         return getAddress();
     };
+
+    /**
+     * @return an "address" for the device that includes this spec's type, guaranteeing the address
+     * is unique even across sensor providers
+     */
+    public String getGlobalDeviceAddress() {
+        return InputDeviceSpec.joinAddresses(getType(), getDeviceAddress());
+    }
 
     public abstract SensorAppearance getSensorAppearance();
 

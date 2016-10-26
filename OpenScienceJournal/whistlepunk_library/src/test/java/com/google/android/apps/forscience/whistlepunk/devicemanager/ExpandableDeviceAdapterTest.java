@@ -34,7 +34,7 @@ public class ExpandableDeviceAdapterTest {
     private DeviceRegistry mDeviceRegistry = new DeviceRegistry();
     private DataController mDataController = InMemorySensorDatabase.makeSimpleController();
     private ConnectableSensorRegistry mSensorRegistry = new ConnectableSensorRegistry(
-            mDataController, null, null, null, null, null);
+            mDataController, null, null, null, null, null, null);
     private Scenario mScenario = new Scenario();
 
     private class Scenario {

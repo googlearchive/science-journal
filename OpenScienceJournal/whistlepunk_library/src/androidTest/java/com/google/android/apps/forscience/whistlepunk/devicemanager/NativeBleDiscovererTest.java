@@ -22,6 +22,7 @@ import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.AccumulatingConsumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.RecordingRunnable;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -67,11 +68,27 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
             }
         };
 
-        AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> sensorsSeen =
+        final AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> sensorsSeen =
                 new AccumulatingConsumer<>();
-        RecordingRunnable onScanDone = new RecordingRunnable();
-        discoverer.startScanning(sensorsSeen, onScanDone, TestConsumers.expectingSuccess()
-        );
+        final RecordingRunnable onScanDone = new RecordingRunnable();
+        ExternalSensorDiscoverer.ScanListener listener =
+                new ExternalSensorDiscoverer.ScanListener() {
+                    @Override
+                    public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
+                        sensorsSeen.take(sensor);
+                    }
+
+                    @Override
+                    public void onDeviceFound(InputDeviceSpec device) {
+
+                    }
+
+                    @Override
+                    public void onScanDone() {
+                        onScanDone.run();
+                    }
+                };
+        discoverer.startScanning(listener, TestConsumers.expectingSuccess());
         assertEquals(1, sensorsSeen.seen.size());
         ExternalSensorSpec sensor = sensorsSeen.seen.get(0).getSpec();
         assertEquals(name, sensor.getName());
