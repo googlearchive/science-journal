@@ -171,7 +171,7 @@ public class ConnectableSensorRegistry {
                     new ExternalSensorDiscoverer.ScanListener() {
                         @Override
                         public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
-                            onSensorFound(sensor, keysSeen);
+                            ConnectableSensorRegistry.this.onSensorFound(sensor, keysSeen);
                         }
 
                         @Override
