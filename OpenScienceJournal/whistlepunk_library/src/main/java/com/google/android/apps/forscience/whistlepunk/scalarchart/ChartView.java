@@ -555,7 +555,6 @@ public class ChartView extends View {
                 // mins/maxes.
                 mPath.lineTo(getPathX(point.getX()), getPathY(point.getY()));
                 mXMaxInPath = point.getX();
-                transformPath();
             }
         }
         mWasPinnedToNow = mChartOptions.isPinnedToNow();
