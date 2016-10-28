@@ -24,6 +24,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
@@ -43,8 +44,10 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,13 +79,16 @@ public class SensorRegistry {
         }
     }
 
-    private Map<String, SensorRegistryItem> mSensorRegistry = new ArrayMap<>();
+    /**
+     * Remember insertion order in order to display sensors in order added.
+     */
+    private Map<String, SensorRegistryItem> mSensorRegistry = new LinkedHashMap<>();
 
     // sensorId -> (tag, op)
     private Multimap<String, Pair<String, Consumer<SensorChoice>>> mWaitingSensorChoiceOperations =
             HashMultimap.create();
     private SensorRegistryListener mSensorRegistryListener;
-    private Map<String, ExternalSensorSpec> mMostRecentExternalSensors;
+    private List<ConnectableSensor> mMostRecentExternalSensors;
 
     public static SensorRegistry createWithBuiltinSensors(final Context context) {
         final SensorRegistry sc = new SensorRegistry();
@@ -151,8 +157,8 @@ public class SensorRegistry {
         mWaitingSensorChoiceOperations.removeAll(id);
     }
 
-    public Set<String> getAllSources() {
-        return mSensorRegistry.keySet();
+    public List<String> getAllSources() {
+        return Lists.newArrayList(mSensorRegistry.keySet());
     }
 
     private Set<String> getAllExternalSources() {
@@ -227,7 +233,7 @@ public class SensorRegistry {
     }
 
     @NonNull
-    public List<String> updateExternalSensors(Map<String, ExternalSensorSpec> sensors,
+    public List<String> updateExternalSensors(List<ConnectableSensor> sensors,
             Map<String, ExternalSensorProvider> externalProviders) {
         mMostRecentExternalSensors = sensors;
 
@@ -236,27 +242,22 @@ public class SensorRegistry {
         Set<String> previousExternalSources = getAllExternalSources();
 
         // Add previously unknown sensors
-        Set<String> newExternalSensors = Sets.difference(sensors.keySet(),
-                previousExternalSources);
-        for (String externalSensorId : newExternalSensors) {
-            ExternalSensorSpec sensor = sensors.get(externalSensorId);
-            if (sensor != null) {
+        for (ConnectableSensor newSensor : sensors) {
+            String externalSensorId = newSensor.getConnectedSensorId();
+            if (!previousExternalSources.remove(externalSensorId)) {
+                // sensor is new
+                ExternalSensorSpec sensor = newSensor.getSpec();
                 ExternalSensorProvider provider = externalProviders.get(sensor.getType());
                 if (provider != null) {
                     addSource(new SensorRegistryItem(provider.getProviderId(),
                             provider.buildSensor(externalSensorId, sensor), sensor.getLoggingId()));
                     sensorsActuallyAdded.add(externalSensorId);
                 }
-            } else {
-                if (Log.isLoggable(TAG, Log.ERROR)) {
-                    Log.e(TAG, "No sensor found for ID: " + externalSensorId);
-                }
             }
         }
 
         // Remove known sensors that no longer exist
-        Set<String> removedExternalSensors = Sets.difference(previousExternalSources,
-                sensors.keySet());
+        Set<String> removedExternalSensors = previousExternalSources;
         for (String externalSensorId : removedExternalSensors) {
             mSensorRegistry.remove(externalSensorId);
         }
@@ -293,5 +294,12 @@ public class SensorRegistry {
                 i.remove();
             }
         }
+    }
+
+    @NonNull
+    List<String> getAllSourcesExcept(String... sensorTags) {
+        List<String> allSensorIds = Lists.newArrayList(getAllSources());
+        allSensorIds.removeAll(Arrays.asList(sensorTags));
+        return allSensorIds;
     }
 }

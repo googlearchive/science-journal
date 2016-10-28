@@ -24,7 +24,6 @@ import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -65,9 +64,9 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevice
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryListener;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
+        .TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
@@ -94,13 +93,9 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
@@ -844,10 +839,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 });
     }
 
-    protected Set<String> getAvailableSources() {
-        Set<String> allSensorIds = new HashSet<String>(mSensorRegistry.getAllSources());
-        allSensorIds.removeAll(Arrays.asList(mSensorCardAdapter.getSensorTags()));
-        return allSensorIds;
+    protected List<String> getAvailableSources() {
+        return mSensorRegistry.getAllSourcesExcept(mSensorCardAdapter.getSensorTags());
     }
 
     private void adjustSensorCardAddAlpha() {
@@ -952,11 +945,13 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         updateAvailableSensors();
     }
 
+    // TODO: pull out somewhere testable?
     private void updateAvailableSensors() {
         if (mSensorCardAdapter == null) {
             return;
         }
-        Set<String> availableSensors = getAvailableSources();
+        List<String> availableSensors = getAvailableSources();
+        List<String> allSensors = mSensorRegistry.getAllSources();
         List<SensorCardPresenter> sensorCardPresenters =
                 mSensorCardAdapter.getSensorCardPresenters();
 
@@ -974,7 +969,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             }
         }
         for (SensorCardPresenter presenter : sensorCardPresenters) {
-            presenter.updateAvailableSensors(availableSensors);
+            presenter.updateAvailableSensors(availableSensors, allSensors);
         }
 
         updateSensorCount();
@@ -1400,17 +1395,17 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                             "add external sensors") {
                         @Override
                         public void success(List<ConnectableSensor> sensors) {
-                            updateExternalSensors(ConnectableSensor.makeMap(sensors));
+                            updateExternalSensors(sensors);
                             setSensorPresenters(layouts, rc);
                         }
                     });
         } else {
-            updateExternalSensors(Collections.<String, ExternalSensorSpec>emptyMap());
+            updateExternalSensors(Collections.<ConnectableSensor>emptyList());
             setSensorPresenters(layouts, rc);
         }
     }
 
-    private void updateExternalSensors(Map<String, ExternalSensorSpec> sensors) {
+    private void updateExternalSensors(List<ConnectableSensor> sensors) {
         // TODO: more graceful handling of this case?
         if (getActivity() == null) {
             return;

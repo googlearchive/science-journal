@@ -63,13 +63,13 @@ import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+import com.google.common.collect.Lists;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Holds the data and objects necessary for a sensor view.
@@ -126,6 +126,7 @@ public class SensorCardPresenter {
          */
         void onSensorClicked(String sensorId);
     }
+
     private OnSensorClickListener mOnSensorClickListener;
 
     /**
@@ -230,13 +231,13 @@ public class SensorCardPresenter {
         mParentFragment = fragment; // TODO: Should this use a weak reference?
         mCardTriggerPresenter = new CardTriggerPresenter(
                 new CardTriggerPresenter.OnCardTriggerClickedListener() {
-            @Override
-            public void onCardTriggerIconClicked() {
-                if (!isRecording() && mCardStatus.isConnected()) {
-                    startSetTriggersActivity();
-                }
-            }
-        }, mParentFragment);
+                    @Override
+                    public void onCardTriggerIconClicked() {
+                        if (!isRecording() && mCardStatus.isConnected()) {
+                            startSetTriggersActivity();
+                        }
+                    }
+                }, mParentFragment);
     }
 
     public void onNewData(long timestamp, Bundle bundle) {
@@ -470,7 +471,8 @@ public class SensorCardPresenter {
         mCardViewHolder.header.setBackgroundColor(color);
         mCardViewHolder.sensorSelectionArea.setBackgroundColor(color);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mCardViewHolder.statusProgressBar.setIndeterminateTintList(ColorStateList.valueOf(color));
+            mCardViewHolder.statusProgressBar.setIndeterminateTintList(
+                    ColorStateList.valueOf(color));
         }
 
         if (mSensorPresenter != null) {
@@ -483,8 +485,8 @@ public class SensorCardPresenter {
             @Override
             public void onClick(View v) {
                 mLayout.cardView = mLayout.cardView == GoosciSensorLayout.SensorLayout.GRAPH ?
-                                GoosciSensorLayout.SensorLayout.METER :
-                                GoosciSensorLayout.SensorLayout.GRAPH;
+                        GoosciSensorLayout.SensorLayout.METER :
+                        GoosciSensorLayout.SensorLayout.GRAPH;
                 updateContentView(true);
             }
         });
@@ -755,8 +757,8 @@ public class SensorCardPresenter {
                             ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
                             ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
                     AudioSettingsDialog dialog =
-                            AudioSettingsDialog.newInstance(new String[] {currentSonificationType},
-                                    new String[] {mSensorId}, 0);
+                            AudioSettingsDialog.newInstance(new String[]{currentSonificationType},
+                                    new String[]{mSensorId}, 0);
                     dialog.show(mParentFragment.getChildFragmentManager(), AudioSettingsDialog.TAG);
                     return true;
                 } else if (itemId == R.id.btn_sensor_card_set_triggers) {
@@ -843,7 +845,7 @@ public class SensorCardPresenter {
     private void updateSonificationType(String sonificationType) {
         updateAudio(mLayout.audioEnabled, sonificationType);
         getCardOptions(mCurrentSource, mParentFragment.getActivity()).load(
-                        LoggingConsumer.expectSuccess(TAG, "loading card options")).put(
+                LoggingConsumer.expectSuccess(TAG, "loading card options")).put(
                 ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
                 sonificationType);
     }
@@ -931,7 +933,8 @@ public class SensorCardPresenter {
     // Selects the new sensor if it is different from the old sensor or if no sensor is currently
     // selected.
     private void trySelectingNewSensor(String newSensorId, String oldSensorId) {
-        if ((mCurrentSource == null && !mCardStatus.hasError()) || !TextUtils.equals(newSensorId, oldSensorId)) {
+        if ((mCurrentSource == null && !mCardStatus.hasError()) || !TextUtils.equals(newSensorId,
+                oldSensorId)) {
             // Clear the active sensor triggers when changing sensors.
             if (!TextUtils.equals(mLayout.sensorId, newSensorId)) {
                 mLayout.activeSensorTriggerIds = new String[]{};
@@ -946,13 +949,18 @@ public class SensorCardPresenter {
         mAppearanceProvider = appearanceProvider;
     }
 
-    public void updateAvailableSensors(Set<String> sensorIds) {
+    /**
+     * @param availableSensorIds a _sorted_ list of availableSensorIds, in the order they should be
+     *                           laid out in sensor tabs.
+     * @param allSensorIds all of the sensors, including the currently-used ones, in order.
+     */
+    public void updateAvailableSensors(List<String> availableSensorIds, List<String> allSensorIds) {
         // We should never be updating the selected sensor.
-        List<String> newAvailableSensorIds = new ArrayList(sensorIds);
-        if (!TextUtils.isEmpty(mSensorId) && !sensorIds.contains(mSensorId)) {
+        List<String> newAvailableSensorIds = new ArrayList(availableSensorIds);
+        if (!TextUtils.isEmpty(mSensorId) && !availableSensorIds.contains(mSensorId)) {
             newAvailableSensorIds.add(mSensorId);
         }
-        List<String> sorted = customSortSensorIds(newAvailableSensorIds);
+        List<String> sorted = customSortSensorIds(newAvailableSensorIds, allSensorIds);
         if (!sorted.equals(mAvailableSensorIds)) {
             mAvailableSensorIds = sorted;
             if (mCardViewHolder != null && !TextUtils.isEmpty(mSensorId)) {
@@ -960,6 +968,12 @@ public class SensorCardPresenter {
             }
         }
         refreshTabLayout();
+    }
+
+    // TODO: find a way to test without exposing this.
+    @VisibleForTesting
+    public ArrayList<String> getAvailableSensorIds() {
+        return Lists.newArrayList(mAvailableSensorIds);
     }
 
     // The following is a workaround to a bug described in
@@ -977,7 +991,9 @@ public class SensorCardPresenter {
         });
     }
 
-    private List<String> customSortSensorIds(List<String> sensorIds) {
+    @VisibleForTesting
+    public static List<String> customSortSensorIds(List<String> sensorIds,
+            List<String> allSensorIds) {
         List<String> result = new ArrayList(Arrays.asList(SENSOR_ID_ORDER));
         // Keep only the elements in result that are in the available SensorIds list.
         for (String id : SENSOR_ID_ORDER) {
@@ -987,11 +1003,13 @@ public class SensorCardPresenter {
                 sensorIds.remove(id);
             }
         }
-        // Add any other sensors from SensorIds alphabetically.
-        Collections.sort(sensorIds);
-        for (String id : sensorIds) {
-            result.add(id);
+
+        for (String id : allSensorIds) {
+            if (sensorIds.contains(id)) {
+                result.add(id);
+            }
         }
+
         return result;
     }
 
@@ -1045,7 +1063,8 @@ public class SensorCardPresenter {
      *
      * @param isActive Whether this SensorCardPresenter should be active
      * @param force    If true, forces UI updates even if isActive is not changed from the previous
-     *                 state. This is useful when a card is created for the first time or when views
+     *                 state. This is useful when a card is created for the first time or when
+     *                 views
      *                 are recycled from other SensorCards and we want to make sure that they
      *                 have the
      *                 correct visibility.
@@ -1152,7 +1171,7 @@ public class SensorCardPresenter {
 
         // Close the menu, because it will reference obsolete views and
         // presenters after resume.
-        if (mPopupMenu != null ) {
+        if (mPopupMenu != null) {
             mPopupMenu.dismiss();
         }
 

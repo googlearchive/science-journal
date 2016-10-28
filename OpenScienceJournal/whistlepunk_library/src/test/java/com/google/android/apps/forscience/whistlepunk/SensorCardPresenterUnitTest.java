@@ -39,9 +39,12 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusList
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor;
+import com.google.common.collect.Lists;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -78,6 +81,12 @@ public class SensorCardPresenterUnitTest {
         cardStatus.setStatus(SensorStatusListener.STATUS_DISCONNECTED);
         cardStatus.setHasError(false);
         assertTrue(cardStatus.shouldShowRetry());
+    }
+
+    @Test public void trustIncomingSensorSortOrder() {
+        ArrayList<String> ids = Lists.newArrayList("c", "b", "a", AmbientLightSensor.ID);
+        List<String> sorted = SensorCardPresenter.customSortSensorIds(ids, ids);
+        assertEquals(Lists.newArrayList(AmbientLightSensor.ID, "c", "b", "a"), sorted);
     }
 
     private static class MemorySensorPresenter implements SensorPresenter {

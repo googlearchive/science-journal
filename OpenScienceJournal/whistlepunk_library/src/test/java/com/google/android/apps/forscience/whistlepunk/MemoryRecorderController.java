@@ -19,13 +19,12 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Intent;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
-import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
 import com.google.common.collect.Lists;
 
@@ -140,7 +139,7 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public void updateExternalSensors(Map<String, ExternalSensorSpec> sensors) {
+    public void updateExternalSensors(List<ConnectableSensor> sensors) {
 
     }
 

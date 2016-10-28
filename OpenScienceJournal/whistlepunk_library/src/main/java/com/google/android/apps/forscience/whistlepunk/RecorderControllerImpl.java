@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -811,7 +812,7 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @Override
-    public void updateExternalSensors(Map<String, ExternalSensorSpec> sensors) {
+    public void updateExternalSensors(List<ConnectableSensor> sensors) {
         mSensors.updateExternalSensors(sensors,
                 AppSingleton.getInstance(mContext).getExternalSensorProviders());
     }

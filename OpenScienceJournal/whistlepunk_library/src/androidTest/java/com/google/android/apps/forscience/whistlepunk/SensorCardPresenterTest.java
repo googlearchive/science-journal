@@ -27,7 +27,9 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorag
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
+import com.google.common.collect.Lists;
 
+// TODO: can we make this a JDK test?
 public class SensorCardPresenterTest extends AndroidTestCase {
     public void testExtrasIncludedInLayout() {
         SensorCardPresenter scp = createSCP();
@@ -81,6 +83,17 @@ public class SensorCardPresenterTest extends AndroidTestCase {
         ReadableSensorOptions read = scp.getCardOptions(sensor, getContext()).load(
                 explodingListener()).getReadOnly();
         assertEquals("fromCardSettings", read.getString(key, null));
+    }
+
+    public void testKeepOrder() {
+        SensorCardPresenter scp = createSCP();
+        scp.setAppearanceProvider(new MemoryAppearanceProvider());
+        scp.setUiForConnectingNewSensor("selected", "displayName", "units", false);
+        scp.updateAvailableSensors(Lists.newArrayList("available1", "available2", "available3"),
+                Lists.<String>newArrayList("available1", "selected", "available2",
+                        "selectedElsewhere", "available3"));
+        assertEquals(Lists.newArrayList("available1", "selected", "available2",
+                "available3"), scp.getAvailableSensorIds());
     }
 
     @NonNull

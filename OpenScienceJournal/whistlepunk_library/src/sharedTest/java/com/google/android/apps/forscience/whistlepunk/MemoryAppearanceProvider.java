@@ -13,17 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package com.google.android.apps.forscience.whistlepunk;
 
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
 
-import java.util.List;
-import java.util.Map;
+public class MemoryAppearanceProvider implements SensorAppearanceProvider {
+    @Override
+    public void loadAppearances(MaybeConsumer<Success> onSuccess) {
 
-public interface SensorRegistryListener {
-    void updateExternalSensors(List<ConnectableSensor> sensors);
+    }
 
-    void refreshBuiltinSensors();
+    @Override
+    public SensorAppearance getAppearance(String sensorId) {
+        return new BuiltInSensorAppearance(0, 0);
+    }
 }
