@@ -162,6 +162,7 @@ public class ConnectableSensorRegistry {
                 }
             }
         });
+
         for (final Map.Entry<String, ExternalSensorDiscoverer> entry : mDiscoverers.entrySet()) {
             ExternalSensorDiscoverer discoverer = entry.getValue();
             final String type = entry.getKey();

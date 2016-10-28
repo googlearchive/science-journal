@@ -20,6 +20,8 @@ import android.widget.TextView;
 
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.ToggleArrow;
+import com.google.common.base.Supplier;
 
 /**
  * View holder for device views in the expandable view
@@ -27,12 +29,43 @@ import com.google.android.apps.forscience.whistlepunk.R;
 public class DeviceParentViewHolder extends ParentViewHolder {
     private final TextView mDeviceNameView;
 
-    public DeviceParentViewHolder(View itemView) {
+    private final ToggleArrow mCollapsedIcon;
+    private final Supplier<Integer> mGlobalPositionOffset;
+
+    public DeviceParentViewHolder(View itemView, Supplier<Integer> globalPositionOffset) {
         super(itemView);
         mDeviceNameView = (TextView) itemView.findViewById(R.id.device_name);
+        mCollapsedIcon = (ToggleArrow) itemView.findViewById(R.id.collapsed_icon);
+        mGlobalPositionOffset = globalPositionOffset;
     }
 
     public void bind(DeviceParentListItem item) {
         mDeviceNameView.setText(item.getDeviceName());
+        mCollapsedIcon.setActionStrings(R.string.btn_expand_device,
+                R.string.btn_contract_device);
+        mCollapsedIcon.setActive(item.isInitiallyExpanded(), false);
+    }
+
+    @Override
+    public void onExpansionToggled(boolean wasExpandedBefore) {
+        super.onExpansionToggled(wasExpandedBefore);
+        boolean isNowExpanded = !wasExpandedBefore;
+        mCollapsedIcon.setActive(isNowExpanded, true);
+    }
+
+    @Override
+    public void setParentListItemExpandCollapseListener(
+            final ParentListItemExpandCollapseListener superListener) {
+        super.setParentListItemExpandCollapseListener(new ParentListItemExpandCollapseListener() {
+            @Override
+            public void onParentListItemExpanded(int position) {
+                superListener.onParentListItemExpanded(position - mGlobalPositionOffset.get());
+            }
+
+            @Override
+            public void onParentListItemCollapsed(int position) {
+                superListener.onParentListItemCollapsed(position - mGlobalPositionOffset.get());
+            }
+        });
     }
 }

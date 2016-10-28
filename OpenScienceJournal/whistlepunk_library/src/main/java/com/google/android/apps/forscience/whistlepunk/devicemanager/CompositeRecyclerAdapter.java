@@ -28,6 +28,18 @@ import android.view.ViewGroup;
  */
 public class CompositeRecyclerAdapter<VH extends RecyclerView.ViewHolder> extends
         RecyclerView.Adapter<VH> {
+    /**
+     * In _general_, adapters shouldn't have to worry about whether the indices they are returning
+     * are the same ones being used in the containing view (that's what makes this class mostly
+     * possible).  But if an adapter does happen to call
+     * {@link RecyclerView.ViewHolder#getAdapterPosition()},
+     * like {@link com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter} does,
+     * then it needs to know its global position, and adjust indices accordingly.
+     */
+    public interface CompositeSensitiveAdapter {
+        public void informGlobalAdapterStartPosition(int startPosition);
+    }
+
     private RecyclerView.Adapter<VH>[] mSubAdapters;
     private SparseArray<Integer> mViewTypeToCreatingAdapterIndex = new SparseArray<>();
 
@@ -131,7 +143,12 @@ public class CompositeRecyclerAdapter<VH extends RecyclerView.ViewHolder> extend
     @Override
     public void onBindViewHolder(VH holder, int position) {
         scanTo(position);
-        mSubAdapters[mLastSubAdapterIndex].onBindViewHolder(holder, mLastSubPosition);
+        RecyclerView.Adapter<VH> subAdapter = mSubAdapters[mLastSubAdapterIndex];
+        if (subAdapter instanceof CompositeSensitiveAdapter) {
+            CompositeSensitiveAdapter csa = (CompositeSensitiveAdapter) subAdapter;
+            csa.informGlobalAdapterStartPosition(mLastGlobalPosition - mLastSubPosition);
+        }
+        subAdapter.onBindViewHolder(holder, mLastSubPosition);
     }
 
     @Override

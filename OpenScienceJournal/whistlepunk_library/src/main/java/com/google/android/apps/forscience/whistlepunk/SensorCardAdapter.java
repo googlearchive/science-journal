@@ -16,17 +16,13 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.content.res.Resources;
 import android.graphics.Rect;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.TouchDelegate;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-
-import com.google.common.base.Joiner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -182,16 +178,8 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 // lays out its children before you call getHitRect()
                 @Override
                 public void run() {
-                    Resources resources = cardViewHolder.toggleButton.getResources();
-                    Rect delegateArea = new Rect();
-                    cardViewHolder.toggleButton.getHitRect(delegateArea);
-                    delegateArea.left += resources.getDimensionPixelSize(
-                            R.dimen.toggle_btn_delegate_add);
-                    delegateArea.right += resources.getDimensionPixelOffset(
-                            R.dimen.toggle_btn_delegate_add);
-                    TouchDelegate touchDelegate = new TouchDelegate(delegateArea,
-                            cardViewHolder.toggleButton);
-                    cardViewHolder.header.setTouchDelegate(touchDelegate);
+                    cardViewHolder.header.setTouchDelegate(
+                            cardViewHolder.toggleButton.makeTouchDelegate());
                 }
             });
             return cardViewHolder;

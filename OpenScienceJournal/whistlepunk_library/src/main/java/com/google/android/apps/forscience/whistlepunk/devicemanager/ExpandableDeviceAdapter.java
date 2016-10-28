@@ -26,6 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +34,12 @@ import java.util.Map;
 
 public class ExpandableDeviceAdapter extends
         ExpandableRecyclerAdapter<DeviceParentViewHolder, SensorChildViewHolder> implements
-        SensorGroup {
+        SensorGroup, CompositeRecyclerAdapter.CompositeSensitiveAdapter {
     private final List<DeviceParentListItem> mDeviceParents;
     private DeviceRegistry mDeviceRegistry = new DeviceRegistry();
     private Map<String, ConnectableSensor> mSensorMap = new ArrayMap<>();
     private ConnectableSensorRegistry mRegistry;
+    private int mGlobalAdapterStartPosition = 0;
 
     public static ExpandableDeviceAdapter createEmpty(final ConnectableSensorRegistry registry,
             DeviceRegistry deviceRegistry) {
@@ -58,7 +60,12 @@ public class ExpandableDeviceAdapter extends
             ViewGroup parentViewGroup) {
         View viewGroup = LayoutInflater.from(parentViewGroup.getContext()).inflate(
                 R.layout.device_expandable_recycler_item, parentViewGroup, false);
-        return new DeviceParentViewHolder(viewGroup);
+        return new DeviceParentViewHolder(viewGroup, new Supplier<Integer>() {
+            @Override
+            public Integer get() {
+                return mGlobalAdapterStartPosition;
+            }
+        });
     }
 
     @Override
@@ -111,7 +118,8 @@ public class ExpandableDeviceAdapter extends
         DeviceParentListItem item = new DeviceParentListItem(device);
         item.addSensor(sensorKey);
         mDeviceParents.add(item);
-        notifyParentItemInserted(mDeviceParents.size() - 1);
+        int parentPosition = mDeviceParents.size() - 1;
+        notifyParentItemInserted(parentPosition);
     }
 
     private int findParentIndex(String sensorKey) {
@@ -162,5 +170,10 @@ public class ExpandableDeviceAdapter extends
 
     ConnectableSensor getSensor(int deviceIndex, int sensorIndex) {
         return mSensorMap.get(getDevice(deviceIndex).getSensorKey(sensorIndex));
+    }
+
+    @Override
+    public void informGlobalAdapterStartPosition(int startPosition) {
+        mGlobalAdapterStartPosition = startPosition;
     }
 }
