@@ -36,6 +36,7 @@ import java.util.concurrent.Executor;
  * Sensor that receives data through the scalar input API.
  */
 class ScalarInputSensor extends ScalarSensor {
+    public static final Delay CONNECTION_TIME_OUT = Delay.seconds(20);
     private static final int MINIMUM_REFRESH_RATE_MILLIS = 1000;
     private final String mAddress;
     private final String mServiceId;
@@ -66,6 +67,7 @@ class ScalarInputSensor extends ScalarSensor {
             Context context, final SensorStatusListener listener) {
         final Clock clock = environment.getDefaultClock();
         return new AbstractSensorRecorder() {
+            private Runnable mTimeOutRunnable;
             private ISensorConnector mConnector = null;
             private double mLatestData;
             private ApiStatusListener mSensorStatusListener = new ApiStatusListener(listener) {
@@ -106,6 +108,9 @@ class ScalarInputSensor extends ScalarSensor {
 
             @Override
             public void startObserving() {
+                if (mSensorStatusListener != null) {
+                    mSensorStatusListener.connect();
+                }
                 mServiceFinder.take(new AppDiscoveryCallbacks() {
                     @Override
                     public void onServiceFound(String serviceId, ISensorDiscoverer service) {
@@ -126,6 +131,18 @@ class ScalarInputSensor extends ScalarSensor {
                             mConnector = service.getConnector();
                             mConnector.startObserving(mAddress, makeObserver(c),
                                     mSensorStatusListener, settingsKey);
+                            cancelTimeoutRunnable();
+                            mTimeOutRunnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (mMostRecentStatus
+                                            != SensorStatusListener.STATUS_CONNECTED) {
+                                        mSensorStatusListener.onSensorError(
+                                                mStringSource.generateConnectionTimeoutMessage());
+                                    }
+                                }
+                            };
+                            mScheduler.schedule(CONNECTION_TIME_OUT, mTimeOutRunnable);
                         } catch (RemoteException e) {
                             complain(e);
                         } catch (RuntimeException e) {
@@ -162,8 +179,16 @@ class ScalarInputSensor extends ScalarSensor {
                 });
             }
 
+            private void cancelTimeoutRunnable() {
+                if (mTimeOutRunnable != null) {
+                    mScheduler.unschedule(mTimeOutRunnable);
+                    mTimeOutRunnable = null;
+                }
+            }
+
             @Override
             public void stopObserving() {
+                cancelTimeoutRunnable();
                 if (mConnector != null) {
                     try {
                         mConnector.stopObserving(mAddress);
@@ -193,14 +218,19 @@ class ScalarInputSensor extends ScalarSensor {
     }
 
     private abstract class ApiStatusListener extends ISensorStatusListener.Stub {
-        private SensorStatusListener mListener;
+        private boolean mConnected = true;
+        private final SensorStatusListener mListener;
 
         public ApiStatusListener(SensorStatusListener listener) {
             mListener = listener;
         }
 
+        public void connect() {
+            mConnected = true;
+        }
+
         public void disconnect() {
-            mListener = null;
+            mConnected = false;
             onNoLongerStreaming();
         }
 
@@ -236,12 +266,11 @@ class ScalarInputSensor extends ScalarSensor {
         }
 
         @Override
-        public void onSensorError(final String errorMessage)
-                throws RemoteException {
+        public void onSensorError(final String errorMessage) {
             runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (mListener == null) {
+                    if (!mConnected) {
                         return;
                     }
                     mListener.onSourceError(getId(),
@@ -254,7 +283,7 @@ class ScalarInputSensor extends ScalarSensor {
         protected abstract void onNoLongerStreaming();
 
         private void setStatus(int statusCode) {
-            if (mListener == null) {
+            if (!mConnected) {
                 return;
             }
             mListener.onSourceStatus(getId(), statusCode);

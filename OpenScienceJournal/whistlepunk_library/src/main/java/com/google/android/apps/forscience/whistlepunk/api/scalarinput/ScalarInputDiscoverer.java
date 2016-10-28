@@ -66,6 +66,11 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 return context.getResources().getString(R.string.could_not_find_service_error,
                         serviceId);
             }
+
+            @Override
+            public String generateConnectionTimeoutMessage() {
+                return context.getResources().getString(R.string.api_connection_timeout_error);
+            }
         };
     }
 

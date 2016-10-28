@@ -1277,6 +1277,9 @@
     <!-- Section label for sensed devices that could be connected to [CHAR_LIMIT=30] -->
     <string name="available_devices">Available Devices</string>
 
+    <!-- Error message when a sensor does not connect in time [CHAR_LIMIT=NONE] -->
+    <string name="api_connection_timeout_error">Connection timeout</string>
+
     <!-- Content description for arrow button that reveals sensors available on a paired device [CHAR_LIMIT=NONE] -->
     <string name="btn_expand_device">Reveal device sensors</string>
 

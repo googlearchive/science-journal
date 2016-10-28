@@ -20,4 +20,9 @@ public class TestStringSource implements ScalarInputStringSource {
     public String generateCouldNotFindServiceErrorMessage(String serviceId) {
         return "No luck finding " + serviceId;
     }
+
+    @Override
+    public String generateConnectionTimeoutMessage() {
+        return "Connection timeout";
+    }
 }

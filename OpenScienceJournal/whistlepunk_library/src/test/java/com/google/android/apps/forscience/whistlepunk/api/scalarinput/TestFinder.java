@@ -51,7 +51,6 @@ class TestFinder extends Consumer<AppDiscoveryCallbacks> {
             @Override
             public ISensorConnector getConnector() throws RemoteException {
                 return new ISensorConnector() {
-
                     @Override
                     public void startObserving(String sensorAddress,
                             ISensorObserver observer,
@@ -59,6 +58,7 @@ class TestFinder extends Consumer<AppDiscoveryCallbacks> {
                             throws RemoteException {
                         TestFinder.this.listener = listener;
                         TestFinder.this.observer = observer;
+                        signalConnected(listener);
                     }
 
                     @Override
@@ -74,5 +74,9 @@ class TestFinder extends Consumer<AppDiscoveryCallbacks> {
                 };
             }
         });
+    }
+
+    protected void signalConnected(ISensorStatusListener listener) throws RemoteException {
+        listener.onSensorConnected();
     }
 }

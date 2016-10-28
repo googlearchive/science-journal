@@ -139,6 +139,11 @@ public class ScalarInputProviderTest {
                     public String generateCouldNotFindServiceErrorMessage(String serviceId) {
                         return "Could not find service: " + serviceId;
                     }
+
+                    @Override
+                    public String generateConnectionTimeoutMessage() {
+                        return "Connection timeout";
+                    }
                 },
                 mExecutor, new MockScheduler());
         SensorChoice sensor = provider.buildSensor(sensorId, makeSpec(sensorAddress, serviceId));
