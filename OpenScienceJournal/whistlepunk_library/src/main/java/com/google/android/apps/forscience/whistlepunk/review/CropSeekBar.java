@@ -110,15 +110,19 @@ public class CropSeekBar extends GraphExploringSeekBar {
                 int bufferTicks = (int) Math.ceil(
                         Math.max(BUFFER_RANGE, BUFFER_MILLIS / mMillisPerTick));
                 if (mType == TYPE_START) {
-                    if (progress > mOtherSeekbar.getProgress() - bufferTicks) {
-                        progress = mOtherSeekbar.getProgress() - bufferTicks;
+                    if (progress > mOtherSeekbar.getFullProgress() - bufferTicks) {
+                        ((CropSeekBar) seekBar).setFullProgress(
+                                mOtherSeekbar.getFullProgress() - bufferTicks);
+                        return;
                     }
                 } else {
-                    if (progress < mOtherSeekbar.getProgress() + bufferTicks) {
-                        progress = mOtherSeekbar.getProgress() + bufferTicks;
+                    if (progress < mOtherSeekbar.getFullProgress() + bufferTicks) {
+                        ((CropSeekBar) seekBar).setFullProgress(
+                                mOtherSeekbar.getFullProgress() + bufferTicks);
+                        return;
                     }
                 }
-                setProgress(progress);
+                ((CropSeekBar) seekBar).updateFullProgress(progress);
             }
 
             @Override

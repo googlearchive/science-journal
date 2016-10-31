@@ -629,7 +629,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         // Redraw the thumb after the chart is updated.
         mRunReviewOverlay.post(new Runnable() {
             public void run() {
-                mRunReviewOverlay.refresh(false);
+                mRunReviewOverlay.onYAxisAdjusted();
             }
         });
     }
@@ -654,6 +654,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     mSavedInstanceStateForLoad.getBoolean(KEY_STATS_OVERLAY_VISIBLE));
             outState.putBoolean(KEY_AUDIO_PLAYBACK_ON,
                     mSavedInstanceStateForLoad.getBoolean(KEY_AUDIO_PLAYBACK_ON));
+            outState.putBoolean(KEY_CROP_UI_VISIBLE,
+                    mSavedInstanceStateForLoad.getBoolean(KEY_CROP_UI_VISIBLE));
+            outState.putLong(KEY_CROP_START_TIMESTAMP,
+                    mSavedInstanceStateForLoad.getLong(KEY_CROP_START_TIMESTAMP));
+            outState.putLong(KEY_CROP_END_TIMESTAMP,
+                    mSavedInstanceStateForLoad.getLong(KEY_CROP_END_TIMESTAMP));
         } else {
             outState.putBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE, getChildFragmentManager()
                     .findFragmentByTag(EditTimeDialog.TAG) != null);
@@ -663,10 +669,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             outState.putBoolean(KEY_STATS_OVERLAY_VISIBLE, mShowStatsOverlay);
             outState.putBoolean(KEY_AUDIO_PLAYBACK_ON, mAudioPlaybackController.isPlaying() ||
                     mAudioWasPlayingBeforePause);
-        }
-        boolean isCropping = mRunReviewOverlay.getIsCropping();
-        outState.putBoolean(KEY_CROP_UI_VISIBLE, isCropping);
-        if (isCropping) {
+            outState.putBoolean(KEY_CROP_UI_VISIBLE, mRunReviewOverlay.getIsCropping());
             outState.putLong(KEY_CROP_START_TIMESTAMP, mRunReviewOverlay.getCropStartTimestamp());
             outState.putLong(KEY_CROP_END_TIMESTAMP, mRunReviewOverlay.getCropEndTimestamp());
         }
@@ -815,17 +818,18 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         mRunReviewOverlay.getTimestamp(),
                         mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId);
             }
+            // Remember the crop timestamps after a rotate, even if the crop UI is not up.
+            mRunReviewOverlay.setCropTimestamps(
+                    mSavedInstanceStateForLoad.getLong(KEY_CROP_START_TIMESTAMP,
+                            mExperimentRun.getFirstTimestamp()),
+                    mSavedInstanceStateForLoad.getLong(KEY_CROP_END_TIMESTAMP,
+                            mExperimentRun.getLastTimestamp()));
             if (getChildFragmentManager().findFragmentByTag(EditTimeDialog.TAG) != null) {
                 // Reset the add note timepicker UI
                 setTimepickerUi(rootView, true);
             } else {
                 // See if the crop UI is up
                 if (mSavedInstanceStateForLoad.getBoolean(KEY_CROP_UI_VISIBLE, false)) {
-                    mRunReviewOverlay.setCropTimestamps(
-                            mSavedInstanceStateForLoad.getLong(KEY_CROP_START_TIMESTAMP,
-                                    mExperimentRun.getFirstTimestamp()),
-                            mSavedInstanceStateForLoad.getLong(KEY_CROP_END_TIMESTAMP,
-                                    mExperimentRun.getLastTimestamp()));
                     launchCrop(rootView);
                 }
             }
@@ -904,7 +908,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         mChartController.loadRunData(mExperimentRun, sensorLayout, dataController,
                                 fragmentRef, runStats,
                                 new ChartController.ChartDataLoadedCallback() {
-                                    public long mOverlayTimestamp;
+                                    public long mOverlayTs;
+                                    public long mCropStartTs;
+                                    public long mCropEndTs;
                                     public long mPreviousXMax;
                                     public long mPreviousXMin;
 
@@ -912,7 +918,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                                     public void onChartDataLoaded(long firstTimestamp,
                                             long lastTimestamp) {
                                         onDataLoaded(firstTimestamp, lastTimestamp, mPreviousXMin,
-                                                mPreviousXMax, mOverlayTimestamp);
+                                                mPreviousXMax, mOverlayTs, mCropStartTs,
+                                                mCropEndTs);
                                     }
 
                                     @Override
@@ -926,7 +933,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
                                         mPreviousXMin = mExternalAxis.getXMin();
                                         mPreviousXMax = mExternalAxis.getXMax();
-                                        mOverlayTimestamp = mRunReviewOverlay.getTimestamp();
+                                        mOverlayTs = mRunReviewOverlay.getTimestamp();
+                                        mCropStartTs = mRunReviewOverlay.getCropStartTimestamp();
+                                        mCropEndTs = mRunReviewOverlay.getCropEndTimestamp();
                                     }
                                 });
                     }
@@ -977,8 +986,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 });
     }
 
+    // TODO: Do we need to pass these overlay timestamps in at all?
     private void onDataLoaded(long firstTimestamp, long lastTimestamp, long previousXMin,
-            long previousXMax, long overlayTimestamp) {
+            long previousXMax, long overlayTimestamp, long cropStartTimestamp, long cropEndTimestamp) {
         // Show the replay play button
         mRunReviewPlaybackButton.setVisibility(View.VISIBLE);
 
@@ -999,20 +1009,18 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
             mExternalAxis.zoomTo(mChartController.getRenderedXMin(),
                     mChartController.getRenderedXMax());
-            mRunReviewOverlay.setActiveTimestamp(firstTimestamp);
+            mRunReviewOverlay.setAllTimestamps(firstTimestamp, firstTimestamp, lastTimestamp);
         } else {
-            // If we just cropped the run, the prev min and max will be too wide.
+            // If we just cropped the run, the prev min and max will be too wide, so make sure
+            // we clip to the current run size.
             long xMin = Math.max(renderedXMin, previousXMin);
             long xMax = Math.min(renderedXMax, previousXMax);
             mExternalAxis.zoomTo(xMin, xMax);
             mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
+            mRunReviewOverlay.setAllTimestamps(overlayTimestamp, cropStartTimestamp, cropEndTimestamp);
         }
         adjustYAxis();
-
-        if (overlayTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
-            mRunReviewOverlay.setActiveTimestamp(overlayTimestamp);
-            mRunReviewOverlay.setVisibility(View.VISIBLE);
-        }
+        mRunReviewOverlay.setVisibility(View.VISIBLE);
     }
 
     // TODO(saff): probably extract ExperimentRunPresenter

@@ -43,6 +43,11 @@ public class GraphExploringSeekBar extends AppCompatSeekBar {
     private String mUnits = "";
     private String mFormat;
 
+    // This is like mProgress, but can be less than 0 or greater than the max.
+    // This makes it easier to handle times when we want to represent data that is
+    // outside the edge of the graph -- and therefore outside of the seekbar range.
+    private int mFullProgress;
+
     public GraphExploringSeekBar(Context context) {
         super(context);
         init();
@@ -100,5 +105,22 @@ public class GraphExploringSeekBar extends AppCompatSeekBar {
 
     protected void setFormat(String format) {
         mFormat = format;
+    }
+
+    // Gets the full progress, which may be more than the max and less than 0.
+    public int getFullProgress() {
+        return mFullProgress;
+    }
+
+    // This should be used instead of setProgress whenever anything wants to change this
+    // seekbar's progress.
+    public void setFullProgress(int progress) {
+        mFullProgress = progress;
+        setProgress(mFullProgress);
+    }
+
+    // Updates the full progress without calling the setProgress function.
+    public void updateFullProgress(int progress) {
+        mFullProgress = progress;
     }
 }
