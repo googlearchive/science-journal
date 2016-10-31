@@ -99,12 +99,20 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private ArrayList<Label> mPinnedNotes = new ArrayList<>();
     private long mStartTimestamp;
+    private long mEndTimestamp;
     private ListItemEditListener mEditListener;
     private ListItemClickListener mClickListener;
 
-    public PinnedNoteAdapter(ArrayList<Label> pinnedNotes, long startTimestamp) {
+    public PinnedNoteAdapter(ArrayList<Label> pinnedNotes, long startTimestamp, long endTimestamp) {
         mPinnedNotes = pinnedNotes;
         mStartTimestamp = startTimestamp;
+        mEndTimestamp = endTimestamp;
+    }
+
+    public void updateRunTimestamps(long startTimestamp, long endTimestamp) {
+        mStartTimestamp = startTimestamp;
+        mEndTimestamp = endTimestamp;
+        notifyDataSetChanged();
     }
 
     public void setListItemModifyListener(ListItemEditListener editListener) {
@@ -223,12 +231,15 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             });
         }
-        noteHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mClickListener.onListItemClicked(label);
-            }
-        });
+        // Notes out of range are not clickable.
+        if (mStartTimestamp <= label.getTimeStamp() && label.getTimeStamp() < mEndTimestamp) {
+            noteHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mClickListener.onListItemClicked(label);
+                }
+            });
+        }
     }
 
     @Override
@@ -309,8 +320,13 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public static String getNoteTimeText(long labelTimestamp, long startTimestamp) {
-        return DateUtils.formatElapsedTime(Math.round(
-                (labelTimestamp - startTimestamp) / RunReviewFragment.MILLIS_IN_A_SECOND));
+        long elapsedTimeSeconds = Math.round(
+                (labelTimestamp - startTimestamp) / RunReviewFragment.MILLIS_IN_A_SECOND);
+        if (elapsedTimeSeconds < 0) {
+            // TOOD: String resource: Localization for negative values?
+            return "-" + DateUtils.formatElapsedTime(-1 * elapsedTimeSeconds);
+        }
+        return DateUtils.formatElapsedTime(elapsedTimeSeconds);
     }
 
     public static String getNoteTimeContentDescription(long currentTimestamp,

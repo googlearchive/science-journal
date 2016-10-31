@@ -70,7 +70,7 @@ public class GraphExploringSeekBar extends AppCompatSeekBar {
 
             @Override
             public void onInitializeAccessibilityNodeInfo(View host,
-                                                          AccessibilityNodeInfoCompat info) {
+                    AccessibilityNodeInfoCompat info) {
                 super.onInitializeAccessibilityNodeInfo(host, info);
                 info.setText(generateEventText());
             }

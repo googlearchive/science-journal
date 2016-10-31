@@ -56,6 +56,30 @@
 
     </FrameLayout>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="@dimen/run_review_external_axis_left_padding"
+        android:paddingBottom="4dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
+
+        <com.google.android.apps.forscience.whistlepunk.review.CoordinatedSeekbarViewGroup
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/accessibility_touch_target_min_size"
+            android:id="@+id/seekbar_view_group"
+            android:layout_marginLeft="42dp"
+            android:layout_marginRight="8dp"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            android:visibility="gone"
+            />
+
+    </FrameLayout>
+
     <com.google.android.apps.forscience.whistlepunk.RunReviewOverlay
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -111,4 +111,9 @@ public class CoordinatedSeekbarViewGroup extends RelativeLayout {
     public CropSeekBar getEndSeekBar() {
         return mEndSeekBar;
     }
+
+    public void setMillisecondsInRange(long millisecondsInRange) {
+        mStartSeekBar.setMillisecondsInRange(millisecondsInRange);
+        mEndSeekBar.setMillisecondsInRange(millisecondsInRange);
+    }
 }

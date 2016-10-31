@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -33,6 +34,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -74,6 +77,7 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
+import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
@@ -113,6 +117,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private static final String KEY_RUN_REVIEW_OVERLAY_TIMESTAMP = "run_review_overlay_time";
     private static final String KEY_STATS_OVERLAY_VISIBLE = "stats_overlay_visible";
     private static final String KEY_AUDIO_PLAYBACK_ON = "audio_playback_on";
+    private static final String KEY_CROP_UI_VISIBLE = "crop_ui_visible";
+    private static final String KEY_CROP_START_TIMESTAMP = "crop_ui_start_timestamp";
+    private static final String KEY_CROP_END_TIMESTAMP = "crop_ui_end_timestamp";
 
     private int mLoadingStatus = GRAPH_LOAD_STATUS_IDLE;
 
@@ -142,6 +149,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private RunReviewExporter mRunReviewExporter;
     private RunStats mCurrentSensorStats;
     private boolean mShowStatsOverlay = false;
+    private BroadcastReceiver mBroadcastReceiver;
 
     // Save the savedInstanceState between onCreateView and loading the run data, in case
     // an onPause happens during that time.
@@ -351,6 +359,15 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     }
                 });
 
+        CoordinatedSeekbarViewGroup cropGroup =
+                (CoordinatedSeekbarViewGroup) rootView.findViewById(R.id.seekbar_view_group);
+        CropSeekBar firstSeekbar =
+                (CropSeekBar) inflater.inflate(R.layout.crop_seek_bar, cropGroup, false);
+        CropSeekBar secondSeekbar =
+                (CropSeekBar) inflater.inflate(R.layout.crop_seek_bar, cropGroup, false);
+        cropGroup.setSeekbarPair(firstSeekbar, secondSeekbar);
+        mRunReviewOverlay.setCropSeekBarGroup(cropGroup);
+
         View statsDrawer = rootView.findViewById(R.id.stats_drawer);
         statsDrawer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -439,6 +456,10 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (mChartController != null) {
             mChartController.onViewRecycled();
         }
+        if (mBroadcastReceiver != null) {
+            CropHelper.unregisterBroadcastReceiver(getActivity(), mBroadcastReceiver);
+            mBroadcastReceiver = null;
+        }
         super.onDestroyView();
     }
 
@@ -456,7 +477,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
 
         // TODO: Re-enable this when ready to implement the functionality.
-        menu.findItem(R.id.action_run_review_crop).setVisible(false);
+        menu.findItem(R.id.action_run_review_crop).setVisible(enableDevTools);
 
         // Hide archive and unarchive buttons if the run isn't loaded yet.
         if (mExperimentRun != null) {
@@ -525,9 +546,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     }
                 });
         } else if (id == R.id.action_run_review_crop) {
-            // TODO: Add crop functionality.
-            AccessibilityUtils.makeSnackbar(getView(), getActivity().getResources().getString(
-                            R.string.action_not_available), Snackbar.LENGTH_SHORT).show();
+            if (mExperimentRun != null) {
+                launchCrop(getView());
+            }
         } else if (id == R.id.action_run_review_add_note) {
             if (mExperimentRun != null) {
                 launchLabelAdd(new GoosciLabelValue.LabelValue(), LABEL_TYPE_UNDECIDED,
@@ -643,11 +664,37 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             outState.putBoolean(KEY_AUDIO_PLAYBACK_ON, mAudioPlaybackController.isPlaying() ||
                     mAudioWasPlayingBeforePause);
         }
+        boolean isCropping = mRunReviewOverlay.getIsCropping();
+        outState.putBoolean(KEY_CROP_UI_VISIBLE, isCropping);
+        if (isCropping) {
+            outState.putLong(KEY_CROP_START_TIMESTAMP, mRunReviewOverlay.getCropStartTimestamp());
+            outState.putLong(KEY_CROP_END_TIMESTAMP, mRunReviewOverlay.getCropEndTimestamp());
+        }
     }
 
     private void attachToRun(final Experiment experiment, final ExperimentRun run) {
         mExperimentRun = run;
         mExperiment = experiment;
+
+        // Create a BroadcastReceiver for when the stats get updated.
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String statsRunId = intent.getStringExtra(CropHelper.EXTRA_RUN_ID);
+                if (TextUtils.equals(statsRunId, mExperimentRun.getRunId())) {
+                    String statsSensorId = intent.getStringExtra(CropHelper.EXTRA_SENSOR_ID);
+                    GoosciSensorLayout.SensorLayout sensorLayout =
+                            mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
+                    if (TextUtils.equals(statsSensorId, sensorLayout.sensorId)) {
+                        onStatsRefreshed(sensorLayout);
+                    }
+                }
+            }
+        };
+        CropHelper.registerStatsBroadcastReceiver(getActivity().getApplicationContext(),
+                mBroadcastReceiver);
+
+
         final View rootView = getView();
         if (rootView == null) {
             if (getActivity() != null) {
@@ -662,7 +709,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         pinnedNoteList.setLayoutManager(layoutManager);
 
         sortPinnedNotes(run.getPinnedNotes());
-        mPinnedNoteAdapter = new PinnedNoteAdapter(run.getPinnedNotes(), run.getFirstTimestamp());
+        mPinnedNoteAdapter = new PinnedNoteAdapter(run.getPinnedNotes(), run.getFirstTimestamp(),
+                run.getLastTimestamp());
         mPinnedNoteAdapter.setListItemModifyListener(new PinnedNoteAdapter.ListItemEditListener() {
             @Override
             public void onListItemEdit(final Label item) {
@@ -767,6 +815,20 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         mRunReviewOverlay.getTimestamp(),
                         mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId);
             }
+            if (getChildFragmentManager().findFragmentByTag(EditTimeDialog.TAG) != null) {
+                // Reset the add note timepicker UI
+                setTimepickerUi(rootView, true);
+            } else {
+                // See if the crop UI is up
+                if (mSavedInstanceStateForLoad.getBoolean(KEY_CROP_UI_VISIBLE, false)) {
+                    mRunReviewOverlay.setCropTimestamps(
+                            mSavedInstanceStateForLoad.getLong(KEY_CROP_START_TIMESTAMP,
+                                    mExperimentRun.getFirstTimestamp()),
+                            mSavedInstanceStateForLoad.getLong(KEY_CROP_END_TIMESTAMP,
+                                    mExperimentRun.getLastTimestamp()));
+                    launchCrop(rootView);
+                }
+            }
             mSavedInstanceStateForLoad = null;
         }
         loadRunData(rootView);
@@ -824,25 +886,20 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mAudioPlaybackController.setSonificationType(sonificationType);
 
         mRunReviewOverlay.setVisibility(View.INVISIBLE);
+        mCurrentSensorStats = null;
+
+        loadStatsAndChart(sensorLayout, (StatsList) rootView.findViewById(R.id.stats_drawer));
+    }
+
+    private void loadStatsAndChart(final GoosciSensorLayout.SensorLayout sensorLayout,
+            final StatsList statsList) {
         final DataController dataController = getDataController();
         final ChartController.ChartLoadingStatus fragmentRef = this;
-        mCurrentSensorStats = null;
-        final StatsList statsList = (StatsList) rootView.findViewById(R.id.stats_drawer);
-
         dataController.getStats(mExperimentRun.getRunId(), sensorLayout.sensorId,
                 new LoggingConsumer<RunStats>(TAG, "load stats") {
                     @Override
                     public void success(final RunStats runStats) {
-                        mCurrentSensorStats = runStats;
-                        NumberFormat numberFormat = AppSingleton.getInstance(getActivity())
-                                .getSensorAppearanceProvider()
-                                .getAppearance(sensorLayout.sensorId).getNumberFormat();
-                        List<StreamStat> streamStats =
-                                new StatsAccumulator.StatsDisplay(numberFormat)
-                                        .updateStreamStats(runStats);
-                        statsList.clearStats();
-                        statsList.updateStats(streamStats);
-                        mChartController.updateStats(streamStats);
+                        populateStats(runStats, statsList, sensorLayout.sensorId);
 
                         mChartController.loadRunData(mExperimentRun, sensorLayout, dataController,
                                 fragmentRef, runStats,
@@ -854,8 +911,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                                     @Override
                                     public void onChartDataLoaded(long firstTimestamp,
                                             long lastTimestamp) {
-                                       onDataLoaded(firstTimestamp, lastTimestamp, mPreviousXMin,
-                                               mPreviousXMax, mOverlayTimestamp);
+                                        onDataLoaded(firstTimestamp, lastTimestamp, mPreviousXMin,
+                                                mPreviousXMax, mOverlayTimestamp);
                                     }
 
                                     @Override
@@ -874,6 +931,31 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                                 });
                     }
                 });
+    }
+
+    private void populateStats(RunStats runStats, StatsList statsList, String sensorId) {
+        mCurrentSensorStats = runStats;
+        if (mCurrentSensorStats.getIntStat(StatsAccumulator.KEY_STATUS,
+                StatsAccumulator.STATUS_VALID) == StatsAccumulator.STATUS_NEEDS_UPDATE) {
+            statsList.clearStats();
+            mChartController.updateStats(null);
+        } else {
+            NumberFormat numberFormat = AppSingleton.getInstance(getActivity())
+                    .getSensorAppearanceProvider().getAppearance(sensorId).getNumberFormat();
+            List<StreamStat> streamStats = new StatsAccumulator.StatsDisplay(numberFormat)
+                    .updateStreamStats(runStats);
+            statsList.updateStats(streamStats);
+            mChartController.updateStats(streamStats);
+        }
+    }
+
+    private void onStatsRefreshed(final GoosciSensorLayout.SensorLayout sensorLayout) {
+        Log.d(TAG, "refresh stats!");
+        final StatsList statsList = (StatsList) getView().findViewById(R.id.stats_drawer);
+        if (statsList == null) {
+            return;
+        }
+        loadStatsAndChart(sensorLayout, statsList);
     }
 
     private String getSonificationType(GoosciSensorLayout.SensorLayout sensorLayout) {
@@ -919,7 +1001,10 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     mChartController.getRenderedXMax());
             mRunReviewOverlay.setActiveTimestamp(firstTimestamp);
         } else {
-            mExternalAxis.zoomTo(previousXMin, previousXMax);
+            // If we just cropped the run, the prev min and max will be too wide.
+            long xMin = Math.max(renderedXMin, previousXMin);
+            long xMax = Math.min(renderedXMax, previousXMax);
+            mExternalAxis.zoomTo(xMin, xMax);
             mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
         }
         adjustYAxis();
@@ -1131,30 +1216,110 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (showTimepicker) {
             mActionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(
                     new ActionMode.Callback() {
-                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                    mode.setTitle(getResources().getString(R.string.edit_note_time));
-                    return true;
-                }
+                        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                            mode.setTitle(getResources().getString(R.string.edit_note_time));
+                            return true;
+                        }
 
-                @Override
-                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                    return false;
-                }
+                        @Override
+                        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                            return false;
+                        }
 
-                @Override
-                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                    return false;
-                }
+                        @Override
+                        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                            return false;
+                        }
 
-                @Override
-                public void onDestroyActionMode(ActionMode mode) {
-                    if (mActionMode != null) {
-                        mActionMode = null;
-                        dismissEditTimeDialog();
-                    }
-                }
+                        @Override
+                        public void onDestroyActionMode(ActionMode mode) {
+                            if (mActionMode != null) {
+                                mActionMode = null;
+                                dismissEditTimeDialog();
+                            }
+                        }
             });
+            EditTimeDialog dialog = (EditTimeDialog) getChildFragmentManager()
+                    .findFragmentByTag(EditTimeDialog.TAG);
+            if (dialog != null) {
+                mRunReviewOverlay.setActiveTimestamp(dialog.getCurrentTimestamp());
+                mRunReviewOverlay.setOnTimestampChangeListener(dialog);
+            }
+        }
+        setUiForActionMode(rootView, showTimepicker);
+    }
 
+    private void setCropUi(View rootView, boolean showCrop) {
+        if (showCrop) {
+            mActionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(
+                    new ActionMode.Callback() {
+                        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                            mode.setTitle(getResources().getString(R.string.crop_run));
+                            MenuInflater inflater = mode.getMenuInflater();
+                            inflater.inflate(R.menu.crop_menu, menu);
+                            return true;
+                        }
+
+                        @Override
+                        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
+                            if (item.getItemId() == R.id.action_save) {
+                                saveCrop(mode);
+                            }
+                            return false;
+                        }
+
+                        @Override
+                        public void onDestroyActionMode(ActionMode mode) {
+                            if (mActionMode != null) {
+                                mActionMode = null;
+                                completeCrop();
+                            }
+                        }
+                    });
+        }
+        setUiForActionMode(rootView, showCrop);
+    }
+
+    private void saveCrop(final ActionMode mode) {
+        CropHelper helper = new CropHelper(getDataController());
+        helper.cropRun(getActivity().getApplicationContext(), mExperimentRun,
+                mRunReviewOverlay.getCropStartTimestamp(), mRunReviewOverlay.getCropEndTimestamp(),
+                new CropHelper.CropRunListener() {
+                    @Override
+                    public void onCropCompleted() {
+                        AccessibilityUtils.makeSnackbar(getView(),
+                                getResources().getString(R.string.crop_completed_message),
+                                Snackbar.LENGTH_SHORT).show();
+                        // TODO: Show undo button? P3: They can undo by
+                        // cropping wider again.
+                        hookUpExperimentDetailsArea(mExperimentRun, getView());
+                        loadRunData(getView());
+                        mPinnedNoteAdapter.updateRunTimestamps(mExperimentRun.getFirstTimestamp(),
+                                mExperimentRun.getLastTimestamp());
+                        if (mode != null) {
+                            mode.finish();
+                        }
+                    }
+
+                    @Override
+                    public void onCropFailed() {
+                        AccessibilityUtils.makeSnackbar(getView(),
+                                getResources().getString(R.string.crop_failed_message),
+                                Snackbar.LENGTH_LONG).show();
+                        if (mode != null) {
+                            mode.finish();
+                        }
+                    }
+                });
+    }
+
+    private void setUiForActionMode(View rootView, boolean showActionMode) {
+        if (showActionMode) {
             rootView.findViewById(R.id.embedded).setVisibility(View.VISIBLE);
 
             // Collapse app bar layout as much as possible to bring the graph to the top.
@@ -1182,16 +1347,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             notesOverlay.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mActionMode.finish();
+                    if (mActionMode != null) {
+                        mActionMode.finish();
+                    }
                 }
             });
-
-            EditTimeDialog dialog = (EditTimeDialog) getChildFragmentManager()
-                    .findFragmentByTag(EditTimeDialog.TAG);
-            if (dialog != null) {
-                mRunReviewOverlay.setActiveTimestamp(dialog.getCurrentTimestamp());
-                mRunReviewOverlay.setOnTimestampChangeListener(dialog);
-            }
         } else {
             if (mActionMode != null) {
                 mActionMode.finish();
@@ -1253,6 +1413,22 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         AudioSettingsDialog dialog = AudioSettingsDialog.newInstance(sonificationTypes, sensorIds,
                 mSelectedSensorIndex);
         dialog.show(getChildFragmentManager(), AudioSettingsDialog.TAG);
+    }
+
+    private void launchCrop(View rootView) {
+        rootView.findViewById(R.id.run_review_playback_button_holder).setVisibility(View.GONE);
+        mAudioPlaybackController.stopPlayback();
+        mRunReviewOverlay.setCropModeOn(true);
+
+        // TODO: Load extra data into the graph if it exists past the edges of the cropped region.
+
+        setCropUi(rootView, true);
+    }
+
+    public void completeCrop() {
+        setCropUi(getView(), false);
+        getView().findViewById(R.id.run_review_playback_button_holder).setVisibility(View.VISIBLE);
+        mRunReviewOverlay.setCropModeOn(false);
     }
 
     @Override

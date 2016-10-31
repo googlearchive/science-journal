@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.project.experiment;
 
 import android.app.Fragment;
 import android.app.TaskStackBuilder;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -75,6 +76,7 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryListener;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
+import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
@@ -131,6 +133,7 @@ public class ExperimentDetailsFragment extends Fragment
     private GraphOptionsController mGraphOptionsController;
     private boolean mIncludeArchived;
     private Toolbar mToolbar;
+    private BroadcastReceiver mBroadcastReceiver;
 
     /**
      * Creates a new instance of this fragment.
@@ -177,12 +180,28 @@ public class ExperimentDetailsFragment extends Fragment
                         loadExperimentData(experiment);
                     }
                 });
+        // Create a BroadcastReceiver for when the stats get updated.
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String statsRunId = intent.getStringExtra(CropHelper.EXTRA_RUN_ID);
+                mAdapter.onStatsBroadcastReceived(statsRunId);
+            }
+        };
+        CropHelper.registerStatsBroadcastReceiver(getActivity().getApplicationContext(),
+                mBroadcastReceiver);
+
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_EXPERIMENT_DETAIL);
     }
 
     @Override
     public void onPause() {
+        if (mBroadcastReceiver != null) {
+            CropHelper.unregisterBroadcastReceiver(getActivity().getApplicationContext(),
+                    mBroadcastReceiver);
+            mBroadcastReceiver = null;
+        }
         clearDiscovery();
         super.onPause();
     }
@@ -1160,6 +1179,22 @@ public class ExperimentDetailsFragment extends Fragment
                 }
             }
             outState.putIntegerArrayList(KEY_SAVED_SENSOR_INDICES, selectedIndices);
+        }
+
+        public void onStatsBroadcastReceived(String statsRunId) {
+            // Update the stats when this is received.
+            // TODO: Optimize: only update the full view if the sensor ID that changed was visible?
+            for (int i = 0; i < mItems.size(); i++) {
+                ExperimentRun run = mItems.get(i).getRun();
+                if (run == null) {
+                    continue;
+                }
+                if (TextUtils.equals(statsRunId, run.getRunId())) {
+                    // Rebind the View Holder to reload the stats and graphs.
+                    notifyItemChanged(i);
+                    return;
+                }
+            }
         }
 
         public static class ViewHolder extends RecyclerView.ViewHolder implements

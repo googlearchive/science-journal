@@ -34,6 +34,8 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.SeekBar;
 
+import com.google.android.apps.forscience.whistlepunk.review.CoordinatedSeekbarViewGroup;
+import com.google.android.apps.forscience.whistlepunk.review.CropSeekBar;
 import com.google.android.apps.forscience.whistlepunk.review.GraphExploringSeekBar;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
@@ -55,6 +57,18 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     }
     private OnSeekbarTouchListener mOnSeekbarTouchListener;
 
+    // Class to track the measurements of a RunReview overlay flag, which is bounded by
+    // boxStart/End/Top/Bottom, and has a notch below it down to a certain height.
+    private static class FlagMeasurements {
+        public float boxStart;
+        public float boxEnd;
+        public float boxTop;
+        public float boxBottom;
+        public float notchBottom;
+    }
+    // Save allocations by just keeping one of these measurements around.
+    private FlagMeasurements mFlagMeasurements = new FlagMeasurements();
+
     private static double SQRT_2_OVER_2 = Math.sqrt(2) / 2;
 
     private int mHeight;
@@ -64,11 +78,20 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     private int mChartMarginLeft;
     private int mChartMarginRight;
 
+    // Flag text padding.
     private int mLabelPadding;
+
+    // Space between the time label and value label in a flag.
     private int mIntraLabelPadding;
+
+    // Height of the triangle notch at the bottom of a flag.
     private int mNotchHeight;
+
+    // Radius of the corner of the flag.
     private int mCornerRadius;
-    private String mSelectedLabel;
+
+    // Amount of buffer a flag must keep between itself and the body of the flag after it.
+    private int mCropFlagBufferX;
 
     private Paint mPaint;
     private Paint mDotPaint;
@@ -77,24 +100,59 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     private Paint mTimePaint;
     private Paint mLinePaint;
     private Paint mCenterLinePaint;
+    private Paint mCropBackgroundPaint;
+    private Paint mCropVerticalLinePaint;
 
     public static final long NO_TIMESTAMP_SELECTED = -1;
-    private long mSelectedTimestamp = NO_TIMESTAMP_SELECTED;
 
-    private double mValue;
-    private PointF mScreenPoint;
-    private ChartController mChartController;
+    // Represents the data associated with a seekbar point tracked in RunReviewOverlay.
+    private static class OverlayPointData {
+        // The currently selected timestamp for this seekbar.
+        public long timestamp = NO_TIMESTAMP_SELECTED;
+
+        // The value for the currently selected timestamp.
+        public double value;
+
+        // The screen point of the currently selected value.
+        public PointF screenPoint;
+
+        // The string representing the current chart value for the standard overlay label.
+        public String label;
+    }
+
+    private OverlayPointData mPointData = new OverlayPointData();
     private GraphExploringSeekBar mSeekbar;
+
+    // TODO: Consider moving crop fields and logic into a CropController class.
+    private OverlayPointData mCropStartData = new OverlayPointData();
+    private OverlayPointData mCropEndData = new OverlayPointData();
+    private CoordinatedSeekbarViewGroup mCropSeekbarGroup;
+
+    // When one of the crop seekbars' progress is changed we sometimes need to update the progress
+    // bars again in order to match the closest point to the location on the seekbar.
+    // Because the crop seekbars' positions may interact with each other (they cannot be closer
+    // than 1 second or 5% of their length), both seekbars' updated values are calculated at
+    // the same time.
+    // This variable tracks whether we are still waiting for a progress update from the second
+    // crop seekbar, and is used to decide whether to refresh the data or wait until the second
+    // seekbar's update comes in.
+    // This prevents refreshing from happening too frequently or before the second seekbar has
+    // a chance to have its progress updated.
+    // TODO: Is there a cleaner way to do this?
+    private boolean mEndSeekbarNeedsProgressUpdate;
+
+    private ChartController mChartController;
     private ExternalAxisController mExternalAxis;
     private String mTextFormat;
     private ElapsedTimeAxisFormatter mTimeFormat;
     private RectF mBoxRect;
     private Path mPath;
-    private boolean mIsActive = false;
     private float mDotRadius;
     private float mDotBackgroundRadius;
     private Drawable mThumb;
     private ViewTreeObserver.OnDrawListener mOnDrawListener;
+
+    private boolean mIsCropping;
 
     public RunReviewOverlay(Context context) {
         super(context);
@@ -163,6 +221,16 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         // format!
         mTextFormat = res.getString(R.string.run_review_chart_label_format);
         mTimeFormat = ElapsedTimeAxisFormatter.getInstance(getContext());
+
+        mCropBackgroundPaint = new Paint();
+        mCropBackgroundPaint.setStyle(Paint.Style.FILL);
+        mCropBackgroundPaint.setColor(res.getColor(R.color.text_color_black));
+        mCropBackgroundPaint.setAlpha(40);
+
+        mCropVerticalLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mCropVerticalLinePaint.setStyle(Paint.Style.STROKE);
+        mCropVerticalLinePaint.setStrokeWidth(
+                res.getDimensionPixelSize(R.dimen.chart_grid_line_width));
     }
 
     @Override
@@ -179,6 +247,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                 R.dimen.run_review_overlay_label_intra_padding);
         mNotchHeight = res.getDimensionPixelSize(R.dimen.run_review_overlay_label_notch_height);
         mCornerRadius = res.getDimensionPixelSize(R.dimen.run_review_overlay_label_corner_radius);
+        mCropFlagBufferX = mLabelPadding;
 
         mDotRadius = res.getDimensionPixelSize(R.dimen.run_review_value_label_dot_radius);
         mDotBackgroundRadius =
@@ -190,74 +259,184 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     }
 
     public void onDraw(Canvas canvas) {
-        if (mScreenPoint == null) {
-            return;
+        if (mIsCropping) {
+            // TODO: Click listeners for these flags open up dialogs for entering crop timestamps.
+            boolean canDrawCropStartFlag = canDrawFlagForScreenPoint(mCropStartData.screenPoint);
+            boolean canDrawCropEndFlag = canDrawFlagForScreenPoint(mCropEndData.screenPoint);
+
+            // Draw grey overlays first, behind everything
+            if (canDrawCropStartFlag) {
+                canvas.drawRect(mChartMarginLeft, mHeight - mChartHeight - mPaddingBottom,
+                        mCropStartData.screenPoint.x, mHeight, mCropBackgroundPaint);
+            }
+            if (canDrawCropEndFlag) {
+                canvas.drawRect(mCropEndData.screenPoint.x, mHeight - mChartHeight - mPaddingBottom,
+                        mWidth - mChartMarginRight, mHeight, mCropBackgroundPaint);
+            }
+
+            // Draw the flags themselves
+            if (canDrawCropStartFlag) {
+                // Drawing the start flag sets mFlagMeasurements to have the start flag's bounding
+                // box. This will allow us to place the end flag appropriately.
+                drawFlag(canvas, mCropStartData.timestamp, mCropStartData.screenPoint.x,
+                        mCropStartData.label, mFlagMeasurements, true);
+            } else {
+                // Clear flag measurements when the left hand flag is offscreen, so that
+                // drawFlagAfter does not see another flag to avoid.
+                // This means pushing the expected previous flag measurements, stored in
+                // mFlagMeasurements, off screen by at least the amount of the flag buffer, which
+                // allows the next flag to start drawing at 0.
+                // In drawFlagAfter we will use mFlagMeasurements.boxEnd to determine what to
+                // avoid.
+                mFlagMeasurements.boxEnd = -mCropFlagBufferX;
+            }
+            if (canDrawCropEndFlag) {
+                drawFlagAfter(canvas, mCropEndData.timestamp, mCropEndData.screenPoint.x,
+                        mCropEndData.label, mFlagMeasurements, mFlagMeasurements.boxEnd, true);
+            }
+        } else if (canDrawFlagForScreenPoint(mPointData.screenPoint)) {
+            // We are not cropping. Draw a standard flag.
+            drawFlag(canvas, mPointData.timestamp, mPointData.screenPoint.x, mPointData.label,
+                    mFlagMeasurements, false);
+
+            // Draw the vertical line from the point to the bottom of the flag
+            float nudge = mDotRadius / 2;
+            float cy = mHeight - mChartHeight - mPaddingBottom + mPointData.screenPoint.y -
+                    2 * mDotBackgroundRadius + nudge;
+            mPath.reset();
+            mPath.moveTo(mPointData.screenPoint.x, mFlagMeasurements.notchBottom);
+            mPath.lineTo(mPointData.screenPoint.x, cy);
+            canvas.drawPath(mPath, mLinePaint);
+
+            // Draw the selected point
+            float cySmall = cy + 1.5f * mDotBackgroundRadius;
+            canvas.drawCircle(mPointData.screenPoint.x, cySmall, mDotBackgroundRadius,
+                    mDotBackgroundPaint);
+            canvas.drawCircle(mPointData.screenPoint.x, cySmall, mDotRadius, mDotPaint);
         }
+    }
 
-        if (mScreenPoint.x < mChartMarginLeft || mScreenPoint.x > mWidth - mChartMarginRight) {
-            // The point is off the graph! Don't try to draw it.
-            return;
+    private boolean canDrawFlagForScreenPoint(PointF screenPoint) {
+        if (screenPoint == null) {
+            return false;
         }
-
-        float notchBottom = drawFlag(canvas, mSelectedTimestamp, mScreenPoint.x, mSelectedLabel);
-
-        // Draw the vertical line from the point to the bottom of the flag
-        float nudge = mDotRadius / 2;
-        float cy = mHeight - mChartHeight - mPaddingBottom + mScreenPoint.y -
-                2 * mDotBackgroundRadius + nudge;
-        mPath.reset();
-        mPath.moveTo(mScreenPoint.x, notchBottom);
-        mPath.lineTo(mScreenPoint.x, cy);
-        canvas.drawPath(mPath, mLinePaint);
-
-        // Draw the selected point
-        float cySmall = cy + 1.5f * mDotBackgroundRadius;
-        canvas.drawCircle(mScreenPoint.x, cySmall, mDotBackgroundRadius, mDotBackgroundPaint);
-        canvas.drawCircle(mScreenPoint.x, cySmall, mDotRadius, mDotPaint);
+        if (screenPoint.x < mChartMarginLeft || screenPoint.x > mWidth - mChartMarginRight) {
+            // Then we can't draw the overlay balloon because the point is close to the edge of
+            // the screen or offscreen.
+            return false;
+        }
+        return true;
     }
 
     /**
-     * Draw a flag above a specific timestamp with a given value.
-     * @return The y screen position of the bottom of the notch at the base of the flag.
+     * Draw a flag above a specific timestamp with a given value, but make sure the flag starts
+     * after the given flagXToDrawAfter or that the flag is raised up to avoid intersecting it.
+     * @param canvas The canvas to use
+     * @param selectedTimestamp The timestamp to use on the label
+     * @param cx The X position of the timestamp
+     * @param label The value to use on the label
+     * @param flagMeasurements This set of measurements will be updated in-place to hold the bounds
+     *                         of the flag.
+     * @param flagXToDrawAfter The x position past which the flag may not draw. If the flag needs
+     *                       this space, it must draw itself higher.
      */
-    private float drawFlag(Canvas canvas, long selectedTimestamp, float cx, String label) {
+    private void drawFlagAfter(Canvas canvas, long selectedTimestamp, float cx, String label,
+            FlagMeasurements flagMeasurements, float flagXToDrawAfter, boolean drawStem) {
         float labelWidth = mTextPaint.measureText(label);
         String timeLabel = mTimeFormat.formatToTenths(selectedTimestamp -
                 mExternalAxis.getRecordingStartTime());
         float timeWidth = mTimePaint.measureText(timeLabel);
+
+        // Ascent returns the distance above (negative) the baseline (ascent). Since it is negative,
+        // negate it again to get the text height.
         float textSize = -1 * mTextPaint.ascent();
 
-        float boxTop = mHeight - mChartHeight - mPaddingBottom - textSize;
-        float boxBottom = boxTop + textSize + mLabelPadding * 2 + 5;
+        flagMeasurements.boxTop = mHeight - mChartHeight - mPaddingBottom - textSize;
+        flagMeasurements.boxBottom = flagMeasurements.boxTop + textSize + mLabelPadding * 2 + 5;
         float width = mIntraLabelPadding + 2 * mLabelPadding + timeWidth + labelWidth;
-        float boxStart = cx - width / 2;
-        float boxEnd = cx + width / 2;
-        if (boxStart < 0) {
-            boxStart = 0;
-            boxEnd = boxStart + width;
-        } else if (boxEnd > mWidth) {
-            boxEnd = mWidth;
-            boxStart = boxEnd - width;
-        }
+        // Ideal box layout
+        flagMeasurements.boxStart = cx - width / 2;
+        flagMeasurements.boxEnd = cx + width / 2;
 
-        mBoxRect.set(boxStart, boxTop, boxEnd, boxBottom);
+        // Adjust it if the ideal doesn't work
+        boolean isRaised = false;
+        if (flagMeasurements.boxStart < flagXToDrawAfter + mCropFlagBufferX) {
+            // See if we can simply offset the flag, if it doesn't cause the notch to be drawn
+            // off the edge of the flag.
+            if (flagXToDrawAfter + mCropFlagBufferX <
+                    cx - mNotchHeight * SQRT_2_OVER_2 - mCornerRadius) {
+                flagMeasurements.boxStart = flagXToDrawAfter + mCropFlagBufferX;
+                flagMeasurements.boxEnd = flagMeasurements.boxStart + width;
+            } else {
+                // We need to move the flag up!
+                moveUpToAvoid(flagMeasurements, textSize);
+                isRaised = true;
+            }
+        }
+        if (flagMeasurements.boxEnd > mWidth) {
+            flagMeasurements.boxEnd = mWidth;
+            flagMeasurements.boxStart = flagMeasurements.boxEnd - width;
+            if (!isRaised && flagXToDrawAfter + mCropFlagBufferX > flagMeasurements.boxStart) {
+                // We need to move the flag up!
+                moveUpToAvoid(flagMeasurements, textSize);
+                isRaised = true;
+            }
+        }
+        flagMeasurements.notchBottom = flagMeasurements.boxBottom + mNotchHeight;
+
+        mBoxRect.set(flagMeasurements.boxStart, flagMeasurements.boxTop,
+                flagMeasurements.boxEnd, flagMeasurements.boxBottom);
         canvas.drawRoundRect(mBoxRect, mCornerRadius, mCornerRadius, mPaint);
 
         mPath.reset();
-        mPath.moveTo((int) (cx - mNotchHeight * SQRT_2_OVER_2), boxBottom);
-        mPath.lineTo(cx, boxBottom + mNotchHeight);
-        mPath.lineTo((int) (cx + mNotchHeight * SQRT_2_OVER_2), boxBottom);
+        mPath.moveTo((int) (cx - mNotchHeight * SQRT_2_OVER_2), flagMeasurements.boxBottom);
+        mPath.lineTo(cx, flagMeasurements.boxBottom + mNotchHeight);
+        mPath.lineTo((int) (cx + mNotchHeight * SQRT_2_OVER_2), flagMeasurements.boxBottom);
         canvas.drawPath(mPath, mPaint);
 
-        float textBase = boxTop + mLabelPadding + textSize;
-        canvas.drawText(timeLabel, boxStart + mLabelPadding, textBase, mTimePaint);
-        canvas.drawText(label, boxEnd - labelWidth - mLabelPadding, textBase, mTextPaint);
+        float textBase = flagMeasurements.boxTop + mLabelPadding + textSize;
+        canvas.drawText(timeLabel, flagMeasurements.boxStart + mLabelPadding, textBase, mTimePaint);
+        canvas.drawText(label, flagMeasurements.boxEnd - labelWidth - mLabelPadding, textBase,
+                mTextPaint);
 
-        float center = boxStart + mLabelPadding + timeWidth + mIntraLabelPadding / 2;
-        canvas.drawLine(center, boxTop + mLabelPadding, center,
-                boxBottom - mLabelPadding, mCenterLinePaint);
+        float center = flagMeasurements.boxStart + mLabelPadding + timeWidth +
+                mIntraLabelPadding / 2;
+        canvas.drawLine(center, flagMeasurements.boxTop + mLabelPadding, center,
+                flagMeasurements.boxBottom - mLabelPadding, mCenterLinePaint);
 
-        return boxBottom + mNotchHeight;
+        if (drawStem) {
+            // Draws a vertical line to the flag notch from the base.
+            // If there is a flag to draw after, does not overlap that flag.
+            if (cx < flagXToDrawAfter) {
+                canvas.drawLine(cx, mHeight, cx, mFlagMeasurements.boxBottom - 5 +
+                        textSize + 3 * mLabelPadding, mCropVerticalLinePaint);
+            } else {
+                canvas.drawLine(cx, mHeight, cx, mFlagMeasurements.notchBottom - 5,
+                        mCropVerticalLinePaint);
+            }
+        }
+    }
+
+    private void moveUpToAvoid(FlagMeasurements flagMeasurements, float textSize) {
+        // We need to move the flag up! Use 3 times padding to cover the two
+        // paddings within the other flag and one more padding value above the other flag.
+        flagMeasurements.boxBottom -= textSize + 3 * mLabelPadding;
+        flagMeasurements.boxTop -= textSize + 3 * mLabelPadding;
+    }
+
+    /**
+     * Draw a flag above a specific timestamp with a given value.
+     * @param canvas The canvas to use
+     * @param selectedTimestamp The timestamp to use on the label
+     * @param cx The X position of the timestamp
+     * @param label The value to use on the label
+     * @param flagMeasurements This set of measurements will be updated in-place to hold the bounds
+     *                         of the flag.
+     */
+    private void drawFlag(Canvas canvas, long selectedTimestamp, float cx, String label,
+            FlagMeasurements flagMeasurements, boolean drawStem) {
+        drawFlagAfter(canvas, selectedTimestamp, cx, label, flagMeasurements, -mCropFlagBufferX,
+                drawStem);
     }
 
     public void setChartController(ChartController controller) {
@@ -268,7 +447,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     public void setGraphSeekBar(final GraphExploringSeekBar seekbar) {
         mSeekbar = seekbar;
         // Seekbar thumb is always blue, no matter the color of the grpah.
-        int color = getResources().getColor(R.color.graph_line_color_blue);
+        int color = getResources().getColor(R.color.color_accent);
         mSeekbar.getThumb().setColorFilter(color, PorterDuff.Mode.SRC_IN);
         mSeekbar.setVisibility(View.VISIBLE);
 
@@ -296,7 +475,6 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                         point.getX() <= mChartController.getXMin()) {
                     setVisibility(View.INVISIBLE);
                 }
-                mIsActive = false;
                 invalidate();
             }
         });
@@ -310,75 +488,208 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                 }
                 mSeekbar.setThumb(mThumb); // Replace the thumb if it was missing after zoom/pan.
                 setVisibility(View.VISIBLE);
-                mIsActive = true;
                 invalidate();
                 return false;
             }
         });
     }
 
+    public void setCropSeekBarGroup(CoordinatedSeekbarViewGroup cropGroup) {
+        mCropSeekbarGroup = cropGroup;
+        GraphExploringSeekBar.OnSeekBarChangeListener listener =
+                new GraphExploringSeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (mEndSeekbarNeedsProgressUpdate) {
+                    // Don't refresh if we are still waiting for another seekbar to update,
+                    // because this refresh would otherwise overwrite that update.
+                    mEndSeekbarNeedsProgressUpdate = false;
+                } else {
+                    refreshAfterChartLoad(fromUser);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                seekBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                ChartData.DataPoint point = getDataPointAtProgress(seekBar.getProgress());
+                if (point == null || !mChartController.hasData() ||
+                        point.getX() < mChartController.getXMin() ||
+                        point.getX() > mChartController.getXMax()) {
+                    seekBar.setVisibility(View.INVISIBLE);
+                }
+                invalidate();
+            }
+        };
+        mCropSeekbarGroup.getStartSeekBar().addOnSeekBarChangeListener(listener);
+        mCropSeekbarGroup.getEndSeekBar().addOnSeekBarChangeListener(listener);
+    }
+
+    /**
+     * Refreshes the selected timestamp and value based on the seekbar progress value. Can
+     * optionally take the value found and calculate the progress the seekbar should have, and
+     * update the seekbar again to get it more perfectly in sync. This is useful when data is
+     * sparce or zoomed in, to keep the seekbar and drawn point vertically aligned. Note that
+     * updating the seekbar's progress with backUpdateProgressBar true causes this function to be
+     * called again with backUpdateProgressBar set to false.
+     * @param backUpdateProgressBar If true, updates the seekbar progress based on the found point.
+     */
     public void refresh(boolean backUpdateProgressBar) {
         // No need to refresh the view if it is invisible.
         if (getVisibility() == View.INVISIBLE) {
             return;
         }
-        // Determine the timestamp at the current seekbar progress.
-        int progress = mSeekbar.getProgress();
-        ChartData.DataPoint point = getDataPointAtProgress(progress);
-        if (point == null) {
-            // This happens when the user is dragging the thumb before the chart has loaded data;
-            // there is no data loaded at all.
-            // The bubble itself has been hidden in this case in RunReviewFragment, which hides
-            // the RunReviewOverlay during line graph load and only shows it again once the graph
-            // has been loaded successfully.
-            return;
+
+        if (mIsCropping) {
+            int startCropProgress = mCropSeekbarGroup.getStartSeekBar().getProgress();
+            int endCropProgress = mCropSeekbarGroup.getEndSeekBar().getProgress();
+            ChartData.DataPoint startCropPoint = getDataPointAtProgress(startCropProgress);
+            ChartData.DataPoint endCropPoint = getDataPointAtProgress(endCropProgress);
+            if (startCropPoint == null || endCropPoint == null) {
+                return;
+            }
+            mCropStartData.timestamp = startCropPoint.getX();
+            mCropEndData.timestamp = endCropPoint.getX();
+            mCropStartData.value = startCropPoint.getY();
+            mCropEndData.value = endCropPoint.getY();
+
+            mCropStartData.label = String.format(mTextFormat, mCropStartData.value);
+            mCropSeekbarGroup.getStartSeekBar().updateValuesForAccessibility(
+                    mExternalAxis.formatElapsedTimeForAccessibility(
+                            mCropStartData.timestamp, getContext()), mCropStartData.label);
+            mCropEndData.label = String.format(mTextFormat, mCropEndData.value);
+            mCropSeekbarGroup.getEndSeekBar().updateValuesForAccessibility(
+                    mExternalAxis.formatElapsedTimeForAccessibility(mCropEndData.timestamp,
+                            getContext()), mCropEndData.label);
+
+            redrawCrop(backUpdateProgressBar);
+        } else {
+            // Determine the timestamp at the current seekbar progress.
+            int progress = mSeekbar.getProgress();
+            ChartData.DataPoint point = getDataPointAtProgress(progress);
+            if (point == null) {
+                // This happens when the user is dragging the thumb before the chart has loaded
+                // data; there is no data loaded at all.
+                // The bubble itself has been hidden in this case in RunReviewFragment, which hides
+                // the RunReviewOverlay during line graph load and only shows it again once the
+                // graph has been loaded successfully.
+                return;
+            }
+
+            // Update the selected timestamp to one available in the chart data.
+            mPointData.timestamp = point.getX();
+            mPointData.value = point.getY();
+            mPointData.label = String.format(mTextFormat, mPointData.value);
+            mSeekbar.updateValuesForAccessibility(mExternalAxis.formatElapsedTimeForAccessibility(
+                    mPointData.timestamp, getContext()), mPointData.label);
+
+            redraw(backUpdateProgressBar);
         }
-
-        // Update the selected timestamp to one available in the chart data.
-        mSelectedTimestamp = point.getX();
-        mValue = point.getY();
-        mSelectedLabel = String.format(mTextFormat, mValue);
-        mSeekbar.updateValuesForAccessibility(mExternalAxis.formatElapsedTimeForAccessibility(
-                mSelectedTimestamp, getContext()), mSelectedLabel);
-
-        redraw(progress, backUpdateProgressBar);
     }
 
-    private void redraw(int progress, boolean backUpdateProgressBar) {
-        if (mSelectedTimestamp == NO_TIMESTAMP_SELECTED) {
+    /**
+     * Redraws the RunReview overlay. See description of refresh() above for more on
+     * backUpdateProgressBar.
+     * @param backUpdateProgressBar If true, updates the seekbar progress based on the found point.
+     */
+    private void redraw(boolean backUpdateProgressBar) {
+        if (mPointData.timestamp == NO_TIMESTAMP_SELECTED) {
             return;
         }
         if (backUpdateProgressBar) {
             long axisDuration = mExternalAxis.mXMax - mExternalAxis.mXMin;
             int newProgress = (int) Math.round((GraphExploringSeekBar.SEEKBAR_MAX *
-                    (mSelectedTimestamp - mExternalAxis.mXMin)) / axisDuration);
-            if (progress != newProgress) {
+                    (mPointData.timestamp - mExternalAxis.mXMin)) / axisDuration);
+            if (mSeekbar.getProgress() != newProgress) {
                 mSeekbar.setProgress(newProgress);
             }
         }
 
         if (mChartController.hasScreenPoints()) {
-            mScreenPoint = mChartController.getScreenPoint(mSelectedTimestamp, mValue);
+            mPointData.screenPoint = mChartController.getScreenPoint(mPointData.timestamp,
+                    mPointData.value);
         }
         if (mTimestampChangeListener != null) {
-            mTimestampChangeListener.onTimestampChanged(mSelectedTimestamp);
+            mTimestampChangeListener.onTimestampChanged(mPointData.timestamp);
         }
         invalidate();
+    }
+
+    /**
+     * Redraws the RunReview overlay for the crop seekbars. See description of refresh() above
+     * for more on backUpdateProgressBars.
+     * @param backUpdateProgressBars If true, updates the seekbars progress based on the found point
+     */
+    private void redrawCrop(boolean backUpdateProgressBars) {
+        if (mCropStartData.timestamp == NO_TIMESTAMP_SELECTED ||
+                mCropEndData.timestamp == NO_TIMESTAMP_SELECTED) {
+            return;
+        }
+        if (backUpdateProgressBars) {
+            long axisDuration = mExternalAxis.mXMax - mExternalAxis.mXMin;
+            int oldStartProgress = mCropSeekbarGroup.getStartSeekBar().getProgress();
+            int oldEndProgress = mCropSeekbarGroup.getEndSeekBar().getProgress();
+            int newStartProgress = (int) Math.round((GraphExploringSeekBar.SEEKBAR_MAX *
+                    (mCropStartData.timestamp - mExternalAxis.mXMin)) / axisDuration);
+            int newEndProgress = (int) Math.round((GraphExploringSeekBar.SEEKBAR_MAX *
+                    (mCropEndData.timestamp - mExternalAxis.mXMin)) / axisDuration);
+            boolean startNeedsProgressUpdate = oldStartProgress != newStartProgress;
+            boolean endNeedsProgressUpdate = oldEndProgress != newEndProgress;
+
+            if (startNeedsProgressUpdate && endNeedsProgressUpdate) {
+                mEndSeekbarNeedsProgressUpdate = true;
+                // Need to set these in an order that doesn't cause them to push each other.
+                // So if the start increases, the end needs to increase first.
+                // If the end decreases, the start needs to decrease first.
+                // Otherwise they may shift when CropSeekBar trys to keep the buffer.
+                if (oldStartProgress < newStartProgress) {
+                    mCropSeekbarGroup.getEndSeekBar().setProgress(newEndProgress);
+                    mCropSeekbarGroup.getStartSeekBar().setProgress(newStartProgress);
+                } else {
+                    mCropSeekbarGroup.getStartSeekBar().setProgress(newStartProgress);
+                    mCropSeekbarGroup.getEndSeekBar().setProgress(newEndProgress);
+                }
+
+            } else if (startNeedsProgressUpdate) {
+                mCropSeekbarGroup.getStartSeekBar().setProgress(newStartProgress);
+            } else if (endNeedsProgressUpdate) {
+                mCropSeekbarGroup.getEndSeekBar().setProgress(newEndProgress);
+            }
+        }
+        if (mChartController.hasScreenPoints()) {
+            mCropStartData.screenPoint = mChartController.getScreenPoint(
+                    mCropStartData.timestamp, mCropStartData.value);
+            mCropEndData.screenPoint = mChartController.getScreenPoint(
+                    mCropEndData.timestamp, mCropEndData.value);
+        }
+        invalidate();
+    }
+
+    private static int clipToSeekbarRange(double value) {
+        return (int) (Math.min(Math.max(value, 0), GraphExploringSeekBar.SEEKBAR_MAX));
     }
 
     private ChartData.DataPoint getDataPointAtProgress(int progress) {
         double percent = progress / GraphExploringSeekBar.SEEKBAR_MAX;
         long axisDuration = mExternalAxis.mXMax - mExternalAxis.mXMin;
+        mCropSeekbarGroup.setMillisecondsInRange(axisDuration); // TODO better place for this?
         long timestamp = (long) (percent * axisDuration +
                 mExternalAxis.mXMin);
         // Get the data point closest to this timestamp.
         return mChartController.getClosestDataPointToTimestamp(timestamp);
     }
 
+    // For the graph exploring seekbar only (not crop)
     public void setOnTimestampChangeListener(OnTimestampChangeListener listener) {
         mTimestampChangeListener = listener;
     }
 
+    // For the graph exploring seekbar only (not crop)
     public void setOnSeekbarTouchListener(OnSeekbarTouchListener listener) {
         mOnSeekbarTouchListener = listener;
     }
@@ -431,32 +742,72 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     // Sets the slider to a particular timestamp. The user did not initiate this action,
     // so mIsActive is false, meaning the bubble is drawn small.
     public void setActiveTimestamp(long timestamp) {
-        mSelectedTimestamp = timestamp;
-        if (mExternalAxis.mXMin < mSelectedTimestamp  &&
-                mSelectedTimestamp < mExternalAxis.mXMax) {
+        mPointData.timestamp = timestamp;
+        if (mExternalAxis.containsTimestamp(mPointData.timestamp)) {
             mSeekbar.setThumb(mThumb);
             double progress = (int) ((GraphExploringSeekBar.SEEKBAR_MAX *
                     (timestamp - mExternalAxis.mXMin)) /
                     (mExternalAxis.mXMax - mExternalAxis.mXMin));
             setVisibility(View.VISIBLE);
-            mIsActive = false;
             mSeekbar.setProgress((int) Math.round(progress));
             // Only back-update the seekbar if the selected timestmap is in range.
             refreshAfterChartLoad(true);
         } else {
             if (mChartController.hasDrawnChart()) {
                 mSeekbar.setThumb(null);
-                redraw(mSeekbar.getProgress(), true);
+                redraw(true);
             }
         }
     }
 
-    public long getTimestamp() {
-        return mSelectedTimestamp;
+    public void setCropTimestamps(long startTimestamp, long endTimestamp) {
+        mCropStartData.timestamp = startTimestamp;
+        mCropEndData.timestamp = endTimestamp;
+        boolean hasSeekbarInRange = false;
+        if (mExternalAxis.containsTimestamp(mCropStartData.timestamp)) {
+            setVisibility(View.VISIBLE);
+            mCropSeekbarGroup.getStartSeekBar().setVisibility(View.VISIBLE);
+            double progress = (int) ((GraphExploringSeekBar.SEEKBAR_MAX *
+                    (mCropStartData.timestamp - mExternalAxis.mXMin)) /
+                    (mExternalAxis.mXMax - mExternalAxis.mXMin));
+            mCropSeekbarGroup.getStartSeekBar().setProgress((int) Math.round(progress));
+            hasSeekbarInRange = true;
+        } else {
+            if (mChartController.hasDrawnChart()) {
+                mCropSeekbarGroup.getStartSeekBar().setVisibility(View.INVISIBLE);
+            }
+        }
+        if (mExternalAxis.containsTimestamp(mCropEndData.timestamp)) {
+            setVisibility(View.VISIBLE);
+            mCropSeekbarGroup.getEndSeekBar().setVisibility(View.VISIBLE);
+            double progress = (int) ((GraphExploringSeekBar.SEEKBAR_MAX *
+                    (mCropEndData.timestamp - mExternalAxis.mXMin)) /
+                    (mExternalAxis.mXMax - mExternalAxis.mXMin));
+            mCropSeekbarGroup.getEndSeekBar().setProgress((int) Math.round(progress));
+            hasSeekbarInRange = true;
+        } else {
+            if (mChartController.hasDrawnChart()) {
+                mCropSeekbarGroup.getEndSeekBar().setVisibility(View.INVISIBLE);
+            }
+        }
+        if (!hasSeekbarInRange) {
+            // Only back-update the seekbar if the selected timestamp is in range.
+            refreshAfterChartLoad(true);
+        } else {
+            redrawCrop(true);
+        }
     }
 
-    public GraphExploringSeekBar getSeekbar() {
-        return mSeekbar;
+    public long getTimestamp() {
+        return mPointData.timestamp;
+    }
+
+    public long getCropStartTimestamp() {
+        return mCropStartData.timestamp;
+    }
+
+    public long getCropEndTimestamp() {
+        return mCropEndData.timestamp;
     }
 
     public void setExternalAxisController(ExternalAxisController externalAxisController) {
@@ -468,16 +819,32 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                 if (!mChartController.hasDrawnChart()) {
                     return;
                 }
-                if (mSelectedTimestamp != NO_TIMESTAMP_SELECTED) {
-                    if (mSelectedTimestamp < xMin || mSelectedTimestamp > xMax) {
+                if (mIsCropping && mCropStartData.timestamp != NO_TIMESTAMP_SELECTED &&
+                        mCropEndData.timestamp != NO_TIMESTAMP_SELECTED) {
+                    updateSeekbarVisibility(mCropSeekbarGroup.getStartSeekBar(),
+                            mCropStartData.timestamp, xMin, xMax);
+                    updateSeekbarVisibility(mCropSeekbarGroup.getEndSeekBar(),
+                            mCropEndData.timestamp, xMin, xMax);
+                    redrawCrop(true);
+                } else if (mPointData.timestamp != NO_TIMESTAMP_SELECTED) {
+                    if (mPointData.timestamp < xMin || mPointData.timestamp > xMax) {
                         mSeekbar.setThumb(null);
                     } else {
                         mSeekbar.setThumb(mThumb);
                     }
-                    redraw(mSeekbar.getProgress(), true);
+                    redraw(true);
                 }
             }
         });
+    }
+
+    private void updateSeekbarVisibility(CropSeekBar seekbar, long timestamp, long xMin,
+            long xMax) {
+        if (timestamp < xMin || xMax < timestamp) {
+            seekbar.setVisibility(View.INVISIBLE);
+        } else {
+            seekbar.setVisibility(View.VISIBLE);
+        }
     }
 
     public void setUnits(String units) {
@@ -489,6 +856,23 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     public void updateColor(int newColor) {
         mDotPaint.setColor(newColor);
         mPaint.setColor(newColor);
+        mCropVerticalLinePaint.setColor(newColor);
+    }
+
+    public void setCropModeOn(boolean isCropping) {
+        mIsCropping = isCropping;
+        if (isCropping) {
+            mSeekbar.setVisibility(View.GONE);
+            mCropSeekbarGroup.setVisibility(View.VISIBLE);
+        } else {
+            mSeekbar.setVisibility(View.VISIBLE);
+            mCropSeekbarGroup.setVisibility(View.GONE);
+        }
+        refreshAfterChartLoad(true);
+    }
+
+    public boolean getIsCropping() {
+        return mIsCropping;
     }
 
     @Override
@@ -498,6 +882,6 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
     @Override
     public void onLoadAttemptStarted() {
-        mPreviouslySelectedTimestamp = mSelectedTimestamp;
+        mPreviouslySelectedTimestamp = mPointData.timestamp;
     }
 }

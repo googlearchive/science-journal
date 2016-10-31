@@ -73,7 +73,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="170dp"
+            android:minHeight="200dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             >
 
