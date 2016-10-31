@@ -85,7 +85,7 @@ public class ExpandableDeviceAdapterTest {
     @Test
     public void devicesAtTopLevel() {
         ExpandableDeviceAdapter adapter = ExpandableDeviceAdapter.createEmpty(mSensorRegistry,
-                mDeviceRegistry);
+                mDeviceRegistry, null);
         assertTrue(adapter instanceof ExpandableRecyclerAdapter);
 
         assertEquals(0, adapter.getParentItemList().size());
@@ -101,7 +101,7 @@ public class ExpandableDeviceAdapterTest {
     @Test
     public void twoSensorsSameDevice() {
         ExpandableDeviceAdapter adapter = ExpandableDeviceAdapter.createEmpty(mSensorRegistry,
-                mDeviceRegistry);
+                mDeviceRegistry, null);
 
         ConnectableSensor sensor1 = mScenario.makeConnectedSensorNewDevice();
         adapter.addSensor(mScenario.newSensorKey(), sensor1);
@@ -130,7 +130,7 @@ public class ExpandableDeviceAdapterTest {
     @Test
     public void replaceOnSecondAddSameKey() {
         ExpandableDeviceAdapter adapter = ExpandableDeviceAdapter.createEmpty(mSensorRegistry,
-                mDeviceRegistry);
+                mDeviceRegistry, null);
 
         RecordingAdapterDataObserver observer = new RecordingAdapterDataObserver();
         adapter.registerAdapterDataObserver(observer);

@@ -15,9 +15,11 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.ArrayMap;
 
+import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
@@ -28,6 +30,16 @@ import java.util.Map;
  */
 public class DeviceRegistry {
     private Map<String, InputDeviceSpec> mDevices = new ArrayMap<>();
+    private InputDeviceSpec mBuiltInDevice;
+
+    public DeviceRegistry(InputDeviceSpec builtInDevice) {
+        mBuiltInDevice = builtInDevice;
+    }
+
+    public DeviceRegistry() {
+        // TODO: replace everywhere with a call to the real constructor above
+        this(null);
+    }
 
     // TODO: store and retrieve "My Devices" from database
     public void addDevice(String type, InputDeviceSpec spec) {
@@ -56,6 +68,9 @@ public class DeviceRegistry {
     }
 
     InputDeviceSpec getDevice(ExternalSensorSpec spec) {
+        if (spec == null) {
+            return mBuiltInDevice;
+        }
         InputDeviceSpec device = getDevice(spec.getGlobalDeviceAddress());
         if (device == null) {
             // generate imaginary device to hold the sensor
