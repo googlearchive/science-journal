@@ -121,9 +121,19 @@ public class ExpandableDeviceAdapter extends
         // Otherwise, add a new device item.
         DeviceParentListItem item = new DeviceParentListItem(device);
         item.addSensor(sensorKey);
-        mDeviceParents.add(item);
-        int parentPosition = mDeviceParents.size() - 1;
-        notifyParentItemInserted(parentPosition);
+        addDevice(item);
+    }
+
+    private void addDevice(DeviceParentListItem item) {
+        if (item.isPhoneSensorParent(mDeviceRegistry)) {
+            // add phone sensor container always at top
+            mDeviceParents.add(0, item);
+            notifyParentItemInserted(0);
+        } else {
+            mDeviceParents.add(item);
+            int parentPosition = mDeviceParents.size() - 1;
+            notifyParentItemInserted(parentPosition);
+        }
     }
 
     private int findParentIndex(String sensorKey) {

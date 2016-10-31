@@ -42,7 +42,7 @@ public class ScalarInputDiscovererTest {
     @Test
     public void testStartScanning() {
         final ScalarInputScenario s = new ScalarInputScenario();
-        final DeviceRegistry deviceRegistry = new DeviceRegistry();
+        final DeviceRegistry deviceRegistry = new DeviceRegistry(null);
         ScalarInputDiscoverer sid = s.buildDiscoverer();
 
         final AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =

@@ -31,7 +31,9 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDat
 import org.junit.Test;
 
 public class ExpandableDeviceAdapterTest {
-    private DeviceRegistry mDeviceRegistry = new DeviceRegistry();
+    private static final InputDeviceSpec BUILT_IN_DEVICE = new InputDeviceSpec(
+            InputDeviceSpec.BUILT_IN_DEVICE_ADDRESS, "Phone sensors");
+    private DeviceRegistry mDeviceRegistry = new DeviceRegistry(BUILT_IN_DEVICE);
     private DataController mDataController = InMemorySensorDatabase.makeSimpleController();
     private ConnectableSensorRegistry mSensorRegistry = new ConnectableSensorRegistry(
             mDataController, null, null, null, null, null, null);
@@ -43,6 +45,11 @@ public class ExpandableDeviceAdapterTest {
 
         public ScalarInputSpec makeSensorNewDevice() {
             String deviceId = Arbitrary.string("deviceId" + mSensorCount);
+            return makeSensorOnDevice(deviceId);
+        }
+
+        @NonNull
+        private ScalarInputSpec makeSensorOnDevice(String deviceId) {
             String sensorName = Arbitrary.string("sensorName" + mSensorCount);
             String serviceId = Arbitrary.string("serviceId" + mSensorCount);
             String sensorAddress = Arbitrary.string("sensorAddress" + mSensorCount);
@@ -71,8 +78,11 @@ public class ExpandableDeviceAdapterTest {
 
         @NonNull
         private ConnectableSensor makeConnectedSensorNewDevice() {
-            return ConnectableSensor.connected(makeSensorNewDevice(),
-                    Arbitrary.string("connectedSensorId" + mSensorCount));
+            return ConnectableSensor.connected(makeSensorNewDevice(), newConnectedSensorId());
+        }
+
+        private String newConnectedSensorId() {
+            return Arbitrary.string("connectedSensorId" + mSensorCount);
         }
 
         public String newSensorKey() {
@@ -96,6 +106,26 @@ public class ExpandableDeviceAdapterTest {
         assertEquals(1, adapter.getParentItemList().get(0).getChildItemList().size());
         assertEquals(mDeviceRegistry.getDevice(sensor.getSpec()).getName(),
                 adapter.getDevice(0).getDeviceName());
+    }
+
+    @Test public void phoneSensorsAtTop() {
+        ExpandableDeviceAdapter adapter = ExpandableDeviceAdapter.createEmpty(mSensorRegistry,
+                mDeviceRegistry, null);
+
+        RecordingAdapterDataObserver observer = new RecordingAdapterDataObserver();
+        adapter.registerAdapterDataObserver(observer);
+
+        ConnectableSensor sensor = mScenario.makeConnectedSensorNewDevice();
+        adapter.addSensor(mScenario.newSensorKey(), sensor);
+
+        ConnectableSensor builtInSensor = ConnectableSensor.builtIn("builtInId");
+        adapter.addSensor(mScenario.newSensorKey(), builtInSensor);
+
+        assertEquals(2, adapter.getParentItemList().size());
+        DeviceParentListItem firstParent = (DeviceParentListItem) adapter.getParentItemList().get(
+                0);
+        assertEquals(BUILT_IN_DEVICE.getName(), firstParent.getDeviceName());
+        observer.assertMostRecentNotification("Inserted 1 at 0");
     }
 
     @Test
@@ -149,7 +179,7 @@ public class ExpandableDeviceAdapterTest {
         ConnectableSensor sensor = adapter.getSensor(0, 0);
 
         // Replace only sensor of only device
-        assertEquals(replacement.getName(), sensor.getName());
+        assertEquals(replacement.getName(), sensor.getName(null, null));
         observer.assertMostRecentNotification("Changed 1 at 1 [null]");
         assertEquals(1, adapter.getSensorCount());
 
@@ -173,5 +203,4 @@ public class ExpandableDeviceAdapterTest {
         adapter.addSensor(key3, ConnectableSensor.connected(replace3, "connectedId3"));
         observer.assertMostRecentNotification("Changed 1 at 4 [null]");
     }
-
 }

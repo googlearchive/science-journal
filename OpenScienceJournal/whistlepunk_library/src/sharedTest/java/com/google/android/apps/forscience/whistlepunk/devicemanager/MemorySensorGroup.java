@@ -60,7 +60,7 @@ class MemorySensorGroup implements SensorGroup {
     }
 
     public int size() {
-        return mSensors.size();
+        return getSensorCount();
     }
 
     public void removeAll() {
@@ -68,7 +68,7 @@ class MemorySensorGroup implements SensorGroup {
     }
 
     public String getTitle(int i) {
-        return getSensor(i).getName();
+        return getSensor(i).getName(null, null);
     }
 
     public String getDeviceName(int i) {
