@@ -19,7 +19,6 @@ package com.google.android.apps.forscience.whistlepunk.audiogen;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
 import com.jsyn.devices.android.AndroidAudioForJSyn;
@@ -40,7 +39,7 @@ public class SimpleJsynAudioGenerator implements AudioGenerator {
     private String mSonificationType = "";
 
     public SimpleJsynAudioGenerator() {
-        this(ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
+        this(SonificationTypeAdapterFactory.DEFAULT_SONIFICATION_TYPE);
     }
 
     public SimpleJsynAudioGenerator(String sonificationType) {

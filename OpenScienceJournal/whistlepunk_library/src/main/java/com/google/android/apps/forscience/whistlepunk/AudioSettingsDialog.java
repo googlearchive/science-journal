@@ -30,6 +30,8 @@ import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
+import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
+
 import java.util.Arrays;
 
 /**
@@ -117,8 +119,6 @@ public class AudioSettingsDialog extends DialogFragment {
         alertDialog.setTitle(getResources().getString(R.string.menu_item_audio_settings));
 
         final String[] sonificationTypesHumanReadable;
-        final String[] sonificationTypesAliases = getActivity().getResources().getStringArray(
-                R.array.sonification_type_aliases);
 
         // Add additional audio options only if the testing options setting is enabled.
         if (DevOptionsFragment.getEnableAdditionalSonificationTypes(getActivity())) {
@@ -135,7 +135,8 @@ public class AudioSettingsDialog extends DialogFragment {
                     R.array.sonification_types_prod);
         }
 
-        final int initialSelectedIndex = findSelection(sonificationTypesAliases,
+        final int initialSelectedIndex = findSelection(
+                SonificationTypeAdapterFactory.SONIFICATION_TYPES,
                 mSonificationTypes[mActiveSensorIndex]);
 
         typeList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -146,7 +147,8 @@ public class AudioSettingsDialog extends DialogFragment {
         typeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mSonificationTypes[mActiveSensorIndex] = sonificationTypesAliases[position];
+                mSonificationTypes[mActiveSensorIndex] =
+                        SonificationTypeAdapterFactory.SONIFICATION_TYPES[position];
                 if (getParentFragment() != null) {
                     ((AudioSettingsDialogListener) getParentFragment())
                             .onAudioSettingsPreview(mSonificationTypes, mSensorIds);
@@ -178,7 +180,8 @@ public class AudioSettingsDialog extends DialogFragment {
                     mActiveSensorIndex = position;
                     // Look up the sonification type of this newly active sensor.
                     String newActiveSonificationType = mSonificationTypes[mActiveSensorIndex];
-                    int typePosition = findSelection(sonificationTypesAliases,
+                    int typePosition = findSelection(
+                            SonificationTypeAdapterFactory.SONIFICATION_TYPES,
                             newActiveSonificationType);
                     selectItem(typeList, typePosition);
                 }

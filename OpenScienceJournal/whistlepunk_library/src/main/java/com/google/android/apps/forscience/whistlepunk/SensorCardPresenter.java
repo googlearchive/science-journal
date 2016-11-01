@@ -43,6 +43,7 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
@@ -322,7 +323,7 @@ public class SensorCardPresenter {
                 updateAudio(mLayout.audioEnabled, getSonificationType(
                         mParentFragment.getActivity()));
             } else {
-                updateAudio(false, ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
+                updateAudio(false, SonificationTypeAdapterFactory.DEFAULT_SONIFICATION_TYPE);
             }
         }
         if (mCardViewHolder == null) {
@@ -753,7 +754,7 @@ public class SensorCardPresenter {
                             LoggingConsumer.expectSuccess(TAG, "loading card options")
                     ).getReadOnly().getString(
                             ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
-                            ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
+                            SonificationTypeAdapterFactory.DEFAULT_SONIFICATION_TYPE);
                     AudioSettingsDialog dialog =
                             AudioSettingsDialog.newInstance(new String[] {currentSonificationType},
                                     new String[] {mSensorId}, 0);
@@ -823,7 +824,7 @@ public class SensorCardPresenter {
         return getCardOptions(mCurrentSource, context).load(
                 LoggingConsumer.expectSuccess(TAG, "loading card options")
         ).getReadOnly().getString(ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
-                ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
+                SonificationTypeAdapterFactory.DEFAULT_SONIFICATION_TYPE);
     }
 
     public void onAudioSettingsPreview(String previewSonificationType) {

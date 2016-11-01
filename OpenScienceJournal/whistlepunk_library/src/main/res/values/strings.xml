@@ -600,15 +600,6 @@
         <item>@string/conductor</item>
     </string-array>
 
-    <!-- List of aliases for the sonification type selection. Note that this must be in the order of types_prod + types_dev. [CHAR_LIMIT=none] -->
-    <string-array name="sonification_type_aliases">
-        <item>default_sonification</item>
-        <item>scale</item>
-        <item>notes</item>
-        <item>amplitude</item>
-        <item>conductor</item>
-    </string-array>
-
     <!-- Label for a spinner item which creates a new experiment. [CHAR_LIMIT=40]-->
     <string name="new_experiment_spinner_item">New experiment\u2026</string>
 
