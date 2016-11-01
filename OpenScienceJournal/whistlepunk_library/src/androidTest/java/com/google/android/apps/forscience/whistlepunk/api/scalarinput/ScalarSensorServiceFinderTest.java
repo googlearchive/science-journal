@@ -18,10 +18,12 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.content.ComponentName;
 import android.content.ServiceConnection;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.test.AndroidTestCase;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class ScalarSensorServiceFinderTest extends AndroidTestCase {
     public void testUseFlattenedComponentName() {
@@ -63,6 +65,18 @@ public class ScalarSensorServiceFinderTest extends AndroidTestCase {
 
         connection2.onServiceDisconnected(name2);
         assertEquals(0, connections.size());
+    }
+
+    public void testNullCheck() {
+        ScalarSensorServiceFinder finder = new ScalarSensorServiceFinder(
+                getContext()) {
+            @Override
+            protected List<ResolveInfo> getResolveInfos() {
+                return null;
+            }
+        };
+        // Just don't crash
+        finder.take(new RecordingCallbacks());
     }
 
     private static class RecordingCallbacks implements AppDiscoveryCallbacks {
