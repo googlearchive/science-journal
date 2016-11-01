@@ -629,7 +629,9 @@ public class SensorCardPresenter {
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             viewToHide.setVisibility(View.INVISIBLE);
-                            mCardViewHolder.flipButton.setEnabled(true);
+                            if (mCardViewHolder != null) {
+                                mCardViewHolder.flipButton.setEnabled(true);
+                            }
                         }
                     })
                     .start();
@@ -1071,6 +1073,9 @@ public class SensorCardPresenter {
                 animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
+                        if (mCardViewHolder == null) {
+                            return;
+                        }
                         Integer value = (Integer) animation.getAnimatedValue();
                         mCardViewHolder.sensorSelectionArea.getLayoutParams().height =
                                 value.intValue();
