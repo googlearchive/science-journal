@@ -50,9 +50,11 @@ public class ScalarSensorServiceFinder extends Consumer<AppDiscoveryCallbacks> {
 
     @Override
     public void take(AppDiscoveryCallbacks callbacks) {
-        PackageManager pm = mContext.getPackageManager();
-        List<ResolveInfo> resolveInfos = pm.queryIntentServices(new Intent(INTENT_ACTION),
-                PackageManager.GET_META_DATA);
+        List<ResolveInfo> resolveInfos = getResolveInfos();
+        if (resolveInfos == null) {
+            // b/32122408
+            return;
+        }
         for (ResolveInfo info : resolveInfos) {
             ServiceInfo serviceInfo = info.serviceInfo;
             String packageName = serviceInfo.packageName;
@@ -66,6 +68,11 @@ public class ScalarSensorServiceFinder extends Consumer<AppDiscoveryCallbacks> {
         }
         // TODO: need to figure out when to call onDiscovery done (after every service we know
         // about has connected or timed out).
+    }
+
+    protected List<ResolveInfo> getResolveInfos() {
+        PackageManager pm = mContext.getPackageManager();
+        return pm.queryIntentServices(new Intent(INTENT_ACTION), PackageManager.GET_META_DATA);
     }
 
     @NonNull
