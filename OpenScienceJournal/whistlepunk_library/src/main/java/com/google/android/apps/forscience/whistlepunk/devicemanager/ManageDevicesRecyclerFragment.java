@@ -28,13 +28,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -45,23 +50,30 @@ import java.util.Map;
  */
 public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPresenter,
         ManageFragment {
+    private static final String TAG = "MDRFragment";
+
     private ExpandableDeviceAdapter mMyDevices;
     private DeviceAdapter mAvailableDevices;
     private Menu mMainMenu;
     private ConnectableSensorRegistry mRegistry;
+    private SensorRegistry mSensorRegistry;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DataController dc = AppSingleton.getInstance(getActivity()).getDataController();
+        AppSingleton appSingleton = AppSingleton.getInstance(getActivity());
+        DataController dc = appSingleton.getDataController();
         Map<String, ExternalSensorDiscoverer> discoverers =
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
+        DeviceRegistry deviceRegistry = new DeviceRegistry(
+                InputDeviceSpec.builtInDevice(getActivity()));
         mRegistry = new ConnectableSensorRegistry(dc, discoverers, this, new SystemScheduler(),
                 new CurrentTimeClock(), ManageDevicesActivity.getOptionsListener(this
-                        .getActivity()), new DeviceRegistry());
-        SensorAppearanceProvider appearanceProvider = AppSingleton.getInstance(
-                getActivity()).getSensorAppearanceProvider();
-        mMyDevices = ExpandableDeviceAdapter.createEmpty(mRegistry, new DeviceRegistry());
+                .getActivity()), deviceRegistry);
+        SensorAppearanceProvider appearanceProvider = appSingleton.getSensorAppearanceProvider();
+        mSensorRegistry = appSingleton.getSensorRegistry();
+        mMyDevices = ExpandableDeviceAdapter.createEmpty(mRegistry, deviceRegistry,
+                appearanceProvider);
         mAvailableDevices = new DeviceAdapter(false, mRegistry, appearanceProvider);
         setHasOptionsMenu(true);
     }
@@ -130,9 +142,26 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     }
 
     public void refreshAfterLoad() {
-        mRegistry.setExperimentId(
-                getArguments().getString(ManageDevicesActivity.EXTRA_EXPERIMENT_ID));
+        String experimentId = getArguments().getString(ManageDevicesActivity.EXTRA_EXPERIMENT_ID);
+        setExperimentId(experimentId);
         refresh(false);
+    }
+
+    private void setExperimentId(String experimentId) {
+        mRegistry.setExperimentId(experimentId);
+        AppSingleton.getInstance(getActivity()).getDataController().getExperimentById(experimentId,
+                new LoggingConsumer<Experiment>(TAG, "load experiment for name") {
+                    @Override
+                    public void success(Experiment exp) {
+                        View view = getView();
+                        if (view == null) {
+                            return;
+                        }
+                        TextView selectSensors = (TextView) view.findViewById(R.id.select_sensors);
+                        selectSensors.setText(getString(R.string.select_sensors,
+                                exp.getDisplayTitle(getActivity())));
+                    }
+                });
     }
 
     private void stopScanning() {

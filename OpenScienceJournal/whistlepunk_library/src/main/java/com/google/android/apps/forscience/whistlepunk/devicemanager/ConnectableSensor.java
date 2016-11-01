@@ -15,8 +15,10 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.content.Context;
+
+import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.common.base.Preconditions;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,22 +29,37 @@ public class ConnectableSensor {
 
     private String mConnectedSensorId;
 
+    /**
+     * Create an entry for an external sensor we've connected to in the past
+     */
     public static ConnectableSensor connected(ExternalSensorSpec spec, String connectedSensorId) {
         return new ConnectableSensor(spec, connectedSensorId);
     }
 
+    /**
+     * Create an entry for an external sensor we've never connected to
+     */
     public static ConnectableSensor disconnected(ExternalSensorSpec spec) {
         return new ConnectableSensor(spec, null);
     }
 
     /**
-     * @param spec   specification of the sensor
+     * Create an entry for an internal built-in sensor that we know how to retrieve from {@link
+     * com.google.android.apps.forscience.whistlepunk.SensorRegistry}
+     */
+    public static ConnectableSensor builtIn(String sensorId) {
+        return new ConnectableSensor(null, sensorId);
+    }
+
+    /**
+     * @param spec   specification of the sensor if external, null if built-in (see
+     * {@link #builtIn(String)}).
      * @param paired non-null if we've already paired with this sensor, and so there's already a
      *               sensorId in the database for this sensor.  Otherwise, it's null; we could
      *               connect, but a sensorId would need to be created if we did
      */
     private ConnectableSensor(ExternalSensorSpec spec, String connectedSensorId) {
-        mSpec = Preconditions.checkNotNull(spec);
+        mSpec = spec;
         mConnectedSensorId = connectedSensorId;
     }
 
@@ -62,8 +79,26 @@ public class ConnectableSensor {
         return mSpec;
     }
 
+    /**
+     * @return the display name of this connectable sensor.  If it is an external sensor discovered
+     * via the API or remembered in the database, will directly retrieve the stored name,
+     * otherwise, use {@link SensorAppearanceProvider} to look up the name of the built-in sensor.
+     */
+    public String getName(SensorAppearanceProvider sap, Context context) {
+        if (mSpec != null) {
+            return mSpec.getName();
+        } else {
+            return sap.getAppearance(mConnectedSensorId).getName(context);
+        }
+    }
+
     public String getName() {
-        return mSpec.getName();
+        // TODO: replace everywhere with the above
+        if (mSpec == null) {
+            return null;
+        } else {
+            return mSpec.getName();
+        }
     }
 
     public String getAddress() {
@@ -113,5 +148,16 @@ public class ConnectableSensor {
         int result = mSpec.hashCode();
         result = 31 * result + (mConnectedSensorId != null ? mConnectedSensorId.hashCode() : 0);
         return result;
+    }
+
+    public boolean isSameSensor(ExternalSensorSpec spec) {
+        if (mSpec == null) {
+            return false;
+        }
+        return mSpec.isSameSensor(spec);
+    }
+
+    public boolean isBuiltIn() {
+        return mSpec == null;
     }
 }

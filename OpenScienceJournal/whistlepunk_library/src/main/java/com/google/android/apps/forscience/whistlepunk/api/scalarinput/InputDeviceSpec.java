@@ -15,8 +15,10 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.html.HtmlEscapers;
@@ -33,6 +35,11 @@ import com.google.common.html.HtmlEscapers;
 public class InputDeviceSpec extends ExternalSensorSpec {
     public static final String TYPE = "InputDevice";
     private static final String TAG = "InputDeviceSpec";
+
+    /**
+     * The "address" given to the device on which the app is running.
+     */
+    public static final String BUILT_IN_DEVICE_ADDRESS = "BUILT_IN_DEVICE";
 
     private String mDeviceAddress;
     private String mName;
@@ -89,5 +96,10 @@ public class InputDeviceSpec extends ExternalSensorSpec {
 
     public String getDeviceAddress() {
         return mDeviceAddress;
+    }
+
+    public static InputDeviceSpec builtInDevice(Context context) {
+        return new InputDeviceSpec(BUILT_IN_DEVICE_ADDRESS,
+                context.getString(R.string.phone_sensors));
     }
 }

@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter;
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
@@ -36,23 +37,26 @@ public class ExpandableDeviceAdapter extends
         ExpandableRecyclerAdapter<DeviceParentViewHolder, SensorChildViewHolder> implements
         SensorGroup, CompositeRecyclerAdapter.CompositeSensitiveAdapter {
     private final List<DeviceParentListItem> mDeviceParents;
-    private DeviceRegistry mDeviceRegistry = new DeviceRegistry();
+    private final DeviceRegistry mDeviceRegistry;
     private Map<String, ConnectableSensor> mSensorMap = new ArrayMap<>();
     private ConnectableSensorRegistry mRegistry;
     private int mGlobalAdapterStartPosition = 0;
+    private final SensorAppearanceProvider mAppearanceProvider;
 
     public static ExpandableDeviceAdapter createEmpty(final ConnectableSensorRegistry registry,
-            DeviceRegistry deviceRegistry) {
+            DeviceRegistry deviceRegistry, SensorAppearanceProvider appearanceProvider) {
         return new ExpandableDeviceAdapter(registry,
-                new ArrayList<DeviceParentListItem>(), deviceRegistry);
+                new ArrayList<DeviceParentListItem>(), deviceRegistry, appearanceProvider);
     }
 
     private ExpandableDeviceAdapter(final ConnectableSensorRegistry registry,
-            List<DeviceParentListItem> deviceParents, DeviceRegistry deviceRegistry) {
+            List<DeviceParentListItem> deviceParents, DeviceRegistry deviceRegistry,
+            SensorAppearanceProvider appearanceProvider) {
         super(deviceParents);
         mRegistry = Preconditions.checkNotNull(registry);
         mDeviceParents = deviceParents;
         mDeviceRegistry = deviceRegistry;
+        mAppearanceProvider = appearanceProvider;
     }
 
     @Override
@@ -79,7 +83,7 @@ public class ExpandableDeviceAdapter extends
     public SensorChildViewHolder onCreateChildViewHolder(ViewGroup childViewGroup) {
         View viewGroup = LayoutInflater.from(childViewGroup.getContext()).inflate(
                 R.layout.sensor_child_recycler_item, childViewGroup, false);
-        return new SensorChildViewHolder(viewGroup);
+        return new SensorChildViewHolder(viewGroup, mAppearanceProvider);
     }
 
     @Override
