@@ -213,7 +213,11 @@ public class MemoryMetadataManager implements MetaDataManager {
             Map<String, ExternalSensorProvider> providerMap) {
         Preconditions.checkNotNull(sensor);
         Preconditions.checkNotNull(providerMap);
-        ExternalSensorProvider provider = providerMap.get(sensor.getType());
+        String sensorType = sensor.getType();
+        ExternalSensorProvider provider = providerMap.get(sensorType);
+        if (provider == null) {
+            throw new IllegalArgumentException("No provider for sensor type " + sensorType);
+        }
         String sensorName = sensor.getName();
         byte[] sensorConfig = sensor.getConfig();
         return provider.buildSensorSpec(sensorName, sensorConfig);

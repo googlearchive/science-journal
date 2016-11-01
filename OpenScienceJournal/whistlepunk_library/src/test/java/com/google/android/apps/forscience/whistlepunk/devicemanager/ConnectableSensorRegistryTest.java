@@ -45,6 +45,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Assert;
@@ -117,8 +118,8 @@ public class ConnectableSensorRegistryTest {
     @Test
     public void testPairedWhenSet() {
         String deviceName = Arbitrary.string();
-        mDeviceRegistry.addDevice(ScalarInputSpec.TYPE,
-                new InputDeviceSpec("serviceId&deviceId", deviceName));
+        mDeviceRegistry.addDevice(
+                new InputDeviceSpec(ScalarInputSpec.TYPE, "serviceId&deviceId", deviceName));
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
@@ -386,6 +387,36 @@ public class ConnectableSensorRegistryTest {
         ScalarInputSpec retrievedSpec = (ScalarInputSpec) sensors.values().iterator().next();
         SensorAppearance appearance = retrievedSpec.getSensorAppearance();
         assertEquals("newUnits", appearance.getUnits(null));
+    }
+
+    @Test
+    public void loadDevices() {
+        final ScalarInputScenario s = new ScalarInputScenario();
+        String serviceId = s.getServiceId();
+
+        TestSensorDiscoverer tsd = new TestSensorDiscoverer(s.getServiceName());
+        mProviderMap.putAll(tsd.makeProviderMap(serviceId));
+        Map<String, ExternalSensorDiscoverer> discoverers = tsd.makeDiscovererMap(serviceId);
+        DataController dc = makeDataController();
+
+        InputDeviceSpec deviceSpec = new InputDeviceSpec(ScalarInputSpec.TYPE,
+                ScalarInputSpec.makeApiDeviceAddress(s.getServiceId(), s.getDeviceId()),
+                "deviceName");
+
+        StoringConsumer<String> cSensorId = new StoringConsumer<>();
+        ScalarInputSpec sensorSpec = new ScalarInputSpec(s.getSensorName(), s.getServiceId(),
+                s.getSensorAddress(), null, s.appearance, s.getDeviceId());
+        dc.addOrGetExternalSensor(sensorSpec, cSensorId);
+        String sensorId = cSensorId.getValue();
+
+        DeviceRegistry deviceRegistry = new DeviceRegistry(null);
+        ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc, discoverers,
+                mPresenter, mScheduler, new CurrentTimeClock(), mOptionsListener, deviceRegistry);
+
+        registry.setMyDevices(deviceSpec);
+        registry.setPairedSensors(ImmutableMap.of(sensorId, (ExternalSensorSpec) sensorSpec));
+
+        assertEquals(deviceSpec, deviceRegistry.getDevice(sensorSpec));
     }
 
     @Test

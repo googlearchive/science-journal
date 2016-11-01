@@ -59,7 +59,7 @@ public class ScalarInputDiscovererTest {
 
                     @Override
                     public void onDeviceFound(InputDeviceSpec deviceSpec) {
-                        deviceRegistry.addDevice(ScalarInputSpec.TYPE, deviceSpec);
+                        deviceRegistry.addDevice(deviceSpec);
                     }
 
                     @Override

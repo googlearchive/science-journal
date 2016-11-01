@@ -82,7 +82,7 @@ class SensorPreferenceGroup implements SensorGroup {
     private Preference buildAvailablePreference(String key, ConnectableSensor sensor) {
         Context context = mCategory.getContext();
         Preference pref = new Preference(context);
-        pref.setTitle(sensor.getName(mAppearanceProvider, context));
+        pref.setTitle(sensor.getAppearance(mAppearanceProvider).getName(context));
         pref.setKey(key);
         return pref;
     }

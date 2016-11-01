@@ -15,11 +15,9 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.ArrayMap;
 
-import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
@@ -37,8 +35,8 @@ public class DeviceRegistry {
     }
 
     // TODO: store and retrieve "My Devices" from database
-    public void addDevice(String type, InputDeviceSpec spec) {
-        mDevices.put(InputDeviceSpec.joinAddresses(type, spec.getDeviceAddress()), spec);
+    public void addDevice(InputDeviceSpec spec) {
+        mDevices.put(spec.getGlobalDeviceAddress(), spec);
     }
 
     public InputDeviceSpec getDevice(String type, String deviceAddress) {
@@ -69,7 +67,7 @@ public class DeviceRegistry {
         InputDeviceSpec device = getDevice(spec.getGlobalDeviceAddress());
         if (device == null) {
             // generate imaginary device to hold the sensor
-            return new InputDeviceSpec(spec.getDeviceAddress(), spec.getName());
+            return new InputDeviceSpec(spec.getType(), spec.getDeviceAddress(), spec.getName());
         }
         return device;
     }

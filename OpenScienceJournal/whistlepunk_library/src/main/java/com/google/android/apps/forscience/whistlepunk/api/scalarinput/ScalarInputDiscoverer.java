@@ -151,7 +151,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 mUiThreadExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        scanListener.onDeviceFound(new InputDeviceSpec(
+                        scanListener.onDeviceFound(new InputDeviceSpec(ScalarInputSpec.TYPE,
                                 ScalarInputSpec.makeApiDeviceAddress(serviceId, deviceId), name));
                     }
                 });

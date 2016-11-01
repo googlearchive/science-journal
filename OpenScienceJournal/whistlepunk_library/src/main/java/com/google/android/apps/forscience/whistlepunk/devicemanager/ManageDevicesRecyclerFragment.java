@@ -143,9 +143,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     }
 
     public void refreshAfterLoad() {
-        String experimentId = getArguments().getString(ManageDevicesActivity.EXTRA_EXPERIMENT_ID);
-        setExperimentId(experimentId);
-        refresh(false);
+        setExperimentId(getArguments().getString(ManageDevicesActivity.EXTRA_EXPERIMENT_ID));
     }
 
     private void setExperimentId(String experimentId) {

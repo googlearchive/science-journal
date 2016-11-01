@@ -117,6 +117,11 @@ public abstract class ExternalSensorSpec implements Parcelable {
         return InputDeviceSpec.joinAddresses(getType(), getDeviceAddress());
     }
 
+    /**
+     * @return a sensor appearance for this sensor.  Note that if this returns an appearance with
+     * a name different than what {@link #getName()} returns, this will lead to odd undefined
+     * behavior.
+     */
     public abstract SensorAppearance getSensorAppearance();
 
     /**

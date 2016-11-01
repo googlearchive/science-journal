@@ -68,7 +68,7 @@ class MemorySensorGroup implements SensorGroup {
     }
 
     public String getTitle(int i) {
-        return getSensor(i).getName(null, null);
+        return getSensor(i).getAppearance(null).getName(null);
     }
 
     public String getDeviceName(int i) {

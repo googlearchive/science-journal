@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import android.app.PendingIntent;
 import android.support.annotation.NonNull;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Delay;
@@ -35,6 +36,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -178,14 +180,15 @@ public class ConnectableSensorRegistry {
             ExternalSensorDiscoverer.ScanListener listener =
                     new ExternalSensorDiscoverer.ScanListener() {
                         @Override
-                        public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
+                        public void onSensorFound(
+                                ExternalSensorDiscoverer.DiscoveredSensor sensor) {
                             ConnectableSensorRegistry.this.onSensorFound(sensor, keysSeen);
                         }
 
                         @Override
                         public void onDeviceFound(InputDeviceSpec device) {
                             if (mDeviceRegistry != null) {
-                                mDeviceRegistry.addDevice(type, device);
+                                mDeviceRegistry.addDevice(device);
                             }
                         }
 
@@ -272,7 +275,14 @@ public class ConnectableSensorRegistry {
         return null;
     }
 
-    public void setPairedSensors(Map<String, ExternalSensorSpec> sensors) {
+    // TODO: need to get My Devices from database
+    public void setMyDevices(InputDeviceSpec... deviceSpecs) {
+        for (InputDeviceSpec deviceSpec : deviceSpecs) {
+            mDeviceRegistry.addDevice(deviceSpec);
+        }
+    }
+
+    public void setPairedSensors(final Map<String, ExternalSensorSpec> sensors) {
         for (Map.Entry<String, ExternalSensorSpec> entry : sensors.entrySet()) {
             String sensorId = entry.getKey();
             ExternalSensorSpec sensor = entry.getValue();

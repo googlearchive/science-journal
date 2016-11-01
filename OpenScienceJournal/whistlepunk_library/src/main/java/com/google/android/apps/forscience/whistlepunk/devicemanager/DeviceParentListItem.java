@@ -15,12 +15,18 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
+
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * ExpandableRecyclerView Model object that holds the specification of a device and the keys of all
@@ -32,10 +38,12 @@ import java.util.List;
  */
 public class DeviceParentListItem implements ParentListItem {
     private InputDeviceSpec mSpec;
+    private final SensorAppearanceProvider mAppearanceProvider;
     private List<String> mSensorKeys = new ArrayList<>();
 
-    public DeviceParentListItem(InputDeviceSpec spec) {
+    public DeviceParentListItem(InputDeviceSpec spec, SensorAppearanceProvider appearanceProvider) {
         mSpec = Preconditions.checkNotNull(spec);
+        mAppearanceProvider = appearanceProvider;
     }
 
     @Override
@@ -70,5 +78,32 @@ public class DeviceParentListItem implements ParentListItem {
 
     boolean isPhoneSensorParent(DeviceRegistry deviceRegistry) {
         return isDevice(deviceRegistry.getBuiltInDevice());
+    }
+
+    public Drawable getDeviceIcon(Context context, Map<String, ConnectableSensor> sensorMap) {
+        Drawable selfDrawable = mSpec.getSensorAppearance().getIconDrawable(context);
+        if (selfDrawable != null) {
+            return selfDrawable;
+        }
+        return getArbitrarySensorIcon(context, sensorMap);
+    }
+
+    /**
+     * If the device does not have an icon, choose an arbitrary icon from the sensors on the device
+     * to represent the device (It will be fairly rare that a device both has no individual icon,
+     * and multiple sensors with different icons, so this seems a reasonable heuristic.)
+     */
+    @Nullable
+    private Drawable getArbitrarySensorIcon(Context context,
+            Map<String, ConnectableSensor> sensorMap) {
+        for (String sensorKey : mSensorKeys) {
+            ConnectableSensor sensor = sensorMap.get(sensorKey);
+            Drawable sensorDrawable = sensor.getAppearance(mAppearanceProvider).getIconDrawable(
+                    context);
+            if (sensorDrawable != null) {
+                return sensorDrawable;
+            }
+        }
+        return null;
     }
 }

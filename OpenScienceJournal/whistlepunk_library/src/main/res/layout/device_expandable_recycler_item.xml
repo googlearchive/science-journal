@@ -9,6 +9,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+    <ImageView android:id="@+id/device_icon"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"/>
+
     <!-- TODO: this is very preliminary to get something in place. -->
     <TextView android:id="@+id/device_name" android:layout_width="wrap_content"
               android:layout_height="wrap_content"

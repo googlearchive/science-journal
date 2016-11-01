@@ -29,8 +29,8 @@ public class DeviceRegistryTest {
         DeviceRegistry registry = new DeviceRegistry(null);
 
         assertEquals(0, registry.getDeviceCount());
-        registry.addDevice("type1", new InputDeviceSpec("address", "name1"));
-        registry.addDevice("type2", new InputDeviceSpec("address", "name2"));
+        registry.addDevice(new InputDeviceSpec("type1", "address", "name1"));
+        registry.addDevice(new InputDeviceSpec("type2", "address", "name2"));
 
         assertEquals(2, registry.getDeviceCount());
         assertEquals("name1", registry.getDevice("type1", "address").getName());
@@ -44,7 +44,8 @@ public class DeviceRegistryTest {
 
     @Test public void useBuiltInDevice() {
         String name = Arbitrary.string();
-        DeviceRegistry registry = new DeviceRegistry(new InputDeviceSpec("address", name));
+        DeviceRegistry registry = new DeviceRegistry(
+                new InputDeviceSpec(InputDeviceSpec.TYPE, "address", name));
         assertEquals(name, registry.getDevice(null).getName());
     }
 }

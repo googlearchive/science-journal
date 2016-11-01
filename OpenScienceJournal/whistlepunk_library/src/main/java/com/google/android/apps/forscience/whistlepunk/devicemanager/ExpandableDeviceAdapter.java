@@ -73,10 +73,9 @@ public class ExpandableDeviceAdapter extends
     }
 
     @Override
-    public void onBindParentViewHolder(
-            DeviceParentViewHolder parentViewHolder, int position,
+    public void onBindParentViewHolder(DeviceParentViewHolder parentViewHolder, int position,
             ParentListItem parentListItem) {
-        parentViewHolder.bind((DeviceParentListItem) parentListItem);
+        parentViewHolder.bind((DeviceParentListItem) parentListItem, mSensorMap);
     }
 
     @Override
@@ -119,7 +118,7 @@ public class ExpandableDeviceAdapter extends
         }
 
         // Otherwise, add a new device item.
-        DeviceParentListItem item = new DeviceParentListItem(device);
+        DeviceParentListItem item = new DeviceParentListItem(device, mAppearanceProvider);
         item.addSensor(sensorKey);
         addDevice(item);
     }

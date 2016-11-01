@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.common.base.Preconditions;
@@ -138,8 +139,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         }
 
         public void bind(ConnectableSensor connectableSensor) {
-            mNameView.setText(
-                    connectableSensor.getName(mSensorAppearanceProvider, mNameView.getContext()));
+            SensorAppearance appearance = connectableSensor.getAppearance(
+                    mSensorAppearanceProvider);
+            mNameView.setText(appearance.getName(mNameView.getContext()));
 
             // TODO: need to get name
             mDeviceNameView.setText(connectableSensor.getDeviceAddress());

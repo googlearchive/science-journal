@@ -20,8 +20,17 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class InputDeviceSpecTest {
-    @Test public void getAddress() {
-        assertEquals("DEVICE&serviceId_deviceId",
-                new InputDeviceSpec("serviceId_deviceId", "Device Name").getAddress());
+    @Test
+    public void getAddress() {
+        InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "serviceId_deviceId",
+                "Device Name");
+        assertEquals("DEVICE&serviceId_deviceId", spec.getAddress());
+    }
+
+    @Test
+    public void getName() {
+        InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "serviceId_deviceId",
+                "Device Name");
+        assertEquals("Device Name", spec.getSensorAppearance().getName(null));
     }
 }

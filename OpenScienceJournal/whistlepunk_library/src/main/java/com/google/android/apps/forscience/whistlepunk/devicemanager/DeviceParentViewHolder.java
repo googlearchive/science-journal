@@ -15,7 +15,9 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.content.Context;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
@@ -23,24 +25,29 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.ToggleArrow;
 import com.google.common.base.Supplier;
 
+import java.util.Map;
+
 /**
  * View holder for device views in the expandable view
  */
 public class DeviceParentViewHolder extends ParentViewHolder {
     private final TextView mDeviceNameView;
-
+    private final ImageView mDeviceIcon;
     private final ToggleArrow mCollapsedIcon;
     private final Supplier<Integer> mGlobalPositionOffset;
 
     public DeviceParentViewHolder(View itemView, Supplier<Integer> globalPositionOffset) {
         super(itemView);
         mDeviceNameView = (TextView) itemView.findViewById(R.id.device_name);
+        mDeviceIcon = (ImageView) itemView.findViewById(R.id.device_icon);
         mCollapsedIcon = (ToggleArrow) itemView.findViewById(R.id.collapsed_icon);
         mGlobalPositionOffset = globalPositionOffset;
     }
 
-    public void bind(DeviceParentListItem item) {
+    public void bind(DeviceParentListItem item, Map<String, ConnectableSensor> sensorMap) {
         mDeviceNameView.setText(item.getDeviceName());
+        Context context = mDeviceIcon.getContext();
+        mDeviceIcon.setImageDrawable(item.getDeviceIcon(context, sensorMap));
         mCollapsedIcon.setActionStrings(R.string.btn_expand_device,
                 R.string.btn_contract_device);
         mCollapsedIcon.setActive(item.isInitiallyExpanded(), false);

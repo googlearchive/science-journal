@@ -16,7 +16,9 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 
+import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
@@ -80,24 +82,15 @@ public class ConnectableSensor {
     }
 
     /**
-     * @return the display name of this connectable sensor.  If it is an external sensor discovered
-     * via the API or remembered in the database, will directly retrieve the stored name,
-     * otherwise, use {@link SensorAppearanceProvider} to look up the name of the built-in sensor.
+     * @return the appearance of this connectable sensor.  If it is an external sensor discovered
+     * via the API or remembered in the database, will directly retrieve the stored appearance,
+     * otherwise, use {@link SensorAppearanceProvider} to look up the built-in sensor.
      */
-    public String getName(SensorAppearanceProvider sap, Context context) {
+    public SensorAppearance getAppearance(SensorAppearanceProvider sap) {
         if (mSpec != null) {
-            return mSpec.getName();
+            return mSpec.getSensorAppearance();
         } else {
-            return sap.getAppearance(mConnectedSensorId).getName(context);
-        }
-    }
-
-    public String getName() {
-        // TODO: replace everywhere with the above
-        if (mSpec == null) {
-            return null;
-        } else {
-            return mSpec.getName();
+            return sap.getAppearance(mConnectedSensorId);
         }
     }
 

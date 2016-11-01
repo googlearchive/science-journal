@@ -32,7 +32,7 @@ import org.junit.Test;
 
 public class ExpandableDeviceAdapterTest {
     private static final InputDeviceSpec BUILT_IN_DEVICE = new InputDeviceSpec(
-            InputDeviceSpec.BUILT_IN_DEVICE_ADDRESS, "Phone sensors");
+            InputDeviceSpec.TYPE, InputDeviceSpec.BUILT_IN_DEVICE_ADDRESS, "Phone sensors");
     private DeviceRegistry mDeviceRegistry = new DeviceRegistry(BUILT_IN_DEVICE);
     private DataController mDataController = InMemorySensorDatabase.makeSimpleController();
     private ConnectableSensorRegistry mSensorRegistry = new ConnectableSensorRegistry(
@@ -57,8 +57,8 @@ public class ExpandableDeviceAdapterTest {
                     null, deviceId);
 
             String deviceName = Arbitrary.string("deviceName");
-            mDeviceRegistry.addDevice(ScalarInputSpec.TYPE,
-                    new InputDeviceSpec(sis.getDeviceAddress(), deviceName));
+            mDeviceRegistry.addDevice(
+                    new InputDeviceSpec(ScalarInputSpec.TYPE, sis.getDeviceAddress(), deviceName));
 
             mSensorCount++;
             return sis;
@@ -179,7 +179,7 @@ public class ExpandableDeviceAdapterTest {
         ConnectableSensor sensor = adapter.getSensor(0, 0);
 
         // Replace only sensor of only device
-        assertEquals(replacement.getName(), sensor.getName(null, null));
+        assertEquals(replacement.getName(), sensor.getAppearance(null).getName(null));
         observer.assertMostRecentNotification("Changed 1 at 1 [null]");
         assertEquals(1, adapter.getSensorCount());
 

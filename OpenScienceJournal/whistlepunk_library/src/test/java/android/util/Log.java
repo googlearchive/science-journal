@@ -26,6 +26,10 @@ public class Log {
     }
 
     public static int e(String tag, String message) {
+        if (tag.equals("OOPS")) {
+            // This is a temporary debugging message, ignore
+            return 0;
+        }
         throw new RuntimeException(tag + ": " + message);
     }
 

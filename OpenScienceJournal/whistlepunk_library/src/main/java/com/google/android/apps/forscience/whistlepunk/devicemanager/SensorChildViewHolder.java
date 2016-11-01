@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 
 import java.util.Map;
@@ -39,8 +40,8 @@ public class SensorChildViewHolder extends ChildViewHolder {
 
     public void bind(final String sensorKey, Map<String, ConnectableSensor> sensorMap,
             final ConnectableSensorRegistry registry) {
-        mNameView.setText(
-                sensorMap.get(sensorKey).getName(mAppearanceProvider, mNameView.getContext()));
+        SensorAppearance appearance = sensorMap.get(sensorKey).getAppearance(mAppearanceProvider);
+        mNameView.setText(appearance.getName(mNameView.getContext()));
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -16,6 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -41,11 +42,13 @@ public class InputDeviceSpec extends ExternalSensorSpec {
      */
     public static final String BUILT_IN_DEVICE_ADDRESS = "BUILT_IN_DEVICE";
 
+    private String mProviderType;
     private String mDeviceAddress;
     private String mName;
 
     // TODO: needs a proto to survive round-trip!
-    public InputDeviceSpec(String deviceAddress, String deviceName) {
+    public InputDeviceSpec(String providerType, String deviceAddress, String deviceName) {
+        mProviderType = providerType;
         mDeviceAddress = deviceAddress;
         mName = deviceName;
     }
@@ -61,8 +64,21 @@ public class InputDeviceSpec extends ExternalSensorSpec {
 
     @Override
     public SensorAppearance getSensorAppearance() {
-        // TODO: how to calculate icon here?
-        return new EmptySensorAppearance();
+        return new EmptySensorAppearance() {
+            @Override
+            public Drawable getIconDrawable(Context context) {
+                if (mDeviceAddress.equals(BUILT_IN_DEVICE_ADDRESS)) {
+                    // TODO: this isn't right (b/32579791)
+                    return context.getDrawable(android.R.drawable.ic_menu_call);
+                }
+                return null;
+            }
+
+            @Override
+            public String getName(Context context) {
+                return InputDeviceSpec.this.getName();
+            }
+        };
     }
 
     @Override
@@ -99,7 +115,16 @@ public class InputDeviceSpec extends ExternalSensorSpec {
     }
 
     public static InputDeviceSpec builtInDevice(Context context) {
-        return new InputDeviceSpec(BUILT_IN_DEVICE_ADDRESS,
+        return new InputDeviceSpec(TYPE, BUILT_IN_DEVICE_ADDRESS,
                 context.getString(R.string.phone_sensors));
+    }
+
+    public String getProviderType() {
+        return mProviderType;
+    }
+
+    @Override
+    public String getGlobalDeviceAddress() {
+        return InputDeviceSpec.joinAddresses(getProviderType(), getDeviceAddress());
     }
 }

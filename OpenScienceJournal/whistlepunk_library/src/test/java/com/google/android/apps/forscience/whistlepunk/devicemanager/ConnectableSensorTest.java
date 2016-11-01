@@ -26,6 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 
 import org.junit.Test;
 
@@ -53,9 +54,9 @@ public class ConnectableSensorTest {
 
     @Test
     public void getNameExternal() {
-        assertEquals("name",
-                ConnectableSensor.disconnected(new InputDeviceSpec("address", "name")).getName(null,
-                        null));
+        InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "address", "name");
+        SensorAppearance appearance = ConnectableSensor.disconnected(spec).getAppearance(null);
+        assertEquals("name", appearance.getName(null));
     }
 
     @Test
@@ -69,6 +70,6 @@ public class ConnectableSensorTest {
             }
         });
 
-        assertEquals(sensorName, ConnectableSensor.builtIn("sid").getName(map, null));
+        assertEquals(sensorName, ConnectableSensor.builtIn("sid").getAppearance(map).getName(null));
     }
 }
