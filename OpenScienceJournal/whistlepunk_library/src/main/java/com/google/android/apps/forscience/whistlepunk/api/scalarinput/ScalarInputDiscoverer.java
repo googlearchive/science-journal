@@ -100,7 +100,12 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
         final TaskPool pool = new TaskPool(new Runnable() {
             @Override
             public void run() {
-                listener.onScanDone();
+                mUiThreadExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onScanDone();
+                    }
+                });
             }
         }, discoveryTaskId);
         mServiceFinder.take(new AppDiscoveryCallbacks() {
@@ -134,8 +139,8 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
         scheduleTaskTimeout(pool, serviceTaskId);
         return new IDeviceConsumer.Stub() {
             @Override
-            public void onDeviceFound(String deviceId, String name, PendingIntent settingsIntent)
-                    throws RemoteException {
+            public void onDeviceFound(final String deviceId, final String name,
+                    PendingIntent settingsIntent) throws RemoteException {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Found device: " + name);
                 }
@@ -143,8 +148,13 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 pool.addTask(deviceTaskId);
                 scheduleTaskTimeout(pool, deviceTaskId);
 
-                scanListener.onDeviceFound(new InputDeviceSpec(
-                        ScalarInputSpec.makeApiDeviceAddress(serviceId, deviceId), name));
+                mUiThreadExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        scanListener.onDeviceFound(new InputDeviceSpec(
+                                ScalarInputSpec.makeApiDeviceAddress(serviceId, deviceId), name));
+                    }
+                });
 
                 // TODO: restructure to create an object-per-service-scan to hold intermediate data.
                 service.scanSensors(deviceId,
@@ -190,15 +200,20 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
                 final ScalarInputSpec spec = new ScalarInputSpec(name, serviceId, sensorAddress,
                         behavior, ids, deviceId);
-                onEachSensorFound.onSensorFound(new DiscoveredSensor() {
+                mUiThreadExecutor.execute(new Runnable() {
                     @Override
-                    public ExternalSensorSpec getSpec() {
-                        return spec;
-                    }
+                    public void run() {
+                        onEachSensorFound.onSensorFound(new DiscoveredSensor() {
+                            @Override
+                            public ExternalSensorSpec getSpec() {
+                                return spec;
+                            }
 
-                    @Override
-                    public PendingIntent getSettingsIntent() {
-                        return behavior == null ? null : behavior.settingsIntent;
+                            @Override
+                            public PendingIntent getSettingsIntent() {
+                                return behavior == null ? null : behavior.settingsIntent;
+                            }
+                        });
                     }
                 });
             }

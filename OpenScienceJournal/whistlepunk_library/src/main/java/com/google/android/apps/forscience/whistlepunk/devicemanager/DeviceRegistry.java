@@ -74,6 +74,10 @@ public class DeviceRegistry {
         return device;
     }
 
+    public int getDeviceCount() {
+        return mDevices.size();
+    }
+
     public InputDeviceSpec getBuiltInDevice() {
         return mBuiltInDevice;
     }

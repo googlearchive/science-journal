@@ -50,10 +50,10 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
     }
 
     @NonNull
-    public ScalarInputDiscoverer makeScalarInputDiscoverer(final String serviceId) {
-        return new ScalarInputDiscoverer(makeFinder(serviceId),
-                new TestStringSource(), MoreExecutors.directExecutor(), new MockScheduler(),
-                100, new RecordingUsageTracker());
+    public ScalarInputDiscoverer makeScalarInputDiscoverer(final String serviceId,
+            Executor uiThread) {
+        return new ScalarInputDiscoverer(makeFinder(serviceId), new TestStringSource(), uiThread,
+                new MockScheduler(), 100, new RecordingUsageTracker());
     }
 
     @NonNull
@@ -149,7 +149,8 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
 
     @NonNull
     public Map<String, ExternalSensorDiscoverer> makeDiscovererMap(String serviceId) {
-        ScalarInputDiscoverer sid = makeScalarInputDiscoverer(serviceId);
+        ScalarInputDiscoverer sid = makeScalarInputDiscoverer(serviceId,
+                MoreExecutors.directExecutor());
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
         discoverers.put(ScalarInputSpec.TYPE, sid);
         return discoverers;

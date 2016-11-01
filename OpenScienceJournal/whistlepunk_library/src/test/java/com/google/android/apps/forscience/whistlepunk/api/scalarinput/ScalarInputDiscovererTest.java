@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.os.RemoteException;
@@ -43,7 +44,8 @@ public class ScalarInputDiscovererTest {
     public void testStartScanning() {
         final ScalarInputScenario s = new ScalarInputScenario();
         final DeviceRegistry deviceRegistry = new DeviceRegistry(null);
-        ScalarInputDiscoverer sid = s.buildDiscoverer();
+        ExplicitExecutor uiThread = new ExplicitExecutor();
+        ScalarInputDiscoverer sid = s.buildDiscoverer(uiThread);
 
         final AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
                 new AccumulatingConsumer<>();
@@ -67,6 +69,13 @@ public class ScalarInputDiscovererTest {
                 };
         assertEquals(true,
                 sid.startScanning(listener, TestConsumers.expectingSuccess()));
+
+        // Haven't executed main thread yet.
+        assertEquals(0, c.seen.size());
+        assertEquals(0, deviceRegistry.getDeviceCount());
+        assertFalse(onScanDone.hasRun);
+
+        uiThread.drain();
         ExternalSensorSpec sensor = c.getOnlySeen().getSpec();
         ScalarInputSpec spec = (ScalarInputSpec) sensor;
         assertEquals(s.getSensorName(), spec.getName());

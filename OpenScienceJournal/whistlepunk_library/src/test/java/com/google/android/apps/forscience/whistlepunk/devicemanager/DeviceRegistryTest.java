@@ -27,8 +27,12 @@ public class DeviceRegistryTest {
     @Test
     public void differentTypesAreDifferentDevices() {
         DeviceRegistry registry = new DeviceRegistry(null);
+
+        assertEquals(0, registry.getDeviceCount());
         registry.addDevice("type1", new InputDeviceSpec("address", "name1"));
         registry.addDevice("type2", new InputDeviceSpec("address", "name2"));
+
+        assertEquals(2, registry.getDeviceCount());
         assertEquals("name1", registry.getDevice("type1", "address").getName());
         assertEquals("name2", registry.getDevice("type2", "address").getName());
     }

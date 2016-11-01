@@ -36,17 +36,17 @@ public interface ExternalSensorDiscoverer {
 
     public interface ScanListener {
         /**
-         * Called when a scan finds a new device
+         * Called when a scan finds a new device (on the UI thread)
          */
         void onDeviceFound(InputDeviceSpec device);
 
         /**
-         * Called when a scan finds a new sensor on a device.
+         * Called when a scan finds a new sensor on a device (on the UI thread).
          */
         void onSensorFound(DiscoveredSensor sensor);
 
         /**
-         * Called when all devices and sensors are found.
+         * Called when all devices and sensors are found (on the UI thread).
          */
         void onScanDone();
     }

@@ -45,6 +45,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -318,8 +319,10 @@ public class ConnectableSensorRegistryTest {
         tsd2.addSensor("deviceId2", new TestSensor("address4", "name4", appearance3));
 
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
-        discoverers.put(ScalarInputSpec.TYPE, tsd1.makeScalarInputDiscoverer("serviceId"));
-        discoverers.put(ScalarInputSpec.TYPE + "2", tsd2.makeScalarInputDiscoverer("serviceId2"));
+        discoverers.put(ScalarInputSpec.TYPE, tsd1.makeScalarInputDiscoverer("serviceId",
+                MoreExecutors.directExecutor()));
+        discoverers.put(ScalarInputSpec.TYPE + "2", tsd2.makeScalarInputDiscoverer("serviceId2",
+                MoreExecutors.directExecutor()));
         SettableClock clock = new SettableClock();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers, mPresenter, mScheduler, clock, mOptionsListener, null);

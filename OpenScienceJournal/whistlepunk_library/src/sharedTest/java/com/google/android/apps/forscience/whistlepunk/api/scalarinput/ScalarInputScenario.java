@@ -22,6 +22,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * Creates a scenario in which scanning is guaranteed to find a single device and a single sensor.
@@ -69,9 +70,9 @@ public class ScalarInputScenario {
     }
 
     @NonNull
-    public ScalarInputDiscoverer buildDiscoverer() {
+    public ScalarInputDiscoverer buildDiscoverer(Executor uiThread) {
         final TestSensorDiscoverer discoverer = makeTestSensorDiscoverer();
-        return discoverer.makeScalarInputDiscoverer(getServiceId());
+        return discoverer.makeScalarInputDiscoverer(getServiceId(), uiThread);
     }
 
     @NonNull
