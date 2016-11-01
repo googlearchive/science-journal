@@ -27,10 +27,11 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
-import com.google.android.apps.forscience.whistlepunk.MemoryAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputScenario;
@@ -40,6 +41,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TestSensor
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TestSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
@@ -57,10 +59,11 @@ public class ConnectableSensorRegistryTest {
     private final DeviceOptionsDialog.DeviceOptionsListener
             mOptionsListener = DeviceOptionsDialog.NULL_LISTENER;
     private final Map<String, ExternalSensorProvider> mProviderMap = new HashMap<>();
-    private DeviceRegistry mDeviceRegistry = new DeviceRegistry();
+    private DeviceRegistry mDeviceRegistry = new DeviceRegistry(null);
     private MemorySensorGroup mAvailableDevices = new MemorySensorGroup(mDeviceRegistry);
     private MemorySensorGroup mPairedDevices = new MemorySensorGroup(mDeviceRegistry);
     private TestDevicesPresenter mPresenter = new TestDevicesPresenter();
+    private TestSensorRegistry mSensorRegistry = new TestSensorRegistry();
 
     @Test
     public void testScalarInputPassthrough() {
@@ -148,7 +151,7 @@ public class ConnectableSensorRegistryTest {
         String sensorId = storeSensorId.getValue();
         dc.addSensorToExperiment(experimentId, sensorId, TestConsumers.<Success>expectingSuccess());
 
-        registry.setExperimentId(experimentId);
+        registry.setExperimentId(experimentId, mSensorRegistry);
         registry.showDeviceOptions(mPairedDevices.getKey(0));
         assertEquals(experimentId, mPresenter.experimentId);
         assertEquals(sensorId, mPresenter.sensorId);
@@ -369,10 +372,10 @@ public class ConnectableSensorRegistryTest {
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
                 mOptionsListener, null);
-        registry.setExperimentId("experimentId");
-        registry.pair(mAvailableDevices.getKey(0), new MemoryAppearanceProvider());
+        registry.setExperimentId("experimentId", mSensorRegistry);
+        registry.pair(mAvailableDevices.getKey(0), new FakeAppearanceProvider(), null);
         s.appearance.units = "newUnits";
-        registry.refresh(false);
+        registry.refresh(false, mSensorRegistry);
 
         Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
                 mMetadataManager.getExperimentExternalSensors(
@@ -382,19 +385,39 @@ public class ConnectableSensorRegistryTest {
         assertEquals("newUnits", appearance.getUnits(null));
     }
 
-    @Test public void addDevicesAsFound() {
+    @Test
+    public void addDevicesAsFound() {
         final ScalarInputScenario s = new ScalarInputScenario();
         mProviderMap.putAll(s.makeScalarInputProviders());
         DataController dc = makeDataController();
-        DeviceRegistry deviceRegistry = new DeviceRegistry();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
-                mOptionsListener, deviceRegistry);
-        registry.setExperimentId("experimentId");
+                mOptionsListener, mDeviceRegistry);
+        registry.setExperimentId("experimentId", mSensorRegistry);
 
-        InputDeviceSpec device = deviceRegistry.getDevice(ScalarInputSpec.TYPE,
+        InputDeviceSpec device = mDeviceRegistry.getDevice(ScalarInputSpec.TYPE,
                 ScalarInputSpec.makeApiDeviceAddress(s.getServiceId(), s.getDeviceId()));
         assertEquals(s.getDeviceName(), device.getName());
+    }
+
+    @Test
+    public void getBuiltInSensors() {
+        mSensorRegistry.addManualBuiltInSensor("id1");
+        mSensorRegistry.addManualBuiltInSensor("id2");
+
+        DataController dc = makeDataController();
+        ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
+                new HashMap<String, ExternalSensorDiscoverer>(), mPresenter, mScheduler,
+                new CurrentTimeClock(), mOptionsListener, mDeviceRegistry);
+        registry.setExperimentId("experimentId", mSensorRegistry);
+
+        assertEquals(2, mPairedDevices.getSensorCount());
+    }
+
+    private static class TestSensorRegistry extends SensorRegistry {
+        public void addManualBuiltInSensor(String id) {
+            addBuiltInSensor(new ManualSensor(id, 0, 0));
+        }
     }
 
     private class TestDevicesPresenter implements DevicesPresenter {

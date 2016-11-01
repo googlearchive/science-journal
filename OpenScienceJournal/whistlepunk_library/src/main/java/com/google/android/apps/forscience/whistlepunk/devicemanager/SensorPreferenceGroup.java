@@ -15,25 +15,31 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.content.Context;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 
+// TODO: delete when new fragment is ready
 class SensorPreferenceGroup implements SensorGroup {
     private PreferenceScreen mScreen;
     private final PreferenceCategory mCategory;
     private boolean mRemoveWhenEmpty;
     private boolean mIncludeSummary;
+    private final SensorAppearanceProvider mAppearanceProvider;
 
     public SensorPreferenceGroup(PreferenceScreen screen, PreferenceCategory category,
-            boolean removeWhenEmpty, boolean includeSummary) {
+            boolean removeWhenEmpty, boolean includeSummary,
+            SensorAppearanceProvider appearanceProvider) {
         mScreen = screen;
         mCategory = category;
         mRemoveWhenEmpty = removeWhenEmpty;
         mIncludeSummary = includeSummary;
+        mAppearanceProvider = appearanceProvider;
         mCategory.setOrderingAsAdded(false);
     }
 
@@ -44,6 +50,10 @@ class SensorPreferenceGroup implements SensorGroup {
 
     @Override
     public void addSensor(String sensorKey, ConnectableSensor sensor) {
+        if (sensor.isBuiltIn()) {
+            // This view doesn't handle built-in sensors
+            return;
+        }
         addPreference(buildFullPreference(sensorKey, sensor));
     }
 
@@ -70,8 +80,9 @@ class SensorPreferenceGroup implements SensorGroup {
 
     @NonNull
     private Preference buildAvailablePreference(String key, ConnectableSensor sensor) {
-        Preference pref = new Preference(mCategory.getContext());
-        pref.setTitle(sensor.getName());
+        Context context = mCategory.getContext();
+        Preference pref = new Preference(context);
+        pref.setTitle(sensor.getName(mAppearanceProvider, context));
         pref.setKey(key);
         return pref;
     }

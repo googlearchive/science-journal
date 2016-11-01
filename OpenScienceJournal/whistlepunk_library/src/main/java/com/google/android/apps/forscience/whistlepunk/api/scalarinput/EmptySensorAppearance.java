@@ -33,7 +33,7 @@ import java.text.NumberFormat;
  *
  * @see {ScalarInputSpec}
  */
-class EmptySensorAppearance implements SensorAppearance {
+public class EmptySensorAppearance implements SensorAppearance {
     private static final int DEFAULT_DRAWABLE = R.drawable.ic_sensor_raw_white_24dp;
 
     @Override

@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
@@ -35,12 +36,14 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     List<ConnectableSensor> mSensors = new ArrayList<>();
     private boolean mIsPaired;
     private ConnectableSensorRegistry mRegistry;
+    private final SensorRegistry mSensorRegistry;
 
     public DeviceAdapter(boolean isPaired, final ConnectableSensorRegistry registry,
-            SensorAppearanceProvider appearanceProvider) {
+            SensorAppearanceProvider appearanceProvider, SensorRegistry sensorRegistry) {
         mIsPaired = isPaired;
         mRegistry = Preconditions.checkNotNull(registry);
         mSensorAppearanceProvider = appearanceProvider;
+        mSensorRegistry = sensorRegistry;
     }
 
     @Override
@@ -62,7 +65,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
                     mRegistry.showDeviceOptions(sensorKey);
                 } else {
                     holder.setIsPairing();
-                    mRegistry.pair(sensorKey, mSensorAppearanceProvider);
+                    mRegistry.pair(sensorKey, mSensorAppearanceProvider, mSensorRegistry);
                 }
             }
         });
@@ -135,7 +138,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         }
 
         public void bind(ConnectableSensor connectableSensor) {
-            mNameView.setText(connectableSensor.getName());
+            mNameView.setText(
+                    connectableSensor.getName(mSensorAppearanceProvider, mNameView.getContext()));
 
             // TODO: need to get name
             mDeviceNameView.setText(connectableSensor.getDeviceAddress());

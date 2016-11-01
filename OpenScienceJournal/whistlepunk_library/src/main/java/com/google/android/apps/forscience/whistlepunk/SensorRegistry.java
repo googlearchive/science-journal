@@ -38,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSens
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
@@ -164,6 +165,17 @@ public class SensorRegistry {
         return externalSourceIds;
     }
 
+    public List<String> getBuiltInSources() {
+        // TODO: is this going to be returned in the right order?
+        List<String> ids = new ArrayList<>();
+        for (Map.Entry<String, SensorRegistryItem> entry : mSensorRegistry.entrySet()) {
+            if (Objects.equals(entry.getValue().providerId, WP_HARDWARE_PROVIDER_ID)) {
+                ids.add(entry.getKey());
+            }
+        }
+        return ids;
+    }
+
     private void addAvailableBuiltinSensors(Context context) {
         final Context appContext = context.getApplicationContext();
         AvailableSensors available = new AvailableSensors() {
@@ -210,7 +222,7 @@ public class SensorRegistry {
         }
     }
 
-    private void addBuiltInSensor(SensorChoice source) {
+    protected void addBuiltInSensor(SensorChoice source) {
         addSource(new SensorRegistryItem(WP_HARDWARE_PROVIDER_ID, source, source.getId()));
     }
 

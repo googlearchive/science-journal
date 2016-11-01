@@ -17,7 +17,6 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.PendingIntent;
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 import android.util.ArrayMap;
 
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -30,10 +29,12 @@ import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -49,6 +50,7 @@ public class ConnectableSensorRegistry {
 
     // Don't remove a sensor unless it's been gone 15 seconds
     private static final long ASSUME_GONE_TIMEOUT_MILLIS = 15_000;
+    private static final String EXTERNAL_SENSOR_KEY_PREFIX = "sensorKey";
 
     private final DataController mDataController;
     private final Map<String, ExternalSensorDiscoverer> mDiscoverers;
@@ -84,7 +86,8 @@ public class ConnectableSensorRegistry {
         mDeviceRegistry = deviceRegistry;
     }
 
-    public void pair(String sensorKey, final SensorAppearanceProvider appearanceProvider) {
+    public void pair(String sensorKey, final SensorAppearanceProvider appearanceProvider,
+            final SensorRegistry sr) {
         final PendingIntent settingsIntent = mSettingsIntents.get(sensorKey);
         addExternalSensorIfNecessary(sensorKey, getPairedGroup().getSensorCount(),
                 new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
@@ -94,7 +97,7 @@ public class ConnectableSensorRegistry {
                                 new LoggingConsumer<Success>(TAG, "Load appearance") {
                                     @Override
                                     public void success(Success value) {
-                                        refresh(false);
+                                        refresh(false, sr);
                                         if (sensor.shouldShowOptionsOnConnect()) {
                                             mPresenter.showDeviceOptions(mExperimentId,
                                                     sensor.getConnectedSensorId(), settingsIntent);
@@ -105,13 +108,17 @@ public class ConnectableSensorRegistry {
                 });
     }
 
-    public void refresh(final boolean clearSensorCache) {
+    public void refresh(final boolean clearSensorCache, final SensorRegistry sr) {
         stopScanningInDiscoverers();
         mDataController.getExternalSensorsByExperiment(mExperimentId,
                 new LoggingConsumer<List<ConnectableSensor>>(TAG, "Load external sensors") {
                     @Override
                     public void success(List<ConnectableSensor> sensors) {
-                        setPairedAndStartScanning(ConnectableSensor.makeMap(sensors),
+                        List<ConnectableSensor> allSensors = new ArrayList<>(sensors);
+                        for (String sensorId : sr.getBuiltInSources()) {
+                            allSensors.add(ConnectableSensor.builtIn(sensorId));
+                        }
+                        setPairedAndStartScanning(ConnectableSensor.makeMap(allSensors),
                                 clearSensorCache);
                     }
                 });
@@ -258,7 +265,7 @@ public class ConnectableSensorRegistry {
 
     private String findSensorKey(ExternalSensorSpec spec) {
         for (Map.Entry<String, ConnectableSensor> entry : mSensors.entrySet()) {
-            if (entry.getValue().getSpec().isSameSensor(spec)) {
+            if (entry.getValue().isSameSensor(spec)) {
                 return entry.getKey();
             }
         }
@@ -303,7 +310,7 @@ public class ConnectableSensorRegistry {
     private String registerSensor(String key, ConnectableSensor sensor,
             PendingIntent settingsIntent) {
         if (key == null) {
-            key = "sensorKey" + (mKeyNum++);
+            key = EXTERNAL_SENSOR_KEY_PREFIX + (mKeyNum++);
         }
         mSensors.put(key, sensor);
         mSettingsIntents.put(key, settingsIntent);
@@ -364,9 +371,9 @@ public class ConnectableSensorRegistry {
         return mScanning;
     }
 
-    public void setExperimentId(String experimentId) {
+    public void setExperimentId(String experimentId, SensorRegistry sr) {
         mExperimentId = experimentId;
-        refresh(false);
+        refresh(false, sr);
     }
 
     private SensorGroup getPairedGroup() {

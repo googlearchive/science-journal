@@ -30,7 +30,10 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.PreferenceProgressCategory;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -51,6 +54,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
     private Menu mMainMenu;
 
     private ConnectableSensorRegistry mConnectableSensorRegistry;
+    private SensorRegistry mSensorRegisty;
 
     public ManageDevicesFragment() {
     }
@@ -68,14 +72,17 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
         mPairedDevices.setOrder(0);
         mPairedDevices.setSelectable(false);
         PreferenceScreen screen = getPreferenceScreen();
-        mPairedGroup = new SensorPreferenceGroup(screen, mPairedDevices, true, true);
+        SensorAppearanceProvider appearanceProvider = appSingleton.getSensorAppearanceProvider();
+        mPairedGroup = new SensorPreferenceGroup(screen, mPairedDevices, true, true,
+                appearanceProvider);
 
         mAvailableDevices = new PreferenceProgressCategory(getActivity());
         mAvailableDevices.setKey(PREF_KEY_AVAILABLE_DEVICES);
         mAvailableDevices.setTitle(R.string.external_devices_available);
         mAvailableDevices.setOrder(1);
         mAvailableDevices.setSelectable(false);
-        mAvailableGroup = new SensorPreferenceGroup(screen, mAvailableDevices, false, false);
+        mAvailableGroup = new SensorPreferenceGroup(screen, mAvailableDevices, false, false,
+                appearanceProvider);
 
         screen.addPreference(mAvailableDevices);
         setHasOptionsMenu(true);
@@ -85,7 +92,10 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
 
         mConnectableSensorRegistry = new ConnectableSensorRegistry(dc, discoverers, this,
                 new SystemScheduler(), appSingleton.getSensorEnvironment().getDefaultClock(),
-                getOptionsListener(), new DeviceRegistry());
+                getOptionsListener(),
+                new DeviceRegistry(InputDeviceSpec.builtInDevice(getActivity())));
+
+        mSensorRegisty = appSingleton.getSensorRegistry();
     }
 
     private DeviceOptionsDialog.DeviceOptionsListener getOptionsListener() {
@@ -128,7 +138,8 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
         }
         if (!mConnectableSensorRegistry.isPaired(sensorKey)) {
             mConnectableSensorRegistry.pair(sensorKey,
-                    AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider());
+                    AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider(),
+                    mSensorRegisty);
         } else {
             mConnectableSensorRegistry.showDeviceOptions(sensorKey);
         }
@@ -153,12 +164,13 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
     }
 
     private void refresh(boolean clearSensorCache) {
-        mConnectableSensorRegistry.refresh(clearSensorCache);
+        mConnectableSensorRegistry.refresh(clearSensorCache, mSensorRegisty);
     }
 
     public void refreshAfterLoad() {
         mConnectableSensorRegistry.setExperimentId(
-                getArguments().getString(ManageDevicesActivity.EXTRA_EXPERIMENT_ID));
+                getArguments().getString(ManageDevicesActivity.EXTRA_EXPERIMENT_ID),
+                mSensorRegisty);
     }
 
     private void stopScanning() {

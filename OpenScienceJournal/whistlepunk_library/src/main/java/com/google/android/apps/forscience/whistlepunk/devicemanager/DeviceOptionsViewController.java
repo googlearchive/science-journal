@@ -175,7 +175,7 @@ public class DeviceOptionsViewController {
                     KEY_PIN_STATE));
             mFrequencyCheckbox.onRestoreInstanceState(savedInstanceState.getParcelable(
                     KEY_FREQ_STATE));
-        } else if (mSensor.getType().equals(BleSensorSpec.TYPE)) {
+        } else if (BleSensorSpec.TYPE.equals(mSensor.getType())) {
             // TODO: config for other sensor types?
 
             BleSensorSpec bleSensor = (BleSensorSpec) mSensor;

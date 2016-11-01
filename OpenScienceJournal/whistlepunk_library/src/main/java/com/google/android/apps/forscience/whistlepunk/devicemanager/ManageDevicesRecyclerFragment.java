@@ -74,7 +74,8 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
         mSensorRegistry = appSingleton.getSensorRegistry();
         mMyDevices = ExpandableDeviceAdapter.createEmpty(mRegistry, deviceRegistry,
                 appearanceProvider);
-        mAvailableDevices = new DeviceAdapter(false, mRegistry, appearanceProvider);
+        mAvailableDevices = new DeviceAdapter(false, mRegistry, appearanceProvider,
+                mSensorRegistry);
         setHasOptionsMenu(true);
     }
 
@@ -138,7 +139,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     }
 
     private void refresh(boolean clearSensorCache) {
-        mRegistry.refresh(clearSensorCache);
+        mRegistry.refresh(clearSensorCache, mSensorRegistry);
     }
 
     public void refreshAfterLoad() {
@@ -148,7 +149,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     }
 
     private void setExperimentId(String experimentId) {
-        mRegistry.setExperimentId(experimentId);
+        mRegistry.setExperimentId(experimentId, mSensorRegistry);
         AppSingleton.getInstance(getActivity()).getDataController().getExperimentById(experimentId,
                 new LoggingConsumer<Experiment>(TAG, "load experiment for name") {
                     @Override

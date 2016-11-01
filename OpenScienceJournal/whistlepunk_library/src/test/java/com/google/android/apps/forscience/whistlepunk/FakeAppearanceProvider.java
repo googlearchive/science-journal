@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 
-public class MemoryAppearanceProvider implements SensorAppearanceProvider {
+public class FakeAppearanceProvider implements SensorAppearanceProvider {
     @Override
     public void loadAppearances(MaybeConsumer<Success> onSuccess) {
 
