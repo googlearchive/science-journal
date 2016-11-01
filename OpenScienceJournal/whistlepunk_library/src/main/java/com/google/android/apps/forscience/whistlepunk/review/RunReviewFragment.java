@@ -75,6 +75,7 @@ import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
+import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
@@ -971,7 +972,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private String getSonificationType(GoosciSensorLayout.SensorLayout sensorLayout) {
         return LocalSensorOptionsStorage.loadFromLayoutExtras(sensorLayout).getReadOnly().getString(
                 ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
-                ScalarDisplayOptions.DEFAULT_SONIFICATION_TYPE);
+                SonificationTypeAdapterFactory.DEFAULT_SONIFICATION_TYPE);
     }
 
     @Override

@@ -28,17 +28,29 @@ import com.jsyn.Synthesizer;
 
 public class SonificationTypeAdapterFactory {
 
+    public static final String DEFAULT_SONIFICATION_TYPE = "d2p";
+    public static final String SCALE_SONIFICATION_TYPE = "d2ps";
+    public static final String NOTES_SONIFICATION_TYPE = "d2pe";
+    public static final String AMPLITUDE_SONIFICATION_TYPE = "d2a";
+    public static final String CONDUCTOR_SONIFICATION_TYPE = "conductor";
+
+    // The sonification types available. This MUST be in the same order as the string arrays
+    // sonification_types_prod + sonification_types_dev.
+    public static final String[] SONIFICATION_TYPES = new String[]{DEFAULT_SONIFICATION_TYPE,
+            SCALE_SONIFICATION_TYPE, NOTES_SONIFICATION_TYPE, AMPLITUDE_SONIFICATION_TYPE,
+            CONDUCTOR_SONIFICATION_TYPE};
+
     public static JsynUnitVoiceAdapterInterface getSonificationTypeAdapter(
             Synthesizer synth, String sonification_type) {
-        if (sonification_type.equals("default_sonification")) {
+        if (sonification_type.equals(DEFAULT_SONIFICATION_TYPE)) {
             return new DefaultVoice(synth);
-        } else if (sonification_type.equals("amplitude")) {
+        } else if (sonification_type.equals(AMPLITUDE_SONIFICATION_TYPE)) {
             return new AmplitudeVoice(synth);
-        } else if (sonification_type.equals("notes")) {
+        } else if (sonification_type.equals(NOTES_SONIFICATION_TYPE)) {
             return new NotesVoice(synth);
-        } else if (sonification_type.equals("scale")) {
+        } else if (sonification_type.equals(SCALE_SONIFICATION_TYPE)) {
             return new ScaleVoice(synth);
-        } else if (sonification_type.equals("conductor")) {
+        } else if (sonification_type.equals(CONDUCTOR_SONIFICATION_TYPE)) {
                 return new ConductorVoice(synth);
         } else {
             return null;

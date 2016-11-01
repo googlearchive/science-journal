@@ -22,10 +22,7 @@ import android.support.annotation.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -89,9 +86,6 @@ public class ScalarDisplayOptions {
     private @BlurType int mBlurType = DEFAULT_BLUR_TYPE;
     private float mGaussianSigma = DEFAULT_GAUSSIAN_SIGMA;
 
-    public static final String DEFAULT_SONIFICATION_TYPE = "default_sonification";
-    private String mSonificationType = DEFAULT_SONIFICATION_TYPE;
-
     Set<ScalarDisplayOptionsListener> mListeners = Collections.newSetFromMap(new WeakHashMap());
 
     public void updateLineSettings(float smoothness, int window, @BlurType int blurType,
@@ -101,13 +95,6 @@ public class ScalarDisplayOptions {
         mBlurType = blurType;
         mGaussianSigma = sigma;
         notifyLineGraphPresenters();
-    }
-
-    public void updateSonificationSettings(String sonificationType) {
-        mSonificationType = sonificationType;
-        for (ScalarDisplayOptionsListener listener : mListeners) {
-            listener.onAudioPreferencesChanged(mSonificationType);
-        }
     }
 
     /**
