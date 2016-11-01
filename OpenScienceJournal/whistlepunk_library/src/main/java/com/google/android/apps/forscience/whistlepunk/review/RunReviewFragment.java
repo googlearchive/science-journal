@@ -938,7 +938,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (mCurrentSensorStats.getIntStat(StatsAccumulator.KEY_STATUS,
                 StatsAccumulator.STATUS_VALID) == StatsAccumulator.STATUS_NEEDS_UPDATE) {
             statsList.clearStats();
-            mChartController.updateStats(null);
+            mChartController.updateStats(Collections.<StreamStat>emptyList());
         } else {
             NumberFormat numberFormat = AppSingleton.getInstance(getActivity())
                     .getSensorAppearanceProvider().getAppearance(sensorId).getNumberFormat();
