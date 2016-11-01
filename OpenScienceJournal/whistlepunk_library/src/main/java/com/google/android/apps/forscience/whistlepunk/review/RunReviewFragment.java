@@ -607,7 +607,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     private void adjustYAxis() {
-        if (mExperimentRun == null || mCurrentSensorStats == null) {
+        if (mExperimentRun == null || mCurrentSensorStats == null ||
+                mAudioPlaybackController == null) {
             return;
         }
         double yMin = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MIN);
@@ -676,6 +677,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     private void attachToRun(final Experiment experiment, final ExperimentRun run) {
+        if (getActivity() == null) {
+            return;
+        }
         mExperimentRun = run;
         mExperiment = experiment;
 
@@ -697,12 +701,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         CropHelper.registerStatsBroadcastReceiver(getActivity().getApplicationContext(),
                 mBroadcastReceiver);
 
-
         final View rootView = getView();
         if (rootView == null) {
-            if (getActivity() != null) {
-                ((AppCompatActivity) getActivity()).supportStartPostponedEnterTransition();
-            }
+            ((AppCompatActivity) getActivity()).supportStartPostponedEnterTransition();
             return;
         }
         final RecyclerView pinnedNoteList = (RecyclerView) rootView.findViewById(
