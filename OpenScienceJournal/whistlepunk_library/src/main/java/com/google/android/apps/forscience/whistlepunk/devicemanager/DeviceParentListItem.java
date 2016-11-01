@@ -67,4 +67,8 @@ public class DeviceParentListItem implements ParentListItem {
     public int sensorIndexOf(String sensorKey) {
         return mSensorKeys.indexOf(sensorKey);
     }
+
+    boolean isPhoneSensorParent(DeviceRegistry deviceRegistry) {
+        return isDevice(deviceRegistry.getBuiltInDevice());
+    }
 }

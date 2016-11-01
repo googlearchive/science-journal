@@ -29,7 +29,7 @@ public class Log {
         throw new RuntimeException(tag + ": " + message);
     }
 
-    public static int e(String tag, String message, Exception e) {
+    public static int e(String tag, String message, Throwable e) {
         throw new RuntimeException(tag + ": " + message, e);
     }
 }

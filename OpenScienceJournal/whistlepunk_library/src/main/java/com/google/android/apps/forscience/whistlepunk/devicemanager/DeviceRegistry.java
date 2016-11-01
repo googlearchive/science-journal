@@ -36,11 +36,6 @@ public class DeviceRegistry {
         mBuiltInDevice = builtInDevice;
     }
 
-    public DeviceRegistry() {
-        // TODO: replace everywhere with a call to the real constructor above
-        this(null);
-    }
-
     // TODO: store and retrieve "My Devices" from database
     public void addDevice(String type, InputDeviceSpec spec) {
         mDevices.put(InputDeviceSpec.joinAddresses(type, spec.getDeviceAddress()), spec);
@@ -77,5 +72,9 @@ public class DeviceRegistry {
             return new InputDeviceSpec(spec.getDeviceAddress(), spec.getName());
         }
         return device;
+    }
+
+    public InputDeviceSpec getBuiltInDevice() {
+        return mBuiltInDevice;
     }
 }

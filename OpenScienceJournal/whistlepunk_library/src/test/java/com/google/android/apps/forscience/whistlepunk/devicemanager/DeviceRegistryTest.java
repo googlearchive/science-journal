@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import static org.junit.Assert.assertEquals;
 
+import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 
@@ -25,7 +26,7 @@ import org.junit.Test;
 public class DeviceRegistryTest {
     @Test
     public void differentTypesAreDifferentDevices() {
-        DeviceRegistry registry = new DeviceRegistry();
+        DeviceRegistry registry = new DeviceRegistry(null);
         registry.addDevice("type1", new InputDeviceSpec("address", "name1"));
         registry.addDevice("type2", new InputDeviceSpec("address", "name2"));
         assertEquals("name1", registry.getDevice("type1", "address").getName());
@@ -33,7 +34,13 @@ public class DeviceRegistryTest {
     }
 
     @Test public void generateSyntheticDevice() {
-        DeviceRegistry registry = new DeviceRegistry();
+        DeviceRegistry registry = new DeviceRegistry(null);
         assertEquals("name", registry.getDevice(new BleSensorSpec("address", "name")).getName());
+    }
+
+    @Test public void useBuiltInDevice() {
+        String name = Arbitrary.string();
+        DeviceRegistry registry = new DeviceRegistry(new InputDeviceSpec("address", name));
+        assertEquals(name, registry.getDevice(null).getName());
     }
 }
