@@ -166,22 +166,6 @@ public class ExternalAxisController {
         if (mIsLive) {
             mAxisView.setNumberFormat(new SecondsAgoFormat(
                     currentTimeClock, mAxisView.getContext()));
-            mRefreshHandler = new Handler();
-            mRefreshRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    long timestamp = mCurrentTimeClock.getNow();
-                    if (!isInitialized) {
-                        mXMax = timestamp;
-                        // The time range is the default time.
-                        mXMin = timestamp - DEFAULT_GRAPH_RANGE_IN_MILLIS;
-                        isInitialized = true;
-                    }
-                    scrollToNowIfPinned(mCurrentTimeClock.getNow(), timestamp);
-                    mRefreshHandler.postDelayed(mRefreshRunnable, UPDATE_TIME_MS);
-                }
-            };
-            mRefreshRunnable.run();
         }
         mResetButtonTranslationPx = axisView.getResources().getDimensionPixelSize(
                 R.dimen.reset_btn_holder_width);
@@ -261,6 +245,36 @@ public class ExternalAxisController {
         };
     }
 
+    public void onResumeLiveAxis() {
+        if (!mIsLive) {
+            return;
+        }
+        mRefreshHandler = new Handler();
+        mRefreshRunnable = new Runnable() {
+            @Override
+            public void run() {
+                long timestamp = mCurrentTimeClock.getNow();
+                if (!isInitialized) {
+                    mXMax = timestamp;
+                    // The time range is the default time.
+                    mXMin = timestamp - DEFAULT_GRAPH_RANGE_IN_MILLIS;
+                    isInitialized = true;
+                }
+                scrollToNowIfPinned(mCurrentTimeClock.getNow(), timestamp);
+                mRefreshHandler.postDelayed(mRefreshRunnable, UPDATE_TIME_MS);
+            }
+        };
+        mRefreshRunnable.run();
+    }
+
+    public void onPauseLiveAxis() {
+        if (mRefreshHandler != null) {
+            mRefreshHandler.removeCallbacks(mRefreshRunnable);
+            mRefreshRunnable = null;
+            mRefreshHandler = null;
+        }
+    }
+
     public long getXMax() {
         return mXMax;
     }
@@ -289,11 +303,6 @@ public class ExternalAxisController {
     public void destroy() {
         mAxisUpdateListeners.clear();
         mInteractionListener = null;
-        if (mRefreshHandler != null) {
-            mRefreshHandler.removeCallbacks(mRefreshRunnable);
-            mRefreshRunnable = null;
-            mRefreshHandler = null;
-        }
     }
 
     public void updateAxis() {

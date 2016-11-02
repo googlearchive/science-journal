@@ -234,6 +234,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     @Override
     public void onPause() {
+        mExternalAxis.onPauseLiveAxis();
         cancelFeatureDiscovery();
         if (mSensorCardAdapter != null) {
             mSensorCardAdapter.onPause();
@@ -270,6 +271,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 LoggingConsumer.<Success>expectSuccess(TAG, "Load appearances"));
 
         setControlButtonsEnabled(false);
+        mExternalAxis.onResumeLiveAxis();
 
         withRecorderController(new Consumer<RecorderController>() {
             @Override
@@ -400,12 +402,14 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             mSensorCardAdapter.onDestroy();
             mSensorCardAdapter = null;
         }
+        if (mExternalAxis != null) {
+            mExternalAxis.destroy();
+        }
         super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
-
         if (!isRecording()) {
             AppSingleton.getInstance(getActivity()).destroyBleClient();
         }
@@ -413,7 +417,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (mVisibleSnackbar != null) {
             mVisibleSnackbar.dismiss();
         }
-        mExternalAxis.destroy();
         mHandler = null;
         mSensorSettingsController = null;
         mGraphOptionsController = null;
