@@ -1281,7 +1281,24 @@
     <string name="select_sensors">Select sensors to use in <xliff:g id="experimentName">%1$s</xliff:g></string>
 
     <!-- Name for a drop down that shows built-in sensors on the phone [CHAR_LIMIT=30] -->
-    <string name="phone_sensors">Phone sensors</string>
+    <string name="phone_sensors">Internal sensors</string>
+
+    <!-- Menu option to change the name for a paired external device [CHAR_LIMIT=30] -->
+    <string name="rename_device">Rename device</string>
+
+    <!-- Menu option to forget pairing relationship with an external device [CHAR_LIMIT=30] -->
+    <string name="forget_device">Forget this device</string>
+
+    <!-- Menu option to change settings on an external device [CHAR_LIMIT=30] -->
+    <string name="device_settings">Device settings</string>
+
+    <!-- Content description for a checkbox that adds a sensor to the current experiment [CHAR_LIMIT=NONE] -->
+    <string name="add_device_to_experiment_checkbox">Add sensor to experiment</string>
+
+    <!-- Content description for a checkbox that removes a sensor to the current experiment [CHAR_LIMIT=NONE] -->
+    <string name="remove_device_from_experiment_checkbox">Remove sensor from experiment</string>
+
+
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
