@@ -64,10 +64,14 @@ public class ChartOptions {
     private boolean mPinnedToNow;
     private NumberFormat mNumberFormat;
     private int mLineColor = Color.BLACK;
-    private long mRecordingStartTime;
-    private long mRecordingEndTime;
     private boolean mShowStatsOverlay;
     private ScalarDisplayOptions mScalarDisplayOptions;
+
+    private boolean mShowOriginalRun = false;
+    private long mRecordingStartTime;
+    private long mRecordingEndTime;
+    private long mOriginalStartTime;
+    private long mOriginalEndTime;
 
     private List<Double> mTriggerValues;
 
@@ -332,15 +336,23 @@ public class ChartOptions {
     }
 
     public long getRecordingStartTime() {
-        return mRecordingStartTime;
+        return mShowOriginalRun ? mOriginalStartTime : mRecordingStartTime;
     }
 
-    public void setRecordingEndTime(long recordingEndTime) {
+    public void setRecordingTimes(long recordingStartTime, long recordingEndTime,
+            long originalStartTime, long originalEndTime) {
+        mRecordingStartTime = recordingStartTime;
         mRecordingEndTime = recordingEndTime;
+        mOriginalStartTime = originalStartTime;
+        mOriginalEndTime = originalEndTime;
     }
 
     public long getRecordingEndTime() {
-        return mRecordingEndTime;
+        return mShowOriginalRun ? mOriginalEndTime : mRecordingEndTime;
+    }
+
+    public void setShowOriginalRun(boolean showOriginalRun) {
+        mShowOriginalRun = showOriginalRun;
     }
 
     public boolean shouldDrawRecordingOverlay() {

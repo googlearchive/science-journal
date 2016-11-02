@@ -431,6 +431,8 @@ public class ChartController {
     }
 
     // Tries to load data into the chart with the given parameters.
+    // TODO: Seems like this loads the whole run data even if we are really zoomed in, so 
+    // this should be revisited to get a range for the original load.
     public void loadRunData(ExperimentRun run, GoosciSensorLayout.SensorLayout sensorLayout,
             DataController dc, ChartLoadingStatus status, RunStats stats,
             ChartDataLoadedCallback chartDataLoadedCallback) {
@@ -439,10 +441,11 @@ public class ChartController {
         clearData();
         final long firstTimestamp = run.getFirstTimestamp();
         final long lastTimestamp = run.getLastTimestamp();
-        mChartOptions.setRecordingStartTime(firstTimestamp);
-        mChartOptions.setRecordingEndTime(lastTimestamp);
+        mChartOptions.setRecordingTimes(firstTimestamp, lastTimestamp,
+                run.getOriginalFirstTimestamp(), run.getOriginalLastTimestamp());
         mSensorId = sensorLayout.sensorId;
-        tryLoadingChartData(run.getRunId(), sensorLayout, dc, firstTimestamp, lastTimestamp, status,
+        tryLoadingChartData(run.getRunId(), sensorLayout, dc,
+                mChartOptions.getRecordingStartTime(), mChartOptions.getRecordingEndTime(), status,
                 stats, chartDataLoadedCallback);
     }
 
@@ -524,6 +527,10 @@ public class ChartController {
             clearLineData();
             mNeedsForwardLoad = false;
         }
+    }
+
+    public void setShowOriginalRun(boolean showOriginalRun) {
+        mChartOptions.setShowOriginalRun(showOriginalRun);
     }
 
     public void onGlobalXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,

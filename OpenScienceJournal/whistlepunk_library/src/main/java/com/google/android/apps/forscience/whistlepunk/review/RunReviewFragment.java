@@ -811,39 +811,85 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
         // Load the data for the first sensor only.
         if (mSavedInstanceStateForLoad != null) {
-            mExternalAxis.zoomTo(mSavedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_MINIMUM),
-                    mSavedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_MAXIMUM));
-            long overlayTimestamp =
-                    mSavedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP);
-            if (overlayTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
-                mRunReviewOverlay.setActiveTimestamp(overlayTimestamp);
-            }
             if (mSavedInstanceStateForLoad.getBoolean(KEY_AUDIO_PLAYBACK_ON, false)) {
                 mAudioPlaybackController.startPlayback(getDataController(),
                         mExperimentRun.getFirstTimestamp(), mExperimentRun.getLastTimestamp(),
                         mRunReviewOverlay.getTimestamp(),
                         mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId);
             }
-            // Remember the crop timestamps after a rotate, even if the crop UI is not up.
-            mRunReviewOverlay.setCropTimestamps(
-                    mSavedInstanceStateForLoad.getLong(KEY_CROP_START_TIMESTAMP,
-                            mExperimentRun.getFirstTimestamp()),
-                    mSavedInstanceStateForLoad.getLong(KEY_CROP_END_TIMESTAMP,
-                            mExperimentRun.getLastTimestamp()));
             if (getChildFragmentManager().findFragmentByTag(EditTimeDialog.TAG) != null) {
                 // Reset the add note timepicker UI
                 setTimepickerUi(rootView, true);
-            } else {
-                // See if the crop UI is up
-                if (mSavedInstanceStateForLoad.getBoolean(KEY_CROP_UI_VISIBLE, false)) {
-                    launchCrop(rootView);
-                }
             }
-            mSavedInstanceStateForLoad = null;
         }
+        setUpAxis(mSavedInstanceStateForLoad, rootView);
+        mSavedInstanceStateForLoad = null;
+
         loadRunData(rootView);
         if (getActivity() != null) {
             ((AppCompatActivity) getActivity()).supportStartPostponedEnterTransition();
+        }
+    }
+
+    private void setUpAxis(Bundle savedInstanceStateForLoad, View rootView) {
+        long firstTimestamp;
+        long lastTimestamp;
+        long cropStartTimestamp;
+        long cropEndTimestamp;
+        long overlayTimestamp;
+        boolean isCropping = false;
+
+        if (savedInstanceStateForLoad != null) {
+            firstTimestamp = savedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_MINIMUM);
+            lastTimestamp = savedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_MAXIMUM);
+            long savedOverlayTimestamp =
+                    savedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP);
+            if (savedOverlayTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
+                overlayTimestamp = savedOverlayTimestamp;
+            } else {
+                overlayTimestamp = firstTimestamp;
+            }
+            // Remember the crop timestamps after a rotate, even if the crop UI is not up.
+            cropStartTimestamp = savedInstanceStateForLoad.getLong(KEY_CROP_START_TIMESTAMP,
+                    mExperimentRun.getFirstTimestamp());
+            cropEndTimestamp = savedInstanceStateForLoad.getLong(KEY_CROP_END_TIMESTAMP,
+                    mExperimentRun.getLastTimestamp());
+            isCropping = savedInstanceStateForLoad.getBoolean(KEY_CROP_UI_VISIBLE, false);
+        } else {
+            firstTimestamp = mExperimentRun.getFirstTimestamp();
+            lastTimestamp = mExperimentRun.getLastTimestamp();
+            cropStartTimestamp = firstTimestamp;
+            cropEndTimestamp = lastTimestamp;
+            overlayTimestamp = firstTimestamp;
+        }
+
+        mRunReviewOverlay.setAllTimestamps(overlayTimestamp, cropStartTimestamp, cropEndTimestamp);
+
+        // Buffer the endpoints a bit so they look nice.
+        long runFirstTimestamp = mExperimentRun.getFirstTimestamp();
+        long runLastTimestamp = mExperimentRun.getLastTimestamp();
+        long buffer = ExternalAxisController.getReviewBuffer(runFirstTimestamp, runLastTimestamp);
+        long renderedXMin = runFirstTimestamp - buffer;
+        long renderedXMax = runLastTimestamp + buffer;
+
+        // See if the crop UI is up
+        if (isCropping) {
+            // Launching crop also sets the review data.
+            launchCrop(rootView);
+        } else {
+            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
+        }
+
+        if (savedInstanceStateForLoad == null) {
+            mExternalAxis.zoomTo(renderedXMin, renderedXMax);
+        } else if (!isCropping) {
+            // If we just cropped the run, the prev min and max will be too wide, so make sure
+            // we clip to the current run size.
+            long xMin = Math.max(renderedXMin, firstTimestamp);
+            long xMax = Math.min(renderedXMax, lastTimestamp);
+            mExternalAxis.zoomTo(xMin, xMax);
+        } else {
+            mExternalAxis.zoomTo(firstTimestamp, lastTimestamp);
         }
     }
 
@@ -895,32 +941,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         String sonificationType = getSonificationType(sensorLayout);
         mAudioPlaybackController.setSonificationType(sonificationType);
         mCurrentSensorStats = null;
-
-        long firstTimestamp = mExperimentRun.getFirstTimestamp();
-        long lastTimestamp = mExperimentRun.getLastTimestamp();
-
-        // Buffer the endpoints a bit so they look nice.
-        long buffer = ExternalAxisController.getReviewBuffer(firstTimestamp, lastTimestamp);
-        long renderedXMin = firstTimestamp - buffer;
-        long renderedXMax = lastTimestamp + buffer;
-        if (!mExternalAxis.isIntialized()) {
-            // This is the first load. Zoom to fit the run.
-            mChartController.setXAxis(renderedXMin, renderedXMax);
-            // Display the the graph and overlays.
-            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
-            mExternalAxis.zoomTo(renderedXMin, renderedXMax);
-            mRunReviewOverlay.setAllTimestamps(firstTimestamp, firstTimestamp, lastTimestamp);
-        } else {
-            // If we just cropped the run, the prev min and max will be too wide, so make sure
-            // we clip to the current run size.
-            long xMin = Math.max(renderedXMin, mExternalAxis.getXMin());
-            long xMax = Math.min(renderedXMax, mExternalAxis.getXMax());
-            mExternalAxis.zoomTo(xMin, xMax);
-            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
-            mRunReviewOverlay.setAllTimestamps(mRunReviewOverlay.getTimestamp(),
-                    mRunReviewOverlay.getCropStartTimestamp(),
-                    mRunReviewOverlay.getCropEndTimestamp());
-        }
 
         loadStatsAndChart(sensorLayout, (StatsList) rootView.findViewById(R.id.stats_drawer));
     }
@@ -1301,7 +1321,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         // TODO: Show undo button? P3: They can undo by
                         // cropping wider again.
                         hookUpExperimentDetailsArea(mExperimentRun, getView());
-                        loadRunData(getView());
                         mPinnedNoteAdapter.updateRunTimestamps(mExperimentRun.getFirstTimestamp(),
                                 mExperimentRun.getLastTimestamp());
                         if (mode != null) {
@@ -1423,15 +1442,49 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mAudioPlaybackController.stopPlayback();
         mRunReviewOverlay.setCropModeOn(true);
 
-        // TODO: Load extra data into the graph if it exists past the edges of the cropped region.
+        long firstTimestamp = mExperimentRun.getOriginalFirstTimestamp();
+        long lastTimestamp = mExperimentRun.getOriginalLastTimestamp();
+        // Load data even if it was previously cropped out of the graph
+        mChartController.setShowOriginalRun(true);
+        long buffer = ExternalAxisController.getReviewBuffer(firstTimestamp, lastTimestamp);
+        long renderedXMin = firstTimestamp - buffer;
+        long renderedXMax = lastTimestamp + buffer;
+        mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
+        mExternalAxis.updateAxis();
 
         setCropUi(rootView, true);
     }
 
     public void completeCrop() {
+        mChartController.setShowOriginalRun(false);
         setCropUi(getView(), false);
         getView().findViewById(R.id.run_review_playback_button_holder).setVisibility(View.VISIBLE);
         mRunReviewOverlay.setCropModeOn(false);
+
+        // If we zoomed out past the run during crop, we need to get back into the run's range plus
+        // the original buffer.
+        long runFirstTimestamp = mExperimentRun.getFirstTimestamp();
+        long runLastTimestamp = mExperimentRun.getLastTimestamp();
+        long buffer = ExternalAxisController.getReviewBuffer(runFirstTimestamp, runLastTimestamp);
+        long renderedXMin = runFirstTimestamp - buffer;
+        long renderedXMax = runLastTimestamp + buffer;
+        if (mExternalAxis.getXMin() < renderedXMin || mExternalAxis.getXMax() > renderedXMax) {
+            Bundle timestampBundle = new Bundle();
+            timestampBundle.putLong(KEY_EXTERNAL_AXIS_MINIMUM, Math.max(renderedXMin,
+                    mExternalAxis.getXMin()));
+            timestampBundle.putLong(KEY_EXTERNAL_AXIS_MAXIMUM, Math.min(renderedXMax,
+                    mExternalAxis.getXMax()));
+            timestampBundle.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
+            timestampBundle.putLong(KEY_CROP_START_TIMESTAMP,
+                    mRunReviewOverlay.getCropStartTimestamp());
+            timestampBundle.putLong(KEY_CROP_END_TIMESTAMP, mRunReviewOverlay.getCropEndTimestamp());
+            setUpAxis(timestampBundle, getView());
+        }
+
+        // TODO: Better way to throw out cropped (or out of range) data besides reloading,
+        // As most all the data needed is already loaded -- this is really being done to throw
+        // away cropped data.
+        loadRunData(getView());
     }
 
     @Override
