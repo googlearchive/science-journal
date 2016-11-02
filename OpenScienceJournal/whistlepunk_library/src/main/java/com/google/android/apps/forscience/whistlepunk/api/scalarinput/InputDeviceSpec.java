@@ -18,11 +18,20 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.Log;
 
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.InputDevice;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.html.HtmlEscapers;
+import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+
+import java.util.Map;
 
 /**
  * An "ExternalSensorSpec" that identifies a device, which is, for our purposes, an abstract
@@ -34,23 +43,63 @@ import com.google.common.html.HtmlEscapers;
  * sensor specs.
  */
 public class InputDeviceSpec extends ExternalSensorSpec {
+    public static ExternalSensorProvider PROVIDER = new ExternalSensorProvider() {
+        @Override
+        public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
+            // device entries are never actual streaming sensors
+            return null;
+        }
+
+        @Override
+        public String getProviderId() {
+            return PROVIDER_ID;
+        }
+
+        @Override
+        public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
+            return new InputDeviceSpec(name, config);
+        }
+    };
+
     public static final String TYPE = "InputDevice";
     private static final String TAG = "InputDeviceSpec";
+    private static final String PROVIDER_ID =
+            "com.google.android.apps.forscience.whistlepunk.device";
+    public static Map<String, ExternalSensorProvider> PROVIDER_MAP = ImmutableMap.of(TYPE,
+            PROVIDER);
 
     /**
      * The "address" given to the device on which the app is running.
      */
     public static final String BUILT_IN_DEVICE_ADDRESS = "BUILT_IN_DEVICE";
 
-    private String mProviderType;
-    private String mDeviceAddress;
     private String mName;
+    private InputDevice.InputDeviceConfig mConfig;
 
     // TODO: needs a proto to survive round-trip!
     public InputDeviceSpec(String providerType, String deviceAddress, String deviceName) {
-        mProviderType = providerType;
-        mDeviceAddress = deviceAddress;
+        mConfig = new InputDevice.InputDeviceConfig();
+        mConfig.providerId = providerType;
+        mConfig.deviceAddress = deviceAddress;
         mName = deviceName;
+    }
+
+    public InputDeviceSpec(String name, byte[] config) {
+        mName = name;
+        mConfig = parse(config);
+    }
+
+
+    @Nullable
+    private InputDevice.InputDeviceConfig parse(byte[] config) {
+        try {
+            return InputDevice.InputDeviceConfig.parseFrom(config);
+        } catch (InvalidProtocolBufferNanoException e) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "error parsing config", e);
+            }
+        }
+        return null;
     }
 
     /**
@@ -67,7 +116,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
         return new EmptySensorAppearance() {
             @Override
             public Drawable getIconDrawable(Context context) {
-                if (mDeviceAddress.equals(BUILT_IN_DEVICE_ADDRESS)) {
+                if (getDeviceAddress().equals(BUILT_IN_DEVICE_ADDRESS)) {
                     // TODO: this isn't right (b/32579791)
                     return context.getDrawable(android.R.drawable.ic_menu_call);
                 }
@@ -93,7 +142,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
 
     @Override
     public String getAddress() {
-        return joinAddresses("DEVICE", mDeviceAddress);
+        return joinAddresses("DEVICE", getDeviceAddress());
     }
 
     public static String escape(String string) {
@@ -102,7 +151,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
 
     @Override
     public byte[] getConfig() {
-        return new byte[0];
+        return getBytes(mConfig);
     }
 
     @Override
@@ -111,7 +160,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
     }
 
     public String getDeviceAddress() {
-        return mDeviceAddress;
+        return mConfig.deviceAddress;
     }
 
     public static InputDeviceSpec builtInDevice(Context context) {
@@ -120,7 +169,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
     }
 
     public String getProviderType() {
-        return mProviderType;
+        return mConfig.providerId;
     }
 
     @Override

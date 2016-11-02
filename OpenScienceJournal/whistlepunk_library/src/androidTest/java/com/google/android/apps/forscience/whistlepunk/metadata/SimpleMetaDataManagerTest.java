@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -656,6 +657,32 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         List<ConnectableSensor> sensors = mMetaDataManager.getExperimentExternalSensors(
                 "experimentId", providerMap);
         assertEquals(1, sensors.size());
+    }
+
+    public void testMyDevices() {
+        assertEquals(0, mMetaDataManager.getMyDevices().size());
+        InputDeviceSpec device1 = new InputDeviceSpec(ScalarInputSpec.TYPE, "deviceAddress1",
+                "deviceName1");
+        InputDeviceSpec device2 = new InputDeviceSpec(ScalarInputSpec.TYPE, "deviceAddress2",
+                "deviceName2");
+
+        mMetaDataManager.addMyDevice(device1);
+        assertEquals(1, mMetaDataManager.getMyDevices().size());
+
+        mMetaDataManager.addMyDevice(device1);
+        assertEquals(1, mMetaDataManager.getMyDevices().size());
+
+        mMetaDataManager.addMyDevice(device2);
+        assertEquals(2, mMetaDataManager.getMyDevices().size());
+
+        assertTrue(device1.isSameSensor(mMetaDataManager.getMyDevices().get(0)));
+        assertTrue(device2.isSameSensor(mMetaDataManager.getMyDevices().get(1)));
+
+        mMetaDataManager.removeMyDevice(device1);
+        assertEquals(1, mMetaDataManager.getMyDevices().size());
+
+        mMetaDataManager.removeMyDevice(device2);
+        assertEquals(0, mMetaDataManager.getMyDevices().size());
     }
 
     private List<String> getIds(List<GoosciSensorLayout.SensorLayout> layouts) {
