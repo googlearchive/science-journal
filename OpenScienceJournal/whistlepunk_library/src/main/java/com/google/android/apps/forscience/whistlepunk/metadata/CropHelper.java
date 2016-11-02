@@ -45,6 +45,10 @@ import java.util.concurrent.ThreadFactory;
  */
 public class CropHelper {
     public static final String TAG = "CropHelper";
+
+    // Time buffer for non-overlapping crop: We do not allow crop less than 1 second.
+    public static final long MINIMUM_CROP_MILLIS = 1000;
+
     private static final int DATAPOINTS_PER_LOAD = 500;
 
     public static final String ACTION_CROP_STATS_RECALCULATED = "action_crop_stats_recalculated";
@@ -287,6 +291,13 @@ public class CropHelper {
 
     public static void unregisterBroadcastReceiver(Context context, BroadcastReceiver receiver) {
         LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver);
+    }
+
+    public static boolean experimentIsLongEnoughForCrop(ExperimentRun experimentRun) {
+        // TODO: Update this to use getOriginal(First/Last)Timestamp when cropping wider is
+        // implemented.
+        return experimentRun.getLastTimestamp() - experimentRun.getFirstTimestamp() >
+                CropHelper.MINIMUM_CROP_MILLIS;
     }
 
     public void throwAwayDataOutsideCroppedRegion(DataController dc, ExperimentRun run) {

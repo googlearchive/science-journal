@@ -23,6 +23,7 @@ import android.util.AttributeSet;
 import android.widget.SeekBar;
 
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +35,6 @@ public class CropSeekBar extends GraphExploringSeekBar {
 
     // Progress buffer for non-overlapping crop is 5% of the available seekbar range.
     private static final int BUFFER_RANGE = (int) (SEEKBAR_MAX * .05);
-
-    // Time buffer for non-overlapping crop: We do not allow crop less than 1 second.
-    private static final long BUFFER_MILLIS = 1000;
 
     private double mMillisPerTick;
     private int mType;
@@ -108,7 +106,7 @@ public class CropSeekBar extends GraphExploringSeekBar {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 int bufferTicks = (int) Math.ceil(
-                        Math.max(BUFFER_RANGE, BUFFER_MILLIS / mMillisPerTick));
+                        Math.max(BUFFER_RANGE, CropHelper.MINIMUM_CROP_MILLIS / mMillisPerTick));
                 if (mType == TYPE_START) {
                     if (progress > mOtherSeekbar.getFullProgress() - bufferTicks) {
                         ((CropSeekBar) seekBar).setFullProgress(

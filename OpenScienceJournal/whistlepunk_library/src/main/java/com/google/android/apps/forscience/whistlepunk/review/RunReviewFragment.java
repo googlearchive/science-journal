@@ -477,10 +477,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 AgeVerifier.getUserAge(getActivity())));
         menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
 
-        // TODO: Re-enable this when ready to implement the functionality.
-        menu.findItem(R.id.action_run_review_crop).setVisible(enableDevTools);
-
-        // Hide archive and unarchive buttons if the run isn't loaded yet.
+        // Hide some menu buttons if the run isn't loaded yet.
         if (mExperimentRun != null) {
             menu.findItem(R.id.action_run_review_archive).setVisible(!mExperimentRun.isArchived());
             menu.findItem(R.id.action_run_review_unarchive).setVisible(mExperimentRun.isArchived());
@@ -491,12 +488,19 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     mExperimentRun.getAutoZoomEnabled());
             menu.findItem(R.id.action_enable_auto_zoom).setVisible(
                     !mExperimentRun.getAutoZoomEnabled());
+
+            // TODO: Re-enable this for C++ release.
+            menu.findItem(R.id.action_run_review_crop).setVisible(enableDevTools);
+            // You can only do a crop if the run length is long enough.
+            menu.findItem(R.id.action_run_review_crop).setEnabled(
+                    CropHelper.experimentIsLongEnoughForCrop(mExperimentRun));
         } else {
             menu.findItem(R.id.action_run_review_archive).setVisible(false);
             menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
             menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
             menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
             menu.findItem(R.id.action_run_review_delete).setVisible(false);
+            menu.findItem(R.id.action_run_review_crop).setVisible(false);
         }
         menu.findItem(R.id.action_export).setEnabled(!mRunReviewExporter.isExporting());
 
@@ -890,9 +894,33 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
         String sonificationType = getSonificationType(sensorLayout);
         mAudioPlaybackController.setSonificationType(sonificationType);
-
-        mRunReviewOverlay.setVisibility(View.INVISIBLE);
         mCurrentSensorStats = null;
+
+        long firstTimestamp = mExperimentRun.getFirstTimestamp();
+        long lastTimestamp = mExperimentRun.getLastTimestamp();
+
+        // Buffer the endpoints a bit so they look nice.
+        long buffer = ExternalAxisController.getReviewBuffer(firstTimestamp, lastTimestamp);
+        long renderedXMin = firstTimestamp - buffer;
+        long renderedXMax = lastTimestamp + buffer;
+        if (!mExternalAxis.isIntialized()) {
+            // This is the first load. Zoom to fit the run.
+            mChartController.setXAxis(renderedXMin, renderedXMax);
+            // Display the the graph and overlays.
+            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
+            mExternalAxis.zoomTo(renderedXMin, renderedXMax);
+            mRunReviewOverlay.setAllTimestamps(firstTimestamp, firstTimestamp, lastTimestamp);
+        } else {
+            // If we just cropped the run, the prev min and max will be too wide, so make sure
+            // we clip to the current run size.
+            long xMin = Math.max(renderedXMin, mExternalAxis.getXMin());
+            long xMax = Math.min(renderedXMax, mExternalAxis.getXMax());
+            mExternalAxis.zoomTo(xMin, xMax);
+            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
+            mRunReviewOverlay.setAllTimestamps(mRunReviewOverlay.getTimestamp(),
+                    mRunReviewOverlay.getCropStartTimestamp(),
+                    mRunReviewOverlay.getCropEndTimestamp());
+        }
 
         loadStatsAndChart(sensorLayout, (StatsList) rootView.findViewById(R.id.stats_drawer));
     }
@@ -910,18 +938,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         mChartController.loadRunData(mExperimentRun, sensorLayout, dataController,
                                 fragmentRef, runStats,
                                 new ChartController.ChartDataLoadedCallback() {
-                                    public long mOverlayTs;
-                                    public long mCropStartTs;
-                                    public long mCropEndTs;
-                                    public long mPreviousXMax;
-                                    public long mPreviousXMin;
 
                                     @Override
                                     public void onChartDataLoaded(long firstTimestamp,
                                             long lastTimestamp) {
-                                        onDataLoaded(firstTimestamp, lastTimestamp, mPreviousXMin,
-                                                mPreviousXMax, mOverlayTs, mCropStartTs,
-                                                mCropEndTs);
+                                        onDataLoaded();
                                     }
 
                                     @Override
@@ -932,12 +953,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                                         // where the user switches sensors rapidly.
                                         mRunReviewOverlay.updateColor(getSensorLayout().color);
                                         mRunReviewPlaybackButton.setVisibility(View.INVISIBLE);
-
-                                        mPreviousXMin = mExternalAxis.getXMin();
-                                        mPreviousXMax = mExternalAxis.getXMax();
-                                        mOverlayTs = mRunReviewOverlay.getTimestamp();
-                                        mCropStartTs = mRunReviewOverlay.getCropStartTimestamp();
-                                        mCropEndTs = mRunReviewOverlay.getCropEndTimestamp();
+                                        mRunReviewOverlay.setVisibility(View.INVISIBLE);
                                     }
                                 });
                     }
@@ -988,9 +1004,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 });
     }
 
-    // TODO: Do we need to pass these overlay timestamps in at all?
-    private void onDataLoaded(long firstTimestamp, long lastTimestamp, long previousXMin,
-            long previousXMax, long overlayTimestamp, long cropStartTimestamp, long cropEndTimestamp) {
+    private void onDataLoaded() {
         // Show the replay play button
         mRunReviewPlaybackButton.setVisibility(View.VISIBLE);
 
@@ -999,28 +1013,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
         mChartController.setShowProgress(false);
 
-        // Buffer the endpoints a bit so they look nice.
-        long buffer = (long) (ExternalAxisController.EDGE_POINTS_BUFFER_FRACTION *
-                (lastTimestamp - firstTimestamp));
-        long renderedXMin = firstTimestamp - buffer;
-        long renderedXMax = lastTimestamp + buffer;
-        if (previousXMax == Long.MIN_VALUE) {
-            // This is the first load. Zoom to fit the run.
-            mChartController.setXAxis(renderedXMin, renderedXMax);
-            // Display the the graph and overlays.
-            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
-            mExternalAxis.zoomTo(mChartController.getRenderedXMin(),
-                    mChartController.getRenderedXMax());
-            mRunReviewOverlay.setAllTimestamps(firstTimestamp, firstTimestamp, lastTimestamp);
-        } else {
-            // If we just cropped the run, the prev min and max will be too wide, so make sure
-            // we clip to the current run size.
-            long xMin = Math.max(renderedXMin, previousXMin);
-            long xMax = Math.min(renderedXMax, previousXMax);
-            mExternalAxis.zoomTo(xMin, xMax);
-            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
-            mRunReviewOverlay.setAllTimestamps(overlayTimestamp, cropStartTimestamp, cropEndTimestamp);
-        }
+        mExternalAxis.updateAxis();
         adjustYAxis();
         mRunReviewOverlay.setVisibility(View.VISIBLE);
     }

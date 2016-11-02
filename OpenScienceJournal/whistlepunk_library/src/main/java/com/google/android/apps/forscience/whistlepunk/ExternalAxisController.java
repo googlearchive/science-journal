@@ -462,4 +462,12 @@ public class ExternalAxisController {
     public boolean containsTimestamp(long timestamp) {
         return mXMin <= timestamp && timestamp <= mXMax;
     }
+
+    public boolean isIntialized() {
+        return mXMax != Long.MIN_VALUE;
+    }
+
+    public static long getReviewBuffer(long firstTimestamp, long lastTimestamp) {
+        return (long) (EDGE_POINTS_BUFFER_FRACTION * (lastTimestamp - firstTimestamp));
+    }
 }
