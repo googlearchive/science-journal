@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ConnectableSensor {
     private ExternalSensorSpec mSpec;
@@ -143,11 +144,11 @@ public class ConnectableSensor {
         return result;
     }
 
-    public boolean isSameSensor(ExternalSensorSpec spec) {
+    public boolean isSameSensor(ConnectableSensor other) {
         if (mSpec == null) {
-            return false;
+            return Objects.equals(other.mConnectedSensorId, mConnectedSensorId);
         }
-        return mSpec.isSameSensor(spec);
+        return mSpec.isSameSensor(other.mSpec);
     }
 
     public boolean isBuiltIn() {

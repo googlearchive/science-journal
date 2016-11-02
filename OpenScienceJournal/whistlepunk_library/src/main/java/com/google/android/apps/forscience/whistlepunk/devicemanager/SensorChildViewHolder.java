@@ -16,12 +16,15 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 
 import java.util.Map;
 
@@ -30,19 +33,41 @@ import java.util.Map;
  */
 public class SensorChildViewHolder extends ChildViewHolder {
     private final TextView mNameView;
+    private final CheckBox mPairedCheckbox;
     private final SensorAppearanceProvider mAppearanceProvider;
+    private final View mSettingsGear;
 
     public SensorChildViewHolder(View itemView, SensorAppearanceProvider appearanceProvider) {
         super(itemView);
         mNameView = (TextView) itemView.findViewById(R.id.sensor_name);
+        mPairedCheckbox = (CheckBox) itemView.findViewById(R.id.paired_checkbox);
+        mSettingsGear = itemView.findViewById(R.id.settings_gear);
         mAppearanceProvider = appearanceProvider;
     }
 
     public void bind(final String sensorKey, Map<String, ConnectableSensor> sensorMap,
-            final ConnectableSensorRegistry registry) {
-        SensorAppearance appearance = sensorMap.get(sensorKey).getAppearance(mAppearanceProvider);
+            final ConnectableSensorRegistry registry, final SensorRegistry sensorRegistry) {
+        ConnectableSensor sensor = sensorMap.get(sensorKey);
+        SensorAppearance appearance = sensor.getAppearance(mAppearanceProvider);
         mNameView.setText(appearance.getName(mNameView.getContext()));
-        itemView.setOnClickListener(new View.OnClickListener() {
+        boolean paired = sensor.isPaired();
+        mPairedCheckbox.setChecked(paired);
+        mPairedCheckbox.setContentDescription(mPairedCheckbox.getResources().getString(
+                paired ? R.string.remove_device_from_experiment_checkbox
+                        : R.string.add_device_to_experiment_checkbox));
+
+        mPairedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    registry.pair(sensorKey, mAppearanceProvider, sensorRegistry);
+                } else {
+                    registry.unpair(sensorKey);
+                }
+            }
+        });
+
+        mSettingsGear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TODO: this should really be called showSensorOptions.

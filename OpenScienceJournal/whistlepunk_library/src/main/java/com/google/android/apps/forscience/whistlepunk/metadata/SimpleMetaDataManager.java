@@ -33,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -1062,6 +1063,22 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
 
         return sensors;
+    }
+
+    @Override
+    public void addMyDevice(InputDeviceSpec deviceSpec) {
+        // TODO: implement
+    }
+
+    @Override
+    public void removeMyDevice(InputDeviceSpec deviceSpec) {
+        // TODO: implement
+    }
+
+    @Override
+    public List<InputDeviceSpec> getMyDevices() {
+        // TODO: implement
+        return null;
     }
 
     @Override

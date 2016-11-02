@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 
@@ -151,6 +152,22 @@ public interface MetaDataManager {
      */
     public List<ConnectableSensor> getExperimentExternalSensors(String experimentId,
             Map<String, ExternalSensorProvider> providerMap);
+
+    /**
+     * Adds this device as one to be remembered as "my device" in the manage devices screen from
+     * here on out.
+     */
+    public void addMyDevice(InputDeviceSpec deviceSpec);
+
+    /**
+     * Removes this device from "my devices"
+     */
+    public void removeMyDevice(InputDeviceSpec deviceSpec);
+
+    /**
+     * @return all of "my devices", in insertion order
+     */
+    public List<InputDeviceSpec> getMyDevices();
 
     /**
      * @returns Last used experiment.

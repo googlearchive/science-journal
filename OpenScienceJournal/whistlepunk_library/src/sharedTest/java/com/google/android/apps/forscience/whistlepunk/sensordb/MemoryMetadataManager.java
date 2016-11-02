@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -241,6 +242,21 @@ public class MemoryMetadataManager implements MetaDataManager {
             specs.add(ConnectableSensor.connected(mExternalSensors.get(id), id));
         }
         return specs;
+    }
+
+    @Override
+    public void addMyDevice(InputDeviceSpec deviceSpec) {
+
+    }
+
+    @Override
+    public void removeMyDevice(InputDeviceSpec deviceSpec) {
+
+    }
+
+    @Override
+    public List<InputDeviceSpec> getMyDevices() {
+        return null;
     }
 
     @Override

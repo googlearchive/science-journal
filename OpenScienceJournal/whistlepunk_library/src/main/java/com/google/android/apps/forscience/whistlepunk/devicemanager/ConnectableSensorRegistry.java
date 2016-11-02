@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import android.app.PendingIntent;
 import android.support.annotation.NonNull;
 import android.util.ArrayMap;
-import android.util.ArraySet;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Delay;
@@ -36,7 +35,6 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -174,7 +172,6 @@ public class ConnectableSensorRegistry {
 
         for (final Map.Entry<String, ExternalSensorDiscoverer> entry : mDiscoverers.entrySet()) {
             ExternalSensorDiscoverer discoverer = entry.getValue();
-            final String type = entry.getKey();
             final String providerId = discoverer.getProvider().getProviderId();
             pool.addTask(providerId);
             ExternalSensorDiscoverer.ScanListener listener =
@@ -230,15 +227,15 @@ public class ConnectableSensorRegistry {
     private void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor ds,
             Set<String> availableKeysSeen) {
         final ExternalSensorSpec newSpec = ds.getSpec();
-        final String sensorKey = findSensorKey(newSpec);
+        ConnectableSensor sensor = ConnectableSensor.disconnected(newSpec);
+        final String sensorKey = findSensorKey(sensor);
 
         if (sensorKey == null) {
-            ConnectableSensor sensor = ConnectableSensor.disconnected(newSpec);
             String key = registerSensor(null, sensor, ds.getSettingsIntent());
             getAvailableGroup().addSensor(key, sensor);
             availableKeysSeen.add(key);
         } else {
-            final ConnectableSensor sensor = mSensors.get(sensorKey);
+            sensor = mSensors.get(sensorKey);
             if (!sensor.isPaired()) {
                 availableKeysSeen.add(sensorKey);
                 if (!getAvailableGroup().hasSensorKey(sensorKey)) {
@@ -266,9 +263,9 @@ public class ConnectableSensorRegistry {
         }
     }
 
-    private String findSensorKey(ExternalSensorSpec spec) {
+    private String findSensorKey(ConnectableSensor sensor) {
         for (Map.Entry<String, ConnectableSensor> entry : mSensors.entrySet()) {
-            if (entry.getValue().isSameSensor(spec)) {
+            if (entry.getValue().isSameSensor(sensor)) {
                 return entry.getKey();
             }
         }
@@ -286,8 +283,8 @@ public class ConnectableSensorRegistry {
         for (Map.Entry<String, ExternalSensorSpec> entry : sensors.entrySet()) {
             String sensorId = entry.getKey();
             ExternalSensorSpec sensor = entry.getValue();
-            String sensorKey = findSensorKey(sensor);
             ConnectableSensor newSensor = ConnectableSensor.connected(sensor, sensorId);
+            String sensorKey = findSensorKey(newSensor);
             if (sensorKey != null) {
                 if (getAvailableGroup().removeSensor(sensorKey)) {
                     getPairedGroup().addSensor(sensorKey, newSensor);
@@ -392,5 +389,9 @@ public class ConnectableSensorRegistry {
 
     private SensorGroup getAvailableGroup() {
         return mPresenter.getAvailableSensorGroup();
+    }
+
+    public void unpair(String sensorKey) {
+        mPresenter.unpair(mExperimentId, getSensor(sensorKey).getConnectedSensorId());
     }
 }

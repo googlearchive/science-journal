@@ -218,4 +218,10 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
     public SensorGroup getAvailableSensorGroup() {
         return mAvailableGroup;
     }
+
+    @Override
+    public void unpair(String experimentId, String sensorId) {
+        ((DeviceOptionsDialog.DeviceOptionsListener) getActivity()).onRemoveDeviceFromExperiment(
+                experimentId, sensorId);
+    }
 }

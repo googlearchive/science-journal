@@ -443,8 +443,12 @@ public class ConnectableSensorRegistryTest {
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
                 new HashMap<String, ExternalSensorDiscoverer>(), mPresenter, mScheduler,
                 new CurrentTimeClock(), mOptionsListener, mDeviceRegistry);
-        registry.setExperimentId("experimentId", mSensorRegistry);
 
+        registry.setExperimentId("experimentId", mSensorRegistry);
+        assertEquals(2, mPairedDevices.getSensorCount());
+
+        // Don't double-count built-in sensors
+        registry.setExperimentId("experimentId", mSensorRegistry);
         assertEquals(2, mPairedDevices.getSensorCount());
     }
 
@@ -478,6 +482,11 @@ public class ConnectableSensorRegistryTest {
         @Override
         public SensorGroup getAvailableSensorGroup() {
             return mAvailableDevices;
+        }
+
+        @Override
+        public void unpair(String experimentId, String sensorId) {
+
         }
     }
 }

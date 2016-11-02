@@ -24,6 +24,7 @@ import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
@@ -42,21 +43,25 @@ public class ExpandableDeviceAdapter extends
     private ConnectableSensorRegistry mRegistry;
     private int mGlobalAdapterStartPosition = 0;
     private final SensorAppearanceProvider mAppearanceProvider;
+    private final SensorRegistry mSensorRegistry;
 
     public static ExpandableDeviceAdapter createEmpty(final ConnectableSensorRegistry registry,
-            DeviceRegistry deviceRegistry, SensorAppearanceProvider appearanceProvider) {
+            DeviceRegistry deviceRegistry, SensorAppearanceProvider appearanceProvider,
+            SensorRegistry sensorRegistry) {
         return new ExpandableDeviceAdapter(registry,
-                new ArrayList<DeviceParentListItem>(), deviceRegistry, appearanceProvider);
+                new ArrayList<DeviceParentListItem>(), deviceRegistry, appearanceProvider,
+                sensorRegistry);
     }
 
     private ExpandableDeviceAdapter(final ConnectableSensorRegistry registry,
             List<DeviceParentListItem> deviceParents, DeviceRegistry deviceRegistry,
-            SensorAppearanceProvider appearanceProvider) {
+            SensorAppearanceProvider appearanceProvider, SensorRegistry sensorRegistry) {
         super(deviceParents);
         mRegistry = Preconditions.checkNotNull(registry);
         mDeviceParents = deviceParents;
         mDeviceRegistry = deviceRegistry;
         mAppearanceProvider = appearanceProvider;
+        mSensorRegistry = sensorRegistry;
     }
 
     @Override
@@ -88,14 +93,14 @@ public class ExpandableDeviceAdapter extends
     @Override
     public void onBindChildViewHolder(SensorChildViewHolder childViewHolder,
             int position, Object childListItem) {
-        childViewHolder.bind((String) childListItem, mSensorMap, mRegistry);
+        childViewHolder.bind((String) childListItem, mSensorMap, mRegistry, mSensorRegistry);
     }
 
     @Override
     public boolean hasSensorKey(String sensorKey) {
         return mSensorMap.containsKey(sensorKey);
     }
-
+    
     @Override
     public void addSensor(String sensorKey, ConnectableSensor sensor) {
         boolean isReplacement = mSensorMap.containsKey(sensorKey);

@@ -29,4 +29,6 @@ public interface DevicesPresenter {
     SensorGroup getPairedSensorGroup();
 
     SensorGroup getAvailableSensorGroup();
+
+    void unpair(String experimentId, String sensorId);
 }
