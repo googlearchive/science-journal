@@ -15,10 +15,13 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.graphics.drawable.Drawable;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -59,7 +62,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         holder.bind(mSensors.get(position));
         final String sensorKey = mSensorKeys.get(position);
 
-        holder.mItemView.setOnClickListener(new View.OnClickListener() {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mIsPaired) {
@@ -127,21 +130,26 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private final View mItemView;
-        private final TextView mNameView;
-        private final TextView mDeviceNameView;
+        private TextView mNameView;
+        private TextView mDeviceNameView;
+        private ImageView mIcon;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mNameView = (TextView) itemView.findViewById(R.id.sensor_name);
             mDeviceNameView = (TextView) itemView.findViewById(R.id.device_name);
-            mItemView = itemView;
+            mIcon = (ImageView) itemView.findViewById(R.id.device_icon);
         }
 
         public void bind(ConnectableSensor connectableSensor) {
             SensorAppearance appearance = connectableSensor.getAppearance(
                     mSensorAppearanceProvider);
             mNameView.setText(appearance.getName(mNameView.getContext()));
+
+            Drawable icon = appearance.getIconDrawable(mIcon.getContext());
+            DrawableCompat.setTint(icon,
+                    mIcon.getContext().getResources().getColor(R.color.color_accent));
+            mIcon.setImageDrawable(icon);
 
             // TODO: need to get name
             mDeviceNameView.setText(connectableSensor.getDeviceAddress());
