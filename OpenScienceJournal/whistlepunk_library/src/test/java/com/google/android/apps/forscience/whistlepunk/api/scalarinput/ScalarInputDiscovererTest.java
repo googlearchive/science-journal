@@ -17,7 +17,6 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.os.RemoteException;
@@ -49,6 +48,12 @@ public class ScalarInputDiscovererTest {
 
         final AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
                 new AccumulatingConsumer<>();
+
+        final AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredDevice> cDevice =
+                new AccumulatingConsumer<>();
+
+        final AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredService> cService =
+                new AccumulatingConsumer<>();
         final RecordingRunnable onScanDone = new RecordingRunnable();
         ExternalSensorDiscoverer.ScanListener listener =
                 new ExternalSensorDiscoverer.ScanListener() {
@@ -58,8 +63,14 @@ public class ScalarInputDiscovererTest {
                     }
 
                     @Override
-                    public void onDeviceFound(InputDeviceSpec deviceSpec) {
-                        deviceRegistry.addDevice(deviceSpec);
+                    public void onServiceFound(ExternalSensorDiscoverer.DiscoveredService service) {
+                        cService.take(service);
+                    }
+
+                    @Override
+                    public void onDeviceFound(ExternalSensorDiscoverer.DiscoveredDevice device) {
+                        cDevice.take(device);
+                        deviceRegistry.addDevice(device.getSpec());
                     }
 
                     @Override
@@ -89,6 +100,14 @@ public class ScalarInputDiscovererTest {
         assertEquals(s.getDeviceName(), device.getName());
         assertEquals(spec.getDeviceAddress(), device.getDeviceAddress());
 
+        ExternalSensorDiscoverer.DiscoveredDevice discovered = cDevice.getOnlySeen();
+        assertEquals(s.getServiceId(), discovered.getServiceId());
+        assertEquals(s.getDeviceName(), discovered.getSpec().getName());
+
+        ExternalSensorDiscoverer.DiscoveredService service = cService.getOnlySeen();
+        assertEquals(s.getServiceName(), service.getName());
+        assertEquals(s.getServiceId(), service.getServiceId());
+
         assertTrue(onScanDone.hasRun);
     }
 
@@ -97,20 +116,25 @@ public class ScalarInputDiscovererTest {
             final Consumer<ExternalSensorDiscoverer.DiscoveredSensor> c,
             final Runnable onScanDone) {
         return new ExternalSensorDiscoverer.ScanListener() {
-                @Override
-                public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
-                    c.take(sensor);
-                }
+            @Override
+            public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
+                c.take(sensor);
+            }
 
-                @Override
-                public void onDeviceFound(InputDeviceSpec device) {
-                }
+            @Override
+            public void onServiceFound(ExternalSensorDiscoverer.DiscoveredService service) {
 
-                @Override
-                public void onScanDone() {
-                    onScanDone.run();
-                }
-            };
+            }
+
+            @Override
+            public void onDeviceFound(ExternalSensorDiscoverer.DiscoveredDevice device) {
+            }
+
+            @Override
+            public void onScanDone() {
+                onScanDone.run();
+            }
+        };
     }
 
     @Test

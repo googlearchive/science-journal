@@ -18,8 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -31,14 +31,39 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 public interface ExternalSensorDiscoverer {
     public interface DiscoveredSensor {
         ExternalSensorSpec getSpec();
+
         PendingIntent getSettingsIntent();
+    }
+
+    public interface DiscoveredService {
+        /**
+         * Should be unique for each discoverer
+         */
+        String getServiceId();
+
+        String getName();
+
+        Drawable getIconDrawable(Context context);
+    }
+
+    public interface DiscoveredDevice {
+        String getServiceId();
+
+        InputDeviceSpec getSpec();
     }
 
     public interface ScanListener {
         /**
+         * Called when a scan finds a new service (each provider has its own definition of what
+         * consitutes a "service".  For BLE, it's the entire native BLE mechanism.  For scalar
+         * API, it's each API-implementing service.
+         */
+        void onServiceFound(DiscoveredService service);
+
+        /**
          * Called when a scan finds a new device (on the UI thread)
          */
-        void onDeviceFound(InputDeviceSpec device);
+        void onDeviceFound(DiscoveredDevice device);
 
         /**
          * Called when a scan finds a new sensor on a device (on the UI thread).
