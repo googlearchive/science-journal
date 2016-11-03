@@ -183,9 +183,16 @@ public class ConnectableSensorRegistry {
                         }
 
                         @Override
-                        public void onDeviceFound(InputDeviceSpec device) {
+                        public void onServiceFound(
+                                ExternalSensorDiscoverer.DiscoveredService service) {
+                            // TODO: implement
+                        }
+
+                        @Override
+                        public void onDeviceFound(
+                                ExternalSensorDiscoverer.DiscoveredDevice device) {
                             if (mDeviceRegistry != null) {
-                                mDeviceRegistry.addDevice(device);
+                                mDeviceRegistry.addDevice(device.getSpec());
                             }
                         }
 

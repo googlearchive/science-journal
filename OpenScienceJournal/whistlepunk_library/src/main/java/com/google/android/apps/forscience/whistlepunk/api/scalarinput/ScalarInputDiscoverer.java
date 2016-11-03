@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
@@ -110,11 +111,35 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
         }, discoveryTaskId);
         mServiceFinder.take(new AppDiscoveryCallbacks() {
             @Override
-            public void onServiceFound(String serviceId, final ISensorDiscoverer service) {
+            public void onServiceFound(final String serviceId, final ISensorDiscoverer service) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Found service: " + serviceId);
                 }
                 try {
+                    final String serviceName = service.getName();
+                    mUiThreadExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onServiceFound(new DiscoveredService() {
+                                @Override
+                                public String getServiceId() {
+                                    return serviceId;
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return serviceName;
+                                }
+
+                                @Override
+                                public Drawable getIconDrawable(Context context) {
+                                    // TODO: implement
+                                    return null;
+                                }
+                            });
+                        }
+                    });
+
                     service.scanDevices(
                             makeDeviceConsumer(service, serviceId, listener, pool));
                 } catch (RemoteException e) {
@@ -151,8 +176,19 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 mUiThreadExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        scanListener.onDeviceFound(new InputDeviceSpec(ScalarInputSpec.TYPE,
-                                ScalarInputSpec.makeApiDeviceAddress(serviceId, deviceId), name));
+                        scanListener.onDeviceFound(new DiscoveredDevice() {
+                            @Override
+                            public String getServiceId() {
+                                return serviceId;
+                            }
+
+                            @Override
+                            public InputDeviceSpec getSpec() {
+                                return new InputDeviceSpec(ScalarInputSpec.TYPE,
+                                        ScalarInputSpec.makeApiDeviceAddress(serviceId, deviceId),
+                                        name);
+                            }
+                        });
                     }
                 });
 
