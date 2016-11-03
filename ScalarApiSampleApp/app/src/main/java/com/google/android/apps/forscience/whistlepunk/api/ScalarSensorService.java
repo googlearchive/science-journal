@@ -36,6 +36,9 @@ import java.util.Map;
 /**
  * Support for creating your own sensor-exposing service.  To use, extend ScalarSensorService,
  * and override the abstract methods.
+ *
+ * For an example implementation,
+ * @see com.google.android.apps.forscience.scalarapisample.AllNativeSensorProvider
  */
 public abstract class ScalarSensorService extends Service {
     private ISensorDiscoverer.Stub mDiscoverer = null;
