@@ -30,18 +30,16 @@ import java.util.Map;
 /**
  * View holder for device views in the expandable view
  */
-public class DeviceParentViewHolder extends ParentViewHolder {
+public class DeviceParentViewHolder extends OffsetParentViewHolder {
     private final TextView mDeviceNameView;
     private final ImageView mDeviceIcon;
     private final ToggleArrow mCollapsedIcon;
-    private final Supplier<Integer> mGlobalPositionOffset;
 
     public DeviceParentViewHolder(View itemView, Supplier<Integer> globalPositionOffset) {
-        super(itemView);
+        super(itemView, globalPositionOffset);
         mDeviceNameView = (TextView) itemView.findViewById(R.id.device_name);
         mDeviceIcon = (ImageView) itemView.findViewById(R.id.device_icon);
         mCollapsedIcon = (ToggleArrow) itemView.findViewById(R.id.collapsed_icon);
-        mGlobalPositionOffset = globalPositionOffset;
     }
 
     public void bind(DeviceParentListItem item, Map<String, ConnectableSensor> sensorMap) {
@@ -58,21 +56,5 @@ public class DeviceParentViewHolder extends ParentViewHolder {
         super.onExpansionToggled(wasExpandedBefore);
         boolean isNowExpanded = !wasExpandedBefore;
         mCollapsedIcon.setActive(isNowExpanded, true);
-    }
-
-    @Override
-    public void setParentListItemExpandCollapseListener(
-            final ParentListItemExpandCollapseListener superListener) {
-        super.setParentListItemExpandCollapseListener(new ParentListItemExpandCollapseListener() {
-            @Override
-            public void onParentListItemExpanded(int position) {
-                superListener.onParentListItemExpanded(position - mGlobalPositionOffset.get());
-            }
-
-            @Override
-            public void onParentListItemCollapsed(int position) {
-                superListener.onParentListItemCollapsed(position - mGlobalPositionOffset.get());
-            }
-        });
     }
 }
