@@ -19,10 +19,18 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.IDeviceCon
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorConsumer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorConnector;
 
-// TODO: document
+// Top-level interface for a service that exposes sensors for Science Journal.
 interface ISensorDiscoverer {
+    // Human-readable name of the service
     String getName() = 0;
+
+    // Call c once for each device the service can detect
     void scanDevices(IDeviceConsumer c) = 1;
+
+    // Call c once for each sensor on the device indicated by deviceId
     void scanSensors(String deviceId, ISensorConsumer c) = 2;
+
+    // Return a new connector.  This connector will be used to connect to, and disconnect from,
+    // exactly one sensor.
     ISensorConnector getConnector() = 3;
 }
