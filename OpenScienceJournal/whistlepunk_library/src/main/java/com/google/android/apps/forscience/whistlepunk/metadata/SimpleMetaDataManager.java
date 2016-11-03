@@ -36,6 +36,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.common.collect.Lists;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.io.File;
@@ -83,6 +84,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         String RUN_SENSORS = "run_sensors";
         String EXPERIMENT_SENSOR_LAYOUT = "experiment_sensor_layout";
         String SENSOR_TRIGGERS = "sensor_triggers";
+        String MY_DEVICES = "my_devices";
     }
 
     public SimpleMetaDataManager(Context context) {
@@ -140,7 +142,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
             String selection = ProjectColumns.ARCHIVED + "=?";
-            String[] selectionArgs = new String[] {"0"};
+            String[] selectionArgs = new String[]{"0"};
             if (includeArchived) {
                 selection = null;
                 selectionArgs = null;
@@ -275,7 +277,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             deleteRun(runId);
         }
         List<Label> labels = getLabelsForExperiment(experiment);
-        for (Label label: labels) {
+        for (Label label : labels) {
             deleteLabel(label);
         }
         synchronized (mLock) {
@@ -488,9 +490,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
             Cursor cursor = null;
             try {
-                cursor = db.query(Tables.RUNS, new String[] {RunsColumns.RUN_INDEX,
-                        RunsColumns.TITLE, RunsColumns.ARCHIVED,
-                        RunsColumns.AUTO_ZOOM_ENABLED},
+                cursor = db.query(Tables.RUNS, new String[]{RunsColumns.RUN_INDEX,
+                                RunsColumns.TITLE, RunsColumns.ARCHIVED,
+                                RunsColumns.AUTO_ZOOM_ENABLED},
                         selection, selectionArgs, null, null, null);
                 if (cursor != null & cursor.moveToFirst()) {
                     runIndex = cursor.getInt(0);
@@ -509,7 +511,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             int defaultColor = mContext.getResources().getColor(R.color.graph_line_color_blue);
             try {
                 cursor = db.query(Tables.RUN_SENSORS, new String[]{RunSensorsColumns.LAYOUT,
-                        RunSensorsColumns.SENSOR_ID}, selection, selectionArgs, null, null,
+                                RunSensorsColumns.SENSOR_ID}, selection, selectionArgs, null, null,
                         RunSensorsColumns.POSITION + " ASC");
                 while (cursor.moveToNext()) {
                     try {
@@ -866,7 +868,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 cursor = db.query(
                         Tables.RUNS + " AS r JOIN " + Tables.LABELS + " AS l ON "
                                 + RunsColumns.RUN_ID + "=" + LabelColumns.START_LABEL_ID,
-                        new String[]{RunsColumns.RUN_ID}, selection, new String[] {experimentId},
+                        new String[]{RunsColumns.RUN_ID}, selection, new String[]{experimentId},
                         null, null, "r." + RunsColumns.TIMESTAMP + " DESC", null);
                 while (cursor.moveToNext()) {
                     ids.add(cursor.getString(0));
@@ -931,7 +933,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     static class SensorQuery {
-        public static String[] PROJECTION = new String[] {
+        public static String[] PROJECTION = new String[]{
                 SensorColumns.SENSOR_ID,
                 SensorColumns.TYPE,
                 SensorColumns.NAME,
@@ -1019,7 +1021,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     public void removeSensorFromExperiment(String databaseTag, String experimentId) {
         String selection = ExperimentSensorColumns.SENSOR_TAG + " =? AND " +
                 ExperimentSensorColumns.EXPERIMENT_ID + "=?";
-        String[] selectionArgs = new String[] {databaseTag, experimentId};
+        String[] selectionArgs = new String[]{databaseTag, experimentId};
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             db.delete(Tables.EXPERIMENT_SENSORS, selection, selectionArgs);
@@ -1038,14 +1040,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
             try {
                 // Explicitly order by ascending rowid, to preserve insertion order
                 c = db.query(Tables.EXPERIMENT_SENSORS,
-                        new String[] {ExperimentSensorColumns.SENSOR_TAG},
+                        new String[]{ExperimentSensorColumns.SENSOR_TAG},
                         ExperimentSensorColumns.EXPERIMENT_ID + "=?",
-                        new String[] {experimentId}, null, null, BaseColumns._ID + " ASC");
+                        new String[]{experimentId}, null, null, BaseColumns._ID + " ASC");
                 while (c.moveToNext()) {
                     String tag = c.getString(0);
 
                     // We don't expect to get duplicates, but we can deal with them gracefully.
-                    if (! tags.contains(tag)) {
+                    if (!tags.contains(tag)) {
                         tags.add(tag);
                     }
                 }
@@ -1067,18 +1069,46 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void addMyDevice(InputDeviceSpec deviceSpec) {
-        // TODO: implement
+        String deviceId = addOrGetExternalSensor(deviceSpec, InputDeviceSpec.PROVIDER_MAP);
+        ContentValues values = new ContentValues();
+        values.put(MyDevicesColumns.DEVICE_ID, deviceId);
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.insert(Tables.MY_DEVICES, null, values);
+        }
     }
 
     @Override
     public void removeMyDevice(InputDeviceSpec deviceSpec) {
-        // TODO: implement
+        String deviceId = addOrGetExternalSensor(deviceSpec, InputDeviceSpec.PROVIDER_MAP);
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.delete(Tables.MY_DEVICES, MyDevicesColumns.DEVICE_ID + "=?", new String[]{deviceId});
+        }
     }
 
     @Override
     public List<InputDeviceSpec> getMyDevices() {
-        // TODO: implement
-        return null;
+        ArrayList<InputDeviceSpec> myDevices = Lists.newArrayList();
+
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+            Cursor c = null;
+            try {
+                c = db.query(Tables.MY_DEVICES, new String[]{MyDevicesColumns.DEVICE_ID},
+                        null, null, null, null, BaseColumns._ID + " ASC");
+                while (c.moveToNext()) {
+                    InputDeviceSpec spec = (InputDeviceSpec) getExternalSensorById(c.getString(0),
+                            InputDeviceSpec.PROVIDER_MAP);
+                    myDevices.add(spec);
+                }
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
+        }
+        return myDevices;
     }
 
     @Override
@@ -1162,9 +1192,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
             String[] selectionArgs = new String[]{sensorId};
             try {
                 c = db.query(Tables.SENSOR_TRIGGERS, new String[]{
-                        SensorTriggerColumns.TRIGGER_ID,
-                        SensorTriggerColumns.LAST_USED_TIMESTAMP_MS,
-                        SensorTriggerColumns.TRIGGER_INFORMATION},
+                                SensorTriggerColumns.TRIGGER_ID,
+                                SensorTriggerColumns.LAST_USED_TIMESTAMP_MS,
+                                SensorTriggerColumns.TRIGGER_INFORMATION},
                         selection, selectionArgs, null, null,
                         SensorTriggerColumns.LAST_USED_TIMESTAMP_MS + " DESC");
                 while (c.moveToNext()) {
@@ -1228,14 +1258,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
         /**
          * Selection args for getting a project data.
          */
-        String[] GET_COLUMNS = new String[] {
-            BaseColumns._ID,
-            ProjectColumns.PROJECT_ID,
-            ProjectColumns.TITLE,
-            ProjectColumns.COVER_PHOTO,
-            ProjectColumns.ARCHIVED,
-            ProjectColumns.DESCRIPTION,
-            ProjectColumns.LAST_USED_TIME
+        String[] GET_COLUMNS = new String[]{
+                BaseColumns._ID,
+                ProjectColumns.PROJECT_ID,
+                ProjectColumns.TITLE,
+                ProjectColumns.COVER_PHOTO,
+                ProjectColumns.ARCHIVED,
+                ProjectColumns.DESCRIPTION,
+                ProjectColumns.LAST_USED_TIME
         };
     }
 
@@ -1344,7 +1374,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         /**
          * Human readable name of this sensor.
          */
-        String NAME= "name";
+        String NAME = "name";
 
         /**
          * Configuration data for this sensor.
@@ -1488,11 +1518,19 @@ public class SimpleMetaDataManager implements MetaDataManager {
         String TRIGGER_INFORMATION = "trigger_information";
     }
 
+    public interface MyDevicesColumns {
+        /**
+         * The id of a device that has been memorized to "My Devices"
+         * This should be a key to a row in EXTERNAL_SENSORS
+         */
+        String DEVICE_ID = "device_id";
+    }
+
     /**
      * Manages the SQLite database backing the data for the entire app.
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        private static final int DB_VERSION = 18;
+        private static final int DB_VERSION = 19;
         private static final String DB_NAME = "main.db";
 
         DatabaseHelper(Context context, String filename) {
@@ -1511,6 +1549,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             createRunSensorsTable(db);
             createExperimentSensorLayoutTable(db);
             createSensorTriggersTable(db);
+            createMyDevicesTable(db);
         }
 
         private void createExperimentsTable(SQLiteDatabase db) {
@@ -1645,18 +1684,18 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
             if (version == 14 && version < newVersion) {
                 db.execSQL("ALTER TABLE " + Tables.LABELS + " ADD COLUMN " +
-                    LabelColumns.VALUE + " BLOB");
+                        LabelColumns.VALUE + " BLOB");
                 version = 15;
             }
 
             if (version == 15 && version < newVersion) {
-                db.execSQL("ALTER TABLE " + Tables. RUNS + " ADD COLUMN " +
-                    RunsColumns.AUTO_ZOOM_ENABLED + " BOOLEAN");
+                db.execSQL("ALTER TABLE " + Tables.RUNS + " ADD COLUMN " +
+                        RunsColumns.AUTO_ZOOM_ENABLED + " BOOLEAN");
                 version = 16;
             }
 
             if (version == 16 && version < newVersion) {
-                db.execSQL("UPDATE " + Tables. RUNS + " SET " + RunsColumns.AUTO_ZOOM_ENABLED +
+                db.execSQL("UPDATE " + Tables.RUNS + " SET " + RunsColumns.AUTO_ZOOM_ENABLED +
                         " = 1 WHERE " + RunsColumns.AUTO_ZOOM_ENABLED + " IS NULL");
                 version = 17;
             }
@@ -1664,6 +1703,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
             if (version == 17 && version < newVersion) {
                 createSensorTriggersTable(db);
                 version = 18;
+            }
+
+            if (version == 18 && version < newVersion) {
+                createMyDevicesTable(db);
+                version = 19;
             }
         }
 
@@ -1760,6 +1804,13 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     + SensorTriggerColumns.SENSOR_ID + " TEXT,"
                     + SensorTriggerColumns.TRIGGER_INFORMATION + " BLOB)"
             );
+        }
+
+        private void createMyDevicesTable(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE " + Tables.MY_DEVICES + " ("
+                    + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + MyDevicesColumns.DEVICE_ID + " TEXT NOT NULL, "
+                    + "UNIQUE (" + MyDevicesColumns.DEVICE_ID + ") ON CONFLICT REPLACE)");
         }
 
         private void populateUpgradedRunsTable(SQLiteDatabase db) {
