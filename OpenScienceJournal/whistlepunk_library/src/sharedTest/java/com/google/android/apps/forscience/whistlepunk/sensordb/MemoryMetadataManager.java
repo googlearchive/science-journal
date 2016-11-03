@@ -256,7 +256,7 @@ public class MemoryMetadataManager implements MetaDataManager {
 
     @Override
     public List<InputDeviceSpec> getMyDevices() {
-        return null;
+        return Lists.newArrayList();
     }
 
     @Override

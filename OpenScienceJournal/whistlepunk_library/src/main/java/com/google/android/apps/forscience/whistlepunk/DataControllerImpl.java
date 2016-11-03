@@ -23,6 +23,7 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
@@ -767,6 +768,16 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             public Success call() throws Exception {
                 mMetaDataManager.deleteSensorTrigger(trigger);
                 return Success.SUCCESS;
+            }
+        });
+    }
+
+    @Override
+    public void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<List<InputDeviceSpec>>() {
+            @Override
+            public List<InputDeviceSpec> call() throws Exception {
+                return mMetaDataManager.getMyDevices();
             }
         });
     }

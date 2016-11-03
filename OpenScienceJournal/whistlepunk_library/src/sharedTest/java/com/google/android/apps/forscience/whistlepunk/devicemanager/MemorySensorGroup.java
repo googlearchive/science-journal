@@ -55,6 +55,16 @@ class MemorySensorGroup implements SensorGroup {
         return mSensors.size();
     }
 
+    @Override
+    public void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service) {
+
+    }
+
+    @Override
+    public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
+
+    }
+
     public String getKey(int location) {
         return new ArrayList<>(mSensors.keySet()).get(location);
     }

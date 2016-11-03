@@ -20,6 +20,9 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDevic
 import java.util.List;
 
 public interface SensorGroup {
+    /**
+     * @return false if this sensor hasn't been seen in this group
+     */
     boolean hasSensorKey(String sensorKey);
 
     /**
@@ -42,4 +45,8 @@ public interface SensorGroup {
     void replaceSensor(String sensorKey, ConnectableSensor sensor);
 
     int getSensorCount();
+
+    void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service);
+
+    void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device);
 }

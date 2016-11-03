@@ -138,12 +138,8 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
             private Resources getApiAppResources(Context context)
                     throws PackageManager.NameNotFoundException {
-                return context.getPackageManager().getResourcesForApplication(getPackageId());
-            }
-
-            private String getPackageId() {
-                // TODO: write test!
-                return getServiceId().split("/")[0];
+                return context.getPackageManager().getResourcesForApplication(getPackageId(
+                        ScalarInputSpec.this.getServiceId()));
             }
 
             @Override
@@ -152,6 +148,14 @@ public class ScalarInputSpec extends ExternalSensorSpec {
                         SensorAnimationBehavior.TYPE_RELATIVE_SCALE);
             }
         };
+    }
+
+    public static Drawable getServiceDrawable(String serviceId, Context context) {
+        try {
+            return context.getPackageManager().getApplicationIcon(getPackageId(serviceId));
+        } catch (PackageManager.NameNotFoundException e) {
+            return context.getResources().getDrawable(R.drawable.ic_api_01_black_24dp);
+        }
     }
 
     public int getDefaultIconId() {
@@ -163,7 +167,6 @@ public class ScalarInputSpec extends ExternalSensorSpec {
             default:
                 // Should never happen, if math works.
                 return R.drawable.ic_api_01_white_24dp;
-
         }
     }
 
@@ -212,6 +215,11 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
     public String getServiceId() {
         return mConfig.serviceId;
+    }
+
+    private static String getPackageId(String serviceId) {
+        // TODO: write test!
+        return serviceId.split("/")[0];
     }
 
     @Override

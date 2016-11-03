@@ -181,4 +181,14 @@ public class ExpandableDeviceAdapter extends
     ConnectableSensor getSensor(int deviceIndex, int sensorIndex) {
         return mSensorMap.get(getDevice(deviceIndex).getSensorKey(sensorIndex));
     }
+
+    @Override
+    public void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service) {
+        // This view doesn't track services
+    }
+
+    @Override
+    public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
+        // Don't need anything here; we'll grab from DeviceRegistry if this is My Device
+    }
 }

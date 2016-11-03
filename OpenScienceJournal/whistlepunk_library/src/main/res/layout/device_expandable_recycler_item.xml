@@ -23,29 +23,30 @@
 
     <com.google.android.apps.forscience.whistlepunk.ToggleArrow
         android:id="@+id/collapsed_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <ImageView android:id="@+id/device_icon"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"/>
+
+    <!-- TODO: this is very preliminary to get something in place. -->
+    <TextView android:id="@+id/device_name" android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_margin="8dp"
+              android:textColor="@color/text_color_dark_grey"
+              android:textSize="12sp"
+    />
+
+    <ImageButton
+        android:id="@+id/btn_device_overflow_menu"
         android:layout_width="@dimen/accessibility_touch_target_min_size"
         android:layout_height="@dimen/accessibility_touch_target_min_size"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="@dimen/sensor_card_header_btn_margin"
         android:background="@android:color/transparent"
+        android:contentDescription="@string/device_settings"
         android:scaleType="center"
-        android:layout_marginEnd="12dp"
-        />
-
-    <ImageView
-        android:id="@+id/device_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_margin="12dp"
-        android:scaleType="centerInside"
-        android:importantForAccessibility="no"
-        />
-
-    <TextView
-        android:id="@+id/device_name"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_margin="8dp"
-        android:textColor="@color/text_color_dark_grey"
-        android:textSize="14sp"
-        android:gravity="center_vertical"
-        />
+        android:src="@drawable/ic_menu_moreoverflow_mtrl_alpha"
+    />
 </LinearLayout>

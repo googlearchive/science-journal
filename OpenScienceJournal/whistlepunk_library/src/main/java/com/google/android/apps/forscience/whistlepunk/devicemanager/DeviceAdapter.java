@@ -125,6 +125,16 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         return mSensors.size();
     }
 
+    @Override
+    public void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service) {
+        // This view doesn't track services
+    }
+
+    @Override
+    public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
+        // This view doesn't track devices
+    }
+
     public void setProgress(boolean isScanning) {
         // TODO: update UI to show scan status
     }

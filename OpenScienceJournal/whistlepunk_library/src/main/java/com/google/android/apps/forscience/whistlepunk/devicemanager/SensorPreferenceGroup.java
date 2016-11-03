@@ -117,4 +117,15 @@ class SensorPreferenceGroup implements SensorGroup {
     public int getSensorCount() {
         return mCategory.getPreferenceCount();
     }
+
+
+    @Override
+    public void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service) {
+        // This view doesn't track services
+    }
+
+    @Override
+    public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
+        // This view doesn't track devices
+    }
 }

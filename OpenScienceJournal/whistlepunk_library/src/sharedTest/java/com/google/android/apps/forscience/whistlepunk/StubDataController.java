@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
@@ -272,6 +273,11 @@ public class StubDataController implements DataController {
 
     @Override
     public void deleteSensorTrigger(SensorTrigger trigger, MaybeConsumer<Success> onSuccess) {
+
+    }
+
+    @Override
+    public void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess) {
 
     }
 }

@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
@@ -212,4 +213,5 @@ public interface DataController {
      */
     void deleteSensorTrigger(SensorTrigger trigger, final MaybeConsumer<Success> onSuccess);
 
+    void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess);
 }
