@@ -76,6 +76,10 @@ public class SineEnvelope extends SimpleJsynUnitVoiceBase {
         mDAHDSR.release.set(0.01);
     }
 
+    public EnvelopeDAHDSR getDAHDSR() {
+        return mDAHDSR;
+    }
+
     public void noteOn(double frequency, double amplitude, TimeStamp timeStamp) {
         this.frequency.set(frequency, timeStamp);
         this.amplitude.set(amplitude, timeStamp);
