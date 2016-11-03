@@ -20,6 +20,7 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.audiogen.JsynUnitVoiceAdapter;
 import com.jsyn.Synthesizer;
+import com.jsyn.unitgen.EnvelopeDAHDSR;
 import com.softsynth.math.AudioMath;
 import com.softsynth.shared.time.TimeStamp;
 
@@ -57,6 +58,9 @@ public class ConductorVoice extends JsynUnitVoiceAdapter {
         mPitches = PitchGenerator.generatePitches(scale, PITCH_MIN, PITCH_MAX);
         mVoice = new SineEnvelope();
         synth.add(mVoice);
+        EnvelopeDAHDSR DAHDSR = ((SineEnvelope)getVoice()).getDAHDSR();
+        DAHDSR.hold.set(1000);
+        DAHDSR.sustain.set(1000);
     }
 
     public void noteOn(double value, double unusedMin, double unusedMax, TimeStamp timeStamp) {
