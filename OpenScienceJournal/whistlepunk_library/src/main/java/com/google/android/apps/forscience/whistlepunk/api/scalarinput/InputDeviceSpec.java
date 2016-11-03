@@ -117,8 +117,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
             @Override
             public Drawable getIconDrawable(Context context) {
                 if (getDeviceAddress().equals(BUILT_IN_DEVICE_ADDRESS)) {
-                    // TODO: this isn't right (b/32579791)
-                    return context.getDrawable(android.R.drawable.ic_menu_call);
+                    return context.getDrawable(R.drawable.ic_phone_android_black_48dp);
                 }
                 return null;
             }
