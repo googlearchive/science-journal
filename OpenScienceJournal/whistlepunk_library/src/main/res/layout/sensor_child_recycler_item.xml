@@ -23,15 +23,14 @@
 
     <!-- It is OK that this button is smaller than the min accessible size, because the entire
          48dp high row is clickable and does the same action as this small touch target. -->
-    <ToggleButton
+    <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/paired_checkbox"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_margin="12dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="8dp"
         android:gravity="center"
-        android:background="@drawable/check_box_level_drawable_24dp"
-        android:textOff=""
-        android:textOn=""
+        android:layout_gravity="center"
+        android:buttonTint="@color/color_accent"
         />
 
     <ImageView
@@ -44,6 +43,7 @@
         android:layout_marginBottom="12dp"
         android:layout_marginStart="24dp"
         android:importantForAccessibility="no"
+        android:tint="@color/text_color_light_grey"
         />
 
     <TextView
@@ -64,8 +64,9 @@
         android:contentDescription="@string/sensor_options"
         android:scaleType="centerInside"
         android:src="@drawable/ic_settings_black_24dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="4dp"
         android:background="@android:color/transparent"
+        android:tint="@color/color_accent"
         />
 
 </LinearLayout>

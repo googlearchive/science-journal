@@ -30,6 +30,7 @@
         android:layout_marginTop="12dp"
         android:layout_marginBottom="12dp"
         android:importantForAccessibility="no"
+        android:tint="@color/color_accent"
         />
 
     <TextView

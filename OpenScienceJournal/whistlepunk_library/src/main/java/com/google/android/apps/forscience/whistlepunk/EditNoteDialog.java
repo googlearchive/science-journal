@@ -20,7 +20,6 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
@@ -215,9 +214,9 @@ public class EditNoteDialog extends DialogFragment {
                 }
             });
         } else if (labelBelongsToRun()) {
-            Drawable lockDrawable = getResources().getDrawable(R.drawable.ic_lock_black_18dp);
-            DrawableCompat.setTint(lockDrawable,
-                    getResources().getColor(R.color.text_color_light_grey));
+            Drawable lockDrawable = ColorUtils.colorDrawable(timeTextView.getContext(),
+                    getResources().getDrawable(R.drawable.ic_lock_black_18dp),
+                    R.color.text_color_light_grey);
             // There is already a start drawable. Use it again.
             Drawable[] drawables = timeTextView.getCompoundDrawablesRelative();
             timeTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(drawables[0], null,
