@@ -21,10 +21,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.InputDevice;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.common.collect.ImmutableMap;
@@ -58,6 +60,24 @@ public class InputDeviceSpec extends ExternalSensorSpec {
         @Override
         public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
             return new InputDeviceSpec(name, config);
+        }
+    };
+
+    public static final ExternalSensorDiscoverer DISCOVERER = new ExternalSensorDiscoverer() {
+        @Override
+        public boolean startScanning(ScanListener listener, FailureListener onScanError) {
+            // These are only remembered from the database, never discovered by scanning
+            return false;
+        }
+
+        @Override
+        public void stopScanning() {
+
+        }
+
+        @Override
+        public ExternalSensorProvider getProvider() {
+            return PROVIDER;
         }
     };
 
