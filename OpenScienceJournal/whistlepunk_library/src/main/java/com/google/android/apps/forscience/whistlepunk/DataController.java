@@ -214,4 +214,6 @@ public interface DataController {
     void deleteSensorTrigger(SensorTrigger trigger, final MaybeConsumer<Success> onSuccess);
 
     void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess);
+
+    void forgetMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess);
 }

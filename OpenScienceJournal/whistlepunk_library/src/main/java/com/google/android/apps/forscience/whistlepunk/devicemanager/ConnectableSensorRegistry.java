@@ -27,12 +27,14 @@ import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -70,6 +72,7 @@ public class ConnectableSensorRegistry {
     private Clock mClock;
     private DeviceOptionsDialog.DeviceOptionsListener mOptionsListener;
     private DeviceRegistry mDeviceRegistry;
+    private List<InputDeviceSpec> mMyDevices = Lists.newArrayList();
 
     // TODO: reduce parameter list?
     public ConnectableSensorRegistry(DataController dataController,
@@ -110,16 +113,30 @@ public class ConnectableSensorRegistry {
 
     public void refresh(final boolean clearSensorCache, final SensorRegistry sr) {
         stopScanningInDiscoverers();
-        mDataController.getExternalSensorsByExperiment(mExperimentId,
-                new LoggingConsumer<List<ConnectableSensor>>(TAG, "Load external sensors") {
+        mDataController.getMyDevices(
+                new LoggingConsumer<List<InputDeviceSpec>>(TAG, "Load my devices") {
                     @Override
-                    public void success(List<ConnectableSensor> sensors) {
-                        List<ConnectableSensor> allSensors = new ArrayList<>(sensors);
-                        for (String sensorId : sr.getBuiltInSources()) {
-                            allSensors.add(ConnectableSensor.builtIn(sensorId));
+                    public void success(List<InputDeviceSpec> devices) {
+                        mMyDevices = devices;
+                        for (InputDeviceSpec device : devices) {
+                            mDeviceRegistry.addDevice(device);
                         }
-                        setPairedAndStartScanning(ConnectableSensor.makeMap(allSensors),
-                                clearSensorCache);
+
+                        mDataController.getExternalSensorsByExperiment(mExperimentId,
+                                new LoggingConsumer<List<ConnectableSensor>>(TAG,
+                                        "Load external sensors") {
+                                    @Override
+                                    public void success(List<ConnectableSensor> sensors) {
+                                        List<ConnectableSensor> allSensors = new ArrayList<>(
+                                                sensors);
+                                        for (String sensorId : sr.getBuiltInSources()) {
+                                            allSensors.add(ConnectableSensor.builtIn(sensorId));
+                                        }
+                                        setPairedAndStartScanning(
+                                                ConnectableSensor.makeMap(allSensors),
+                                                clearSensorCache);
+                                    }
+                                });
                     }
                 });
     }
@@ -172,7 +189,8 @@ public class ConnectableSensorRegistry {
 
         for (final Map.Entry<String, ExternalSensorDiscoverer> entry : mDiscoverers.entrySet()) {
             ExternalSensorDiscoverer discoverer = entry.getValue();
-            final String providerId = discoverer.getProvider().getProviderId();
+            ExternalSensorProvider provider = discoverer.getProvider();
+            final String providerId = provider.getProviderId();
             pool.addTask(providerId);
             ExternalSensorDiscoverer.ScanListener listener =
                     new ExternalSensorDiscoverer.ScanListener() {
@@ -185,12 +203,13 @@ public class ConnectableSensorRegistry {
                         @Override
                         public void onServiceFound(
                                 ExternalSensorDiscoverer.DiscoveredService service) {
-                            // TODO: implement
+                            getAvailableGroup().addAvailableService(service);
                         }
 
                         @Override
                         public void onDeviceFound(
                                 ExternalSensorDiscoverer.DiscoveredDevice device) {
+                            getAvailableGroup().addAvailableDevice(device);
                             if (mDeviceRegistry != null) {
                                 mDeviceRegistry.addDevice(device.getSpec());
                             }
@@ -400,5 +419,16 @@ public class ConnectableSensorRegistry {
 
     public void unpair(String sensorKey) {
         mPresenter.unpair(mExperimentId, getSensor(sensorKey).getConnectedSensorId());
+    }
+
+    public void forgetMyDevice(InputDeviceSpec spec, final SensorRegistry sr) {
+        // TODO: unpair all sensors on this device
+        mDataController.forgetMyDevice(spec,
+                new LoggingConsumer<Success>(TAG, "Forgetting device") {
+                    @Override
+                    public void success(Success success) {
+                        refresh(false, sr);
+                    }
+                });
     }
 }

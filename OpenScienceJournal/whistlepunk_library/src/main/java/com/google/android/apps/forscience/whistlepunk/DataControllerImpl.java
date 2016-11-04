@@ -781,4 +781,15 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             }
         });
     }
+
+    @Override
+    public void forgetMyDevice(final InputDeviceSpec spec, MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            @Override
+            public Success call() throws Exception {
+                mMetaDataManager.removeMyDevice(spec);
+                return Success.SUCCESS;
+            }
+        });
+    }
 }
