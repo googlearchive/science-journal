@@ -53,7 +53,7 @@ public class DeviceParentListItem implements ParentListItem {
 
     @Override
     public boolean isInitiallyExpanded() {
-        return false;
+        return true;
     }
 
     public String getDeviceName() {
@@ -65,7 +65,7 @@ public class DeviceParentListItem implements ParentListItem {
     }
 
     public void addSensor(String key) {
-        mSensorKeys.add(key);
+        mSensorKeys.add(Preconditions.checkNotNull(key));
     }
 
     public String getSensorKey(int i) {

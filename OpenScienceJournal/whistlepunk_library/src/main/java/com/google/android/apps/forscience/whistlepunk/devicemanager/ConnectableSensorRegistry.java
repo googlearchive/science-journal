@@ -72,14 +72,14 @@ public class ConnectableSensorRegistry {
     private Clock mClock;
     private DeviceOptionsDialog.DeviceOptionsListener mOptionsListener;
     private DeviceRegistry mDeviceRegistry;
-    private List<InputDeviceSpec> mMyDevices = Lists.newArrayList();
+    private final SensorAppearanceProvider mAppearanceProvider;
 
     // TODO: reduce parameter list?
     public ConnectableSensorRegistry(DataController dataController,
             Map<String, ExternalSensorDiscoverer> discoverers, DevicesPresenter presenter,
             Scheduler scheduler, Clock clock,
             DeviceOptionsDialog.DeviceOptionsListener optionsListener,
-            DeviceRegistry deviceRegistry) {
+            DeviceRegistry deviceRegistry, SensorAppearanceProvider appearanceProvider) {
         mDataController = dataController;
         mDiscoverers = discoverers;
         mPresenter = presenter;
@@ -87,16 +87,16 @@ public class ConnectableSensorRegistry {
         mClock = clock;
         mOptionsListener = optionsListener;
         mDeviceRegistry = deviceRegistry;
+        mAppearanceProvider = appearanceProvider;
     }
 
-    public void pair(String sensorKey, final SensorAppearanceProvider appearanceProvider,
-            final SensorRegistry sr) {
+    public void pair(String sensorKey, final SensorRegistry sr) {
         final PendingIntent settingsIntent = mSettingsIntents.get(sensorKey);
         addExternalSensorIfNecessary(sensorKey, getPairedGroup().getSensorCount(),
                 new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
                     @Override
                     public void success(final ConnectableSensor sensor) {
-                        appearanceProvider.loadAppearances(
+                        mAppearanceProvider.loadAppearances(
                                 new LoggingConsumer<Success>(TAG, "Load appearance") {
                                     @Override
                                     public void success(Success value) {
@@ -116,11 +116,15 @@ public class ConnectableSensorRegistry {
         mDataController.getMyDevices(
                 new LoggingConsumer<List<InputDeviceSpec>>(TAG, "Load my devices") {
                     @Override
-                    public void success(List<InputDeviceSpec> devices) {
-                        mMyDevices = devices;
-                        for (InputDeviceSpec device : devices) {
+                    public void success(List<InputDeviceSpec> myDevices) {
+                        for (final InputDeviceSpec device : myDevices) {
                             mDeviceRegistry.addDevice(device);
                         }
+                        // Paired group needs to know My Devices so it can show them.
+                        getPairedGroup().setMyDevices(myDevices);
+
+                        // Available group needs to know My Devices so it can _not_ show them
+                        getAvailableGroup().setMyDevices(myDevices);
 
                         mDataController.getExternalSensorsByExperiment(mExperimentId,
                                 new LoggingConsumer<List<ConnectableSensor>>(TAG,
@@ -257,11 +261,21 @@ public class ConnectableSensorRegistry {
         final String sensorKey = findSensorKey(sensor);
 
         if (sensorKey == null) {
-            String key = registerSensor(null, sensor, ds.getSettingsIntent());
-            getAvailableGroup().addSensor(key, sensor);
-            availableKeysSeen.add(key);
+            String newKey = registerSensor(null, sensor, ds.getSettingsIntent());
+
+            // Try first to add the sensor to the paired group, which will only work if the sensor
+            // is a new sensor on a device that we already know about, and is already in My Devices.
+            if (!getPairedGroup().addAvailableSensor(newKey, sensor)) {
+                // If that doesn't work, this is a new available sensor.
+                getAvailableGroup().addSensor(newKey, sensor);
+                availableKeysSeen.add(newKey);
+            }
         } else {
             sensor = mSensors.get(sensorKey);
+            if (getPairedGroup().addAvailableSensor(sensorKey, sensor)) {
+                // My Devices is claiming the sensor
+                return;
+            }
             if (!sensor.isPaired()) {
                 availableKeysSeen.add(sensorKey);
                 if (!getAvailableGroup().hasSensorKey(sensorKey)) {
@@ -421,13 +435,62 @@ public class ConnectableSensorRegistry {
         mPresenter.unpair(mExperimentId, getSensor(sensorKey).getConnectedSensorId());
     }
 
-    public void forgetMyDevice(InputDeviceSpec spec, final SensorRegistry sr) {
-        // TODO: unpair all sensors on this device
-        mDataController.forgetMyDevice(spec,
+    public void forgetMyDevice(final InputDeviceSpec spec, final SensorRegistry sr) {
+        List<String> idsToUnpair = Lists.newArrayList();
+        for (ConnectableSensor sensor : mSensors.values()) {
+            if (mDeviceRegistry.getDevice(sensor.getSpec()).isSameSensor(spec)) {
+                idsToUnpair.add(sensor.getConnectedSensorId());
+            }
+        }
+        removeSensorsFromExperiment(idsToUnpair,
+                new LoggingConsumer<Success>(TAG, "removing sensors") {
+            @Override
+            public void success(Success value) {
+                mDataController.forgetMyDevice(spec,
+                        new LoggingConsumer<Success>(TAG, "Forgetting device") {
+                            @Override
+                            public void success(Success success) {
+                                refresh(false, sr);
+                            }
+                        });
+            }
+        });
+    }
+
+    private void removeSensorsFromExperiment(final List<String> idsToUnpair,
+            final LoggingConsumer<Success> onSuccess) {
+        if (idsToUnpair.isEmpty()) {
+            onSuccess.success(Success.SUCCESS);
+            return;
+        }
+        String nextId = idsToUnpair.remove(0);
+        mDataController.removeSensorFromExperiment(mExperimentId, nextId,
+                MaybeConsumers.chainFailure(onSuccess, new Consumer<Success>() {
+                    @Override
+                    public void take(Success success) {
+                        removeSensorsFromExperiment(idsToUnpair, onSuccess);
+                    }
+                }));
+    }
+
+    /**
+     * Pair to a new device.
+     *
+     * @param sensorKeys the known sensors on this device.  If there's only one, we assume that the
+     *                   user wants to add it to the current experiment, so we do so.  If there's
+     *                   >1, then we add it and display it expanded so the user can choose.
+     */
+    public void addMyDevice(InputDeviceSpec spec, final SensorRegistry sr,
+            final List<String> sensorKeys) {
+        mDataController.addMyDevice(spec,
                 new LoggingConsumer<Success>(TAG, "Forgetting device") {
                     @Override
                     public void success(Success success) {
-                        refresh(false, sr);
+                        if (sensorKeys.size() == 1) {
+                            pair(sensorKeys.get(0), sr);
+                        } else {
+                            refresh(false, sr);
+                        }
                     }
                 });
     }

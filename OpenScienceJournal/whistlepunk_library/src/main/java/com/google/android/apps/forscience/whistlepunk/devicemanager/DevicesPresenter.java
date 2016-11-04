@@ -26,8 +26,14 @@ public interface DevicesPresenter {
     void showDeviceOptions(String experimentId, String sensorId,
             PendingIntent externalSettingsIntent);
 
+    /**
+     * @return a display that shows "My Devices"
+     */
     SensorGroup getPairedSensorGroup();
 
+    /**
+     * @return a display that shows discovered devices that aren't in "My Devices"
+     */
     SensorGroup getAvailableSensorGroup();
 
     void unpair(String experimentId, String sensorId);

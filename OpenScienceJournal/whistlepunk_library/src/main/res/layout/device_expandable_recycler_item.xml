@@ -62,6 +62,6 @@
         android:contentDescription="@string/device_settings"
         android:scaleType="center"
         android:src="@drawable/ic_menu_moreoverflow_mtrl_alpha"
-        android:tint="@color/text_color_light_grey"
+        android:tint="@color/text_color_black"
         />
 </LinearLayout>

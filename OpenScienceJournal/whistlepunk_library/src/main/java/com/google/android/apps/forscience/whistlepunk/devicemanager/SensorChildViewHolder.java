@@ -16,9 +16,6 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -63,6 +60,7 @@ public class SensorChildViewHolder extends ChildViewHolder {
         mIcon.setImageDrawable(appearance.getIconDrawable(context));
 
         boolean paired = sensor.isPaired();
+        mPairedCheckbox.setOnCheckedChangeListener(null);
         mPairedCheckbox.setChecked(paired);
         updateCheckboxContentDescription(paired);
 
@@ -70,7 +68,7 @@ public class SensorChildViewHolder extends ChildViewHolder {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    registry.pair(sensorKey, mAppearanceProvider, sensorRegistry);
+                    registry.pair(sensorKey, sensorRegistry);
                 } else {
                     registry.unpair(sensorKey);
                 }

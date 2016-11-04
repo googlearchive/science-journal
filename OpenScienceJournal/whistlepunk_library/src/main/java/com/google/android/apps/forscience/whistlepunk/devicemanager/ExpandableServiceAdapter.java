@@ -197,7 +197,7 @@ public class ExpandableServiceAdapter extends
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // TODO: what?
+                    dws.addToRegistry(registry, mSensorRegistry);
                 }
             });
         }

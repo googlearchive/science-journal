@@ -53,7 +53,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     private static final String TAG = "MDRFragment";
 
     private ExpandableDeviceAdapter mMyDevices;
-    private DeviceAdapter mAvailableDevices;
+    private ExpandableServiceAdapter mAvailableDevices;
     private Menu mMainMenu;
     private ConnectableSensorRegistry mRegistry;
     private SensorRegistry mSensorRegistry;
@@ -67,15 +67,17 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
         DeviceRegistry deviceRegistry = new DeviceRegistry(
                 InputDeviceSpec.builtInDevice(getActivity()));
+        SensorAppearanceProvider appearanceProvider = appSingleton.getSensorAppearanceProvider();
         mRegistry = new ConnectableSensorRegistry(dc, discoverers, this, new SystemScheduler(),
                 new CurrentTimeClock(), ManageDevicesActivity.getOptionsListener(this
-                .getActivity()), deviceRegistry);
-        SensorAppearanceProvider appearanceProvider = appSingleton.getSensorAppearanceProvider();
+                .getActivity()), deviceRegistry, appearanceProvider);
         mSensorRegistry = appSingleton.getSensorRegistry();
+
         mMyDevices = ExpandableDeviceAdapter.createEmpty(mRegistry, deviceRegistry,
                 appearanceProvider, mSensorRegistry, 0);
-        mAvailableDevices = new DeviceAdapter(false, mRegistry, appearanceProvider,
-                mSensorRegistry);
+
+        mAvailableDevices = ExpandableServiceAdapter.createEmpty(mSensorRegistry, mRegistry, 1,
+                deviceRegistry);
         setHasOptionsMenu(true);
     }
 

@@ -36,7 +36,7 @@ public class ExpandableDeviceAdapterTest {
     private DeviceRegistry mDeviceRegistry = new DeviceRegistry(BUILT_IN_DEVICE);
     private DataController mDataController = InMemorySensorDatabase.makeSimpleController();
     private ConnectableSensorRegistry mSensorRegistry = new ConnectableSensorRegistry(
-            mDataController, null, null, null, null, null, null);
+            mDataController, null, null, null, null, null, null, null);
     private Scenario mScenario = new Scenario();
 
     private class Scenario {
@@ -125,7 +125,7 @@ public class ExpandableDeviceAdapterTest {
         DeviceParentListItem firstParent = (DeviceParentListItem) adapter.getParentItemList().get(
                 0);
         assertEquals(BUILT_IN_DEVICE.getName(), firstParent.getDeviceName());
-        observer.assertMostRecentNotification("Inserted 1 at 0");
+        observer.assertMostRecentNotification("Inserted 2 at 0");
     }
 
     @Test

@@ -16,7 +16,6 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.graphics.drawable.Drawable;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,7 +69,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
                     mRegistry.showDeviceOptions(sensorKey);
                 } else {
                     holder.setIsPairing();
-                    mRegistry.pair(sensorKey, mSensorAppearanceProvider, mSensorRegistry);
+                    mRegistry.pair(sensorKey, mSensorRegistry);
                 }
             }
         });

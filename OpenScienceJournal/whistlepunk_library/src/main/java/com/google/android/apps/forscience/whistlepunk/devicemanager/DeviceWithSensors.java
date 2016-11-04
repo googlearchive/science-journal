@@ -41,4 +41,9 @@ public class DeviceWithSensors {
     public boolean isSameSensor(InputDeviceSpec spec) {
         return mDevice.isSameSensor(spec);
     }
+
+    void addToRegistry(ConnectableSensorRegistry registry,
+            SensorRegistry sensorRegistry) {
+        registry.addMyDevice(mDevice, sensorRegistry, Lists.<String>newArrayList(mSensorKeys));
+    }
 }

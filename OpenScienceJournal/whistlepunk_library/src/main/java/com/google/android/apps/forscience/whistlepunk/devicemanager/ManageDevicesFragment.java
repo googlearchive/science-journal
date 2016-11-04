@@ -94,7 +94,8 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
         mConnectableSensorRegistry = new ConnectableSensorRegistry(dc, discoverers, this,
                 new SystemScheduler(), appSingleton.getSensorEnvironment().getDefaultClock(),
                 getOptionsListener(),
-                new DeviceRegistry(InputDeviceSpec.builtInDevice(getActivity())));
+                new DeviceRegistry(InputDeviceSpec.builtInDevice(getActivity())),
+                appearanceProvider);
 
         mSensorRegisty = appSingleton.getSensorRegistry();
     }
@@ -138,9 +139,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
             preference.setSummary(R.string.external_devices_pairing);
         }
         if (!mConnectableSensorRegistry.isPaired(sensorKey)) {
-            mConnectableSensorRegistry.pair(sensorKey,
-                    AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider(),
-                    mSensorRegisty);
+            mConnectableSensorRegistry.pair(sensorKey, mSensorRegisty);
         } else {
             mConnectableSensorRegistry.showDeviceOptions(sensorKey);
         }

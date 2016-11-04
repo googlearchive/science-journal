@@ -106,8 +106,11 @@ public class ExpandableDeviceAdapter extends
         boolean isReplacement = mSensorMap.containsKey(sensorKey);
         if (isReplacement) {
             mSensorMap.put(sensorKey, sensor);
-            notifyChildItemChanged(findParentIndex(sensorKey), findChildIndex(sensorKey));
-            return true;
+            int parentIndex = findParentIndex(sensorKey);
+            if (parentIndex >= 0) {
+                notifyChildItemChanged(findParentIndex(sensorKey), findChildIndex(sensorKey));
+                return true;
+            }
         }
         ExternalSensorSpec spec = sensor.getSpec();
 
