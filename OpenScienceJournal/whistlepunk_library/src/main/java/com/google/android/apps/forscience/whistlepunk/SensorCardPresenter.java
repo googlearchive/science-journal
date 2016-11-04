@@ -91,8 +91,8 @@ public class SensorCardPresenter {
             mHasError = hasError;
         }
 
-        public boolean isConnecting() {
-            return mSourceStatus == SensorStatusListener.STATUS_CONNECTING;
+        public boolean shouldShowConnecting() {
+            return mSourceStatus == SensorStatusListener.STATUS_CONNECTING && !mHasError;
         }
 
         public boolean isConnected() {
@@ -349,7 +349,7 @@ public class SensorCardPresenter {
         mCardViewHolder.meterViewGroup.setVisibility(View.INVISIBLE);
         mCardViewHolder.graphViewGroup.setVisibility(View.INVISIBLE);
 
-        if (mCardStatus.isConnecting()) {
+        if (mCardStatus.shouldShowConnecting()) {
             // Show a progress bar inside the card while connecting.
             mCardViewHolder.statusMessage.setText(
                     mCardViewHolder.getContext().getText(R.string.sensor_card_loading_text));
