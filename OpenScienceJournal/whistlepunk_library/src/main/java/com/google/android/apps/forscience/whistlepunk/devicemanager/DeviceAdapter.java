@@ -157,8 +157,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             mNameView.setText(appearance.getName(mNameView.getContext()));
 
             Drawable icon = appearance.getIconDrawable(mIcon.getContext());
-            DrawableCompat.setTint(icon,
-                    mIcon.getContext().getResources().getColor(R.color.color_accent));
             mIcon.setImageDrawable(icon);
 
             // TODO: need to get name
