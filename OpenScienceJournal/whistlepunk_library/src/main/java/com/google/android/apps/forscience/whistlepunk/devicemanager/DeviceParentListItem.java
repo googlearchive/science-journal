@@ -106,4 +106,8 @@ public class DeviceParentListItem implements ParentListItem {
         }
         return null;
     }
+
+    public InputDeviceSpec getSpec() {
+        return mSpec;
+    }
 }

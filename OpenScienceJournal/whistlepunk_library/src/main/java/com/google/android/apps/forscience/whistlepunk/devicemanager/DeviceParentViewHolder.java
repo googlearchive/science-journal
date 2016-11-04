@@ -18,13 +18,16 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.ToggleArrow;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.common.base.Supplier;
 
 import java.util.Map;
@@ -36,15 +39,28 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
     private final TextView mDeviceNameView;
     private final ImageView mDeviceIcon;
     private final ToggleArrow mCollapsedIcon;
+    private final ImageButton mMenuButton;
+    private final MenuCallbacks mMenuCallbacks;
+    private PopupMenu mPopupMenu;
 
-    public DeviceParentViewHolder(View itemView, Supplier<Integer> globalPositionOffset) {
+    /**
+     * Defines what to do when menu items are chosen.
+     */
+    public interface MenuCallbacks {
+        void forgetDevice(InputDeviceSpec spec);
+    }
+
+    public DeviceParentViewHolder(View itemView, Supplier<Integer> globalPositionOffset,
+            MenuCallbacks menuCallbacks) {
         super(itemView, globalPositionOffset);
         mDeviceNameView = (TextView) itemView.findViewById(R.id.device_name);
         mDeviceIcon = (ImageView) itemView.findViewById(R.id.device_icon);
         mCollapsedIcon = (ToggleArrow) itemView.findViewById(R.id.collapsed_icon);
+        mMenuButton = (ImageButton) itemView.findViewById(R.id.btn_device_overflow_menu);
+        mMenuCallbacks = menuCallbacks;
     }
 
-    public void bind(DeviceParentListItem item, Map<String, ConnectableSensor> sensorMap) {
+    public void bind(final DeviceParentListItem item, Map<String, ConnectableSensor> sensorMap) {
         mDeviceNameView.setText(item.getDeviceName());
         Context context = mDeviceIcon.getContext();
         Drawable icon = item.getDeviceIcon(context, sensorMap);
@@ -64,6 +80,42 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
                 itemView.callOnClick();
             }
         });
+
+        mMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDeviceMenu(item);
+            }
+        });
+    }
+
+    private void openDeviceMenu(final DeviceParentListItem listItem) {
+        if (mPopupMenu != null) {
+            return;
+        }
+        final Context context = mMenuButton.getContext();
+        mPopupMenu = new PopupMenu(context, mMenuButton);
+        mPopupMenu.getMenuInflater().inflate(R.menu.menu_device_recycler_item,
+                mPopupMenu.getMenu());
+
+        mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.btn_forget_device) {
+                    mMenuCallbacks.forgetDevice(listItem.getSpec());
+                    return true;
+                }
+                return false;
+            }
+        });
+        mPopupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+            @Override
+            public void onDismiss(PopupMenu menu) {
+                mPopupMenu = null;
+            }
+        });
+
+        mPopupMenu.show();
     }
 
     @Override

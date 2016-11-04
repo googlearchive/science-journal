@@ -66,7 +66,13 @@ public class ExpandableDeviceAdapter extends
             ViewGroup parentViewGroup) {
         View viewGroup = LayoutInflater.from(parentViewGroup.getContext()).inflate(
                 R.layout.device_expandable_recycler_item, parentViewGroup, false);
-        return new DeviceParentViewHolder(viewGroup, offsetSupplier());
+        return new DeviceParentViewHolder(viewGroup, offsetSupplier(),
+                new DeviceParentViewHolder.MenuCallbacks() {
+                    @Override
+                    public void forgetDevice(InputDeviceSpec spec) {
+                        mRegistry.forgetMyDevice(spec, mSensorRegistry);
+                    }
+                });
     }
 
     @Override
@@ -92,7 +98,7 @@ public class ExpandableDeviceAdapter extends
     public boolean hasSensorKey(String sensorKey) {
         return mSensorMap.containsKey(sensorKey);
     }
-    
+
     @Override
     public void addSensor(String sensorKey, ConnectableSensor sensor) {
         boolean isReplacement = mSensorMap.containsKey(sensorKey);
