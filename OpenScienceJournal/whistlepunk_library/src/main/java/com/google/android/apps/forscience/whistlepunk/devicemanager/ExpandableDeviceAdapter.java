@@ -44,16 +44,17 @@ public class ExpandableDeviceAdapter extends
 
     public static ExpandableDeviceAdapter createEmpty(final ConnectableSensorRegistry registry,
             DeviceRegistry deviceRegistry, SensorAppearanceProvider appearanceProvider,
-            SensorRegistry sensorRegistry) {
+            SensorRegistry sensorRegistry, int uniqueId) {
         return new ExpandableDeviceAdapter(registry,
                 new ArrayList<DeviceParentListItem>(), deviceRegistry, appearanceProvider,
-                sensorRegistry);
+                sensorRegistry, uniqueId);
     }
 
     private ExpandableDeviceAdapter(final ConnectableSensorRegistry registry,
             List<DeviceParentListItem> deviceParents, DeviceRegistry deviceRegistry,
-            SensorAppearanceProvider appearanceProvider, SensorRegistry sensorRegistry) {
-        super(deviceParents);
+            SensorAppearanceProvider appearanceProvider, SensorRegistry sensorRegistry,
+            int uniqueId) {
+        super(deviceParents, uniqueId);
         mRegistry = Preconditions.checkNotNull(registry);
         mDeviceParents = deviceParents;
         mDeviceRegistry = deviceRegistry;
@@ -100,30 +101,85 @@ public class ExpandableDeviceAdapter extends
     }
 
     @Override
-    public void addSensor(String sensorKey, ConnectableSensor sensor) {
+    public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
+        // TODO: can we reduce the duplication with addSensor?
         boolean isReplacement = mSensorMap.containsKey(sensorKey);
-        mSensorMap.put(sensorKey, sensor);
         if (isReplacement) {
+            mSensorMap.put(sensorKey, sensor);
             notifyChildItemChanged(findParentIndex(sensorKey), findChildIndex(sensorKey));
-            return;
+            return true;
         }
         ExternalSensorSpec spec = sensor.getSpec();
 
         // Do we already have an item for this device?  If so, add the sensor there.
         InputDeviceSpec device = mDeviceRegistry.getDevice(spec);
+        int i = findDevice(device);
+        if (i >= 0) {
+            mSensorMap.put(sensorKey, sensor);
+            addSensorToDevice(i, sensorKey);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void addSensorToDevice(int deviceIndex, String sensorKey) {
+        DeviceParentListItem parent = mDeviceParents.get(deviceIndex);
+        parent.addSensor(sensorKey);
+        notifyChildItemInserted(deviceIndex, parent.getChildItemList().size() - 1);
+    }
+
+    @Override
+    public void addSensor(String sensorKey, ConnectableSensor sensor) {
+        boolean addedToMyDevice = addAvailableSensor(sensorKey, sensor);
+        mSensorMap.put(sensorKey, sensor);
+        if (!addedToMyDevice) {
+            // Otherwise, add a new device item.
+            InputDeviceSpec device = mDeviceRegistry.getDevice(sensor.getSpec());
+            DeviceParentListItem item = new DeviceParentListItem(device, mAppearanceProvider);
+            item.addSensor(sensorKey);
+            addDevice(item);
+        }
+    }
+
+    private int findDevice(InputDeviceSpec device) {
         for (int i = 0; i < mDeviceParents.size(); i++) {
             DeviceParentListItem parent = mDeviceParents.get(i);
             if (parent.isDevice(device)) {
-                parent.addSensor(sensorKey);
-                notifyChildItemInserted(i, parent.getChildItemList().size() - 1);
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
+        // Don't need anything here; we'll grab from DeviceRegistry if this is My Device
+    }
+
+    @Override
+    public void setMyDevices(List<InputDeviceSpec> myDevices) {
+        List<InputDeviceSpec> unaccountedDevices = new ArrayList<>(myDevices);
+
+        for (int i = mDeviceParents.size() - 1; i >= 0; i--) {
+            removeUnlessPresent(i, unaccountedDevices);
+        }
+
+        for (InputDeviceSpec unaccountedDevice : unaccountedDevices) {
+            addDevice(new DeviceParentListItem(unaccountedDevice, mAppearanceProvider));
+        }
+    }
+
+    private void removeUnlessPresent(int i, List<InputDeviceSpec> unaccountedDevices) {
+        DeviceParentListItem parent = mDeviceParents.get(i);
+        for (int j = unaccountedDevices.size() - 1; j >= 0; j--) {
+            if (parent.isDevice(unaccountedDevices.get(j))) {
+                unaccountedDevices.remove(j);
                 return;
             }
         }
-
-        // Otherwise, add a new device item.
-        DeviceParentListItem item = new DeviceParentListItem(device, mAppearanceProvider);
-        item.addSensor(sensorKey);
-        addDevice(item);
+        mDeviceParents.remove(i);
+        notifyParentItemRemoved(i);
     }
 
     private void addDevice(DeviceParentListItem item) {
@@ -191,10 +247,5 @@ public class ExpandableDeviceAdapter extends
     @Override
     public void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service) {
         // This view doesn't track services
-    }
-
-    @Override
-    public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
-        // Don't need anything here; we'll grab from DeviceRegistry if this is My Device
     }
 }

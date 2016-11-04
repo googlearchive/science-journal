@@ -73,7 +73,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
         SensorAppearanceProvider appearanceProvider = appSingleton.getSensorAppearanceProvider();
         mSensorRegistry = appSingleton.getSensorRegistry();
         mMyDevices = ExpandableDeviceAdapter.createEmpty(mRegistry, deviceRegistry,
-                appearanceProvider, mSensorRegistry);
+                appearanceProvider, mSensorRegistry, 0);
         mAvailableDevices = new DeviceAdapter(false, mRegistry, appearanceProvider,
                 mSensorRegistry);
         setHasOptionsMenu(true);

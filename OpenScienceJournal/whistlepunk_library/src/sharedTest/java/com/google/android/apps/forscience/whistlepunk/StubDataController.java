@@ -285,4 +285,9 @@ public class StubDataController implements DataController {
     public void forgetMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess) {
 
     }
+
+    @Override
+    public void addMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess) {
+
+    }
 }

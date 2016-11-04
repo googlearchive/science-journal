@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
@@ -133,6 +134,17 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     @Override
     public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
         // This view doesn't track devices
+    }
+
+    @Override
+    public void setMyDevices(List<InputDeviceSpec> device) {
+        // This view doesn't track devices
+    }
+
+    @Override
+    public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
+        // This view doesn't track devices
+        return false;
     }
 
     public void setProgress(boolean isScanning) {
