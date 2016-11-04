@@ -28,6 +28,7 @@ import android.text.TextUtils;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -174,8 +175,8 @@ public class TriggerHelper {
         autoTextView.setText(autoText);
         autoTextView.setContentDescription(res.getString(
                 R.string.trigger_label_icon_content_description, autoText));
-        Drawable drawable = res.getDrawable(drawableId);
-        DrawableCompat.setTint(drawable.mutate(), res.getColor(R.color.text_color_light_grey));
+        Drawable drawable = ColorUtils.colorDrawable(autoTextView.getContext(),
+                res.getDrawable(drawableId), R.color.text_color_light_grey);
         autoTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null,
                 null);
     }

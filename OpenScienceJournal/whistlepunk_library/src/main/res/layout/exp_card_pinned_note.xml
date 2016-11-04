@@ -109,6 +109,7 @@
             android:layout_alignParentTop="true"
             android:background="@android:color/transparent"
             android:scaleType="center"
+            android:tint="@color/text_color_light_grey"
             />
 
     </RelativeLayout>

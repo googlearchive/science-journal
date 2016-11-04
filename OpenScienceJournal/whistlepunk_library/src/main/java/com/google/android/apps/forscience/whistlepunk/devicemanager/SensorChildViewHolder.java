@@ -16,14 +16,15 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -38,7 +39,7 @@ import java.util.Map;
  */
 public class SensorChildViewHolder extends ChildViewHolder {
     private final TextView mNameView;
-    private final ToggleButton mPairedCheckbox;
+    private final CheckBox mPairedCheckbox;
     private final SensorAppearanceProvider mAppearanceProvider;
     private final ImageButton mSettingsGear;
     private final ImageView mIcon;
@@ -46,7 +47,7 @@ public class SensorChildViewHolder extends ChildViewHolder {
     public SensorChildViewHolder(View itemView, SensorAppearanceProvider appearanceProvider) {
         super(itemView);
         mNameView = (TextView) itemView.findViewById(R.id.sensor_name);
-        mPairedCheckbox = (ToggleButton) itemView.findViewById(R.id.paired_checkbox);
+        mPairedCheckbox = (CheckBox) itemView.findViewById(R.id.paired_checkbox);
         mSettingsGear = (ImageButton) itemView.findViewById(R.id.settings_gear);
         mIcon = (ImageView) itemView.findViewById(R.id.sensor_icon);
         mAppearanceProvider = appearanceProvider;
@@ -59,16 +60,12 @@ public class SensorChildViewHolder extends ChildViewHolder {
         Context context = itemView.getContext();
         mNameView.setText(appearance.getName(context));
 
-        Drawable icon = appearance.getIconDrawable(context);
-        DrawableCompat.setTint(icon,
-                context.getResources().getColor(R.color.text_color_light_grey));
-        mIcon.setImageDrawable(icon);
+        mIcon.setImageDrawable(appearance.getIconDrawable(context));
 
         boolean paired = sensor.isPaired();
         mPairedCheckbox.setChecked(paired);
         updateCheckboxContentDescription(paired);
-        DrawableCompat.setTint(mPairedCheckbox.getBackground(),
-                context.getResources().getColor(R.color.color_accent));
+
         mPairedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -89,8 +86,6 @@ public class SensorChildViewHolder extends ChildViewHolder {
             }
         });
 
-        DrawableCompat.setTint(mSettingsGear.getDrawable(),
-                context.getResources().getColor(R.color.color_accent));
         mSettingsGear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

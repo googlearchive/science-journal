@@ -91,6 +91,7 @@
                 android:layout_marginTop="@dimen/sensor_card_header_btn_margin"
                 android:background="@android:color/transparent"
                 android:visibility="visible"
+                android:tint="@color/text_color_white"
                 />
 
             <Space
@@ -111,6 +112,7 @@
                 android:layout_marginTop="@dimen/sensor_card_header_btn_margin"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/btn_sensor_flip_info_content_description"
+                android:tint="@color/text_color_white"
                 />
 
             <ImageButton

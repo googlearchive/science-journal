@@ -29,7 +29,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.NavUtils;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -37,7 +36,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -58,6 +56,7 @@ import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
+import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
@@ -1239,8 +1238,11 @@ public class ExperimentDetailsFragment extends Fragment
                     runTitle = (TextView) itemView.findViewById(R.id.run_title_text);
                     date = (RelativeTimeTextView) itemView.findViewById(R.id.run_details_text);
                     noteCount = (TextView) itemView.findViewById(R.id.notes_count);
-                    DrawableCompat.setTint(noteCount.getCompoundDrawablesRelative()[0].mutate(),
-                            noteCount.getResources().getColor(R.color.text_color_light_grey));
+                    // Set color programatically because this is a compound drawable and
+                    // android:drawableTint starts in API 23.
+                    ColorUtils.colorDrawable(noteCount.getContext(),
+                            noteCount.getCompoundDrawablesRelative()[0],
+                            R.color.text_color_light_grey);
                     duration = (TextView) itemView.findViewById(R.id.run_review_duration);
                     statsList = (StatsList) itemView.findViewById(R.id.stats_view);
                     sensorName = (TextView) itemView.findViewById(R.id.run_review_sensor_name);
