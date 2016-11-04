@@ -16,6 +16,8 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -45,10 +47,23 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
     public void bind(DeviceParentListItem item, Map<String, ConnectableSensor> sensorMap) {
         mDeviceNameView.setText(item.getDeviceName());
         Context context = mDeviceIcon.getContext();
-        mDeviceIcon.setImageDrawable(item.getDeviceIcon(context, sensorMap));
+        Drawable icon = item.getDeviceIcon(context, sensorMap);
+        DrawableCompat.setTint(icon, context.getResources().getColor(R.color.color_accent));
+        mDeviceIcon.setImageDrawable(icon);
+
+        DrawableCompat.setTint(mCollapsedIcon.getDrawable(),
+                context.getResources().getColor(R.color.text_color_light_grey));
         mCollapsedIcon.setActionStrings(R.string.btn_expand_device,
                 R.string.btn_contract_device);
         mCollapsedIcon.setActive(item.isInitiallyExpanded(), false);
+        mCollapsedIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // The ImageButton steals the clicks from the row, so get the clicks back
+                // with this listener!
+                itemView.callOnClick();
+            }
+        });
     }
 
     @Override

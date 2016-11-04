@@ -15,10 +15,15 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -33,15 +38,17 @@ import java.util.Map;
  */
 public class SensorChildViewHolder extends ChildViewHolder {
     private final TextView mNameView;
-    private final CheckBox mPairedCheckbox;
+    private final ToggleButton mPairedCheckbox;
     private final SensorAppearanceProvider mAppearanceProvider;
-    private final View mSettingsGear;
+    private final ImageButton mSettingsGear;
+    private final ImageView mIcon;
 
     public SensorChildViewHolder(View itemView, SensorAppearanceProvider appearanceProvider) {
         super(itemView);
         mNameView = (TextView) itemView.findViewById(R.id.sensor_name);
-        mPairedCheckbox = (CheckBox) itemView.findViewById(R.id.paired_checkbox);
-        mSettingsGear = itemView.findViewById(R.id.settings_gear);
+        mPairedCheckbox = (ToggleButton) itemView.findViewById(R.id.paired_checkbox);
+        mSettingsGear = (ImageButton) itemView.findViewById(R.id.settings_gear);
+        mIcon = (ImageView) itemView.findViewById(R.id.sensor_icon);
         mAppearanceProvider = appearanceProvider;
     }
 
@@ -49,13 +56,19 @@ public class SensorChildViewHolder extends ChildViewHolder {
             final ConnectableSensorRegistry registry, final SensorRegistry sensorRegistry) {
         ConnectableSensor sensor = sensorMap.get(sensorKey);
         SensorAppearance appearance = sensor.getAppearance(mAppearanceProvider);
-        mNameView.setText(appearance.getName(mNameView.getContext()));
+        Context context = itemView.getContext();
+        mNameView.setText(appearance.getName(context));
+
+        Drawable icon = appearance.getIconDrawable(context);
+        DrawableCompat.setTint(icon,
+                context.getResources().getColor(R.color.text_color_light_grey));
+        mIcon.setImageDrawable(icon);
+
         boolean paired = sensor.isPaired();
         mPairedCheckbox.setChecked(paired);
-        mPairedCheckbox.setContentDescription(mPairedCheckbox.getResources().getString(
-                paired ? R.string.remove_device_from_experiment_checkbox
-                        : R.string.add_device_to_experiment_checkbox));
-
+        updateCheckboxContentDescription(paired);
+        DrawableCompat.setTint(mPairedCheckbox.getBackground(),
+                context.getResources().getColor(R.color.color_accent));
         mPairedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -64,9 +77,20 @@ public class SensorChildViewHolder extends ChildViewHolder {
                 } else {
                     registry.unpair(sensorKey);
                 }
+                updateCheckboxContentDescription(isChecked);
             }
         });
 
+        // Clicking anywhere on the row can change the checked state of the checkbox.
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPairedCheckbox.setChecked(!mPairedCheckbox.isChecked());
+            }
+        });
+
+        DrawableCompat.setTint(mSettingsGear.getDrawable(),
+                context.getResources().getColor(R.color.color_accent));
         mSettingsGear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,5 +98,11 @@ public class SensorChildViewHolder extends ChildViewHolder {
                 registry.showDeviceOptions(sensorKey);
             }
         });
+    }
+
+    private void updateCheckboxContentDescription(boolean isChecked) {
+        mPairedCheckbox.setContentDescription(mPairedCheckbox.getResources().getString(
+                isChecked ? R.string.remove_device_from_experiment_checkbox
+                        : R.string.add_device_to_experiment_checkbox));
     }
 }
