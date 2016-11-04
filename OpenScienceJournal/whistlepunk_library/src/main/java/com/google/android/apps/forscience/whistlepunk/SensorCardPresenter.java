@@ -454,8 +454,6 @@ public class SensorCardPresenter {
 
         updateRecordingUi();
 
-        mCardViewHolder.toggleButton.setActionStrings(R.string.btn_sensor_card_expand,
-                R.string.btn_sensor_card_contract);
         mCardViewHolder.headerText.setText(mSensorDisplayName);
         mCardViewHolder.meterLiveDataUnits.setText(mUnits);
         if (!TextUtils.isEmpty(mSensorId)) {

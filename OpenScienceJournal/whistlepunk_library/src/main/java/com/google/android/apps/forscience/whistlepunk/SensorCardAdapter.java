@@ -182,6 +182,8 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             cardViewHolder.toggleButton.makeTouchDelegate());
                 }
             });
+            cardViewHolder.toggleButton.setActionStrings(R.string.btn_sensor_card_expand,
+                    R.string.btn_sensor_card_contract);
             return cardViewHolder;
         } else if (viewType == TYPE_SENSOR_ADD) {
             mAddView = LayoutInflater.from(parent.getContext()).inflate(
