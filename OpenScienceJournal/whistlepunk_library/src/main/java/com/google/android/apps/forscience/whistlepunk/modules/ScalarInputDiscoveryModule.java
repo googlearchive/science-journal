@@ -55,14 +55,6 @@ public class ScalarInputDiscoveryModule {
 
     @NonNull
     private Consumer<AppDiscoveryCallbacks> chooseFinder(Context context) {
-        boolean enabled = DevOptionsFragment.isThirdPartyDiscoveryEnabled(context);
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Third party sensor discovery enabled? " + enabled);
-        }
-        if (enabled) {
-            return new ScalarSensorServiceFinder(context);
-        } else {
-            return NULL_FINDER;
-        }
+        return new ScalarSensorServiceFinder(context);
     }
 }

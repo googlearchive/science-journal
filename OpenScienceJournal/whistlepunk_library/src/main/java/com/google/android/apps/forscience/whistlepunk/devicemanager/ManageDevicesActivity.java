@@ -110,11 +110,7 @@ public class ManageDevicesActivity extends AppCompatActivity implements
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         Fragment fragment;
         if (adapter.isEnabled() && ScanDisabledFragment.hasScanPermission(this)) {
-            if (DevOptionsFragment.shouldUseNewManageDevicesUx(this)) {
-                fragment = new ManageDevicesRecyclerFragment();
-            } else {
-                fragment = new ManageDevicesFragment();
-            }
+            fragment = new ManageDevicesRecyclerFragment();
             mManageFragment = (ManageFragment) fragment;
         } else {
             fragment = new ScanDisabledFragment();

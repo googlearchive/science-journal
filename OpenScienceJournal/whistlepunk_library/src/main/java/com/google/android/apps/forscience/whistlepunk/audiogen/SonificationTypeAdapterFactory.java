@@ -31,14 +31,14 @@ public class SonificationTypeAdapterFactory {
     public static final String DEFAULT_SONIFICATION_TYPE = "d2p";
     public static final String SCALE_SONIFICATION_TYPE = "d2ps";
     public static final String NOTES_SONIFICATION_TYPE = "d2pe";
-    public static final String AMPLITUDE_SONIFICATION_TYPE = "d2a";
     public static final String CONDUCTOR_SONIFICATION_TYPE = "conductor";
+    public static final String AMPLITUDE_SONIFICATION_TYPE = "d2a";
 
     // The sonification types available. This MUST be in the same order as the string arrays
     // sonification_types_prod + sonification_types_dev.
     public static final String[] SONIFICATION_TYPES = new String[]{DEFAULT_SONIFICATION_TYPE,
-            SCALE_SONIFICATION_TYPE, NOTES_SONIFICATION_TYPE, AMPLITUDE_SONIFICATION_TYPE,
-            CONDUCTOR_SONIFICATION_TYPE};
+            SCALE_SONIFICATION_TYPE, NOTES_SONIFICATION_TYPE, CONDUCTOR_SONIFICATION_TYPE,
+            AMPLITUDE_SONIFICATION_TYPE};
 
     public static JsynUnitVoiceAdapterInterface getSonificationTypeAdapter(
             Synthesizer synth, String sonification_type) {

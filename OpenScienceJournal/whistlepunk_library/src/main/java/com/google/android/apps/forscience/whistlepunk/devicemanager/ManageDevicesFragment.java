@@ -42,6 +42,7 @@ import java.util.Map;
 /**
  * Searches for Bluetooth LE devices that are supported.
  */
+// TODO: Delete this file after (or for) C release.
 public class ManageDevicesFragment extends PreferenceFragment implements DevicesPresenter,
         ManageFragment {
     private static final String PREF_KEY_PAIRED_DEVICES = "paired_devices";
