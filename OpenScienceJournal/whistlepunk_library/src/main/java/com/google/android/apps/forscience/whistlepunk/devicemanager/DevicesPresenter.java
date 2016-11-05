@@ -23,8 +23,8 @@ import android.app.PendingIntent;
 public interface DevicesPresenter {
     void refreshScanningUI();
 
-    void showDeviceOptions(String experimentId, String sensorId,
-            PendingIntent externalSettingsIntent);
+    void showSensorOptions(String experimentId, String sensorId,
+            ExternalSensorDiscoverer.SettingsInterface settings);
 
     /**
      * @return a display that shows "My Devices"

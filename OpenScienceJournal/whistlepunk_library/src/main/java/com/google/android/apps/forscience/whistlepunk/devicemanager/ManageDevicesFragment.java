@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.app.PendingIntent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
@@ -141,7 +140,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
         if (!mConnectableSensorRegistry.isPaired(sensorKey)) {
             mConnectableSensorRegistry.pair(sensorKey, mSensorRegisty);
         } else {
-            mConnectableSensorRegistry.showDeviceOptions(sensorKey);
+            mConnectableSensorRegistry.showSensorOptions(sensorKey);
         }
         return true;
     }
@@ -195,8 +194,8 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
     }
 
     @Override
-    public void showDeviceOptions(String experimentId, String sensorId,
-            PendingIntent externalSettingsIntent) {
+    public void showSensorOptions(String experimentId, String sensorId,
+            ExternalSensorDiscoverer.SettingsInterface settings) {
         if (! isResumed()) {
             // Fragment has paused between pairing and popping up options.
             // TODO: if the sensor says that immediate options must be shown, then in this case
@@ -204,9 +203,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
             //       up on resume.
             return;
         }
-        DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId, sensorId,
-                externalSettingsIntent);
-        dialog.show(getFragmentManager(), "edit_device");
+        settings.show(experimentId, sensorId, getFragmentManager(), true);
     }
 
     @Override

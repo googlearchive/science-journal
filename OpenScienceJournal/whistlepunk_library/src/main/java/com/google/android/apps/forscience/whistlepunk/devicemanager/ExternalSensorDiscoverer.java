@@ -30,10 +30,15 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
  * One way of discovering additional sensors that can be added to an experiment
  */
 public interface ExternalSensorDiscoverer {
+    public interface SettingsInterface {
+        public void show(String experimentId, String sensorId, FragmentManager fragmentManager,
+                boolean showForgetButton);
+    }
+
     public interface DiscoveredSensor {
         ExternalSensorSpec getSpec();
 
-        PendingIntent getSettingsIntent();
+        SettingsInterface getSettingsInterface();
     }
 
     public interface ServiceConnectionError {

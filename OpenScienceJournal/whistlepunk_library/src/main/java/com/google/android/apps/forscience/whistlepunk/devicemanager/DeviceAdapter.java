@@ -66,7 +66,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             @Override
             public void onClick(View v) {
                 if (mIsPaired) {
-                    mRegistry.showDeviceOptions(sensorKey);
+                    mRegistry.showSensorOptions(sensorKey);
                 } else {
                     holder.setIsPairing();
                     mRegistry.pair(sensorKey, mSensorRegistry);

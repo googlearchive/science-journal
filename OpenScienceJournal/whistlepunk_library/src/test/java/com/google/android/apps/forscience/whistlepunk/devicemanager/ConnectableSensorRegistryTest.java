@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import android.app.PendingIntent;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Scheduler;
@@ -156,7 +155,7 @@ public class ConnectableSensorRegistryTest {
         dc.addSensorToExperiment(experimentId, sensorId, TestConsumers.<Success>expectingSuccess());
 
         registry.setExperimentId(experimentId, mSensorRegistry);
-        registry.showDeviceOptions(mPairedDevices.getKey(0));
+        registry.showSensorOptions(mPairedDevices.getKey(0));
         assertEquals(experimentId, mPresenter.experimentId);
         assertEquals(sensorId, mPresenter.sensorId);
     }
@@ -472,8 +471,8 @@ public class ConnectableSensorRegistryTest {
         }
 
         @Override
-        public void showDeviceOptions(String experimentId, String sensorId,
-                PendingIntent externalSettingsIntent) {
+        public void showSensorOptions(String experimentId, String sensorId,
+                ExternalSensorDiscoverer.SettingsInterface settings) {
             this.experimentId = experimentId;
             this.sensorId = sensorId;
         }

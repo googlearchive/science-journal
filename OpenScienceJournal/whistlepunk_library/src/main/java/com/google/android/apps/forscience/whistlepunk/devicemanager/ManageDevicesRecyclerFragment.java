@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.Fragment;
-import android.app.PendingIntent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -207,8 +206,8 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     }
 
     @Override
-    public void showDeviceOptions(String experimentId, String sensorId,
-            PendingIntent externalSettingsIntent) {
+    public void showSensorOptions(String experimentId, String sensorId,
+            ExternalSensorDiscoverer.SettingsInterface settings) {
         if (!isResumed()) {
             // Fragment has paused between pairing and popping up options.
             // TODO: if the sensor says that immediate options must be shown, then in this case
@@ -216,9 +215,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
             //       up on resume.
             return;
         }
-        DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId, sensorId,
-                externalSettingsIntent);
-        dialog.show(getFragmentManager(), "edit_device");
+        settings.show(experimentId, sensorId, getFragmentManager(), false);
     }
 
     @Override

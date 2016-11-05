@@ -121,4 +121,8 @@ public class DeviceParentListItem implements ParentListItem {
     public void setIsCurrentlyExpanded(boolean isNowExpanded) {
         mIsNowExpanded = isNowExpanded;
     }
+
+    public boolean canForget(DeviceRegistry deviceRegistry) {
+        return !isPhoneSensorParent(deviceRegistry);
+    }
 }

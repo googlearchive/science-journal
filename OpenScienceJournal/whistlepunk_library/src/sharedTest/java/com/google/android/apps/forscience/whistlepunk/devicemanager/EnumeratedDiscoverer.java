@@ -21,6 +21,8 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
+import java.util.Set;
+
 public class EnumeratedDiscoverer extends StubSensorDiscoverer {
     private final ExternalSensorSpec[] mSpecs;
 
@@ -45,7 +47,7 @@ public class EnumeratedDiscoverer extends StubSensorDiscoverer {
             }
 
             @Override
-            public PendingIntent getSettingsIntent() {
+            public SettingsInterface getSettingsInterface() {
                 return null;
             }
         };

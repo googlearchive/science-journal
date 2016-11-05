@@ -15,7 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.app.PendingIntent;
 import android.support.annotation.NonNull;
 import android.util.ArrayMap;
 
@@ -59,7 +58,8 @@ public class ConnectableSensorRegistry {
 
     private final DevicesPresenter mPresenter;
     private final Map<String, ConnectableSensor> mSensors = new ArrayMap<>();
-    private final Map<String, PendingIntent> mSettingsIntents = new ArrayMap<>();
+    private final Map<String, ExternalSensorDiscoverer.SettingsInterface>
+            mSettingsIntents = new ArrayMap<>();
     private final Scheduler mScheduler;
     private boolean mScanning = false;
     private int mScanCount = 0;
@@ -91,7 +91,7 @@ public class ConnectableSensorRegistry {
     }
 
     public void pair(String sensorKey, final SensorRegistry sr) {
-        final PendingIntent settingsIntent = mSettingsIntents.get(sensorKey);
+        final ExternalSensorDiscoverer.SettingsInterface settings = mSettingsIntents.get(sensorKey);
         addExternalSensorIfNecessary(sensorKey, getPairedGroup().getSensorCount(),
                 new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
                     @Override
@@ -101,9 +101,10 @@ public class ConnectableSensorRegistry {
                                     @Override
                                     public void success(Success value) {
                                         refresh(false, sr);
-                                        if (sensor.shouldShowOptionsOnConnect()) {
-                                            mPresenter.showDeviceOptions(mExperimentId,
-                                                    sensor.getConnectedSensorId(), settingsIntent);
+                                        if (sensor.shouldShowOptionsOnConnect()
+                                                && settings != null) {
+                                            mPresenter.showSensorOptions(mExperimentId,
+                                                    sensor.getConnectedSensorId(), settings);
                                         }
                                     }
                                 });
@@ -153,8 +154,8 @@ public class ConnectableSensorRegistry {
 
     // TODO: clear available sensors that are not seen on subsequent scans (b/31644042)
 
-    public void showDeviceOptions(String uiSensorKey) {
-        mPresenter.showDeviceOptions(mExperimentId, getSensor(uiSensorKey).getConnectedSensorId(),
+    public void showSensorOptions(String uiSensorKey) {
+        mPresenter.showSensorOptions(mExperimentId, getSensor(uiSensorKey).getConnectedSensorId(),
                 mSettingsIntents.get(uiSensorKey));
     }
 
@@ -273,18 +274,19 @@ public class ConnectableSensorRegistry {
         } else {
             sensor = mSensors.get(sensorKey);
             if (getPairedGroup().addAvailableSensor(sensorKey, sensor)) {
-                // My Devices is claiming the sensor
+                // My Devices is claiming the sensor, make sure the settings gear is enabled.
+                mSettingsIntents.put(sensorKey, ds.getSettingsInterface());
                 return;
             }
             if (!sensor.isPaired()) {
                 availableKeysSeen.add(sensorKey);
                 if (!getAvailableGroup().hasSensorKey(sensorKey)) {
-                    registerSensor(sensorKey, sensor, ds.getSettingsIntent());
+                    registerSensor(sensorKey, sensor, ds.getSettingsInterface());
                     getAvailableGroup().addSensor(sensorKey, sensor);
                 }
             } else {
                 // TODO: UI feedback
-                mSettingsIntents.put(sensorKey, ds.getSettingsIntent());
+                mSettingsIntents.put(sensorKey, ds.getSettingsInterface());
                 if (!newSpec.isSameSensorAndSpec(sensor.getSpec())) {
                     final String oldSensorId = sensor.getConnectedSensorId();
                     DeviceOptionsViewController.maybeReplaceSensor(mDataController, mExperimentId,
@@ -355,12 +357,12 @@ public class ConnectableSensorRegistry {
 
     @NonNull
     private String registerSensor(String key, ConnectableSensor sensor,
-            PendingIntent settingsIntent) {
+            ExternalSensorDiscoverer.SettingsInterface settingsInterface) {
         if (key == null) {
             key = EXTERNAL_SENSOR_KEY_PREFIX + (mKeyNum++);
         }
         mSensors.put(key, sensor);
-        mSettingsIntents.put(key, settingsIntent);
+        mSettingsIntents.put(key, settingsInterface);
         return key;
     }
 
@@ -493,5 +495,9 @@ public class ConnectableSensorRegistry {
                         }
                     }
                 });
+    }
+
+    public boolean hasOptions(String sensorKey) {
+        return mSettingsIntents.containsKey(sensorKey) && mSettingsIntents.get(sensorKey) != null;
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
+import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -251,8 +252,21 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                             }
 
                             @Override
-                            public PendingIntent getSettingsIntent() {
-                                return behavior == null ? null : behavior.settingsIntent;
+                            public SettingsInterface getSettingsInterface() {
+                                return behavior == null ? null : new SettingsInterface() {
+                                    @Override
+                                    public void show(String experimentId, String sensorId,
+                                            FragmentManager fragmentManager,
+                                            boolean showForgetButton) {
+                                        try {
+                                            behavior.settingsIntent.send();
+                                        } catch (PendingIntent.CanceledException e) {
+                                            if (Log.isLoggable(TAG, Log.ERROR)) {
+                                                Log.e(TAG, "Could not open settings", e);
+                                            }
+                                        }
+                                    }
+                                };
                             }
                         });
                     }

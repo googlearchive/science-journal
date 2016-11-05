@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.FragmentManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
@@ -193,8 +192,16 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
             }
 
             @Override
-            public PendingIntent getSettingsIntent() {
-                return null;
+            public SettingsInterface getSettingsInterface() {
+                return new SettingsInterface() {
+                    @Override
+                    public void show(String experimentId, String sensorId,
+                            FragmentManager fragmentManager, boolean showForgetButton) {
+                        DeviceOptionsDialog dialog = DeviceOptionsDialog.newInstance(experimentId,
+                                sensorId, null, showForgetButton);
+                        dialog.show(fragmentManager, "edit_device");
+                    }
+                };
             }
         });
     }

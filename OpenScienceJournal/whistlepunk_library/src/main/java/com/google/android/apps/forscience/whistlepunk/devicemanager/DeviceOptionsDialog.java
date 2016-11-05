@@ -42,6 +42,7 @@ public class DeviceOptionsDialog extends DialogFragment {
     private static final String KEY_EXPERIMENT_ID = "experiment_id";
     private static final String KEY_SENSOR_ID = "sensor_id";
     private static final String KEY_SETTINGS_INTENT = "settings_intent";
+    private static final String KEY_SHOW_FORGET = "show_forget";
     public static final DeviceOptionsListener NULL_LISTENER = new DeviceOptionsListener() {
         @Override
         public void onExperimentSensorReplaced(String oldSensorId, String newSensorId) {
@@ -77,11 +78,12 @@ public class DeviceOptionsDialog extends DialogFragment {
     private DeviceOptionsViewController mViewController;
 
     public static DeviceOptionsDialog newInstance(String experimentId, String sensorId,
-            PendingIntent externalSettingsIntent) {
+            PendingIntent externalSettingsIntent, boolean showForgetButton) {
         Bundle args = new Bundle();
         args.putString(KEY_EXPERIMENT_ID, experimentId);
         args.putString(KEY_SENSOR_ID, sensorId);
         args.putParcelable(KEY_SETTINGS_INTENT, externalSettingsIntent);
+        args.putBoolean(KEY_SHOW_FORGET, showForgetButton);
 
         DeviceOptionsDialog dialog = new DeviceOptionsDialog();
         dialog.setArguments(args);
@@ -104,6 +106,7 @@ public class DeviceOptionsDialog extends DialogFragment {
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         final String sensorId = getArguments().getString(KEY_SENSOR_ID);
         final PendingIntent settingsIntent = getArguments().getParcelable(KEY_SETTINGS_INTENT);
+        boolean showForget = getArguments().getBoolean(KEY_SHOW_FORGET);
         DialogInterface.OnClickListener onOK;
         View view;
         if (settingsIntent == null) {
@@ -151,14 +154,16 @@ public class DeviceOptionsDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setTitle(R.string.external_devices_settings_title)
-                .setPositiveButton(R.string.external_devices_settings_ok, onOK)
-                .setNegativeButton(R.string.external_devices_settings_forget,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                removeDeviceFromExperiment();
-                            }
-                        });
+                .setPositiveButton(R.string.external_devices_settings_ok, onOK);
+        if (showForget) {
+            builder.setNegativeButton(R.string.external_devices_settings_forget,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            removeDeviceFromExperiment();
+                        }
+            });
+        }
         return builder.create();
     }
 

@@ -84,13 +84,20 @@ public class SensorChildViewHolder extends ChildViewHolder {
             }
         });
 
-        mSettingsGear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: this should really be called showSensorOptions.
-                registry.showDeviceOptions(sensorKey);
-            }
-        });
+        boolean hasOptions = registry.hasOptions(sensorKey);
+        if (hasOptions) {
+            mSettingsGear.setVisibility(View.VISIBLE);
+            mSettingsGear.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // TODO: this should really be called showSensorOptions.
+                    registry.showSensorOptions(sensorKey);
+                }
+            });
+        } else {
+            mSettingsGear.setVisibility(View.GONE);
+            mSettingsGear.setOnClickListener(null);
+        }
     }
 
     private void updateCheckboxContentDescription(boolean isChecked) {

@@ -61,7 +61,8 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
         mMenuCallbacks = menuCallbacks;
     }
 
-    public void bind(final DeviceParentListItem item, Map<String, ConnectableSensor> sensorMap) {
+    public void bind(final DeviceParentListItem item, Map<String, ConnectableSensor> sensorMap,
+            DeviceRegistry deviceRegistry) {
         mItem = item;
         mDeviceNameView.setText(item.getDeviceName());
         Context context = mDeviceIcon.getContext();
@@ -83,12 +84,18 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
             }
         });
 
-        mMenuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openDeviceMenu(item);
-            }
-        });
+        if (item.canForget(deviceRegistry)) {
+            mMenuButton.setVisibility(View.VISIBLE);
+            mMenuButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openDeviceMenu(item);
+                }
+            });
+        } else {
+            mMenuButton.setVisibility(View.GONE);
+            mMenuButton.setOnClickListener(null);
+        }
     }
 
     private void openDeviceMenu(final DeviceParentListItem listItem) {
