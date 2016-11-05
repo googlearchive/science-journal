@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.app.FragmentManager;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,22 +43,24 @@ public class ExpandableServiceAdapter extends
     private ConnectableSensorRegistry mConnectableSensorRegistry;
     private ArrayList<InputDeviceSpec> mMyDevices;
     private final DeviceRegistry mDeviceRegistry;
+    private final FragmentManager mFragmentManager;
 
     public static ExpandableServiceAdapter createEmpty(SensorRegistry sensorRegistry,
             ConnectableSensorRegistry connectableSensorRegistry, int uniqueId,
-            DeviceRegistry deviceRegistry) {
+            DeviceRegistry deviceRegistry, FragmentManager fragmentManager) {
         return new ExpandableServiceAdapter(new ArrayList<ServiceParentListItem>(), sensorRegistry,
-                connectableSensorRegistry, uniqueId, deviceRegistry);
+                connectableSensorRegistry, uniqueId, deviceRegistry, fragmentManager);
     }
 
     private ExpandableServiceAdapter(@NonNull List<ServiceParentListItem> parentItemList,
             SensorRegistry sensorRegistry, ConnectableSensorRegistry connectableSensorRegistry,
-            int uniqueId, DeviceRegistry deviceRegistry) {
+            int uniqueId, DeviceRegistry deviceRegistry, FragmentManager fragmentManager) {
         super(parentItemList, uniqueId);
         mParentItemList = parentItemList;
         mSensorRegistry = sensorRegistry;
         mConnectableSensorRegistry = connectableSensorRegistry;
         mDeviceRegistry = deviceRegistry;
+        mFragmentManager = fragmentManager;
     }
 
     @Override
@@ -71,7 +74,7 @@ public class ExpandableServiceAdapter extends
     @Override
     public void onBindParentViewHolder(ServiceParentViewHolder parentViewHolder, int position,
             ParentListItem parentListItem) {
-        parentViewHolder.bind((ServiceParentListItem) parentListItem);
+        parentViewHolder.bind((ServiceParentListItem) parentListItem, mFragmentManager);
     }
 
     @Override

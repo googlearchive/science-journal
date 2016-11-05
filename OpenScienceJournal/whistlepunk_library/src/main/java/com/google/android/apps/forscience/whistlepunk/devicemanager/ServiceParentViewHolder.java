@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.app.FragmentManager;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ImageView;
@@ -30,8 +31,6 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
     private final ToggleArrow mCollapsedIcon;
     private final ImageView mErrorIcon;
 
-    private static final String TAG = "SPVHolder";
-
     public ServiceParentViewHolder(View itemView, Supplier<Integer> offsetSupplier) {
         super(itemView, offsetSupplier);
         mNameView = (TextView) itemView.findViewById(R.id.service_name);
@@ -40,7 +39,7 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
         mErrorIcon = (ImageView) itemView.findViewById(R.id.btn_service_connection_error);
     }
 
-    public void bind(ServiceParentListItem item) {
+    public void bind(ServiceParentListItem item, FragmentManager fragmentManager) {
         mNameView.setText(item.getServiceName());
         mIcon.setImageDrawable(item.getDeviceIcon(mIcon.getContext()));
         mCollapsedIcon.setActionStrings(R.string.btn_expand_device,
@@ -55,18 +54,19 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
             mErrorIcon.setContentDescription(
                     mErrorIcon.getContext().getString(R.string.snackbar_source_error,
                             error.getErrorMessage()));
-            mErrorIcon.setOnClickListener(getOnClickListener(error));
+            mErrorIcon.setOnClickListener(getOnClickListener(error, fragmentManager));
         }
     }
 
     @NonNull
     private View.OnClickListener getOnClickListener(
-            final ExternalSensorDiscoverer.ServiceConnectionError error) {
+            final ExternalSensorDiscoverer.ServiceConnectionError error,
+            final FragmentManager fragmentManager) {
         if (error.canBeResolved()) {
             return new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    error.tryToResolve();
+                    error.tryToResolve(fragmentManager);
                 }
             };
         } else {

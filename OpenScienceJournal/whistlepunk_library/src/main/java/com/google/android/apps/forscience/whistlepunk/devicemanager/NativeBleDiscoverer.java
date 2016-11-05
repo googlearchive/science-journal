@@ -16,13 +16,17 @@
 
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
@@ -50,6 +54,7 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
             return new BleSensorSpec(name, config);
         }
     };
+    private static final String SERVICE_ID = SensorRegistry.WP_NATIVE_BLE_PROVIDER_ID;
 
     private DeviceDiscoverer mDeviceDiscoverer;
     private Runnable mOnScanDone;
@@ -78,10 +83,57 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
         };
 
         mDeviceDiscoverer = createDiscoverer(mContext);
-        if (!mDeviceDiscoverer.canScan()) {
+        final boolean canScan =
+                mDeviceDiscoverer.canScan() && ScanDisabledFragment.hasScanPermission(mContext);
+
+
+        listener.onServiceFound(new DiscoveredService() {
+            @Override
+            public String getServiceId() {
+                return SERVICE_ID;
+            }
+
+            @Override
+            public String getName() {
+                // TODO: agree on a string here
+                return mContext.getString(R.string.native_ble_service_name);
+            }
+
+            @Override
+            public Drawable getIconDrawable(Context context) {
+                return context.getResources().getDrawable(R.drawable.ic_bluetooth_white_24dp);
+            }
+
+            @Override
+            public ServiceConnectionError getConnectionErrorIfAny() {
+                if (canScan) {
+                    return null;
+                } else {
+                    return new ServiceConnectionError() {
+                        @Override
+                        public String getErrorMessage() {
+                            return mContext.getString(R.string.btn_enable_bluetooth);
+                        }
+
+                        @Override
+                        public boolean canBeResolved() {
+                            return true;
+                        }
+
+                        @Override
+                        public void tryToResolve(FragmentManager fragmentManager) {
+                            // TODO: implement!
+                        }
+                    };
+                }
+            }
+        });
+
+        if (!canScan) {
             stopScanning();
             return false;
         }
+
         mDeviceDiscoverer.startScanning(new DeviceDiscoverer.Callback() {
             @Override
             public void onDeviceFound(final DeviceDiscoverer.DeviceRecord record) {
@@ -113,15 +165,27 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
     }
 
     private void onDeviceRecordFound(DeviceDiscoverer.DeviceRecord record,
-            ScanListener onEachSensorFound) {
+            ScanListener scanListener) {
         WhistlepunkBleDevice device = record.device;
         String address = device.getAddress();
 
         // sensorScanCallbacks will handle duplicates
         final BleSensorSpec spec = new BleSensorSpec(address, device.getName());
 
+        scanListener.onDeviceFound(new DiscoveredDevice() {
+            @Override
+            public String getServiceId() {
+                return SERVICE_ID;
+            }
+
+            @Override
+            public InputDeviceSpec getSpec() {
+                return DeviceRegistry.createHoldingDevice(spec);
+            }
+        });
+
         // TODO: call onDevice, too!
-        onEachSensorFound.onSensorFound(new DiscoveredSensor() {
+        scanListener.onSensorFound(new DiscoveredSensor() {
             @Override
             public ExternalSensorSpec getSpec() {
                 return spec;

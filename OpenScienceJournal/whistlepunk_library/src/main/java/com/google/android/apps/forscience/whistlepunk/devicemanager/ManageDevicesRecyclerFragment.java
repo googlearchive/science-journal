@@ -77,7 +77,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
                 appearanceProvider, mSensorRegistry, 0);
 
         mAvailableDevices = ExpandableServiceAdapter.createEmpty(mSensorRegistry, mRegistry, 1,
-                deviceRegistry);
+                deviceRegistry, getFragmentManager());
         setHasOptionsMenu(true);
     }
 

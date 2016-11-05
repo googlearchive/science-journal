@@ -138,6 +138,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
                                 @Override
                                 public ServiceConnectionError getConnectionErrorIfAny() {
+                                    // TODO: implement this?
                                     return null;
                                 }
                             });

@@ -67,9 +67,14 @@ public class DeviceRegistry {
         InputDeviceSpec device = getDevice(spec.getGlobalDeviceAddress());
         if (device == null) {
             // generate imaginary device to hold the sensor
-            return new InputDeviceSpec(spec.getType(), spec.getDeviceAddress(), spec.getName());
+            return createHoldingDevice(spec);
         }
         return device;
+    }
+
+    @NonNull
+    public static InputDeviceSpec createHoldingDevice(ExternalSensorSpec spec) {
+        return new InputDeviceSpec(spec.getType(), spec.getDeviceAddress(), spec.getName());
     }
 
     public int getDeviceCount() {

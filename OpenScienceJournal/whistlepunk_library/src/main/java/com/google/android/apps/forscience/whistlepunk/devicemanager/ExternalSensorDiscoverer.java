@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.Drawable;

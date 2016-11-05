@@ -69,12 +69,13 @@ public class ManageDevicesActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_devices);
         mDataController = AppSingleton.getInstance(this).getDataController();
-        if (!ScanDisabledFragment.hasScanPermission(this)
-                && !ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION)) {
-            ActivityCompat.requestPermissions(this,
-                    new String[] {Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
-        }
+        // TODO: move this into error resolution for NativeBleDiscoverer
+//        if (!ScanDisabledFragment.hasScanPermission(this)
+//                && !ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                Manifest.permission.ACCESS_COARSE_LOCATION)) {
+//            ActivityCompat.requestPermissions(this,
+//                    new String[] {Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
+//        }
     }
 
     @Override
@@ -109,13 +110,13 @@ public class ManageDevicesActivity extends AppCompatActivity implements
     private void setFragment() {
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         Fragment fragment;
-        if (adapter.isEnabled() && ScanDisabledFragment.hasScanPermission(this)) {
+//        if (adapter.isEnabled() && ScanDisabledFragment.hasScanPermission(this)) {
             fragment = new ManageDevicesRecyclerFragment();
             mManageFragment = (ManageFragment) fragment;
-        } else {
-            fragment = new ScanDisabledFragment();
-            mManageFragment = null;
-        }
+//        } else {
+//            fragment = new ScanDisabledFragment();
+//            mManageFragment = null;
+//        }
         Bundle args = new Bundle();
         args.putString(EXTRA_EXPERIMENT_ID, getIntent().getStringExtra(EXTRA_EXPERIMENT_ID));
         fragment.setArguments(args);
