@@ -46,7 +46,7 @@ public interface ExternalSensorDiscoverer {
          *
          * Should eventually resume back to the opening activity and fragment.
          */
-        void tryToResolve();
+        void tryToResolve(FragmentManager fragmentManager);
     }
 
     public interface DiscoveredService {

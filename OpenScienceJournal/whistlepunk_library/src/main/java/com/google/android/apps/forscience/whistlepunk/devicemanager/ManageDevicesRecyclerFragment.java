@@ -51,6 +51,8 @@ import java.util.Map;
 public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPresenter,
         ManageFragment {
     private static final String TAG = "MDRFragment";
+    private static final String KEY_MY_DEVICES = "state_key_my_devices";
+    private static final String KEY_AVAILABLE_DEVICES = "state_key_available_devices";
 
     private ExpandableDeviceAdapter mMyDevices;
     private ExpandableServiceAdapter mAvailableDevices;
@@ -92,6 +94,11 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
         HeaderAdapter myHeader = new HeaderAdapter(R.layout.device_header, R.string.my_devices);
         HeaderAdapter availableHeader = new HeaderAdapter(R.layout.device_header,
                 R.string.available_devices);
+        if (savedInstanceState != null) {
+            mMyDevices.onRestoreInstanceState(savedInstanceState.getBundle(KEY_MY_DEVICES));
+            mAvailableDevices.onRestoreInstanceState(
+                    savedInstanceState.getBundle(KEY_AVAILABLE_DEVICES));
+        }
         CompositeRecyclerAdapter adapter = new CompositeRecyclerAdapter(myHeader, mMyDevices,
                 availableHeader, mAvailableDevices);
         recyclerView.setAdapter(adapter);
@@ -104,6 +111,19 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     public void onResume() {
         super.onResume();
         refreshAfterLoad();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Bundle myDeviceState = new Bundle();
+        mMyDevices.onSaveInstanceState(myDeviceState);
+        outState.putBundle(KEY_MY_DEVICES, myDeviceState);
+
+        Bundle availableState = new Bundle();
+        mAvailableDevices.onSaveInstanceState(availableState);
+        outState.putBundle(KEY_AVAILABLE_DEVICES, myDeviceState);
     }
 
     @Override

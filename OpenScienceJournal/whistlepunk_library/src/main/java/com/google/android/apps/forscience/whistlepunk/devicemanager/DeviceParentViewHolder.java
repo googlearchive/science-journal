@@ -42,6 +42,7 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
     private final ImageButton mMenuButton;
     private final MenuCallbacks mMenuCallbacks;
     private PopupMenu mPopupMenu;
+    private DeviceParentListItem mItem;
 
     /**
      * Defines what to do when menu items are chosen.
@@ -61,6 +62,7 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
     }
 
     public void bind(final DeviceParentListItem item, Map<String, ConnectableSensor> sensorMap) {
+        mItem = item;
         mDeviceNameView.setText(item.getDeviceName());
         Context context = mDeviceIcon.getContext();
         Drawable icon = item.getDeviceIcon(context, sensorMap);
@@ -123,5 +125,6 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
         super.onExpansionToggled(wasExpandedBefore);
         boolean isNowExpanded = !wasExpandedBefore;
         mCollapsedIcon.setActive(isNowExpanded, true);
+        mItem.setIsCurrentlyExpanded(isNowExpanded);
     }
 }

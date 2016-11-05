@@ -16,9 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -26,14 +26,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -53,7 +51,7 @@ public class ManageDevicesActivity extends AppCompatActivity implements
 
     private BroadcastReceiver mBtReceiver;
     private DataController mDataController;
-    private ManageFragment mManageFragment;
+    private ManageDevicesRecyclerFragment mManageFragment;
     private Experiment mCurrentExperiment;
 
     public static DeviceOptionsDialog.DeviceOptionsListener getOptionsListener(Activity activity) {
@@ -69,19 +67,12 @@ public class ManageDevicesActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_devices);
         mDataController = AppSingleton.getInstance(this).getDataController();
-        // TODO: move this into error resolution for NativeBleDiscoverer
-//        if (!ScanDisabledFragment.hasScanPermission(this)
-//                && !ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                Manifest.permission.ACCESS_COARSE_LOCATION)) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[] {Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
-//        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        setFragment();
+        setupFragment();
         // Set up a broadcast receiver in case the adapter is disabled from the notification shade.
         registerBtReceiverIfNecessary();
         final String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
@@ -107,22 +98,20 @@ public class ManageDevicesActivity extends AppCompatActivity implements
         return true;
     }
 
-    private void setFragment() {
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        Fragment fragment;
-//        if (adapter.isEnabled() && ScanDisabledFragment.hasScanPermission(this)) {
-            fragment = new ManageDevicesRecyclerFragment();
-            mManageFragment = (ManageFragment) fragment;
-//        } else {
-//            fragment = new ScanDisabledFragment();
-//            mManageFragment = null;
-//        }
-        Bundle args = new Bundle();
-        args.putString(EXTRA_EXPERIMENT_ID, getIntent().getStringExtra(EXTRA_EXPERIMENT_ID));
-        fragment.setArguments(args);
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.fragment, fragment);
-        ft.commitAllowingStateLoss();
+    private void setupFragment() {
+        FragmentManager fragmentManager = getFragmentManager();
+        Fragment fragmentById = fragmentManager.findFragmentById(R.id.fragment);
+        if (fragmentById != null) {
+            mManageFragment = (ManageDevicesRecyclerFragment) fragmentById;
+        } else {
+            mManageFragment = new ManageDevicesRecyclerFragment();
+            Bundle args = new Bundle();
+            args.putString(EXTRA_EXPERIMENT_ID, getIntent().getStringExtra(EXTRA_EXPERIMENT_ID));
+            mManageFragment.setArguments(args);
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+            ft.replace(R.id.fragment, mManageFragment);
+            ft.commitAllowingStateLoss();
+        }
     }
 
     private void registerBtReceiverIfNecessary() {
@@ -130,7 +119,7 @@ public class ManageDevicesActivity extends AppCompatActivity implements
             mBtReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    setFragment();
+                    setupFragment();
                 }
             };
             IntentFilter filter = new IntentFilter();

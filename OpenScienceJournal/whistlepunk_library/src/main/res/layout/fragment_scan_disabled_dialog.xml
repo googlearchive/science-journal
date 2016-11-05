@@ -18,13 +18,14 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:minWidth="600dp"
-    android:minHeight="800dp"
+    android:minWidth="300dp"
+    android:minHeight="400dp"
     android:padding="16dp">
     <TextView
         android:id="@+id/scan_disabled_explanation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:text="@string/cannot_scan_message"
         />
@@ -32,6 +33,7 @@
         android:id="@+id/btn_enable_scan"
         android:layout_width="@dimen/accessibility_touch_target_min_size"
         android:layout_height="@dimen/accessibility_touch_target_min_size"
+        android:layout_weight="0"
         android:text="@string/btn_enable_bluetooth"
         android:layout_marginTop="16dp"
         />

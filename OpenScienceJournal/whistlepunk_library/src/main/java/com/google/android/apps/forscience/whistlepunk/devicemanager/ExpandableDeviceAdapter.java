@@ -15,6 +15,8 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,12 +37,14 @@ import java.util.Map;
 public class ExpandableDeviceAdapter extends
         CompositeSensitiveExpandableAdapter<DeviceParentViewHolder, SensorChildViewHolder>
         implements SensorGroup, CompositeRecyclerAdapter.CompositeSensitiveAdapter {
+    private static final String KEY_COLLAPSED_DEVICE_ADDRESSES = "key_collapsed_devices";
     private final List<DeviceParentListItem> mDeviceParents;
     private final DeviceRegistry mDeviceRegistry;
     private Map<String, ConnectableSensor> mSensorMap = new ArrayMap<>();
     private ConnectableSensorRegistry mRegistry;
     private final SensorAppearanceProvider mAppearanceProvider;
     private final SensorRegistry mSensorRegistry;
+    private ArrayList<String> mInitiallyCollapsedAddresses = new ArrayList<>();
 
     public static ExpandableDeviceAdapter createEmpty(final ConnectableSensorRegistry registry,
             DeviceRegistry deviceRegistry, SensorAppearanceProvider appearanceProvider,
@@ -126,6 +130,29 @@ public class ExpandableDeviceAdapter extends
         return false;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        ArrayList<String> collapsedDevices = new ArrayList<>();
+        for (DeviceParentListItem deviceParent : mDeviceParents) {
+            if (!deviceParent.isCurrentlyExpanded()) {
+                collapsedDevices.add(deviceParent.getSpec().getGlobalDeviceAddress());
+            }
+        }
+        savedInstanceState.putStringArrayList(KEY_COLLAPSED_DEVICE_ADDRESSES, collapsedDevices);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        ArrayList<String> list = savedInstanceState.getStringArrayList(
+                KEY_COLLAPSED_DEVICE_ADDRESSES);
+        if (list != null) {
+            mInitiallyCollapsedAddresses.addAll(list);
+        }
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
     private void addSensorToDevice(int deviceIndex, String sensorKey) {
         DeviceParentListItem parent = mDeviceParents.get(deviceIndex);
         parent.addSensor(sensorKey);
@@ -139,10 +166,18 @@ public class ExpandableDeviceAdapter extends
         if (!addedToMyDevice) {
             // Otherwise, add a new device item.
             InputDeviceSpec device = mDeviceRegistry.getDevice(sensor.getSpec());
-            DeviceParentListItem item = new DeviceParentListItem(device, mAppearanceProvider);
+            DeviceParentListItem item = createDeviceParent(device);
             item.addSensor(sensorKey);
             addDevice(item);
         }
+    }
+
+    @NonNull
+    private DeviceParentListItem createDeviceParent(InputDeviceSpec device) {
+        String globalAddress = device.getGlobalDeviceAddress();
+        boolean initallyCollapsed = mInitiallyCollapsedAddresses.remove(globalAddress);
+        boolean startsExpanded = !initallyCollapsed;
+        return new DeviceParentListItem(device, mAppearanceProvider, startsExpanded);
     }
 
     private int findDevice(InputDeviceSpec device) {
@@ -169,7 +204,7 @@ public class ExpandableDeviceAdapter extends
         }
 
         for (InputDeviceSpec unaccountedDevice : unaccountedDevices) {
-            addDevice(new DeviceParentListItem(unaccountedDevice, mAppearanceProvider));
+            addDevice(createDeviceParent(unaccountedDevice));
         }
     }
 

@@ -122,7 +122,8 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
 
                         @Override
                         public void tryToResolve(FragmentManager fragmentManager) {
-                            // TODO: implement!
+                            ScanDisabledDialogFragment.newInstance().show(fragmentManager,
+                                    "scanDisabledDialog");
                         }
                     };
                 }

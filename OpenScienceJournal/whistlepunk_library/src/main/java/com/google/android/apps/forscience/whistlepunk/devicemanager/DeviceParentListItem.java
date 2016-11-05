@@ -40,10 +40,13 @@ public class DeviceParentListItem implements ParentListItem {
     private InputDeviceSpec mSpec;
     private final SensorAppearanceProvider mAppearanceProvider;
     private List<String> mSensorKeys = new ArrayList<>();
+    private boolean mIsNowExpanded = true;
 
-    public DeviceParentListItem(InputDeviceSpec spec, SensorAppearanceProvider appearanceProvider) {
+    public DeviceParentListItem(InputDeviceSpec spec, SensorAppearanceProvider appearanceProvider,
+            boolean startsExpanded) {
         mSpec = Preconditions.checkNotNull(spec);
         mAppearanceProvider = appearanceProvider;
+        mIsNowExpanded = startsExpanded;
     }
 
     @Override
@@ -53,7 +56,11 @@ public class DeviceParentListItem implements ParentListItem {
 
     @Override
     public boolean isInitiallyExpanded() {
-        return true;
+        return mIsNowExpanded;
+    }
+
+    public boolean isCurrentlyExpanded() {
+        return mIsNowExpanded;
     }
 
     public String getDeviceName() {
@@ -109,5 +116,9 @@ public class DeviceParentListItem implements ParentListItem {
 
     public InputDeviceSpec getSpec() {
         return mSpec;
+    }
+
+    public void setIsCurrentlyExpanded(boolean isNowExpanded) {
+        mIsNowExpanded = isNowExpanded;
     }
 }
