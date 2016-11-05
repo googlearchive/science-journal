@@ -87,4 +87,8 @@ public class ServiceParentListItem implements ParentListItem {
         }
         return false;
     }
+
+    public ExternalSensorDiscoverer.ServiceConnectionError getConnectionErrorIfAny() {
+        return mService.getConnectionErrorIfAny();
+    }
 }

@@ -64,7 +64,7 @@ public class ExpandableServiceAdapter extends
     public ServiceParentViewHolder onCreateParentViewHolder(
             ViewGroup parentViewGroup) {
         View viewGroup = LayoutInflater.from(parentViewGroup.getContext()).inflate(
-                R.layout.device_expandable_recycler_item, parentViewGroup, false);
+                R.layout.service_expandable_recycler_item, parentViewGroup, false);
         return new ServiceParentViewHolder(viewGroup, this.offsetSupplier());
     }
 

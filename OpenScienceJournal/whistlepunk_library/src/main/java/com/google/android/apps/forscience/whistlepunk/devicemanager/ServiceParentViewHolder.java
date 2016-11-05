@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -27,12 +28,16 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
     private final TextView mNameView;
     private final ImageView mIcon;
     private final ToggleArrow mCollapsedIcon;
+    private final ImageView mErrorIcon;
+
+    private static final String TAG = "SPVHolder";
 
     public ServiceParentViewHolder(View itemView, Supplier<Integer> offsetSupplier) {
         super(itemView, offsetSupplier);
-        mNameView = (TextView) itemView.findViewById(R.id.device_name);
-        mIcon = (ImageView) itemView.findViewById(R.id.device_icon);
+        mNameView = (TextView) itemView.findViewById(R.id.service_name);
+        mIcon = (ImageView) itemView.findViewById(R.id.service_icon);
         mCollapsedIcon = (ToggleArrow) itemView.findViewById(R.id.collapsed_icon);
+        mErrorIcon = (ImageView) itemView.findViewById(R.id.btn_service_connection_error);
     }
 
     public void bind(ServiceParentListItem item) {
@@ -41,6 +46,32 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
         mCollapsedIcon.setActionStrings(R.string.btn_expand_device,
                 R.string.btn_contract_device);
         mCollapsedIcon.setActive(item.isInitiallyExpanded(), false);
+        final ExternalSensorDiscoverer.ServiceConnectionError error =
+                item.getConnectionErrorIfAny();
+        if (error == null) {
+            mErrorIcon.setVisibility(View.GONE);
+        } else {
+            mErrorIcon.setVisibility(View.VISIBLE);
+            mErrorIcon.setContentDescription(
+                    mErrorIcon.getContext().getString(R.string.snackbar_source_error,
+                            error.getErrorMessage()));
+            mErrorIcon.setOnClickListener(getOnClickListener(error));
+        }
+    }
+
+    @NonNull
+    private View.OnClickListener getOnClickListener(
+            final ExternalSensorDiscoverer.ServiceConnectionError error) {
+        if (error.canBeResolved()) {
+            return new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    error.tryToResolve();
+                }
+            };
+        } else {
+            return null;
+        }
     }
 
     // TODO: Duplication with DeviceParentViewHolder?

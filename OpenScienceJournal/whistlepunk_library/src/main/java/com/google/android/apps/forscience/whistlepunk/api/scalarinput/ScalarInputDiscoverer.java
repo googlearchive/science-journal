@@ -135,6 +135,11 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                                 public Drawable getIconDrawable(Context context) {
                                     return ScalarInputSpec.getServiceDrawable(serviceId, context);
                                 }
+
+                                @Override
+                                public ServiceConnectionError getConnectionErrorIfAny() {
+                                    return null;
+                                }
                             });
                         }
                     });

@@ -35,6 +35,19 @@ public interface ExternalSensorDiscoverer {
         PendingIntent getSettingsIntent();
     }
 
+    public interface ServiceConnectionError {
+        String getErrorMessage();
+
+        boolean canBeResolved();
+
+        /**
+         * Open a UI for resolving the error (adding a permission?  Turning on a setting?)
+         *
+         * Should eventually resume back to the opening activity and fragment.
+         */
+        void tryToResolve();
+    }
+
     public interface DiscoveredService {
         /**
          * Should be unique for each discoverer
@@ -44,6 +57,12 @@ public interface ExternalSensorDiscoverer {
         String getName();
 
         Drawable getIconDrawable(Context context);
+
+        /**
+         * @return if there was an error connecting to the service, information about the error.
+         * Otherwise, null.
+         */
+        ServiceConnectionError getConnectionErrorIfAny();
     }
 
     public interface DiscoveredDevice {
