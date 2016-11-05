@@ -23,6 +23,9 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+
+import java.util.List;
 
 // TODO: delete when new fragment is ready
 class SensorPreferenceGroup implements SensorGroup {
@@ -127,5 +130,16 @@ class SensorPreferenceGroup implements SensorGroup {
     @Override
     public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
         // This view doesn't track devices
+    }
+
+    @Override
+    public void setMyDevices(List<InputDeviceSpec> device) {
+        // This view doesn't track devices
+    }
+
+    @Override
+    public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
+        // This view doesn't track devices
+        return false;
     }
 }

@@ -49,4 +49,14 @@ public interface SensorGroup {
     void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service);
 
     void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device);
+
+    // TODO: too many methods that only some implementors care about
+    void setMyDevices(List<InputDeviceSpec> device);
+
+    /**
+     * Adds an available (not paired) sensor that this group might want to display
+     *
+     * @return true iff this group decides this sensor belongs to it.
+     */
+    boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor);
 }

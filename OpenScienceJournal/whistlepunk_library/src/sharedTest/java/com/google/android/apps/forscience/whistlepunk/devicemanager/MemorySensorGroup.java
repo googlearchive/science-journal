@@ -21,6 +21,7 @@ import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 class MemorySensorGroup implements SensorGroup {
     private LinkedHashMap<String, ConnectableSensor> mSensors = new LinkedHashMap<>();
@@ -63,6 +64,16 @@ class MemorySensorGroup implements SensorGroup {
     @Override
     public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
 
+    }
+
+    @Override
+    public void setMyDevices(List<InputDeviceSpec> device) {
+
+    }
+
+    @Override
+    public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
+        return false;
     }
 
     public String getKey(int location) {

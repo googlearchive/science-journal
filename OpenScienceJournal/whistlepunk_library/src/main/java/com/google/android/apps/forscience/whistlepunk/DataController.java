@@ -216,4 +216,6 @@ public interface DataController {
     void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess);
 
     void forgetMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess);
+
+    void addMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess);
 }
