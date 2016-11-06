@@ -64,6 +64,7 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevice
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryListener;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
@@ -1394,11 +1395,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (mSelectedExperiment != null) {
             getDataController().getExternalSensorsByExperiment(
                     mSelectedExperiment.getExperimentId(),
-                    new LoggingConsumer<List<ConnectableSensor>>(TAG,
+                    new LoggingConsumer<ExperimentSensors>(TAG,
                             "add external sensors") {
                         @Override
-                        public void success(List<ConnectableSensor> sensors) {
-                            updateExternalSensors(sensors);
+                        public void success(ExperimentSensors sensors) {
+                            updateExternalSensors(sensors.getIncludedSensors());
                             setSensorPresenters(layouts, rc);
                         }
                     });

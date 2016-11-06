@@ -230,7 +230,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
 
     @Override
     public void unpair(String experimentId, String sensorId) {
-        ((DeviceOptionsDialog.DeviceOptionsListener) getActivity()).onRemoveDeviceFromExperiment(
+        ((DeviceOptionsDialog.DeviceOptionsListener) getActivity()).onRemoveSensorFromExperiment(
                 experimentId, sensorId);
     }
 }

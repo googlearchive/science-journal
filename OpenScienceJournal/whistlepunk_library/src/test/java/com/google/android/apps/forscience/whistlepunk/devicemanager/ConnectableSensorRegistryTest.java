@@ -46,12 +46,14 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDat
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ConnectableSensorRegistryTest {
@@ -81,7 +83,7 @@ public class ConnectableSensorRegistryTest {
         Assert.assertEquals(1, mAvailableDevices.size());
 
         StoringConsumer<ConnectableSensor> stored = new StoringConsumer<>();
-        registry.addExternalSensorIfNecessary(mAvailableDevices.getKey(0), mPairedDevices.size(),
+        registry.addSensorIfNecessary(mAvailableDevices.getKey(0), mPairedDevices.size(),
                 stored);
         ScalarInputSpec sensor = (ScalarInputSpec) stored.getValue().getSpec();
         assertEquals(ScalarInputSpec.TYPE, sensor.getType());
@@ -99,7 +101,7 @@ public class ConnectableSensorRegistryTest {
 
         // First it's paired...
         pairedSensors.put(sensorId, s.makeSpec());
-        registry.setPairedSensors(pairedSensors);
+        setPairedSensors(registry, pairedSensors);
         registry.startScanningInDiscoverers(false);
         registry.stopScanningInDiscoverers();
 
@@ -109,11 +111,20 @@ public class ConnectableSensorRegistryTest {
         // Then it's forgotten...
         pairedSensors.clear();
         mPairedDevices.removeAll();
-        registry.setPairedSensors(pairedSensors);
+        setPairedSensors(registry, pairedSensors);
         registry.startScanningInDiscoverers(false);
 
         Assert.assertEquals(0, mPairedDevices.size());
         Assert.assertEquals(1, mAvailableDevices.size());
+    }
+
+    private void setPairedSensors(ConnectableSensorRegistry registry,
+            Map<String, ExternalSensorSpec> pairedSensors) {
+        List<ConnectableSensor> paired = Lists.newArrayList();
+        for (Map.Entry<String, ExternalSensorSpec> entry : pairedSensors.entrySet()) {
+            paired.add(ConnectableSensor.connected(entry.getValue(), entry.getKey()));
+        }
+        registry.setPairedSensors(paired);
     }
 
     @Test
@@ -131,7 +142,7 @@ public class ConnectableSensorRegistryTest {
         sensors.put("sensorId",
                 new ScalarInputSpec(sensorName, "serviceId", "address", null, null, "deviceId"));
 
-        registry.setPairedSensors(sensors);
+        setPairedSensors(registry, sensors);
         Assert.assertEquals(0, mAvailableDevices.size());
         Assert.assertEquals(1, mPairedDevices.size());
 
@@ -198,7 +209,7 @@ public class ConnectableSensorRegistryTest {
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String connectedId = Arbitrary.string();
         sensors.put(connectedId, new BleSensorSpec("address", "name"));
-        registry.setPairedSensors(sensors);
+        setPairedSensors(registry, sensors);
 
         registry.startScanningInDiscoverers(false);
 
@@ -239,7 +250,7 @@ public class ConnectableSensorRegistryTest {
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         ScalarInputSpec spec = s.makeSpec();
         sensors.put(Arbitrary.string(), spec);
-        registry.setPairedSensors(sensors);
+        setPairedSensors(registry, sensors);
 
         // Should move sensor from available to paired
         Assert.assertEquals(1, mPairedDevices.size());
@@ -266,11 +277,11 @@ public class ConnectableSensorRegistryTest {
         Assert.assertEquals(2, mAvailableDevices.size());
 
         StoringConsumer<ConnectableSensor> stored1 = new StoringConsumer<>();
-        registry.addExternalSensorIfNecessary(mAvailableDevices.getKey(0), 0, stored1);
+        registry.addSensorIfNecessary(mAvailableDevices.getKey(0), 0, stored1);
         ScalarInputSpec sensor1 = (ScalarInputSpec) stored1.getValue().getSpec();
 
         StoringConsumer<ConnectableSensor> stored2 = new StoringConsumer<>();
-        registry.addExternalSensorIfNecessary(mAvailableDevices.getKey(1), 1, stored2);
+        registry.addSensorIfNecessary(mAvailableDevices.getKey(1), 1, stored2);
         ScalarInputSpec sensor2 = (ScalarInputSpec) stored2.getValue().getSpec();
 
         assertEquals(R.drawable.ic_api_01_white_24dp, sensor1.getDefaultIconId());
@@ -362,8 +373,8 @@ public class ConnectableSensorRegistryTest {
 
         // Call it twice, to make sure that we're replacing, not appending, duplicate paired
         // sensors.
-        registry.setPairedSensors(sensors);
-        registry.setPairedSensors(sensors);
+        setPairedSensors(registry, sensors);
+        setPairedSensors(registry, sensors);
 
         Assert.assertEquals(1, mPairedDevices.size());
         Assert.assertEquals(0, mAvailableDevices.size());
@@ -417,7 +428,7 @@ public class ConnectableSensorRegistryTest {
                 mAppearanceProvider);
 
         registry.setMyDevices(deviceSpec);
-        registry.setPairedSensors(ImmutableMap.of(sensorId, (ExternalSensorSpec) sensorSpec));
+        setPairedSensors(registry, ImmutableMap.of(sensorId, (ExternalSensorSpec) sensorSpec));
 
         assertEquals(deviceSpec, deviceRegistry.getDevice(sensorSpec));
     }

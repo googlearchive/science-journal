@@ -32,6 +32,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.collect.Lists;
 
@@ -92,7 +93,7 @@ public class ConnectableSensorRegistry {
 
     public void pair(String sensorKey, final SensorRegistry sr) {
         final ExternalSensorDiscoverer.SettingsInterface settings = mSettingsIntents.get(sensorKey);
-        addExternalSensorIfNecessary(sensorKey, getPairedGroup().getSensorCount(),
+        addSensorIfNecessary(sensorKey, getPairedGroup().getSensorCount(),
                 new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
                     @Override
                     public void success(final ConnectableSensor sensor) {
@@ -118,35 +119,53 @@ public class ConnectableSensorRegistry {
                 new LoggingConsumer<List<InputDeviceSpec>>(TAG, "Load my devices") {
                     @Override
                     public void success(List<InputDeviceSpec> myDevices) {
-                        for (final InputDeviceSpec device : myDevices) {
-                            mDeviceRegistry.addDevice(device);
-                        }
-                        // Paired group needs to know My Devices so it can show them.
-                        getPairedGroup().setMyDevices(myDevices);
-
-                        // Available group needs to know My Devices so it can _not_ show them
-                        getAvailableGroup().setMyDevices(myDevices);
-
-                        mDataController.getExternalSensorsByExperiment(mExperimentId,
-                                new LoggingConsumer<List<ConnectableSensor>>(TAG,
-                                        "Load external sensors") {
-                                    @Override
-                                    public void success(List<ConnectableSensor> sensors) {
-                                        List<ConnectableSensor> allSensors = new ArrayList<>(
-                                                sensors);
-                                        for (String sensorId : sr.getBuiltInSources()) {
-                                            allSensors.add(ConnectableSensor.builtIn(sensorId));
-                                        }
-                                        setPairedAndStartScanning(
-                                                ConnectableSensor.makeMap(allSensors),
-                                                clearSensorCache);
-                                    }
-                                });
+                        onMyDevicesLoaded(myDevices, clearSensorCache, sr);
                     }
                 });
     }
 
-    private void setPairedAndStartScanning(Map<String, ExternalSensorSpec> sensors,
+    private void onMyDevicesLoaded(List<InputDeviceSpec> myDevices, final boolean clearSensorCache,
+            final SensorRegistry sr) {
+        for (final InputDeviceSpec device : myDevices) {
+            mDeviceRegistry.addDevice(device);
+        }
+        // Paired group needs to know My Devices so it can show them.
+        getPairedGroup().setMyDevices(myDevices);
+
+        // Available group needs to know My Devices so it can _not_ show them
+        getAvailableGroup().setMyDevices(myDevices);
+
+        mDataController.getExternalSensorsByExperiment(mExperimentId,
+                new LoggingConsumer<ExperimentSensors>(TAG, "Load external sensors") {
+                    @Override
+                    public void success(ExperimentSensors sensors) {
+                        List<ConnectableSensor> allSensors = new ArrayList<>();
+                        addBuiltInSensors(sensors, allSensors);
+                        addExternalSensors(sensors, allSensors);
+                        setPairedAndStartScanning(allSensors, clearSensorCache);
+                    }
+
+                    private void addBuiltInSensors(ExperimentSensors sensors,
+                            List<ConnectableSensor> allSensors) {
+                        for (String sensorId : sr.getBuiltInSources()) {
+                            allSensors.add(ConnectableSensor.builtIn(sensorId,
+                                    !sensors.getExcludedSensorIds().contains(sensorId)));
+                        }
+                    }
+
+                    private void addExternalSensors(ExperimentSensors sensors,
+                            List<ConnectableSensor> allSensors) {
+                        for (ConnectableSensor sensor : sensors.getIncludedSensors()) {
+                            boolean isExternal = sensor.getSpec() != null;
+                            if (isExternal) {
+                                allSensors.add(sensor);
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void setPairedAndStartScanning(List<ConnectableSensor> sensors,
             boolean clearSensorCache) {
         setPairedSensors(sensors);
         startScanningInDiscoverers(clearSensorCache);
@@ -321,11 +340,8 @@ public class ConnectableSensorRegistry {
         }
     }
 
-    public void setPairedSensors(final Map<String, ExternalSensorSpec> sensors) {
-        for (Map.Entry<String, ExternalSensorSpec> entry : sensors.entrySet()) {
-            String sensorId = entry.getKey();
-            ExternalSensorSpec sensor = entry.getValue();
-            ConnectableSensor newSensor = ConnectableSensor.connected(sensor, sensorId);
+    public void setPairedSensors(final List<ConnectableSensor> sensors) {
+        for (ConnectableSensor newSensor : sensors) {
             String sensorKey = findSensorKey(newSensor);
             if (sensorKey != null) {
                 if (getAvailableGroup().removeSensor(sensorKey)) {
@@ -339,9 +355,10 @@ public class ConnectableSensorRegistry {
             }
             // TODO(saff): test that this happens?
             mSensors.put(sensorKey, newSensor);
+
         }
 
-        removeMissingPairedSensors(sensors);
+        removeMissingPairedSensors(ConnectableSensor.makeMap(sensors));
     }
 
 
@@ -373,30 +390,40 @@ public class ConnectableSensorRegistry {
      *                            this one was added
      * @param onAdded             receives the connected ConnectableSensor that's been added to the
      */
-    public void addExternalSensorIfNecessary(String key, int numPairedBeforeThis,
+    public void addSensorIfNecessary(String key, int numPairedBeforeThis,
             final MaybeConsumer<ConnectableSensor> onAdded) {
         ConnectableSensor connectableSensor = getSensor(key);
 
         // TODO: probably shouldn't finish in these cases, instead go into sensor editing.
 
-        // The paired spec will be stored in the database, and may contain modified/added
-        // information that wasn't supplied by the Discoverer.
-        final ExternalSensorSpec pairedSpec =
-                connectableSensor.getSpec().maybeAdjustBeforePairing(numPairedBeforeThis);
-        mDataController.addOrGetExternalSensor(pairedSpec, MaybeConsumers.chainFailure(onAdded,
-                new Consumer<String>() {
+        ExternalSensorSpec spec = connectableSensor.getSpec();
+        if (spec != null) {
+            // The paired spec will be stored in the database, and may contain modified/added
+            // information that wasn't supplied by the Discoverer.
+            final ExternalSensorSpec pairedSpec =
+                    spec.maybeAdjustBeforePairing(numPairedBeforeThis);
+            mDataController.addOrGetExternalSensor(pairedSpec, MaybeConsumers.chainFailure(onAdded,
+                    new Consumer<String>() {
+                        @Override
+                        public void take(final String sensorId) {
+                            addSensorToCurrentExperiment(
+                                    ConnectableSensor.connected(pairedSpec, sensorId), onAdded);
+                        }
+                    }));
+        } else {
+            addSensorToCurrentExperiment(connectableSensor, onAdded);
+        }
+    }
+
+    private void addSensorToCurrentExperiment(final ConnectableSensor sensor,
+            final MaybeConsumer<ConnectableSensor> onAdded) {
+        mDataController.addSensorToExperiment(mExperimentId, sensor.getConnectedSensorId(),
+                new LoggingConsumer<Success>(TAG, "add sensor to experiment") {
                     @Override
-                    public void take(final String sensorId) {
-                        mDataController.addSensorToExperiment(mExperimentId, sensorId,
-                                new LoggingConsumer<Success>(TAG, "add sensor to experiment") {
-                                    @Override
-                                    public void success(Success value) {
-                                        onAdded.success(
-                                                ConnectableSensor.connected(pairedSpec, sensorId));
-                                    }
-                                });
+                    public void success(Success value) {
+                        onAdded.success(sensor);
                     }
-                }));
+                });
     }
 
     @NonNull
@@ -446,17 +473,17 @@ public class ConnectableSensorRegistry {
         }
         removeSensorsFromExperiment(idsToUnpair,
                 new LoggingConsumer<Success>(TAG, "removing sensors") {
-            @Override
-            public void success(Success value) {
-                mDataController.forgetMyDevice(spec,
-                        new LoggingConsumer<Success>(TAG, "Forgetting device") {
-                            @Override
-                            public void success(Success success) {
-                                refresh(false, sr);
-                            }
-                        });
-            }
-        });
+                    @Override
+                    public void success(Success value) {
+                        mDataController.forgetMyDevice(spec,
+                                new LoggingConsumer<Success>(TAG, "Forgetting device") {
+                                    @Override
+                                    public void success(Success success) {
+                                        refresh(false, sr);
+                                    }
+                                });
+                    }
+                });
     }
 
     private void removeSensorsFromExperiment(final List<String> idsToUnpair,

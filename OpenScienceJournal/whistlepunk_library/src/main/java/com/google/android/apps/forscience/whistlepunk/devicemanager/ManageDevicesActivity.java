@@ -141,7 +141,7 @@ public class ManageDevicesActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onRemoveDeviceFromExperiment(String experimentId, final String sensorId) {
+    public void onRemoveSensorFromExperiment(String experimentId, final String sensorId) {
         if (mCurrentExperiment != null && mCurrentExperiment.getExperimentId().equals(
                 experimentId)) {
             removeSensorFromExperiment(sensorId);

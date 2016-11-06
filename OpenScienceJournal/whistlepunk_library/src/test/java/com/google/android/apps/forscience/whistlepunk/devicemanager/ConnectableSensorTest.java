@@ -70,6 +70,7 @@ public class ConnectableSensorTest {
             }
         });
 
-        assertEquals(sensorName, ConnectableSensor.builtIn("sid").getAppearance(map).getName(null));
+        assertEquals(sensorName, ConnectableSensor.builtIn("sid", false).getAppearance(map).getName(
+                null));
     }
 }
