@@ -385,7 +385,7 @@ public class ConnectableSensorRegistryTest {
 
         Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
                 mMetadataManager.getExperimentExternalSensors(
-                        "experimentId", mProviderMap));
+                        "experimentId", mProviderMap).getIncludedSensors());
         ScalarInputSpec retrievedSpec = (ScalarInputSpec) sensors.values().iterator().next();
         SensorAppearance appearance = retrievedSpec.getSensorAppearance();
         assertEquals("newUnits", appearance.getUnits(null));

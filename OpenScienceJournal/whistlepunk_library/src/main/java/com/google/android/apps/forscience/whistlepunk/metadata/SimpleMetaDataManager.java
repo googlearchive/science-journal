@@ -25,6 +25,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.ArraySet;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
@@ -1008,47 +1009,71 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void addSensorToExperiment(String databaseTag, String experimentId) {
-        ContentValues values = new ContentValues();
-        values.put(ExperimentSensorColumns.SENSOR_TAG, databaseTag);
-        values.put(ExperimentSensorColumns.EXPERIMENT_ID, experimentId);
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            db.insert(Tables.EXPERIMENT_SENSORS, ExperimentSensorColumns.SENSOR_TAG, values);
-        }
+        setSensorExperimentInclusion(databaseTag, experimentId, true);
     }
 
     @Override
     public void removeSensorFromExperiment(String databaseTag, String experimentId) {
-        String selection = ExperimentSensorColumns.SENSOR_TAG + " =? AND " +
-                ExperimentSensorColumns.EXPERIMENT_ID + "=?";
-        String[] selectionArgs = new String[]{databaseTag, experimentId};
+        setSensorExperimentInclusion(databaseTag, experimentId, false);
+    }
+
+    private void setSensorExperimentInclusion(String databaseTag, String experimentId,
+            boolean included) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            db.delete(Tables.EXPERIMENT_SENSORS, selection, selectionArgs);
+
+            // Because of legacy oddities, a databaseTag may be "included" multiple times.
+            // Delete them all (and don't do that again).
+            removeSensorExperimentInclusion(databaseTag, experimentId);
+            addSensorExperimentInclusion(db, databaseTag, experimentId, included);
         }
     }
 
+    private void removeSensorExperimentInclusion(String databaseTag, String experimentId) {
+        String selection = ExperimentSensorColumns.SENSOR_TAG + " =? AND " +
+                ExperimentSensorColumns.EXPERIMENT_ID + "=?";
+        String[] selectionArgs = new String[]{databaseTag, experimentId};
+        final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        db.delete(Tables.EXPERIMENT_SENSORS, selection, selectionArgs);
+    }
+
+    private void addSensorExperimentInclusion(SQLiteDatabase db, String databaseTag,
+            String experimentId, boolean included) {
+        ContentValues values = new ContentValues();
+        values.put(ExperimentSensorColumns.SENSOR_TAG, databaseTag);
+        values.put(ExperimentSensorColumns.EXPERIMENT_ID, experimentId);
+        values.put(ExperimentSensorColumns.INCLUDED, included ? 1 : 0);
+        db.insert(Tables.EXPERIMENT_SENSORS, ExperimentSensorColumns.SENSOR_TAG, values);
+    }
+
     @Override
-    public List<ConnectableSensor> getExperimentExternalSensors(String experimentId,
+    public ExperimentSensors getExperimentExternalSensors(String experimentId,
             Map<String, ExternalSensorProvider> providerMap) {
-        List<String> tags = new ArrayList<>();
-        List<ConnectableSensor> sensors = new ArrayList<>();
+        List<ConnectableSensor> includedSensors = new ArrayList<>();
+        Set<String> excludedTags = new ArraySet<>();
 
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
             Cursor c = null;
+            List<String> tags = new ArrayList<>();
             try {
                 // Explicitly order by ascending rowid, to preserve insertion order
                 c = db.query(Tables.EXPERIMENT_SENSORS,
-                        new String[]{ExperimentSensorColumns.SENSOR_TAG},
+                        new String[]{ExperimentSensorColumns.SENSOR_TAG,
+                                ExperimentSensorColumns.INCLUDED},
                         ExperimentSensorColumns.EXPERIMENT_ID + "=?",
                         new String[]{experimentId}, null, null, BaseColumns._ID + " ASC");
                 while (c.moveToNext()) {
                     String tag = c.getString(0);
+                    boolean included = c.getInt(1) > 0;
 
-                    // We don't expect to get duplicates, but we can deal with them gracefully.
-                    if (!tags.contains(tag)) {
-                        tags.add(tag);
+                    if (included) {
+                        // We don't expect to get duplicates, but we can deal with them gracefully.
+                        if (!tags.contains(tag)) {
+                            tags.add(tag);
+                        }
+                    } else {
+                        excludedTags.add(tag);
                     }
                 }
             } finally {
@@ -1056,15 +1081,16 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     c.close();
                 }
             }
+
             // This is somewhat inefficient to do nested queries, but in most cases there will
             // only be one or two, so we are trading off code complexity of doing a db join.
             for (String tag : tags) {
-                sensors.add(
+                includedSensors.add(
                         ConnectableSensor.connected(getExternalSensorById(tag, providerMap), tag));
             }
         }
 
-        return sensors;
+        return new ExperimentSensors(includedSensors, excludedTags);
     }
 
     @Override
@@ -1385,7 +1411,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     public interface ExperimentSensorColumns {
 
         /**
-         * Database tag of a sensor that belongs to a particular experiment.
+         * Database tag of a sensor that belongs (or doesn't) to a particular experiment.
          */
         String SENSOR_TAG = "sensor_tag";
 
@@ -1393,6 +1419,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
          * Experiment ID.
          */
         String EXPERIMENT_ID = "experiment_id";
+
+        /**
+         * boolean, 1 = included, 0 = excluded.
+         */
+        String INCLUDED = "included";
     }
 
     public interface RunStatsColumns {
@@ -1530,7 +1561,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
      * Manages the SQLite database backing the data for the entire app.
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        private static final int DB_VERSION = 19;
+        private static final int DB_VERSION = 20;
         private static final String DB_NAME = "main.db";
 
         DatabaseHelper(Context context, String filename) {
@@ -1709,6 +1740,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 createMyDevicesTable(db);
                 version = 19;
             }
+
+            if (version == 19 && version < newVersion) {
+                db.execSQL("ALTER TABLE " + Tables.EXPERIMENT_SENSORS + " ADD COLUMN " +
+                        ExperimentSensorColumns.INCLUDED + " INTEGER DEFAULT 1");
+                version = 20;
+            }
         }
 
         private void createProjectsTable(SQLiteDatabase db) {
@@ -1748,7 +1785,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
             db.execSQL("CREATE TABLE " + Tables.EXPERIMENT_SENSORS + " ("
                     + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + ExperimentSensorColumns.SENSOR_TAG + " TEXT,"
-                    + ExperimentSensorColumns.EXPERIMENT_ID + " TEXT)");
+                    + ExperimentSensorColumns.EXPERIMENT_ID + " TEXT,"
+                    + ExperimentSensorColumns.INCLUDED + " INTEGER DEFAULT 1)");
         }
 
         private void createRunStatsTable(SQLiteDatabase db) {

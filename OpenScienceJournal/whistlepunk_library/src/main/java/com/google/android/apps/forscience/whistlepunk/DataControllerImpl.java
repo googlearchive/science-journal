@@ -462,7 +462,8 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<List<ConnectableSensor>>() {
             @Override
             public List<ConnectableSensor> call() throws Exception {
-                return mMetaDataManager.getExperimentExternalSensors(experimentId, mProviderMap);
+                return mMetaDataManager.getExperimentExternalSensors(experimentId,
+                        mProviderMap).getIncludedSensors();
             }
         });
     }
