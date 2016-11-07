@@ -19,7 +19,6 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 
 import java.util.List;
 import java.util.Map;
@@ -150,7 +149,7 @@ public interface MetaDataManager {
     /**
      * Gets all the external sensors which are linked to an experiment, in insertion order
      */
-    public List<ConnectableSensor> getExperimentExternalSensors(String experimentId,
+    public ExperimentSensors getExperimentExternalSensors(String experimentId,
             Map<String, ExternalSensorProvider> providerMap);
 
     /**

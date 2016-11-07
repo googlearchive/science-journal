@@ -24,6 +24,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDevic
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
@@ -235,13 +236,14 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public List<ConnectableSensor> getExperimentExternalSensors(String experimentId,
+    public ExperimentSensors getExperimentExternalSensors(String experimentId,
             Map<String, ExternalSensorProvider> providerMap) {
+        // TODO: doesn't deal with exclusions
         List<ConnectableSensor> specs = new ArrayList<>();
         for (String id : mExperimentToSensors.get(experimentId)) {
             specs.add(ConnectableSensor.connected(mExternalSensors.get(id), id));
         }
-        return specs;
+        return new ExperimentSensors(specs, Collections.EMPTY_SET);
     }
 
     @Override
