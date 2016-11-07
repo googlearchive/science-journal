@@ -48,6 +48,7 @@ public class ScanDisabledDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        getDialog().setTitle(R.string.bluetooth_not_on_title);
         View view = inflater.inflate(R.layout.fragment_scan_disabled_dialog, container, false);
         Button button = (Button) view.findViewById(R.id.btn_enable_scan);
 

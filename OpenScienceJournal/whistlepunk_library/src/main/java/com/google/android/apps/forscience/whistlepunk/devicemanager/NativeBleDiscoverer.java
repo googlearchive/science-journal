@@ -82,8 +82,8 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
         };
 
         mDeviceDiscoverer = createDiscoverer(mContext);
-        final boolean canScan =
-                mDeviceDiscoverer.canScan() && ScanDisabledFragment.hasScanPermission(mContext);
+        final boolean canScan = mDeviceDiscoverer.canScan() &&
+                ScanDisabledDialogFragment.hasScanPermission(mContext);
 
 
         listener.onServiceFound(new DiscoveredService() {
