@@ -123,7 +123,8 @@ class SensorPreferenceGroup implements SensorGroup {
 
 
     @Override
-    public void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service) {
+    public void addAvailableService(String providerId,
+            ExternalSensorDiscoverer.DiscoveredService service) {
         // This view doesn't track services
     }
 
@@ -146,5 +147,10 @@ class SensorPreferenceGroup implements SensorGroup {
     public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
         // This view doesn't track devices
         return false;
+    }
+
+    @Override
+    public void onSensorAddedElsewhere(String newKey, ConnectableSensor sensor) {
+
     }
 }

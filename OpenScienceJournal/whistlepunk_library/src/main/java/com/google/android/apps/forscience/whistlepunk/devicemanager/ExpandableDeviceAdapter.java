@@ -106,7 +106,6 @@ public class ExpandableDeviceAdapter extends
 
     @Override
     public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
-        // TODO: can we reduce the duplication with addSensor?
         boolean isReplacement = mSensorMap.containsKey(sensorKey);
         if (isReplacement) {
             mSensorMap.put(sensorKey, sensor);
@@ -128,6 +127,11 @@ public class ExpandableDeviceAdapter extends
         }
 
         return false;
+    }
+
+    @Override
+    public void onSensorAddedElsewhere(String newKey, ConnectableSensor sensor) {
+        // Don't care
     }
 
     @Override
@@ -283,7 +287,8 @@ public class ExpandableDeviceAdapter extends
     }
 
     @Override
-    public void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service) {
+    public void addAvailableService(String providerId,
+            ExternalSensorDiscoverer.DiscoveredService service) {
         // This view doesn't track services
     }
 

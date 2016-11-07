@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Runnables;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -213,48 +214,54 @@ public class ConnectableSensorRegistry {
 
         for (final Map.Entry<String, ExternalSensorDiscoverer> entry : mDiscoverers.entrySet()) {
             ExternalSensorDiscoverer discoverer = entry.getValue();
-            ExternalSensorProvider provider = discoverer.getProvider();
-            final String providerId = provider.getProviderId();
-            pool.addTask(providerId);
-            ExternalSensorDiscoverer.ScanListener listener =
-                    new ExternalSensorDiscoverer.ScanListener() {
-                        @Override
-                        public void onSensorFound(
-                                ExternalSensorDiscoverer.DiscoveredSensor sensor) {
-                            ConnectableSensorRegistry.this.onSensorFound(sensor, keysSeen);
-                        }
-
-                        @Override
-                        public void onServiceFound(
-                                ExternalSensorDiscoverer.DiscoveredService service) {
-                            getAvailableGroup().addAvailableService(service);
-                        }
-
-                        @Override
-                        public void onServiceScanComplete(String serviceId) {
-                            getAvailableGroup().onServiceScanComplete(serviceId);
-                        }
-
-                        @Override
-                        public void onDeviceFound(
-                                ExternalSensorDiscoverer.DiscoveredDevice device) {
-                            getAvailableGroup().addAvailableDevice(device);
-                            if (mDeviceRegistry != null) {
-                                mDeviceRegistry.addDevice(device.getSpec());
-                            }
-                        }
-
-                        @Override
-                        public void onScanDone() {
-                            pool.taskDone(providerId);
-                        }
-                    };
-            if (discoverer.startScanning(listener,
-                    LoggingConsumer.expectSuccess(TAG, "Discovering sensors"))) {
-                onScanStarted();
-            }
+            startScanning(entry.getKey(), discoverer, pool, keysSeen);
         }
         mPresenter.refreshScanningUI();
+    }
+
+    private void startScanning(final String providerKey, ExternalSensorDiscoverer discoverer,
+            final TaskPool pool,
+            final Set<String> keysSeen) {
+        ExternalSensorProvider provider = discoverer.getProvider();
+        final String providerId = provider.getProviderId();
+        pool.addTask(providerId);
+        ExternalSensorDiscoverer.ScanListener listener =
+                new ExternalSensorDiscoverer.ScanListener() {
+                    @Override
+                    public void onSensorFound(
+                            ExternalSensorDiscoverer.DiscoveredSensor sensor) {
+                        ConnectableSensorRegistry.this.onSensorFound(sensor, keysSeen);
+                    }
+
+                    @Override
+                    public void onServiceFound(
+                            ExternalSensorDiscoverer.DiscoveredService service) {
+                        getAvailableGroup().addAvailableService(providerKey, service);
+                    }
+
+                    @Override
+                    public void onServiceScanComplete(String serviceId) {
+                        getAvailableGroup().onServiceScanComplete(serviceId);
+                    }
+
+                    @Override
+                    public void onDeviceFound(
+                            ExternalSensorDiscoverer.DiscoveredDevice device) {
+                        getAvailableGroup().addAvailableDevice(device);
+                        if (mDeviceRegistry != null) {
+                            mDeviceRegistry.addDevice(device.getSpec());
+                        }
+                    }
+
+                    @Override
+                    public void onScanDone() {
+                        pool.taskDone(providerId);
+                    }
+                };
+        if (discoverer.startScanning(listener,
+                LoggingConsumer.expectSuccess(TAG, "Discovering sensors"))) {
+            onScanStarted();
+        }
     }
 
     /**
@@ -294,6 +301,8 @@ public class ConnectableSensorRegistry {
                 // If that doesn't work, this is a new available sensor.
                 getAvailableGroup().addSensor(newKey, sensor);
                 availableKeysSeen.add(newKey);
+            } else {
+                getAvailableGroup().onSensorAddedElsewhere(newKey, sensor);
             }
         } else {
             sensor = mSensors.get(sensorKey);
@@ -531,5 +540,15 @@ public class ConnectableSensorRegistry {
 
     public boolean hasOptions(String sensorKey) {
         return mSettingsIntents.containsKey(sensorKey) && mSettingsIntents.get(sensorKey) != null;
+    }
+
+    public void reloadProvider(String providerKey) {
+        ExternalSensorDiscoverer discoverer = mDiscoverers.get(providerKey);
+        if (discoverer == null) {
+            throw new IllegalArgumentException(
+                    "Couldn't find " + providerKey + " in " + mDiscoverers);
+        }
+        startScanning(providerKey, discoverer, new TaskPool(Runnables.doNothing()),
+                new HashSet<String>());
     }
 }

@@ -78,7 +78,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
                 appearanceProvider, mSensorRegistry, 0);
 
         mAvailableDevices = ExpandableServiceAdapter.createEmpty(mSensorRegistry, mRegistry, 1,
-                deviceRegistry, getFragmentManager());
+                deviceRegistry, getFragmentManager(), appearanceProvider);
         setHasOptionsMenu(true);
     }
 
@@ -192,9 +192,6 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     public void refreshScanningUI() {
         boolean isScanning = mRegistry.isScanning();
 
-        if (mAvailableDevices != null) {
-            mAvailableDevices.setProgress(isScanning);
-        }
         if (mMainMenu != null) {
             MenuItem refresh = mMainMenu.findItem(R.id.action_refresh);
             refresh.setEnabled(!isScanning);

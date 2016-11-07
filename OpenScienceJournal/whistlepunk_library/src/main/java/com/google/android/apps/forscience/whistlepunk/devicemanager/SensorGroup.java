@@ -46,7 +46,11 @@ public interface SensorGroup {
 
     int getSensorCount();
 
-    void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service);
+    /**
+     * @param providerId a key to the external sensor provider that advertises this service.
+     * @param service
+     */
+    void addAvailableService(String providerId, ExternalSensorDiscoverer.DiscoveredService service);
 
     void onServiceScanComplete(String serviceId);
 
@@ -62,4 +66,9 @@ public interface SensorGroup {
      */
     boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor);
 
+    /**
+     * A sensor was added in another view.  It shouldn't be displayed here, but if you need to
+     * know about it, implement this.
+     */
+    void onSensorAddedElsewhere(String newKey, ConnectableSensor sensor);
 }

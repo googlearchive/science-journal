@@ -126,7 +126,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     }
 
     @Override
-    public void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service) {
+    public void addAvailableService(String providerId,
+            ExternalSensorDiscoverer.DiscoveredService service) {
         // This view doesn't track services
     }
 
@@ -149,6 +150,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
         // This view doesn't track devices
         return false;
+    }
+
+    @Override
+    public void onSensorAddedElsewhere(String newKey, ConnectableSensor sensor) {
+        // Don't care
     }
 
     public void setProgress(boolean isScanning) {

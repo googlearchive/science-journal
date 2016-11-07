@@ -57,7 +57,8 @@ class MemorySensorGroup implements SensorGroup {
     }
 
     @Override
-    public void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service) {
+    public void addAvailableService(String providerId,
+            ExternalSensorDiscoverer.DiscoveredService service) {
 
     }
 
@@ -79,6 +80,11 @@ class MemorySensorGroup implements SensorGroup {
     @Override
     public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
         return false;
+    }
+
+    @Override
+    public void onSensorAddedElsewhere(String newKey, ConnectableSensor sensor) {
+
     }
 
     public String getKey(int location) {

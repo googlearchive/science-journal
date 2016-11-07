@@ -17,19 +17,23 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.FragmentManager;
 import android.support.annotation.NonNull;
+import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Adapter that shows scannable services and available devices on each service
@@ -45,22 +49,30 @@ public class ExpandableServiceAdapter extends
     private final DeviceRegistry mDeviceRegistry;
     private final FragmentManager mFragmentManager;
 
+    // TODO: maintain one global map
+    private Map<String, ConnectableSensor> mSensorMap = new ArrayMap<>();
+    private final SensorAppearanceProvider mAppearanceProvider;
+
     public static ExpandableServiceAdapter createEmpty(SensorRegistry sensorRegistry,
             ConnectableSensorRegistry connectableSensorRegistry, int uniqueId,
-            DeviceRegistry deviceRegistry, FragmentManager fragmentManager) {
+            DeviceRegistry deviceRegistry, FragmentManager fragmentManager,
+            SensorAppearanceProvider appearanceProvider) {
         return new ExpandableServiceAdapter(new ArrayList<ServiceParentListItem>(), sensorRegistry,
-                connectableSensorRegistry, uniqueId, deviceRegistry, fragmentManager);
+                connectableSensorRegistry, uniqueId, deviceRegistry, fragmentManager,
+                appearanceProvider);
     }
 
     private ExpandableServiceAdapter(@NonNull List<ServiceParentListItem> parentItemList,
             SensorRegistry sensorRegistry, ConnectableSensorRegistry connectableSensorRegistry,
-            int uniqueId, DeviceRegistry deviceRegistry, FragmentManager fragmentManager) {
+            int uniqueId, DeviceRegistry deviceRegistry, FragmentManager fragmentManager,
+            SensorAppearanceProvider appearanceProvider) {
         super(parentItemList, uniqueId);
         mParentItemList = parentItemList;
         mSensorRegistry = sensorRegistry;
         mConnectableSensorRegistry = connectableSensorRegistry;
         mDeviceRegistry = deviceRegistry;
         mFragmentManager = fragmentManager;
+        mAppearanceProvider = appearanceProvider;
     }
 
     @Override
@@ -73,14 +85,14 @@ public class ExpandableServiceAdapter extends
 
     @Override
     public void onBindParentViewHolder(ServiceParentViewHolder parentViewHolder, final int position,
-            ParentListItem parentListItem) {
-        parentViewHolder.bind((ServiceParentListItem) parentListItem, mFragmentManager,
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        // TODO: how to refresh?
-                    }
-                });
+            final ParentListItem parentListItem) {
+        final ServiceParentListItem serviceParent = (ServiceParentListItem) parentListItem;
+        parentViewHolder.bind(serviceParent, mFragmentManager, new Runnable() {
+            @Override
+            public void run() {
+                mConnectableSensorRegistry.reloadProvider(serviceParent.getProviderId());
+            }
+        });
     }
 
     @Override
@@ -93,7 +105,7 @@ public class ExpandableServiceAdapter extends
     @Override
     public void onBindChildViewHolder(DeviceChildViewHolder childViewHolder, int position,
             Object childListItem) {
-        childViewHolder.bind((DeviceWithSensors) childListItem, mConnectableSensorRegistry);
+        childViewHolder.bind((DeviceWithSensors) childListItem, mAppearanceProvider, mSensorMap);
     }
 
     @Override
@@ -109,6 +121,7 @@ public class ExpandableServiceAdapter extends
 
     @Override
     public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
+        mSensorMap.put(sensorKey, sensor);
         InputDeviceSpec device = mDeviceRegistry.getDevice(sensor.getSpec());
         for (ServiceParentListItem service : mParentItemList) {
             if (service.addSensorToDevice(device, sensorKey)) {
@@ -117,6 +130,11 @@ public class ExpandableServiceAdapter extends
         }
 
         return false;
+    }
+
+    @Override
+    public void onSensorAddedElsewhere(String newKey, ConnectableSensor sensor) {
+        mSensorMap.put(newKey, sensor);
     }
 
     @Override
@@ -136,13 +154,14 @@ public class ExpandableServiceAdapter extends
     }
 
     @Override
-    public void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service) {
+    public void addAvailableService(String providerId,
+            ExternalSensorDiscoverer.DiscoveredService service) {
         String serviceId = service.getServiceId();
         if (indexOfService(serviceId) >= 0) {
             setIsLoading(serviceId, true);
             return;
         }
-        ServiceParentListItem item = new ServiceParentListItem(service);
+        ServiceParentListItem item = new ServiceParentListItem(providerId, service);
         item.setIsLoading(true);
         mParentItemList.add(item);
         notifyParentItemInserted(mParentItemList.size() - 1);
@@ -206,26 +225,26 @@ public class ExpandableServiceAdapter extends
         }
     }
 
-    public void setProgress(boolean isScanning) {
-        // TODO: is this useful?
-    }
-
     public class DeviceChildViewHolder extends ChildViewHolder {
         private final TextView mNameView;
+        private final ImageView mIcon;
 
         public DeviceChildViewHolder(View itemView) {
             super(itemView);
             mNameView = (TextView) itemView.findViewById(R.id.device_name);
+            mIcon = (ImageView) itemView.findViewById(R.id.device_icon);
         }
 
-        public void bind(final DeviceWithSensors dws, final ConnectableSensorRegistry registry) {
+        public void bind(final DeviceWithSensors dws, SensorAppearanceProvider appearanceProvider,
+                Map<String, ConnectableSensor> sensorMap) {
             mNameView.setText(dws.getName());
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    dws.addToRegistry(registry, mSensorRegistry);
+                    dws.addToRegistry(mConnectableSensorRegistry, mSensorRegistry);
                 }
             });
+            // TODO: set icon
         }
     }
 }

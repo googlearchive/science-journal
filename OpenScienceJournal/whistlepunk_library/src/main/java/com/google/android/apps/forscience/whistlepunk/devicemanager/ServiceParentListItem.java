@@ -26,11 +26,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceParentListItem implements ParentListItem {
+    private String mProviderId;
     private ExternalSensorDiscoverer.DiscoveredService mService;
     private ArrayList<DeviceWithSensors> mDevices = Lists.newArrayList();
     private boolean mIsLoading;
 
-    public ServiceParentListItem(ExternalSensorDiscoverer.DiscoveredService service) {
+    public ServiceParentListItem(String providerId,
+            ExternalSensorDiscoverer.DiscoveredService service) {
+        mProviderId = providerId;
         mService = service;
     }
 
@@ -99,5 +102,9 @@ public class ServiceParentListItem implements ParentListItem {
 
     public boolean isLoading() {
         return mIsLoading;
+    }
+
+    public String getProviderId() {
+        return mProviderId;
     }
 }

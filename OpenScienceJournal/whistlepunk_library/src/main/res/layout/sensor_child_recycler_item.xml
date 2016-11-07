@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="48dp"
     android:orientation="horizontal"
-    android:layout_marginStart="4dp"
+    android:layout_marginStart="48dp"
     >
 
     <!-- It is OK that this button is smaller than the min accessible size, because the entire
