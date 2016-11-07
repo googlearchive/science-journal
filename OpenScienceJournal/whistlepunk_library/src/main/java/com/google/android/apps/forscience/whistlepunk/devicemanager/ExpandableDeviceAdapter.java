@@ -286,4 +286,9 @@ public class ExpandableDeviceAdapter extends
     public void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service) {
         // This view doesn't track services
     }
+
+    @Override
+    public void onServiceScanComplete(String serviceId) {
+        // This view doesn't track services
+    }
 }

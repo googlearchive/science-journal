@@ -90,6 +90,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorO
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import java.io.File;
 import java.text.NumberFormat;
@@ -97,6 +98,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
@@ -163,6 +165,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
      */
     private String mRecorderPauseId;
     private boolean mRecordingWasCanceled;
+    private Set<String> mExcludedSensorIds = Sets.newHashSet();
 
     public static RecordFragment newInstance() {
         return new RecordFragment();
@@ -590,7 +593,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         "get sensor layout") {
                     @Override
                     public void success(List<GoosciSensorLayout.SensorLayout> layouts) {
-                        addExternalSensors(layouts, rc);
+                        loadIncludedSensors(layouts, rc);
                         mSensorLayoutsLoaded = true;
                     }
                 });
@@ -844,7 +847,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     protected List<String> getAvailableSources() {
-        return mSensorRegistry.getAllSourcesExcept(mSensorCardAdapter.getSensorTags());
+        return mSensorRegistry.getAllSourcesExcept(mExcludedSensorIds,
+                mSensorCardAdapter.getSensorTags());
     }
 
     private void adjustSensorCardAddAlpha() {
@@ -1390,7 +1394,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     /**
      * Get list of existing devices.
      */
-    private void addExternalSensors(final List<GoosciSensorLayout.SensorLayout> layouts,
+    private void loadIncludedSensors(final List<GoosciSensorLayout.SensorLayout> layouts,
             final RecorderController rc) {
         if (mSelectedExperiment != null) {
             getDataController().getExternalSensorsByExperiment(
@@ -1399,6 +1403,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                             "add external sensors") {
                         @Override
                         public void success(ExperimentSensors sensors) {
+                            mExcludedSensorIds.clear();
+                            mExcludedSensorIds.addAll(sensors.getExcludedSensorIds());
                             updateExternalSensors(sensors.getIncludedSensors());
                             setSensorPresenters(layouts, rc);
                         }

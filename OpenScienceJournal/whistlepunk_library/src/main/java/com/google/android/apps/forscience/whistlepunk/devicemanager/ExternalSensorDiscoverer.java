@@ -96,9 +96,16 @@ public interface ExternalSensorDiscoverer {
         void onSensorFound(DiscoveredSensor sensor);
 
         /**
+         * Called when all devices have been discovered on the service with the given id, or the
+         * scan has timed out.  No more devices are forthcoming.
+         */
+        void onServiceScanComplete(String serviceId);
+
+        /**
          * Called when all devices and sensors are found (on the UI thread).
          */
         void onScanDone();
+
     }
 
     /**

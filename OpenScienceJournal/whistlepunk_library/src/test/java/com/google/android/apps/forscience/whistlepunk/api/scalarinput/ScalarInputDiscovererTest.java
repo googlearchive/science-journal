@@ -63,6 +63,11 @@ public class ScalarInputDiscovererTest {
                     }
 
                     @Override
+                    public void onServiceScanComplete(String serviceId) {
+
+                    }
+
+                    @Override
                     public void onServiceFound(ExternalSensorDiscoverer.DiscoveredService service) {
                         cService.take(service);
                     }
@@ -119,6 +124,11 @@ public class ScalarInputDiscovererTest {
             @Override
             public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
                 c.take(sensor);
+            }
+
+            @Override
+            public void onServiceScanComplete(String serviceId) {
+
             }
 
             @Override

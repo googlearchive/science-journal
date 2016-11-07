@@ -300,9 +300,10 @@ public class SensorRegistry {
     }
 
     @NonNull
-    List<String> getAllSourcesExcept(String... sensorTags) {
+    List<String> getAllSourcesExcept(Set<String> excluded, String... sensorTags) {
         List<String> allSensorIds = Lists.newArrayList(getAllSources());
         allSensorIds.removeAll(Arrays.asList(sensorTags));
+        allSensorIds.removeAll(excluded);
         return allSensorIds;
     }
 }

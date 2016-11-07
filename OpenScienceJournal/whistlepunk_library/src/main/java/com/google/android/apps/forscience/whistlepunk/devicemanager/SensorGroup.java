@@ -48,6 +48,8 @@ public interface SensorGroup {
 
     void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service);
 
+    void onServiceScanComplete(String serviceId);
+
     void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device);
 
     // TODO: too many methods that only some implementors care about
@@ -59,4 +61,5 @@ public interface SensorGroup {
      * @return true iff this group decides this sensor belongs to it.
      */
     boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor);
+
 }

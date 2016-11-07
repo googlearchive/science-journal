@@ -72,9 +72,15 @@ public class ExpandableServiceAdapter extends
     }
 
     @Override
-    public void onBindParentViewHolder(ServiceParentViewHolder parentViewHolder, int position,
+    public void onBindParentViewHolder(ServiceParentViewHolder parentViewHolder, final int position,
             ParentListItem parentListItem) {
-        parentViewHolder.bind((ServiceParentListItem) parentListItem, mFragmentManager);
+        parentViewHolder.bind((ServiceParentListItem) parentListItem, mFragmentManager,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // TODO: how to refresh?
+                    }
+                });
     }
 
     @Override
@@ -131,11 +137,28 @@ public class ExpandableServiceAdapter extends
 
     @Override
     public void addAvailableService(ExternalSensorDiscoverer.DiscoveredService service) {
-        if (indexOfService(service.getServiceId()) >= 0) {
+        String serviceId = service.getServiceId();
+        if (indexOfService(serviceId) >= 0) {
+            setIsLoading(serviceId, true);
             return;
         }
-        mParentItemList.add(new ServiceParentListItem(service));
+        ServiceParentListItem item = new ServiceParentListItem(service);
+        item.setIsLoading(true);
+        mParentItemList.add(item);
         notifyParentItemInserted(mParentItemList.size() - 1);
+    }
+
+    @Override
+    public void onServiceScanComplete(String serviceId) {
+        setIsLoading(serviceId, false);
+    }
+
+    private void setIsLoading(String serviceId, boolean isLoading) {
+        int i = indexOfService(serviceId);
+        if (i >= 0) {
+            mParentItemList.get(i).setIsLoading(isLoading);
+            notifyParentItemChanged(i);
+        }
     }
 
     private int indexOfService(String serviceId) {

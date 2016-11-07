@@ -131,6 +131,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     }
 
     @Override
+    public void onServiceScanComplete(String serviceId) {
+        // This view doesn't track services
+    }
+
+    @Override
     public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
         // This view doesn't track devices
     }

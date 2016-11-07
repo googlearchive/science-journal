@@ -87,12 +87,14 @@ public abstract class ScalarSensorService extends Service {
                     c.onDeviceFound(device.getDeviceId(), device.getDeviceName(),
                             device.getSettingsIntent());
                 }
+                c.onScanDone();
             }
 
             @Override
             public void scanSensors(String deviceId, ISensorConsumer c) throws RemoteException {
                 AdvertisedDevice device = devices.get(deviceId);
                 if (device == null) {
+                    c.onScanDone();
                     return;
                 }
                 for (AdvertisedSensor sensor : device.getSensors()) {
@@ -100,6 +102,7 @@ public abstract class ScalarSensorService extends Service {
                     c.onSensorFound(sensor.getAddress(), sensor.getName(), sensor.getBehavior(),
                             sensor.getAppearance());
                 }
+                c.onScanDone();
             }
 
             @Override

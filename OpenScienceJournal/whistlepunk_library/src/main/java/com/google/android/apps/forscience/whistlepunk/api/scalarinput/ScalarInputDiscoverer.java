@@ -167,7 +167,13 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
             final TaskPool pool) {
         final String serviceTaskId = "SERVICE:" + serviceId;
         pool.addTask(serviceTaskId);
-        scheduleTaskTimeout(pool, serviceTaskId);
+        mScheduler.schedule(Delay.millis(mScanTimeoutMillis), new Runnable() {
+            @Override
+            public void run() {
+                markTaskTimeout(pool, serviceTaskId);
+                scanListener.onServiceScanComplete(serviceId);
+            }
+        });
         return new IDeviceConsumer.Stub() {
             @Override
             public void onDeviceFound(final String deviceId, final String name,
@@ -210,6 +216,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
             @Override
             public void onScanDone() throws RemoteException {
+                scanListener.onServiceScanComplete(serviceId);
                 pool.taskDone(serviceTaskId);
             }
         };
@@ -219,12 +226,16 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
         mScheduler.schedule(Delay.millis(mScanTimeoutMillis), new Runnable() {
             @Override
             public void run() {
-                if (pool.taskDone(taskId)) {
-                    mUsageTracker.trackEvent(TrackerConstants.CATEGORY_API,
-                            TrackerConstants.ACTION_API_SCAN_TIMEOUT, taskId, mScanTimeoutMillis);
-                }
+                markTaskTimeout(pool, taskId);
             }
         });
+    }
+
+    private void markTaskTimeout(TaskPool pool, String taskId) {
+        if (pool.taskDone(taskId)) {
+            mUsageTracker.trackEvent(TrackerConstants.CATEGORY_API,
+                    TrackerConstants.ACTION_API_SCAN_TIMEOUT, taskId, mScanTimeoutMillis);
+        }
     }
 
     @NonNull

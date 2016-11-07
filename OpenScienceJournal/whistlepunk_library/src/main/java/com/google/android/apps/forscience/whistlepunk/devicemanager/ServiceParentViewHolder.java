@@ -18,6 +18,9 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import android.app.FragmentManager;
 import android.support.annotation.NonNull;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,6 +33,8 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
     private final ImageView mIcon;
     private final ToggleArrow mCollapsedIcon;
     private final ImageView mErrorIcon;
+    private final ImageButton mRefreshIcon;
+    private Animation mRotation;
 
     public ServiceParentViewHolder(View itemView, Supplier<Integer> offsetSupplier) {
         super(itemView, offsetSupplier);
@@ -37,9 +42,11 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
         mIcon = (ImageView) itemView.findViewById(R.id.service_icon);
         mCollapsedIcon = (ToggleArrow) itemView.findViewById(R.id.collapsed_icon);
         mErrorIcon = (ImageView) itemView.findViewById(R.id.btn_service_connection_error);
+        mRefreshIcon = (ImageButton) itemView.findViewById(R.id.btn_service_refresh);
     }
 
-    public void bind(ServiceParentListItem item, FragmentManager fragmentManager) {
+    public void bind(ServiceParentListItem item, FragmentManager fragmentManager,
+            final Runnable onRefresh) {
         mNameView.setText(item.getServiceName());
         mIcon.setImageDrawable(item.getDeviceIcon(mIcon.getContext()));
         mCollapsedIcon.setActionStrings(R.string.btn_expand_device,
@@ -57,12 +64,40 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
                 item.getConnectionErrorIfAny();
         if (error == null) {
             mErrorIcon.setVisibility(View.GONE);
+            mErrorIcon.setOnClickListener(null);
         } else {
             mErrorIcon.setVisibility(View.VISIBLE);
             mErrorIcon.setContentDescription(
                     mErrorIcon.getContext().getString(R.string.snackbar_source_error,
                             error.getErrorMessage()));
             mErrorIcon.setOnClickListener(getOnClickListener(error, fragmentManager));
+        }
+
+        boolean loading = item.isLoading();
+        if (loading) {
+            mRefreshIcon.setEnabled(false);
+            stopRotation();
+            mRotation = AnimationUtils.loadAnimation(mRefreshIcon.getContext(),
+                    R.anim.reload_rotate);
+            mRefreshIcon.startAnimation(mRotation);
+            mRefreshIcon.setOnClickListener(null);
+        } else {
+            mRefreshIcon.setEnabled(true);
+            stopRotation();
+            mRefreshIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onRefresh.run();
+                }
+            });
+        }
+    }
+
+    private void stopRotation() {
+        if (mRotation != null) {
+            mRotation.cancel();
+            mRotation = null;
+            mRefreshIcon.setRotation(0);
         }
     }
 

@@ -28,6 +28,7 @@ import java.util.List;
 public class ServiceParentListItem implements ParentListItem {
     private ExternalSensorDiscoverer.DiscoveredService mService;
     private ArrayList<DeviceWithSensors> mDevices = Lists.newArrayList();
+    private boolean mIsLoading;
 
     public ServiceParentListItem(ExternalSensorDiscoverer.DiscoveredService service) {
         mService = service;
@@ -90,5 +91,13 @@ public class ServiceParentListItem implements ParentListItem {
 
     public ExternalSensorDiscoverer.ServiceConnectionError getConnectionErrorIfAny() {
         return mService.getConnectionErrorIfAny();
+    }
+
+    public void setIsLoading(boolean isLoading) {
+        mIsLoading = isLoading;
+    }
+
+    public boolean isLoading() {
+        return mIsLoading;
     }
 }

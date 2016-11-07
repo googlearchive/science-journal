@@ -77,6 +77,7 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
         mOnScanDone = new Runnable() {
             @Override
             public void run() {
+                listener.onServiceScanComplete(SERVICE_ID);
                 listener.onScanDone();
             }
         };

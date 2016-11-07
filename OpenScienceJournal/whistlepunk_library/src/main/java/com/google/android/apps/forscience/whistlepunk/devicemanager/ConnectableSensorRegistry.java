@@ -231,6 +231,11 @@ public class ConnectableSensorRegistry {
                         }
 
                         @Override
+                        public void onServiceScanComplete(String serviceId) {
+                            getAvailableGroup().onServiceScanComplete(serviceId);
+                        }
+
+                        @Override
                         public void onDeviceFound(
                                 ExternalSensorDiscoverer.DiscoveredDevice device) {
                             getAvailableGroup().addAvailableDevice(device);

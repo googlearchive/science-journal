@@ -62,6 +62,11 @@ class MemorySensorGroup implements SensorGroup {
     }
 
     @Override
+    public void onServiceScanComplete(String serviceId) {
+
+    }
+
+    @Override
     public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
 
     }
