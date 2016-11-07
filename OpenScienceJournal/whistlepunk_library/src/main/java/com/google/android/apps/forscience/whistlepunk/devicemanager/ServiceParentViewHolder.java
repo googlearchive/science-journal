@@ -45,6 +45,14 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
         mCollapsedIcon.setActionStrings(R.string.btn_expand_device,
                 R.string.btn_contract_device);
         mCollapsedIcon.setActive(item.isInitiallyExpanded(), false);
+        mCollapsedIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // The ImageButton steals the clicks from the row, so get the clicks back
+                // with this listener!
+                itemView.callOnClick();
+            }
+        });
         final ExternalSensorDiscoverer.ServiceConnectionError error =
                 item.getConnectionErrorIfAny();
         if (error == null) {
