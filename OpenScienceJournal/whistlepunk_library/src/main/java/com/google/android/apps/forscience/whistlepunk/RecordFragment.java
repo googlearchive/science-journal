@@ -31,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -654,7 +655,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (layouts == null || layouts.size() == 0) {
             layouts = Lists.newArrayList(defaultLayout());
         }
-        int maxNumSources = mSensorRegistry.getAllSources().size();
+        int maxNumSources = getAllIncludedSources().size();
 
         while (layouts.size() > maxNumSources) {
             // A sensor must have been removed.  The initializeSensorSelection calls below will
@@ -846,9 +847,42 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 });
     }
 
-    protected List<String> getAvailableSources() {
-        return mSensorRegistry.getAllSourcesExcept(mExcludedSensorIds,
-                mSensorCardAdapter.getSensorTags());
+    private List<String> getAllIncludedSources() {
+        return nonEmptySensorList(
+                Lists.newArrayList(mSensorRegistry.getAllSourcesExcept(mExcludedSensorIds)));
+    }
+
+    private List<String> getAvailableSources() {
+        String[] selected = mSensorCardAdapter.getSensorTags();
+        List<String> sources = mSensorRegistry.getAllSourcesExcept(mExcludedSensorIds, selected);
+        if (!hasGoodSensorId(selected)) {
+            // If nothing is selected, at least one must be avaiable (see notes on
+            // #nonEmptySensorList)
+            List<String> nonEmpty = nonEmptySensorList(sources);
+            return nonEmpty;
+        }
+
+        return sources;
+    }
+
+    private boolean hasGoodSensorId(String[] selected) {
+        for (String s : selected) {
+            if (s != null && !s.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @NonNull
+    private List<String> nonEmptySensorList(List<String> allSourcesExcept) {
+        // TODO: try to prevent ever getting here (b/32695928)
+        if (allSourcesExcept.isEmpty()) {
+            // We need _some_ kind of hack, but hopefully after b/32695928, this will be
+            // impossible/rare.
+            return Lists.newArrayList(mSensorRegistry.getAllSources().get(0));
+        }
+        return allSourcesExcept;
     }
 
     private void adjustSensorCardAddAlpha() {
@@ -1453,8 +1487,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void updateSensorCount() {
-        mSensorCardAdapter.setAvailableSensorCount(
-                mSensorRegistry.getAllSources().size());
+        mSensorCardAdapter.setAvailableSensorCount(getAllIncludedSources().size());
     }
 
     private void scheduleFeatureDiscovery(String sensorId) {
