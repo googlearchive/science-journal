@@ -118,7 +118,7 @@ public class ExpandableDeviceAdapterTest {
         ConnectableSensor sensor = mScenario.makeConnectedSensorNewDevice();
         adapter.addSensor(mScenario.newSensorKey(), sensor);
 
-        ConnectableSensor builtInSensor = ConnectableSensor.builtIn("builtInId");
+        ConnectableSensor builtInSensor = ConnectableSensor.builtIn("builtInId", true);
         adapter.addSensor(mScenario.newSensorKey(), builtInSensor);
 
         assertEquals(2, adapter.getParentItemList().size());

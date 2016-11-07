@@ -243,15 +243,18 @@ public class SensorRegistry {
 
         // Add previously unknown sensors
         for (ConnectableSensor newSensor : sensors) {
-            String externalSensorId = newSensor.getConnectedSensorId();
-            if (!previousExternalSources.remove(externalSensorId)) {
-                // sensor is new
-                ExternalSensorSpec sensor = newSensor.getSpec();
-                ExternalSensorProvider provider = externalProviders.get(sensor.getType());
-                if (provider != null) {
-                    addSource(new SensorRegistryItem(provider.getProviderId(),
-                            provider.buildSensor(externalSensorId, sensor), sensor.getLoggingId()));
-                    sensorsActuallyAdded.add(externalSensorId);
+            if (newSensor.getSpec() != null) {
+                String externalSensorId = newSensor.getConnectedSensorId();
+                if (!previousExternalSources.remove(externalSensorId)) {
+                    // sensor is new
+                    ExternalSensorSpec sensor = newSensor.getSpec();
+                    ExternalSensorProvider provider = externalProviders.get(sensor.getType());
+                    if (provider != null) {
+                        addSource(new SensorRegistryItem(provider.getProviderId(),
+                                provider.buildSensor(externalSensorId, sensor),
+                                sensor.getLoggingId()));
+                        sensorsActuallyAdded.add(externalSensorId);
+                    }
                 }
             }
         }

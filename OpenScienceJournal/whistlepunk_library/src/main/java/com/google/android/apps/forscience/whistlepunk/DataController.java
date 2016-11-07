@@ -20,10 +20,10 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
@@ -99,7 +99,7 @@ public interface DataController {
      * Passes to onSuccess a map from sensor ids to external sensor specs
      */
     void getExternalSensorsByExperiment(final String experimentId,
-            MaybeConsumer<List<ConnectableSensor>> onSuccess);
+            MaybeConsumer<ExperimentSensors> onSuccess);
 
     /**
      * Passes to onSuccess a map from sensor ids to external sensor specs

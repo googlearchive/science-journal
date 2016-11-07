@@ -29,6 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableS
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
@@ -458,12 +459,11 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     @Override
     public void getExternalSensorsByExperiment(final String experimentId,
-            final MaybeConsumer<List<ConnectableSensor>> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<List<ConnectableSensor>>() {
+            final MaybeConsumer<ExperimentSensors> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<ExperimentSensors>() {
             @Override
-            public List<ConnectableSensor> call() throws Exception {
-                return mMetaDataManager.getExperimentExternalSensors(experimentId,
-                        mProviderMap).getIncludedSensors();
+            public ExperimentSensors call() throws Exception {
+                return mMetaDataManager.getExperimentExternalSensors(experimentId, mProviderMap);
             }
         });
     }
@@ -496,7 +496,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     public void removeSensorFromExperiment(final String experimentId, final String sensorId,
             MaybeConsumer<Success> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
-
             @Override
             public Success call() throws Exception {
                 mMetaDataManager.removeSensorFromExperiment(sensorId, experimentId);

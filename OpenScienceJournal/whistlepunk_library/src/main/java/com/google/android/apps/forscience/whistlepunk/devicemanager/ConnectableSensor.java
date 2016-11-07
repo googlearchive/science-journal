@@ -15,9 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -31,39 +28,42 @@ public class ConnectableSensor {
     private ExternalSensorSpec mSpec;
 
     private String mConnectedSensorId;
+    private boolean mIncluded;
 
     /**
      * Create an entry for an external sensor we've connected to in the past
      */
     public static ConnectableSensor connected(ExternalSensorSpec spec, String connectedSensorId) {
-        return new ConnectableSensor(spec, connectedSensorId);
+        return new ConnectableSensor(spec, connectedSensorId, connectedSensorId != null);
     }
 
     /**
      * Create an entry for an external sensor we've never connected to
      */
     public static ConnectableSensor disconnected(ExternalSensorSpec spec) {
-        return new ConnectableSensor(spec, null);
+        return new ConnectableSensor(spec, null, false);
     }
 
     /**
      * Create an entry for an internal built-in sensor that we know how to retrieve from {@link
      * com.google.android.apps.forscience.whistlepunk.SensorRegistry}
      */
-    public static ConnectableSensor builtIn(String sensorId) {
-        return new ConnectableSensor(null, sensorId);
+    public static ConnectableSensor builtIn(String sensorId, boolean included) {
+        return new ConnectableSensor(null, sensorId, included);
     }
 
     /**
-     * @param spec   specification of the sensor if external, null if built-in (see
-     * {@link #builtIn(String)}).
-     * @param paired non-null if we've already paired with this sensor, and so there's already a
-     *               sensorId in the database for this sensor.  Otherwise, it's null; we could
-     *               connect, but a sensorId would need to be created if we did
+     * @param paired   non-null if we've already paired with this sensor, and so there's already a
+     *                 sensorId in the database for this sensor.  Otherwise, it's null; we could
+     *                 connect, but a sensorId would need to be created if we did
+     * @param spec     specification of the sensor if external, null if built-in (see
+     *                 {@link #builtIn(String, boolean)}).
+     * @param included true if the sensor is included in the current experiment
      */
-    private ConnectableSensor(ExternalSensorSpec spec, String connectedSensorId) {
+    private ConnectableSensor(ExternalSensorSpec spec, String connectedSensorId, boolean included) {
         mSpec = spec;
         mConnectedSensorId = connectedSensorId;
+        mIncluded = included;
     }
 
     public static Map<String, ExternalSensorSpec> makeMap(List<ConnectableSensor> sensors) {
@@ -75,7 +75,7 @@ public class ConnectableSensor {
     }
 
     public boolean isPaired() {
-        return mConnectedSensorId != null;
+        return mIncluded;
     }
 
     public ExternalSensorSpec getSpec() {
@@ -112,7 +112,7 @@ public class ConnectableSensor {
     }
 
     public boolean shouldShowOptionsOnConnect() {
-        return mSpec.shouldShowOptionsOnConnect();
+        return mSpec != null && mSpec.shouldShowOptionsOnConnect();
     }
 
     public String getDeviceAddress() {

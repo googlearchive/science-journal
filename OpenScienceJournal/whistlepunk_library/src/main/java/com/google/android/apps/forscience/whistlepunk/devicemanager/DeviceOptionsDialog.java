@@ -50,7 +50,7 @@ public class DeviceOptionsDialog extends DialogFragment {
         }
 
         @Override
-        public void onRemoveDeviceFromExperiment(String experimentId, String sensorId) {
+        public void onRemoveSensorFromExperiment(String experimentId, String sensorId) {
             // do nothing
         }
     };
@@ -71,7 +71,7 @@ public class DeviceOptionsDialog extends DialogFragment {
         /**
          * Called when the user requests to remove the device from the experiment.
          */
-        public void onRemoveDeviceFromExperiment(String experimentId, String sensorId);
+        public void onRemoveSensorFromExperiment(String experimentId, String sensorId);
     }
 
     private DataController mDataController;
@@ -183,7 +183,7 @@ public class DeviceOptionsDialog extends DialogFragment {
 
     private void removeDeviceFromExperiment() {
         if (getActivity() instanceof DeviceOptionsListener) {
-            ((DeviceOptionsListener) getActivity()).onRemoveDeviceFromExperiment(getExperimentId(),
+            ((DeviceOptionsListener) getActivity()).onRemoveSensorFromExperiment(getExperimentId(),
                     getArguments().getString(KEY_SENSOR_ID));
         }
     }

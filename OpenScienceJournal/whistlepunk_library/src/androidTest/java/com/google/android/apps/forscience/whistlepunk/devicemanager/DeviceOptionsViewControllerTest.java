@@ -85,7 +85,7 @@ public class DeviceOptionsViewControllerTest extends AndroidTestCase {
         }
 
         @Override
-        public void onRemoveDeviceFromExperiment(String experimentId, String address) {
+        public void onRemoveSensorFromExperiment(String experimentId, String address) {
 
         }
     }

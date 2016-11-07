@@ -218,7 +218,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
 
     @Override
     public void unpair(String experimentId, String sensorId) {
-        ((DeviceOptionsDialog.DeviceOptionsListener) getActivity()).onRemoveDeviceFromExperiment(
+        ((DeviceOptionsDialog.DeviceOptionsListener) getActivity()).onRemoveSensorFromExperiment(
                 experimentId, sensorId);
     }
 }
