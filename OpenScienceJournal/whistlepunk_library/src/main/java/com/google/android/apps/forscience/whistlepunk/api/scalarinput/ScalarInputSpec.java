@@ -154,7 +154,7 @@ public class ScalarInputSpec extends ExternalSensorSpec {
         try {
             return context.getPackageManager().getApplicationIcon(getPackageId(serviceId));
         } catch (PackageManager.NameNotFoundException e) {
-            return context.getResources().getDrawable(R.drawable.ic_api_01_black_24dp);
+            return context.getResources().getDrawable(R.drawable.ic_api_01_white_24dp);
         }
     }
 

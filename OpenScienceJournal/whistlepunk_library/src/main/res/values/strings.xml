@@ -53,9 +53,6 @@
     <!-- Menu option for deleting an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_delete">Delete</string>
 
-    <!-- Dialog action for canceling an operation [CHAR_LIMIT=10] -->
-    <string name="action_cancel">Cancel</string>
-
     <!-- Menu option for the ruler tool [CHAR_LIMIT=25] -->
     <string name="action_ruler">Ruler</string>
 
@@ -266,9 +263,6 @@
 
     <string name="title_activity_main">Science Journal - <xliff:g id="section">%s</xliff:g></string>
 
-    <!-- Title for activity that handles adding external devices (deprecated) [CHAR_LIMIT=40] -->
-    <string name="title_activity_add_sensor">External devices</string>
-
     <!-- Title for activity that handles sensor settings [CHAR_LIMIT=40] -->
     <string name="title_activity_sensor_settings">Sensor settings</string>
 
@@ -398,9 +392,6 @@
     <!-- Title of a settings item that displays the app's open source licenses [CHAR_LIMIT=25]-->
     <string name="settings_open_source_title">Open source licenses</string>
 
-    <!-- Title of a testing options item that displays testing sensors [CHAR_LIMIT=35]-->
-    <string name="dev_sensors_title">Enable experimental sensors</string>
-
     <!-- Message of alert when we cannot scan for external sensors due to Bluetooth being missing or location being not granted. [CHAR_LIMIT=none]-->
     <string name="cannot_scan_message">
         To access external devices (“Science Journal Sensor”) using Science Journal, you must first
@@ -473,9 +464,6 @@
 
     <!-- Message of alert when a run moves out of archive [CHAR_LIMIT=100] -->
     <string name="unarchived_run_message">Trial moved out of archive.</string>
-
-    <!-- Title of the toolbar in projects details for experiments [CHAR_LIMIT=25] -->
-    <string name="experiments_toolbar_title">Experiments</string>
 
     <!-- Replacement content description used for archived trials, projects and experiments [CHAR_LIMIT=NONE]-->
     <string name="archived_content_description"><xliff:g id="item">%1s</xliff:g> (archived)</string>
@@ -552,9 +540,6 @@
     <!-- Label for option to display frequency [CHAR_LIMIT=25] -->
     <string name="enable_frequency_checkbox_label">Show frequency</string>
 
-    <!-- Summary of developer option to show testing sensors [CHAR_LIMIT=none] -->
-    <string name="dev_sensors_summary">Show sensors that are only for developer testing</string>
-
     <!-- Notify user that there was an error when saving the options [CHAR_LIMIT=25] -->
     <string name="options_save_error">Error saving options</string>
 
@@ -606,9 +591,6 @@
     <!-- Recording label set as subtitle during recording [CHAR_LIMIT=25] -->
     <string name="recording_title_label">Recording\u2026</string>
 
-    <!-- Experiment edit info card button label which lets the user start editing experiment info [CHAR_LIMIT=25] -->
-    <string name="exp_edit_info_button">Edit info</string>
-
     <!-- Context description for button which goes back to observe [CHAR_LIMIT=50]-->
     <string name="btn_observe_content_description">Observe</string>
 
@@ -654,9 +636,6 @@
 
     <!-- Message shown to the user if we couldn't launch feedback [CHAR_LIMIT=200] -->
     <string name="feedback_error_message">Could not send feedback.</string>
-
-    <!-- Message shown if no sensor information is found when the user clicks the "more info" button. This should generally just be seen on custom sensors. [CHAR_LIMIT=100] -->
-    <string name="no_sensor_info_found">This sensor has no additional information!</string>
 
     <!-- One-sentence description of the accelerometer X sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_acc_x">The acceleration of the phone to the left and right, in m/s\u00B2</string>
@@ -805,9 +784,6 @@
 
     <!-- The heading on a sensor info page where the user can learn more about a sensor [CHAR_LIMIT=40] -->
     <string name="heading_info_section">What\'s Going On?</string>
-
-    <!-- Do not translate. Debug message that an action is not available: b/26463136 -->
-    <string name="action_not_available" translatable="false">Action not available</string>
 
     <!-- Menu option to edit a note [CHAR_LIMIT=25] -->
     <string name="edit_note_menu_item">Edit</string>
