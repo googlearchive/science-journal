@@ -67,9 +67,6 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
         mDeviceNameView.setText(item.getDeviceName());
         Context context = mDeviceIcon.getContext();
         Drawable icon = item.getDeviceIcon(context, sensorMap);
-        if (icon != null) {
-            DrawableCompat.setTint(icon, context.getResources().getColor(R.color.color_accent));
-        }
         mDeviceIcon.setImageDrawable(icon);
 
         mCollapsedIcon.setActionStrings(R.string.btn_expand_device,
