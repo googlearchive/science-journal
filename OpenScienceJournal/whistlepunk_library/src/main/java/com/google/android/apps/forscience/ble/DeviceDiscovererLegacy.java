@@ -20,6 +20,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
 
 import java.nio.ByteBuffer;
@@ -27,23 +28,32 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 /**
  * Discovers devices using pre API level 21 methods.
  */
 /* package */ class DeviceDiscovererLegacy extends DeviceDiscoverer {
+    private final Executor mUiThreadExecutor;
 
     private BluetoothAdapter.LeScanCallback mCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
-        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+        public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
             if (isScienceSensor(parseUuids(scanRecord))) {
-                addOrUpdateDevice(new NativeDevice(device), rssi, extractLongName(scanRecord));
+                mUiThreadExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        addOrUpdateDevice(new NativeDevice(device), rssi,
+                                extractLongName(scanRecord));
+                    }
+                });
             }
         }
     };
 
     DeviceDiscovererLegacy(Context context) {
         super(context);
+        mUiThreadExecutor = AppSingleton.getUiThreadExecutor();
     }
 
     @Override
