@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDevic
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -37,21 +38,20 @@ import java.util.Map;
  * additional code.
  */
 public class DeviceParentListItem implements ParentListItem {
-    private InputDeviceSpec mSpec;
+    private DeviceWithSensors mDevice;
     private final SensorAppearanceProvider mAppearanceProvider;
-    private List<String> mSensorKeys = new ArrayList<>();
     private boolean mIsNowExpanded = true;
 
     public DeviceParentListItem(InputDeviceSpec spec, SensorAppearanceProvider appearanceProvider,
             boolean startsExpanded) {
-        mSpec = Preconditions.checkNotNull(spec);
+        mDevice = new DeviceWithSensors(Preconditions.checkNotNull(spec));
         mAppearanceProvider = appearanceProvider;
         mIsNowExpanded = startsExpanded;
     }
 
     @Override
     public List<?> getChildItemList() {
-        return mSensorKeys;
+        return mDevice.getSensorKeys();
     }
 
     @Override
@@ -64,23 +64,23 @@ public class DeviceParentListItem implements ParentListItem {
     }
 
     public String getDeviceName() {
-        return mSpec.getName();
+        return mDevice.getName();
     }
 
     public boolean isDevice(InputDeviceSpec device) {
-        return mSpec.isSameSensor(device);
+        return mDevice.getSpec().isSameSensor(device);
     }
 
     public void addSensor(String key) {
-        mSensorKeys.add(Preconditions.checkNotNull(key));
+        mDevice.addSensorKey(key);
     }
 
     public String getSensorKey(int i) {
-        return mSensorKeys.get(i);
+        return mDevice.getSensorKeys().get(i);
     }
 
     public int sensorIndexOf(String sensorKey) {
-        return mSensorKeys.indexOf(sensorKey);
+        return mDevice.getSensorKeys().indexOf(sensorKey);
     }
 
     boolean isPhoneSensorParent(DeviceRegistry deviceRegistry) {
@@ -88,34 +88,11 @@ public class DeviceParentListItem implements ParentListItem {
     }
 
     public Drawable getDeviceIcon(Context context, Map<String, ConnectableSensor> sensorMap) {
-        Drawable selfDrawable = mSpec.getSensorAppearance().getIconDrawable(context);
-        if (selfDrawable != null) {
-            return selfDrawable;
-        }
-        return getArbitrarySensorIcon(context, sensorMap);
-    }
-
-    /**
-     * If the device does not have an icon, choose an arbitrary icon from the sensors on the device
-     * to represent the device (It will be fairly rare that a device both has no individual icon,
-     * and multiple sensors with different icons, so this seems a reasonable heuristic.)
-     */
-    @Nullable
-    private Drawable getArbitrarySensorIcon(Context context,
-            Map<String, ConnectableSensor> sensorMap) {
-        for (String sensorKey : mSensorKeys) {
-            ConnectableSensor sensor = sensorMap.get(sensorKey);
-            Drawable sensorDrawable = sensor.getAppearance(mAppearanceProvider).getIconDrawable(
-                    context);
-            if (sensorDrawable != null) {
-                return sensorDrawable;
-            }
-        }
-        return null;
+        return mDevice.getIconDrawable(context, mAppearanceProvider, sensorMap);
     }
 
     public InputDeviceSpec getSpec() {
-        return mSpec;
+        return mDevice.getSpec();
     }
 
     public void setIsCurrentlyExpanded(boolean isNowExpanded) {

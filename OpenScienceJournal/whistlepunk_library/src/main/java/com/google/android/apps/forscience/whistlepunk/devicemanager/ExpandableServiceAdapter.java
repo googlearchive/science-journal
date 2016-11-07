@@ -244,7 +244,8 @@ public class ExpandableServiceAdapter extends
                     dws.addToRegistry(mConnectableSensorRegistry, mSensorRegistry);
                 }
             });
-            // TODO: set icon
+            mIcon.setImageDrawable(dws.getIconDrawable(mIcon.getContext(), appearanceProvider,
+                    sensorMap));
         }
     }
 }

@@ -216,8 +216,13 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
             @Override
             public void onScanDone() throws RemoteException {
-                scanListener.onServiceScanComplete(serviceId);
-                pool.taskDone(serviceTaskId);
+                mUiThreadExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        scanListener.onServiceScanComplete(serviceId);
+                        pool.taskDone(serviceTaskId);
+                    }
+                });
             }
         };
     }
