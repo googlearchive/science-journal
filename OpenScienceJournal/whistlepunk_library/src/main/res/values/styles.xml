@@ -57,7 +57,8 @@
 
     <style name="AppTheme.RunReview">
         <item name="android:actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
-        <item name="android:actionModeBackground">@null</item>
+        <item name="android:actionModeBackground">@color/color_primary</item>
+        <item name="actionModeBackground">@color/color_primary</item>
     </style>
 
     <!-- Subtitle style -->
