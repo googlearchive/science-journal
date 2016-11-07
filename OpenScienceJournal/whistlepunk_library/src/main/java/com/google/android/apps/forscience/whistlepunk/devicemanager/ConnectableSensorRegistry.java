@@ -262,7 +262,7 @@ public class ConnectableSensorRegistry {
         final String sensorKey = findSensorKey(sensor);
 
         if (sensorKey == null) {
-            String newKey = registerSensor(null, sensor, ds.getSettingsIntent());
+            String newKey = registerSensor(null, sensor, ds.getSettingsInterface());
 
             // Try first to add the sensor to the paired group, which will only work if the sensor
             // is a new sensor on a device that we already know about, and is already in My Devices.

@@ -14,27 +14,33 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:minWidth="300dp"
-    android:minHeight="400dp"
-    android:padding="16dp">
-    <TextView
-        android:id="@+id/scan_disabled_explanation"
+    >
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:text="@string/cannot_scan_message"
-        />
-    <android.support.v7.widget.AppCompatButton
-        android:id="@+id/btn_enable_scan"
-        android:layout_width="@dimen/accessibility_touch_target_min_size"
-        android:layout_height="@dimen/accessibility_touch_target_min_size"
-        android:layout_weight="0"
-        android:text="@string/btn_enable_bluetooth"
-        android:layout_marginTop="16dp"
-        />
-</LinearLayout>
+        android:orientation="vertical"
+        android:padding="16dp"
+        >
+        <TextView
+            android:id="@+id/scan_disabled_explanation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:text="@string/cannot_scan_message"
+            />
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_enable_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/accessibility_touch_target_min_size"
+            android:minWidth="@dimen/accessibility_touch_target_min_size"
+            android:layout_weight="0"
+            android:text="@string/btn_enable_bluetooth"
+            android:layout_marginTop="16dp"
+            />
+    </LinearLayout>
+</ScrollView>
