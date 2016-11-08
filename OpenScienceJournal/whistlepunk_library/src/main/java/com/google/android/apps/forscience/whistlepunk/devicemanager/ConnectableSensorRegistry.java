@@ -102,7 +102,6 @@ public class ConnectableSensorRegistry {
                                 new LoggingConsumer<Success>(TAG, "Load appearance") {
                                     @Override
                                     public void success(Success value) {
-                                        refresh(false, sr);
                                         if (sensor.shouldShowOptionsOnConnect()
                                                 && settings != null) {
                                             mPresenter.showSensorOptions(mExperimentId,
@@ -531,9 +530,8 @@ public class ConnectableSensorRegistry {
                     public void success(Success success) {
                         if (sensorKeys.size() == 1) {
                             pair(sensorKeys.get(0), sr);
-                        } else {
-                            refresh(false, sr);
                         }
+                        refresh(false, sr);
                     }
                 });
     }
