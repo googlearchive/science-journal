@@ -1275,7 +1275,7 @@
     <string name="remove_device_from_experiment_checkbox">Remove sensor from experiment</string>
 
     <!-- Label for a section that shows bluetooth devices that speak the Science Journal protocol [CHAR_LIMIT=40] -->
-    <string name="native_ble_service_name">Science Journal Bluetooth</string>
+    <string name="native_ble_service_name" translatable="false">@string/app_name</string>
 
 
     <!-- NOTE! newly-added strings should have char limits and context comments
