@@ -149,8 +149,11 @@ public class ExpandableServiceAdapter extends
     public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
         mSensorMap.put(sensorKey, sensor);
         InputDeviceSpec device = mDeviceRegistry.getDevice(sensor.getSpec());
-        for (ServiceParentListItem service : mParentItemList) {
-            if (service.addSensorToDevice(device, sensorKey)) {
+        int size = mParentItemList.size();
+        for (int i = 0; i < size; i++) {
+            if (mParentItemList.get(i).addSensorToDevice(device, sensorKey)) {
+                // Possibly refresh icon
+                notifyParentItemChanged(i);
                 return true;
             }
         }
