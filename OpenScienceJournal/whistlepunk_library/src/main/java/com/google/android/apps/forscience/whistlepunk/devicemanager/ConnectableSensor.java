@@ -78,6 +78,10 @@ public class ConnectableSensor {
         return mIncluded;
     }
 
+    public void setPaired(boolean paired) {
+        mIncluded = paired;
+    }
+
     public ExternalSensorSpec getSpec() {
         return mSpec;
     }

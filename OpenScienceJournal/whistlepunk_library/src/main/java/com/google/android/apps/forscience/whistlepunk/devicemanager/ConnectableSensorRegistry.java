@@ -435,6 +435,7 @@ public class ConnectableSensorRegistry {
                 new LoggingConsumer<Success>(TAG, "add sensor to experiment") {
                     @Override
                     public void success(Success value) {
+                        sensor.setPaired(true);
                         onAdded.success(sensor);
                     }
                 });
