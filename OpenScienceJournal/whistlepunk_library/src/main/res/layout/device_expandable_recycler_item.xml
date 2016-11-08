@@ -16,7 +16,8 @@
  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="48dp"
+    android:layout_height="wrap_content"
+    android:minHeight="48dp"
     android:orientation="horizontal"
     android:layout_marginStart="4dp"
     >
@@ -29,6 +30,7 @@
         android:scaleType="center"
         android:layout_marginEnd="12dp"
         android:tint="@color/text_color_light_grey"
+        android:layout_gravity="center_vertical"
         />
 
     <ImageView
@@ -39,17 +41,19 @@
         android:scaleType="centerInside"
         android:importantForAccessibility="no"
         android:tint="@color/color_accent"
+        android:layout_gravity="center_vertical"
         />
 
     <TextView
         android:id="@+id/device_name"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_margin="8dp"
         android:textColor="@color/text_color_dark_grey"
         android:textSize="14sp"
         android:gravity="center_vertical"
+        android:layout_gravity="center_vertical"
         />
 
     <ImageButton
@@ -63,5 +67,6 @@
         android:scaleType="center"
         android:src="@drawable/ic_menu_moreoverflow_mtrl_alpha"
         android:tint="@color/text_color_black"
+        android:layout_gravity="center_vertical"
         />
 </LinearLayout>

@@ -15,18 +15,21 @@
   limitations under the License.
  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
+        android:minHeight="50dp"
         android:id="@+id/select_sensors"
         android:textColor="@color/text_color_light_grey"
         android:background="@color/background_color"
         android:gravity="center_vertical"
         android:padding="16dp"
+        android:maxLines="2"
         />
 
     <android.support.v7.widget.RecyclerView

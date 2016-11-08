@@ -16,9 +16,10 @@
  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="48dp"
+    android:layout_height="wrap_content"
+    android:minHeight="48dp"
     android:orientation="horizontal"
-    android:layout_marginStart="48dp"
+    android:layout_marginStart="4dp"
     >
 
     <!-- It is OK that this button is smaller than the min accessible size, because the entire
@@ -29,7 +30,7 @@
         android:layout_height="32dp"
         android:layout_margin="8dp"
         android:gravity="center"
-        android:layout_gravity="center"
+        android:layout_gravity="center_vertical"
         android:buttonTint="@color/color_accent"
         />
 
@@ -44,12 +45,14 @@
         android:layout_marginStart="24dp"
         android:importantForAccessibility="no"
         android:tint="@color/text_color_light_grey"
+        android:layout_gravity="center_vertical"
         />
 
     <TextView
         android:id="@+id/sensor_name"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:gravity="center_vertical"
         android:layout_margin="8dp"
         android:layout_weight="1"
@@ -67,6 +70,7 @@
         android:layout_marginEnd="4dp"
         android:background="@android:color/transparent"
         android:tint="@color/color_accent"
+        android:layout_gravity="center_vertical"
         />
 
 </LinearLayout>
