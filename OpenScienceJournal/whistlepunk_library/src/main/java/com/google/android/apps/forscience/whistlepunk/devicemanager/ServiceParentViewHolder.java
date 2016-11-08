@@ -35,6 +35,7 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
     private final ImageView mErrorIcon;
     private final ImageButton mRefreshIcon;
     private Animation mRotation;
+    private ServiceParentListItem mItem;
 
     public ServiceParentViewHolder(View itemView, Supplier<Integer> offsetSupplier) {
         super(itemView, offsetSupplier);
@@ -47,6 +48,7 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
 
     public void bind(ServiceParentListItem item, FragmentManager fragmentManager,
             final Runnable onRefresh) {
+        mItem = item;
         mNameView.setText(item.getServiceName());
         mIcon.setImageDrawable(item.getDeviceIcon(mIcon.getContext()));
         mCollapsedIcon.setActionStrings(R.string.btn_expand_device,
@@ -123,5 +125,6 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
         super.onExpansionToggled(wasExpandedBefore);
         boolean isNowExpanded = !wasExpandedBefore;
         mCollapsedIcon.setActive(isNowExpanded, true);
+        mItem.setIsCurrentlyExpanded(isNowExpanded);
     }
 }

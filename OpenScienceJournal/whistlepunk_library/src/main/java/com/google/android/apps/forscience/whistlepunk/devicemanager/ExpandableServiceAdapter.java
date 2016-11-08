@@ -16,6 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.FragmentManager;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
@@ -42,6 +43,7 @@ public class ExpandableServiceAdapter extends
         CompositeSensitiveExpandableAdapter<ServiceParentViewHolder,
                 ExpandableServiceAdapter.DeviceChildViewHolder> implements
         SensorGroup, CompositeRecyclerAdapter.CompositeSensitiveAdapter {
+    private static final String KEY_COLLAPSED_SERVICE_ADDRESSES = "key_collapsed_services";
     private List<ServiceParentListItem> mParentItemList;
     private SensorRegistry mSensorRegistry;
     private ConnectableSensorRegistry mConnectableSensorRegistry;
@@ -52,6 +54,7 @@ public class ExpandableServiceAdapter extends
     // TODO: maintain one global map
     private Map<String, ConnectableSensor> mSensorMap = new ArrayMap<>();
     private final SensorAppearanceProvider mAppearanceProvider;
+    private ArrayList<String> mInitiallyCollapsedServiceIds = new ArrayList<>();
 
     public static ExpandableServiceAdapter createEmpty(SensorRegistry sensorRegistry,
             ConnectableSensorRegistry connectableSensorRegistry, int uniqueId,
@@ -73,6 +76,29 @@ public class ExpandableServiceAdapter extends
         mDeviceRegistry = deviceRegistry;
         mFragmentManager = fragmentManager;
         mAppearanceProvider = appearanceProvider;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        ArrayList<String> collapsedServices = new ArrayList<>();
+        for (ServiceParentListItem serviceParent : mParentItemList) {
+            if (!serviceParent.isCurrentlyExpanded()) {
+                collapsedServices.add(serviceParent.getGlobalServiceId());
+            }
+        }
+        savedInstanceState.putStringArrayList(KEY_COLLAPSED_SERVICE_ADDRESSES, collapsedServices);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        ArrayList<String> list = savedInstanceState.getStringArrayList(
+                KEY_COLLAPSED_SERVICE_ADDRESSES);
+        if (list != null) {
+            mInitiallyCollapsedServiceIds.addAll(list);
+        }
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
@@ -161,7 +187,9 @@ public class ExpandableServiceAdapter extends
             setIsLoading(serviceId, true);
             return;
         }
-        ServiceParentListItem item = new ServiceParentListItem(providerId, service);
+        boolean initallyCollapsed = mInitiallyCollapsedServiceIds.remove(service.getServiceId());
+        boolean startsExpanded = !initallyCollapsed;
+        ServiceParentListItem item = new ServiceParentListItem(providerId, service, startsExpanded);
         item.setIsLoading(true);
         mParentItemList.add(item);
         notifyParentItemInserted(mParentItemList.size() - 1);
