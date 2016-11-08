@@ -160,7 +160,10 @@ public class ExpandableDeviceAdapter extends
     private void addSensorToDevice(int deviceIndex, String sensorKey) {
         DeviceParentListItem parent = mDeviceParents.get(deviceIndex);
         parent.addSensor(sensorKey);
+
+        // Maybe refresh icon, and refresh children
         notifyChildItemInserted(deviceIndex, parent.getChildItemList().size() - 1);
+        notifyParentItemChanged(deviceIndex);
     }
 
     @Override
