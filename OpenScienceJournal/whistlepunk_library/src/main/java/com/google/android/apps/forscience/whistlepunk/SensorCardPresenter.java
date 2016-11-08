@@ -452,6 +452,15 @@ public class SensorCardPresenter {
         mCloseListener = closeListener;
         mCardTriggerPresenter.setViews(mCardViewHolder);
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            // We can't set the Spannable with units in versions before lollipop, so the
+            // user needs to be able to find the units this way.
+            // Make them focusable so that they don't take up the whole screen's focus.
+            mCardViewHolder.meterLiveDataUnits.setFocusable(true);
+            mCardViewHolder.meterLiveDataUnits.setImportantForAccessibility(
+                    View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        }
+
         updateRecordingUi();
 
         mCardViewHolder.headerText.setText(mSensorDisplayName);
@@ -903,9 +912,6 @@ public class SensorCardPresenter {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-                if (mCardViewHolder != null) {
-                    tab.setContentDescription(getSensorName((String) tab.getTag()));
-                }
             }
 
             @Override
