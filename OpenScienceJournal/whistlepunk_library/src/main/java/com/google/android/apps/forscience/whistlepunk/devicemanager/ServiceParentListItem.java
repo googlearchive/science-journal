@@ -26,15 +26,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceParentListItem implements ParentListItem {
+    // TODO: duplication with DeviceParentListItem
     private String mProviderId;
     private ExternalSensorDiscoverer.DiscoveredService mService;
     private ArrayList<DeviceWithSensors> mDevices = Lists.newArrayList();
     private boolean mIsLoading;
+    private boolean mIsNowExpanded;
 
     public ServiceParentListItem(String providerId,
-            ExternalSensorDiscoverer.DiscoveredService service) {
+            ExternalSensorDiscoverer.DiscoveredService service,
+            boolean startsExpanded) {
         mProviderId = providerId;
         mService = service;
+        mIsNowExpanded = startsExpanded;
     }
 
     @Override
@@ -44,7 +48,15 @@ public class ServiceParentListItem implements ParentListItem {
 
     @Override
     public boolean isInitiallyExpanded() {
-        return true;
+        return mIsNowExpanded;
+    }
+
+    public boolean isCurrentlyExpanded() {
+        return mIsNowExpanded;
+    }
+
+    public void setIsCurrentlyExpanded(boolean isNowExpanded) {
+        mIsNowExpanded = isNowExpanded;
     }
 
     public String getServiceName() {
@@ -106,5 +118,9 @@ public class ServiceParentListItem implements ParentListItem {
 
     public String getProviderId() {
         return mProviderId;
+    }
+
+    public String getGlobalServiceId() {
+        return mService.getServiceId();
     }
 }

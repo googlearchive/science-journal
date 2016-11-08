@@ -122,7 +122,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
 
         Bundle availableState = new Bundle();
         mAvailableDevices.onSaveInstanceState(availableState);
-        outState.putBundle(KEY_AVAILABLE_DEVICES, myDeviceState);
+        outState.putBundle(KEY_AVAILABLE_DEVICES, availableState);
     }
 
     @Override
