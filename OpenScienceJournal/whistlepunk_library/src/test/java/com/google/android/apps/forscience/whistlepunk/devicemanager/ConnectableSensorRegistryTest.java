@@ -390,7 +390,7 @@ public class ConnectableSensorRegistryTest {
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
                 mOptionsListener, null, mAppearanceProvider);
         registry.setExperimentId("experimentId", mSensorRegistry);
-        registry.pair(mAvailableDevices.getKey(0), null);
+        registry.pair(mAvailableDevices.getKey(0));
         s.appearance.units = "newUnits";
         registry.refresh(false, mSensorRegistry);
 

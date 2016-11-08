@@ -154,4 +154,15 @@ public class ConnectableSensor {
     public boolean isBuiltIn() {
         return mSpec == null;
     }
+
+    /**
+     * @return a new ConnectableSensor that's like this one, but in a disconnected state.
+     */
+    public ConnectableSensor asDisconnected() {
+        if (isBuiltIn()) {
+            return ConnectableSensor.builtIn(mConnectedSensorId, false);
+        } else {
+            return ConnectableSensor.disconnected(mSpec);
+        }
+    }
 }

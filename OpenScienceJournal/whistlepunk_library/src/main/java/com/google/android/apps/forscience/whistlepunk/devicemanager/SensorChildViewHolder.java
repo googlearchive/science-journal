@@ -27,7 +27,6 @@ import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
-import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 
 import java.util.Map;
 
@@ -51,7 +50,7 @@ public class SensorChildViewHolder extends ChildViewHolder {
     }
 
     public void bind(final String sensorKey, Map<String, ConnectableSensor> sensorMap,
-            final ConnectableSensorRegistry registry, final SensorRegistry sensorRegistry) {
+            final ConnectableSensorRegistry registry) {
         ConnectableSensor sensor = sensorMap.get(sensorKey);
         SensorAppearance appearance = sensor.getAppearance(mAppearanceProvider);
         Context context = itemView.getContext();
@@ -68,7 +67,7 @@ public class SensorChildViewHolder extends ChildViewHolder {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    registry.pair(sensorKey, sensorRegistry);
+                    registry.pair(sensorKey);
                 } else {
                     registry.unpair(sensorKey);
                 }

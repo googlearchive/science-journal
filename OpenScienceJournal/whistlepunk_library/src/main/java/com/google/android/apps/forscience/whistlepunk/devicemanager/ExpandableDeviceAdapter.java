@@ -96,7 +96,7 @@ public class ExpandableDeviceAdapter extends
     @Override
     public void onBindChildViewHolder(SensorChildViewHolder childViewHolder,
             int position, Object childListItem) {
-        childViewHolder.bind((String) childListItem, mSensorMap, mRegistry, mSensorRegistry);
+        childViewHolder.bind((String) childListItem, mSensorMap, mRegistry);
     }
 
     @Override

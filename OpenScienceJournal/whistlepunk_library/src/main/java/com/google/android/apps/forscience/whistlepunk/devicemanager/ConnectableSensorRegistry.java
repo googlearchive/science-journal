@@ -92,12 +92,13 @@ public class ConnectableSensorRegistry {
         mAppearanceProvider = appearanceProvider;
     }
 
-    public void pair(String sensorKey, final SensorRegistry sr) {
+    public void pair(final String sensorKey) {
         final ExternalSensorDiscoverer.SettingsInterface settings = mSettingsIntents.get(sensorKey);
         addSensorIfNecessary(sensorKey, getPairedGroup().getSensorCount(),
                 new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
                     @Override
                     public void success(final ConnectableSensor sensor) {
+                        getPairedGroup().replaceSensor(sensorKey, sensor);
                         mAppearanceProvider.loadAppearances(
                                 new LoggingConsumer<Success>(TAG, "Load appearance") {
                                     @Override
@@ -474,7 +475,9 @@ public class ConnectableSensorRegistry {
     }
 
     public void unpair(String sensorKey) {
-        mPresenter.unpair(mExperimentId, getSensor(sensorKey).getConnectedSensorId());
+        ConnectableSensor sensor = getSensor(sensorKey);
+        getPairedGroup().replaceSensor(sensorKey, sensor.asDisconnected());
+        mPresenter.unpair(mExperimentId, sensor.getConnectedSensorId());
     }
 
     public void forgetMyDevice(final InputDeviceSpec spec, final SensorRegistry sr) {
@@ -529,7 +532,7 @@ public class ConnectableSensorRegistry {
                     @Override
                     public void success(Success success) {
                         if (sensorKeys.size() == 1) {
-                            pair(sensorKeys.get(0), sr);
+                            pair(sensorKeys.get(0));
                         }
                         refresh(false, sr);
                     }

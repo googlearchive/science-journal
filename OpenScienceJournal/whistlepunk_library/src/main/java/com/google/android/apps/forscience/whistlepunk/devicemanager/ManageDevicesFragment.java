@@ -138,7 +138,7 @@ public class ManageDevicesFragment extends PreferenceFragment implements Devices
             preference.setSummary(R.string.external_devices_pairing);
         }
         if (!mConnectableSensorRegistry.isPaired(sensorKey)) {
-            mConnectableSensorRegistry.pair(sensorKey, mSensorRegisty);
+            mConnectableSensorRegistry.pair(sensorKey);
         } else {
             mConnectableSensorRegistry.showSensorOptions(sensorKey);
         }
