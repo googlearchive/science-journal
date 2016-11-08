@@ -69,7 +69,7 @@ public class ToggleArrow extends ImageButton {
     public void setActive(boolean isBecomingActive, boolean animate) {
         Resources resources = getResources();
         setContentDescription(resources.getString(
-                isBecomingActive ? mStringToBecomeActive : mStringToBecomeInactive));
+                isBecomingActive ? mStringToBecomeInactive: mStringToBecomeActive));
         float desiredRotation = isBecomingActive ? 0 : -180;
         if (animate) {
             animate()
