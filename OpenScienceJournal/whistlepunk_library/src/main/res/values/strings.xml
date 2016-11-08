@@ -120,7 +120,7 @@
     <string name="experiment_details">Experiment details</string>
 
     <!-- Content description for the add a new sensor button [CHAR_LIMIT=none] -->
-    <string name="add_sensor">Add sensor</string>
+    <string name="add_sensor" translatable="false">@string/title_activity_sensor_settings</string>
 
     <!-- Snackbar error message when an error happened while connecting to an external
          bluetooth source [CHAR_LIMIT=50] -->
