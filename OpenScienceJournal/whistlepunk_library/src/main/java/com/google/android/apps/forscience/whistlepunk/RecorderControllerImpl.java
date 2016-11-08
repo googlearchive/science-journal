@@ -85,11 +85,11 @@ public class RecorderControllerImpl implements RecorderController {
      * Default delay to wait after the last observer stops before asking the sensor to stop
      * collecting.
      */
-    private static final Delay DEFAULT_STOP_DELAY = Delay.seconds(5);
+    //private static final Delay DEFAULT_STOP_DELAY = Delay.seconds(5);
 
     // TODO: remove this comment when we're sure about the delay.
     // To disable delayed stop, comment out the above line, and uncomment this one.
-    // private static final Delay DEFAULT_STOP_DELAY = Delay.ZERO;
+    private static final Delay DEFAULT_STOP_DELAY = Delay.ZERO;
 
     @VisibleForTesting
     static class StatefulRecorder {
