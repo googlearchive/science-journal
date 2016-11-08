@@ -153,7 +153,6 @@ public class ManageDevicesActivity extends AppCompatActivity implements
                 new LoggingConsumer<Success>(TAG, "remove sensor from experiment") {
                     @Override
                     public void success(Success value) {
-                        refreshAfterLoad();
                     }
                 });
     }
