@@ -151,7 +151,6 @@
     <dimen name="experiment_description_padding">16dp</dimen>
 
     <item name="icon_active_alpha" format="float" type="dimen">.87</item>
-    <item name="icon_inactive_alpha" format="float" type="dimen">.54</item>
 
     <item name="btn_add_sensor_card_alpha" format="float" type="dimen">.55</item>
 
@@ -235,7 +234,6 @@
     <dimen name="min_resizable_text_size">10sp</dimen>
     <dimen name="one_sp">1sp</dimen>
 
-    <dimen name="crop_thumb_padding">10dp</dimen>
     <dimen name="crop_thumb_radius">14dp</dimen>
     <dimen name="crop_thumb_offset">28dp</dimen>
 
