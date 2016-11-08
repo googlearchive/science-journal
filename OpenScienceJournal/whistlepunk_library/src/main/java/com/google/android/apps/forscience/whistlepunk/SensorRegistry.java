@@ -191,24 +191,30 @@ public class SensorRegistry {
                         != null;
             }
         };
-        if (AccelerometerSensor.isAccelerometerAvailable(available)) {
-            addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.X));
-            addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.Y));
-            addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.Z));
-        }
+
+        // Add the sensors in the order of SensorCardPresenter.SENSOR_ID_ORDER. If new sensors are
+        // added to this list of built-ins, make sure to update that list if they are not added
+        // to the end of this list.
+
         if (AmbientLightSensor.isAmbientLightAvailable(available)) {
             addBuiltInSensor(new AmbientLightSensor());
         }
         addBuiltInSensor(new DecibelSensor());
 
-        if (DevOptionsFragment.isMagnetometerEnabled(context)) {
-            if (MagneticRotationSensor.isMagneticRotationSensorAvailable(available)) {
-                addBuiltInSensor(new MagneticRotationSensor());
-            }
+        if (AccelerometerSensor.isAccelerometerAvailable(available)) {
+            addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.X));
+            addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.Y));
+            addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.Z));
         }
 
         if (BarometerSensor.isBarometerSensorAvailable(available)) {
             addBuiltInSensor(new BarometerSensor());
+        }
+
+        if (DevOptionsFragment.isMagnetometerEnabled(context)) {
+            if (MagneticRotationSensor.isMagneticRotationSensorAvailable(available)) {
+                addBuiltInSensor(new MagneticRotationSensor());
+            }
         }
 
         if (DevOptionsFragment.isAmbientTemperatureSensorEnabled(context)) {

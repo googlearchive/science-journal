@@ -61,6 +61,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusList
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.sensors.AccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
@@ -148,7 +149,8 @@ public class SensorCardPresenter {
     // The sensor ID ordering.
     private static final String[] SENSOR_ID_ORDER = {AmbientLightSensor.ID, DecibelSensor.ID,
             AccelerometerSensor.Axis.X.getSensorId(), AccelerometerSensor.Axis.Y.getSensorId(),
-            AccelerometerSensor.Axis.Z.getSensorId(), MagneticRotationSensor.ID};
+            AccelerometerSensor.Axis.Z.getSensorId(), BarometerSensor.ID,
+            MagneticRotationSensor.ID};
 
     // Update the back data textview every .25 seconds maximum.
     private static final int MAX_TEXT_UPDATE_TIME_MS = 250;
