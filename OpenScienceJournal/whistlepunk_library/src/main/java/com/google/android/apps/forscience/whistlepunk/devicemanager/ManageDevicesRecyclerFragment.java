@@ -168,8 +168,12 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     }
 
     private void setExperimentId(String experimentId) {
-        mRegistry.setExperimentId(experimentId, mSensorRegistry);
-        AppSingleton.getInstance(getActivity()).getDataController().getExperimentById(experimentId,
+        if (!mRegistry.setExperimentId(experimentId, mSensorRegistry)) {
+            // Nothing changed, no need to reload.
+            return;
+        }
+        AppSingleton.getInstance(getActivity()).getDataController().getExperimentById(
+                experimentId,
                 new LoggingConsumer<Experiment>(TAG, "load experiment for name") {
                     @Override
                     public void success(Experiment exp) {
@@ -177,7 +181,8 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
                         if (view == null) {
                             return;
                         }
-                        TextView selectSensors = (TextView) view.findViewById(R.id.select_sensors);
+                        TextView selectSensors = (TextView) view.findViewById(
+                                R.id.select_sensors);
                         selectSensors.setText(getString(R.string.select_sensors,
                                 exp.getDisplayTitle(getActivity())));
                     }

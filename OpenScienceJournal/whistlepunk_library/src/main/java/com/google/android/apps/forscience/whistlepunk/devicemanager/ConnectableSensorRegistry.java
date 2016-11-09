@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -462,9 +463,16 @@ public class ConnectableSensorRegistry {
         return mScanning;
     }
 
-    public void setExperimentId(String experimentId, SensorRegistry sr) {
+    /**
+     * @return true if anything is changed.
+     */
+    public boolean setExperimentId(String experimentId, SensorRegistry sr) {
+        if (Objects.equals(experimentId, mExperimentId)) {
+            return false;
+        }
         mExperimentId = experimentId;
         refresh(false, sr);
+        return true;
     }
 
     private SensorGroup getPairedGroup() {
