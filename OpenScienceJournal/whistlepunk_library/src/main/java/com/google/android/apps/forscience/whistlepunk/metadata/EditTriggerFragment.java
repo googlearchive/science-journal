@@ -312,6 +312,10 @@ public class EditTriggerFragment extends Fragment {
                 if (position == TriggerInformation.TRIGGER_ACTION_ALERT) {
                     selectAlertTypeIfNeeded();
                 }
+                if (position == TriggerInformation.TRIGGER_ACTION_START_RECORDING ||
+                        position == TriggerInformation.TRIGGER_ACTION_STOP_RECORDING) {
+                    mOnlyWhenRecording.setChecked(false);
+                }
                 if (!isNewTrigger()) {
                     saveTrigger();
                 }
