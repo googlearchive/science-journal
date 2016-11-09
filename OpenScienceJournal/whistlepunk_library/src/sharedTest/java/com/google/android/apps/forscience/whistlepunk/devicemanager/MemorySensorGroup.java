@@ -58,7 +58,7 @@ class MemorySensorGroup implements SensorGroup {
 
     @Override
     public void addAvailableService(String providerId,
-            ExternalSensorDiscoverer.DiscoveredService service) {
+            ExternalSensorDiscoverer.DiscoveredService service, boolean startSpinners) {
 
     }
 

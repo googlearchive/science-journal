@@ -216,13 +216,13 @@ public class ConnectableSensorRegistry {
 
         for (final Map.Entry<String, ExternalSensorDiscoverer> entry : mDiscoverers.entrySet()) {
             ExternalSensorDiscoverer discoverer = entry.getValue();
-            startScanning(entry.getKey(), discoverer, pool, keysSeen);
+            startScanning(entry.getKey(), discoverer, pool, keysSeen, true);
         }
         mPresenter.refreshScanningUI();
     }
 
     private void startScanning(final String providerKey, ExternalSensorDiscoverer discoverer,
-            final TaskPool pool, final Set<String> keysSeen) {
+            final TaskPool pool, final Set<String> keysSeen, final boolean startSpinners) {
         ExternalSensorProvider provider = discoverer.getProvider();
         final String providerId = provider.getProviderId();
         pool.addTask(providerId);
@@ -235,7 +235,8 @@ public class ConnectableSensorRegistry {
 
                     @Override
                     public void onServiceFound(ExternalSensorDiscoverer.DiscoveredService service) {
-                        getAvailableGroup().addAvailableService(providerKey, service);
+                        getAvailableGroup().addAvailableService(providerKey, service,
+                                startSpinners);
                     }
 
                     @Override
@@ -554,13 +555,13 @@ public class ConnectableSensorRegistry {
         return mSettingsIntents.containsKey(sensorKey) && mSettingsIntents.get(sensorKey) != null;
     }
 
-    public void reloadProvider(String providerKey) {
+    public void reloadProvider(String providerKey, boolean startSpinners) {
         ExternalSensorDiscoverer discoverer = mDiscoverers.get(providerKey);
         if (discoverer == null) {
             throw new IllegalArgumentException(
                     "Couldn't find " + providerKey + " in " + mDiscoverers);
         }
         startScanning(providerKey, discoverer, new TaskPool(Runnables.doNothing()),
-                new HashSet<String>());
+                new HashSet<String>(), startSpinners);
     }
 }

@@ -116,7 +116,7 @@ public class ExpandableServiceAdapter extends
         parentViewHolder.bind(serviceParent, mFragmentManager, new Runnable() {
             @Override
             public void run() {
-                mConnectableSensorRegistry.reloadProvider(serviceParent.getProviderId());
+                mConnectableSensorRegistry.reloadProvider(serviceParent.getProviderId(), false);
             }
         });
     }
@@ -184,10 +184,12 @@ public class ExpandableServiceAdapter extends
 
     @Override
     public void addAvailableService(String providerId,
-            ExternalSensorDiscoverer.DiscoveredService service) {
+            ExternalSensorDiscoverer.DiscoveredService service, boolean startSpinners) {
         String serviceId = service.getServiceId();
         if (indexOfService(serviceId) >= 0) {
-            setIsLoading(serviceId, true);
+            if (startSpinners) {
+                setIsLoading(serviceId, true);
+            }
             return;
         }
         boolean initallyCollapsed = mInitiallyCollapsedServiceIds.remove(service.getServiceId());
