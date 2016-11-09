@@ -38,6 +38,8 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSens
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
@@ -53,6 +55,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     private final long mScanTimeoutMillis;
     private UsageTracker mUsageTracker;
     private ScanListener mScanListener;
+    private List<String> mActiveServices = new ArrayList<>();
 
     public ScalarInputDiscoverer(Consumer<AppDiscoveryCallbacks> serviceFinder,
             Context context) {
@@ -107,9 +110,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                 mUiThreadExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        if (mScanListener != null) {
-                            mScanListener.onScanDone();
-                        }
+                        markAllScansDone();
                     }
                 });
             }
@@ -128,6 +129,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                             if (mScanListener == null) {
                                 return;
                             }
+                            mActiveServices.add(serviceId);
                             mScanListener.onServiceFound(new DiscoveredService() {
                                 @Override
                                 public String getServiceId() {
@@ -178,6 +180,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
             @Override
             public void run() {
                 markTaskTimeout(pool, serviceTaskId);
+                mActiveServices.remove(serviceId);
                 if (mScanListener != null) {
                     mScanListener.onServiceScanComplete(serviceId);
                 }
@@ -314,7 +317,17 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
     @Override
     public void stopScanning() {
+        markAllScansDone();
         mScanListener = null;
     }
 
+    private void markAllScansDone() {
+        if (mScanListener != null) {
+            for (String serviceId : mActiveServices) {
+                mScanListener.onServiceScanComplete(serviceId);
+            }
+            mScanListener.onScanDone();
+        }
+        mActiveServices.clear();
+    }
 }

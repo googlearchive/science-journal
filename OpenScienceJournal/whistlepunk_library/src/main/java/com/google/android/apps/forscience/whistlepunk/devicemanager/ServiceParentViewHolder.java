@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import android.app.FragmentManager;
 import android.support.annotation.NonNull;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
@@ -46,7 +47,7 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
         mRefreshIcon = (ImageButton) itemView.findViewById(R.id.btn_service_refresh);
     }
 
-    public void bind(ServiceParentListItem item, FragmentManager fragmentManager,
+    public void bind(final ServiceParentListItem item, FragmentManager fragmentManager,
             final Runnable onRefresh) {
         mItem = item;
         mNameView.setText(item.getServiceName());
@@ -77,22 +78,29 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
 
         boolean loading = item.isLoading();
         if (loading) {
-            mRefreshIcon.setEnabled(false);
-            stopRotation();
-            mRotation = AnimationUtils.loadAnimation(mRefreshIcon.getContext(),
-                    R.anim.reload_rotate);
-            mRefreshIcon.startAnimation(mRotation);
-            mRefreshIcon.setOnClickListener(null);
+            startLoadingAnimation();
         } else {
             mRefreshIcon.setEnabled(true);
             stopRotation();
             mRefreshIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    itemView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED);
+                    item.setIsLoading(true);
+                    startLoadingAnimation();
                     onRefresh.run();
                 }
             });
         }
+    }
+
+    private void startLoadingAnimation() {
+        mRefreshIcon.setEnabled(false);
+        stopRotation();
+        mRotation = AnimationUtils.loadAnimation(mRefreshIcon.getContext(),
+                R.anim.reload_rotate);
+        mRefreshIcon.startAnimation(mRotation);
+        mRefreshIcon.setOnClickListener(null);
     }
 
     private void stopRotation() {

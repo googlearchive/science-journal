@@ -49,8 +49,10 @@ public interface SensorGroup {
     /**
      * @param providerId a key to the external sensor provider that advertises this service.
      * @param service
+     * @param startSpinners whether this new service should be shown as "loading"
      */
-    void addAvailableService(String providerId, ExternalSensorDiscoverer.DiscoveredService service);
+    void addAvailableService(String providerId, ExternalSensorDiscoverer.DiscoveredService service,
+            boolean startSpinners);
 
     void onServiceScanComplete(String serviceId);
 

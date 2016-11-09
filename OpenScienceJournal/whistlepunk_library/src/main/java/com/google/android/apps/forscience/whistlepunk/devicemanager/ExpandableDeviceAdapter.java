@@ -291,7 +291,7 @@ public class ExpandableDeviceAdapter extends
 
     @Override
     public void addAvailableService(String providerId,
-            ExternalSensorDiscoverer.DiscoveredService service) {
+            ExternalSensorDiscoverer.DiscoveredService service, boolean startSpinners) {
         // This view doesn't track services
     }
 
