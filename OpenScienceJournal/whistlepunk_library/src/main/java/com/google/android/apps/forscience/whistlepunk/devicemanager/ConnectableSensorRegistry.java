@@ -76,6 +76,7 @@ public class ConnectableSensorRegistry {
     private DeviceOptionsDialog.DeviceOptionsListener mOptionsListener;
     private DeviceRegistry mDeviceRegistry;
     private final SensorAppearanceProvider mAppearanceProvider;
+    private Runnable mTimeoutRunnable;
 
     // TODO: reduce parameter list?
     public ConnectableSensorRegistry(DataController dataController,
@@ -221,22 +222,19 @@ public class ConnectableSensorRegistry {
     }
 
     private void startScanning(final String providerKey, ExternalSensorDiscoverer discoverer,
-            final TaskPool pool,
-            final Set<String> keysSeen) {
+            final TaskPool pool, final Set<String> keysSeen) {
         ExternalSensorProvider provider = discoverer.getProvider();
         final String providerId = provider.getProviderId();
         pool.addTask(providerId);
         ExternalSensorDiscoverer.ScanListener listener =
                 new ExternalSensorDiscoverer.ScanListener() {
                     @Override
-                    public void onSensorFound(
-                            ExternalSensorDiscoverer.DiscoveredSensor sensor) {
+                    public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
                         ConnectableSensorRegistry.this.onSensorFound(sensor, keysSeen);
                     }
 
                     @Override
-                    public void onServiceFound(
-                            ExternalSensorDiscoverer.DiscoveredService service) {
+                    public void onServiceFound(ExternalSensorDiscoverer.DiscoveredService service) {
                         getAvailableGroup().addAvailableService(providerKey, service);
                     }
 
@@ -246,8 +244,7 @@ public class ConnectableSensorRegistry {
                     }
 
                     @Override
-                    public void onDeviceFound(
-                            ExternalSensorDiscoverer.DiscoveredDevice device) {
+                    public void onDeviceFound(ExternalSensorDiscoverer.DiscoveredDevice device) {
                         getAvailableGroup().addAvailableDevice(device);
                         if (mDeviceRegistry != null) {
                             mDeviceRegistry.addDevice(device.getSpec());
@@ -273,7 +270,7 @@ public class ConnectableSensorRegistry {
             mScanning = true;
             mScanCount++;
             final int thisScanCount = mScanCount;
-            mScheduler.schedule(Delay.seconds(10), new Runnable() {
+            mTimeoutRunnable = new Runnable() {
                 @Override
                 public void run() {
                     if (mScanCount == thisScanCount) {
@@ -283,7 +280,8 @@ public class ConnectableSensorRegistry {
                         mPresenter.refreshScanningUI();
                     }
                 }
-            });
+            };
+            mScheduler.schedule(Delay.seconds(10), mTimeoutRunnable);
         }
     }
 
@@ -454,6 +452,10 @@ public class ConnectableSensorRegistry {
     public void stopScanningInDiscoverers() {
         for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
             discoverer.stopScanning();
+        }
+        if (mTimeoutRunnable != null) {
+            mScheduler.unschedule(mTimeoutRunnable);
+            mTimeoutRunnable = null;
         }
         mScanning = false;
         mPresenter.refreshScanningUI();
