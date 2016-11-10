@@ -107,7 +107,7 @@
             android:src="@drawable/ic_play_arrow_black_24dp"
             android:tint="@color/graph_line_color_blue"
             android:visibility="visible"
-        />
+            />
 
     </FrameLayout>
 </merge>
