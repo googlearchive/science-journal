@@ -418,7 +418,14 @@ public class MyBleService extends Service {
         return bluetoothGatt == null ? null : bluetoothGatt.getService(serviceId);
     }
 
+    /**
+     * FOR DEBUGGING ONLY.  This should never be called from production code; we don't want this
+     * data in our logs.
+     */
     public void printServices(String address) {
+        if (!DEBUG) {
+            return;
+        }
         BluetoothGatt bluetoothGatt = addressToGattClient.get(address);
         if (bluetoothGatt == null) {
             Log.d(TAG, "No connection found for: " + address);

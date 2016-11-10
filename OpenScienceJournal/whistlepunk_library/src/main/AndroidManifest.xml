@@ -46,6 +46,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="false"
         >
         <service
             android:name="com.google.android.apps.forscience.ble.MyBleService"
@@ -69,7 +70,9 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/NoBarTheme.MainActivity"
-            android:launchMode = "singleTop">
+            android:launchMode = "singleTop"
+            android:exported="false"
+        >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -137,6 +140,7 @@
         </activity>
         <activity
             android:name=".project.UpdateProjectActivity"
+            android:exported="false"
             android:label="@string/title_activity_update_project"
             android:parentActivityName=".project.ProjectDetailsActivity"
             android:theme="@style/AppTheme.UpdateMetadata"
@@ -147,6 +151,7 @@
         </activity>
         <activity
             android:name=".project.experiment.UpdateExperimentActivity"
+            android:exported="false"
             android:label="@string/title_activity_update_experiment"
             android:parentActivityName=".project.experiment.ExperimentDetailsActivity"
             android:theme="@style/AppTheme.UpdateMetadata"
@@ -182,6 +187,7 @@
         </activity>
         <activity
             android:name=".review.UpdateRunActivity"
+            android:exported="false"
             android:label="@string/title_edit_trial_activity"
             android:parentActivityName=".review.RunReviewActivity"
             android:theme="@style/AppTheme"
@@ -192,6 +198,7 @@
         </activity>
         <activity
             android:name=".project.experiment.ExperimentDetailsActivity"
+            android:exported="false"
             android:label="@string/title_activity_experiment_details"
             android:parentActivityName=".project.ProjectDetailsActivity"
             android:theme="@style/NoBarTheme.Experiment">
@@ -201,20 +208,24 @@
         </activity>
         <activity
             android:name=".intro.AgeVerifier"
+            android:exported="false"
             android:label="@string/title_activity_age_verifier"
             android:theme="@style/AppTheme.AgeVerifier">
         </activity>
         <activity
             android:name=".intro.TutorialActivity"
+            android:exported="false"
             android:label="@string/title_activity_tutorial"
             android:theme="@style/NoBarTheme.Experiment"
             android:launchMode="singleTop">
         </activity>
         <activity
             android:name=".SettingsActivity"
+            android:exported="false"
             android:label="@string/navigation_item_settings"/>
         <activity
             android:name=".LicenseActivity"
+            android:exported="false"
             android:label="@string/settings_open_source_title"
             android:theme="@style/AppTheme"
             >
