@@ -58,9 +58,8 @@ public class CompositeRecyclerAdapter<VH extends RecyclerView.ViewHolder> extend
      * get the index of the child item within that child adapter.
      */
     private void scanTo(int position) {
-        if (position == mLastGlobalPosition) {
-            return;
-        }
+        // Always recalculate a scan, because subitem counts may have changed (for what _not_ to
+        // do, see b/32791829)
 
         int subPosition = position;
         int index = 0;
