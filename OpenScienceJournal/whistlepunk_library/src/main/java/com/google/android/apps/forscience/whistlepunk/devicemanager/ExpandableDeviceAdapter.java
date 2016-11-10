@@ -108,10 +108,13 @@ public class ExpandableDeviceAdapter extends
     public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
         boolean isReplacement = mSensorMap.containsKey(sensorKey);
         if (isReplacement) {
+            ConnectableSensor previousSensor = mSensorMap.get(sensorKey);
             mSensorMap.put(sensorKey, sensor);
             int parentIndex = findParentIndex(sensorKey);
             if (parentIndex >= 0) {
-                notifyChildItemChanged(findParentIndex(sensorKey), findChildIndex(sensorKey));
+                if (!previousSensor.isSameSensor(sensor)) {
+                    notifyChildItemChanged(findParentIndex(sensorKey), findChildIndex(sensorKey));
+                }
                 return true;
             }
         }
