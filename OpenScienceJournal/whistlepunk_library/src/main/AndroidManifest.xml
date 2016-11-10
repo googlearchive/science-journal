@@ -60,7 +60,7 @@
             android:name=".PublicRecorderService"
             android:enabled="true"
             android:exported="true"
-        >
+            >
             <intent-filter>
                 <action android:name="com.google.android.apps.forscience.whistlepunk.OBSERVER" />
             </intent-filter>
@@ -71,8 +71,7 @@
             android:label="@string/app_name"
             android:theme="@style/NoBarTheme.MainActivity"
             android:launchMode = "singleTop"
-            android:exported="false"
-        >
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
