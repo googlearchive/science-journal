@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 
@@ -40,6 +41,7 @@ public class ScalarSensorServiceFinder extends Consumer<AppDiscoveryCallbacks> {
     public static final String INTENT_ACTION =
             "com.google.android.apps.forscience.whistlepunk.SCALAR_SENSOR";
     public static final String METADATA_KEY_CLASS_NAME_OVERRIDE = "api_service_logical_name";
+    private static final String TAG = "ScalarFinder";
 
     private final Context mContext;
     private final Map<String, ServiceConnection> mConnections = new HashMap<>();
@@ -61,13 +63,46 @@ public class ScalarSensorServiceFinder extends Consumer<AppDiscoveryCallbacks> {
             ComponentName name = new ComponentName(packageName, serviceInfo.name);
             Intent intent = new Intent();
             intent.setComponent(name);
-            final ServiceConnection conn = makeServiceConnection(mConnections, name,
-                    callbacks, serviceInfo.metaData);
-            mConnections.put(packageName, conn);
-            mContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
+            if (versionCheck(packageName)) {
+                final ServiceConnection conn = makeServiceConnection(mConnections, name,
+                        callbacks, serviceInfo.metaData);
+                mConnections.put(packageName, conn);
+                mContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
+            }
         }
         // TODO: need to figure out when to call onDiscovery done (after every service we know
         // about has connected or timed out).
+    }
+
+    private boolean versionCheck(String packageName) {
+        try {
+            int myVersion = Versions.getScalarApiVersion(mContext.getPackageName(),
+                    mContext.getResources());
+            int packageVersion = Versions.getScalarApiVersion(packageName,
+                    mContext.getPackageManager().getResourcesForApplication(packageName));
+            return versionCheck(myVersion, packageVersion);
+        } catch (PackageManager.NameNotFoundException e) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "Can't resolve package " + packageName, e);
+            }
+            return false;
+        }
+    }
+
+    private boolean versionCheck(int myVersion, int packageVersion) {
+        if (Log.isLoggable(TAG, Log.INFO)) {
+            Log.i(TAG, "App scalar API version: " + myVersion + ", package version: "
+                    + packageVersion);
+        }
+        // TODO: get more complicated when we add another version in the future.
+        boolean isOK = (myVersion == Versions.FIRST_RELEASE_SCALAR_API_VERSION
+                && packageVersion == Versions.FIRST_RELEASE_SCALAR_API_VERSION);
+        if (! isOK) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "Incompatible versions. app=" + myVersion + ", pkg=" + packageVersion);
+            }
+        }
+        return isOK;
     }
 
     protected List<ResolveInfo> getResolveInfos() {

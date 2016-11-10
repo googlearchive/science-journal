@@ -21,6 +21,7 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.ArrayMap;
+import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.IDeviceConsumer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorConnector;
@@ -28,6 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorCon
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorObserver;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorStatusListener;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.Versions;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,9 +40,11 @@ import java.util.Map;
  * and override the abstract methods.
  *
  * For an example implementation,
+ *
  * @see com.google.android.apps.forscience.scalarapisample.AllNativeSensorProvider
  */
 public abstract class ScalarSensorService extends Service {
+    private static final String TAG = "ScalarService";
     private ISensorDiscoverer.Stub mDiscoverer = null;
 
     /**
@@ -57,6 +61,11 @@ public abstract class ScalarSensorService extends Service {
     @Nullable
     @Override
     public final ISensorDiscoverer.Stub onBind(Intent intent) {
+        if (Log.isLoggable(TAG, Log.INFO)) {
+            Log.i(TAG,
+                    "Service scalar API version: " + Versions.getScalarApiVersion(getPackageName(),
+                            getResources()) + " for service class " + getClass().getSimpleName());
+        }
         return getDiscoverer();
     }
 
