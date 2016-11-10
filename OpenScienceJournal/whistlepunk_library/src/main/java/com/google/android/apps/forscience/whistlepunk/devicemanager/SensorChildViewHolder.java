@@ -15,8 +15,11 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.view.View;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -24,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
+import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
@@ -89,19 +93,41 @@ public class SensorChildViewHolder extends ChildViewHolder {
             mSettingsGear.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // TODO: this should really be called showSensorOptions.
                     registry.showSensorOptions(sensorKey);
                 }
             });
+            mSettingsGear.setContentDescription(context.getResources().getString(
+                    R.string.sensor_options_for, mNameView.getText()));
         } else {
             mSettingsGear.setVisibility(View.GONE);
             mSettingsGear.setOnClickListener(null);
+            mSettingsGear.setContentDescription("");
         }
     }
 
     private void updateCheckboxContentDescription(boolean isChecked) {
-        mPairedCheckbox.setContentDescription(mPairedCheckbox.getResources().getString(
-                isChecked ? R.string.remove_device_from_experiment_checkbox
-                        : R.string.add_device_to_experiment_checkbox));
+        if (AccessibilityUtils.canSetAccessibilityDelegateAction()) {
+            // For newer phones, we can update the content description on the row, and the checkbox
+            // does not need to be focusable for a11y.
+            final String description = itemView.getContext().getString(isChecked ?
+                    R.string.remove_device_from_experiment_checkbox :
+                    R.string.add_device_to_experiment_checkbox);
+            itemView.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onInitializeAccessibilityNodeInfo(View host,
+                        AccessibilityNodeInfo info) {
+                    super.onInitializeAccessibilityNodeInfo(host, info);
+                    info.addAction(new AccessibilityNodeInfo.AccessibilityAction(
+                            AccessibilityNodeInfo.ACTION_CLICK, description));
+                }
+            });
+            mPairedCheckbox.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            mPairedCheckbox.setContentDescription("");
+        } else {
+            // For older devices, make sure the content description is specific to this row.
+            mPairedCheckbox.setContentDescription(mPairedCheckbox.getResources().getString(
+                    R.string.include_device_in_experiment, mNameView.getText()));
+        }
     }
 }

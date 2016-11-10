@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import android.view.MotionEvent;
@@ -83,7 +84,8 @@ public final class AccessibilityUtils {
      * Returns the toast duration unless accessibility touch mode is enabled, in
      * which case it returns a longer duration (90 seconds).
      */
-    public static int getLongerToastDurationIfAccessibilityEnabled(Context context, Snackbar bar) {
+    public static @Snackbar.Duration int getLongerToastDurationIfAccessibilityEnabled(
+            Context context, Snackbar bar) {
         if (isAccessibilityManagerEnabled(context)) {
             return SNACKBAR_TIMEOUT_EXTRA_LONG;
         }
@@ -135,5 +137,14 @@ public final class AccessibilityUtils {
         bar.setDuration(getLongerToastDurationIfAccessibilityEnabled(context, bar));
         bar.setActionTextColor(context.getResources().getColor(R.color.snackbar_action_color));
         return bar;
+    }
+
+    // TODO: ViewCompat.setAccessibilityDelegate isn't working on Kitkat. Look into this so that
+    // we can always use AccessibilityDelegates instead of work-arounds.
+    public static boolean canSetAccessibilityDelegateAction() {
+        // AccessibilityNodeInfo.addAction(AccessibilityNodeInfo.AccessibilityAction) was added
+        // in Lollipop.
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+
     }
 }

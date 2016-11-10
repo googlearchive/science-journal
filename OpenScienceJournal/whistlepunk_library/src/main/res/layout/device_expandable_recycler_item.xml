@@ -62,7 +62,6 @@
         android:layout_height="@dimen/accessibility_touch_target_min_size"
         android:layout_marginEnd="4dp"
         android:background="@android:color/transparent"
-        android:contentDescription="@string/device_settings"
         android:scaleType="center"
         android:src="@drawable/ic_menu_moreoverflow_mtrl_alpha"
         android:tint="@color/text_color_black"

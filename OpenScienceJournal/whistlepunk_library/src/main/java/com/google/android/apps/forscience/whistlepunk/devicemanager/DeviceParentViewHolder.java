@@ -15,16 +15,19 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.v4.graphics.drawable.DrawableCompat;
+import android.os.Build;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.ToggleArrow;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -64,13 +67,20 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
     public void bind(final DeviceParentListItem item, Map<String, ConnectableSensor> sensorMap,
             DeviceRegistry deviceRegistry) {
         mItem = item;
-        mDeviceNameView.setText(item.getDeviceName());
+        String name = item.getDeviceName();
+        mDeviceNameView.setText(name);
         Context context = mDeviceIcon.getContext();
         Drawable icon = item.getDeviceIcon(context, sensorMap);
         mDeviceIcon.setImageDrawable(icon);
 
-        mCollapsedIcon.setActionStrings(R.string.btn_expand_device,
-                R.string.btn_contract_device);
+        if (AccessibilityUtils.canSetAccessibilityDelegateAction()) {
+            mCollapsedIcon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            mCollapsedIcon.setIsFocusable(false);
+            updateActionStrings(item.isInitiallyExpanded());
+        } else {
+            mCollapsedIcon.setActionStrings(R.string.btn_expand_device_for,
+                    R.string.btn_contract_device_for, name);
+        }
         mCollapsedIcon.setActive(item.isInitiallyExpanded(), false);
         mCollapsedIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,9 +99,12 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
                     openDeviceMenu(item);
                 }
             });
+            mMenuButton.setContentDescription(
+                    context.getResources().getString(R.string.device_settings_for, name));
         } else {
             mMenuButton.setVisibility(View.GONE);
             mMenuButton.setOnClickListener(null);
+            mMenuButton.setContentDescription(null);
         }
     }
 
@@ -130,5 +143,26 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
         boolean isNowExpanded = !wasExpandedBefore;
         mCollapsedIcon.setActive(isNowExpanded, true);
         mItem.setIsCurrentlyExpanded(isNowExpanded);
+        if (AccessibilityUtils.canSetAccessibilityDelegateAction()) {
+            // For newer phones, we can update the content description on the row, and the arrow
+            // does not need to be focusable for a11y.
+            updateActionStrings(isNowExpanded);
+        }
+    }
+
+    // Updates the action strings on the itemView row based on whether it is currently expanded.
+    private void updateActionStrings(boolean isExpanded) {
+        final String description = itemView.getContext().getString(isExpanded ?
+                R.string.btn_contract_device : R.string.btn_expand_device);
+        itemView.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onInitializeAccessibilityNodeInfo(View host,
+                    AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.addAction(new AccessibilityNodeInfo.AccessibilityAction(
+                        AccessibilityNodeInfo.ACTION_CLICK, description));
+            }
+        });
     }
 }

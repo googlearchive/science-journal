@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.TouchDelegate;
 import android.widget.ImageButton;
@@ -26,6 +27,8 @@ import android.widget.ImageButton;
 public class ToggleArrow extends ImageButton {
     private int mStringToBecomeActive;
     private int mStringToBecomeInactive;
+    private String mName;
+    private boolean mIsFocusable = true;
 
     public ToggleArrow(Context context) {
         super(context);
@@ -61,15 +64,49 @@ public class ToggleArrow extends ImageButton {
         return new TouchDelegate(delegateArea, this);
     }
 
+    public void setIsFocusable(boolean focusable) {
+        mIsFocusable = focusable;
+    }
+
+    /**
+     * Sets the action strings for the toggle arrow.
+     * @param stringToBecomeActive The ID of the string to use when user action activates us.
+     * @param stringToBecomeInactive The ID of the string to use when user action deactivates us.
+     */
     public void setActionStrings(int stringToBecomeActive, int stringToBecomeInactive) {
         mStringToBecomeActive = stringToBecomeActive;
         mStringToBecomeInactive = stringToBecomeInactive;
     }
 
+    /**
+     * Sets the action strings of the toggle arrow and a name string which is used to format those
+     * action strings.
+     * @param stringToBecomeActive The ID of the string to use when user action activates us,
+     *                             and which contains a string formatting param for our name.
+     * @param stringToBecomeInactive The ID of the string to use when user action deactivates us,
+     *                               and which contains a string formatting param for our name.
+     * @param name The name of the thing to activate / deactivate with this toggle arrow.
+     */
+    public void setActionStrings(int stringToBecomeActive, int stringToBecomeInactive,
+            String name) {
+        setActionStrings(stringToBecomeActive, stringToBecomeInactive);
+        mName = name;
+    }
+
     public void setActive(boolean isBecomingActive, boolean animate) {
-        Resources resources = getResources();
-        setContentDescription(resources.getString(
-                isBecomingActive ? mStringToBecomeInactive: mStringToBecomeActive));
+        if (mIsFocusable) {
+            Resources resources = getResources();
+            int stringId = isBecomingActive ? mStringToBecomeInactive : mStringToBecomeActive;
+            // If it has a name field, then setActionStrings was called with the name param, and we
+            // can expect those strings to be string-formatting strings that take the name.
+            if (!TextUtils.isEmpty(mName)) {
+                setContentDescription(resources.getString(stringId, mName));
+            } else {
+                setContentDescription(resources.getString(stringId));
+            }
+        } else {
+            setContentDescription("");
+        }
         float desiredRotation = isBecomingActive ? 0 : -180;
         if (animate) {
             animate()

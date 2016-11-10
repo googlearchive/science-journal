@@ -502,7 +502,7 @@
     <!-- The content description for the settings icon on a sensor card [CHAR_LIMIT=NONE] -->
     <string name="btn_sensor_card_settings">Sensor settings</string>
 
-    <!-- Name of the menu item to change options on the current sensor [CHAR_LIMIT=25] -->
+    <!-- Name of the dialog shown to change options on the current sensor [CHAR_LIMIT=25] -->
     <string name="sensor_options">Sensor options</string>
 
     <!-- The content description for the button to expand the header of a sensor card in order
@@ -1247,11 +1247,17 @@
     <!-- Error message when a sensor does not connect in time [CHAR_LIMIT=NONE] -->
     <string name="api_connection_timeout_error">Connection timeout</string>
 
-    <!-- Content description for arrow button that reveals sensors available on a paired device [CHAR_LIMIT=NONE] -->
-    <string name="btn_expand_device">Reveal device sensors</string>
+    <!-- Content description for click action that reveals sensors available on a paired device [CHAR_LIMIT=NONE] -->
+    <string name="btn_expand_device">show device sensors</string>
 
-    <!-- Content description for arrow button that hides sensors available on a paired device [CHAR_LIMIT=NONE] -->
-    <string name="btn_contract_device">Hide device sensors</string>
+    <!-- Content description for click action that hides sensors available on a paired device [CHAR_LIMIT=NONE] -->
+    <string name="btn_contract_device">hide device sensors</string>
+
+    <!-- Content description for click action that reveals devices available on a service [CHAR_LIMIT=NONE] -->
+    <string name="btn_expand_service">show service devices</string>
+
+    <!-- Content description for click action that hides devices available on a service[CHAR_LIMIT=NONE] -->
+    <string name="btn_contract_service">hide service devices</string>
 
     <!-- Explanatory label for an activity to associate sensors with an experiment [CHAR_LIMIT=50] -->
     <string name="select_sensors">Select sensors to use in <xliff:g id="experimentName">%1$s</xliff:g></string>
@@ -1266,17 +1272,37 @@
     <string name="forget_device">Forget this device</string>
 
     <!-- Menu option to change settings on an external device [CHAR_LIMIT=30] -->
-    <string name="device_settings">Device settings</string>
+    <string name="device_settings_for">Device settings for <xliff:g id="deviceName">%1$s</xliff:g></string>
 
     <!-- Content description for a checkbox that adds a sensor to the current experiment [CHAR_LIMIT=NONE] -->
-    <string name="add_device_to_experiment_checkbox">Add sensor to experiment</string>
+    <string name="add_device_to_experiment_checkbox">add to experiment</string>
 
     <!-- Content description for a checkbox that removes a sensor to the current experiment [CHAR_LIMIT=NONE] -->
-    <string name="remove_device_from_experiment_checkbox">Remove sensor from experiment</string>
+    <string name="remove_device_from_experiment_checkbox">remove from experiment</string>
+
+    <!-- Content description for a checkbox that adds or removes a sensor from the current experiment [CHAR_LIMIT=NONE] -->
+    <string name="include_device_in_experiment">Include <xliff:g id="sensorName">%1$s</xliff:g> in experiment</string>
 
     <!-- Label for a section that shows bluetooth devices that speak the Science Journal protocol [CHAR_LIMIT=40] -->
     <string name="native_ble_service_name" translatable="false">@string/app_name</string>
 
+    <!-- Content descripton of the menu button to change options on the current sensor [CHAR_LIMIT=NONE] -->
+    <string name="sensor_options_for">Options for <xliff:g id="sensorName">%1$s</xliff:g></string>
+
+    <!-- Content description of button to refresh a device in the Sensor Settings page [CHAR_LIMIT=NONE] -->
+    <string name="refresh_device">Refresh <xliff:g id="deviceName">%1$s</xliff:g></string>
+
+    <!-- Content description for button that reveals sensors available on a paired device [CHAR_LIMIT=NONE] -->
+    <string name="btn_expand_device_for">show sensors for <xliff:g id="deviceName">%1$s</xliff:g></string>
+
+    <!-- Content description for button that hides sensors available on a paired device [CHAR_LIMIT=NONE] -->
+    <string name="btn_contract_device_for">hide sensors for <xliff:g id="deviceName">%1$s</xliff:g></string>
+
+    <!-- Content description for click action that reveals devices available on a service [CHAR_LIMIT=NONE] -->
+    <string name="btn_expand_service_for">show devices for <xliff:g id="serviceName">%1$s</xliff:g></string>
+
+    <!-- Content description for click action that hides devices available on a service[CHAR_LIMIT=NONE] -->
+    <string name="btn_contract_service_for">hide devices for <xliff:g id="serviceName">%1$s</xliff:g></string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

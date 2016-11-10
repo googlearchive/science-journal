@@ -15,17 +15,22 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import android.annotation.TargetApi;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.ToggleArrow;
@@ -53,14 +58,25 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
     public void bind(final ServiceParentListItem item, FragmentManager fragmentManager,
             final Runnable onRefresh) {
         mItem = item;
-        mNameView.setText(item.getServiceName());
-        Drawable icon = item.getDeviceIcon(mIcon.getContext());
+        String name = item.getServiceName();
+        Context context = mIcon.getContext();
+        mNameView.setText(name);
+
+        Drawable icon = item.getDeviceIcon(context);
         if (item.getProviderId().equals(BleSensorSpec.TYPE)) {
             icon = ColorUtils.colorDrawable(mIcon.getContext(), icon, R.color.color_accent);
         }
         mIcon.setImageDrawable(icon);
-        mCollapsedIcon.setActionStrings(R.string.btn_expand_device,
-                R.string.btn_contract_device);
+
+        if (AccessibilityUtils.canSetAccessibilityDelegateAction()) {
+            mCollapsedIcon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            mCollapsedIcon.setIsFocusable(false);
+            updateActionStrings(item.isInitiallyExpanded());
+        } else {
+            mCollapsedIcon.setActionStrings(R.string.btn_expand_service_for,
+                    R.string.btn_contract_service_for, name);
+        }
+
         mCollapsedIcon.setActive(item.isInitiallyExpanded(), false);
         mCollapsedIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,7 +94,7 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
         } else {
             mErrorIcon.setVisibility(View.VISIBLE);
             mErrorIcon.setContentDescription(
-                    mErrorIcon.getContext().getString(R.string.snackbar_source_error,
+                    context.getResources().getString(R.string.snackbar_source_error,
                             error.getErrorMessage()));
             mErrorIcon.setOnClickListener(getOnClickListener(error, fragmentManager));
         }
@@ -99,6 +115,8 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
                 }
             });
         }
+
+        mRefreshIcon.setContentDescription(context.getResources().getString(R.string.refresh_device, name));
     }
 
     private void startLoadingAnimation() {
@@ -141,5 +159,26 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
         boolean isNowExpanded = !wasExpandedBefore;
         mCollapsedIcon.setActive(isNowExpanded, true);
         mItem.setIsCurrentlyExpanded(isNowExpanded);
+        if (AccessibilityUtils.canSetAccessibilityDelegateAction()) {
+            // For newer phones, we can update the content description on the row, and the arrow
+            // does not need to be focusable for a11y.
+            updateActionStrings(isNowExpanded);
+        }
+    }
+
+    // Updates the action strings on the itemView row based on whether it is currently expanded.
+    private void updateActionStrings(boolean isExpanded) {
+        final String description = itemView.getContext().getString(isExpanded ?
+                R.string.btn_contract_service : R.string.btn_expand_service);
+        itemView.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onInitializeAccessibilityNodeInfo(View host,
+                    AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.addAction(new AccessibilityNodeInfo.AccessibilityAction(
+                        AccessibilityNodeInfo.ACTION_CLICK, description));
+            }
+        });
     }
 }
