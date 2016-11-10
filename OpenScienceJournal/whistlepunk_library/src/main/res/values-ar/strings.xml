@@ -48,11 +48,10 @@
     <string name="rpm_units" msgid="2651871280948091901">"دورة/دقيقة"</string>
     <string name="voltage_units" msgid="598716668433769220">"فولط"</string>
     <string name="raw_units" msgid="4501311675565391535">"%"</string>
-    <string name="barometer_units" msgid="8404848712372029263">"ميللي بار"</string>
+    <string name="barometer_units" msgid="5606531967130926197">"هيكتو باسكال"</string>
     <string name="temperature_units" msgid="6865637706924726630">"درجة مئوية"</string>
     <string name="header_name_and_units" msgid="2085988560798053543">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="5584369034749538544">"تفاصيل التجربة"</string>
-    <string name="add_sensor" msgid="7637499411634365504">"إضافة مستشعر"</string>
     <string name="snackbar_source_error" msgid="488480213360860471">"حدث خطأ أثناء الاتصال بهذا المصدر: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
     <string name="action_retry" msgid="3145700667339813916">"إعادة المحاولة"</string>
     <string name="decibel" msgid="2567269521573545643">"شدة الصوت"</string>
@@ -91,7 +90,7 @@
     <string name="elapsed_time_axis_format_large" msgid="5693537324927532690">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_small_tenths" msgid="4091017607656155791">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>,<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large_tenths" msgid="3013544179502005785">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>,<xliff:g id="TENTHS">%1d</xliff:g>"</string>
-    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1s</xliff:g>، <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1$s</xliff:g>، <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>."</string>
     <string name="picture_note_description" msgid="6443481127492010185">"صورة من المحاولةj"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"معاينة ملاحظة الصورة"</string>
     <string name="navigation_item_observe" msgid="8558454737213940045">"الملاحظات"</string>
@@ -100,7 +99,7 @@
     <string name="navigation_item_settings" msgid="2126253880412012953">"الإعدادات"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"خيارات الاختبار"</string>
     <string name="title_activity_main" msgid="7023325446656975223">"Science Journal ‏- <xliff:g id="SECTION">%s</xliff:g>"</string>
-    <string name="title_activity_add_sensor" msgid="1432724804471397682">"الأجهزة الخارجية"</string>
+    <string name="title_activity_sensor_settings" msgid="1784553345261037389">"إعدادات المستشعر"</string>
     <string name="external_devices_paired" msgid="4167288049155302614">"الأجهزة المقترنة"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"جارٍ الإقران…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"الأجهزة المتوفرة"</string>
@@ -140,7 +139,6 @@
     <string name="settings_version_title" msgid="6926476057478648092">"الإصدار"</string>
     <string name="settings_replay_tutorial_title" msgid="6935249461039953640">"البرنامج التعليمي"</string>
     <string name="settings_open_source_title" msgid="2075335777151654751">"تراخيص برامج مفتوحة المصدر"</string>
-    <string name="dev_sensors_title" msgid="56483495191187216">"تمكين مستشعرات تجريبية"</string>
     <string name="cannot_scan_message" msgid="5736974833739008592">"للوصول إلى أجهزة خارجية (\"مستشعر Science Journal\") باستخدام Science Journal، يجب أولاً تشغيل بلوتوث. لاكتشاف مستشعرات Science Journal، يتطلب Android منك منح إذن للوصول إلى موقعك لأن أجهزة بلوتوث الأخرى قد تبث معلومات الموقع أثناء اكتشاف الجهاز. مع ذلك، لا يخزّن Science Journal معلومات الموقع ولا يستخدمها ولا ترسل مستشعرات Science Journal معلومات الموقع."</string>
     <string name="btn_request_location" msgid="307169020767649663">"تشغيل الوصول إلى الموقع"</string>
     <string name="btn_enable_bluetooth" msgid="4110230448360114456">"تشغيل بلوتوث"</string>
@@ -151,6 +149,7 @@
     <string name="archived_project_message" msgid="66153039940455913">"تمت أرشفة المشروع."</string>
     <string name="unarchived_project_message" msgid="8018113308137052929">"تم نقل المشروع من الأرشيف."</string>
     <string name="action_undo" msgid="1852278327756791797">"تراجع"</string>
+    <string name="deleted_project_message" msgid="1227635187612669144">"تمّ حذف المشروع."</string>
     <string name="project_title_hint" msgid="5788484729941933289">"عنوان المشروع"</string>
     <string name="project_problem_hint" msgid="4818690816549079105">"الوصف"</string>
     <string name="project_cover_description" msgid="8583694225708356859">"اختيار صورة مشروع"</string>
@@ -168,7 +167,6 @@
     <string name="unarchived_experiment_message" msgid="7870126733421916514">"تم نقل التجربة من الأرشيف."</string>
     <string name="archived_run_message" msgid="8346607350306633655">"تمت أرشفة المحاولة."</string>
     <string name="unarchived_run_message" msgid="3807535396227509421">"تم نقل المحاولة من الأرشيف."</string>
-    <string name="experiments_toolbar_title" msgid="6963959917416270680">"التجارب"</string>
     <string name="archived_content_description" msgid="7931247623909344339">"<xliff:g id="ITEM">%1s</xliff:g> (مؤرشف)"</string>
     <plurals name="experiment_run_count" formatted="false" msgid="1283784154893798777">
       <item quantity="zero"><xliff:g id="NUMBER_1">%1d</xliff:g> محاولة</item>
@@ -205,33 +203,27 @@
     <string name="frequency_window_option_label" msgid="4919436041479250367">"نافذة التردد (بالمللي ثانية)"</string>
     <string name="frequency_filter_option_label" msgid="4458966053132937293">"فلتر التردد (بوحدات المستشعر)"</string>
     <string name="enable_frequency_checkbox_label" msgid="2922864218507547240">"إظهار التردد"</string>
-    <string name="dev_sensors_summary" msgid="7086328959529574660">"إظهار المستشعرات المخصصة لاختبار المطور فقط"</string>
     <string name="options_save_error" msgid="1262808099812151932">"خطأ في حفظ الخيارات"</string>
     <string name="options_load_error" msgid="1594503728021930743">"خطأ في تحميل الخيارات"</string>
     <string name="dev_tools_title" msgid="8231917267495770691">"تمكين الأدوات التجريبية"</string>
     <string name="dev_tools_summary" msgid="3609685547301741618">"إظهار الأدوات المخصصة لاختبار المطور فقط"</string>
     <string name="dev_tools_leak_detection_title" msgid="4725525693236520974">"تمكين اكتشاف تسرب الذاكرة"</string>
-    <string name="dev_tools_leak_detection_summary" msgid="9019022238189456899">"لا تسري تغييرات هذا الإعداد إلا بعد إغلاق التطبيق."</string>
-    <string name="d2p" msgid="372033271119706811">"افتراضية"</string>
-    <string name="d2a" msgid="8650862124682156354">"ذبذبة صوتية"</string>
-    <string name="d2pe" msgid="956618657669378971">"ملاحظات"</string>
-    <string name="d2ps" msgid="5114174025939101366">"مقياس"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="7171148788144095285">"لا تسري التغييرات التي يتم إجراؤها على هذا الإعداد إلا بعد إغلاق التطبيق."</string>
+    <string name="default_sonification" msgid="9006778853276983156">"افتراضية"</string>
+    <string name="amplitude" msgid="2540241901091313524">"ذبذبة صوتية"</string>
+    <string name="notes" msgid="3276297280118435135">"ملاحظات"</string>
+    <string name="scale" msgid="8822139987400974369">"الحدة"</string>
+    <string name="conductor" msgid="9193425673241449589">"موَصِّل"</string>
     <!-- no translation found for sonification_types_prod:0 (3254769575914104850) -->
     <!-- no translation found for sonification_types_prod:1 (1831413879274006078) -->
     <!-- no translation found for sonification_types_prod:2 (1917376169281831239) -->
+    <!-- no translation found for sonification_types_prod:3 (602550002110522910) -->
     <!-- no translation found for sonification_types_dev:0 (7417644575217300390) -->
-  <string-array name="sonification_type_aliases">
-    <item msgid="234968762840479178">"d2p"</item>
-    <item msgid="6154566816995872686">"d2ps"</item>
-    <item msgid="2062530924507614569">"d2pe"</item>
-    <item msgid="72378471312023144">"d2a"</item>
-  </string-array>
     <string name="new_experiment_spinner_item" msgid="5017810476745425374">"تجربة جديدة…"</string>
     <string name="recording_title_label" msgid="736399431431816185">"جارٍ التسجيل..."</string>
-    <string name="exp_edit_info_button" msgid="3141909000709306124">"تعديل المعلومات"</string>
     <string name="btn_observe_content_description" msgid="476911391550333702">"الملاحظات"</string>
     <string name="title_activity_experiment_details" msgid="3494340558031776911">"تفاصيل التجربة"</string>
-    <string name="empty_runs" msgid="7548505071633993347">"ليس لديك أي محاولات"</string>
+    <string name="empty_experiment" msgid="6142475501762739386">"ما من محاولات أو ملاحظات لهذه التجربة."</string>
     <string name="permission_request_write" msgid="6590731147363977582">"يلزم توفر إذن للكتابة إلى وحدة التخزين الخارجية."</string>
     <string name="device_options_sensor_label_text" msgid="5073336029128358977">"المستشعر"</string>
     <string name="external_sensor_appearance_name" msgid="6419268671149879170">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
@@ -243,7 +235,6 @@
     <string name="device_options_custom_sensor_pin_label_text" msgid="7023371657105134847">"رقم التعريف الشخصي"</string>
     <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="4571472391388122413">"التكرار"</string>
     <string name="feedback_error_message" msgid="3117491109292317255">"تعذر إرسال التعليقات."</string>
-    <string name="no_sensor_info_found" msgid="2182109795740683658">"ما من معلومات إضافية حول هذا المستشعر!"</string>
     <string name="sensor_desc_short_acc_x" msgid="1184579399689940361">"تسارع الهاتف نحو اليسار واليمين بوحدة م/ث²"</string>
     <string name="sensor_desc_short_acc_y" msgid="7084492489358508838">"تسارع الهاتف إلى الأمام والخلف بوحدة م/ث²"</string>
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"تسارع الهاتف إلى أعلى وأسفل بوحدة م/ث²"</string>
@@ -253,6 +244,7 @@
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"ثمة بيانات تابعة لمستشعر خارجي معروضة هنا بناءً على الإعدادات المخصصة."</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"عدد الدورات في الدقيقة"</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"النسبة المئوية للقراءة الأولية من مستشعر خارجي."</string>
+    <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"يُقاس الضغط الجوي بالهيكتو باسكال."</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"إنّ مستشعر الإضاءة المحيطة يقيس الضوء باللوكس، وهو مقياس للإضاءة يعتمد على مقدار الضوء المنبعث والمساحة التي ينتشر فيها. \n\nيوفر القمر في حالة اكتماله إضاءة مقدارها لوكس واحد في حين تكون إضاءة غرفة المعيشة المضاءة بمصباح عادي 50 لوكس تقريبًا، وتصل إضاءة حجرة الدراسة والشروق والغروب إلى 400 لوكس، وإضاءة النهار (الشمس غير المباشرة) أكثر من 10000 لوكس والشمس المباشرة أكثر من 30000 لوكس. \n\nاللوكس وحدة لا يعرفها معظمنا. فعندما نشتري المصابيح، غالبًا ما نشتريها حسب الواط، إلا أنّ قدرة المصباح بالواط لا تدلنا على مدى سطوعه بل تدلنا على مقدار الطاقة التي يستخدمها فقط. يُعد اللومن مقياسًا أفضل عند شراء المصابيح إذ يدلك على مقدار الضوء الذي يُنتجه المصباح في حين يَدلك اللوكس على مقدار الضوء الذي يصل إلى منطقة معينة."</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"نظرًا إلى أنّ الضوء ينتشر أثناء انتقاله، يتضاءل عدد وحدات اللوكس مع ابتعادك عن مصدر الضوء، على الرغم من الاستمرار في انبعاث مقدار الضوء باللومن نفسه من المصدر. تتلقى المنطقة المائلة بعيدًا عن مصادر الضوء مقدار إضاءة أقل، لهذا السبب تكون المناطق الاستوائية على الأرض أكثر دفئًا من الأقطاب الباردة. \n\nجدير بالذكر أن الغرض من مستشعر الإضاءة المضمّن في الهاتف هو التحكم في مستوى إضاءة الشاشة، وضبطه تبعًا لمستوى إضاءة البيئة المحيطة أو إعتامها. داخل مستشعر الإضاءة، ثمة شبه موصل صغير يستجيب للضوء القادم من خلال إنتاج تيار كهربائي صغير لكن يمكن قياسه، وهو الظاهرة المعروفة باسم التأثير الكهروضوئي. تُستخدم مستشعرات مشابهة في مصابيح الشوارع لإضاءتها عندما يحل الظلام."</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"تميل الأجسام إلى السكون أو الاستمرار في الحركة إذا كانت متحركة، وهو ما نُطلق عليه اسم القصور الذاتي. ويعبّر القانون الأول لنيوتن عن هذه الفكرة حيث ينص على أنّ الجسم يظل على حالته من الحركة أو السكون ما لم تؤثر عليه قوة غير متوازنة. \n\nعندما تؤدي القوة غير المتوازنة إلى تحريك الجسم قليلاً، نقول إن الجسم يتسارع: أي تتغير سرعته، فإما تزداد السرعة أو تقل أو يغيّر اتجاهه. يُقاس التسارع بالتغير في السرعة (متر/ث) في الوقت أو بالمتر في الثانية المربعة (م/ث²). \n\nيتوفر في الهاتف جهاز لقياس التغييرات في الحركة وهو مقياس التسارع. وداخل جهاز التسارع، ثمة كتل صغيرة معلقة تتحرك بطريقة غير ثابتة. تؤدي تغيرات الحركة إلى إزاحة هذه الكتل، كما يحدث عندما تميل رأسك للأمام أثناء ركوب سيارة تتوقف فجأة. ومن خلال قياس تغيرات الإزاحة الدقيقة الناتجة عن القصور الذاتي، يمكن لمقياس التسارع في الهاتف اكتشاف تغيرات الحركة والاتجاه، ويُعدّ ذلك مفيدًا لتحويل الشاشة من الوضع الأفقي إلى الوضع العمودي وتشغيل الألعاب على الهاتف والكثير غير ذلك."</string>
@@ -265,6 +257,8 @@
     <string name="sensor_desc_second_paragraph_raw" msgid="2081830388555382169">"إنّ بلوتوث عبارة عن معيار للتكنولوجيا اللاسلكية يستخدم موجات إشعاعية لتبادل البيانات من أجهزة ثابتة أو محمولة في نطاق مسافة قصيرة."</string>
     <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"إنّ البيانات المعروضة هنا ناتجة عن اتصال مستشعر خارجي بالهاتف عبر بلوتوث."</string>
     <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"إنّ بلوتوث عبارة عن معيار للتكنولوجيا اللاسلكية يستخدم موجات إشعاعية لتبادل البيانات من أجهزة ثابتة أو محمولة في نطاق مسافة قصيرة."</string>
+    <string name="sensor_desc_first_paragraph_barometer" msgid="2813905499808374316">"على الرغم من أننا نادرًا ما نلاحظ ذلك، نعيش جميعنا في قعر محيط هوائي شاسع: الغلاف الجوي للأرض الذي يمتدّ صعودًا على علو أكثر من 40 كلم. ينشئ وزن كل هذا الهواء الذي يضغط علينا من فوق، ما يُسمّى بالضغط الجوي. \n\nعند مستوى سطح البحر، يطبّق الضغط الجوي قوةً بوزن 6 كلغ عل كل بوصة مربّعة؛ أي ما يعادل حوالى 589 كلغ، على مساحة بحجم ورقة قياسية."</string>
+    <string name="sensor_desc_second_paragraph_barometer" msgid="4975611576005615149">"لا نلاحظ هذا الضغط الساحق عادةً لأننا اعتدنا عليه، لكننا نلاحظه عندما يتغيّر، حتى ولو بشكلٍ طفيف، حين ننتقل إلى المرتفعات الجبلية أو نركب الطائرات. يتغيّر الضغط الجوي أيضًا وفقًا للأحوال الجوّية، فيهبط حين تكون الرياح عاصفة وغير مستقرّة ويرتفع حين تصبح الرياح مستقرّة والسماء صافية. \n\nيقيس المقياس الرقمي في هاتفك الضغط الجوي بالهيكتو باسكال. (إنّ كل هيكتو باسكال واحد يساوي 100 باسكال، وتُعتبر وحدة باسكال قوّة نيوتن مطبّقة على مساحة متر مربّع.) لا بدّ أنك سبق وسمعت خبراء الأرصاد الجوّية يقدّمون الضغط الجوي بالمليبار؛ إن هذه الوحدة التي تبدو مألوفة، تعادل الهيكتو باسكال. \n\nقد تتساءل: ما فائدة تزويد الهواتف بقدرة على قياس الضغط؟ يتغيّر الضغط الجوي بشكل ملموس حتى عند حصول تغيّرات طفيفة في الارتفاع، مثلاً حين نصعد الدرج. لذا، يساعد المقياس الرقمي في الهاتف في اكتشاف تغييرات الموقع؛ على سبيل المثال، يمكنه معرفة الطابق الذي أنت فيه أو سواء كنت تقود سيارتك تحت الجسر أو فوقه."</string>
     <string name="run_review_duration" msgid="1978235455271606762">"المدة"</string>
     <string name="run_review_activity_label" msgid="5646135462344737004">"مراجعة"</string>
     <string name="service_notification_content_title" msgid="791621361781451323">"Science Journal"</string>
@@ -275,9 +269,8 @@
     <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"تبديل إلى وضع المعلومات"</string>
     <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"تبديل إلى وضع الرسم البياني"</string>
     <string name="sensor_tab_layout_content_description" msgid="3807243095823040361">"المستشعرات المتوفرة"</string>
-    <string name="sensor_tab_selected_format" msgid="2686213304137352967">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (محدد)"</string>
     <string name="title_activity_sensor_info" msgid="8667402055779114709">"معلومات المستشعر"</string>
-    <string name="title_activity_sensor_info_format" msgid="4810933938741070862">"مستشعر <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="title_activity_sensor_info_format" msgid="4284132895191711797">"مستشعر <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="heading_info_section" msgid="8939391891795009974">"ما هذا؟"</string>
     <string name="edit_note_menu_item" msgid="8530099824744920575">"تعديل"</string>
     <string name="edit_note_time" msgid="5307388665454994755">"تعديل وقت الملاحظة"</string>
@@ -304,6 +297,10 @@
     <string name="archived_badge" msgid="6068366174702659773">"مؤرشفة"</string>
     <string name="action_include_archived_projects" msgid="7075034155088762601">"تضمين المشاريع المؤرشفة"</string>
     <string name="action_include_archived_experiments" msgid="9179328397501796497">"تضمين التجارب المؤرشفة"</string>
+    <string name="delete_project_dialog_title" msgid="7681697983255312708">"هل تريد حذف هذا المشروع؟"</string>
+    <string name="delete_project_dialog_message" msgid="3039092965074898348">"هل تريد بالتأكيد حذف هذا المشروع؟ سيتم حذف كل التجارب والمحاولات والملاحظات. ولا يمكن التراجع عن هذا الإجراء."</string>
+    <string name="delete_experiment_dialog_title" msgid="522221451175758058">"هل تريد حذف هذه التجربة؟"</string>
+    <string name="delete_experiment_dialog_message" msgid="8055334758058363747">"هل تريد بالتأكيد حذف هذه التجربة؟ سيتم حذف كل المحاولات والملاحظات. ولا يمكن التراجع عن هذا الإجراء."</string>
     <string name="action_new_experiment" msgid="5987527361707254638">"تجربة جديدة"</string>
     <string name="delete_run_dialog_title" msgid="3841579587741640965">"هل تريد حذف هذه التجربة؟"</string>
     <string name="run_review_delete_confirm" msgid="1608962272042732123">"هل تريد بالتأكيد حذف هذه المحاولة؟ سيتم حذف الملاحظات والبيانات المسجلة. لا يمكن التراجع عن هذا الإجراء."</string>
@@ -330,7 +327,6 @@
     <string name="graph_loading" msgid="1102165995961515949">"جارٍ تحميل الرسم البياني…"</string>
     <string name="playback_button_pause" msgid="348710889337495167">"إيقاف تشغيل الصوت مؤقتًا"</string>
     <string name="playback_button_play" msgid="3845595255478520691">"بدء تشغيل الصوت"</string>
-    <string name="sonification_type_card_title" msgid="7998122361918330347">"نوع الصوتنة للمطور"</string>
     <string name="dev_sonification_types_title" msgid="8470117255317834775">"تمكين أنواع الصوتنة للمطور"</string>
     <string name="title_edit_trial_activity" msgid="2639088409396156730">"تعديل المحاولة"</string>
     <string name="edit_trial_title_hint" msgid="2537511526292819270">"عنوان المحاولة"</string>
@@ -339,18 +335,12 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"إضافة تسمية توضيحية"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"إجراء تجارب عن العالم من حولك"</string>
-    <string name="listing_changelog" msgid="1272605515497326900">"الميزات والتحسينات الجديدة: \n• إضافة تسميات توضيحية إلى صور الملاحظات. \n• إعدادات الصوت لصوتنة البيانات \n• تحسينات في الأداء للمحاولات الطويلة جدًا. \n• إصلاح الأخطاء."</string>
+    <string name="listing_changelog" msgid="5791385044176273701">"الميزات والتحسينات الجديدة: \n• مشغّلات المستشعرات: إصدار تنبيهات أو تدوين ملاحظات أو بدء التسجيل وإيقافه عند استيفاء قيم محددة للمستشعر. يمكنك الوصول إلى هذه المشغّلات عبر قائمة بطاقة المستشعر. \n• حذف المحاولات والتجارب وعمليات التشغيل المؤرشفة \n• دعم إضافي لمستشعر مقياس الضغط الجوي \n• مزيد من الميزات في Science Journal: الوصول إلى مزيد من أنواع المستشعرات الخارجية. لمزيد من المعلومات، يرجى مراجعة https://makingscience.withgoogle.com/science-journal/materials‏\n• إصلاح الأخطاء."</string>
     <string name="listing__description" msgid="3975515995792990185">"إنّ Science Journal عبارة عن أداة تسمح بإجراء تجارب علمية باستخدام الهاتف الذكي. ويمكن استخدام المستشعرات في الهاتف أو توصيله بمستشعرات خارجية لإجراء تجارب عن العالم من حولك. يمكنك تنظيم أفكارك وتحويلها إلى مشاريع وتقديم توقعات وتدوين ملاحظات وجمع البيانات من عدة محاولات، ثم إضافة تعليقات توضيحية إلى النتائج واستكشافها. إنها بمثابة دفتر ملاحظات للمختبر تحمله معك أثناء التنقل.\n\n \nيمكنك الاطّلاع على أفكار حول أنشطة لاستخدامها مع التطبيق هنا: https://makingscience.withgoogle.com/science-journal/activities ‏\nمزيد من المعلومات حول Making &amp; Science:‏ https://makingscience.withgoogle.com \nللحصول على الدعم: https://productforums.google.com/forum/#!forum/sciencejournal \nيتوفر الرمز هنا: https://github.com/google/science-journal"</string>
-    <string name="live_zoom_type_option_title" msgid="6184011805342339557">"تكبير تلقائي على شاشة الملاحظات"</string>
-    <string name="live_zoom_type_option_summary" msgid="3327087952315423967">"تمكين التكبير التلقائي على المحور \"ص\" في شاشة الملاحظات عند التثبيت في المساعد الفوري. يكون هذا الخيار معطّلاً بشكلٍ افتراضي."</string>
-    <!-- no translation found for third_party_sensors_option_title (4835603485129230503) -->
-    <skip />
-    <!-- no translation found for third_party_sensors_option_summary (2567608839882361492) -->
-    <skip />
+    <string name="third_party_sensors_option_title" msgid="4835603485129230503">"البحث عن مستشعرات جهات خارجية"</string>
+    <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"ابحث عن التطبيقات التي تعتمد واجهة برمجة تطبيقات مستشعرات الجهات الخارجيّة، ومكّن إضافة هذه المستشعرات إلى التجارب."</string>
     <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"تمكين مقياس المغناطيسية"</string>
     <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"تمكين المستشعر التجريبي لمقياس المغناطيسية"</string>
-    <string name="enable_barometer_sensor_title" msgid="4532163359473808928">"تمكين مقياس الضغط الجوي"</string>
-    <string name="enable_barometer_sensor_summary" msgid="352316348564408931">"تمكين المستشعر التجريبي لمقياس الضغط الجوي"</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"تمكين درجة الحرارة المحيطة"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"تمكين المستشعر التجريبي لدرجة الحرارة المحيطة"</string>
     <string name="enable_sine_wave_sensor_title" msgid="5361133155106781791">"تمكين الموجات الجيبية الاصطناعية"</string>
@@ -365,60 +355,84 @@
     <string name="autozoom_failed" msgid="2708983116606188884">"تعذّر ضبط المقياس التلقائي."</string>
     <string name="run_review_overflow_menu_content_description" msgid="5689925874345140909">"المزيد من الخيارات"</string>
     <string name="licenses_empty" msgid="2746335366478622872">"لم يتم العثور على تراخيص."</string>
-    <!-- no translation found for audio_enabled_format (4202071153288924614) -->
-    <skip />
-    <!-- no translation found for menu_item_set_triggers (3555868641262376254) -->
-    <skip />
-    <!-- no translation found for title_activity_trigger_list (5014690461140632120) -->
-    <skip />
-    <!-- no translation found for btn_add_new_trigger (1143389268664607859) -->
-    <skip />
-    <!-- no translation found for empty_trigger_list (238046755667717404) -->
-    <skip />
-    <!-- no translation found for title_activity_edit_trigger (2115747586987165481) -->
-    <skip />
-    <!-- no translation found for title_activity_add_trigger (9137879813992485906) -->
-    <skip />
-    <!-- no translation found for trigger_type_label (4847350415951495617) -->
-    <skip />
-    <!-- no translation found for trigger_when_label (8616405039634043612) -->
-    <skip />
-    <!-- no translation found for trigger_type_start_recording (7292105639999785968) -->
-    <skip />
-    <!-- no translation found for trigger_type_stop_recording (3022683931027310288) -->
-    <skip />
-    <!-- no translation found for trigger_type_note (626654531254636746) -->
-    <skip />
-    <!-- no translation found for trigger_type_alert (6525543144561765762) -->
-    <skip />
-    <!-- no translation found for trigger_when_at (762967868925610869) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below (149048320758854889) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above (4131024183229534708) -->
-    <skip />
-    <!-- no translation found for trigger_value_hint (6176793893724760154) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_label (2243205345376006607) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_hint (7624572723656572363) -->
-    <skip />
-    <!-- no translation found for trigger_audio_alert (3888981987994238753) -->
-    <skip />
-    <!-- no translation found for trigger_haptic_alert (4734911836763569299) -->
-    <skip />
-    <!-- no translation found for trigger_visual_alert (8191512950406497950) -->
-    <skip />
-    <!-- no translation found for cannot_save_invalid_value (2889387470051561369) -->
-    <skip />
-    <!-- no translation found for trigger_when_at_description (1004528252412424201) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above_description (9004635001846058548) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below_description (1707397407766550719) -->
-    <skip />
-    <!-- no translation found for sensor_trigger_deleted (1181819400253443424) -->
-    <skip />
-    <!-- no translation found for trigger_label_auto_text (9210831035009346407) -->
-    <skip />
+    <string name="audio_enabled_format" msgid="4202071153288924614">"<xliff:g id="SENSOR_DISPLAY_NAME">%1s</xliff:g> ♪"</string>
+    <string name="menu_item_set_triggers" msgid="3555868641262376254">"تعيين المشغّلات"</string>
+    <string name="menu_item_edit_triggers" msgid="5719430048511669542">"تعديل المشغّلات"</string>
+    <string name="title_activity_trigger_list" msgid="2928411265364344194">"قائمة المشغّلات"</string>
+    <string name="title_fragment_trigger_list" msgid="4425969691529503861">"مشغّلات لـ <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="btn_add_new_trigger" msgid="1143389268664607859">"إنشاء مشغّل"</string>
+    <string name="empty_trigger_list" msgid="238046755667717404">"لم يتم تعيين أي مشغّلات"</string>
+    <string name="title_activity_edit_trigger" msgid="2115747586987165481">"تعديل المشغّل"</string>
+    <string name="title_fragment_edit_trigger" msgid="9141329265681138113">"تعديل مشغّل <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="title_fragment_add_trigger" msgid="7877645218403597761">"مشغّل <xliff:g id="SENSOR_NAME">%s</xliff:g> جديد"</string>
+    <string name="trigger_type_label" msgid="4847350415951495617">"نوع التشغيل"</string>
+    <string name="trigger_when_label" msgid="8616405039634043612">"إرسال تنبيه عند"</string>
+    <string name="trigger_value_label" msgid="3412972042230849085">"قيمة التشغيل"</string>
+    <string name="trigger_type_start_recording" msgid="7292105639999785968">"بدء التسجيل"</string>
+    <string name="trigger_type_stop_recording" msgid="3022683931027310288">"إيقاف التسجيل"</string>
+    <string name="trigger_type_note" msgid="626654531254636746">"إنشاء ملاحظة"</string>
+    <string name="trigger_type_alert" msgid="6525543144561765762">"إرسال تنبيه لي"</string>
+    <string name="trigger_when_at" msgid="762967868925610869">"على"</string>
+    <string name="trigger_when_drops_below" msgid="149048320758854889">"تهبط دون"</string>
+    <string name="trigger_when_rises_above" msgid="4131024183229534708">"ترتفع أكثر من"</string>
+    <string name="trigger_when_is_below" msgid="8270111951353483145">"أقل من"</string>
+    <string name="trigger_when_is_above" msgid="1839678217244657667">"أكثر من"</string>
+    <string name="trigger_value_hint" msgid="6176793893724760154">"القيمة"</string>
+    <string name="trigger_note_text_label" msgid="2243205345376006607">"نص الملاحظة الافتراضي"</string>
+    <string name="trigger_note_text_hint" msgid="7624572723656572363">"ما الذي يجب أن يرد في الملاحظة؟"</string>
+    <string name="trigger_audio_alert" msgid="7125606348399123076">"الصوت"</string>
+    <string name="trigger_haptic_alert" msgid="9173126487427899717">"الاهتزاز"</string>
+    <string name="trigger_visual_alert" msgid="3137431533902715114">"إشعار مرئي"</string>
+    <string name="cannot_save_invalid_value" msgid="2889387470051561369">"يجب إدخال قيمة رقميّة يتم إرسال التنبيه عند بلوغها."</string>
+    <string name="trigger_when_at_description" msgid="6704567729507492002">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> عند بلوغ قيمة <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_rises_above_description" msgid="8089893226169256044">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> عند ارتفاع القيمة أكثر من <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_drops_below_description" msgid="5435046961646187734">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> عند الهبوط دون <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_above_description" msgid="8754842709321803028">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> حين تفوق قيمة المستشعر <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_below_description" msgid="1917050957970325724">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> حين تكون قيمة المستشعر أقل من <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="sensor_trigger_deleted" msgid="1181819400253443424">"تمّ حذف المشغّل"</string>
+    <!-- no translation found for trigger_type_list:0 (2965441322551479563) -->
+    <!-- no translation found for trigger_type_list:1 (2546936807241604853) -->
+    <!-- no translation found for trigger_type_list:2 (8989734094411396978) -->
+    <!-- no translation found for trigger_type_list:3 (3361617139415647084) -->
+    <!-- no translation found for trigger_when_list:0 (4808925283875227158) -->
+    <!-- no translation found for trigger_when_list:1 (982481841992075984) -->
+    <!-- no translation found for trigger_when_list:2 (795907252258650657) -->
+    <!-- no translation found for trigger_when_list:3 (486995679981577062) -->
+    <!-- no translation found for trigger_when_list:4 (3226257072675412338) -->
+  <string-array name="trigger_when_list_note_text">
+    <item msgid="7778784440115654134">"عند سرعة"</item>
+    <item msgid="5362437948357000880">"ارتفعت سرعته أكثر من"</item>
+    <item msgid="96408841538247555">"انخفضت سرعته أقل من"</item>
+    <item msgid="5929079391002165627">"أعلى من"</item>
+    <item msgid="2421726237024232431">"أقل من"</item>
+  </string-array>
+    <string name="trigger_only_when_recording" msgid="2102420075414851575">"استخدام المشغّل عند التسجيل فقط"</string>
+    <string name="trigger_label_auto_text" msgid="7238124210986703642">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="trigger_label_icon_content_description" msgid="4567123930201934477">"ملاحظة المشغّل: <xliff:g id="TRIGGER_DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="trigger_snackbar_auto_text" msgid="1082338857442085741">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="scroll_to_card" msgid="4531288548260633064">"إظهار"</string>
+    <string name="could_not_find_service_error" msgid="6399923176664381124">"تعذّر العثور على الخدمة: <xliff:g id="SERVICE_ID">%s</xliff:g>"</string>
+    <string name="recording_stopped_notification_text" msgid="2700948290649435580">"اكتمل التسجيل."</string>
+    <string name="disable_all_triggers" msgid="4207192080361552008">"تعطيل المشغّلات"</string>
+    <string name="trigger_view_icon_content_description" msgid="468973450644969062">"مشغّلات"</string>
+    <string name="alert_trigger_needs_alerts" msgid="9046346885115277889">"خطأ: يجب تحديد نوع تنبيه واحد على الأقل لهذا المشغّل."</string>
+    <string name="trigger_fired_text" msgid="8122555560445417775">"تمّ تنشيط المشغّل"</string>
+    <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"بداية الاقتصاص: <xliff:g id="TIME">%1$s</xliff:g>، <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"انتهاء الاقتصاص: <xliff:g id="TIME">%1$s</xliff:g>، <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_failed_message" msgid="8583818349156861745">"فشل حفظ الاقتصاص."</string>
+    <string name="crop_completed_message" msgid="2902081668922934393">"تمّ اقتصاص المحاولة"</string>
+    <string name="launch_settings" msgid="2712101939691138420">"إطلاق الإعدادات"</string>
+    <string name="trigger_alert_prompt" msgid="7548827088664791710">"إرسال تنبيه لي باستخدام"</string>
+    <string name="my_devices" msgid="2753935122366940731">"أجهزتي"</string>
+    <string name="available_devices" msgid="5671327872447270316">"الأجهزة المتوفرة"</string>
+    <string name="api_connection_timeout_error" msgid="2767327583360399345">"انتهت مهلة الاتصال"</string>
+    <string name="btn_expand_device" msgid="5065622950345958436">"إظهار المستشعرات المتوفرة على الجهاز"</string>
+    <string name="btn_contract_device" msgid="1075694686012045562">"إخفاء المستشعرات المتوفرة على الجهاز"</string>
+    <string name="select_sensors" msgid="7242531205153688282">"تحديد مستشعرات لاستخدامها في <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
+    <string name="phone_sensors" msgid="1093110931724349906">"مستشعرات داخلية"</string>
+    <string name="rename_device" msgid="6177379501609319531">"إعادة تسمية الجهاز"</string>
+    <string name="forget_device" msgid="7258019924047721349">"حذف هذا الجهاز"</string>
+    <string name="device_settings" msgid="5076827559934591801">"إعدادات الجهاز"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"إضافة مستشعر إلى التجربة"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"إزالة مستشعر من التجربة"</string>
 </resources>

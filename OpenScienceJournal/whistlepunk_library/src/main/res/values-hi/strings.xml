@@ -48,11 +48,10 @@
     <string name="rpm_units" msgid="2651871280948091901">"RPM"</string>
     <string name="voltage_units" msgid="598716668433769220">"V"</string>
     <string name="raw_units" msgid="4501311675565391535">"%"</string>
-    <string name="barometer_units" msgid="8404848712372029263">"mbar"</string>
+    <string name="barometer_units" msgid="5606531967130926197">"hPa"</string>
     <string name="temperature_units" msgid="6865637706924726630">"°‪से"</string>
     <string name="header_name_and_units" msgid="2085988560798053543">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="5584369034749538544">"प्रयोग का वर्णन"</string>
-    <string name="add_sensor" msgid="7637499411634365504">"सेंसर जोड़ें"</string>
     <string name="snackbar_source_error" msgid="488480213360860471">"इस स्रोत से कनेक्ट करते समय त्रुटि हुई: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
     <string name="action_retry" msgid="3145700667339813916">"पुनः प्रयास करें"</string>
     <string name="decibel" msgid="2567269521573545643">"ध्वनि की तीव्रता"</string>
@@ -91,7 +90,7 @@
     <string name="elapsed_time_axis_format_large" msgid="5693537324927532690">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_small_tenths" msgid="4091017607656155791">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large_tenths" msgid="3013544179502005785">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
-    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>."</string>
     <string name="picture_note_description" msgid="6443481127492010185">"परीक्षण के दौरान लिए गए चित्र"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"चित्र नोट पूर्वावलोकन"</string>
     <string name="navigation_item_observe" msgid="8558454737213940045">"निरीक्षण करें"</string>
@@ -100,7 +99,7 @@
     <string name="navigation_item_settings" msgid="2126253880412012953">"सेटिंग"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"परीक्षण के विकल्प"</string>
     <string name="title_activity_main" msgid="7023325446656975223">"विज्ञान शोध पत्रिका - <xliff:g id="SECTION">%s</xliff:g>"</string>
-    <string name="title_activity_add_sensor" msgid="1432724804471397682">"बाहरी डिवाइस"</string>
+    <string name="title_activity_sensor_settings" msgid="1784553345261037389">"सेंसर सेटिंग"</string>
     <string name="external_devices_paired" msgid="4167288049155302614">"युग्मित डिवाइस"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"युग्मित हो रहा है…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"उपलब्ध डिवाइस"</string>
@@ -140,7 +139,6 @@
     <string name="settings_version_title" msgid="6926476057478648092">"वर्शन"</string>
     <string name="settings_replay_tutorial_title" msgid="6935249461039953640">"ट्यूटोरियल"</string>
     <string name="settings_open_source_title" msgid="2075335777151654751">"ओपन सोर्स लाइसेंस"</string>
-    <string name="dev_sensors_title" msgid="56483495191187216">"प्रयोगात्मक सेंसर सक्षम करें"</string>
     <string name="cannot_scan_message" msgid="5736974833739008592">"विज्ञान शोध पत्रिका का उपयोग करके बाहरी डिवाइस (“विज्ञान शोध पत्रिका सेंसर”) एक्सेस करने के लिए, सबसे पहले आपको ब्लूटूथ चालू करना होगा. विज्ञान शोध पत्रिका सेंसर का पता लगाने के लिए, Android के लिए यह आवश्यक है कि आप अपने स्थान के एक्सेस की अनुमति भी प्रदान करें क्योंकि अन्य ब्लूटूथ डिवाइस, डिवाइस का पता लगाने के दौरान उनके स्थान की जानकारी प्रसारित कर सकते हैं. हालांकि विज्ञान शोध पत्रिका इस स्थान जानकारी का संग्रह या उपयोग नहीं करेगा और विज्ञान शोध पत्रिका सेंसर स्थान जानकारी संचारित नहीं करते हैं."</string>
     <string name="btn_request_location" msgid="307169020767649663">"स्थान एक्सेस चालू करें"</string>
     <string name="btn_enable_bluetooth" msgid="4110230448360114456">"ब्लूटूथ चालू करें"</string>
@@ -151,6 +149,7 @@
     <string name="archived_project_message" msgid="66153039940455913">"प्रोजेक्ट संग्रहीत किया गया."</string>
     <string name="unarchived_project_message" msgid="8018113308137052929">"प्रोजेक्ट संग्रह से बाहर निकल गया."</string>
     <string name="action_undo" msgid="1852278327756791797">"पूर्ववत करें"</string>
+    <string name="deleted_project_message" msgid="1227635187612669144">"प्रोजेक्ट हटाया गया."</string>
     <string name="project_title_hint" msgid="5788484729941933289">"प्रोजेक्ट का शीर्षक"</string>
     <string name="project_problem_hint" msgid="4818690816549079105">"वर्णन"</string>
     <string name="project_cover_description" msgid="8583694225708356859">"प्रोजेक्ट के लिए फ़ोटो चुनें"</string>
@@ -164,7 +163,6 @@
     <string name="unarchived_experiment_message" msgid="7870126733421916514">"प्रयोग संग्रह से बाहर निकल गया."</string>
     <string name="archived_run_message" msgid="8346607350306633655">"परीक्षण संग्रहीत किया गया."</string>
     <string name="unarchived_run_message" msgid="3807535396227509421">"परीक्षण संग्रहण से बाहर चला गया."</string>
-    <string name="experiments_toolbar_title" msgid="6963959917416270680">"प्रयोग"</string>
     <string name="archived_content_description" msgid="7931247623909344339">"<xliff:g id="ITEM">%1s</xliff:g> (संग्रहीत)"</string>
     <plurals name="experiment_run_count" formatted="false" msgid="1283784154893798777">
       <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> परीक्षण</item>
@@ -193,33 +191,27 @@
     <string name="frequency_window_option_label" msgid="4919436041479250367">"आवृत्ति विंडो (मिलीसेकंड में)"</string>
     <string name="frequency_filter_option_label" msgid="4458966053132937293">"आवृत्ति फ़िल्टर (सेंसर इकाइयों में)"</string>
     <string name="enable_frequency_checkbox_label" msgid="2922864218507547240">"आवृत्ति दिखाएं"</string>
-    <string name="dev_sensors_summary" msgid="7086328959529574660">"वे सेंसर दिखाएं जो केवल डेवलपर परीक्षण के लिए हैं"</string>
     <string name="options_save_error" msgid="1262808099812151932">"विकल्प सहेजने में त्रुटि"</string>
     <string name="options_load_error" msgid="1594503728021930743">"विकल्प लोड करने में त्रुटि"</string>
     <string name="dev_tools_title" msgid="8231917267495770691">"प्रायोगिक टूल सक्षम करें"</string>
     <string name="dev_tools_summary" msgid="3609685547301741618">"वे टूल दिखाएं जो केवल डेवलपर परीक्षण के लिए हैं"</string>
     <string name="dev_tools_leak_detection_title" msgid="4725525693236520974">"मेमोरी समाप्ति का पता लगाना सक्षम करें"</string>
-    <string name="dev_tools_leak_detection_summary" msgid="9019022238189456899">"इस सेटिंग में किए गए परिवर्तन केवल ऐप्लिकेशन बंद करने के बाद ही प्रभावी होते हैं."</string>
-    <string name="d2p" msgid="372033271119706811">"डिफ़ॉल्ट"</string>
-    <string name="d2a" msgid="8650862124682156354">"एम्प्लिट्यूड"</string>
-    <string name="d2pe" msgid="956618657669378971">"नोट"</string>
-    <string name="d2ps" msgid="5114174025939101366">"मापक"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="7171148788144095285">"इस सेटिंग में किए गए बदलाव ऐप्लिकेशन बंद करने के बाद ही प्रभावी होते हैं."</string>
+    <string name="default_sonification" msgid="9006778853276983156">"डिफ़ॉल्ट"</string>
+    <string name="amplitude" msgid="2540241901091313524">"एम्प्लिट्यूड"</string>
+    <string name="notes" msgid="3276297280118435135">"नोट"</string>
+    <string name="scale" msgid="8822139987400974369">"मापक"</string>
+    <string name="conductor" msgid="9193425673241449589">"कंडक्टर"</string>
     <!-- no translation found for sonification_types_prod:0 (3254769575914104850) -->
     <!-- no translation found for sonification_types_prod:1 (1831413879274006078) -->
     <!-- no translation found for sonification_types_prod:2 (1917376169281831239) -->
+    <!-- no translation found for sonification_types_prod:3 (602550002110522910) -->
     <!-- no translation found for sonification_types_dev:0 (7417644575217300390) -->
-  <string-array name="sonification_type_aliases">
-    <item msgid="234968762840479178">"d2p"</item>
-    <item msgid="6154566816995872686">"d2ps"</item>
-    <item msgid="2062530924507614569">"d2pe"</item>
-    <item msgid="72378471312023144">"d2a"</item>
-  </string-array>
     <string name="new_experiment_spinner_item" msgid="5017810476745425374">"नया प्रयोग…"</string>
     <string name="recording_title_label" msgid="736399431431816185">"रिकॉर्ड हो रहा है…"</string>
-    <string name="exp_edit_info_button" msgid="3141909000709306124">"जानकारी संपादित करें"</string>
     <string name="btn_observe_content_description" msgid="476911391550333702">"निरीक्षण करें"</string>
     <string name="title_activity_experiment_details" msgid="3494340558031776911">"प्रयोग के विवरण"</string>
-    <string name="empty_runs" msgid="7548505071633993347">"आपके पास कोई परीक्षण नहीं है"</string>
+    <string name="empty_experiment" msgid="6142475501762739386">"इस प्रयोग में कोई परीक्ष्ण या नोट नहीं है."</string>
     <string name="permission_request_write" msgid="6590731147363977582">"बाहरी मेमोरी में लिखने के लिए अनुमति आवश्यक है."</string>
     <string name="device_options_sensor_label_text" msgid="5073336029128358977">"सेंसर"</string>
     <string name="external_sensor_appearance_name" msgid="6419268671149879170">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
@@ -231,7 +223,6 @@
     <string name="device_options_custom_sensor_pin_label_text" msgid="7023371657105134847">"पिन करें"</string>
     <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="4571472391388122413">"आवृत्ति"</string>
     <string name="feedback_error_message" msgid="3117491109292317255">"फ़ीडबैक नहीं भेज सके."</string>
-    <string name="no_sensor_info_found" msgid="2182109795740683658">"इस सेंसर में कोई अतिरिक्त जानकारी नहीं है!"</string>
     <string name="sensor_desc_short_acc_x" msgid="1184579399689940361">"मी/से² में बाईं और दाईं ओर फ़ोन का त्वरण"</string>
     <string name="sensor_desc_short_acc_y" msgid="7084492489358508838">"मी/से² में आगे और पीछे की ओर फ़ोन का त्वरण"</string>
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"मी/से² में ऊपर और नीचे फ़ोन का त्वरण"</string>
@@ -241,6 +232,7 @@
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"एक बाहरी सेंसर कस्टम सेटिंग के आधार पर यहां अपना डेटा प्रदर्शित कर रहा है."</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"प्रति मिनट परिक्रमणों की संख्या"</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"बाहरी सेंसर से पढ़े जा रहे असंसाधित मान का प्रतिशत."</string>
+    <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"हेक्टोपास्कल (hPa) में मापा गया वायुमंडलीय दाब."</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"परिवेशी प्रकाश सेंसर प्रकाश का मापन lux में करता है, एक प्रदीपन का माप, जो कि आने वाले प्रकाश की मात्रा पर और उस क्षेत्र पर निर्भर है, जिसमें वह फैला होता है. \n\nपूर्णिमा का सामान्य चंद्रमा 1 lux प्रदीपन प्रदान करता है, लैम्प से प्रकाशित लिविंग रूम लगभग 50 lux, क्लासरूम का प्रकाश और सूर्योदय और सूर्यास्त लगभग 400 lux, दिन का प्रकाश (परोक्ष धूप) 10,000 lux से अधिक और प्रत्यक्ष धूप 30,000 lux से अधिक प्रदीपन प्रदान करती है. \n\nlux हम लोगों में से अधिकांश के लिए अपरिचित इकाई है. जब हम बिजली के बल्ब खरीदते हैं, तो हम अक्सर उन्हें वॉट के अनुसार लेते हैं—लेकिन बल्ब का वॉटेज हमें यह नहीं बताता है कि बल्ब कितनी चमक देता है, केवल यह बताता है कि वह कितनी ऊर्जा का उपयोग करता है. लाइट की शॉपिंग के सही मापन ल्यूमेन हैं; वे हमें बताते हैं कि कोई बल्ब वास्तव में कितना प्रकाश उत्पन्न करेगा. इसके साथ ही lux आपको बताता है कि उस प्रकाश का कितना भाग किसी विशेष क्षेत्र में आता है."</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"चूंकि दूरी तय करते हुए प्रकाश फैलता है, जब आप प्रकाश के स्रोत से दूर जाते हैं, तो lux की संख्या कम होती जाती है, भले ही स्रोत ल्युमेन में प्रकाश की समान मात्रा उत्पन्न कर रहा हो. किसी प्रकाश स्रोत से दूर झुके हुए क्षेत्र में भी कम प्रदीपन प्राप्त होता है—जिसके कारण यहां पृथ्वी पर भूमध्यरेखीय क्षेत्र ठंडे ध्रुवीय क्षेत्रों की तुलना में इतना गर्म है. \n\nखैर, आपके फ़ोन में प्रकाश सेंसर का प्रयोजन कम प्रकाश वाले और चमकीले परिवेशों के अनुसार स्क्रीन के प्रकाश को समायोजित करके उसके स्तर का नियंत्रण करना है. प्रकाश सेंसर के अंदर एक सूक्ष्म सेमीकंडक्टर कम लेकिन मापने योग्य इलेक्ट्रिकल करंट उत्पन्न करके आने वाले प्रकाश के प्रति प्रतिक्रिया करता है—इस अवधारणा को प्रकाश विद्युत प्रभाव के रूप में जाना जाता है. कुछ स्ट्रीटलाइट में इसी प्रकार के सेंसर का उपयोग बाहर अंधेरा होने पर उन्हें चालू करने के लिए किया जाता है."</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"वस्तु की प्रवृत्ति यथास्थिति बने रहने की या  यदि वो चल रहे हों तो  चलते रहने कि होती है—इस प्रवृत्ति को हम जड़त्व कहते हैं. न्यूटन का पहला नियम इस विचार को औपचारिक रूप से व्यक्त करता है: कोई वस्तु तब तक उसकी गति की अवस्था में या स्थिर अवस्था में बनी रहेगी, जब तक उस पर किसी असंतुलित बल द्वारा क्रिया नहीं की जाती है. \n\nजब कोई असंतुलित बल किसी वस्तु को हिलाने का कारण बनता है, तो हम कहते हैं कि वह वस्तु त्वरण करती है: उसके वेग में परिवर्तन, वेग में कमी या दिशा में परिवर्तन के द्वारा उसकी गति या चाल में बदलाव आता है. त्वरण का मापन समय में गति (मीटर प्रति सेकंड) में हुए परिवर्तन या मीटर प्रति सेकंड वर्ग (m/s²) के रूप में किया जाता है. \n\nचाल में हुए इन परिवर्तनों को मापने का डिवाइस—एक्सेलेरोमीटर आपके फ़ोन में मौजूद है. एक्सेलेरोमीटर के अंदर, गति करने के लिए स्वतंत्र कम द्रव्यमान वाली निलंबित वस्तुएं होती हैं. गति में होने वाले परिवर्तनों के कारण ये वस्तुएं बहुत कुछ वैसे ही स्थानांतरित होती हैं, जैसे कार में होने के दौरान उसके अचानक रुक जाने पर आपका सिर आगे की ओर झुक जाता है. सूक्ष्म रूप से होने वाले इन जड़त्व संबंधी स्थानांतरणों को मापकर फ़ोन में मौजूद एक्सेलेरोमीटर चाल और अभिविन्यास में हुए उन परिवर्तनों का पता लगा सकता है, जो स्क्रीन को लैंडस्केप से पोर्ट्रेट मोड में बदलने, आपके फ़ोन पर गेम खेलने और अन्य कार्यों के लिए उपयोगी है."</string>
@@ -253,6 +245,8 @@
     <string name="sensor_desc_second_paragraph_raw" msgid="2081830388555382169">"ब्लूटूथ, नियत और मोबाइल डिवाइस से कम दूरियों पर डेटा का आदान-प्रदान करने के लिए रेडियो तरंगों का उपयोग करने वाला वायरलेस तकनीक मानक है."</string>
     <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"यहांं प्रदर्शित डेटा आपके फ़ोन के ब्लूटूथ द्वारा बाहरी सेंसर संचार से आ रहा है."</string>
     <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"ब्लूटूथ, नियत और मोबाइल डिवाइस से कम दूरियों पर डेटा का आदान-प्रदान करने के लिए रेडियो तरंगों का उपयोग करने वाला वायरलेस तकनीक मानक है."</string>
+    <string name="sensor_desc_first_paragraph_barometer" msgid="2813905499808374316">"हालांकि हम इस पर बहुत कम ध्यान देते हैं, हम सभी हवा के एक गहरे फैलाव के तल में रहते हैं: पृथ्वी का वायुमंडल, जिसका विस्तार ऊपर की ओर 40 किलोमीटर (130,000 फ़ीट) ऊपर तक है. इस संपूर्ण वायु का भार हम पर ऊपर से नीचे की ओर दबाव डालते हुए एक ऐसे दबाव का निर्माण करता है जिसे वायुमंडलीय दबाव कहते हैं. \n\nसमुद्र स्तर पर, वायुमंडलीय दबाव हर वर्ग इंच पर 14 पौंड का बल लगाता है—यह पेपर की मानक शीट के आकार के किसी क्षेत्र में लगभग 1300 पौंड के समतुल्य है."</string>
+    <string name="sensor_desc_second_paragraph_barometer" msgid="4975611576005615149">"हम कुचल देने वाले इस दबाव पर ध्यान नहीं देते हैं, क्योंकि हम इसके अभ्यस्त हो गए हैं—यानी यहां तक कि जब तक यह थोड़ा भी परिवर्तित नहीं होता, जो कि तब होता है जब हम ऊंचे स्थानोंं पर जाते हैं या हवाई जहाज में यात्रा करते हैं. वायुमंडलीय दाब में मौसम की स्थितियों के साथ परिवर्तन होता है, जिनमें यह तूफ़ानी, अस्थिर हवा की उपस्थिति में नीचे आता है और हवा के स्थिर होने और आकाश के साफ़ होने पर बढ़ता है. \n\nआपके फ़ोन में मौजूद डिजिटल बैरोमीटर, वायुमंडलीय दाब को हेक्टोपास्कल में मापता है. (हेक्टोपास्कल 100 पास्कल के बराबर है, जहां पास्कल, एक वर्ग मीटर के क्षेत्र में लगाया गया एक न्यूटन बल है.) संभवतः आपने मौसम पूर्वानुमान करने वाले व्यक्तियों को मिलीबार में वायुमंडलीय दाब देते हुए सुना होगा—यह अनुकूल सी लगने वाली इकाई हेक्टोपास्कल के समतुल्य है. \n\nआपको शायद आश्चर्य होगा: फ़ोन, दाब का मापन क्यों करता है? ऊंचाई में थोड़ा सा भी परिवर्तन होने पर, जैसे जब आप ऊंची सीढ़ियांं चढ़ते हैं, तो वायुमंडलीय दाब में काफ़ी परिवर्तन होता है. इसलिए फ़ोन में मौजूद डिजिटल बैरोमीटर, स्थान में होने वाले बदलावों का पता लगाने में सहायता कर सकता है, उदाहरण के लिए आपको यह बताएगा कि आप भवन के कौन से तल पर हैं, या यह कि क्या आप ब्रिज के ऊपरी या निचले डेक पर ड्राइव कर रहे हैं."</string>
     <string name="run_review_duration" msgid="1978235455271606762">"अवधि"</string>
     <string name="run_review_activity_label" msgid="5646135462344737004">"समीक्षा करें"</string>
     <string name="service_notification_content_title" msgid="791621361781451323">"विज्ञान शोध पत्रिका"</string>
@@ -263,9 +257,8 @@
     <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"जानकारी मोड में बदलें"</string>
     <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"ग्राफ़ मोड में बदलें"</string>
     <string name="sensor_tab_layout_content_description" msgid="3807243095823040361">"उपलब्ध सेंसर"</string>
-    <string name="sensor_tab_selected_format" msgid="2686213304137352967">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (चयनित)"</string>
     <string name="title_activity_sensor_info" msgid="8667402055779114709">"सेंसर की जानकारी"</string>
-    <string name="title_activity_sensor_info_format" msgid="4810933938741070862">"<xliff:g id="SENSOR_NAME">%s</xliff:g> सेंसर"</string>
+    <string name="title_activity_sensor_info_format" msgid="4284132895191711797">"<xliff:g id="SENSOR_NAME">%s</xliff:g> सेंसर"</string>
     <string name="heading_info_section" msgid="8939391891795009974">"क्या चल रहा है?"</string>
     <string name="edit_note_menu_item" msgid="8530099824744920575">"संपादित करें"</string>
     <string name="edit_note_time" msgid="5307388665454994755">"नोट का समय संपादित करें"</string>
@@ -292,6 +285,10 @@
     <string name="archived_badge" msgid="6068366174702659773">"संग्रहीत"</string>
     <string name="action_include_archived_projects" msgid="7075034155088762601">"संग्रहीत प्रोजेक्ट शामिल करें"</string>
     <string name="action_include_archived_experiments" msgid="9179328397501796497">"संग्रहीत अनुप्रयोगों को शामिल करें"</string>
+    <string name="delete_project_dialog_title" msgid="7681697983255312708">"इस प्रोजेक्ट को हटाएं?"</string>
+    <string name="delete_project_dialog_message" msgid="3039092965074898348">"क्या आप वाकई इस प्रोजेक्ट को हटाना चाहते हैं? इसके सभी प्रयोग, परीक्षण और नोट हटा दिए जाएंगे. इस कार्रवाई को पूर्ववत नहीं किया जा सकता."</string>
+    <string name="delete_experiment_dialog_title" msgid="522221451175758058">"इस प्रयोग को हटाएं?"</string>
+    <string name="delete_experiment_dialog_message" msgid="8055334758058363747">"क्या आप वाकई यह प्रयोग हटाना चाहते हैं? इसके सभी परीक्षण और नोट हटा दिए जाएंगे. इस कार्रवाई को पूर्ववत नहीं किया जा सकता."</string>
     <string name="action_new_experiment" msgid="5987527361707254638">"नया प्रयोग"</string>
     <string name="delete_run_dialog_title" msgid="3841579587741640965">"यह परीक्षण हटाएं?"</string>
     <string name="run_review_delete_confirm" msgid="1608962272042732123">"क्या आप वाकई यह परीक्षण हटाना चाहते हैं? रिकॉर्डिंग डेटा और नोट हटा दिए जाएंगे. इस कार्रवाई को पूर्ववत नहीं किया जा सकता."</string>
@@ -318,7 +315,6 @@
     <string name="graph_loading" msgid="1102165995961515949">"ग्राफ़ लोड हो रहा है…"</string>
     <string name="playback_button_pause" msgid="348710889337495167">"ऑडियो प्लेबैक रोकें"</string>
     <string name="playback_button_play" msgid="3845595255478520691">"ऑडियो प्लेबैक प्रारंभ करें"</string>
-    <string name="sonification_type_card_title" msgid="7998122361918330347">"डेवलपर सॉनिफ़िकेशन प्रकार"</string>
     <string name="dev_sonification_types_title" msgid="8470117255317834775">"डेवलपर सॉनिफ़िकेशन प्रकार सक्षम करें"</string>
     <string name="title_edit_trial_activity" msgid="2639088409396156730">"परीक्षण संपादित करें"</string>
     <string name="edit_trial_title_hint" msgid="2537511526292819270">"परीक्षण का शीर्षक"</string>
@@ -327,18 +323,12 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"एक कैप्शन जोड़ें"</string>
     <string name="listing_title" msgid="1732490922169483408">"विज्ञान शोध पत्रिका"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"आपकी दुनिया पर प्रयोग."</string>
-    <string name="listing_changelog" msgid="1272605515497326900">"नई सुविधाएं और सुधार: \n• चित्र नोट में कैप्शन जोड़ें. \n• डेटा सोनिफ़िकेशन के लिए ऑडियो सेटिंग. \n• बहुत लंबे परीक्षणों के लिए प्रदर्शन सुधार. \n• बग समाधान."</string>
+    <string name="listing_changelog" msgid="5791385044176273701">"नई सुविधाएं और सुधार: \n• सेंसर ट्रिगर: विशिष्ट सेंसर मान प्राप्त होने पर सूचित करें, नोट बनाएं या रिकॉर्डिंग शुरू करें या रोकें. सेंसर कार्ड मेनू के माध्यम से इन्हें एक्सेस करें. \n• संग्रहीत किए गए परीक्षण, प्रयोग और रन हटाएं. \n• बैरोमीटर सेंसर के लिए सहायता शामिल की गई है. \n• विज्ञान शोध पत्रिका के साथ और भी चीज़ें कार्य करती हैं: अधिक प्रकार के बाहरी सेंसर एक्सेस करें. अधिक जानकारी के लिए, कृपया यह देखें https://makingscience.withgoogle.com/science-journal/materials \n• बग समाधान."</string>
     <string name="listing__description" msgid="3975515995792990185">"विज्ञान शोध पत्रिका अपने स्मार्ट फ़ोन से विज्ञान संबंधी प्रयोग करने का एक टूल है. आप अपने आस-पास की दुनिया में मौजूद चीज़ों पर प्रयोग करने के लिए अपने फ़ोन में मौजूद सेंसर का उपयोग कर सकते हैं या बाहरी सेंसर से कनेक्ट कर सकते हैं. प्रोजेक्ट में अपने विचारों को व्यवस्थित करें, पूर्वानुमान लगाएं, नोट लें और एकाधिक परीक्षणों के डेटा जमा करें, फिर अपने परिणामों पर टिप्पणी दें और उन्हें एक्सप्लोर करें. यह एक ऐसी लैब नोटबुक है, जो आपके साथ हमेशा मौजूद रहती है. \n\n \nइस ऐप्लिकेशन के संगत गतिविधि उपायों को यहां से प्राप्त करें: https://makingscience.withgoogle.com/science-journal/activities \nMaking &amp; Science के बारे में यहां अधिक जानें: https://makingscience.withgoogle.com \nसहायता के लिए यहां जाएं: https://productforums.google.com/forum/#!forum/sciencejournal \nकोड यहां उपलब्ध है: https://github.com/google/science-journal"</string>
-    <string name="live_zoom_type_option_title" msgid="6184011805342339557">"निरीक्षण के दौरान स्वचालित ज़ूम इन"</string>
-    <string name="live_zoom_type_option_summary" msgid="3327087952315423967">"अभी पर पिन करने पर, निरीक्षण के दौरान Y-अक्ष पर स्वचालित ज़ूम इन सक्षम करें. डिफ़ॉल्ट अक्षम है"</string>
-    <!-- no translation found for third_party_sensors_option_title (4835603485129230503) -->
-    <skip />
-    <!-- no translation found for third_party_sensors_option_summary (2567608839882361492) -->
-    <skip />
+    <string name="third_party_sensors_option_title" msgid="4835603485129230503">"तृतीय-पक्ष सेंसर के लिए स्कैन करें"</string>
+    <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"ऐसे ऐप्लिकेशन खोजें जो तृतीय-पक्ष सेंसर API का समर्थन करते हैं और उन सेंसर को प्रयोगों में शामिल करना सक्षम करें."</string>
     <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"मैग्नेटोमीटर सक्षम करें"</string>
     <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"प्रयोगात्मक मैग्नेटोमीटर सेंसर सक्षम करें"</string>
-    <string name="enable_barometer_sensor_title" msgid="4532163359473808928">"बैरोमीटर सक्षम करें"</string>
-    <string name="enable_barometer_sensor_summary" msgid="352316348564408931">"प्रयोगात्मक बैरोमीटर सेंसर सक्षम करें"</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"परिवेशी तापमान सक्षम करें"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"प्रयोगात्मक परिवेशी तापमान सेंसर सक्षम करें"</string>
     <string name="enable_sine_wave_sensor_title" msgid="5361133155106781791">"साइन वेव सक्षम करें"</string>
@@ -353,60 +343,84 @@
     <string name="autozoom_failed" msgid="2708983116606188884">"स्वचालित मापक समायोजित करने में विफल."</string>
     <string name="run_review_overflow_menu_content_description" msgid="5689925874345140909">"अधिक विकल्प"</string>
     <string name="licenses_empty" msgid="2746335366478622872">"कोई लाइसेंस नहीं मिले."</string>
-    <!-- no translation found for audio_enabled_format (4202071153288924614) -->
-    <skip />
-    <!-- no translation found for menu_item_set_triggers (3555868641262376254) -->
-    <skip />
-    <!-- no translation found for title_activity_trigger_list (5014690461140632120) -->
-    <skip />
-    <!-- no translation found for btn_add_new_trigger (1143389268664607859) -->
-    <skip />
-    <!-- no translation found for empty_trigger_list (238046755667717404) -->
-    <skip />
-    <!-- no translation found for title_activity_edit_trigger (2115747586987165481) -->
-    <skip />
-    <!-- no translation found for title_activity_add_trigger (9137879813992485906) -->
-    <skip />
-    <!-- no translation found for trigger_type_label (4847350415951495617) -->
-    <skip />
-    <!-- no translation found for trigger_when_label (8616405039634043612) -->
-    <skip />
-    <!-- no translation found for trigger_type_start_recording (7292105639999785968) -->
-    <skip />
-    <!-- no translation found for trigger_type_stop_recording (3022683931027310288) -->
-    <skip />
-    <!-- no translation found for trigger_type_note (626654531254636746) -->
-    <skip />
-    <!-- no translation found for trigger_type_alert (6525543144561765762) -->
-    <skip />
-    <!-- no translation found for trigger_when_at (762967868925610869) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below (149048320758854889) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above (4131024183229534708) -->
-    <skip />
-    <!-- no translation found for trigger_value_hint (6176793893724760154) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_label (2243205345376006607) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_hint (7624572723656572363) -->
-    <skip />
-    <!-- no translation found for trigger_audio_alert (3888981987994238753) -->
-    <skip />
-    <!-- no translation found for trigger_haptic_alert (4734911836763569299) -->
-    <skip />
-    <!-- no translation found for trigger_visual_alert (8191512950406497950) -->
-    <skip />
-    <!-- no translation found for cannot_save_invalid_value (2889387470051561369) -->
-    <skip />
-    <!-- no translation found for trigger_when_at_description (1004528252412424201) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above_description (9004635001846058548) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below_description (1707397407766550719) -->
-    <skip />
-    <!-- no translation found for sensor_trigger_deleted (1181819400253443424) -->
-    <skip />
-    <!-- no translation found for trigger_label_auto_text (9210831035009346407) -->
-    <skip />
+    <string name="audio_enabled_format" msgid="4202071153288924614">"<xliff:g id="SENSOR_DISPLAY_NAME">%1s</xliff:g> ♪"</string>
+    <string name="menu_item_set_triggers" msgid="3555868641262376254">"ट्रिगर सेट करें"</string>
+    <string name="menu_item_edit_triggers" msgid="5719430048511669542">"ट्रिगर संपादित करें"</string>
+    <string name="title_activity_trigger_list" msgid="2928411265364344194">"ट्रिगर सूची"</string>
+    <string name="title_fragment_trigger_list" msgid="4425969691529503861">"<xliff:g id="SENSOR_NAME">%s</xliff:g> के लिए ट्रिगर"</string>
+    <string name="btn_add_new_trigger" msgid="1143389268664607859">"ट्रिगर बनाएं"</string>
+    <string name="empty_trigger_list" msgid="238046755667717404">"कोई ट्रिगर सेट नहीं किए गए"</string>
+    <string name="title_activity_edit_trigger" msgid="2115747586987165481">"ट्रिगर संपादित करें"</string>
+    <string name="title_fragment_edit_trigger" msgid="9141329265681138113">"<xliff:g id="SENSOR_NAME">%s</xliff:g> ट्रिगर संपादित करें"</string>
+    <string name="title_fragment_add_trigger" msgid="7877645218403597761">"नया <xliff:g id="SENSOR_NAME">%s</xliff:g> ट्रिगर"</string>
+    <string name="trigger_type_label" msgid="4847350415951495617">"ट्रिगर का प्रकार"</string>
+    <string name="trigger_when_label" msgid="8616405039634043612">"इस समय ट्रिगर करें"</string>
+    <string name="trigger_value_label" msgid="3412972042230849085">"ट्रिगर का मान"</string>
+    <string name="trigger_type_start_recording" msgid="7292105639999785968">"रिकॉर्डिंग प्रारंभ करें"</string>
+    <string name="trigger_type_stop_recording" msgid="3022683931027310288">"रिकॉर्डिंग बंद करें"</string>
+    <string name="trigger_type_note" msgid="626654531254636746">"नोट बनाएं"</string>
+    <string name="trigger_type_alert" msgid="6525543144561765762">"मुझे सूचना दें"</string>
+    <string name="trigger_when_at" msgid="762967868925610869">"इस निर्दिष्ट ट्रिगर मान पर"</string>
+    <string name="trigger_when_drops_below" msgid="149048320758854889">"इससे कम हो जाने पर"</string>
+    <string name="trigger_when_rises_above" msgid="4131024183229534708">"इससे अधिक होने पर"</string>
+    <string name="trigger_when_is_below" msgid="8270111951353483145">"इससे कम होने पर"</string>
+    <string name="trigger_when_is_above" msgid="1839678217244657667">"इससे अधिक होने पर"</string>
+    <string name="trigger_value_hint" msgid="6176793893724760154">"मान"</string>
+    <string name="trigger_note_text_label" msgid="2243205345376006607">"डिफ़ॉल्ट नोट टेक्स्ट"</string>
+    <string name="trigger_note_text_hint" msgid="7624572723656572363">"आपके नोट में क्या बताया जाना चाहिए?"</string>
+    <string name="trigger_audio_alert" msgid="7125606348399123076">"ध्वनि"</string>
+    <string name="trigger_haptic_alert" msgid="9173126487427899717">"कंपन"</string>
+    <string name="trigger_visual_alert" msgid="3137431533902715114">"विज़ुअल नोटिफ़िकेशन"</string>
+    <string name="cannot_save_invalid_value" msgid="2889387470051561369">"आपको कोई सांख्यिक मान डालना होगा जिस पर यह ट्रिगर फ़ायर होगा."</string>
+    <string name="trigger_when_at_description" msgid="6704567729507492002">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> पर होने पर"</string>
+    <string name="trigger_when_rises_above_description" msgid="8089893226169256044">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> से अधिक होने पर"</string>
+    <string name="trigger_when_drops_below_description" msgid="5435046961646187734">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> से कम होने पर"</string>
+    <string name="trigger_when_above_description" msgid="8754842709321803028">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> जब सेंसर <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> से अधिक पर हो"</string>
+    <string name="trigger_when_below_description" msgid="1917050957970325724">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> सेंसर <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> से कम होने पर"</string>
+    <string name="sensor_trigger_deleted" msgid="1181819400253443424">"ट्रिगर हटाया गया"</string>
+    <!-- no translation found for trigger_type_list:0 (2965441322551479563) -->
+    <!-- no translation found for trigger_type_list:1 (2546936807241604853) -->
+    <!-- no translation found for trigger_type_list:2 (8989734094411396978) -->
+    <!-- no translation found for trigger_type_list:3 (3361617139415647084) -->
+    <!-- no translation found for trigger_when_list:0 (4808925283875227158) -->
+    <!-- no translation found for trigger_when_list:1 (982481841992075984) -->
+    <!-- no translation found for trigger_when_list:2 (795907252258650657) -->
+    <!-- no translation found for trigger_when_list:3 (486995679981577062) -->
+    <!-- no translation found for trigger_when_list:4 (3226257072675412338) -->
+  <string-array name="trigger_when_list_note_text">
+    <item msgid="7778784440115654134">"इस मान पर"</item>
+    <item msgid="5362437948357000880">"इससे अधिक बढ़ा हुआ मान"</item>
+    <item msgid="96408841538247555">"इससे कम हुआ मान"</item>
+    <item msgid="5929079391002165627">"इससे अधिक"</item>
+    <item msgid="2421726237024232431">"इससे कम"</item>
+  </string-array>
+    <string name="trigger_only_when_recording" msgid="2102420075414851575">"केवल रिकॉर्ड करते समय ट्रिगर करें"</string>
+    <string name="trigger_label_auto_text" msgid="7238124210986703642">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="trigger_label_icon_content_description" msgid="4567123930201934477">"ट्रिगर नोट: <xliff:g id="TRIGGER_DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="trigger_snackbar_auto_text" msgid="1082338857442085741">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="scroll_to_card" msgid="4531288548260633064">"दिखाएं"</string>
+    <string name="could_not_find_service_error" msgid="6399923176664381124">"सेवा नहीं ढूंढ सके: <xliff:g id="SERVICE_ID">%s</xliff:g>"</string>
+    <string name="recording_stopped_notification_text" msgid="2700948290649435580">"रिकॉर्डिंग पूर्ण."</string>
+    <string name="disable_all_triggers" msgid="4207192080361552008">"ट्रिगर अक्षम करें"</string>
+    <string name="trigger_view_icon_content_description" msgid="468973450644969062">"ट्रिगर"</string>
+    <string name="alert_trigger_needs_alerts" msgid="9046346885115277889">"गड़बड़ी: इस ट्रिगर के लिए आपको कम-से-कम एक प्रकार की सूचना का चयन करना होगा."</string>
+    <string name="trigger_fired_text" msgid="8122555560445417775">"ट्रिगर सक्रिय किया गया"</string>
+    <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"क्रॉप आरंभ हुआ: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"क्रॉप की समाप्ति: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_failed_message" msgid="8583818349156861745">"क्रॉप को सहेजने में विफल रहा."</string>
+    <string name="crop_completed_message" msgid="2902081668922934393">"क्रॉप परीक्षण किया गया"</string>
+    <string name="launch_settings" msgid="2712101939691138420">"सेटिंग लॉन्च करें"</string>
+    <string name="trigger_alert_prompt" msgid="7548827088664791710">"इसका उपयोग करके मुझे सूचना दें"</string>
+    <string name="my_devices" msgid="2753935122366940731">"मेरे डिवाइस"</string>
+    <string name="available_devices" msgid="5671327872447270316">"उपलब्ध डिवाइस"</string>
+    <string name="api_connection_timeout_error" msgid="2767327583360399345">"कनेक्शन का समय समाप्त हुआ"</string>
+    <string name="btn_expand_device" msgid="5065622950345958436">"डिवाइस सेंसर दिखाएं"</string>
+    <string name="btn_contract_device" msgid="1075694686012045562">"डिवाइस सेंसर छिपाएं"</string>
+    <string name="select_sensors" msgid="7242531205153688282">"<xliff:g id="EXPERIMENTNAME">%1$s</xliff:g> में उपयोग करने के लिए सेंसर चुनें"</string>
+    <string name="phone_sensors" msgid="1093110931724349906">"आंतरिक सेंसर"</string>
+    <string name="rename_device" msgid="6177379501609319531">"डिवाइस का नाम बदलें"</string>
+    <string name="forget_device" msgid="7258019924047721349">"इस डिवाइस को भूल जाएं"</string>
+    <string name="device_settings" msgid="5076827559934591801">"डिवाइस सेटिंग"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"प्रयोग में सेंसर जोड़ें"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"प्रयोग से सेंसर निकालें"</string>
 </resources>

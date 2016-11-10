@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" msgid="1749878361700406471">"科學期刊"</string>
+    <string name="app_name" msgid="1749878361700406471">"科學日誌"</string>
     <string name="action_feedback" msgid="3485726544664165152">"意見回饋"</string>
     <string name="action_settings" msgid="7253243161333327313">"設定"</string>
     <string name="action_about" msgid="6800644842624263352">"關於"</string>
@@ -48,15 +48,14 @@
     <string name="rpm_units" msgid="2651871280948091901">"RPM"</string>
     <string name="voltage_units" msgid="598716668433769220">"伏特"</string>
     <string name="raw_units" msgid="4501311675565391535">"%"</string>
-    <string name="barometer_units" msgid="8404848712372029263">"毫巴"</string>
+    <string name="barometer_units" msgid="5606531967130926197">"百帕"</string>
     <string name="temperature_units" msgid="6865637706924726630">"°C"</string>
     <string name="header_name_and_units" msgid="2085988560798053543">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="5584369034749538544">"實驗詳細資料"</string>
-    <string name="add_sensor" msgid="7637499411634365504">"新增感測器"</string>
     <string name="snackbar_source_error" msgid="488480213360860471">"連線至以下來源時發生錯誤：<xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
     <string name="action_retry" msgid="3145700667339813916">"重試"</string>
     <string name="decibel" msgid="2567269521573545643">"聲音強度"</string>
-    <string name="title_activity_tutorial" msgid="2584345529619464915">"科學期刊教學課程"</string>
+    <string name="title_activity_tutorial" msgid="2584345529619464915">"科學日誌教學課程"</string>
     <string name="title_activity_age_verifier" msgid="7040452872458524616">"生日"</string>
     <string name="title_activity_ruler" msgid="7356097859627917798">"尺規"</string>
     <string name="ruler_label_metric" msgid="4168199108712627963">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> 公釐"</string>
@@ -91,7 +90,7 @@
     <string name="elapsed_time_axis_format_large" msgid="5693537324927532690">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_small_tenths" msgid="4091017607656155791">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large_tenths" msgid="3013544179502005785">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
-    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1s</xliff:g>，<xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>。"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1$s</xliff:g>，<xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>。"</string>
     <string name="picture_note_description" msgid="6443481127492010185">"試驗過程圖片"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"圖片附註預覽"</string>
     <string name="navigation_item_observe" msgid="8558454737213940045">"觀察"</string>
@@ -100,7 +99,7 @@
     <string name="navigation_item_settings" msgid="2126253880412012953">"設定"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"測試選項"</string>
     <string name="title_activity_main" msgid="7023325446656975223">"科學日誌 - <xliff:g id="SECTION">%s</xliff:g>"</string>
-    <string name="title_activity_add_sensor" msgid="1432724804471397682">"外部裝置"</string>
+    <string name="title_activity_sensor_settings" msgid="1784553345261037389">"感測器設定"</string>
     <string name="external_devices_paired" msgid="4167288049155302614">"配對裝置"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"配對中…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"可用的裝置"</string>
@@ -140,8 +139,7 @@
     <string name="settings_version_title" msgid="6926476057478648092">"版本"</string>
     <string name="settings_replay_tutorial_title" msgid="6935249461039953640">"教學課程"</string>
     <string name="settings_open_source_title" msgid="2075335777151654751">"開放原始碼授權"</string>
-    <string name="dev_sensors_title" msgid="56483495191187216">"啟用實驗性感測器"</string>
-    <string name="cannot_scan_message" msgid="5736974833739008592">"如要使用科學期刊存取外部裝置 (即「科學期刊感測器」)，您必須先開啟藍牙功能。由於其他藍牙裝置可能會在偵測裝置的過程中廣播其位置資訊，因此您必須先授予 Android 裝置存取位置的權限，才能偵測科學期刊感測器。科學期刊不會儲存或使用相關的位置資訊，也不會傳輸位置資訊。"</string>
+    <string name="cannot_scan_message" msgid="5736974833739008592">"如要使用科學日誌存取外部裝置 (即「科學日誌感測器」)，您必須先開啟藍牙功能。由於其他藍牙裝置可能會在偵測裝置的過程中廣播其位置資訊，因此您必須先授予 Android 裝置存取位置的權限，才能偵測科學日誌感測器。科學日誌不會儲存或使用相關的位置資訊，也不會傳輸位置資訊。"</string>
     <string name="btn_request_location" msgid="307169020767649663">"開啟位置資訊存取功能"</string>
     <string name="btn_enable_bluetooth" msgid="4110230448360114456">"開啟藍牙"</string>
     <string name="btn_new_project_content_description" msgid="7274313837160584011">"新增專案"</string>
@@ -151,6 +149,7 @@
     <string name="archived_project_message" msgid="66153039940455913">"已封存專案。"</string>
     <string name="unarchived_project_message" msgid="8018113308137052929">"已從封存中移出專案。"</string>
     <string name="action_undo" msgid="1852278327756791797">"復原"</string>
+    <string name="deleted_project_message" msgid="1227635187612669144">"已刪除專案。"</string>
     <string name="project_title_hint" msgid="5788484729941933289">"專案標題"</string>
     <string name="project_problem_hint" msgid="4818690816549079105">"說明"</string>
     <string name="project_cover_description" msgid="8583694225708356859">"選擇專案相片"</string>
@@ -164,7 +163,6 @@
     <string name="unarchived_experiment_message" msgid="7870126733421916514">"已從封存中移出實驗。"</string>
     <string name="archived_run_message" msgid="8346607350306633655">"已封存試驗。"</string>
     <string name="unarchived_run_message" msgid="3807535396227509421">"已從封存中移出試驗。"</string>
-    <string name="experiments_toolbar_title" msgid="6963959917416270680">"實驗"</string>
     <string name="archived_content_description" msgid="7931247623909344339">"<xliff:g id="ITEM">%1s</xliff:g> (已封存)"</string>
     <plurals name="experiment_run_count" formatted="false" msgid="1283784154893798777">
       <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> 項試驗</item>
@@ -193,33 +191,27 @@
     <string name="frequency_window_option_label" msgid="4919436041479250367">"頻率時間 (毫秒)"</string>
     <string name="frequency_filter_option_label" msgid="4458966053132937293">"頻率篩選器 (採用感測器單位)"</string>
     <string name="enable_frequency_checkbox_label" msgid="2922864218507547240">"顯示頻率"</string>
-    <string name="dev_sensors_summary" msgid="7086328959529574660">"顯示僅供開發人員測試用的感測器"</string>
     <string name="options_save_error" msgid="1262808099812151932">"儲存選項時發生錯誤"</string>
     <string name="options_load_error" msgid="1594503728021930743">"載入選項時發生錯誤"</string>
     <string name="dev_tools_title" msgid="8231917267495770691">"啟用實驗性工具"</string>
     <string name="dev_tools_summary" msgid="3609685547301741618">"顯示僅供開發人員測試用的工具"</string>
     <string name="dev_tools_leak_detection_title" msgid="4725525693236520974">"啟用記憶體流失偵測"</string>
-    <string name="dev_tools_leak_detection_summary" msgid="9019022238189456899">"變更這項設定後，必須關閉應用程式才能生效。"</string>
-    <string name="d2p" msgid="372033271119706811">"預設"</string>
-    <string name="d2a" msgid="8650862124682156354">"振幅"</string>
-    <string name="d2pe" msgid="956618657669378971">"音符"</string>
-    <string name="d2ps" msgid="5114174025939101366">"音階"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="7171148788144095285">"變更這項設定後，必須關閉應用程式才能生效。"</string>
+    <string name="default_sonification" msgid="9006778853276983156">"預設"</string>
+    <string name="amplitude" msgid="2540241901091313524">"振幅"</string>
+    <string name="notes" msgid="3276297280118435135">"音符"</string>
+    <string name="scale" msgid="8822139987400974369">"音階"</string>
+    <string name="conductor" msgid="9193425673241449589">"導體"</string>
     <!-- no translation found for sonification_types_prod:0 (3254769575914104850) -->
     <!-- no translation found for sonification_types_prod:1 (1831413879274006078) -->
     <!-- no translation found for sonification_types_prod:2 (1917376169281831239) -->
+    <!-- no translation found for sonification_types_prod:3 (602550002110522910) -->
     <!-- no translation found for sonification_types_dev:0 (7417644575217300390) -->
-  <string-array name="sonification_type_aliases">
-    <item msgid="234968762840479178">"d2p"</item>
-    <item msgid="6154566816995872686">"d2ps"</item>
-    <item msgid="2062530924507614569">"d2pe"</item>
-    <item msgid="72378471312023144">"d2a"</item>
-  </string-array>
     <string name="new_experiment_spinner_item" msgid="5017810476745425374">"新增實驗…"</string>
     <string name="recording_title_label" msgid="736399431431816185">"記錄中…"</string>
-    <string name="exp_edit_info_button" msgid="3141909000709306124">"編輯資訊"</string>
     <string name="btn_observe_content_description" msgid="476911391550333702">"觀察"</string>
     <string name="title_activity_experiment_details" msgid="3494340558031776911">"實驗詳細資料"</string>
-    <string name="empty_runs" msgid="7548505071633993347">"您沒有任何試驗"</string>
+    <string name="empty_experiment" msgid="6142475501762739386">"這項實驗沒有任何試驗或附註。"</string>
     <string name="permission_request_write" msgid="6590731147363977582">"必須提供寫入外部儲存空間的權限。"</string>
     <string name="device_options_sensor_label_text" msgid="5073336029128358977">"感測器"</string>
     <string name="external_sensor_appearance_name" msgid="6419268671149879170">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
@@ -231,7 +223,6 @@
     <string name="device_options_custom_sensor_pin_label_text" msgid="7023371657105134847">"腳位"</string>
     <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="4571472391388122413">"頻率"</string>
     <string name="feedback_error_message" msgid="3117491109292317255">"無法傳送意見。"</string>
-    <string name="no_sensor_info_found" msgid="2182109795740683658">"這部感測器沒有任何附加資訊！"</string>
     <string name="sensor_desc_short_acc_x" msgid="1184579399689940361">"手機往左及往右移動的加速度 (以 m/s² 為單位)"</string>
     <string name="sensor_desc_short_acc_y" msgid="7084492489358508838">"手機往前及往後移動的加速度 (以 m/s² 為單位)"</string>
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"手機往上及往下移動的加速度 (以 m/s² 為單位)"</string>
@@ -241,21 +232,24 @@
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"外部感測器的資料會根據自訂設定顯示在這裡。"</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"每分鐘旋轉次數"</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"來自外部感測器的原始讀數百分比。"</string>
+    <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"以百帕 (hPa) 為單位測量到的大氣壓力。"</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"環境光感測器在測量光線亮度時會以勒克斯為單位；勒克斯是照度的測量單位，根據受光量和光線散佈的區域面積計算而得。\n\n常見的環境照度如下：滿月約 1 勒克斯，以一般電燈為光源的客廳約 50 勒克斯，教室電燈、日出和日落的照度約為 400 勒克斯，白天 (非直射日光) 超過 10,000 勒克斯，直射日光則超過 30,000 勒克斯。\n\n對多數人來說，勒克斯並非常用的測量單位。我們通常會根據瓦數選購燈泡，但瓦特代表的是用電量，而非燈泡的亮度。流明是更適合選購燈泡時使用的測量單位，代表燈泡實際產生的亮度，勒克斯則是照射在特定區域範圍上的光線量。"</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"由於光線會在移動過程中向外擴散，因此即使光源的流明數不變，勒克斯數也會在您背向光源時減少。如果受光面與光源之間相互傾斜，接收到的照明度也會較低，這也是地球赤道地區比極地更溫暖的原因。\n\n另外，手機中配備光感測器的用意，就是為了根據環境明暗程度自動調整螢幕的亮度。光感測器內的微型半導體受到光線照射時，會產生微弱但可測量的電流予以回應，這種現象稱為光電效應。類似的感測器也運用在部分街燈上，天黑時就會自動亮燈。"</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"物體在原地保持不動、或在移動過程中持續移動的趨勢，稱為慣性。牛頓第一定律正式闡述了這個概念：除非施加不平衡力，否則物體的移動或靜止狀態不會改變。\n\n如果不平衡力造成物件輕微移動，就稱為物體「加速」，表示物體的速度或速率有變化 (無論是因速度增加、減緩或改變方向所造成)。加速度是指速度 (單位為 m/s) 之於時間的變化率，單位為 m/s²。\n\n手機裡的加速計可用於測量移動中的加速度變化。加速計內含有可任意移動的細小懸浮物質，運動產生變化時，這些物質就會隨之移動，就像人的頭部會在緊急煞車時往前傾一樣。只要測量這些物質的慣性移動，手機裡的加速計就能偵測運動與定向的變化，方便您將螢幕從橫向切換成縱向模式、在手機上玩遊戲或進行其他操作。"</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"您可能會發現，即使將手機靜置在桌面上，Z 軸的加速度仍然持續存在。這是地球表面上因重力牽引產生的加速度，大約為 9.8 m/s²。"</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"我們聽到的聲音是由空氣振動所產生。舉例來說，喉嚨的聲帶振動就會發出聲音。這些振動會產生向外移動的高氣壓和低氣壓，形成多個彼此交會的區域，原理類似把石子扔進池塘後形成的擴散漣漪。"</string>
-    <string name="sensor_desc_second_paragraph_decibel" msgid="6039417536094358024">"所有聲音都能以頻率和強度來表示。\n\n強度是科學期刊使用的測量數值，以分貝 (dB) 為單位。強度或響度皆取決於物體振動時移動的距離。響度越大，人耳聽到的聲音越強。\n\n聲波的頻率、音高或音調相當於物體的振動速率。物體振動得越快，產生的音高也越高。科學期刊中不提供測量頻率，只能測量聲音的響度。\n\n人耳勉強能聽見的聲音強度定義為 0 分貝，一般談話約為 60 分貝，超過 140 分貝的聲音則會令人耳感到疼痛。但即使是不會引發耳朵疼痛的聲音，也可能對人有害。持續暴露在 90 分貝 (約等於吸塵器的響度) 的環境中，最終會導致聽力衰退。\n\n分貝的規模為對數性質，因此不太容易計算：40 分貝的聲源強度並不是 20 分貝聲源的 2 倍，而是 100 倍。另外，如果鬧鐘的聲音強度是 70 分貝，由兩個鬧鐘產生的聲音強度並不是 140 分貝，而是 73 分貝。誠如先前所述，分貝規模的計算方式較為繁複。\n\n10 dB 微風吹動樹葉的沙沙聲 \n20 dB 5 呎外的低語聲 \n30 dB 輕聲說話 \n50 dB 下雨聲 \n60 dB 一般談話 \n90 dB 果汁機的聲音 \n100 dB 未裝消音器的汽車聲 \n110 dB 在耳邊尖叫的聲音 \n120 dB 雷聲 \n130 dB 電鑽聲 \n140 dB 飛機起飛的聲音"</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="6039417536094358024">"所有聲音都能以頻率和強度來表示。\n\n強度是科學日誌使用的測量數值，以分貝 (dB) 為單位。強度或響度皆取決於物體振動時移動的距離。響度越大，人耳聽到的聲音越強。\n\n聲波的頻率、音高或音調相當於物體的振動速率。物體振動得越快，產生的音高也越高。科學日誌中不提供測量頻率，只能測量聲音的響度。\n\n人耳勉強能聽見的聲音強度定義為 0 分貝，一般談話約為 60 分貝，超過 140 分貝的聲音則會令人耳感到疼痛。但即使是不會引發耳朵疼痛的聲音，也可能對人有害。持續暴露在 90 分貝 (約等於吸塵器的響度) 的環境中，最終會導致聽力衰退。\n\n分貝的規模為對數性質，因此不太容易計算：40 分貝的聲源強度並不是 20 分貝聲源的 2 倍，而是 100 倍。另外，如果鬧鐘的聲音強度是 70 分貝，由兩個鬧鐘產生的聲音強度並不是 140 分貝，而是 73 分貝。誠如先前所述，分貝規模的計算方式較為繁複。\n\n10 dB 微風吹動樹葉的沙沙聲 \n20 dB 5 呎外的低語聲 \n30 dB 輕聲說話 \n50 dB 下雨聲 \n60 dB 一般談話 \n90 dB 果汁機的聲音 \n100 dB 未裝消音器的汽車聲 \n110 dB 在耳邊尖叫的聲音 \n120 dB 雷聲 \n130 dB 電鑽聲 \n140 dB 飛機起飛的聲音"</string>
     <string name="sensor_desc_first_paragraph_rotation" msgid="701021949358379491">"每分鐘旋轉次數 (RPM) 可測量定軸在 1 分鐘內的旋轉頻率。\n\n風動裝置開始旋轉時，編碼器碟片也會一併轉動 (如下圖)："</string>
-    <string name="sensor_desc_second_paragraph_rotation" msgid="5453599141200678146">"這會在感測器上產生斷斷續續的光影，科學期刊則會根據光影的規律來判讀旋轉的次數。"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="5453599141200678146">"這會在感測器上產生斷斷續續的光影，科學日誌則會根據光影的規律來判讀旋轉的次數。"</string>
     <string name="sensor_desc_first_paragraph_raw" msgid="8624088001449985317">"這個畫面會顯示外部感測器透過藍牙傳送到手機的資料。\n\n資料中顯示的值是微控器傳送的原始讀數百分比 (通常是電流通過感測器時的電壓百分比)。"</string>
     <string name="sensor_desc_second_paragraph_raw" msgid="2081830388555382169">"藍牙是一項無線技術標準，可在短距離內利用無線電波在固定裝置或行動裝置間傳輸資料。"</string>
     <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"這個畫面會顯示外部感測器透過藍牙傳送到手機的資料。"</string>
     <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"藍牙是一項無線技術標準，可在短距離內利用無線電波在固定裝置或行動裝置間傳輸資料。"</string>
+    <string name="sensor_desc_first_paragraph_barometer" msgid="2813905499808374316">"我們生活的地方就在地球大氣層底部 (雖然我們很少注意到這件事)，大氣層底部往上延伸高度有 40 公里 (130,000 呎)。覆蓋在地球表面的所有空氣重量會形成大氣壓力。\n\n在海平面上，每平方英吋會有 14 磅的大氣壓力，這等於在一張標準紙張大小的面積上施加約 1,300 磅的力量。"</string>
+    <string name="sensor_desc_second_paragraph_barometer" msgid="4975611576005615149">"我們之所以沒注意到這股龐大的壓力，是因為早已習慣它的存在，但只要這股壓力有變動，就算只是輕微的變動 (例如到高海拔地區或搭乘飛機時)，我們就能感受到它的存在。大氣壓力也會隨著天氣狀況改變，如果出現猛烈的不穩定氣流，大氣壓力就會下降，如果在氣流穩定、晴空萬里的情況下，大氣壓力則會上升。\n\n手機內的數位氣壓計可用於測量大氣壓力，測量單位為百帕 (1 百帕等於 100 帕斯卡，1 帕斯卡等於在 1 平方公尺的面積上施加 1 牛頓的力量)。你或許聽過天氣預報員以毫巴為單位播報大氣壓力，其實毫巴就等同於百帕。\n\n你可能想知道：為什麼手機可用來測量壓力？只要高度稍有變動 (例如，爬了一段樓梯後)，大氣壓力就會出現可輕易測量到的變動，因此手機的數位計壓器能協助偵測位置的改變，例如，讓你知道自己身在建築物中的哪一層樓，或車輛是行駛在橋上或橋下。"</string>
     <string name="run_review_duration" msgid="1978235455271606762">"持續時間"</string>
     <string name="run_review_activity_label" msgid="5646135462344737004">"觀測"</string>
-    <string name="service_notification_content_title" msgid="791621361781451323">"科學期刊"</string>
+    <string name="service_notification_content_title" msgid="791621361781451323">"科學日誌"</string>
     <string name="service_notification_content_text" msgid="8364458347657207997">"記錄中…"</string>
     <string name="live_graph_content_description" msgid="3509656099170703878">"即時感測器圖表。您可以透過拖曳的方式平移 X 軸。"</string>
     <string name="static_graph_content_description" msgid="8689642435844781150">"感測器圖表。雙指撥動即可調整顯示比例，拖曳即可平移 X 軸。"</string>
@@ -263,9 +257,8 @@
     <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"切換為資訊模式"</string>
     <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"切換為圖表模式"</string>
     <string name="sensor_tab_layout_content_description" msgid="3807243095823040361">"可用的感測器"</string>
-    <string name="sensor_tab_selected_format" msgid="2686213304137352967">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (已選取)"</string>
     <string name="title_activity_sensor_info" msgid="8667402055779114709">"感測器資訊"</string>
-    <string name="title_activity_sensor_info_format" msgid="4810933938741070862">"<xliff:g id="SENSOR_NAME">%s</xliff:g>感測器"</string>
+    <string name="title_activity_sensor_info_format" msgid="4284132895191711797">"<xliff:g id="SENSOR_NAME">%s</xliff:g>感測器"</string>
     <string name="heading_info_section" msgid="8939391891795009974">"最新動態"</string>
     <string name="edit_note_menu_item" msgid="8530099824744920575">"編輯"</string>
     <string name="edit_note_time" msgid="5307388665454994755">"編輯附註時間"</string>
@@ -292,6 +285,10 @@
     <string name="archived_badge" msgid="6068366174702659773">"已封存"</string>
     <string name="action_include_archived_projects" msgid="7075034155088762601">"包括已封存的專案"</string>
     <string name="action_include_archived_experiments" msgid="9179328397501796497">"包括已封存的實驗"</string>
+    <string name="delete_project_dialog_title" msgid="7681697983255312708">"要刪除這項專案嗎？"</string>
+    <string name="delete_project_dialog_message" msgid="3039092965074898348">"確定要刪除這項專案嗎？該專案的所有實驗、試驗和附註將一併遭到刪除，而且無法復原。"</string>
+    <string name="delete_experiment_dialog_title" msgid="522221451175758058">"要刪除這項實驗嗎？"</string>
+    <string name="delete_experiment_dialog_message" msgid="8055334758058363747">"確定要刪除這項實驗嗎？該實驗的所有試驗和附註將一併遭到刪除，而且無法復原。"</string>
     <string name="action_new_experiment" msgid="5987527361707254638">"新增實驗"</string>
     <string name="delete_run_dialog_title" msgid="3841579587741640965">"要刪除這項試驗嗎？"</string>
     <string name="run_review_delete_confirm" msgid="1608962272042732123">"確定要刪除這項試驗嗎？已記錄的資料和附註將一併遭到刪除，而且無法復原。"</string>
@@ -318,7 +315,6 @@
     <string name="graph_loading" msgid="1102165995961515949">"正在載入圖表…"</string>
     <string name="playback_button_pause" msgid="348710889337495167">"暫停播放音訊"</string>
     <string name="playback_button_play" msgid="3845595255478520691">"開始播放音訊"</string>
-    <string name="sonification_type_card_title" msgid="7998122361918330347">"開發人員聲波處理類型"</string>
     <string name="dev_sonification_types_title" msgid="8470117255317834775">"啟用開發人員聲波處理類型"</string>
     <string name="title_edit_trial_activity" msgid="2639088409396156730">"編輯試驗"</string>
     <string name="edit_trial_title_hint" msgid="2537511526292819270">"試驗標題"</string>
@@ -327,18 +323,12 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"新增說明文字"</string>
     <string name="listing_title" msgid="1732490922169483408">"科學日誌"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"盡情探索周圍的世界。"</string>
-    <string name="listing_changelog" msgid="1272605515497326900">"新功能和改善項目：\n• 為圖片附註加上說明文字。\n• 資料超音波處理的音訊設定。\n• 提升長時間試驗的執行效能。\n• 修正多項錯誤。"</string>
-    <string name="listing__description" msgid="3975515995792990185">"有了「科學期刊」這項實用工具，使用智慧型手機也能進行科學實驗。只要利用手機內建的感測器，或連接外部感測器，你就能盡情探索周圍的世界。科學期刊能讓你把創意分門別類成不同的專案、進行預測、撰寫筆記，以及收集多項試驗的資料，然後深入分析實驗結果並加上註解，就像隨身攜帶一本實驗筆記本！\n\n \n歡迎瀏覽以下網站汲取實驗靈感，讓這款應用程式伴你遨遊廣闊的科學天地：https://makingscience.withgoogle.com/science-journal/activities \n進一步瞭解 Making &amp; Science：https://makingscience.withgoogle.com \n如需相關支援，請造訪：https://productforums.google.com/forum/#!forum/sciencejournal \n如需使用程式碼，請造訪：https://github.com/google/science-journal"</string>
-    <string name="live_zoom_type_option_title" msgid="6184011805342339557">"在觀察過程中自動放大"</string>
-    <string name="live_zoom_type_option_summary" msgid="3327087952315423967">"啟用固定至現在結果時，在觀察過程中會自動放大 Y 軸的功能。這項功能預設為停用"</string>
-    <!-- no translation found for third_party_sensors_option_title (4835603485129230503) -->
-    <skip />
-    <!-- no translation found for third_party_sensors_option_summary (2567608839882361492) -->
-    <skip />
+    <string name="listing_changelog" msgid="5791385044176273701">"新功能及改良功能：\n• 感測器觸發條件：當特定感測器達到某數值時，出現警示、演奏音符、開始或結束記錄。從感測器卡片選單中可以使用這些功能。\n• 刪除封存的試驗、實驗與執行記錄。\n• 新增氣壓感測器的說明。\n• 新增可搭配科學日誌使用的裝置種類：可以使用更多種外部感測器。詳情請參閱 https://makingscience.withgoogle.com/science-journal/materials \n• 修正錯誤。"</string>
+    <string name="listing__description" msgid="3975515995792990185">"有了「科學日誌」這項實用工具，使用智慧型手機也能進行科學實驗。只要利用手機內建的感測器，或連接外部感測器，你就能盡情探索周圍的世界。科學日誌能讓你把創意分門別類成不同的專案、進行預測、撰寫筆記，以及收集多項試驗的資料，然後深入分析實驗結果並加上註解，就像隨身攜帶一本實驗筆記本！\n\n \n歡迎瀏覽以下網站汲取實驗靈感，讓這款應用程式伴你遨遊廣闊的科學天地：https://makingscience.withgoogle.com/science-journal/activities \n進一步瞭解 Making &amp; Science：https://makingscience.withgoogle.com \n如需相關支援，請造訪：https://productforums.google.com/forum/#!forum/sciencejournal \n如需使用程式碼，請造訪：https://github.com/google/science-journal"</string>
+    <string name="third_party_sensors_option_title" msgid="4835603485129230503">"掃描是否有第三方感測器"</string>
+    <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"尋找支援第三方感測器 API 的應用程式，並啟用將這類感應器加入實驗的功能。"</string>
     <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"啟用磁力儀"</string>
     <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"啟用實驗性磁力儀感測器"</string>
-    <string name="enable_barometer_sensor_title" msgid="4532163359473808928">"啟用氣壓計"</string>
-    <string name="enable_barometer_sensor_summary" msgid="352316348564408931">"啟用實驗性氣壓計感測器"</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"啟用環境溫度"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"啟用實驗性環境溫度感測器"</string>
     <string name="enable_sine_wave_sensor_title" msgid="5361133155106781791">"啟用正弦波"</string>
@@ -353,60 +343,84 @@
     <string name="autozoom_failed" msgid="2708983116606188884">"無法調整自動縮放的比例。"</string>
     <string name="run_review_overflow_menu_content_description" msgid="5689925874345140909">"更多選項"</string>
     <string name="licenses_empty" msgid="2746335366478622872">"找不到任何授權。"</string>
-    <!-- no translation found for audio_enabled_format (4202071153288924614) -->
-    <skip />
-    <!-- no translation found for menu_item_set_triggers (3555868641262376254) -->
-    <skip />
-    <!-- no translation found for title_activity_trigger_list (5014690461140632120) -->
-    <skip />
-    <!-- no translation found for btn_add_new_trigger (1143389268664607859) -->
-    <skip />
-    <!-- no translation found for empty_trigger_list (238046755667717404) -->
-    <skip />
-    <!-- no translation found for title_activity_edit_trigger (2115747586987165481) -->
-    <skip />
-    <!-- no translation found for title_activity_add_trigger (9137879813992485906) -->
-    <skip />
-    <!-- no translation found for trigger_type_label (4847350415951495617) -->
-    <skip />
-    <!-- no translation found for trigger_when_label (8616405039634043612) -->
-    <skip />
-    <!-- no translation found for trigger_type_start_recording (7292105639999785968) -->
-    <skip />
-    <!-- no translation found for trigger_type_stop_recording (3022683931027310288) -->
-    <skip />
-    <!-- no translation found for trigger_type_note (626654531254636746) -->
-    <skip />
-    <!-- no translation found for trigger_type_alert (6525543144561765762) -->
-    <skip />
-    <!-- no translation found for trigger_when_at (762967868925610869) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below (149048320758854889) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above (4131024183229534708) -->
-    <skip />
-    <!-- no translation found for trigger_value_hint (6176793893724760154) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_label (2243205345376006607) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_hint (7624572723656572363) -->
-    <skip />
-    <!-- no translation found for trigger_audio_alert (3888981987994238753) -->
-    <skip />
-    <!-- no translation found for trigger_haptic_alert (4734911836763569299) -->
-    <skip />
-    <!-- no translation found for trigger_visual_alert (8191512950406497950) -->
-    <skip />
-    <!-- no translation found for cannot_save_invalid_value (2889387470051561369) -->
-    <skip />
-    <!-- no translation found for trigger_when_at_description (1004528252412424201) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above_description (9004635001846058548) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below_description (1707397407766550719) -->
-    <skip />
-    <!-- no translation found for sensor_trigger_deleted (1181819400253443424) -->
-    <skip />
-    <!-- no translation found for trigger_label_auto_text (9210831035009346407) -->
-    <skip />
+    <string name="audio_enabled_format" msgid="4202071153288924614">"<xliff:g id="SENSOR_DISPLAY_NAME">%1s</xliff:g> ♪"</string>
+    <string name="menu_item_set_triggers" msgid="3555868641262376254">"設定觸發條件"</string>
+    <string name="menu_item_edit_triggers" msgid="5719430048511669542">"編輯觸發條件"</string>
+    <string name="title_activity_trigger_list" msgid="2928411265364344194">"觸發條件清單"</string>
+    <string name="title_fragment_trigger_list" msgid="4425969691529503861">"<xliff:g id="SENSOR_NAME">%s</xliff:g>的觸發條件"</string>
+    <string name="btn_add_new_trigger" msgid="1143389268664607859">"建立觸發條件"</string>
+    <string name="empty_trigger_list" msgid="238046755667717404">"未設定任何觸發條件"</string>
+    <string name="title_activity_edit_trigger" msgid="2115747586987165481">"編輯觸發條件"</string>
+    <string name="title_fragment_edit_trigger" msgid="9141329265681138113">"編輯<xliff:g id="SENSOR_NAME">%s</xliff:g>觸發條件"</string>
+    <string name="title_fragment_add_trigger" msgid="7877645218403597761">"新增<xliff:g id="SENSOR_NAME">%s</xliff:g>觸發條件"</string>
+    <string name="trigger_type_label" msgid="4847350415951495617">"觸發條件類型"</string>
+    <string name="trigger_when_label" msgid="8616405039634043612">"當讀數符合以下條件時觸發："</string>
+    <string name="trigger_value_label" msgid="3412972042230849085">"觸發條件數值"</string>
+    <string name="trigger_type_start_recording" msgid="7292105639999785968">"開始記錄"</string>
+    <string name="trigger_type_stop_recording" msgid="3022683931027310288">"停止記錄"</string>
+    <string name="trigger_type_note" msgid="626654531254636746">"建立附註"</string>
+    <string name="trigger_type_alert" msgid="6525543144561765762">"顯示警示"</string>
+    <string name="trigger_when_at" msgid="762967868925610869">"等於特定值"</string>
+    <string name="trigger_when_drops_below" msgid="149048320758854889">"下降到特定值以下"</string>
+    <string name="trigger_when_rises_above" msgid="4131024183229534708">"上升到特定值以上"</string>
+    <string name="trigger_when_is_below" msgid="8270111951353483145">"低於"</string>
+    <string name="trigger_when_is_above" msgid="1839678217244657667">"超過"</string>
+    <string name="trigger_value_hint" msgid="6176793893724760154">"數值"</string>
+    <string name="trigger_note_text_label" msgid="2243205345376006607">"預設附註文字"</string>
+    <string name="trigger_note_text_hint" msgid="7624572723656572363">"你的附註要顯示什麼內容？"</string>
+    <string name="trigger_audio_alert" msgid="7125606348399123076">"音效"</string>
+    <string name="trigger_haptic_alert" msgid="9173126487427899717">"震動"</string>
+    <string name="trigger_visual_alert" msgid="3137431533902715114">"視覺效果通知"</string>
+    <string name="cannot_save_invalid_value" msgid="2889387470051561369">"必須輸入啟動這項觸發條件應達到的數值。"</string>
+    <string name="trigger_when_at_description" msgid="6704567729507492002">"當讀數達到 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> 時<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="trigger_when_rises_above_description" msgid="8089893226169256044">"當讀數上升到 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> 以上時<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="trigger_when_drops_below_description" msgid="5435046961646187734">"當讀數下降到 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> 以下時<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="trigger_when_above_description" msgid="8754842709321803028">"當感測器讀數超過 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> 時<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="trigger_when_below_description" msgid="1917050957970325724">"當感測器讀數低於 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> 時<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="sensor_trigger_deleted" msgid="1181819400253443424">"已刪除觸發條件"</string>
+    <!-- no translation found for trigger_type_list:0 (2965441322551479563) -->
+    <!-- no translation found for trigger_type_list:1 (2546936807241604853) -->
+    <!-- no translation found for trigger_type_list:2 (8989734094411396978) -->
+    <!-- no translation found for trigger_type_list:3 (3361617139415647084) -->
+    <!-- no translation found for trigger_when_list:0 (4808925283875227158) -->
+    <!-- no translation found for trigger_when_list:1 (982481841992075984) -->
+    <!-- no translation found for trigger_when_list:2 (795907252258650657) -->
+    <!-- no translation found for trigger_when_list:3 (486995679981577062) -->
+    <!-- no translation found for trigger_when_list:4 (3226257072675412338) -->
+  <string-array name="trigger_when_list_note_text">
+    <item msgid="7778784440115654134">"等於特定值"</item>
+    <item msgid="5362437948357000880">"上升到特定值以上"</item>
+    <item msgid="96408841538247555">"下降到特定值以下"</item>
+    <item msgid="5929079391002165627">"超過"</item>
+    <item msgid="2421726237024232431">"低於"</item>
+  </string-array>
+    <string name="trigger_only_when_recording" msgid="2102420075414851575">"僅限在記錄時觸發"</string>
+    <string name="trigger_label_auto_text" msgid="7238124210986703642">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g><xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="trigger_label_icon_content_description" msgid="4567123930201934477">"觸發條件附註：<xliff:g id="TRIGGER_DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="trigger_snackbar_auto_text" msgid="1082338857442085741">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g><xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="scroll_to_card" msgid="4531288548260633064">"顯示"</string>
+    <string name="could_not_find_service_error" msgid="6399923176664381124">"找不到服務：<xliff:g id="SERVICE_ID">%s</xliff:g>"</string>
+    <string name="recording_stopped_notification_text" msgid="2700948290649435580">"記錄完畢。"</string>
+    <string name="disable_all_triggers" msgid="4207192080361552008">"停用觸發條件"</string>
+    <string name="trigger_view_icon_content_description" msgid="468973450644969062">"觸發條件"</string>
+    <string name="alert_trigger_needs_alerts" msgid="9046346885115277889">"錯誤：必須為這項觸發條件至少選擇一種警示類型。"</string>
+    <string name="trigger_fired_text" msgid="8122555560445417775">"已啟用觸發條件"</string>
+    <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"裁剪開始：<xliff:g id="TIME">%1$s</xliff:g>，<xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"裁剪結束：<xliff:g id="TIME">%1$s</xliff:g>，<xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_failed_message" msgid="8583818349156861745">"無法儲存裁剪內容。"</string>
+    <string name="crop_completed_message" msgid="2902081668922934393">"已裁剪試驗"</string>
+    <string name="launch_settings" msgid="2712101939691138420">"啟動設定"</string>
+    <string name="trigger_alert_prompt" msgid="7548827088664791710">"警示模式"</string>
+    <string name="my_devices" msgid="2753935122366940731">"我的裝置"</string>
+    <string name="available_devices" msgid="5671327872447270316">"可用的裝置"</string>
+    <string name="api_connection_timeout_error" msgid="2767327583360399345">"連線逾時"</string>
+    <string name="btn_expand_device" msgid="5065622950345958436">"顯示裝置感測器"</string>
+    <string name="btn_contract_device" msgid="1075694686012045562">"隱藏裝置感測器"</string>
+    <string name="select_sensors" msgid="7242531205153688282">"選擇「<xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>」所用的感測器"</string>
+    <string name="phone_sensors" msgid="1093110931724349906">"內部感測器"</string>
+    <string name="rename_device" msgid="6177379501609319531">"重新命名裝置"</string>
+    <string name="forget_device" msgid="7258019924047721349">"取消配對這項裝置"</string>
+    <string name="device_settings" msgid="5076827559934591801">"裝置設定"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"將感測器加入實驗中"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"將感測器從實驗中移除"</string>
 </resources>

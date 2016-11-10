@@ -48,11 +48,10 @@
     <string name="rpm_units" msgid="2651871280948091901">"RPM"</string>
     <string name="voltage_units" msgid="598716668433769220">"V"</string>
     <string name="raw_units" msgid="4501311675565391535">"%"</string>
-    <string name="barometer_units" msgid="8404848712372029263">"mbar"</string>
+    <string name="barometer_units" msgid="5606531967130926197">"hPa"</string>
     <string name="temperature_units" msgid="6865637706924726630">"°C"</string>
     <string name="header_name_and_units" msgid="2085988560798053543">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="5584369034749538544">"Detalles del experimento"</string>
-    <string name="add_sensor" msgid="7637499411634365504">"Añade un sensor"</string>
     <string name="snackbar_source_error" msgid="488480213360860471">"Error al conectarse a esta fuente: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
     <string name="action_retry" msgid="3145700667339813916">"Volver a intentar"</string>
     <string name="decibel" msgid="2567269521573545643">"Intensidad acústica"</string>
@@ -91,7 +90,7 @@
     <string name="elapsed_time_axis_format_large" msgid="5693537324927532690">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_small_tenths" msgid="4091017607656155791">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>,<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large_tenths" msgid="3013544179502005785">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>,<xliff:g id="TENTHS">%1d</xliff:g>"</string>
-    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>."</string>
     <string name="picture_note_description" msgid="6443481127492010185">"Imagen del ensayo"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"Vista previa de la nota de imagen"</string>
     <string name="navigation_item_observe" msgid="8558454737213940045">"Observar"</string>
@@ -100,7 +99,7 @@
     <string name="navigation_item_settings" msgid="2126253880412012953">"Ajustes"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"Opciones de prueba"</string>
     <string name="title_activity_main" msgid="7023325446656975223">"Science Journal: <xliff:g id="SECTION">%s</xliff:g>"</string>
-    <string name="title_activity_add_sensor" msgid="1432724804471397682">"Dispositivos externos"</string>
+    <string name="title_activity_sensor_settings" msgid="1784553345261037389">"Ajustes del sensor"</string>
     <string name="external_devices_paired" msgid="4167288049155302614">"Dispositivos emparejados"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"Emparejando…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"Dispositivos disponibles"</string>
@@ -139,8 +138,7 @@
     <string name="export_run_chooser_title" msgid="3151522898296393519">"Guardar en…"</string>
     <string name="settings_version_title" msgid="6926476057478648092">"Versión"</string>
     <string name="settings_replay_tutorial_title" msgid="6935249461039953640">"Tutorial"</string>
-    <string name="settings_open_source_title" msgid="2075335777151654751">"Licencias de software libre"</string>
-    <string name="dev_sensors_title" msgid="56483495191187216">"Habilitar sensores experimentales"</string>
+    <string name="settings_open_source_title" msgid="2075335777151654751">"Licencias de código abierto"</string>
     <string name="cannot_scan_message" msgid="5736974833739008592">"Si quieres acceder a los dispositivos externos (\"sensores de Science Journal\") mediante Science Journal, primero debes activar el Bluetooth. Para detectar los sensores de Science Journal, debes permitir a Android acceder a tu ubicación, ya que otros dispositivos Bluetooth pueden transmitir su información de ubicación durante el proceso de detección. Sin embargo, Science Journal no almacenará ni utilizará esta información, y los sensores de Science Journal no la transmitirán."</string>
     <string name="btn_request_location" msgid="307169020767649663">"Activar el acceso a la ubicación"</string>
     <string name="btn_enable_bluetooth" msgid="4110230448360114456">"Activar Bluetooth"</string>
@@ -151,6 +149,7 @@
     <string name="archived_project_message" msgid="66153039940455913">"Proyecto archivado."</string>
     <string name="unarchived_project_message" msgid="8018113308137052929">"El proyecto se ha trasladado fuera del archivo."</string>
     <string name="action_undo" msgid="1852278327756791797">"Deshacer"</string>
+    <string name="deleted_project_message" msgid="1227635187612669144">"Se ha eliminado el proyecto."</string>
     <string name="project_title_hint" msgid="5788484729941933289">"Título del proyecto"</string>
     <string name="project_problem_hint" msgid="4818690816549079105">"Descripción"</string>
     <string name="project_cover_description" msgid="8583694225708356859">"Elegir una foto para el proyecto"</string>
@@ -164,7 +163,6 @@
     <string name="unarchived_experiment_message" msgid="7870126733421916514">"El experimento se ha trasladado fuera del archivo."</string>
     <string name="archived_run_message" msgid="8346607350306633655">"Se ha archivado el ensayo."</string>
     <string name="unarchived_run_message" msgid="3807535396227509421">"Se ha desarchivado el ensayo."</string>
-    <string name="experiments_toolbar_title" msgid="6963959917416270680">"Experimentos"</string>
     <string name="archived_content_description" msgid="7931247623909344339">"<xliff:g id="ITEM">%1s</xliff:g> (archivado)"</string>
     <plurals name="experiment_run_count" formatted="false" msgid="1283784154893798777">
       <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> ensayos</item>
@@ -193,33 +191,27 @@
     <string name="frequency_window_option_label" msgid="4919436041479250367">"Intervalo de frecuencia (en ms)"</string>
     <string name="frequency_filter_option_label" msgid="4458966053132937293">"Filtro de frecuencia (en la unidad del sensor)"</string>
     <string name="enable_frequency_checkbox_label" msgid="2922864218507547240">"Mostrar frecuencia"</string>
-    <string name="dev_sensors_summary" msgid="7086328959529574660">"Mostrar los sensores que solo se usan para las pruebas de desarrolladores"</string>
     <string name="options_save_error" msgid="1262808099812151932">"Error al guardar opciones"</string>
     <string name="options_load_error" msgid="1594503728021930743">"Error al cargar opciones"</string>
     <string name="dev_tools_title" msgid="8231917267495770691">"Habilitar herramientas experimentales"</string>
     <string name="dev_tools_summary" msgid="3609685547301741618">"Mostrar las herramientas que solo se usan para las pruebas de desarrolladores"</string>
     <string name="dev_tools_leak_detection_title" msgid="4725525693236520974">"Habilitar la detección de fugas de memoria"</string>
-    <string name="dev_tools_leak_detection_summary" msgid="9019022238189456899">"Los cambios en este ajuste se aplicarán después de cerrar la aplicación."</string>
-    <string name="d2p" msgid="372033271119706811">"Predeterminado"</string>
-    <string name="d2a" msgid="8650862124682156354">"Amplitud"</string>
-    <string name="d2pe" msgid="956618657669378971">"Notas"</string>
-    <string name="d2ps" msgid="5114174025939101366">"Escala"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="7171148788144095285">"Los cambios en este ajuste se aplicarán después de cerrar la aplicación."</string>
+    <string name="default_sonification" msgid="9006778853276983156">"Predeterminado"</string>
+    <string name="amplitude" msgid="2540241901091313524">"Amplitud"</string>
+    <string name="notes" msgid="3276297280118435135">"Notas"</string>
+    <string name="scale" msgid="8822139987400974369">"Escala"</string>
+    <string name="conductor" msgid="9193425673241449589">"Conductor"</string>
     <!-- no translation found for sonification_types_prod:0 (3254769575914104850) -->
     <!-- no translation found for sonification_types_prod:1 (1831413879274006078) -->
     <!-- no translation found for sonification_types_prod:2 (1917376169281831239) -->
+    <!-- no translation found for sonification_types_prod:3 (602550002110522910) -->
     <!-- no translation found for sonification_types_dev:0 (7417644575217300390) -->
-  <string-array name="sonification_type_aliases">
-    <item msgid="234968762840479178">"d2p"</item>
-    <item msgid="6154566816995872686">"d2ps"</item>
-    <item msgid="2062530924507614569">"d2pe"</item>
-    <item msgid="72378471312023144">"d2a"</item>
-  </string-array>
     <string name="new_experiment_spinner_item" msgid="5017810476745425374">"Nuevo experimento…"</string>
     <string name="recording_title_label" msgid="736399431431816185">"Grabando…"</string>
-    <string name="exp_edit_info_button" msgid="3141909000709306124">"Editar información"</string>
     <string name="btn_observe_content_description" msgid="476911391550333702">"Observar"</string>
     <string name="title_activity_experiment_details" msgid="3494340558031776911">"Detalles del experimento"</string>
-    <string name="empty_runs" msgid="7548505071633993347">"No hay ningún ensayo"</string>
+    <string name="empty_experiment" msgid="6142475501762739386">"No hay ningún ensayo o nota en este experimento."</string>
     <string name="permission_request_write" msgid="6590731147363977582">"Es necesario tener permiso de escritura en el almacenamiento externo."</string>
     <string name="device_options_sensor_label_text" msgid="5073336029128358977">"Sensor"</string>
     <string name="external_sensor_appearance_name" msgid="6419268671149879170">"<xliff:g id="SENSOR_NAME">%s</xliff:g>: <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
@@ -231,7 +223,6 @@
     <string name="device_options_custom_sensor_pin_label_text" msgid="7023371657105134847">"Pin"</string>
     <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="4571472391388122413">"Frecuencia"</string>
     <string name="feedback_error_message" msgid="3117491109292317255">"No se han podido enviar las sugerencias."</string>
-    <string name="no_sensor_info_found" msgid="2182109795740683658">"Este sensor no tiene información adicional."</string>
     <string name="sensor_desc_short_acc_x" msgid="1184579399689940361">"Aceleración del teléfono hacia la derecha y la izquierda, en m/s²"</string>
     <string name="sensor_desc_short_acc_y" msgid="7084492489358508838">"Aceleración del teléfono hacia delante y atrás, en m/s²"</string>
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"Aceleración del teléfono hacia arriba y abajo, en m/s²"</string>
@@ -241,6 +232,7 @@
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"Aquí muestra sus datos un sensor externo, en función de la configuración personalizada."</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"Número de rotaciones por minuto."</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"Porcentaje de lectura sin procesar de un sensor externo."</string>
+    <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"Presión atmosférica en hectopascales (hPa)."</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"El sensor de luz ambiental mide la luz en luxes, una medida de iluminación que depende de la cantidad de luz que entra y la superficie por la que se extiende. \n\nLa luna llena irradia cerca de un 1 lux de iluminación; un salón iluminado con lámparas normales, 50 luxes; la iluminación de un aula, así como el atardecer y el amanecer, unos 400 luxes; la luz del Sol indirecta, más de 10.000 luxes, y la luz del Sol directa, más de 30.000 luxes. \n\nEl lux es una unidad de medida no muy conocida. Cuando compramos bombillas, solemos hacerlo pensando en vatios, pero la potencia eléctrica no nos dice cuánto brilla, sino cuánta energía utiliza. Los lúmenes son una medida más útil cuando compramos bombillas, ya que nos indican cuánta luz emiten realmente. El lux, en cambio, señala la cantidad de luz que llega a una zona concreta."</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"Como la luz se dispersa a medida que viaja por el espacio, el número de luxes disminuye conforme te alejas de una fuente de luz, a pesar de que dicha fuente sigue emitiendo la misma cantidad de luz en lúmenes. Si una superficie está oblicua con respecto a la fuente de luz, también recibe menos iluminación. Y ese es el motivo por el que las regiones ecuatoriales de la Tierra son mucho más cálidas que los gélidos polos. \n\nPor cierto, el objetivo del sensor de luz de tu teléfono es controlar el nivel de iluminación de la pantalla, que se ajusta en función de lo tenue o luminoso que sea el entorno. Dentro del sensor de luz, hay un diminuto semiconductor que reacciona a la luz produciendo una corriente eléctrica pequeña pero medible. Este fenómeno se conoce como efecto fotoeléctrico. Se emplean sensores similares en algunas farolas para que se enciendan cuando comienza a oscurecer."</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"Los objetos que están quietos tienden a quedarse como están, y los que están en movimiento tienden a seguir moviéndose. A esto lo llamamos inercia. La primera ley de Newton lo explica de manera más formal: un objeto continúa en su estado de reposo o de movimiento a menos que actúe sobre él una fuerza no equilibrada. \n\nCuando una fuerza no equilibrada hace que se mueva un objeto, decimos que el objeto se acelera, es decir, que su velocidad varía; puede que se acelere, que frene o que cambie de dirección. La aceleración se mide como un cambio de la velocidad (metros por segundo) en el tiempo, o metros por segundo al cuadrado (m/s²). \n\nTu teléfono tiene un dispositivo que mide estos cambios en el movimiento: un acelerómetro. Dentro de él se mueven libremente pequeñas masas suspendidas. Los cambios en el movimiento hacen que estas masas se desplacen, igual que tu cabeza se inclina hacia delante cuando vas en coche y da un frenazo. Al medir estas oscilaciones provocadas por la inercia, el acelerómetro del teléfono puede detectar los cambios en el movimiento y la orientación. Esto sirve para cambiar el modo de la pantalla de horizontal a vertical, para jugar a videojuegos, etc."</string>
@@ -253,6 +245,8 @@
     <string name="sensor_desc_second_paragraph_raw" msgid="2081830388555382169">"Bluetooth es un estándar de tecnología inalámbrica que emplea ondas de radio para intercambiar datos en distancias cortas desde dispositivos móviles y fijos."</string>
     <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"Los datos que se muestran aquí proceden de la comunicación de un sensor externo con tu teléfono a través de Bluetooth."</string>
     <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"Bluetooth es un estándar de tecnología inalámbrica que emplea ondas de radio para intercambiar datos en distancias cortas desde dispositivos móviles y fijos."</string>
+    <string name="sensor_desc_first_paragraph_barometer" msgid="2813905499808374316">"No lo notamos, pero todos nosotros vivimos en las profundidades de un enorme océano de aire: la atmósfera terrestre, que tiene una altitud de 40 kilómetros (130.000 pies). El peso de todo este aire que cae sobre nosotros genera lo que se conoce como presión atmosférica. \n\nA nivel del mar, dicha presión ejerce una fuerza de 6,35 kilos por cada 6,45 centímetros cuadrados. En otras palabras, en la superficie de un folio ejerce una fuerza de 590 kilos."</string>
+    <string name="sensor_desc_second_paragraph_barometer" msgid="4975611576005615149">"No notamos esta presión aplastante porque ya estamos acostumbrados a ella. Sí la percibimos cuando varía, aunque sea levemente. Por ejemplo, cuando nos montamos en un avión o nos encontramos a gran altura. La presión atmosférica también varía en función de las condiciones meteorológicas: se reduce cuando hay tormenta o el aire es inestable, pero aumenta cuando el aire se estabiliza y el cielo se despeja. \n\nEl barómetro digital del teléfono mide la presión atmosférica en hectopascales (un pascal es la presión que ejerce una fuerza de 1 newton sobre una superficie de 1 metro cuadrado y 1 hectopascal equivale a 100 pascales). Como sabrás, los meteorólogos miden la presión atmosférica en milibares. Se trata de una unidad más conocida y es equivalente al hectopascal. \n\nQuizás te preguntes por qué existen teléfonos que son capaces de medir la presión atmosférica. Dicha presión varía enormemente incluso con los pequeños cambios de elevación (por ejemplo, cuando subes por unas escaleras). Por lo tanto, los barómetros digitales de los teléfonos sirven para detectar cambios de ubicación y te permiten saber en qué planta del edificio te encuentras o si conduces por la parte superior o inferior de un puente."</string>
     <string name="run_review_duration" msgid="1978235455271606762">"Duración"</string>
     <string name="run_review_activity_label" msgid="5646135462344737004">"Revisión"</string>
     <string name="service_notification_content_title" msgid="791621361781451323">"Science Journal"</string>
@@ -263,9 +257,8 @@
     <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"cambiar al modo de información"</string>
     <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"cambiar al modo de gráfico"</string>
     <string name="sensor_tab_layout_content_description" msgid="3807243095823040361">"sensores disponibles"</string>
-    <string name="sensor_tab_selected_format" msgid="2686213304137352967">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (seleccionado)"</string>
     <string name="title_activity_sensor_info" msgid="8667402055779114709">"Información del sensor"</string>
-    <string name="title_activity_sensor_info_format" msgid="4810933938741070862">"Sensor <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="title_activity_sensor_info_format" msgid="4284132895191711797">"Sensor <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="heading_info_section" msgid="8939391891795009974">"¿Qué es esto?"</string>
     <string name="edit_note_menu_item" msgid="8530099824744920575">"Editar"</string>
     <string name="edit_note_time" msgid="5307388665454994755">"Editar hora de la nota"</string>
@@ -292,6 +285,10 @@
     <string name="archived_badge" msgid="6068366174702659773">"Archivado"</string>
     <string name="action_include_archived_projects" msgid="7075034155088762601">"Incluir proyectos archivados"</string>
     <string name="action_include_archived_experiments" msgid="9179328397501796497">"Incluir experimentos archivados"</string>
+    <string name="delete_project_dialog_title" msgid="7681697983255312708">"¿Eliminar este proyecto?"</string>
+    <string name="delete_project_dialog_message" msgid="3039092965074898348">"¿Seguro que quieres eliminar este proyecto? Se borrarán todos los experimentos, ensayos y notas. Esta acción no se puede deshacer."</string>
+    <string name="delete_experiment_dialog_title" msgid="522221451175758058">"¿Eliminar este experimento?"</string>
+    <string name="delete_experiment_dialog_message" msgid="8055334758058363747">"¿Seguro que quieres eliminar este experimento? Se borrarán todos los ensayos y notas. Esta acción no se puede deshacer."</string>
     <string name="action_new_experiment" msgid="5987527361707254638">"Nuevo experimento"</string>
     <string name="delete_run_dialog_title" msgid="3841579587741640965">"¿Eliminar este ensayo?"</string>
     <string name="run_review_delete_confirm" msgid="1608962272042732123">"¿Seguro que quieres eliminar este ensayo? Se eliminarán las notas y los datos registrados. Esta acción no se puede deshacer."</string>
@@ -318,7 +315,6 @@
     <string name="graph_loading" msgid="1102165995961515949">"Cargando gráfico…"</string>
     <string name="playback_button_pause" msgid="348710889337495167">"pausar reproducción de audio"</string>
     <string name="playback_button_play" msgid="3845595255478520691">"iniciar reproducción de audio"</string>
-    <string name="sonification_type_card_title" msgid="7998122361918330347">"Tipo de sonificación para desarrolladores"</string>
     <string name="dev_sonification_types_title" msgid="8470117255317834775">"Habilitar tipos de sonificación para desarrolladores"</string>
     <string name="title_edit_trial_activity" msgid="2639088409396156730">"Editar ensayo"</string>
     <string name="edit_trial_title_hint" msgid="2537511526292819270">"Título del ensayo"</string>
@@ -327,18 +323,12 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Añade un título"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Experimenta con tu entorno."</string>
-    <string name="listing_changelog" msgid="1272605515497326900">"Novedades y mejoras: \n• Posibilidad de añadir pies de foto a las notas con formato de imagen. \n• Ajustes de audio para sonificar datos. \n• Mejoras de rendimiento en ensayos de larga duración. \n• Corrección de errores."</string>
+    <string name="listing_changelog" msgid="5791385044176273701">"Nuevas funciones y mejoras: \n• Activadores de sensores: define alertas, crea notas para iniciar o parar una grabación cuando se cumplan los valores del sensor específicos. Accede a estas funciones en el menú de tarjeta del sensor. \n• Borra ensayos, ejecuciones y experimentos archivados. \n• Compatible con el sensor del barómetro. \n• Science Journal admite ahora más tipos de sensores externos. Más información: https://makingscience.withgoogle.com/science-journal/materials. \n• Correcciones de errores."</string>
     <string name="listing__description" msgid="3975515995792990185">"Science Journal es una herramienta para hacer experimentos con el smartphone. Puedes usar los sensores del teléfono o conectarlo a sensores externos para hacer experimentos con el mundo que te rodea. Organiza tus ideas en proyectos, haz predicciones de qué ocurrirá, toma notas y recoge los datos de varios ensayos. Luego, apunta los resultados y obsérvalos. Science Journal es el cuaderno de laboratorio que siempre llevas contigo. \n\n \n¿Quieres ver algunas ideas de actividades que puedes hacer con la aplicación? Las tienes en esta página: https://makingscience.withgoogle.com/science-journal/activities \nObtén más información sobre Making &amp; Science en https://makingscience.withgoogle.com \nSi necesitas ayuda, ve a https://productforums.google.com/forum/#!forum/sciencejournal \nAccede al código disponible en https://github.com/google/science-journal"</string>
-    <string name="live_zoom_type_option_title" msgid="6184011805342339557">"Aplicar zoom automático al observar"</string>
-    <string name="live_zoom_type_option_summary" msgid="3327087952315423967">"Habilita el zoom automático en el eje Y durante la observación (cuando está fijado en el momento actual). Esta opción está inhabilitada de forma predeterminada."</string>
-    <!-- no translation found for third_party_sensors_option_title (4835603485129230503) -->
-    <skip />
-    <!-- no translation found for third_party_sensors_option_summary (2567608839882361492) -->
-    <skip />
+    <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Buscar sensores de terceros"</string>
+    <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Busca aplicaciones que sean compatibles con la API del sensor de terceros y permite que se añadan dichos sensores a los experimentos."</string>
     <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"Habilitar magnetómetro"</string>
     <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"Habilita el sensor experimental del magnetómetro"</string>
-    <string name="enable_barometer_sensor_title" msgid="4532163359473808928">"Habilitar barómetro"</string>
-    <string name="enable_barometer_sensor_summary" msgid="352316348564408931">"Habilita el sensor experimental del barómetro"</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Habilitar temperatura ambiente"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"Habilita el sensor experimental de temperatura ambiente"</string>
     <string name="enable_sine_wave_sensor_title" msgid="5361133155106781791">"Habilitar onda senoidal"</string>
@@ -353,60 +343,84 @@
     <string name="autozoom_failed" msgid="2708983116606188884">"No se ha podido ajustar la escala automática."</string>
     <string name="run_review_overflow_menu_content_description" msgid="5689925874345140909">"Más opciones"</string>
     <string name="licenses_empty" msgid="2746335366478622872">"No se ha encontrado ninguna licencia."</string>
-    <!-- no translation found for audio_enabled_format (4202071153288924614) -->
-    <skip />
-    <!-- no translation found for menu_item_set_triggers (3555868641262376254) -->
-    <skip />
-    <!-- no translation found for title_activity_trigger_list (5014690461140632120) -->
-    <skip />
-    <!-- no translation found for btn_add_new_trigger (1143389268664607859) -->
-    <skip />
-    <!-- no translation found for empty_trigger_list (238046755667717404) -->
-    <skip />
-    <!-- no translation found for title_activity_edit_trigger (2115747586987165481) -->
-    <skip />
-    <!-- no translation found for title_activity_add_trigger (9137879813992485906) -->
-    <skip />
-    <!-- no translation found for trigger_type_label (4847350415951495617) -->
-    <skip />
-    <!-- no translation found for trigger_when_label (8616405039634043612) -->
-    <skip />
-    <!-- no translation found for trigger_type_start_recording (7292105639999785968) -->
-    <skip />
-    <!-- no translation found for trigger_type_stop_recording (3022683931027310288) -->
-    <skip />
-    <!-- no translation found for trigger_type_note (626654531254636746) -->
-    <skip />
-    <!-- no translation found for trigger_type_alert (6525543144561765762) -->
-    <skip />
-    <!-- no translation found for trigger_when_at (762967868925610869) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below (149048320758854889) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above (4131024183229534708) -->
-    <skip />
-    <!-- no translation found for trigger_value_hint (6176793893724760154) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_label (2243205345376006607) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_hint (7624572723656572363) -->
-    <skip />
-    <!-- no translation found for trigger_audio_alert (3888981987994238753) -->
-    <skip />
-    <!-- no translation found for trigger_haptic_alert (4734911836763569299) -->
-    <skip />
-    <!-- no translation found for trigger_visual_alert (8191512950406497950) -->
-    <skip />
-    <!-- no translation found for cannot_save_invalid_value (2889387470051561369) -->
-    <skip />
-    <!-- no translation found for trigger_when_at_description (1004528252412424201) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above_description (9004635001846058548) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below_description (1707397407766550719) -->
-    <skip />
-    <!-- no translation found for sensor_trigger_deleted (1181819400253443424) -->
-    <skip />
-    <!-- no translation found for trigger_label_auto_text (9210831035009346407) -->
-    <skip />
+    <string name="audio_enabled_format" msgid="4202071153288924614">"<xliff:g id="SENSOR_DISPLAY_NAME">%1s</xliff:g> ♪"</string>
+    <string name="menu_item_set_triggers" msgid="3555868641262376254">"Configurar activadores"</string>
+    <string name="menu_item_edit_triggers" msgid="5719430048511669542">"Editar activadores"</string>
+    <string name="title_activity_trigger_list" msgid="2928411265364344194">"Activadores"</string>
+    <string name="title_fragment_trigger_list" msgid="4425969691529503861">"Activadores de <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="btn_add_new_trigger" msgid="1143389268664607859">"Crear activador"</string>
+    <string name="empty_trigger_list" msgid="238046755667717404">"No se ha configurado ningún activador"</string>
+    <string name="title_activity_edit_trigger" msgid="2115747586987165481">"Editar activador"</string>
+    <string name="title_fragment_edit_trigger" msgid="9141329265681138113">"Editar activador de <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="title_fragment_add_trigger" msgid="7877645218403597761">"Nuevo activador de <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="trigger_type_label" msgid="4847350415951495617">"Tipo de activador"</string>
+    <string name="trigger_when_label" msgid="8616405039634043612">"Activar cuando"</string>
+    <string name="trigger_value_label" msgid="3412972042230849085">"Valor del activador"</string>
+    <string name="trigger_type_start_recording" msgid="7292105639999785968">"Empezar a grabar"</string>
+    <string name="trigger_type_stop_recording" msgid="3022683931027310288">"Parar de grabar"</string>
+    <string name="trigger_type_note" msgid="626654531254636746">"Crear una nota"</string>
+    <string name="trigger_type_alert" msgid="6525543144561765762">"Crear alertas"</string>
+    <string name="trigger_when_at" msgid="762967868925610869">"Se detecten"</string>
+    <string name="trigger_when_drops_below" msgid="149048320758854889">"Detecte menos de"</string>
+    <string name="trigger_when_rises_above" msgid="4131024183229534708">"Detecte más de"</string>
+    <string name="trigger_when_is_below" msgid="8270111951353483145">"Detecte menos de"</string>
+    <string name="trigger_when_is_above" msgid="1839678217244657667">"Detecte más de"</string>
+    <string name="trigger_value_hint" msgid="6176793893724760154">"Valor"</string>
+    <string name="trigger_note_text_label" msgid="2243205345376006607">"Texto de nota predeterminado"</string>
+    <string name="trigger_note_text_hint" msgid="7624572723656572363">"¿Qué quieres que aparezca en la nota?"</string>
+    <string name="trigger_audio_alert" msgid="7125606348399123076">"Sonido"</string>
+    <string name="trigger_haptic_alert" msgid="9173126487427899717">"Vibración"</string>
+    <string name="trigger_visual_alert" msgid="3137431533902715114">"Notificación visual"</string>
+    <string name="cannot_save_invalid_value" msgid="2889387470051561369">"Debes introducir el valor numérico a partir del cual se iniciará el activador."</string>
+    <string name="trigger_when_at_description" msgid="6704567729507492002">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> cuando se detecten <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_rises_above_description" msgid="8089893226169256044">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> detecte más de <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_drops_below_description" msgid="5435046961646187734">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> cuando detecte menos de <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_above_description" msgid="8754842709321803028">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> cuando el sensor detecte más de <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_below_description" msgid="1917050957970325724">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> cuando el sensor detecte menos de <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="sensor_trigger_deleted" msgid="1181819400253443424">"Se ha eliminado el activador"</string>
+    <!-- no translation found for trigger_type_list:0 (2965441322551479563) -->
+    <!-- no translation found for trigger_type_list:1 (2546936807241604853) -->
+    <!-- no translation found for trigger_type_list:2 (8989734094411396978) -->
+    <!-- no translation found for trigger_type_list:3 (3361617139415647084) -->
+    <!-- no translation found for trigger_when_list:0 (4808925283875227158) -->
+    <!-- no translation found for trigger_when_list:1 (982481841992075984) -->
+    <!-- no translation found for trigger_when_list:2 (795907252258650657) -->
+    <!-- no translation found for trigger_when_list:3 (486995679981577062) -->
+    <!-- no translation found for trigger_when_list:4 (3226257072675412338) -->
+  <string-array name="trigger_when_list_note_text">
+    <item msgid="7778784440115654134">"a"</item>
+    <item msgid="5362437948357000880">"ha superado los"</item>
+    <item msgid="96408841538247555">"ha descendido por debajo de"</item>
+    <item msgid="5929079391002165627">"supere los"</item>
+    <item msgid="2421726237024232431">"esté por debajo de"</item>
+  </string-array>
+    <string name="trigger_only_when_recording" msgid="2102420075414851575">"Activar únicamente al grabar"</string>
+    <string name="trigger_label_auto_text" msgid="7238124210986703642">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="trigger_label_icon_content_description" msgid="4567123930201934477">"Nota del activador: <xliff:g id="TRIGGER_DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="trigger_snackbar_auto_text" msgid="1082338857442085741">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="scroll_to_card" msgid="4531288548260633064">"mostrar"</string>
+    <string name="could_not_find_service_error" msgid="6399923176664381124">"No se ha podido encontrar el servicio: <xliff:g id="SERVICE_ID">%s</xliff:g>"</string>
+    <string name="recording_stopped_notification_text" msgid="2700948290649435580">"Se ha completado la grabación."</string>
+    <string name="disable_all_triggers" msgid="4207192080361552008">"Inhabilitar activadores"</string>
+    <string name="trigger_view_icon_content_description" msgid="468973450644969062">"activadores"</string>
+    <string name="alert_trigger_needs_alerts" msgid="9046346885115277889">"Error: Debes seleccionar al menos un tipo de alerta para este activador."</string>
+    <string name="trigger_fired_text" msgid="8122555560445417775">"Activador habilitado"</string>
+    <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"principio del recorte: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"final del recorte: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_failed_message" msgid="8583818349156861745">"No se ha podido guardar el recorte."</string>
+    <string name="crop_completed_message" msgid="2902081668922934393">"El ensayo se ha recortado"</string>
+    <string name="launch_settings" msgid="2712101939691138420">"Abrir configuración"</string>
+    <string name="trigger_alert_prompt" msgid="7548827088664791710">"Tipo de alerta"</string>
+    <string name="my_devices" msgid="2753935122366940731">"Mis dispositivos"</string>
+    <string name="available_devices" msgid="5671327872447270316">"Dispositivos disponibles"</string>
+    <string name="api_connection_timeout_error" msgid="2767327583360399345">"Tiempo de espera de conexión"</string>
+    <string name="btn_expand_device" msgid="5065622950345958436">"Mostrar sensores del dispositivo"</string>
+    <string name="btn_contract_device" msgid="1075694686012045562">"Ocultar sensores del dispositivo"</string>
+    <string name="select_sensors" msgid="7242531205153688282">"Selecciona los sensores que vas a utilizar en <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
+    <string name="phone_sensors" msgid="1093110931724349906">"Sensores internos"</string>
+    <string name="rename_device" msgid="6177379501609319531">"Cambiar nombre del dispositivo"</string>
+    <string name="forget_device" msgid="7258019924047721349">"Olvidar este dispositivo"</string>
+    <string name="device_settings" msgid="5076827559934591801">"Ajustes del dispositivo"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"Añadir sensor al experimento"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"Quitar sensor del experimento"</string>
 </resources>

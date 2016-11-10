@@ -48,11 +48,10 @@
     <string name="rpm_units" msgid="2651871280948091901">"r/min"</string>
     <string name="voltage_units" msgid="598716668433769220">"V"</string>
     <string name="raw_units" msgid="4501311675565391535">"%"</string>
-    <string name="barometer_units" msgid="8404848712372029263">"mbar"</string>
+    <string name="barometer_units" msgid="5606531967130926197">"hPa"</string>
     <string name="temperature_units" msgid="6865637706924726630">"°C"</string>
     <string name="header_name_and_units" msgid="2085988560798053543">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="5584369034749538544">"Uppgifter om experimentet"</string>
-    <string name="add_sensor" msgid="7637499411634365504">"Lägg till sensor"</string>
     <string name="snackbar_source_error" msgid="488480213360860471">"Det gick inte att ansluta till källan: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
     <string name="action_retry" msgid="3145700667339813916">"Försök igen"</string>
     <string name="decibel" msgid="2567269521573545643">"Ljudstyrka"</string>
@@ -91,7 +90,7 @@
     <string name="elapsed_time_axis_format_large" msgid="5693537324927532690">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_small_tenths" msgid="4091017607656155791">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large_tenths" msgid="3013544179502005785">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
-    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>."</string>
     <string name="picture_note_description" msgid="6443481127492010185">"Bild från försök"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"Förhandsgranska bildanteckning"</string>
     <string name="navigation_item_observe" msgid="8558454737213940045">"Observera"</string>
@@ -100,7 +99,7 @@
     <string name="navigation_item_settings" msgid="2126253880412012953">"Inställningar"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"Testalternativ"</string>
     <string name="title_activity_main" msgid="7023325446656975223">"Science Journal – <xliff:g id="SECTION">%s</xliff:g>"</string>
-    <string name="title_activity_add_sensor" msgid="1432724804471397682">"Externa enheter"</string>
+    <string name="title_activity_sensor_settings" msgid="1784553345261037389">"Sensorinställningar"</string>
     <string name="external_devices_paired" msgid="4167288049155302614">"Kopplade enheter"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"Kopplar …"</string>
     <string name="external_devices_available" msgid="720745596048662241">"Tillgängliga enheter"</string>
@@ -140,7 +139,6 @@
     <string name="settings_version_title" msgid="6926476057478648092">"Version"</string>
     <string name="settings_replay_tutorial_title" msgid="6935249461039953640">"Handledning"</string>
     <string name="settings_open_source_title" msgid="2075335777151654751">"Licenser för öppen källkod"</string>
-    <string name="dev_sensors_title" msgid="56483495191187216">"Aktivera experimentsensorer"</string>
     <string name="cannot_scan_message" msgid="5736974833739008592">"För att komma åt externa enheter (Science Journal-sensorer) med Science Journal måste Bluetooth först aktiveras. Om du vill identifiera Science Journal-sensorer kräver Android-enheten att du tillåter åtkomst till din plats eftersom andra Bluetooth-enheter kan sända sin platsinformation under enhetsidentifieringen. Din platsinformation sparas dock inte i Science Journal och Science Journal-sensorerna sänder ingen platsinformation."</string>
     <string name="btn_request_location" msgid="307169020767649663">"Aktivera platsåtkomst"</string>
     <string name="btn_enable_bluetooth" msgid="4110230448360114456">"Aktivera Bluetooth"</string>
@@ -151,6 +149,7 @@
     <string name="archived_project_message" msgid="66153039940455913">"Projektet har arkiverats."</string>
     <string name="unarchived_project_message" msgid="8018113308137052929">"Projektet har flyttats ut från arkivet."</string>
     <string name="action_undo" msgid="1852278327756791797">"Ångra"</string>
+    <string name="deleted_project_message" msgid="1227635187612669144">"Projektet har tagits bort."</string>
     <string name="project_title_hint" msgid="5788484729941933289">"Projektets namn"</string>
     <string name="project_problem_hint" msgid="4818690816549079105">"Beskrivning"</string>
     <string name="project_cover_description" msgid="8583694225708356859">"Välj en projektbild"</string>
@@ -164,7 +163,6 @@
     <string name="unarchived_experiment_message" msgid="7870126733421916514">"Experimentet har flyttats ut från arkivet."</string>
     <string name="archived_run_message" msgid="8346607350306633655">"Försöket arkiverades"</string>
     <string name="unarchived_run_message" msgid="3807535396227509421">"Försöket togs bort från arkivet."</string>
-    <string name="experiments_toolbar_title" msgid="6963959917416270680">"Experiment"</string>
     <string name="archived_content_description" msgid="7931247623909344339">"<xliff:g id="ITEM">%1s</xliff:g> (arkiverat)"</string>
     <plurals name="experiment_run_count" formatted="false" msgid="1283784154893798777">
       <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> försök</item>
@@ -193,33 +191,27 @@
     <string name="frequency_window_option_label" msgid="4919436041479250367">"Frekvensfönster (i millisekund)"</string>
     <string name="frequency_filter_option_label" msgid="4458966053132937293">"Frekvensfilter (i sensorenheter)"</string>
     <string name="enable_frequency_checkbox_label" msgid="2922864218507547240">"Visa frekvens"</string>
-    <string name="dev_sensors_summary" msgid="7086328959529574660">"Visa testsensorer som endast är tillgängliga för utvecklare"</string>
     <string name="options_save_error" msgid="1262808099812151932">"Det gick inte att spara alternativ"</string>
     <string name="options_load_error" msgid="1594503728021930743">"Det gick inte att läsa in alternativ"</string>
     <string name="dev_tools_title" msgid="8231917267495770691">"Aktivera experimentverktyg"</string>
     <string name="dev_tools_summary" msgid="3609685547301741618">"Visa testverktyg som endast är tillgängliga för utvecklare"</string>
     <string name="dev_tools_leak_detection_title" msgid="4725525693236520974">"Aktivera identifiering av minnesläckor"</string>
-    <string name="dev_tools_leak_detection_summary" msgid="9019022238189456899">"Ändringar av den här inställningen verkställs när appen stängs."</string>
-    <string name="d2p" msgid="372033271119706811">"Standard"</string>
-    <string name="d2a" msgid="8650862124682156354">"Amplitud"</string>
-    <string name="d2pe" msgid="956618657669378971">"Toner"</string>
-    <string name="d2ps" msgid="5114174025939101366">"Skaländra"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="7171148788144095285">"Ändringar av den här inställningen verkställs när appen stängs."</string>
+    <string name="default_sonification" msgid="9006778853276983156">"Standard"</string>
+    <string name="amplitude" msgid="2540241901091313524">"Amplitud"</string>
+    <string name="notes" msgid="3276297280118435135">"Anteckningar"</string>
+    <string name="scale" msgid="8822139987400974369">"Skaländra"</string>
+    <string name="conductor" msgid="9193425673241449589">"Ledare"</string>
     <!-- no translation found for sonification_types_prod:0 (3254769575914104850) -->
     <!-- no translation found for sonification_types_prod:1 (1831413879274006078) -->
     <!-- no translation found for sonification_types_prod:2 (1917376169281831239) -->
+    <!-- no translation found for sonification_types_prod:3 (602550002110522910) -->
     <!-- no translation found for sonification_types_dev:0 (7417644575217300390) -->
-  <string-array name="sonification_type_aliases">
-    <item msgid="234968762840479178">"d2p"</item>
-    <item msgid="6154566816995872686">"d2ps"</item>
-    <item msgid="2062530924507614569">"d2pe"</item>
-    <item msgid="72378471312023144">"d2a"</item>
-  </string-array>
     <string name="new_experiment_spinner_item" msgid="5017810476745425374">"Nytt experiment …"</string>
     <string name="recording_title_label" msgid="736399431431816185">"Spelar in ..."</string>
-    <string name="exp_edit_info_button" msgid="3141909000709306124">"Redigera information"</string>
     <string name="btn_observe_content_description" msgid="476911391550333702">"Observera"</string>
     <string name="title_activity_experiment_details" msgid="3494340558031776911">"Uppgifter om experimentet"</string>
-    <string name="empty_runs" msgid="7548505071633993347">"Du har inga försök"</string>
+    <string name="empty_experiment" msgid="6142475501762739386">"Experimentet har inga försök eller anteckningar."</string>
     <string name="permission_request_write" msgid="6590731147363977582">"Behörighet krävs för att skriva till extern lagring."</string>
     <string name="device_options_sensor_label_text" msgid="5073336029128358977">"Sensor"</string>
     <string name="external_sensor_appearance_name" msgid="6419268671149879170">"<xliff:g id="SENSOR_NAME">%s</xliff:g> – <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
@@ -231,7 +223,6 @@
     <string name="device_options_custom_sensor_pin_label_text" msgid="7023371657105134847">"Port"</string>
     <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="4571472391388122413">"Frekvens"</string>
     <string name="feedback_error_message" msgid="3117491109292317255">"Det gick inte att skicka feedback."</string>
-    <string name="no_sensor_info_found" msgid="2182109795740683658">"Det finns ingen ytterligare information för den här sensorn."</string>
     <string name="sensor_desc_short_acc_x" msgid="1184579399689940361">"Telefonens acceleration till vänster och höger i m/s²"</string>
     <string name="sensor_desc_short_acc_y" msgid="7084492489358508838">"Telefonens acceleration framåt och bakåt i m/s²"</string>
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"Telefonens acceleration uppåt och nedåt i m/s²"</string>
@@ -241,6 +232,7 @@
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"Här visas data från en extern sensor, baserat på anpassade inställningar."</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"Antalet varv per minut"</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"Procentandelen obearbetad avläsning från en extern sensor."</string>
+    <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"Atmosfärstrycket mätt i hektopascal (hPa)."</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"Sensorn för omgivningsljus mäter ljuset i lux. Det här måttet baseras på den ljusmängd som når sensorn och vilken yta det sprids över. \n\nVid fullmåne är ljusmängden ungefär 1 lux, i ett vanligt rum upplyst med lampor är ljusmängden ungefär 50 lux, klassrumsbelysning, soluppgång och solnedgång mäter ungefär 400 lux, dagsljus (indirekt solljus) mäter över 10 000 lux, och direkt solljus över 30 000 lux. \n\nLux är ett mått som de flesta av oss inte känner till. När vi köper glödlampor väljer vi lampa efter watt. Men en glödlampas watt säger inget om hur ljusstark den är, bara hur mycket energi den förbrukar. Lumen är ett bättre mått att titta på för glödlampor eftersom det indikerar hur mycket ljus en glödlampa genererar. Lux visar däremot hur mycket av det ljuset som når ett visst område."</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"Ljus sprids ut när det färdas och luxtalet minskar också i takt med att du befinner dig längre från ljuskällan, även om ljuskällans styrka håller samma lumen. Områden som finns i en vinklad position från ljuskällan får också mindre ljus. Tänk bara på hur mycket varmare det är runt ekvatorn än vid polerna. \n\nSyftet med ljussensorn i din telefon är att kontrollera skärmens ljusstyrka, som justeras efter omgivningens svagare och starkare ljus. Inuti ljussensorn finns en liten halvledare som reagerar på inkommande ljus genom att generera en liten mätbar elektrisk ström. Detta kallas fotoelektrisk effekt. Liknande sensorer används till exempel i gatubelysning så att lamporna tänds när det blir mörkt ute."</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"Föremål förblir i vila eller så fortsätter de att röra på sig om de har satts i rörelse. Vi kallar detta tröghetslagen. I Newtons första lag uttrycks det så här: Varje kropp förblir i sitt tillstånd av vila eller likformig och rätlinjig rörelse, om den inte påverkas av någon kraft. \n\nNär en kraft påverkar ett föremål så att det rör sig säger vi att det accelererar. Dess hastighet ändras antingen genom att öka eller minska, eller ändra riktning. Acceleration mäts som hastighetsändring (meter per sekund) över tid, eller meter per sekundkvadrat (m/s²). \n\nI din telefon ingår en så kallad accelerometer för att mäta de här rörelseändringarna. Inuti en accelerometer finns små tyngder som rör sig fritt. Vid rörelseändringar rör sig även dessa tyngder, ungefär som när ditt huvud rör sig framåt om du sitter i en bil som plötsligt bromsar in. Genom att mäta sådana subtila rörelseändringar, känner telefonens accelerometer av ändringar i rörelse och riktning. Detta är viktigt för att du ska kunna växla skärmen från liggande till stående visning, spela spel på telefonen och mycket mer."</string>
@@ -253,6 +245,8 @@
     <string name="sensor_desc_second_paragraph_raw" msgid="2081830388555382169">"Bluetooth är en trådlös standardteknik som utväxlar data via radiovågor över korta avstånd för fasta och mobila enheter."</string>
     <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"Den data som visas här kommer från Bluetooth-kommunikation mellan en extern sensor och din telefon."</string>
     <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"Bluetooth är en trådlös standardteknik som utväxlar data via radiovågor över korta avstånd för fasta och mobila enheter."</string>
+    <string name="sensor_desc_first_paragraph_barometer" msgid="2813905499808374316">"Vi märker det knappt, men vi lever på botten av ett djupt hav av luft: Jordens atmosfär, som sträcker sig 40 kilometer uppåt. Vikten av all den luft som trycker ned på oss ovanifrån skapar vad som kallas för atmosfärstryck. \n\nVid havsnivå motsvarar atmosfärstrycket 7 kg kraft per kvadrattum, vilket motsvarar cirka 600 kg på en yta lika stor som ett vanligt pappersark."</string>
+    <string name="sensor_desc_second_paragraph_barometer" msgid="4975611576005615149">"Vi lägger inte märke till det stora trycket eftersom vi är vana vid det – åtminstone inte förrän det ändras lite, som det gör på höga höjder eller när vi flyger flygplan. Atmosfärstrycket varierar också med vädret. Det sjunker när storm och ostadig luft drar in, och ökar när luften blir stabilare vid klar himmel. \n\nDen digitala barometern i telefonen mäter atmosfärstrycket i hektopascal (en hektopascal är 100 pascal, och en pascal är en kraft på en newton över en kvadratmeter). Du har säkert hört meteorologer prata om atmosfärstryck i millibar. Det är en annan enhet som motsvarar hektopascal. \n\nDu kanske undrar: Varför behöver en telefon mäta tryck? Atmosfärstrycket ändras mätbart även med små förändringar i höjd, till exempel när du går upp för en trappa. En digital barometer i telefonen kan därför hjälpa till att upptäcka din position och till exempel avgöra vilken våning i en byggnad du är på, eller om du kör på det övre eller nedre planet på en bro."</string>
     <string name="run_review_duration" msgid="1978235455271606762">"Varaktighet"</string>
     <string name="run_review_activity_label" msgid="5646135462344737004">"Granska"</string>
     <string name="service_notification_content_title" msgid="791621361781451323">"Science Journal"</string>
@@ -263,9 +257,8 @@
     <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"växla till informationsläge"</string>
     <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"växla till diagramläge"</string>
     <string name="sensor_tab_layout_content_description" msgid="3807243095823040361">"tillgängliga sensorer"</string>
-    <string name="sensor_tab_selected_format" msgid="2686213304137352967">"<xliff:g id="SENSOR_NAME">%s</xliff:g> (valt)"</string>
     <string name="title_activity_sensor_info" msgid="8667402055779114709">"Sensorinformation"</string>
-    <string name="title_activity_sensor_info_format" msgid="4810933938741070862">"Sensor för <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="title_activity_sensor_info_format" msgid="4284132895191711797">"Sensor för <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="heading_info_section" msgid="8939391891795009974">"Vad innebär det?"</string>
     <string name="edit_note_menu_item" msgid="8530099824744920575">"Redigera"</string>
     <string name="edit_note_time" msgid="5307388665454994755">"Redigera anteckningstiden"</string>
@@ -292,6 +285,10 @@
     <string name="archived_badge" msgid="6068366174702659773">"Arkiverat"</string>
     <string name="action_include_archived_projects" msgid="7075034155088762601">"Inkludera arkiverade projekt"</string>
     <string name="action_include_archived_experiments" msgid="9179328397501796497">"Inkludera arkiverade experiment"</string>
+    <string name="delete_project_dialog_title" msgid="7681697983255312708">"Ta bort det här projektet?"</string>
+    <string name="delete_project_dialog_message" msgid="3039092965074898348">"Vill du ta bort det här projektet? Alla experiment, försök och anteckningar i projektet tas bort. Det går inte att ångra åtgärden."</string>
+    <string name="delete_experiment_dialog_title" msgid="522221451175758058">"Ta bort det här experimentet?"</string>
+    <string name="delete_experiment_dialog_message" msgid="8055334758058363747">"Vill du ta bort det här experimentet? Experimentets alla försök och anteckningar kommer tas bort och det går inte att ångra åtgärden."</string>
     <string name="action_new_experiment" msgid="5987527361707254638">"Nytt experiment"</string>
     <string name="delete_run_dialog_title" msgid="3841579587741640965">"Ta bort det här försöket?"</string>
     <string name="run_review_delete_confirm" msgid="1608962272042732123">"Vill du ta bort det här försöket? Anteckningar och inspelad data kommer tas bort och det går inte att ångra åtgärden."</string>
@@ -318,7 +315,6 @@
     <string name="graph_loading" msgid="1102165995961515949">"Diagrammet läses in …"</string>
     <string name="playback_button_pause" msgid="348710889337495167">"pausa ljuduppspelning"</string>
     <string name="playback_button_play" msgid="3845595255478520691">"starta ljuduppspelning"</string>
-    <string name="sonification_type_card_title" msgid="7998122361918330347">"Ljudtyp för utvecklare"</string>
     <string name="dev_sonification_types_title" msgid="8470117255317834775">"Aktivera ljudtyper för utvecklare"</string>
     <string name="title_edit_trial_activity" msgid="2639088409396156730">"Redigera försök"</string>
     <string name="edit_trial_title_hint" msgid="2537511526292819270">"Försökets namn"</string>
@@ -327,18 +323,12 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Lägg till en bildtext"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Experimentera med omvärlden."</string>
-    <string name="listing_changelog" msgid="1272605515497326900">"Nya funktioner och förbättringar: \n• Lägg till text till bildanteckningar. \n• Ljudinställningar för sonifiering av data. \n• Prestandaförbättringar för omfattande försök. \n• Felkorrigeringar."</string>
+    <string name="listing_changelog" msgid="5791385044176273701">"Fler funktioner och förbättringar: \n• Sensorutlösare: varna, anteckna eller starta och stoppa inspelning när specifika sensorvärden nås. De finns i sensorkortets meny. \n• Ta bort arkiverade försök, experiment och körningar. \n• Lagt till stöd för barometersensorer. \n• Fler funktioner fungerar med Science Journal: visa fler typer av externa sensorer. Mer information finns på https://makingscience.withgoogle.com/science-journal/materials \n• Felkorrigeringar."</string>
     <string name="listing__description" msgid="3975515995792990185">"Science Journal är ett mobilverktyg för vetenskapliga experiment. Du kan använda telefonens egna sensorer eller ansluta externa sensorer för att utföra experiment på din omvärld. Organisera idéerna i olika projekt, formulera hypoteser, skriv anteckningar och samla in data i flera testomgångar. Sedan kan du kommentera och granska resultaten. Det är som en experimentjournal du alltid har med dig. \n\n \nFå inspiration här: https://makingscience.withgoogle.com/science-journal/activities \nLäs mer om Making &amp; Science: https://makingscience.withgoogle.com\nOm du behöver hjälp: https://productforums.google.com/forum/#!forum/sciencejournal\nKod finns på: https://github.com/google/science-journal"</string>
-    <string name="live_zoom_type_option_title" msgid="6184011805342339557">"Automatisk zoom i läget Observera."</string>
-    <string name="live_zoom_type_option_summary" msgid="3327087952315423967">"Aktivera automatisk zoom på Y-axeln i läget Observera. Som Standard är inaktiverad."</string>
-    <!-- no translation found for third_party_sensors_option_title (4835603485129230503) -->
-    <skip />
-    <!-- no translation found for third_party_sensors_option_summary (2567608839882361492) -->
-    <skip />
+    <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Sök efter sensorer från tredje part"</string>
+    <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Sök efter appar som stöder sensor-API från tredje part, och gör det möjligt att lägga till sensorerna i experiment."</string>
     <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"Aktivera magnetometer"</string>
     <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"Aktivera magnetometersensor för experiment"</string>
-    <string name="enable_barometer_sensor_title" msgid="4532163359473808928">"Aktivera barometer"</string>
-    <string name="enable_barometer_sensor_summary" msgid="352316348564408931">"Aktivera barometersensor för experiment"</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Aktivera omgivningstemperatur"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"Aktivera omgivningstemperatursensor för experiment"</string>
     <string name="enable_sine_wave_sensor_title" msgid="5361133155106781791">"Aktivera sinusvåg"</string>
@@ -353,60 +343,84 @@
     <string name="autozoom_failed" msgid="2708983116606188884">"Det gick inte att justera automatisk skaländring."</string>
     <string name="run_review_overflow_menu_content_description" msgid="5689925874345140909">"Fler alternativ"</string>
     <string name="licenses_empty" msgid="2746335366478622872">"Inga licenser hittades."</string>
-    <!-- no translation found for audio_enabled_format (4202071153288924614) -->
-    <skip />
-    <!-- no translation found for menu_item_set_triggers (3555868641262376254) -->
-    <skip />
-    <!-- no translation found for title_activity_trigger_list (5014690461140632120) -->
-    <skip />
-    <!-- no translation found for btn_add_new_trigger (1143389268664607859) -->
-    <skip />
-    <!-- no translation found for empty_trigger_list (238046755667717404) -->
-    <skip />
-    <!-- no translation found for title_activity_edit_trigger (2115747586987165481) -->
-    <skip />
-    <!-- no translation found for title_activity_add_trigger (9137879813992485906) -->
-    <skip />
-    <!-- no translation found for trigger_type_label (4847350415951495617) -->
-    <skip />
-    <!-- no translation found for trigger_when_label (8616405039634043612) -->
-    <skip />
-    <!-- no translation found for trigger_type_start_recording (7292105639999785968) -->
-    <skip />
-    <!-- no translation found for trigger_type_stop_recording (3022683931027310288) -->
-    <skip />
-    <!-- no translation found for trigger_type_note (626654531254636746) -->
-    <skip />
-    <!-- no translation found for trigger_type_alert (6525543144561765762) -->
-    <skip />
-    <!-- no translation found for trigger_when_at (762967868925610869) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below (149048320758854889) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above (4131024183229534708) -->
-    <skip />
-    <!-- no translation found for trigger_value_hint (6176793893724760154) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_label (2243205345376006607) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_hint (7624572723656572363) -->
-    <skip />
-    <!-- no translation found for trigger_audio_alert (3888981987994238753) -->
-    <skip />
-    <!-- no translation found for trigger_haptic_alert (4734911836763569299) -->
-    <skip />
-    <!-- no translation found for trigger_visual_alert (8191512950406497950) -->
-    <skip />
-    <!-- no translation found for cannot_save_invalid_value (2889387470051561369) -->
-    <skip />
-    <!-- no translation found for trigger_when_at_description (1004528252412424201) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above_description (9004635001846058548) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below_description (1707397407766550719) -->
-    <skip />
-    <!-- no translation found for sensor_trigger_deleted (1181819400253443424) -->
-    <skip />
-    <!-- no translation found for trigger_label_auto_text (9210831035009346407) -->
-    <skip />
+    <string name="audio_enabled_format" msgid="4202071153288924614">"<xliff:g id="SENSOR_DISPLAY_NAME">%1s</xliff:g> ♪"</string>
+    <string name="menu_item_set_triggers" msgid="3555868641262376254">"Ange utlösare"</string>
+    <string name="menu_item_edit_triggers" msgid="5719430048511669542">"Redigera utlösare"</string>
+    <string name="title_activity_trigger_list" msgid="2928411265364344194">"Lista med utlösare"</string>
+    <string name="title_fragment_trigger_list" msgid="4425969691529503861">"Utlösare för <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="btn_add_new_trigger" msgid="1143389268664607859">"Skapa utlösare"</string>
+    <string name="empty_trigger_list" msgid="238046755667717404">"Inga utlösare angivna"</string>
+    <string name="title_activity_edit_trigger" msgid="2115747586987165481">"Redigera utlösare"</string>
+    <string name="title_fragment_edit_trigger" msgid="9141329265681138113">"Redigera utlösare för <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="title_fragment_add_trigger" msgid="7877645218403597761">"Ny utlösare för <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="trigger_type_label" msgid="4847350415951495617">"Typ av utlösare"</string>
+    <string name="trigger_when_label" msgid="8616405039634043612">"Utlös när"</string>
+    <string name="trigger_value_label" msgid="3412972042230849085">"Utlösningsvärde"</string>
+    <string name="trigger_type_start_recording" msgid="7292105639999785968">"Starta inspelning"</string>
+    <string name="trigger_type_stop_recording" msgid="3022683931027310288">"Stoppa inspelning"</string>
+    <string name="trigger_type_note" msgid="626654531254636746">"Skapa anteckning"</string>
+    <string name="trigger_type_alert" msgid="6525543144561765762">"Meddela mig"</string>
+    <string name="trigger_when_at" msgid="762967868925610869">"Vid"</string>
+    <string name="trigger_when_drops_below" msgid="149048320758854889">"Är under"</string>
+    <string name="trigger_when_rises_above" msgid="4131024183229534708">"Blir högre än"</string>
+    <string name="trigger_when_is_below" msgid="8270111951353483145">"Är under"</string>
+    <string name="trigger_when_is_above" msgid="1839678217244657667">"Är över"</string>
+    <string name="trigger_value_hint" msgid="6176793893724760154">"Värde"</string>
+    <string name="trigger_note_text_label" msgid="2243205345376006607">"Anteckningstext"</string>
+    <string name="trigger_note_text_hint" msgid="7624572723656572363">"Vad ska det stå i anteckningen?"</string>
+    <string name="trigger_audio_alert" msgid="7125606348399123076">"Ljud"</string>
+    <string name="trigger_haptic_alert" msgid="9173126487427899717">"Vibration"</string>
+    <string name="trigger_visual_alert" msgid="3137431533902715114">"Visuell avisering"</string>
+    <string name="cannot_save_invalid_value" msgid="2889387470051561369">"Du måste ange ett numeriskt värde då utlösaren ska sätta igång."</string>
+    <string name="trigger_when_at_description" msgid="6704567729507492002">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> när sensorn ligger på <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_rises_above_description" msgid="8089893226169256044">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> när sensorn blir högre än <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_drops_below_description" msgid="5435046961646187734">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> när sensorn är under <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_above_description" msgid="8754842709321803028">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> när sensorn ligger över <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_below_description" msgid="1917050957970325724">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g> när sensorn är under <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="sensor_trigger_deleted" msgid="1181819400253443424">"Utlösaren har tagits bort"</string>
+    <!-- no translation found for trigger_type_list:0 (2965441322551479563) -->
+    <!-- no translation found for trigger_type_list:1 (2546936807241604853) -->
+    <!-- no translation found for trigger_type_list:2 (8989734094411396978) -->
+    <!-- no translation found for trigger_type_list:3 (3361617139415647084) -->
+    <!-- no translation found for trigger_when_list:0 (4808925283875227158) -->
+    <!-- no translation found for trigger_when_list:1 (982481841992075984) -->
+    <!-- no translation found for trigger_when_list:2 (795907252258650657) -->
+    <!-- no translation found for trigger_when_list:3 (486995679981577062) -->
+    <!-- no translation found for trigger_when_list:4 (3226257072675412338) -->
+  <string-array name="trigger_when_list_note_text">
+    <item msgid="7778784440115654134">"kl."</item>
+    <item msgid="5362437948357000880">"överskred"</item>
+    <item msgid="96408841538247555">"underskred"</item>
+    <item msgid="5929079391002165627">"är över"</item>
+    <item msgid="2421726237024232431">"är under"</item>
+  </string-array>
+    <string name="trigger_only_when_recording" msgid="2102420075414851575">"Använd endast vid inspelning"</string>
+    <string name="trigger_label_auto_text" msgid="7238124210986703642">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="trigger_label_icon_content_description" msgid="4567123930201934477">"Anteckning för utlösare: <xliff:g id="TRIGGER_DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="trigger_snackbar_auto_text" msgid="1082338857442085741">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="scroll_to_card" msgid="4531288548260633064">"visa"</string>
+    <string name="could_not_find_service_error" msgid="6399923176664381124">"Det gick inte att hitta tjänsten: <xliff:g id="SERVICE_ID">%s</xliff:g>"</string>
+    <string name="recording_stopped_notification_text" msgid="2700948290649435580">"Inspelning avslutad."</string>
+    <string name="disable_all_triggers" msgid="4207192080361552008">"Inaktivera utlösare"</string>
+    <string name="trigger_view_icon_content_description" msgid="468973450644969062">"utlösare"</string>
+    <string name="alert_trigger_needs_alerts" msgid="9046346885115277889">"Fel: Du måste välja minst en typ av varning för den här utlösaren."</string>
+    <string name="trigger_fired_text" msgid="8122555560445417775">"Utlösare aktiverad"</string>
+    <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"beskärningen börjar: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"beskärningen är klar: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_failed_message" msgid="8583818349156861745">"Det gick inte att spara beskärningen."</string>
+    <string name="crop_completed_message" msgid="2902081668922934393">"Försöket har beskurits"</string>
+    <string name="launch_settings" msgid="2712101939691138420">"Öppna inställningar"</string>
+    <string name="trigger_alert_prompt" msgid="7548827088664791710">"Meddela mig med"</string>
+    <string name="my_devices" msgid="2753935122366940731">"Mina enheter"</string>
+    <string name="available_devices" msgid="5671327872447270316">"Tillgängliga enheter"</string>
+    <string name="api_connection_timeout_error" msgid="2767327583360399345">"Timeout för anslutning"</string>
+    <string name="btn_expand_device" msgid="5065622950345958436">"Visa enhetens sensorer"</string>
+    <string name="btn_contract_device" msgid="1075694686012045562">"Dölj enhetens sensorer"</string>
+    <string name="select_sensors" msgid="7242531205153688282">"Välj sensorer som ska användas i <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
+    <string name="phone_sensors" msgid="1093110931724349906">"Inbyggda sensorer"</string>
+    <string name="rename_device" msgid="6177379501609319531">"Byt namn på enhet"</string>
+    <string name="forget_device" msgid="7258019924047721349">"Ta bort den här enheten"</string>
+    <string name="device_settings" msgid="5076827559934591801">"Enhetsinställningar"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"Lägg till sensor till experiment"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"Ta bort sensorn från experiment"</string>
 </resources>

@@ -48,11 +48,10 @@
     <string name="rpm_units" msgid="2651871280948091901">"APM"</string>
     <string name="voltage_units" msgid="598716668433769220">"V"</string>
     <string name="raw_units" msgid="4501311675565391535">"proc."</string>
-    <string name="barometer_units" msgid="8404848712372029263">"mbar"</string>
+    <string name="barometer_units" msgid="5606531967130926197">"hPa"</string>
     <string name="temperature_units" msgid="6865637706924726630">"°C"</string>
     <string name="header_name_and_units" msgid="2085988560798053543">"„<xliff:g id="SENSOR_NAME">%1s</xliff:g>“ (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="5584369034749538544">"Išsami eksperimento informacija"</string>
-    <string name="add_sensor" msgid="7637499411634365504">"Pridėti jutiklį"</string>
     <string name="snackbar_source_error" msgid="488480213360860471">"Jungiantis prie šio šaltinio įvyko klaida: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
     <string name="action_retry" msgid="3145700667339813916">"Bandyti dar kartą"</string>
     <string name="decibel" msgid="2567269521573545643">"Garso stipris"</string>
@@ -91,7 +90,7 @@
     <string name="elapsed_time_axis_format_large" msgid="5693537324927532690">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_small_tenths" msgid="4091017607656155791">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>,<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large_tenths" msgid="3013544179502005785">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>,<xliff:g id="TENTHS">%1d</xliff:g>"</string>
-    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>."</string>
     <string name="picture_note_description" msgid="6443481127492010185">"Bandymo etapo nuotrauka"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"Fotografuotos pastabos peržiūra"</string>
     <string name="navigation_item_observe" msgid="8558454737213940045">"Stebėjimas"</string>
@@ -100,7 +99,7 @@
     <string name="navigation_item_settings" msgid="2126253880412012953">"Nustatymai"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"Bandymo parinktys"</string>
     <string name="title_activity_main" msgid="7023325446656975223">"„Science Journal“ – „<xliff:g id="SECTION">%s</xliff:g>“"</string>
-    <string name="title_activity_add_sensor" msgid="1432724804471397682">"Išoriniai įrenginiai"</string>
+    <string name="title_activity_sensor_settings" msgid="1784553345261037389">"Jutiklių nustatymai"</string>
     <string name="external_devices_paired" msgid="4167288049155302614">"Susieti įrenginiai"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"Susiejama…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"Pasiekiami įrenginiai"</string>
@@ -140,7 +139,6 @@
     <string name="settings_version_title" msgid="6926476057478648092">"Versija"</string>
     <string name="settings_replay_tutorial_title" msgid="6935249461039953640">"Mokymo programa"</string>
     <string name="settings_open_source_title" msgid="2075335777151654751">"Atvirojo šaltinio licenc."</string>
-    <string name="dev_sensors_title" msgid="56483495191187216">"Įgal. bandomuosius jutikl."</string>
     <string name="cannot_scan_message" msgid="5736974833739008592">"Norėdami pasiekti išorinius įrenginius („Science Journal“ jutiklius) naudodami „Science Journal“, iš pradžių turite įjungti „Bluetooth“. Jei norite rasti „Science Journal“ jutiklius, taip pat turite suteikti leidimą „Android“ pasiekti jūsų vietą, nes ieškant įrenginių vietos informaciją gali transliuoti ir kiti „Bluetooth“ įrenginiai. „Science Journal“ nesaugos ir nenaudos šios vietos informacijos, o „Science Journal“ jutikliai jos neperduos."</string>
     <string name="btn_request_location" msgid="307169020767649663">"Įjungti vietos prieigą"</string>
     <string name="btn_enable_bluetooth" msgid="4110230448360114456">"Įjungti „Bluetooth“"</string>
@@ -151,6 +149,7 @@
     <string name="archived_project_message" msgid="66153039940455913">"Projektas suarchyvuotas."</string>
     <string name="unarchived_project_message" msgid="8018113308137052929">"Projektas perkeltas iš archyvo."</string>
     <string name="action_undo" msgid="1852278327756791797">"Anuliuoti"</string>
+    <string name="deleted_project_message" msgid="1227635187612669144">"Projektas ištrintas."</string>
     <string name="project_title_hint" msgid="5788484729941933289">"Projekto pavadinimas"</string>
     <string name="project_problem_hint" msgid="4818690816549079105">"Aprašas"</string>
     <string name="project_cover_description" msgid="8583694225708356859">"Pasirinkti projekto nuotrauką"</string>
@@ -166,7 +165,6 @@
     <string name="unarchived_experiment_message" msgid="7870126733421916514">"Eksperimentas perkeltas iš archyvo."</string>
     <string name="archived_run_message" msgid="8346607350306633655">"Bandymas suarchyvuotas."</string>
     <string name="unarchived_run_message" msgid="3807535396227509421">"Bandymas pašalintas iš archyvo."</string>
-    <string name="experiments_toolbar_title" msgid="6963959917416270680">"Eksperimentai"</string>
     <string name="archived_content_description" msgid="7931247623909344339">"<xliff:g id="ITEM">%1s</xliff:g> (suarchyvuotas)"</string>
     <plurals name="experiment_run_count" formatted="false" msgid="1283784154893798777">
       <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> bandymo etapas</item>
@@ -199,33 +197,27 @@
     <string name="frequency_window_option_label" msgid="4919436041479250367">"Dažnio langas (milisekundėmis)"</string>
     <string name="frequency_filter_option_label" msgid="4458966053132937293">"Dažnio filtras (jutiklio mat. vnt.)"</string>
     <string name="enable_frequency_checkbox_label" msgid="2922864218507547240">"Rodyti dažnį"</string>
-    <string name="dev_sensors_summary" msgid="7086328959529574660">"Rodyti jutiklius, skirtus tik kūrėjo bandymams"</string>
     <string name="options_save_error" msgid="1262808099812151932">"Klaida saugant parinktis"</string>
     <string name="options_load_error" msgid="1594503728021930743">"Klaida įkeliant parinktis"</string>
     <string name="dev_tools_title" msgid="8231917267495770691">"Įgalinti eksperimento įrankius"</string>
     <string name="dev_tools_summary" msgid="3609685547301741618">"Rodyti įrankius, skirtus tik kūrėjo bandymams"</string>
     <string name="dev_tools_leak_detection_title" msgid="4725525693236520974">"Įgalinti atminties nutekėjimo aptikimą"</string>
-    <string name="dev_tools_leak_detection_summary" msgid="9019022238189456899">"Pakeistas nustatymas įsigalios tik uždarius programą."</string>
-    <string name="d2p" msgid="372033271119706811">"Numatytasis"</string>
-    <string name="d2a" msgid="8650862124682156354">"Amplitudė"</string>
-    <string name="d2pe" msgid="956618657669378971">"Pastabos"</string>
-    <string name="d2ps" msgid="5114174025939101366">"Skalė"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="7171148788144095285">"Pakeistas nustatymas įsigalios tik uždarius programą."</string>
+    <string name="default_sonification" msgid="9006778853276983156">"Numatytasis"</string>
+    <string name="amplitude" msgid="2540241901091313524">"Amplitudė"</string>
+    <string name="notes" msgid="3276297280118435135">"Pastabos"</string>
+    <string name="scale" msgid="8822139987400974369">"Skalė"</string>
+    <string name="conductor" msgid="9193425673241449589">"Laidininkas"</string>
     <!-- no translation found for sonification_types_prod:0 (3254769575914104850) -->
     <!-- no translation found for sonification_types_prod:1 (1831413879274006078) -->
     <!-- no translation found for sonification_types_prod:2 (1917376169281831239) -->
+    <!-- no translation found for sonification_types_prod:3 (602550002110522910) -->
     <!-- no translation found for sonification_types_dev:0 (7417644575217300390) -->
-  <string-array name="sonification_type_aliases">
-    <item msgid="234968762840479178">"dpga"</item>
-    <item msgid="6154566816995872686">"dppsap"</item>
-    <item msgid="2062530924507614569">"dpgap"</item>
-    <item msgid="72378471312023144">"dpgam"</item>
-  </string-array>
     <string name="new_experiment_spinner_item" msgid="5017810476745425374">"Naujas eksperimentas…"</string>
     <string name="recording_title_label" msgid="736399431431816185">"Įrašoma…"</string>
-    <string name="exp_edit_info_button" msgid="3141909000709306124">"Redaguoti informaciją"</string>
     <string name="btn_observe_content_description" msgid="476911391550333702">"Stebėti"</string>
     <string name="title_activity_experiment_details" msgid="3494340558031776911">"Išsami eksperimento inf."</string>
-    <string name="empty_runs" msgid="7548505071633993347">"Bandymų nėra"</string>
+    <string name="empty_experiment" msgid="6142475501762739386">"Su šiuo eksperim. susijusių band. ar pastabų nėra."</string>
     <string name="permission_request_write" msgid="6590731147363977582">"Norint rašyti išorinėje saugykloje reikia leidimo."</string>
     <string name="device_options_sensor_label_text" msgid="5073336029128358977">"Jutiklis"</string>
     <string name="external_sensor_appearance_name" msgid="6419268671149879170">"„<xliff:g id="SENSOR_NAME">%s</xliff:g>“ – „<xliff:g id="DEVICE_NAME">%s</xliff:g>“"</string>
@@ -237,7 +229,6 @@
     <string name="device_options_custom_sensor_pin_label_text" msgid="7023371657105134847">"Kištukas"</string>
     <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="4571472391388122413">"Dažnis"</string>
     <string name="feedback_error_message" msgid="3117491109292317255">"Atsiliepimo išsiųsti nepavyko."</string>
-    <string name="no_sensor_info_found" msgid="2182109795740683658">"Prie šio jutiklio nėra jokios papildomos informacijos."</string>
     <string name="sensor_desc_short_acc_x" msgid="1184579399689940361">"Telefono pagreitis judant į kairę ir į dešinę, m/s²"</string>
     <string name="sensor_desc_short_acc_y" msgid="7084492489358508838">"Telefono pagreitis judant pirmyn ir atgal, m/s²"</string>
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"Telefono pagreitis jam greitėjant ir lėtėjant, m/s²"</string>
@@ -247,6 +238,7 @@
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"Čia pagal tinkintus nustatymus rodomi išorinio jutiklio duomenys."</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"Apsisukimų skaičius per minutę"</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"Pirminių duomenų nuskaitymas iš išorinio jutiklio procentais."</string>
+    <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"Atmosferos slėgis matuojamas hektopaskaliais (hPa)."</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"Aplinkos šviesos jutiklis matuoja šviesą liuksais (lx) – tai apšvietimo, kuris priklauso nuo gaunamo šviesos kiekio ir srities, virš kurios jie paskleidžiami, matavimas. \n\nPilnaties skleidžiamas apšvietimas yra maždaug 1 lx vertės, įprasto svetainės šviestuvo – apie 50 lx, klasėje naudojamų lempų šviesos ir saulėtekio bei saulėlydžio – apie 400 lx, dienos šviesos (netiesioginės saulės) – daugiau nei 10 000 lx, o tiesioginės saulės šviesos – daugiau nei 30 000 lx. \n\nLiuksas daugeliui iš mūsų nežinomas matavimo vienetas. Kai perkame lemputes, jas dažnai renkamės pagal vatus, bet lemputės galia vatais nenusako lemputės šviesumo, tik tai, kiek energijos ji naudoja. Kur kas geriau perkant apšvietimo prekes atkreipti dėmesį į liumenus – jais nusakoma, kiek šviesos lemputė iš tiesų pagamins. Liuksais nurodoma, kiek tos šviesos pateks į konkrečią vietą."</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"Šviesai pasklidus ir jai keliaujant tolyn, liuksų sumažėja, tarsi būtumėte atsitraukę nuo šviesos šaltinio, net jei šaltinis vis dar spinduliuoja tą patį kiekį šviesos, matuojant liumenais. Nuo šviesos šaltinių nukreipta sritis taip pat apšviečiama mažiau. Būtent dėl to Žemės pusiaujo regionuose yra daug šilčiau, nei vėsiuose poliuose. \n\nBe to, šviesos jutiklio jūsų telefone paskirtis yra valdyti ekrano apšvietimo lygį, jį koreguojant pagal pritemdytą ir šviesią aplinką. Šviesos jutiklyje į ateinančią šviesą reaguoja mažytis puslaidininkis, gamindamas nedidelę, bet vertingą elektros srovę. Šis fenomenas žinomas kaip fotoefektas. Panašūs jutikliai naudojami kai kuriuose gatvių žibintuose – taip žibintai įjungiami lauke pradėjus temti."</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"Objektai turi polinkį likti vietoje arba judėti toliau, jei juda, – tai vadiname inercija. Pirmasis Niutono dėsnis nusako šią idėją pagal tokią formulę: jei objekto nepaveikia išorinė jėga, jis toliau tolygiai juda arba išlaiko rimties būseną. \n\nKai išorinė jėga išjudina objektą, sakome, kad objektas įgyja pagreitį: pasikeičia jo greitis ar tempas – objekto judėjimas pagreitėja, sulėtėja ar pakeičia kryptį. Pagreitis matuojamas įvertinant greičio pokytį per laiką (metrais per sekundę) arba metrais per sekundę kvadratu (m/s²). \n\nJūsų telefone yra įrenginys, matuojantis šiuos judėjimo pokyčius – akselerometras. Jame pakabinti nedideli laisvai judantys svoriai. Pasikeitus judėjimui pajudinami ir šie svoriai, panašiai kaip jūsų galva, krestelėjusi pirmyn, jums sėdint automobilyje, kuris staiga sustoja. Matuodamas šiuos vos pastebimus inertinius judesius telefono akselerometras gali aptikti judėjimo ir orientacijos pokyčius. Tai naudinga perjungiant ekrano padėtį iš gulsčio režimo į stačią, žaidžiant žaidimus ir pan."</string>
@@ -259,6 +251,8 @@
     <string name="sensor_desc_second_paragraph_raw" msgid="2081830388555382169">"„Bluetooth“ – tai belaidė technologija, įprastai radijo bangomis nedideliais atstumais perduodanti duomenis iš fiksuotojo ir mobiliojo ryšio įrenginių."</string>
     <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"Čia rodomi duomenys gaunami iš išorinio jutiklio, susieto su jūsų telefonu „Bluetooth“ ryšiu."</string>
     <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"„Bluetooth“ – tai belaidė technologija, įprastai radijo bangomis nedideliais atstumais perduodanti duomenis iš fiksuotojo ir mobiliojo ryšio įrenginių."</string>
+    <string name="sensor_desc_first_paragraph_barometer" msgid="2813905499808374316">"Nors tai retai pastebime, visi gyvename gilaus oro telkinio dugne: Žemės atmosferoje, kuri tęsiasi į viršų 40 kilometrų (130 000 pėdų). Viso šio mus slegiančio oro svoris vadinamas atmosferos slėgiu. \n\nJūros lygyje atmosferos slėgis kiekvieną kvadratinį centimetrą veikia 1033 g jėga – tai tas pats, lyg maždaug 589,67 kg jėga slėgtų standartinio dydžio popieriaus lapą."</string>
+    <string name="sensor_desc_second_paragraph_barometer" msgid="4975611576005615149">"Šio didelio slėgio nejuntame, nes esame prie jo pripratę. Tai yra, pajuntame tik tada, kai jis pasikeičia, kad ir nedaug, pavyzdžiui, kai esame gerokai aukščiau virš jūros lygio ar skrendame lėktuvu. Atmosferos slėgis taip pat kinta priklausomai nuo oro sąlygų: krenta, kai oras audringas ir nepastovus, ir kyla, kai oras tampa pastovus ir dangus išsigiedrija. \n\nTelefone esantis skaitmeninis barometras atmosferos slėgį matuoja hektopaskaliais (hektopaskalis yra 100 paskalių, o paskalis yra vieno niutono jėga, kuria veikiamas vienas kvadratinis metras). Tikriausiai girdėjote orų pranešėjus atmosferos slėgį nurodant milibarais – tai labiau įprasti matavimo vienetai, lygiaverčiai hektopaskaliams. \n\nGali kilti klausimas: kodėl telefonu reikėtų matuoti slėgį? Atmosferos slėgis pastebimai keičiasi, kai nors šiek tiek pasikeičia aukštis virš jūros lygio, pavyzdžiui, kai užlipate laiptų pakopa. Taigi telefone įtaisytas skaitmeninis barometras gali padėti nustatyti vietos pokyčius, pavyzdžiui, galite sužinoti, kokiame aukšte ar pastate esate, arba tai, ar važiuojate apatine ar viršutine tilto eile."</string>
     <string name="run_review_duration" msgid="1978235455271606762">"Trukmė"</string>
     <string name="run_review_activity_label" msgid="5646135462344737004">"Peržiūra"</string>
     <string name="service_notification_content_title" msgid="791621361781451323">"Science Journal"</string>
@@ -269,9 +263,8 @@
     <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"Perjungti į informacijos režimą"</string>
     <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"Perjungti į diagramos režimą"</string>
     <string name="sensor_tab_layout_content_description" msgid="3807243095823040361">"Pasiekiami jutikliai"</string>
-    <string name="sensor_tab_selected_format" msgid="2686213304137352967">"„<xliff:g id="SENSOR_NAME">%s</xliff:g>“ (pasirinktas)"</string>
     <string name="title_activity_sensor_info" msgid="8667402055779114709">"Jutiklio informacija"</string>
-    <string name="title_activity_sensor_info_format" msgid="4810933938741070862">"Jutiklis „<xliff:g id="SENSOR_NAME">%s</xliff:g>“"</string>
+    <string name="title_activity_sensor_info_format" msgid="4284132895191711797">"Jutiklis „<xliff:g id="SENSOR_NAME">%s</xliff:g>“"</string>
     <string name="heading_info_section" msgid="8939391891795009974">"Kaip tai vyksta?"</string>
     <string name="edit_note_menu_item" msgid="8530099824744920575">"Redaguoti"</string>
     <string name="edit_note_time" msgid="5307388665454994755">"Pastabos redagav. laikas"</string>
@@ -298,6 +291,10 @@
     <string name="archived_badge" msgid="6068366174702659773">"Suarchyvuotas"</string>
     <string name="action_include_archived_projects" msgid="7075034155088762601">"Įtraukti suarchyvuotus projektus"</string>
     <string name="action_include_archived_experiments" msgid="9179328397501796497">"Įtraukti suarchyvuotus ekperimentus"</string>
+    <string name="delete_project_dialog_title" msgid="7681697983255312708">"Ištrinti šį projektą?"</string>
+    <string name="delete_project_dialog_message" msgid="3039092965074898348">"Ar tikrai norite ištrinti šį projektą? Bus ištrinti visi su juo susiję eksperimentai, bandymai ir pastabos. Šio veiksmo anuliuoti negalima."</string>
+    <string name="delete_experiment_dialog_title" msgid="522221451175758058">"Ištrinti šį eksperimentą?"</string>
+    <string name="delete_experiment_dialog_message" msgid="8055334758058363747">"Ar tikrai norite ištrinti šį eksperimentą? Bus ištrinti visi su juo susiję bandymai ir pastabos. Šio veiksmo anuliuoti negalima."</string>
     <string name="action_new_experiment" msgid="5987527361707254638">"Naujas eksperimentas"</string>
     <string name="delete_run_dialog_title" msgid="3841579587741640965">"Ištrinti šį bandymo etapą?"</string>
     <string name="run_review_delete_confirm" msgid="1608962272042732123">"Ar tikrai norite ištrinti šį bandymo etapą? Įrašyti duomenys ir pastabos bus ištrinti. Šio veiksmo anuliuoti negalima."</string>
@@ -324,7 +321,6 @@
     <string name="graph_loading" msgid="1102165995961515949">"Diagrama įkeliama…"</string>
     <string name="playback_button_pause" msgid="348710889337495167">"Pristabdyti garso įrašo atkūrimą"</string>
     <string name="playback_button_play" msgid="3845595255478520691">"Pradėti garso įrašo atkūrimą"</string>
-    <string name="sonification_type_card_title" msgid="7998122361918330347">"Kūrėjo sonifikacijos tipas"</string>
     <string name="dev_sonification_types_title" msgid="8470117255317834775">"Įgalinti kūrėjo sonifikacijos tipus"</string>
     <string name="title_edit_trial_activity" msgid="2639088409396156730">"Redaguoti bandymą"</string>
     <string name="edit_trial_title_hint" msgid="2537511526292819270">"Bandymo pavadinimas"</string>
@@ -333,18 +329,12 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Pridėti antraštę"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Eksperimentuokite su pasauliu."</string>
-    <string name="listing_changelog" msgid="1272605515497326900">"Toliau nurodytos naujos funkcijos ir patobulinimai. \n• Antraščių pridėjimas prie pastabų nuotraukų. \n• Duomenų sonifikacijai skirti garso nustatymai \n• Geresnis labai ilgos trukmės bandymų našumas. \n• Riktų pataisymai."</string>
+    <string name="listing_changelog" msgid="5791385044176273701">"Naujos funkcijos ir patobulinimai:\n• Jutiklio suaktyvinimai: gaukite įspėjimą, palikite pastabų ar paleiskite ir sustabdykite įrašymą, kai pasiekiamos konkrečios jutiklių vertės. Taip pasieksite jutiklio kortelės meniu.\n• Ištrinkite suarchyvuotus bandymus, eksperimentus ir paleidimus.\n• Pridėtas barometro jutiklio palaikymas.\n• Daugiau su „Science Journal“ veikiančių įrenginių: pasiekite daugiau išorinių jutiklių tipų. Norėdami gauti daugiau informacijos, žr. https://makingscience.withgoogle.com/science-journal/materials \n• Riktų pataisymai."</string>
     <string name="listing__description" msgid="3975515995792990185">"„Science Journal“ – tai įrankis, leidžiantis išmaniuoju telefonu tyrinėti aplinką. Galite naudoti telefone esančius jutiklius arba prisijungti prie išorinių jutiklių ir vykdyti eksperimentus, kuriais tyrinėjamas jus supantis pasaulis. Idėjas paverskite projektais, prognozuokite, užsirašykite pastabas ir rinkite daugybės bandymų duomenis, tada komentuokite ir analizuokite rezultatus. Tai laboratorijos žurnalas, kurį visada turite su savimi. \n\n \nIdėjų, kaip naudoti programą, galite rasti adresu https://makingscience.withgoogle.com/science-journal/activities \nDaugiau informacijos apie „Making Science“ pateikta adresu https://makingscience.withgoogle.com \nDėl palaikymo kreipkitės adresu https://productforums.google.com/forum/#!forum/sciencejournal \nKodą rasite adresu https://github.com/google/science-journal"</string>
-    <string name="live_zoom_type_option_title" msgid="6184011805342339557">"Automat. artinimas stebėjimo režimu"</string>
-    <string name="live_zoom_type_option_summary" msgid="3327087952315423967">"Įgalinti automatinį artinimą Y ašyje stebėjimo režimu, kai prisegtas dabartinis rezultatas. Numatytasis nustatymas išjungtas"</string>
-    <!-- no translation found for third_party_sensors_option_title (4835603485129230503) -->
-    <skip />
-    <!-- no translation found for third_party_sensors_option_summary (2567608839882361492) -->
-    <skip />
+    <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Ieškoti trečiosios šalies jutiklių"</string>
+    <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Ieškokite programų, kurios palaiko trečiosios šalies jutiklių API ir leidžia šiuos jutiklius pridėti prie eksperimentų."</string>
     <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"Įgalinti magnetometrą"</string>
     <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"Įgalinti bandomąjį magnetometro jutiklį"</string>
-    <string name="enable_barometer_sensor_title" msgid="4532163359473808928">"Įgalinti barometrą"</string>
-    <string name="enable_barometer_sensor_summary" msgid="352316348564408931">"Įgalinti bandomąjį barometro jutiklį"</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Įgalinti aplinkos temperat. jutiklį"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"Įgalinti bandomąjį aplinkos temperatūros jutiklį"</string>
     <string name="enable_sine_wave_sensor_title" msgid="5361133155106781791">"Įgalinti sinusinę bangą"</string>
@@ -359,60 +349,84 @@
     <string name="autozoom_failed" msgid="2708983116606188884">"Automatinės skalės koreguoti nepavyko."</string>
     <string name="run_review_overflow_menu_content_description" msgid="5689925874345140909">"Daugiau parinkčių"</string>
     <string name="licenses_empty" msgid="2746335366478622872">"Licencijų nerasta."</string>
-    <!-- no translation found for audio_enabled_format (4202071153288924614) -->
-    <skip />
-    <!-- no translation found for menu_item_set_triggers (3555868641262376254) -->
-    <skip />
-    <!-- no translation found for title_activity_trigger_list (5014690461140632120) -->
-    <skip />
-    <!-- no translation found for btn_add_new_trigger (1143389268664607859) -->
-    <skip />
-    <!-- no translation found for empty_trigger_list (238046755667717404) -->
-    <skip />
-    <!-- no translation found for title_activity_edit_trigger (2115747586987165481) -->
-    <skip />
-    <!-- no translation found for title_activity_add_trigger (9137879813992485906) -->
-    <skip />
-    <!-- no translation found for trigger_type_label (4847350415951495617) -->
-    <skip />
-    <!-- no translation found for trigger_when_label (8616405039634043612) -->
-    <skip />
-    <!-- no translation found for trigger_type_start_recording (7292105639999785968) -->
-    <skip />
-    <!-- no translation found for trigger_type_stop_recording (3022683931027310288) -->
-    <skip />
-    <!-- no translation found for trigger_type_note (626654531254636746) -->
-    <skip />
-    <!-- no translation found for trigger_type_alert (6525543144561765762) -->
-    <skip />
-    <!-- no translation found for trigger_when_at (762967868925610869) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below (149048320758854889) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above (4131024183229534708) -->
-    <skip />
-    <!-- no translation found for trigger_value_hint (6176793893724760154) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_label (2243205345376006607) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_hint (7624572723656572363) -->
-    <skip />
-    <!-- no translation found for trigger_audio_alert (3888981987994238753) -->
-    <skip />
-    <!-- no translation found for trigger_haptic_alert (4734911836763569299) -->
-    <skip />
-    <!-- no translation found for trigger_visual_alert (8191512950406497950) -->
-    <skip />
-    <!-- no translation found for cannot_save_invalid_value (2889387470051561369) -->
-    <skip />
-    <!-- no translation found for trigger_when_at_description (1004528252412424201) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above_description (9004635001846058548) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below_description (1707397407766550719) -->
-    <skip />
-    <!-- no translation found for sensor_trigger_deleted (1181819400253443424) -->
-    <skip />
-    <!-- no translation found for trigger_label_auto_text (9210831035009346407) -->
-    <skip />
+    <string name="audio_enabled_format" msgid="4202071153288924614">"<xliff:g id="SENSOR_DISPLAY_NAME">%1s</xliff:g> ♪"</string>
+    <string name="menu_item_set_triggers" msgid="3555868641262376254">"Nustatyti aktyviklius"</string>
+    <string name="menu_item_edit_triggers" msgid="5719430048511669542">"Redaguoti aktyviklius"</string>
+    <string name="title_activity_trigger_list" msgid="2928411265364344194">"Aktyv. sąrašas"</string>
+    <string name="title_fragment_trigger_list" msgid="4425969691529503861">"Aktyv., skirti <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="btn_add_new_trigger" msgid="1143389268664607859">"Sukurti aktyviklį"</string>
+    <string name="empty_trigger_list" msgid="238046755667717404">"Aktyvikliai nenustatyti"</string>
+    <string name="title_activity_edit_trigger" msgid="2115747586987165481">"Redaguoti aktyviklį"</string>
+    <string name="title_fragment_edit_trigger" msgid="9141329265681138113">"Redaguoti „<xliff:g id="SENSOR_NAME">%s</xliff:g>“ aktyviklį"</string>
+    <string name="title_fragment_add_trigger" msgid="7877645218403597761">"Naujas „<xliff:g id="SENSOR_NAME">%s</xliff:g>“ aktyviklis"</string>
+    <string name="trigger_type_label" msgid="4847350415951495617">"Aktyviklio tipas"</string>
+    <string name="trigger_when_label" msgid="8616405039634043612">"Suaktyvinti, kai"</string>
+    <string name="trigger_value_label" msgid="3412972042230849085">"Aktyviklio vertė"</string>
+    <string name="trigger_type_start_recording" msgid="7292105639999785968">"Pradėti įrašymą"</string>
+    <string name="trigger_type_stop_recording" msgid="3022683931027310288">"Stabdyti įrašymą"</string>
+    <string name="trigger_type_note" msgid="626654531254636746">"Pateikti pastabą"</string>
+    <string name="trigger_type_alert" msgid="6525543144561765762">"Įspėti mane"</string>
+    <string name="trigger_when_at" msgid="762967868925610869">"Vertė yra"</string>
+    <string name="trigger_when_drops_below" msgid="149048320758854889">"Yra mažesnė nei"</string>
+    <string name="trigger_when_rises_above" msgid="4131024183229534708">"Tampa didesnė už"</string>
+    <string name="trigger_when_is_below" msgid="8270111951353483145">"Yra mažesnė nei"</string>
+    <string name="trigger_when_is_above" msgid="1839678217244657667">"Yra didesnė už"</string>
+    <string name="trigger_value_hint" msgid="6176793893724760154">"Vertė"</string>
+    <string name="trigger_note_text_label" msgid="2243205345376006607">"Numatytasis pastabos tekstas"</string>
+    <string name="trigger_note_text_hint" msgid="7624572723656572363">"Koks turėtų būti pastabos tekstas?"</string>
+    <string name="trigger_audio_alert" msgid="7125606348399123076">"Garsinį signalą"</string>
+    <string name="trigger_haptic_alert" msgid="9173126487427899717">"Vibraciją"</string>
+    <string name="trigger_visual_alert" msgid="3137431533902715114">"Vaizdinį pranešimą"</string>
+    <string name="cannot_save_invalid_value" msgid="2889387470051561369">"Turite įvesti skaitinę vertę, kuriai esant aktyviklis suveiks."</string>
+    <string name="trigger_when_at_description" msgid="6704567729507492002">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>, kai vertė yra <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_rises_above_description" msgid="8089893226169256044">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>, kai vertė tampa didesnė už <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_drops_below_description" msgid="5435046961646187734">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>, kai vertė tampa mažesnė nei <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_above_description" msgid="8754842709321803028">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>, kai jutiklio užfiksuota vertė viršija <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="trigger_when_below_description" msgid="1917050957970325724">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>, kai jutiklio užfiksuota vertė yra mažesnė nei <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="sensor_trigger_deleted" msgid="1181819400253443424">"Aktyviklis ištrintas"</string>
+    <!-- no translation found for trigger_type_list:0 (2965441322551479563) -->
+    <!-- no translation found for trigger_type_list:1 (2546936807241604853) -->
+    <!-- no translation found for trigger_type_list:2 (8989734094411396978) -->
+    <!-- no translation found for trigger_type_list:3 (3361617139415647084) -->
+    <!-- no translation found for trigger_when_list:0 (4808925283875227158) -->
+    <!-- no translation found for trigger_when_list:1 (982481841992075984) -->
+    <!-- no translation found for trigger_when_list:2 (795907252258650657) -->
+    <!-- no translation found for trigger_when_list:3 (486995679981577062) -->
+    <!-- no translation found for trigger_when_list:4 (3226257072675412338) -->
+  <string-array name="trigger_when_list_note_text">
+    <item msgid="7778784440115654134">"vertė –"</item>
+    <item msgid="5362437948357000880">"vertė viršijo"</item>
+    <item msgid="96408841538247555">"vertė nukrito žemiau"</item>
+    <item msgid="5929079391002165627">"vertė didesnė nei"</item>
+    <item msgid="2421726237024232431">"vertė mažesnė nei"</item>
+  </string-array>
+    <string name="trigger_only_when_recording" msgid="2102420075414851575">"Aktyviklį naudoti tik įrašant"</string>
+    <string name="trigger_label_auto_text" msgid="7238124210986703642">"„<xliff:g id="SENSOR_NAME">%1$s</xliff:g>“ <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="trigger_label_icon_content_description" msgid="4567123930201934477">"Aktyviklio įjungiama pastaba: <xliff:g id="TRIGGER_DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="trigger_snackbar_auto_text" msgid="1082338857442085741">"„<xliff:g id="SENSOR_NAME">%1$s</xliff:g>“ <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="scroll_to_card" msgid="4531288548260633064">"rodyti"</string>
+    <string name="could_not_find_service_error" msgid="6399923176664381124">"Paslaugos rasti nepavyko: <xliff:g id="SERVICE_ID">%s</xliff:g>"</string>
+    <string name="recording_stopped_notification_text" msgid="2700948290649435580">"Įrašymas baigtas."</string>
+    <string name="disable_all_triggers" msgid="4207192080361552008">"Išjungti aktyviklius"</string>
+    <string name="trigger_view_icon_content_description" msgid="468973450644969062">"aktyvikliai"</string>
+    <string name="alert_trigger_needs_alerts" msgid="9046346885115277889">"Klaida: šiam aktyvikliui turite parinkti bent vieną įspėjimo tipą."</string>
+    <string name="trigger_fired_text" msgid="8122555560445417775">"Aktyviklis veikia"</string>
+    <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"bandymo proceso pradžia: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"bandymo proceso pabaiga: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_failed_message" msgid="8583818349156861745">"Bandymo proceso įrašyti nepavyko."</string>
+    <string name="crop_completed_message" msgid="2902081668922934393">"Bandymo procesas užfiksuotas"</string>
+    <string name="launch_settings" msgid="2712101939691138420">"Įjungti nustatymus"</string>
+    <string name="trigger_alert_prompt" msgid="7548827088664791710">"Įspėti naudojant"</string>
+    <string name="my_devices" msgid="2753935122366940731">"Mano įrenginiai"</string>
+    <string name="available_devices" msgid="5671327872447270316">"Pasiekiami įrenginiai"</string>
+    <string name="api_connection_timeout_error" msgid="2767327583360399345">"Baigėsi ryšiui skirtas laikas"</string>
+    <string name="btn_expand_device" msgid="5065622950345958436">"Rodyti įrenginio jutiklius"</string>
+    <string name="btn_contract_device" msgid="1075694686012045562">"Slėpti įrenginio jutiklius"</string>
+    <string name="select_sensors" msgid="7242531205153688282">"Pasirinkite eksperimente „<xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>“ naudotinus jutiklius"</string>
+    <string name="phone_sensors" msgid="1093110931724349906">"Vidiniai jutikliai"</string>
+    <string name="rename_device" msgid="6177379501609319531">"Pervardyti įrenginį"</string>
+    <string name="forget_device" msgid="7258019924047721349">"Pamiršti šį įrenginį"</string>
+    <string name="device_settings" msgid="5076827559934591801">"Įrenginio nustatymai"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"Pridėti jutiklį prie eksperimento"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"Pašalinti jutiklį iš eksperimento"</string>
 </resources>

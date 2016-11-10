@@ -48,11 +48,10 @@
     <string name="rpm_units" msgid="2651871280948091901">"RPM"</string>
     <string name="voltage_units" msgid="598716668433769220">"V"</string>
     <string name="raw_units" msgid="4501311675565391535">"%"</string>
-    <string name="barometer_units" msgid="8404848712372029263">"밀리바"</string>
+    <string name="barometer_units" msgid="5606531967130926197">"hPa"</string>
     <string name="temperature_units" msgid="6865637706924726630">"°C"</string>
     <string name="header_name_and_units" msgid="2085988560798053543">"<xliff:g id="SENSOR_NAME">%1s</xliff:g>(<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="5584369034749538544">"실험 세부정보"</string>
-    <string name="add_sensor" msgid="7637499411634365504">"센서 추가"</string>
     <string name="snackbar_source_error" msgid="488480213360860471">"소스에 연결하는 중에 오류가 발생했습니다. 오류: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
     <string name="action_retry" msgid="3145700667339813916">"다시 시도"</string>
     <string name="decibel" msgid="2567269521573545643">"소리 세기"</string>
@@ -91,7 +90,7 @@
     <string name="elapsed_time_axis_format_large" msgid="5693537324927532690">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_small_tenths" msgid="4091017607656155791">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large_tenths" msgid="3013544179502005785">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
-    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1s</xliff:g>, <xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>."</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>."</string>
     <string name="picture_note_description" msgid="6443481127492010185">"시도 중에 찍은 사진"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"사진 메모 미리보기"</string>
     <string name="navigation_item_observe" msgid="8558454737213940045">"관찰"</string>
@@ -100,7 +99,7 @@
     <string name="navigation_item_settings" msgid="2126253880412012953">"설정"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"테스트 옵션"</string>
     <string name="title_activity_main" msgid="7023325446656975223">"과학 저널 - <xliff:g id="SECTION">%s</xliff:g>"</string>
-    <string name="title_activity_add_sensor" msgid="1432724804471397682">"외부 기기"</string>
+    <string name="title_activity_sensor_settings" msgid="1784553345261037389">"센서 설정"</string>
     <string name="external_devices_paired" msgid="4167288049155302614">"페어링된 기기"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"페어링 중…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"사용 가능한 기기"</string>
@@ -140,7 +139,6 @@
     <string name="settings_version_title" msgid="6926476057478648092">"버전"</string>
     <string name="settings_replay_tutorial_title" msgid="6935249461039953640">"가이드"</string>
     <string name="settings_open_source_title" msgid="2075335777151654751">"오픈소스 라이선스"</string>
-    <string name="dev_sensors_title" msgid="56483495191187216">"실험 센서 사용 설정"</string>
     <string name="cannot_scan_message" msgid="5736974833739008592">"과학 저널을 사용해 외부 기기(\'과학 저널 센서\')에 액세스하려면 먼저 블루투스를 켜야 합니다. 기기 탐색 중에 다른 블루투스 기기에서 위치 정보를 전송할 수도 있으므로 과학 저널 센서를 탐색하려면 Android에서 위치에 액세스할 수 있는 권한도 부여해야 합니다. 단, 과학 저널은 이러한 위치 정보를 저장하거나 사용하지 않으며 과학 저널 센서는 위치 정보를 전송하지 않습니다."</string>
     <string name="btn_request_location" msgid="307169020767649663">"위치 액세스 사용"</string>
     <string name="btn_enable_bluetooth" msgid="4110230448360114456">"블루투스 켜기"</string>
@@ -151,6 +149,7 @@
     <string name="archived_project_message" msgid="66153039940455913">"프로젝트를 보관처리했습니다."</string>
     <string name="unarchived_project_message" msgid="8018113308137052929">"프로젝트를 자료실 외부로 이동했습니다."</string>
     <string name="action_undo" msgid="1852278327756791797">"실행취소"</string>
+    <string name="deleted_project_message" msgid="1227635187612669144">"프로젝트 삭제됨"</string>
     <string name="project_title_hint" msgid="5788484729941933289">"프로젝트 제목"</string>
     <string name="project_problem_hint" msgid="4818690816549079105">"설명"</string>
     <string name="project_cover_description" msgid="8583694225708356859">"프로젝트 사진 선택"</string>
@@ -164,7 +163,6 @@
     <string name="unarchived_experiment_message" msgid="7870126733421916514">"실험을 자료실 외부로 이동했습니다."</string>
     <string name="archived_run_message" msgid="8346607350306633655">"시도를 보관처리했습니다."</string>
     <string name="unarchived_run_message" msgid="3807535396227509421">"시도를 자료실 외부로 이동했습니다."</string>
-    <string name="experiments_toolbar_title" msgid="6963959917416270680">"실험"</string>
     <string name="archived_content_description" msgid="7931247623909344339">"<xliff:g id="ITEM">%1s</xliff:g>(보관처리됨)"</string>
     <plurals name="experiment_run_count" formatted="false" msgid="1283784154893798777">
       <item quantity="other">시도 <xliff:g id="NUMBER_1">%1d</xliff:g>회</item>
@@ -193,33 +191,27 @@
     <string name="frequency_window_option_label" msgid="4919436041479250367">"주파수 범위(밀리초)"</string>
     <string name="frequency_filter_option_label" msgid="4458966053132937293">"주파수 필터(센서 단위)"</string>
     <string name="enable_frequency_checkbox_label" msgid="2922864218507547240">"주파수 표시"</string>
-    <string name="dev_sensors_summary" msgid="7086328959529574660">"개발자 테스트 전용 센서를 표시합니다."</string>
     <string name="options_save_error" msgid="1262808099812151932">"옵션 저장 중 오류 발생"</string>
     <string name="options_load_error" msgid="1594503728021930743">"옵션 로드 중 오류 발생"</string>
     <string name="dev_tools_title" msgid="8231917267495770691">"실험 도구 사용 설정"</string>
     <string name="dev_tools_summary" msgid="3609685547301741618">"개발자 테스트 전용 도구를 표시합니다."</string>
     <string name="dev_tools_leak_detection_title" msgid="4725525693236520974">"메모리 누수 감지 사용 설정"</string>
-    <string name="dev_tools_leak_detection_summary" msgid="9019022238189456899">"이 설정의 변경사항은 애플리케이션을 닫은 후에만 적용됩니다."</string>
-    <string name="d2p" msgid="372033271119706811">"기본값"</string>
-    <string name="d2a" msgid="8650862124682156354">"진폭"</string>
-    <string name="d2pe" msgid="956618657669378971">"음조"</string>
-    <string name="d2ps" msgid="5114174025939101366">"음계"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="7171148788144095285">"이 설정의 변경사항은 애플리케이션을 닫은 후에만 적용됩니다."</string>
+    <string name="default_sonification" msgid="9006778853276983156">"기본값"</string>
+    <string name="amplitude" msgid="2540241901091313524">"진폭"</string>
+    <string name="notes" msgid="3276297280118435135">"음조"</string>
+    <string name="scale" msgid="8822139987400974369">"음계"</string>
+    <string name="conductor" msgid="9193425673241449589">"도체"</string>
     <!-- no translation found for sonification_types_prod:0 (3254769575914104850) -->
     <!-- no translation found for sonification_types_prod:1 (1831413879274006078) -->
     <!-- no translation found for sonification_types_prod:2 (1917376169281831239) -->
+    <!-- no translation found for sonification_types_prod:3 (602550002110522910) -->
     <!-- no translation found for sonification_types_dev:0 (7417644575217300390) -->
-  <string-array name="sonification_type_aliases">
-    <item msgid="234968762840479178">"d2p"</item>
-    <item msgid="6154566816995872686">"d2ps"</item>
-    <item msgid="2062530924507614569">"d2pe"</item>
-    <item msgid="72378471312023144">"d2a"</item>
-  </string-array>
     <string name="new_experiment_spinner_item" msgid="5017810476745425374">"새 실험…"</string>
     <string name="recording_title_label" msgid="736399431431816185">"기록 중..."</string>
-    <string name="exp_edit_info_button" msgid="3141909000709306124">"정보 수정"</string>
     <string name="btn_observe_content_description" msgid="476911391550333702">"관찰"</string>
     <string name="title_activity_experiment_details" msgid="3494340558031776911">"실험 세부정보"</string>
-    <string name="empty_runs" msgid="7548505071633993347">"시도가 없습니다."</string>
+    <string name="empty_experiment" msgid="6142475501762739386">"이 실험에는 시도나 메모가 없습니다."</string>
     <string name="permission_request_write" msgid="6590731147363977582">"외부 저장소 쓰기 권한이 필요합니다."</string>
     <string name="device_options_sensor_label_text" msgid="5073336029128358977">"센서"</string>
     <string name="external_sensor_appearance_name" msgid="6419268671149879170">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
@@ -231,7 +223,6 @@
     <string name="device_options_custom_sensor_pin_label_text" msgid="7023371657105134847">"핀"</string>
     <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="4571472391388122413">"주파수"</string>
     <string name="feedback_error_message" msgid="3117491109292317255">"의견을 보낼 수 없습니다."</string>
-    <string name="no_sensor_info_found" msgid="2182109795740683658">"센서에 대한 추가 정보가 없습니다."</string>
     <string name="sensor_desc_short_acc_x" msgid="1184579399689940361">"휴대전화의 좌우 방향 가속도이며 단위는 m/s²입니다."</string>
     <string name="sensor_desc_short_acc_y" msgid="7084492489358508838">"휴대전화의 앞뒤 방향 가속도이며 단위는 m/s²입니다."</string>
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"휴대전화의 위아래 방향 가속도이며 단위는 m/s²입니다."</string>
@@ -241,6 +232,7 @@
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"맞춤 설정에 따라 여기에 외부 센서의 데이터가 표시되고 있습니다."</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"분당 회전수입니다."</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"외부 센서에서 읽은 원본 비율입니다."</string>
+    <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"헥토파스칼(hPa) 단위로 측정한 대기압입니다."</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"주변광 센서는 빛이 유입되는 양과 빛이 퍼지는 영역을 기준으로 빛을 측정하는 단위인 럭스로 빛을 측정합니다. \n\n보름달은 약 1럭스, 일반적인 전등을 사용하는 거실은 약 50럭스, 교실 조명/일출/일몰은 약 400럭스, 직사광선이 아닌 햇빛은 10,000럭스 이상, 직사광선은 30,000럭스 이상입니다. \n\n럭스는 대부분의 사람들에게 친숙한 단위가 아닙니다. 전구를 살 때 종종 와트를 보고 구매하지만 전구의 전력량으로는 밝기를 알 수 없으며 소비하는 에너지만 알 수 있습니다. 루멘은 전구가 실제로 만들어 내는 빛의 양을 알려주므로 전구를 구매할 때 더 적합한 기준입니다. 한편 럭스는 특정 영역에 도달하는 빛의 양을 알려줍니다."</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"빛이 이동하면서 퍼지므로 광원이 루멘 단위로 계속 동일한 양으로 빛나더라도 광원에서 멀어질수록 럭스가 줄어듭니다. 또한 광원에서 기울어져 있는 영역은 빛을 덜 받습니다. 지구의 적도가 극지방보다 따뜻한 이유가 바로 이것입니다. \n\n휴대전화에 있는 광 센서의 용도는 어둡거나 밝은 사용 환경에 맞게 조절하여 화면의 밝기 수준을 관리하는 것입니다. 광 센서 내부의 소형 반도체에서 광전 효과라고 하는 현상인 작지만 측정 가능한 전류가 발생하여 유입되는 빛에 응답합니다. 어두워지면 자동으로 켜지는 가로등에 이와 비슷한 센서가 사용됩니다."</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"물체는 그대로 있거나 이동 중인 경우에는 계속 이동하려는 경향이 있으며 이러한 경향을 관성이라고 합니다. 이 개념을 공식적으로 표현한 것이 뉴턴의 제1법칙입니다. 물체는 이동 상태로 계속 진행하거나 불균형한 힘이 작용하지 않는 한 움직이지 않습니다. \n\n불균형한 힘이 물체를 움직이게 하면 물체가 가속된다고 합니다. 가속, 감속 또는 방향 변경에 의해 물체의 속도가 변합니다. 가속도는 시간에 따른 속도 변화(초당 미터) 또는 미터 매 초 제곱(m/s²)으로 측정됩니다. \n\n휴대전화에 이러한 움직임 변화를 측정하는 장치인 가속도계가 있습니다. 가속도계 내부에 달려 있는 소형 질량 물체는 이동이 가능하며 움직임에 변화가 있을 때 이동합니다. 이는 자동차가 갑자기 멈출 때 탑승자의 머리가 앞쪽으로 이동하는 것과 같습니다. 휴대전화의 가속도계는 이러한 미묘한 관성에 의한 이동을 측정하여 움직임과 방향의 변화를 감지하므로 휴대전화에서 게임 등의 활동을 할 때 화면을 가로에서 세로 모드로 전환하는 데 유용합니다."</string>
@@ -253,6 +245,8 @@
     <string name="sensor_desc_second_paragraph_raw" msgid="2081830388555382169">"블루투스는 무선 전파를 사용하여 고정된 기기와 휴대기기의 데이터를 근거리에서 교환하는 무선 기술 표준입니다."</string>
     <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"여기에 표시되는 데이터는 블루투스를 통해 휴대전화와 외부 센서가 통신하여 제공합니다."</string>
     <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"블루투스는 무선 전파를 사용하여 고정된 기기와 휴대기기의 데이터를 근거리에서 교환하는 무선 기술 표준입니다."</string>
+    <string name="sensor_desc_first_paragraph_barometer" msgid="2813905499808374316">"평상시에는 잘 느끼기 어렵지만 우리는 대기권이라는 공기로 가득 찬 바다 밑바닥에 살고 있습니다. 지구 대기층의 두께는 40킬로미터에 달하며 이 모든 공기가 우리를 내리누르는 힘을 대기압이라고 합니다. \n\n해수면 높이의 대기압은 1제곱센티미터에 약 1kg으로 A4 용지 1장에 624kg 정도의 무게가 작용하는 셈입니다."</string>
+    <string name="sensor_desc_second_paragraph_barometer" msgid="4975611576005615149">"인간은 이 거대한 압력에 익숙해져 있어서 평소에는 잘 느끼지 못하지만, 높은 산에 오르거나 비행기를 탈 때와 같이 기압이 조금만 바뀌어도 그 변화를 알아차립니다. 대기압은 날씨에 따라서도 변화하는데 폭풍이 부는 등 기후가 불안정할 때는 기압이 떨어지고 기후가 안정된 화창한 날에는 기압이 상승합니다. \n\n휴대전화의 디지털 기압계는 대기압을 헥토파스칼 단위로 측정합니다. 1헥토파스칼은 100파스칼이며, 1파스칼은 1평방미터 면적에 1뉴턴의 힘이 작용하는 압력을 나타냅니다. 일기예보를 보면 기압을 밀리바 단위로 설명하기도 하는데 표현은 다르지만 헥토파스칼과 동일한 단위입니다. \n\n휴대전화에 압력을 측정하는 기능이 왜 있는지 궁금하지 않으신가요? 대기압은 계단을 오르내리는 등 고도가 조금만 바뀌어도 측정 가능할 정도로 변화합니다. 따라서 휴대폰의 디지털 기압계는 위치 변화를 감지하는 데 도움을 줍니다. 예를 들어 사용자가 건물 몇 층에 있는지 또는 고가도로 위를 지나는지 아니면 아래를 지나는지를 알아낼 수 있습니다."</string>
     <string name="run_review_duration" msgid="1978235455271606762">"길이"</string>
     <string name="run_review_activity_label" msgid="5646135462344737004">"검토"</string>
     <string name="service_notification_content_title" msgid="791621361781451323">"과학 저널"</string>
@@ -263,9 +257,8 @@
     <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"정보 모드로 전환"</string>
     <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"그래프 모드로 전환"</string>
     <string name="sensor_tab_layout_content_description" msgid="3807243095823040361">"사용 가능한 센서"</string>
-    <string name="sensor_tab_selected_format" msgid="2686213304137352967">"<xliff:g id="SENSOR_NAME">%s</xliff:g>(선택한 센서)"</string>
     <string name="title_activity_sensor_info" msgid="8667402055779114709">"센서 정보"</string>
-    <string name="title_activity_sensor_info_format" msgid="4810933938741070862">"<xliff:g id="SENSOR_NAME">%s</xliff:g> 센서"</string>
+    <string name="title_activity_sensor_info_format" msgid="4284132895191711797">"<xliff:g id="SENSOR_NAME">%s</xliff:g> 센서"</string>
     <string name="heading_info_section" msgid="8939391891795009974">"센서 정보"</string>
     <string name="edit_note_menu_item" msgid="8530099824744920575">"수정"</string>
     <string name="edit_note_time" msgid="5307388665454994755">"메모 시간 수정"</string>
@@ -292,6 +285,10 @@
     <string name="archived_badge" msgid="6068366174702659773">"보관됨"</string>
     <string name="action_include_archived_projects" msgid="7075034155088762601">"보관처리된 프로젝트 포함"</string>
     <string name="action_include_archived_experiments" msgid="9179328397501796497">"보관처리된 실험 포함"</string>
+    <string name="delete_project_dialog_title" msgid="7681697983255312708">"이 프로젝트를 삭제하시겠습니까?"</string>
+    <string name="delete_project_dialog_message" msgid="3039092965074898348">"이 프로젝트를 삭제하시겠습니까? 모든 실험, 시도 및 메모가 삭제됩니다. 이 작업은 취소할 수 없습니다."</string>
+    <string name="delete_experiment_dialog_title" msgid="522221451175758058">"이 실험을 삭제하시겠습니까?"</string>
+    <string name="delete_experiment_dialog_message" msgid="8055334758058363747">"이 실험을 삭제하시겠습니까? 모든 시도 및 메모가 삭제됩니다. 이 작업은 취소할 수 없습니다."</string>
     <string name="action_new_experiment" msgid="5987527361707254638">"새 실험"</string>
     <string name="delete_run_dialog_title" msgid="3841579587741640965">"이 시도를 삭제하시겠습니까?"</string>
     <string name="run_review_delete_confirm" msgid="1608962272042732123">"이 시도를 삭제하시겠습니까? 기록된 데이터와 메모가 삭제됩니다. 이 작업은 취소할 수 없습니다."</string>
@@ -318,7 +315,6 @@
     <string name="graph_loading" msgid="1102165995961515949">"그래프 로드 중…"</string>
     <string name="playback_button_pause" msgid="348710889337495167">"오디오 재생 일시중지"</string>
     <string name="playback_button_play" msgid="3845595255478520691">"오디오 재생 시작"</string>
-    <string name="sonification_type_card_title" msgid="7998122361918330347">"개발 버전 청각화 유형"</string>
     <string name="dev_sonification_types_title" msgid="8470117255317834775">"개발 버전 청각화 유형 사용 설정"</string>
     <string name="title_edit_trial_activity" msgid="2639088409396156730">"시도 수정"</string>
     <string name="edit_trial_title_hint" msgid="2537511526292819270">"시도 제목"</string>
@@ -327,18 +323,12 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"사진 설명 추가"</string>
     <string name="listing_title" msgid="1732490922169483408">"과학 저널"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"실험의 세상이 열립니다."</string>
-    <string name="listing_changelog" msgid="1272605515497326900">"새로운 기능 및 개선사항: \n• 사진 노트에 캡션 추가 \n• 데이터 청각화용 오디오 설정 \n• 매우 오래 걸리는 실험의 성능 개선 \n• 버그 수정"</string>
+    <string name="listing_changelog" msgid="5791385044176273701">"새로운 기능 및 개선사항: \n• 센서 실행: 특정 센서 값에 도달하면 알림을 보내거나 메모를 만들거나 녹화를 시작 또는 중지합니다. 센서 카드 메뉴를 통해 이 기능에 액세스할 수 있습니다. \n• 보관처리된 시험, 실험, 실행을 삭제할 수 있습니다. \n• 기압계 센서 지원이 추가되었습니다. \n• 과학 저널에서 작동하는 유형 추가: 더 많은 외부 센서 유형에 액세스할 수 있습니다. 자세한 내용은 다음 페이지를 참조하세요. https://makingscience.withgoogle.com/science-journal/materials \n• 버그가 수정되었습니다."</string>
     <string name="listing__description" msgid="3975515995792990185">"과학 저널은 스마트폰으로 과학 실험을 할 수 있는 앱입니다. 휴대전화의 센서를 사용하거나 외부 센서에 연결하여 자유롭게 실험해 보세요. 아이디어를 프로젝트로 정리하고, 예측하고, 여러 번 실험하며 메모하고, 데이터를 수집하고, 결과를 종합하고 탐구해 보세요. 항상 가지고 다닐 수 있는 실험 공책과 같습니다. \n\n \n앱으로 가능한 활동 아이디어: https://makingscience.withgoogle.com/science-journal/activities \n제작 및 과학 자세히 알아보기: https://makingscience.withgoogle.com \n지원 문의: https://productforums.google.com/forum/#!forum/sciencejournal \n제공되는 코드: https://github.com/google/science-journal"</string>
-    <string name="live_zoom_type_option_title" msgid="6184011805342339557">"관찰 중 자동 확대"</string>
-    <string name="live_zoom_type_option_summary" msgid="3327087952315423967">"현재 시간으로 고정되어 있으면 관찰 중에 Y축을 자동 확대하도록 사용 설정합니다. 기본 설정은 사용 중지입니다."</string>
-    <!-- no translation found for third_party_sensors_option_title (4835603485129230503) -->
-    <skip />
-    <!-- no translation found for third_party_sensors_option_summary (2567608839882361492) -->
-    <skip />
+    <string name="third_party_sensors_option_title" msgid="4835603485129230503">"타사 센서 검색"</string>
+    <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"타사 센서 API를 지원하는 앱을 찾아 센서로 실험할 수 있도록 설정하세요."</string>
     <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"자기계 사용 설정"</string>
     <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"실험 버전 자기계 센서를 사용 설정합니다."</string>
-    <string name="enable_barometer_sensor_title" msgid="4532163359473808928">"기압계 사용 설정"</string>
-    <string name="enable_barometer_sensor_summary" msgid="352316348564408931">"실험 버전 기압계 센서를 사용 설정합니다."</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"주변 온도 사용 설정"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"실험 버전 주변 온도 센서를 사용 설정합니다."</string>
     <string name="enable_sine_wave_sensor_title" msgid="5361133155106781791">"사인파 사용 설정"</string>
@@ -353,60 +343,84 @@
     <string name="autozoom_failed" msgid="2708983116606188884">"자동 크기 조절에 실패했습니다."</string>
     <string name="run_review_overflow_menu_content_description" msgid="5689925874345140909">"옵션 더보기"</string>
     <string name="licenses_empty" msgid="2746335366478622872">"라이선스가 없습니다."</string>
-    <!-- no translation found for audio_enabled_format (4202071153288924614) -->
-    <skip />
-    <!-- no translation found for menu_item_set_triggers (3555868641262376254) -->
-    <skip />
-    <!-- no translation found for title_activity_trigger_list (5014690461140632120) -->
-    <skip />
-    <!-- no translation found for btn_add_new_trigger (1143389268664607859) -->
-    <skip />
-    <!-- no translation found for empty_trigger_list (238046755667717404) -->
-    <skip />
-    <!-- no translation found for title_activity_edit_trigger (2115747586987165481) -->
-    <skip />
-    <!-- no translation found for title_activity_add_trigger (9137879813992485906) -->
-    <skip />
-    <!-- no translation found for trigger_type_label (4847350415951495617) -->
-    <skip />
-    <!-- no translation found for trigger_when_label (8616405039634043612) -->
-    <skip />
-    <!-- no translation found for trigger_type_start_recording (7292105639999785968) -->
-    <skip />
-    <!-- no translation found for trigger_type_stop_recording (3022683931027310288) -->
-    <skip />
-    <!-- no translation found for trigger_type_note (626654531254636746) -->
-    <skip />
-    <!-- no translation found for trigger_type_alert (6525543144561765762) -->
-    <skip />
-    <!-- no translation found for trigger_when_at (762967868925610869) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below (149048320758854889) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above (4131024183229534708) -->
-    <skip />
-    <!-- no translation found for trigger_value_hint (6176793893724760154) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_label (2243205345376006607) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_hint (7624572723656572363) -->
-    <skip />
-    <!-- no translation found for trigger_audio_alert (3888981987994238753) -->
-    <skip />
-    <!-- no translation found for trigger_haptic_alert (4734911836763569299) -->
-    <skip />
-    <!-- no translation found for trigger_visual_alert (8191512950406497950) -->
-    <skip />
-    <!-- no translation found for cannot_save_invalid_value (2889387470051561369) -->
-    <skip />
-    <!-- no translation found for trigger_when_at_description (1004528252412424201) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above_description (9004635001846058548) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below_description (1707397407766550719) -->
-    <skip />
-    <!-- no translation found for sensor_trigger_deleted (1181819400253443424) -->
-    <skip />
-    <!-- no translation found for trigger_label_auto_text (9210831035009346407) -->
-    <skip />
+    <string name="audio_enabled_format" msgid="4202071153288924614">"<xliff:g id="SENSOR_DISPLAY_NAME">%1s</xliff:g> ♪"</string>
+    <string name="menu_item_set_triggers" msgid="3555868641262376254">"트리거 설정"</string>
+    <string name="menu_item_edit_triggers" msgid="5719430048511669542">"트리거 수정"</string>
+    <string name="title_activity_trigger_list" msgid="2928411265364344194">"트리거 목록"</string>
+    <string name="title_fragment_trigger_list" msgid="4425969691529503861">"<xliff:g id="SENSOR_NAME">%s</xliff:g>의 트리거"</string>
+    <string name="btn_add_new_trigger" msgid="1143389268664607859">"트리거 만들기"</string>
+    <string name="empty_trigger_list" msgid="238046755667717404">"트리거가 설정되지 않았습니다."</string>
+    <string name="title_activity_edit_trigger" msgid="2115747586987165481">"트리거 수정"</string>
+    <string name="title_fragment_edit_trigger" msgid="9141329265681138113">"<xliff:g id="SENSOR_NAME">%s</xliff:g> 트리거 수정"</string>
+    <string name="title_fragment_add_trigger" msgid="7877645218403597761">"새 <xliff:g id="SENSOR_NAME">%s</xliff:g> 트리거"</string>
+    <string name="trigger_type_label" msgid="4847350415951495617">"트리거 유형"</string>
+    <string name="trigger_when_label" msgid="8616405039634043612">"트리거 작동 시점"</string>
+    <string name="trigger_value_label" msgid="3412972042230849085">"트리거 값"</string>
+    <string name="trigger_type_start_recording" msgid="7292105639999785968">"기록 시작"</string>
+    <string name="trigger_type_stop_recording" msgid="3022683931027310288">"기록 중지"</string>
+    <string name="trigger_type_note" msgid="626654531254636746">"메모하기"</string>
+    <string name="trigger_type_alert" msgid="6525543144561765762">"내게 알림"</string>
+    <string name="trigger_when_at" msgid="762967868925610869">"정확히 일치"</string>
+    <string name="trigger_when_drops_below" msgid="149048320758854889">"미만으로 하락"</string>
+    <string name="trigger_when_rises_above" msgid="4131024183229534708">"상승하여 초과"</string>
+    <string name="trigger_when_is_below" msgid="8270111951353483145">"미달 시"</string>
+    <string name="trigger_when_is_above" msgid="1839678217244657667">"초과 시"</string>
+    <string name="trigger_value_hint" msgid="6176793893724760154">"값"</string>
+    <string name="trigger_note_text_label" msgid="2243205345376006607">"기본 메모 텍스트"</string>
+    <string name="trigger_note_text_hint" msgid="7624572723656572363">"메모 내용을 입력하세요."</string>
+    <string name="trigger_audio_alert" msgid="7125606348399123076">"알림음"</string>
+    <string name="trigger_haptic_alert" msgid="9173126487427899717">"진동"</string>
+    <string name="trigger_visual_alert" msgid="3137431533902715114">"시각적 알림"</string>
+    <string name="cannot_save_invalid_value" msgid="2889387470051561369">"이 트리거가 작동할 숫자 값을 입력해야 합니다."</string>
+    <string name="trigger_when_at_description" msgid="6704567729507492002">"정확히 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>일 때 <xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="trigger_when_rises_above_description" msgid="8089893226169256044">"<xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>보다 위로 상승할 때 <xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="trigger_when_drops_below_description" msgid="5435046961646187734">"<xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> 미만으로 하락할 때 <xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="trigger_when_above_description" msgid="8754842709321803028">"센서가 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> 초과 시 <xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="trigger_when_below_description" msgid="1917050957970325724">"센서가 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g> 미만일 때 <xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="sensor_trigger_deleted" msgid="1181819400253443424">"트리거 삭제됨"</string>
+    <!-- no translation found for trigger_type_list:0 (2965441322551479563) -->
+    <!-- no translation found for trigger_type_list:1 (2546936807241604853) -->
+    <!-- no translation found for trigger_type_list:2 (8989734094411396978) -->
+    <!-- no translation found for trigger_type_list:3 (3361617139415647084) -->
+    <!-- no translation found for trigger_when_list:0 (4808925283875227158) -->
+    <!-- no translation found for trigger_when_list:1 (982481841992075984) -->
+    <!-- no translation found for trigger_when_list:2 (795907252258650657) -->
+    <!-- no translation found for trigger_when_list:3 (486995679981577062) -->
+    <!-- no translation found for trigger_when_list:4 (3226257072675412338) -->
+  <string-array name="trigger_when_list_note_text">
+    <item msgid="7778784440115654134">"현재 값"</item>
+    <item msgid="5362437948357000880">"다음 값 초과"</item>
+    <item msgid="96408841538247555">"다음 값 미달"</item>
+    <item msgid="5929079391002165627">"다음 값 초과 시"</item>
+    <item msgid="2421726237024232431">"다음 값 미달 시"</item>
+  </string-array>
+    <string name="trigger_only_when_recording" msgid="2102420075414851575">"기록 시에만 트리거 작동"</string>
+    <string name="trigger_label_auto_text" msgid="7238124210986703642">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="trigger_label_icon_content_description" msgid="4567123930201934477">"트리거 메모: <xliff:g id="TRIGGER_DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="trigger_snackbar_auto_text" msgid="1082338857442085741">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="scroll_to_card" msgid="4531288548260633064">"표시"</string>
+    <string name="could_not_find_service_error" msgid="6399923176664381124">"<xliff:g id="SERVICE_ID">%s</xliff:g> 서비스를 찾을 수 없습니다."</string>
+    <string name="recording_stopped_notification_text" msgid="2700948290649435580">"기록이 완료되었습니다."</string>
+    <string name="disable_all_triggers" msgid="4207192080361552008">"트리거 사용 중지"</string>
+    <string name="trigger_view_icon_content_description" msgid="468973450644969062">"트리거"</string>
+    <string name="alert_trigger_needs_alerts" msgid="9046346885115277889">"오류: 이 트리거의 알림 유형을 하나 이상 선택해야 합니다."</string>
+    <string name="trigger_fired_text" msgid="8122555560445417775">"트리거 작동"</string>
+    <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"자르기 시작: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"자르기 끝: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_failed_message" msgid="8583818349156861745">"자르기를 저장하지 못했습니다."</string>
+    <string name="crop_completed_message" msgid="2902081668922934393">"시도 잘림"</string>
+    <string name="launch_settings" msgid="2712101939691138420">"설정 실행"</string>
+    <string name="trigger_alert_prompt" msgid="7548827088664791710">"알림 방법"</string>
+    <string name="my_devices" msgid="2753935122366940731">"내 기기"</string>
+    <string name="available_devices" msgid="5671327872447270316">"사용 가능한 기기"</string>
+    <string name="api_connection_timeout_error" msgid="2767327583360399345">"연결 제한 시간 초과"</string>
+    <string name="btn_expand_device" msgid="5065622950345958436">"기기 센서 표시"</string>
+    <string name="btn_contract_device" msgid="1075694686012045562">"기기 센서 숨기기"</string>
+    <string name="select_sensors" msgid="7242531205153688282">"<xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>에서 사용할 센서 선택"</string>
+    <string name="phone_sensors" msgid="1093110931724349906">"내부 센서"</string>
+    <string name="rename_device" msgid="6177379501609319531">"기기 이름 변경"</string>
+    <string name="forget_device" msgid="7258019924047721349">"이 기기 지우기"</string>
+    <string name="device_settings" msgid="5076827559934591801">"기기 설정"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"실험에 센서 추가"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"실험에서 센서 삭제"</string>
 </resources>

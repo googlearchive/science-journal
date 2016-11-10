@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" msgid="1749878361700406471">"科学杂志"</string>
+    <string name="app_name" msgid="1749878361700406471">"科学日志"</string>
     <string name="action_feedback" msgid="3485726544664165152">"反馈"</string>
     <string name="action_settings" msgid="7253243161333327313">"设置"</string>
     <string name="action_about" msgid="6800644842624263352">"关于"</string>
@@ -48,15 +48,14 @@
     <string name="rpm_units" msgid="2651871280948091901">"转/分钟"</string>
     <string name="voltage_units" msgid="598716668433769220">"伏"</string>
     <string name="raw_units" msgid="4501311675565391535">"%"</string>
-    <string name="barometer_units" msgid="8404848712372029263">"毫巴"</string>
+    <string name="barometer_units" msgid="5606531967130926197">"百帕"</string>
     <string name="temperature_units" msgid="6865637706924726630">"°C"</string>
     <string name="header_name_and_units" msgid="2085988560798053543">"<xliff:g id="SENSOR_NAME">%1s</xliff:g> (<xliff:g id="SENSOR_UNITS">%2s</xliff:g>)"</string>
     <string name="experiment_details" msgid="5584369034749538544">"实验详细信息"</string>
-    <string name="add_sensor" msgid="7637499411634365504">"添加传感器"</string>
     <string name="snackbar_source_error" msgid="488480213360860471">"连接至此来源时出错：<xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
     <string name="action_retry" msgid="3145700667339813916">"重试"</string>
     <string name="decibel" msgid="2567269521573545643">"音强"</string>
-    <string name="title_activity_tutorial" msgid="2584345529619464915">"科学杂志教程"</string>
+    <string name="title_activity_tutorial" msgid="2584345529619464915">"科学日志教程"</string>
     <string name="title_activity_age_verifier" msgid="7040452872458524616">"出生日期"</string>
     <string name="title_activity_ruler" msgid="7356097859627917798">"标尺"</string>
     <string name="ruler_label_metric" msgid="4168199108712627963">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> 毫米"</string>
@@ -91,7 +90,7 @@
     <string name="elapsed_time_axis_format_large" msgid="5693537324927532690">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_small_tenths" msgid="4091017607656155791">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large_tenths" msgid="3013544179502005785">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
-    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1s</xliff:g>，<xliff:g id="VALUE">%2s</xliff:g> <xliff:g id="UNITS">%3s</xliff:g>。"</string>
+    <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1$s</xliff:g>，<xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>。"</string>
     <string name="picture_note_description" msgid="6443481127492010185">"测试图片备注"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"图片备注预览"</string>
     <string name="navigation_item_observe" msgid="8558454737213940045">"观察"</string>
@@ -99,8 +98,8 @@
     <string name="navigation_item_web_link" msgid="2569270479818502015">"Making &amp; Science 网站"</string>
     <string name="navigation_item_settings" msgid="2126253880412012953">"设置"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"测试选项"</string>
-    <string name="title_activity_main" msgid="7023325446656975223">"科学杂志 - <xliff:g id="SECTION">%s</xliff:g>"</string>
-    <string name="title_activity_add_sensor" msgid="1432724804471397682">"外部设备"</string>
+    <string name="title_activity_main" msgid="7023325446656975223">"科学日志 - <xliff:g id="SECTION">%s</xliff:g>"</string>
+    <string name="title_activity_sensor_settings" msgid="1784553345261037389">"传感器设置"</string>
     <string name="external_devices_paired" msgid="4167288049155302614">"已配对的设备"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"正在配对…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"可用设备"</string>
@@ -140,8 +139,7 @@
     <string name="settings_version_title" msgid="6926476057478648092">"版本"</string>
     <string name="settings_replay_tutorial_title" msgid="6935249461039953640">"教程"</string>
     <string name="settings_open_source_title" msgid="2075335777151654751">"开放源代码软件许可"</string>
-    <string name="dev_sensors_title" msgid="56483495191187216">"启用实验传感器"</string>
-    <string name="cannot_scan_message" msgid="5736974833739008592">"要使用科学杂志访问外部设备（“科学杂志传感器”），您必须先开启蓝牙。为了让 Android 设备找到科学杂志传感器，您还需要向其授予获取您的位置信息的权限，因为在搜索设备期间，其他蓝牙设备可能会广播它们的位置信息。但是，科学杂志不会存储或使用这样的位置信息，科学杂志传感器也不会传输位置信息。"</string>
+    <string name="cannot_scan_message" msgid="5736974833739008592">"要使用科学日志访问外部设备（“科学日志传感器”），您必须先开启蓝牙。为了让 Android 设备找到科学日志传感器，您还需要向其授予获取您的位置信息的权限，因为在搜索设备期间，其他蓝牙设备可能会广播它们的位置信息。但是，科学日志不会存储或使用这样的位置信息，科学日志传感器也不会传输位置信息。"</string>
     <string name="btn_request_location" msgid="307169020767649663">"启用位置信息获取权限"</string>
     <string name="btn_enable_bluetooth" msgid="4110230448360114456">"开启蓝牙"</string>
     <string name="btn_new_project_content_description" msgid="7274313837160584011">"新建项目"</string>
@@ -151,6 +149,7 @@
     <string name="archived_project_message" msgid="66153039940455913">"已归档项目。"</string>
     <string name="unarchived_project_message" msgid="8018113308137052929">"项目已移出归档文件夹。"</string>
     <string name="action_undo" msgid="1852278327756791797">"撤消"</string>
+    <string name="deleted_project_message" msgid="1227635187612669144">"已删除项目。"</string>
     <string name="project_title_hint" msgid="5788484729941933289">"项目名称"</string>
     <string name="project_problem_hint" msgid="4818690816549079105">"说明"</string>
     <string name="project_cover_description" msgid="8583694225708356859">"选择项目图片"</string>
@@ -164,7 +163,6 @@
     <string name="unarchived_experiment_message" msgid="7870126733421916514">"实验已移出归档文件夹。"</string>
     <string name="archived_run_message" msgid="8346607350306633655">"已归档测试。"</string>
     <string name="unarchived_run_message" msgid="3807535396227509421">"测试已移出归档文件夹。"</string>
-    <string name="experiments_toolbar_title" msgid="6963959917416270680">"实验"</string>
     <string name="archived_content_description" msgid="7931247623909344339">"<xliff:g id="ITEM">%1s</xliff:g>（已归档）"</string>
     <plurals name="experiment_run_count" formatted="false" msgid="1283784154893798777">
       <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> 次测试</item>
@@ -193,33 +191,27 @@
     <string name="frequency_window_option_label" msgid="4919436041479250367">"频率窗口（以毫秒为单位）"</string>
     <string name="frequency_filter_option_label" msgid="4458966053132937293">"频率过滤（使用传感器的单位）"</string>
     <string name="enable_frequency_checkbox_label" msgid="2922864218507547240">"显示频率"</string>
-    <string name="dev_sensors_summary" msgid="7086328959529574660">"显示仅供开发者测试使用的传感器"</string>
     <string name="options_save_error" msgid="1262808099812151932">"保存选项时出错"</string>
     <string name="options_load_error" msgid="1594503728021930743">"加载选项时出错"</string>
     <string name="dev_tools_title" msgid="8231917267495770691">"启用实验工具"</string>
     <string name="dev_tools_summary" msgid="3609685547301741618">"显示仅供开发者测试使用的工具"</string>
     <string name="dev_tools_leak_detection_title" msgid="4725525693236520974">"启用内存泄露检测功能"</string>
-    <string name="dev_tools_leak_detection_summary" msgid="9019022238189456899">"对此设置所做的更改在应用关闭后才会生效。"</string>
-    <string name="d2p" msgid="372033271119706811">"默认"</string>
-    <string name="d2a" msgid="8650862124682156354">"振幅"</string>
-    <string name="d2pe" msgid="956618657669378971">"音调"</string>
-    <string name="d2ps" msgid="5114174025939101366">"音阶"</string>
+    <string name="dev_tools_leak_detection_summary" msgid="7171148788144095285">"对此设置所做的更改在应用关闭后才会生效。"</string>
+    <string name="default_sonification" msgid="9006778853276983156">"默认"</string>
+    <string name="amplitude" msgid="2540241901091313524">"振幅"</string>
+    <string name="notes" msgid="3276297280118435135">"音调"</string>
+    <string name="scale" msgid="8822139987400974369">"音阶"</string>
+    <string name="conductor" msgid="9193425673241449589">"导体"</string>
     <!-- no translation found for sonification_types_prod:0 (3254769575914104850) -->
     <!-- no translation found for sonification_types_prod:1 (1831413879274006078) -->
     <!-- no translation found for sonification_types_prod:2 (1917376169281831239) -->
+    <!-- no translation found for sonification_types_prod:3 (602550002110522910) -->
     <!-- no translation found for sonification_types_dev:0 (7417644575217300390) -->
-  <string-array name="sonification_type_aliases">
-    <item msgid="234968762840479178">"d2p"</item>
-    <item msgid="6154566816995872686">"d2ps"</item>
-    <item msgid="2062530924507614569">"d2pe"</item>
-    <item msgid="72378471312023144">"d2a"</item>
-  </string-array>
     <string name="new_experiment_spinner_item" msgid="5017810476745425374">"新建实验…"</string>
     <string name="recording_title_label" msgid="736399431431816185">"正在记录…"</string>
-    <string name="exp_edit_info_button" msgid="3141909000709306124">"修改信息"</string>
     <string name="btn_observe_content_description" msgid="476911391550333702">"观察"</string>
     <string name="title_activity_experiment_details" msgid="3494340558031776911">"实验详细信息"</string>
-    <string name="empty_runs" msgid="7548505071633993347">"您没有任何测试"</string>
+    <string name="empty_experiment" msgid="6142475501762739386">"此实验没有任何测试或备注。"</string>
     <string name="permission_request_write" msgid="6590731147363977582">"要在外部存储空间中写入数据，必须要有相应的权限。"</string>
     <string name="device_options_sensor_label_text" msgid="5073336029128358977">"传感器"</string>
     <string name="external_sensor_appearance_name" msgid="6419268671149879170">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
@@ -231,7 +223,6 @@
     <string name="device_options_custom_sensor_pin_label_text" msgid="7023371657105134847">"针"</string>
     <string name="device_options_custom_sensor_frequency_checkbox_text" msgid="4571472391388122413">"频率"</string>
     <string name="feedback_error_message" msgid="3117491109292317255">"无法发送反馈。"</string>
-    <string name="no_sensor_info_found" msgid="2182109795740683658">"没有关于此传感器的其他信息！"</string>
     <string name="sensor_desc_short_acc_x" msgid="1184579399689940361">"手机向左和向右移动的加速度，以米/秒² 为单位"</string>
     <string name="sensor_desc_short_acc_y" msgid="7084492489358508838">"手机向前和向后移动的加速度，以米/秒² 为单位"</string>
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"手机向上和向下移动的加速度，以米/秒² 为单位"</string>
@@ -241,21 +232,24 @@
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"外部传感器会根据自定义设置在此处显示其数据。"</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"每分钟旋转的次数"</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"来自外部传感器的原始百分比读数。"</string>
+    <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"以百帕 (hPa) 为单位测得的气压。"</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"环境光传感器用于以勒克斯为单位对光进行衡量，这是一种基于入射光的量和光线分散区域来测量照度的办法。\n\n满月的照度约为 1 勒克斯，普通客厅照明灯的照度约为 50 勒克斯，教室照明系统、日出时及日落时的照度约为 400 勒克斯，日光（非直射）的照度超过 10000 勒克斯，直射的照度超过 30000 勒克斯。\n\n大多数人并不熟悉勒克斯这个单位。我们买灯泡时，通常根据瓦特选购，但瓦特无法说明灯泡的亮度，只能说明它消耗的能源。选购灯具时，流明是一个更好的衡量单位，它说明了灯泡的实际亮度，而勒克斯则说明了特定区域的光照强度。"</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"由于光在传播时会不断扩散，因此随着您距离光源越来越远，勒克斯数会不断降低，即使光源仍在发出等量的光（以流明为单位）也是如此。光源侧面接收到的照度也较低，这就是赤道地区要比寒冷的极地地区暖和得多的原因。\n\n顺便提一下，手机中的光传感器用于控制屏幕亮度，使屏幕可以根据昏暗或明亮的环境相应进行调整。光传感器内部有一个微型半导体，能够感应到入射光线，产生细微但可测的电流，这就是光电效应。某些路灯也使用了类似的传感器，在天色变暗时，这种传感器就会打开路灯。"</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"物体保持静止不动或匀速移动（在移动状态下）的倾向称之为惯性。牛顿第一定律正式提出了这个观点：除非有不平衡的力作用于物体，否则物体会保持匀速运动或静止状态。\n\n如果不平衡的力改变了物体的运动状态，我们就会说物体获得了加速度：速率或速度发生了改变。加速、减速或改变方向都会带来加速度。加速度通过一定时间内的速率（每秒米数）变化来衡量（也就是米/秒²）。\n\n您的手机配有计算这些运动变化的设备 - 加速计。在加速计内部有处于悬浮状态的微粒，这些微粒可以自由移动。手机运动状态的变化会使这些微粒移动，如同您坐在汽车中，汽车突然刹车时，您的头会不由自主前倾一样。通过计算这些微粒的移动情况，手机中的加速计可以检测自身的运动状态和方向变化，从而能够轻松将手机屏幕从横屏模式切换为纵向模式，方便您玩游戏或进行其他活动。"</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"您可能注意到了 Z 轴上持续存在的加速度，即使手机仍放在桌子上也是如此。这是我们在地球表面上由于重力所体验到的加速度，约为 9.8 米/秒²。"</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"声音是通过振动产生的。例如，人的声音是喉咙中的声带振动发出的。这些振动产生了交替出现的高气压区和低气压区，并向外传播，就如将鹅卵石扔进池塘形成不断扩大的环形涟漪一样。"</string>
-    <string name="sensor_desc_second_paragraph_decibel" msgid="6039417536094358024">"所有声音都可以从频率和强度两个角度进行描述。\n\n强度（以分贝为单位）就是您在此使用科学杂志测量的方面。强度（也称为响度）取决于振动物体每次振动时移动的距离；响度增大，我们听到的声音强度也越大。\n\n声波的频率（也称为音高或音色）等于其振动频率。物体振动越快，发出的声音的音高就越高。科学杂志不会测量频率，仅测量响度。\n\n人们将人耳平均可以分辨的最小声音定义为 0 分贝。日常交谈的声音约为 60 分贝。超过 140 分贝的声音会使人耳产生痛感，但会对人体造成伤害的声音并不一定会带来痛感。持续暴露在声音为 90 分贝（大约是真空吸尘器的响度）的环境中会使人逐渐丧失听力。\n\n分贝的计量是呈对数级增加的，有一点欺骗性：40 分贝声源的强度并非 20 分贝声源的两倍，而是 100 倍。另外，如果一个闹钟的响度是 70 分贝，那么同时响铃的两个闹钟发出的响声不是 140 分贝，而是 73 分贝。这种计量方式确实有点奇怪。\n\n10 分贝相当于落叶发出的沙沙声\n20 分贝相当于 5 英尺之外的低语\n30 分贝相当于低声耳语\n50 分贝相当于下雨的声音\n60 相当于正常交谈的声音\n90 分贝相当于搅拌器发出的声音\n100 分贝相当于汽车未安装消声器的情况下发出的声音\n110 分贝相当于在耳边喊叫的声音\n120 分贝相当于打雷发出的声音\n130 分贝相当于电钻发出的声音\n140 分贝相当于飞机起飞的声音"</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="6039417536094358024">"所有声音都可以从频率和强度两个角度进行描述。\n\n强度（以分贝为单位）就是您在此使用科学日志测量的方面。强度（也称为响度）取决于振动物体每次振动时移动的距离；响度增大，我们听到的声音强度也越大。\n\n声波的频率（也称为音高或音色）等于其振动频率。物体振动越快，发出的声音的音高就越高。科学日志不会测量频率，仅测量响度。\n\n人们将人耳平均可以分辨的最小声音定义为 0 分贝。日常交谈的声音约为 60 分贝。超过 140 分贝的声音会使人耳产生痛感，但会对人体造成伤害的声音并不一定会带来痛感。持续暴露在声音为 90 分贝（大约是真空吸尘器的响度）的环境中会使人逐渐丧失听力。\n\n分贝的计量是呈对数级增加的，有一点欺骗性：40 分贝声源的强度并非 20 分贝声源的两倍，而是 100 倍。另外，如果一个闹钟的响度是 70 分贝，那么同时响铃的两个闹钟发出的响声不是 140 分贝，而是 73 分贝。这种计量方式确实有点奇怪。\n\n10 分贝相当于落叶发出的沙沙声\n20 分贝相当于 5 英尺之外的低语\n30 分贝相当于低声耳语\n50 分贝相当于下雨的声音\n60 相当于正常交谈的声音\n90 分贝相当于搅拌器发出的声音\n100 分贝相当于汽车未安装消声器的情况下发出的声音\n110 分贝相当于在耳边喊叫的声音\n120 分贝相当于打雷发出的声音\n130 分贝相当于电钻发出的声音\n140 分贝相当于飞机起飞的声音"</string>
     <string name="sensor_desc_first_paragraph_rotation" msgid="701021949358379491">"转/分钟 (RPM) 是衡量一分钟内绕固定轴旋转的频率的方法。\n\n当您启动风铃时，它会使编码器码盘旋转："</string>
-    <string name="sensor_desc_second_paragraph_rotation" msgid="5453599141200678146">"这会产生传感器检测到的明亮和黑暗时段（在科学杂志中记录为旋转）。"</string>
+    <string name="sensor_desc_second_paragraph_rotation" msgid="5453599141200678146">"这会产生传感器检测到的明亮和黑暗时段（在科学日志中记录为旋转）。"</string>
     <string name="sensor_desc_first_paragraph_raw" msgid="8624088001449985317">"此处所示的数据来自通过蓝牙与手机进行通信的外部传感器。\n\n其中的值显示的是直接来自您的微型控制器的原始百分比读数。这通常是传感器内部电压下降的百分比。"</string>
     <string name="sensor_desc_second_paragraph_raw" msgid="2081830388555382169">"蓝牙是一种使用无线电波在短距离内在固定和移动设备之间交换数据的无线技术标准。"</string>
     <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"此处所示的数据来自通过蓝牙与手机进行通信的外部传感器。"</string>
     <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"蓝牙是一种使用无线电波在短距离内在固定和移动设备之间交换数据的无线技术标准。"</string>
+    <string name="sensor_desc_first_paragraph_barometer" msgid="2813905499808374316">"虽然我们很少注意到，但其实我们都生活在一个空气海洋的底部，这个空气海洋就是向上延伸 40 千米（130000 英尺）高的地球大气层。所有这些空气的重量从我们的上方向下挤压我们，就会产生所谓的大气压力。\n\n在海平面上，大气压会对每平方英寸的面积施加 14 磅的力，这相当于在标准纸张大小的面积上施加约 1300 磅的力。"</string>
+    <string name="sensor_desc_second_paragraph_barometer" msgid="4975611576005615149">"我们没有察觉这一巨大的压力，是因为我们对此已经习惯了，只有气压发生变化时，我们才会感觉到它的存在，哪怕只是很小的变化，例如当我们前往高海拔地区或乘坐飞机时。大气压也因天气状况而异，有暴风雨、空气不稳定时会下降，空气稳定、天空晴朗时会上升。\n\n手机中的数字气压计以百帕为单位测量大气压值（1 百帕等于 100 帕，1 帕相当于在 1 平方米的面积上施加 1 牛顿的力）。有的国家/地区在提供天气信息时，可能会用毫巴为单位来表示大气压力，1 毫巴就等于 1 百帕，不过前者听起来会让人感觉更熟悉。\n\n您可能会有疑问：为什么要用手机来测量气压？即使海拔高度只出现稍许变化，比如在您爬楼梯时，大气压都会发生可测量到的变化。因此，手机内置的数字气压计可以帮助检测位置的变化，例如，它可以告诉您当前所处的楼层位置，以及您开车过桥时是在上桥还是在下桥阶段。"</string>
     <string name="run_review_duration" msgid="1978235455271606762">"持续时间"</string>
     <string name="run_review_activity_label" msgid="5646135462344737004">"查看"</string>
-    <string name="service_notification_content_title" msgid="791621361781451323">"科学杂志"</string>
+    <string name="service_notification_content_title" msgid="791621361781451323">"科学日志"</string>
     <string name="service_notification_content_text" msgid="8364458347657207997">"正在记录…"</string>
     <string name="live_graph_content_description" msgid="3509656099170703878">"传感器实时数据图表。拖动可平移 X 轴。"</string>
     <string name="static_graph_content_description" msgid="8689642435844781150">"传感器图表。双指张合可缩放，拖动可平移 X 轴。"</string>
@@ -263,9 +257,8 @@
     <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"切换为信息模式"</string>
     <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"切换为图表模式"</string>
     <string name="sensor_tab_layout_content_description" msgid="3807243095823040361">"可用传感器"</string>
-    <string name="sensor_tab_selected_format" msgid="2686213304137352967">"<xliff:g id="SENSOR_NAME">%s</xliff:g>（已选中）"</string>
     <string name="title_activity_sensor_info" msgid="8667402055779114709">"传感器信息"</string>
-    <string name="title_activity_sensor_info_format" msgid="4810933938741070862">"<xliff:g id="SENSOR_NAME">%s</xliff:g>传感器"</string>
+    <string name="title_activity_sensor_info_format" msgid="4284132895191711797">"“<xliff:g id="SENSOR_NAME">%s</xliff:g>”传感器"</string>
     <string name="heading_info_section" msgid="8939391891795009974">"传感器介绍"</string>
     <string name="edit_note_menu_item" msgid="8530099824744920575">"修改"</string>
     <string name="edit_note_time" msgid="5307388665454994755">"修改备注时间"</string>
@@ -292,6 +285,10 @@
     <string name="archived_badge" msgid="6068366174702659773">"已归档"</string>
     <string name="action_include_archived_projects" msgid="7075034155088762601">"包含归档的项目"</string>
     <string name="action_include_archived_experiments" msgid="9179328397501796497">"包含归档的实验"</string>
+    <string name="delete_project_dialog_title" msgid="7681697983255312708">"要删除此项目吗？"</string>
+    <string name="delete_project_dialog_message" msgid="3039092965074898348">"确定要删除此项目吗？其中的所有实验、测试和备注都将被删除。此操作无法撤消。"</string>
+    <string name="delete_experiment_dialog_title" msgid="522221451175758058">"要删除此实验吗？"</string>
+    <string name="delete_experiment_dialog_message" msgid="8055334758058363747">"确定要删除此实验吗？其中的所有测试和备注都将被删除。此操作无法撤消。"</string>
     <string name="action_new_experiment" msgid="5987527361707254638">"新建实验"</string>
     <string name="delete_run_dialog_title" msgid="3841579587741640965">"要删除此测试吗？"</string>
     <string name="run_review_delete_confirm" msgid="1608962272042732123">"确定要删除此测试吗？记录的数据和备注也会被删除。此操作无法撤消。"</string>
@@ -318,27 +315,20 @@
     <string name="graph_loading" msgid="1102165995961515949">"正在加载图表…"</string>
     <string name="playback_button_pause" msgid="348710889337495167">"暂停播放音频"</string>
     <string name="playback_button_play" msgid="3845595255478520691">"开始播放音频"</string>
-    <string name="sonification_type_card_title" msgid="7998122361918330347">"开发者声波处理类型"</string>
     <string name="dev_sonification_types_title" msgid="8470117255317834775">"启用开发者声波处理类型"</string>
     <string name="title_edit_trial_activity" msgid="2639088409396156730">"修改测试"</string>
     <string name="edit_trial_title_hint" msgid="2537511526292819270">"测试名称"</string>
     <string name="include_archived_trials" msgid="2976166896399146224">"包含已归档的测试"</string>
     <string name="export_error" msgid="2485739090885091041">"导出失败。"</string>
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"添加图片说明"</string>
-    <string name="listing_title" msgid="1732490922169483408">"科学杂志"</string>
+    <string name="listing_title" msgid="1732490922169483408">"科学日志"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"探索您周围世界的科学奥秘。"</string>
-    <string name="listing_changelog" msgid="1272605515497326900">"新功能及改进之处：\n• 为图片备注添加注解。\n• 数据可听化处理的音频设置。\n• 提升了长时间测试的执行效果。\n• 修复了多项错误。"</string>
-    <string name="listing__description" msgid="3975515995792990185">"有了“科学杂志”这个实用工具，使用智能手机就能进行科学实验了。您可以使用手机内置传感器，也可以连接外部传感器，开始尽情探索周围的世界。“科学杂志”可以让您将各种零散的想法归类整理成不同的具体项目、进行预测、记录笔记并收集多次实验的数据，然后深入分析实验结果并加上相关注释，就像随身携带的一本实验室笔记本。\n\n \n您可以访问以下网址汲取实验灵感，让这款应用伴您遨游广阔的科学天地：https://makingscience.withgoogle.com/science-journal/activities \n欢迎详细了解 Making &amp; Science：https://makingscience.withgoogle.com \n如需获取支持，请访问：https://productforums.google.com/forum/#!forum/sciencejournal \n如需获取代码，请访问：https://github.com/google/science-journal"</string>
-    <string name="live_zoom_type_option_title" msgid="6184011805342339557">"在观察过程中自动放大比例"</string>
-    <string name="live_zoom_type_option_summary" msgid="3327087952315423967">"当固定到现在的状态时，启用在观察过程中 Y 轴自动放大比例的功能。默认情况下处于停用状态"</string>
-    <!-- no translation found for third_party_sensors_option_title (4835603485129230503) -->
-    <skip />
-    <!-- no translation found for third_party_sensors_option_summary (2567608839882361492) -->
-    <skip />
+    <string name="listing_changelog" msgid="5791385044176273701">"新功能及改进：\n• 传感器触发设置：在达到特定传感器值时发出提醒、做记录或开始/停止记录。通过传感器卡片菜单可使用这些功能。\n• 删除已归档的测试、实验和运行记录。\n• 增加了对气压计传感器的支持。\n• 支持更多可与科学日志配合使用的工具：支持更多外部传感器类型。有关详情，请参见：https://makingscience.withgoogle.com/science-journal/materials \n• 修正了错误。"</string>
+    <string name="listing__description" msgid="3975515995792990185">"有了“科学日志”这个实用工具，使用智能手机就能进行科学实验了。您可以使用手机内置传感器，也可以连接外部传感器，开始尽情探索周围的世界。“科学日志”可以让您将各种零散的想法归类整理成不同的具体项目、进行预测、记录笔记并收集多次实验的数据，然后深入分析实验结果并加上相关注释，就像随身携带的一本实验室笔记本。\n\n \n您可以访问以下网址汲取实验灵感，让这款应用伴您遨游广阔的科学天地：https://makingscience.withgoogle.com/science-journal/activities \n欢迎详细了解 Making &amp; Science：https://makingscience.withgoogle.com \n如需获取支持，请访问：https://productforums.google.com/forum/#!forum/sciencejournal \n如需获取代码，请访问：https://github.com/google/science-journal"</string>
+    <string name="third_party_sensors_option_title" msgid="4835603485129230503">"扫描第三方传感器"</string>
+    <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"查找支持第三方传感器 API 并且能够将这些传感器添加到实验中的应用。"</string>
     <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"启用磁力计"</string>
     <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"启用实验性磁力计传感器"</string>
-    <string name="enable_barometer_sensor_title" msgid="4532163359473808928">"启用气压计"</string>
-    <string name="enable_barometer_sensor_summary" msgid="352316348564408931">"启用实验性气压计传感器"</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"启用环境温度"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"启用实验性环境温度传感器"</string>
     <string name="enable_sine_wave_sensor_title" msgid="5361133155106781791">"启用正弦波"</string>
@@ -353,60 +343,84 @@
     <string name="autozoom_failed" msgid="2708983116606188884">"未能调整自动缩放功能。"</string>
     <string name="run_review_overflow_menu_content_description" msgid="5689925874345140909">"更多选项"</string>
     <string name="licenses_empty" msgid="2746335366478622872">"找不到许可。"</string>
-    <!-- no translation found for audio_enabled_format (4202071153288924614) -->
-    <skip />
-    <!-- no translation found for menu_item_set_triggers (3555868641262376254) -->
-    <skip />
-    <!-- no translation found for title_activity_trigger_list (5014690461140632120) -->
-    <skip />
-    <!-- no translation found for btn_add_new_trigger (1143389268664607859) -->
-    <skip />
-    <!-- no translation found for empty_trigger_list (238046755667717404) -->
-    <skip />
-    <!-- no translation found for title_activity_edit_trigger (2115747586987165481) -->
-    <skip />
-    <!-- no translation found for title_activity_add_trigger (9137879813992485906) -->
-    <skip />
-    <!-- no translation found for trigger_type_label (4847350415951495617) -->
-    <skip />
-    <!-- no translation found for trigger_when_label (8616405039634043612) -->
-    <skip />
-    <!-- no translation found for trigger_type_start_recording (7292105639999785968) -->
-    <skip />
-    <!-- no translation found for trigger_type_stop_recording (3022683931027310288) -->
-    <skip />
-    <!-- no translation found for trigger_type_note (626654531254636746) -->
-    <skip />
-    <!-- no translation found for trigger_type_alert (6525543144561765762) -->
-    <skip />
-    <!-- no translation found for trigger_when_at (762967868925610869) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below (149048320758854889) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above (4131024183229534708) -->
-    <skip />
-    <!-- no translation found for trigger_value_hint (6176793893724760154) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_label (2243205345376006607) -->
-    <skip />
-    <!-- no translation found for trigger_note_text_hint (7624572723656572363) -->
-    <skip />
-    <!-- no translation found for trigger_audio_alert (3888981987994238753) -->
-    <skip />
-    <!-- no translation found for trigger_haptic_alert (4734911836763569299) -->
-    <skip />
-    <!-- no translation found for trigger_visual_alert (8191512950406497950) -->
-    <skip />
-    <!-- no translation found for cannot_save_invalid_value (2889387470051561369) -->
-    <skip />
-    <!-- no translation found for trigger_when_at_description (1004528252412424201) -->
-    <skip />
-    <!-- no translation found for trigger_when_rises_above_description (9004635001846058548) -->
-    <skip />
-    <!-- no translation found for trigger_when_drops_below_description (1707397407766550719) -->
-    <skip />
-    <!-- no translation found for sensor_trigger_deleted (1181819400253443424) -->
-    <skip />
-    <!-- no translation found for trigger_label_auto_text (9210831035009346407) -->
-    <skip />
+    <string name="audio_enabled_format" msgid="4202071153288924614">"<xliff:g id="SENSOR_DISPLAY_NAME">%1s</xliff:g> ♪"</string>
+    <string name="menu_item_set_triggers" msgid="3555868641262376254">"设置触发规则"</string>
+    <string name="menu_item_edit_triggers" msgid="5719430048511669542">"修改触发规则"</string>
+    <string name="title_activity_trigger_list" msgid="2928411265364344194">"触发规则列表"</string>
+    <string name="title_fragment_trigger_list" msgid="4425969691529503861">"“<xliff:g id="SENSOR_NAME">%s</xliff:g>”触发规则"</string>
+    <string name="btn_add_new_trigger" msgid="1143389268664607859">"创建触发规则"</string>
+    <string name="empty_trigger_list" msgid="238046755667717404">"未设置任何触发规则"</string>
+    <string name="title_activity_edit_trigger" msgid="2115747586987165481">"修改触发规则"</string>
+    <string name="title_fragment_edit_trigger" msgid="9141329265681138113">"修改“<xliff:g id="SENSOR_NAME">%s</xliff:g>”触发规则"</string>
+    <string name="title_fragment_add_trigger" msgid="7877645218403597761">"新建“<xliff:g id="SENSOR_NAME">%s</xliff:g>”触发规则"</string>
+    <string name="trigger_type_label" msgid="4847350415951495617">"触发类型"</string>
+    <string name="trigger_when_label" msgid="8616405039634043612">"触发条件"</string>
+    <string name="trigger_value_label" msgid="3412972042230849085">"触发值"</string>
+    <string name="trigger_type_start_recording" msgid="7292105639999785968">"开始记录"</string>
+    <string name="trigger_type_stop_recording" msgid="3022683931027310288">"停止记录"</string>
+    <string name="trigger_type_note" msgid="626654531254636746">"生成备注"</string>
+    <string name="trigger_type_alert" msgid="6525543144561765762">"提醒我"</string>
+    <string name="trigger_when_at" msgid="762967868925610869">"等于"</string>
+    <string name="trigger_when_drops_below" msgid="149048320758854889">"下降到低于"</string>
+    <string name="trigger_when_rises_above" msgid="4131024183229534708">"上升到高于"</string>
+    <string name="trigger_when_is_below" msgid="8270111951353483145">"低于"</string>
+    <string name="trigger_when_is_above" msgid="1839678217244657667">"高于"</string>
+    <string name="trigger_value_hint" msgid="6176793893724760154">"值"</string>
+    <string name="trigger_note_text_label" msgid="2243205345376006607">"默认备注文字"</string>
+    <string name="trigger_note_text_hint" msgid="7624572723656572363">"您的备注中应该写些什么？"</string>
+    <string name="trigger_audio_alert" msgid="7125606348399123076">"声音"</string>
+    <string name="trigger_haptic_alert" msgid="9173126487427899717">"振动"</string>
+    <string name="trigger_visual_alert" msgid="3137431533902715114">"视觉通知"</string>
+    <string name="cannot_save_invalid_value" msgid="2889387470051561369">"您必须为此触发规则输入一个数字型触发值。"</string>
+    <string name="trigger_when_at_description" msgid="6704567729507492002">"当传感器值为 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>时<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="trigger_when_rises_above_description" msgid="8089893226169256044">"当上升到高于 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>时<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="trigger_when_drops_below_description" msgid="5435046961646187734">"当下降到低于 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>时<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="trigger_when_above_description" msgid="8754842709321803028">"当传感器值高于 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>时<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="trigger_when_below_description" msgid="1917050957970325724">"当传感器值低于 <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>时<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>"</string>
+    <string name="sensor_trigger_deleted" msgid="1181819400253443424">"已删除触发规则"</string>
+    <!-- no translation found for trigger_type_list:0 (2965441322551479563) -->
+    <!-- no translation found for trigger_type_list:1 (2546936807241604853) -->
+    <!-- no translation found for trigger_type_list:2 (8989734094411396978) -->
+    <!-- no translation found for trigger_type_list:3 (3361617139415647084) -->
+    <!-- no translation found for trigger_when_list:0 (4808925283875227158) -->
+    <!-- no translation found for trigger_when_list:1 (982481841992075984) -->
+    <!-- no translation found for trigger_when_list:2 (795907252258650657) -->
+    <!-- no translation found for trigger_when_list:3 (486995679981577062) -->
+    <!-- no translation found for trigger_when_list:4 (3226257072675412338) -->
+  <string-array name="trigger_when_list_note_text">
+    <item msgid="7778784440115654134">"，"</item>
+    <item msgid="5362437948357000880">"上升到高于"</item>
+    <item msgid="96408841538247555">"下降至低于"</item>
+    <item msgid="5929079391002165627">"高于"</item>
+    <item msgid="2421726237024232431">"低于"</item>
+  </string-array>
+    <string name="trigger_only_when_recording" msgid="2102420075414851575">"仅在记录时触发"</string>
+    <string name="trigger_label_auto_text" msgid="7238124210986703642">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="trigger_label_icon_content_description" msgid="4567123930201934477">"触发规则备注：<xliff:g id="TRIGGER_DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="trigger_snackbar_auto_text" msgid="1082338857442085741">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
+    <string name="scroll_to_card" msgid="4531288548260633064">"显示"</string>
+    <string name="could_not_find_service_error" msgid="6399923176664381124">"找不到服务：<xliff:g id="SERVICE_ID">%s</xliff:g>"</string>
+    <string name="recording_stopped_notification_text" msgid="2700948290649435580">"已完成记录。"</string>
+    <string name="disable_all_triggers" msgid="4207192080361552008">"停用触发规则"</string>
+    <string name="trigger_view_icon_content_description" msgid="468973450644969062">"触发规则"</string>
+    <string name="alert_trigger_needs_alerts" msgid="9046346885115277889">"错误：您必须为此触发规则选择至少一种提醒类型。"</string>
+    <string name="trigger_fired_text" msgid="8122555560445417775">"已激活触发规则"</string>
+    <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"剪裁开始时间：<xliff:g id="TIME">%1$s</xliff:g>，<xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"剪裁结束时间：<xliff:g id="TIME">%1$s</xliff:g>，<xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
+    <string name="crop_failed_message" msgid="8583818349156861745">"未能保存剪裁内容。"</string>
+    <string name="crop_completed_message" msgid="2902081668922934393">"已对测试进行剪裁"</string>
+    <string name="launch_settings" msgid="2712101939691138420">"启动设置"</string>
+    <string name="trigger_alert_prompt" msgid="7548827088664791710">"通过以下方式提醒我："</string>
+    <string name="my_devices" msgid="2753935122366940731">"我的设备"</string>
+    <string name="available_devices" msgid="5671327872447270316">"可用设备"</string>
+    <string name="api_connection_timeout_error" msgid="2767327583360399345">"连接超时"</string>
+    <string name="btn_expand_device" msgid="5065622950345958436">"显示设备传感器"</string>
+    <string name="btn_contract_device" msgid="1075694686012045562">"隐藏设备传感器"</string>
+    <string name="select_sensors" msgid="7242531205153688282">"选择用于“<xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>”的传感器"</string>
+    <string name="phone_sensors" msgid="1093110931724349906">"内置传感器"</string>
+    <string name="rename_device" msgid="6177379501609319531">"重命名设备"</string>
+    <string name="forget_device" msgid="7258019924047721349">"忽略此设备"</string>
+    <string name="device_settings" msgid="5076827559934591801">"设备设置"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"向实验添加传感器"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"移除实验中的传感器"</string>
 </resources>
