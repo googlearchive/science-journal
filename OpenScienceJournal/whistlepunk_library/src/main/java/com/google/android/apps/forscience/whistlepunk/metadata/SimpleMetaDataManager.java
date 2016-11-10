@@ -1126,7 +1126,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 while (c.moveToNext()) {
                     InputDeviceSpec spec = (InputDeviceSpec) getExternalSensorById(c.getString(0),
                             InputDeviceSpec.PROVIDER_MAP);
-                    myDevices.add(spec);
+
+                    // I _think_ this data state is only possible when debugging puts the data in
+                    // weird states, but just to be safe...
+                    if (spec != null) {
+                        myDevices.add(spec);
+                    }
                 }
             } finally {
                 if (c != null) {
