@@ -17,5 +17,5 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" msgid="4603764653742641503">"Отварање Научног дневника"</string>
+    <string name="app_name" msgid="4603764653742641503">"Научни дневник отвореног кода"</string>
 </resources>
