@@ -16,6 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.FragmentManager;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
@@ -25,8 +26,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.ToggleArrow;
+import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.common.base.Supplier;
 
 public class ServiceParentViewHolder extends OffsetParentViewHolder {
@@ -51,7 +54,11 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
             final Runnable onRefresh) {
         mItem = item;
         mNameView.setText(item.getServiceName());
-        mIcon.setImageDrawable(item.getDeviceIcon(mIcon.getContext()));
+        Drawable icon = item.getDeviceIcon(mIcon.getContext());
+        if (item.getProviderId().equals(BleSensorSpec.TYPE)) {
+            icon = ColorUtils.colorDrawable(mIcon.getContext(), icon, R.color.color_accent);
+        }
+        mIcon.setImageDrawable(icon);
         mCollapsedIcon.setActionStrings(R.string.btn_expand_device,
                 R.string.btn_contract_device);
         mCollapsedIcon.setActive(item.isInitiallyExpanded(), false);
