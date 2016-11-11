@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
+import com.bignerdranch.expandablerecyclerview.Model.ParentWrapper;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
@@ -76,6 +77,21 @@ public class ExpandableServiceAdapter extends
         mDeviceRegistry = deviceRegistry;
         mFragmentManager = fragmentManager;
         mAppearanceProvider = appearanceProvider;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        Object item = getListItem(position);
+        long result;
+        if (item instanceof  ParentWrapper) {
+            ServiceParentListItem parent = (ServiceParentListItem)
+                    ((ParentWrapper) item).getParentListItem();
+            result = parent.getGlobalServiceId().hashCode();
+        } else {
+            DeviceWithSensors device = (DeviceWithSensors) item;
+            result = (device.getSpec().getGlobalDeviceAddress() + "device").hashCode();
+        }
+        return result;
     }
 
     @Override

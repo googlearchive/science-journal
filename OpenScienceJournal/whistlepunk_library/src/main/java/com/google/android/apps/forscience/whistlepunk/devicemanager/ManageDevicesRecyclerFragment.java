@@ -18,9 +18,12 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -100,9 +103,14 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
         }
         CompositeRecyclerAdapter adapter = new CompositeRecyclerAdapter(myHeader, mMyDevices,
                 availableHeader, mAvailableDevices);
+        adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(
                 new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        // Don't animate on change: https://code.google.com/p/android/issues/detail?id=204277.
+        SimpleItemAnimator animator = new DefaultItemAnimator();
+        animator.setSupportsChangeAnimations(false);
+        recyclerView.setItemAnimator(animator);
         return view;
     }
 

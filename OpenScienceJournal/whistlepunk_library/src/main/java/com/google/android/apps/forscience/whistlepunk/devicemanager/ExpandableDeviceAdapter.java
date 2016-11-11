@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
+import com.bignerdranch.expandablerecyclerview.Model.ParentWrapper;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
@@ -67,6 +68,21 @@ public class ExpandableDeviceAdapter extends
     }
 
     @Override
+    public long getItemId(int position) {
+        Object item = getListItem(position);
+        long result;
+        if (item instanceof  ParentWrapper) {
+            DeviceParentListItem parent = (DeviceParentListItem)
+                    ((ParentWrapper) item).getParentListItem();
+            result = parent.getSpec().getGlobalDeviceAddress().hashCode();
+        } else {
+            // The item is a SensorKey string.
+            result = ((String) item).hashCode();
+        }
+        return result;
+    }
+
+    @Override
     public DeviceParentViewHolder onCreateParentViewHolder(
             ViewGroup parentViewGroup) {
         View viewGroup = LayoutInflater.from(parentViewGroup.getContext()).inflate(
@@ -108,13 +124,10 @@ public class ExpandableDeviceAdapter extends
     public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
         boolean isReplacement = mSensorMap.containsKey(sensorKey);
         if (isReplacement) {
-            ConnectableSensor previousSensor = mSensorMap.get(sensorKey);
             mSensorMap.put(sensorKey, sensor);
             int parentIndex = findParentIndex(sensorKey);
             if (parentIndex >= 0) {
-                if (!previousSensor.isUnchanged(sensor)) {
-                    notifyChildItemChanged(findParentIndex(sensorKey), findChildIndex(sensorKey));
-                }
+                notifyChildItemChanged(findParentIndex(sensorKey), findChildIndex(sensorKey));
                 return true;
             }
         }

@@ -126,6 +126,12 @@ public class CompositeRecyclerAdapter<VH extends RecyclerView.ViewHolder> extend
     }
 
     @Override
+    public long getItemId(int position) {
+        scanTo(position);
+        return mSubAdapters[mLastSubAdapterIndex].getItemId(mLastSubPosition);
+    }
+
+    @Override
     public int getItemViewType(int position) {
         scanTo(position);
         int itemViewType = mSubAdapters[mLastSubAdapterIndex].getItemViewType(mLastSubPosition);
