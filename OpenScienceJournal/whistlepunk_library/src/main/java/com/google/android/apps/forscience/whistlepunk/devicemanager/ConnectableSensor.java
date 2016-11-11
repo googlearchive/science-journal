@@ -155,6 +155,13 @@ public class ConnectableSensor {
         return mSpec.isSameSensor(other.mSpec);
     }
 
+    public boolean isUnchanged(ConnectableSensor other) {
+        if (mSpec == null) {
+            return Objects.equals(other.mConnectedSensorId, mConnectedSensorId);
+        }
+        return mSpec.isSameSensorAndSpec(other.mSpec);
+    }
+
     public boolean isBuiltIn() {
         return mSpec == null;
     }

@@ -168,10 +168,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     }
 
     private void setExperimentId(String experimentId) {
-        if (!mRegistry.setExperimentId(experimentId, mSensorRegistry)) {
-            // Nothing changed, no need to reload.
-            return;
-        }
+        mRegistry.setExperimentId(experimentId, mSensorRegistry);
         AppSingleton.getInstance(getActivity()).getDataController().getExperimentById(
                 experimentId,
                 new LoggingConsumer<Experiment>(TAG, "load experiment for name") {

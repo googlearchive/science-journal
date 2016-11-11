@@ -469,13 +469,9 @@ public class ConnectableSensorRegistry {
     /**
      * @return true if anything is changed.
      */
-    public boolean setExperimentId(String experimentId, SensorRegistry sr) {
-        if (Objects.equals(experimentId, mExperimentId)) {
-            return false;
-        }
+    public void setExperimentId(String experimentId, SensorRegistry sr) {
         mExperimentId = experimentId;
         refresh(false, sr);
-        return true;
     }
 
     private SensorGroup getPairedGroup() {
