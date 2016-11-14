@@ -30,7 +30,7 @@ public class DevOptionsTestCase extends AndroidTestCase {
 
     @NonNull
     protected String getRememberedPrefKey() {
-        return DevOptionsFragment.KEY_THIRD_PARTY_SENSORS;
+        return DevOptionsFragment.KEY_SINE_WAVE_SENSOR;
     }
 
     @Override

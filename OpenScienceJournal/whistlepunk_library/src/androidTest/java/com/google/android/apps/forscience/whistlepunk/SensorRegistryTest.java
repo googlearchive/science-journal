@@ -16,6 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.support.annotation.NonNull;
+import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
@@ -33,11 +34,6 @@ import java.util.List;
 
 // TODO: make this a java-only unit test
 public class SensorRegistryTest extends DevOptionsTestCase {
-    @NonNull
-    @Override
-    protected String getRememberedPrefKey() {
-        return DevOptionsFragment.KEY_SINE_WAVE_SENSOR;
-    }
 
     public void testImmediatelyReset() {
         SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(getContext());
