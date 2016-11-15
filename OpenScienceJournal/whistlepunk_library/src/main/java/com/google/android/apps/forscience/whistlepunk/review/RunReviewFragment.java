@@ -29,6 +29,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.NavUtils;
+import android.support.v4.util.Pair;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -113,14 +114,16 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     private static final String KEY_SELECTED_SENSOR_INDEX = "selected_sensor_index";
     private static final String KEY_TIMESTAMP_EDIT_UI_VISIBLE = "timestamp_edit_visible";
-    private static final String KEY_EXTERNAL_AXIS_MINIMUM = "external_axis_min";
-    private static final String KEY_EXTERNAL_AXIS_MAXIMUM = "external_axis_max";
+    private static final String KEY_EXTERNAL_AXIS_X_MINIMUM = "external_axis_min";
+    private static final String KEY_EXTERNAL_AXIS_X_MAXIMUM = "external_axis_max";
     private static final String KEY_RUN_REVIEW_OVERLAY_TIMESTAMP = "run_review_overlay_time";
     private static final String KEY_STATS_OVERLAY_VISIBLE = "stats_overlay_visible";
     private static final String KEY_AUDIO_PLAYBACK_ON = "audio_playback_on";
     private static final String KEY_CROP_UI_VISIBLE = "crop_ui_visible";
     private static final String KEY_CROP_START_TIMESTAMP = "crop_ui_start_timestamp";
     private static final String KEY_CROP_END_TIMESTAMP = "crop_ui_end_timestamp";
+    private static final String KEY_CHART_AXIS_Y_MAXIMUM = "chart_y_axis_min";
+    private static final String KEY_CHART_AXIS_Y_MINIMUM = "chart_y_axis_max";
 
     private int mLoadingStatus = GRAPH_LOAD_STATUS_IDLE;
 
@@ -151,6 +154,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private RunStats mCurrentSensorStats;
     private boolean mShowStatsOverlay = false;
     private BroadcastReceiver mBroadcastReceiver;
+    private Pair<Double, Double> mPreviousYPair;
 
     // Save the savedInstanceState between onCreateView and loading the run data, in case
     // an onPause happens during that time.
@@ -619,17 +623,24 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         double yMin = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MIN);
         double yMax = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MAX);
         if (mExperimentRun.getAutoZoomEnabled()) {
-            mChartController.setYAxisWithBuffer(yMin, yMax);
+            mChartController.setReviewYAxis(yMin, yMax, /* has buffer */ true);
         } else {
             GoosciSensorLayout.SensorLayout layout =
                     mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
             // Don't zoom in more than the recorded data.
             // The layout's min/max y value may be too small to show the recorded data when
             // recording happened in the background and was stopped by a trigger.
-            mChartController.setYAxis(Math.min(layout.minimumYAxisValue, yMin),
-                    Math.max(layout.maximumYAxisValue, yMax));
+            mChartController.setReviewYAxis(Math.min(layout.minimumYAxisValue, yMin),
+                    Math.max(layout.maximumYAxisValue, yMax), /* no buffer */ false);
         }
+
+        if (mPreviousYPair != null) {
+            mChartController.setYAxis(mPreviousYPair.first, mPreviousYPair.second);
+            mPreviousYPair = null;
+        }
+
         mChartController.refreshChartView();
+        // TODO: What happens when we zoom the Y axis while audio is playing?
         mAudioPlaybackController.setYAxisRange(mChartController.getRenderedYMin(),
                 mChartController.getRenderedYMax());
         // Redraw the thumb after the chart is updated.
@@ -650,10 +661,10 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             // We haven't finished loading the run from the database yet in onCreateView.
             // Go ahead and use the old savedInstanceState since we haven't reconstructed
             // everything yet.
-            outState.putLong(KEY_EXTERNAL_AXIS_MINIMUM,
-                    mSavedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_MINIMUM));
-            outState.putLong(KEY_EXTERNAL_AXIS_MAXIMUM,
-                    mSavedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_MAXIMUM));
+            outState.putLong(KEY_EXTERNAL_AXIS_X_MINIMUM,
+                    mSavedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_X_MINIMUM));
+            outState.putLong(KEY_EXTERNAL_AXIS_X_MAXIMUM,
+                    mSavedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_X_MAXIMUM));
             outState.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP,
                     mSavedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP));
             outState.putBoolean(KEY_STATS_OVERLAY_VISIBLE,
@@ -666,11 +677,15 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     mSavedInstanceStateForLoad.getLong(KEY_CROP_START_TIMESTAMP));
             outState.putLong(KEY_CROP_END_TIMESTAMP,
                     mSavedInstanceStateForLoad.getLong(KEY_CROP_END_TIMESTAMP));
+            outState.putDouble(KEY_CHART_AXIS_Y_MAXIMUM,
+                    mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MAXIMUM));
+            outState.putDouble(KEY_CHART_AXIS_Y_MINIMUM,
+                    mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM));
         } else {
             outState.putBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE, getChildFragmentManager()
                     .findFragmentByTag(EditTimeDialog.TAG) != null);
-            outState.putLong(KEY_EXTERNAL_AXIS_MINIMUM, mExternalAxis.getXMin());
-            outState.putLong(KEY_EXTERNAL_AXIS_MAXIMUM, mExternalAxis.getXMax());
+            outState.putLong(KEY_EXTERNAL_AXIS_X_MINIMUM, mExternalAxis.getXMin());
+            outState.putLong(KEY_EXTERNAL_AXIS_X_MAXIMUM, mExternalAxis.getXMax());
             outState.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
             outState.putBoolean(KEY_STATS_OVERLAY_VISIBLE, mShowStatsOverlay);
             outState.putBoolean(KEY_AUDIO_PLAYBACK_ON, mAudioPlaybackController.isPlaying() ||
@@ -678,6 +693,14 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             outState.putBoolean(KEY_CROP_UI_VISIBLE, mRunReviewOverlay.getIsCropping());
             outState.putLong(KEY_CROP_START_TIMESTAMP, mRunReviewOverlay.getCropStartTimestamp());
             outState.putLong(KEY_CROP_END_TIMESTAMP, mRunReviewOverlay.getCropEndTimestamp());
+            double yMax = mChartController.getRenderedYMax();
+            double yMin = mChartController.getRenderedYMin();
+            if (yMax > yMin) {
+                outState.putDouble(KEY_CHART_AXIS_Y_MAXIMUM, yMax);
+                outState.putDouble(KEY_CHART_AXIS_Y_MINIMUM, yMin);
+            } else {
+                Log.d(TAG, "not loaded");
+            }
         }
     }
 
@@ -821,6 +844,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 // Reset the add note timepicker UI
                 setTimepickerUi(rootView, true);
             }
+            mPreviousYPair = new Pair<>(
+                    mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM),
+                    mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MAXIMUM));
         }
         setUpAxis(mSavedInstanceStateForLoad, rootView);
         mSavedInstanceStateForLoad = null;
@@ -840,8 +866,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         boolean isCropping = false;
 
         if (savedInstanceStateForLoad != null) {
-            firstTimestamp = savedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_MINIMUM);
-            lastTimestamp = savedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_MAXIMUM);
+            firstTimestamp = savedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_X_MINIMUM);
+            lastTimestamp = savedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_X_MAXIMUM);
             long savedOverlayTimestamp =
                     savedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP);
             if (savedOverlayTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
@@ -1469,9 +1495,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         long renderedXMin = runFirstTimestamp - buffer;
         long renderedXMax = runLastTimestamp + buffer;
         Bundle timestampBundle = new Bundle();
-        timestampBundle.putLong(KEY_EXTERNAL_AXIS_MINIMUM, Math.max(renderedXMin,
+        timestampBundle.putLong(KEY_EXTERNAL_AXIS_X_MINIMUM, Math.max(renderedXMin,
                 mExternalAxis.getXMin()));
-        timestampBundle.putLong(KEY_EXTERNAL_AXIS_MAXIMUM, Math.min(renderedXMax,
+        timestampBundle.putLong(KEY_EXTERNAL_AXIS_X_MAXIMUM, Math.min(renderedXMax,
                 mExternalAxis.getXMax()));
         timestampBundle.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
         timestampBundle.putLong(KEY_CROP_START_TIMESTAMP,

@@ -40,6 +40,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Range;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -304,8 +305,20 @@ public class ChartController {
         }
     }
 
-    public void setYAxisWithBuffer(double min, double max) {
-        double buffer = ChartOptions.getYBuffer(min, max);
+    private void updateYRangeFromValueRange(Range<Double> valueRange) {
+        mChartOptions.updateYMinAndMax(Math.min(valueRange.lowerEndpoint(),
+                mChartOptions.getYMinLimit()), Math.max(valueRange.upperEndpoint(),
+                mChartOptions.getYMaxLimit()));
+    }
+
+    public void setReviewYAxis(double min, double max, boolean hasBuffer) {
+        min = Math.min(mChartOptions.getYMinLimit(), min);
+        max = Math.max(mChartOptions.getYMaxLimit(), max);
+        double buffer = 0;
+        if (hasBuffer) {
+            buffer = ChartOptions.getYBuffer(min, max);
+        }
+        mChartOptions.updateYMinAndMax(min - buffer, max + buffer);
         setYAxis(min - buffer, max + buffer);
         refreshChartView();
     }
@@ -473,9 +486,12 @@ public class ChartController {
         mMaxLoadedX = lastTimestamp;
         int currentTier = zp.updateTier(lastTimestamp - firstTimestamp);
 
+        // Populate the initial graph
         GraphPopulator graphPopulator = new GraphPopulator(new GraphPopulator.ObservationDisplay() {
             @Override
-            public void addRange(ScalarReadingList observations, long requestId) {
+            public void addRange(ScalarReadingList observations, Range<Double> valueRange,
+                    long requestId) {
+                updateYRangeFromValueRange(valueRange);
                 addOrderedGroupOfPoints(observations.asDataPoints(), requestId);
             }
 
@@ -633,7 +649,9 @@ public class ChartController {
         int currentTier = mZoomPresenter == null ? 0 : mZoomPresenter.getCurrentTier();
         GraphPopulator graphPopulator = new GraphPopulator(new GraphPopulator.ObservationDisplay() {
             @Override
-            public void addRange(ScalarReadingList observations, long requestId) {
+            public void addRange(ScalarReadingList observations, Range<Double> valueRange,
+                    long requestId) {
+                updateYRangeFromValueRange(valueRange);
                 addOrderedGroupOfPoints(observations.asDataPoints(), requestId);
             }
 
@@ -668,6 +686,9 @@ public class ChartController {
     }
 
     private void callChartDataLoadedCallbacks(long firstTimestamp, long lastTimestamp) {
+        if (mChartOptions.getRequestResetZoomInY()) {
+            setYAxis(mChartOptions.getYMinLimit(), mChartOptions.getYMaxLimit());
+        }
         for (ChartDataLoadedCallback callback : mChartDataLoadedCallbacks) {
             callback.onChartDataLoaded(firstTimestamp, lastTimestamp);
         }

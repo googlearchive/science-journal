@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChartView extends View {
+    private static final String TAG = "ChartView";
 
     // Every now and then, force a full redraw instead of adding a point to the path.
     // This keeps us from having too many points offscreen.
@@ -280,15 +281,24 @@ public class ChartView extends View {
         updateColorOptions();
         populatePath(false);
 
+        final boolean isObserve = mChartOptions.getChartPlacementType() ==
+                ChartOptions.ChartPlacementType.TYPE_OBSERVE;
+
         if (mChartOptions.canPan() || mChartOptions.canZoom()) {
             ViewConfiguration vc = ViewConfiguration.get(getContext());
             final float touchSlop = vc.getScaledTouchSlop();
             setOnTouchListener(new OnTouchListener() {
+                private final long DOUBLE_TAP_MAX_TIME = ViewConfiguration.getDoubleTapTimeout();
+                private final long DOUBLE_TAP_MIN_TIME = 40;
+
+                private final float ZOOM_SLOP = touchSlop * 4;
+
                 private float mTouchX;
                 private float mTouchY;
                 private int mDownIndex;
                 private float mXZoomSpan;
                 private float mYZoomSpan;
+                private long mPreviousDownTime = 0;
 
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -297,9 +307,21 @@ public class ChartView extends View {
                     if (type == MotionEvent.ACTION_DOWN) {
                         mDownIndex = 0;
                         updateTouchPoints(event, mDownIndex);
-                        for (ExternalAxisController.InteractionListener listener : mListeners) {
-                            listener.onStartInteracting();
+                        long tapDelta = event.getDownTime() - mPreviousDownTime;
+                        if (!isObserve && DOUBLE_TAP_MIN_TIME < tapDelta &&
+                                tapDelta < DOUBLE_TAP_MAX_TIME) {
+                            // Assume this is a double-tap, reset zoom if we aren't in observe.
+                            mChartOptions.requestResetZoomInY();
+                            for (ExternalAxisController.InteractionListener listener : mListeners) {
+                                listener.onStartInteracting();
+                                listener.requestResetZoom();
+                            }
+                        } else {
+                            for (ExternalAxisController.InteractionListener listener : mListeners) {
+                                listener.onStartInteracting();
+                            }
                         }
+                        mPreviousDownTime = event.getDownTime();
                         return true;
                     } else if (type == MotionEvent.ACTION_POINTER_DOWN) {
                         mDownIndex = event.getActionIndex() == 1 ? 0 : 1;
@@ -311,6 +333,7 @@ public class ChartView extends View {
                         float oldTouchX = mTouchX;
                         float oldTouchY = mTouchY;
                         updateTouchPoints(event, mDownIndex);
+
                         boolean hasPannedX = false;
                         boolean hasPannedY = false;
                         if (mChartOptions.canPanX()) {
@@ -321,16 +344,16 @@ public class ChartView extends View {
                         }
                         if (mChartOptions.canPanY()) {
                             double dPanY = getYValueDeltaFromYScreenDelta(mTouchY - oldTouchY);
-                            mChartOptions.setRenderedYRange(mChartOptions.getRenderedYMin() + dPanY,
-                                    mChartOptions.getRenderedYMax() + dPanY);
+                            doYPan(dPanY);
                             hasPannedY = true;
                         }
 
                         boolean hasZoomedX = false;
                         boolean hasZoomedY = false;
                         if (numPointers > 1) {
-                            if (mChartOptions.canZoomX()) {
-                                float xZoomSpan = Math.abs(event.getX(0) - event.getX(1));
+                            float xZoomSpan = Math.abs(event.getX(0) - event.getX(1));
+                            float yZoomSpan = Math.abs(event.getY(0) - event.getY(1));
+                            if (mChartOptions.canZoomX() && xZoomSpan > touchSlop) {
                                 float scale = mXZoomSpan / xZoomSpan;
                                 long newDiff = (long) ((mChartOptions.getRenderedXMax() -
                                         mChartOptions.getRenderedXMin()) * scale);
@@ -341,19 +364,27 @@ public class ChartView extends View {
                                         avg + newDiff / 2);
                                 mXZoomSpan = xZoomSpan;
                                 hasZoomedX = true;
+                            } else {
+                                mXZoomSpan = xZoomSpan;
                             }
-                            if (mChartOptions.canZoomY()) {
-                                float yZoomSpan = Math.abs(event.getY(0) - event.getY(1));
-                                float scale = mYZoomSpan / yZoomSpan;
-                                double newDiff = (mChartOptions.getRenderedYMax() -
-                                        mChartOptions.getRenderedYMin()) * scale;
-                                if (scale < 1 || newDiff < mChartOptions.getMaxRenderedYRange()) {
-                                    double avg = (mChartOptions.getRenderedYMax() +
-                                            mChartOptions.getRenderedYMin()) / 2;
-                                    mChartOptions.setRenderedYRange(avg - newDiff / 2,
-                                            avg + newDiff / 2);
-                                    hasZoomedY = true;
-                                }
+                            // Zooming in Y can happen accidentally so make sure the user isn't just
+                            // being sloppy but really means to zoom in Y.
+                            if (mChartOptions.canZoomY() && yZoomSpan > ZOOM_SLOP) {
+                                // Limit the amount of scale we can do in a cycle.
+                                float scale = Math.max(0.5f, Math.min(2, mYZoomSpan / yZoomSpan));
+                                double newDiff = Math.min(mChartOptions.getMaxRenderedYRange(),
+                                        mChartOptions.getRenderedYMax() -
+                                                mChartOptions.getRenderedYMin()) * scale;
+                                double avg = (mChartOptions.getRenderedYMax() +
+                                        mChartOptions.getRenderedYMin()) / 2;
+                                double newMin = isObserve ? avg - newDiff / 2 :
+                                        Math.max(avg - newDiff / 2, mChartOptions.getYMinLimit());
+                                double newMax = isObserve ? avg + newDiff / 2 :
+                                        Math.min(avg + newDiff / 2, mChartOptions.getYMaxLimit());
+                                mChartOptions.setRenderedYRange(newMin, newMax);
+                                hasZoomedY = true;
+                                mYZoomSpan = yZoomSpan;
+                            } else {
                                 mYZoomSpan = yZoomSpan;
                             }
                         }
@@ -368,6 +399,7 @@ public class ChartView extends View {
                             transformPath();
                         }
 
+                        // Now do stuff that impacts the X axis.
                         if (hasPannedX || hasZoomedX) {
                             for (ExternalAxisController.InteractionListener listener : mListeners) {
                                 // No need to zoom and pan, this double-calls listeners.
@@ -381,6 +413,8 @@ public class ChartView extends View {
                                 }
                             }
                         }
+
+                        // If we made a chart movement here, don't let the parent steal the event.
                         boolean eventUsed = (hasPannedX && significantPan(mTouchX - oldTouchX)) ||
                                 hasPannedY || hasZoomedX || hasZoomedY;
                         if (eventUsed) {
@@ -405,6 +439,23 @@ public class ChartView extends View {
                     }
                     getParent().requestDisallowInterceptTouchEvent(false);
                     return false;
+                }
+
+                // Pans the Y axis by dPanY without passing the limits defined by ChartOptions.
+                private void doYPan(double dPanY) {
+                    double prevMin = mChartOptions.getRenderedYMin();
+                    double prevMax = mChartOptions.getRenderedYMax();
+
+                    double limitMin = mChartOptions.getYMinLimit();
+                    double limitMax = mChartOptions.getYMaxLimit();
+
+                    if (prevMin + dPanY < limitMin) {
+                        dPanY = limitMin - prevMin;
+                    }
+                    if (prevMax + dPanY > limitMax) {
+                        dPanY = prevMax - limitMax;
+                    }
+                    mChartOptions.setRenderedYRange(prevMin + dPanY, prevMax + dPanY);
                 }
 
                 private boolean significantPan(float panDistance) {

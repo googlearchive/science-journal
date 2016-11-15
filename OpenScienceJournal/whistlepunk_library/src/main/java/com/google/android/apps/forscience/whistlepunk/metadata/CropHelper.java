@@ -294,10 +294,8 @@ public class CropHelper {
     }
 
     public static boolean experimentIsLongEnoughForCrop(ExperimentRun experimentRun) {
-        // TODO: Update this to use getOriginal(First/Last)Timestamp when cropping wider is
-        // implemented.
-        return experimentRun.getLastTimestamp() - experimentRun.getFirstTimestamp() >
-                CropHelper.MINIMUM_CROP_MILLIS;
+        return experimentRun.getOriginalLastTimestamp() -
+                experimentRun.getOriginalFirstTimestamp() > CropHelper.MINIMUM_CROP_MILLIS;
     }
 
     public void throwAwayDataOutsideCroppedRegion(DataController dc, ExperimentRun run) {

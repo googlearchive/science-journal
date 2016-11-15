@@ -753,10 +753,10 @@
     <string name="service_notification_content_text">Recording&#8230;</string>
 
     <!-- The content description for the live graph view of a sensor [CHAR_LIMIT=none] -->
-    <string name="live_graph_content_description">Live sensor graph. Drag to pan X axis.</string>
+    <string name="live_graph_content_description">Live sensor graph. Drag to pan X axis, pinch to zoom Y axis.</string>
 
     <!-- The content description for a static graph view of sensor data, with interaction hints [CHAR_LIMIT=none] -->
-    <string name="static_graph_content_description">Sensor graph. Pinch to zoom and drag to pan X axis.</string>
+    <string name="static_graph_content_description">Sensor graph. Pinch to zoom and drag to pan.</string>
 
     <!-- The content description for the sensor card overflow menu [CHAR_LIMIT=none] -->
     <string name="sensor_card_overflow_menu_content_description">Card options</string>

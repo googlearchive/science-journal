@@ -83,6 +83,11 @@ public class ExternalAxisController {
          * Called when the user does an action that should cause the pinned state to be reset.
          */
         void requestResetPinnedState();
+
+        /**
+         * Called when the user does an action that should cause the zoom to be reset.
+         */
+        void requestResetZoom();
     }
 
     private List<AxisUpdateListener> mAxisUpdateListeners = new ArrayList<>();
@@ -154,7 +159,7 @@ public class ExternalAxisController {
     }
 
     public ExternalAxisController(ExternalAxisView axisView, AxisUpdateListener listener,
-                                  boolean isLive, CurrentTimeClock currentTimeClock,
+                                  final boolean isLive, CurrentTimeClock currentTimeClock,
                                   View resetButton) {
         mAxisView = axisView;
         mAxisUpdateListeners.add(listener);
@@ -244,6 +249,14 @@ public class ExternalAxisController {
                 if (!mIsPinnedToNow) {
                     mResetButton.callOnClick();
                 }
+            }
+
+            @Override
+            public void requestResetZoom() {
+                // TODO: Animate?
+                mXMin = mReviewXMin;
+                mXMax = mReviewXMax;
+                updateAxis();
             }
         };
     }

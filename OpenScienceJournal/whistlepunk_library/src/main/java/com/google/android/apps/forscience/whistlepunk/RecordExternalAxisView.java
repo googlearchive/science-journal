@@ -133,7 +133,7 @@ public class RecordExternalAxisView extends ExternalAxisView {
             firstTickTime = mRecordingStart - ticksFromStart * mTimeBetweenTicks;
             labelTick = ticksFromStart % 2 == 0;
         }  else {
-            firstTickTime = firstTickTime = mXMin - (mXMin % mTimeBetweenTicks);
+            firstTickTime = mXMin - (mXMin % mTimeBetweenTicks);
             labelTick = firstTickTime % (mTimeBetweenTicks * 2) == 0;
         }
 

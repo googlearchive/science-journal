@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.support.annotation.NonNull;
+import android.support.v4.util.Pair;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
@@ -94,12 +95,14 @@ public class GraphPopulator {
                                 public void take(ScalarReadingList observations) {
                                     mRequestInFlight = false;
                                     if (graphStatus.graphIsStillValid()) {
-                                        final Range<Long> received =
+                                        final Pair<Range<Long>, Range<Double>> received =
                                                 addObservationsToDisplay(observations);
-                                        if (received != null) {
-                                            mObservationDisplay.addRange(observations, mRequestId);
+                                        if (received.first != null) {
+                                            mObservationDisplay.addRange(observations,
+                                                    received.second, mRequestId);
                                         }
-                                        addToRequestedTimes(getEffectiveAddedRange(r, received));
+                                        addToRequestedTimes(getEffectiveAddedRange(r,
+                                                received.first));
                                         requestObservations(graphStatus, dataController,
                                                 failureListener, resolutionTier, sensorId);
                                     }
@@ -109,15 +112,36 @@ public class GraphPopulator {
                                     mRequestedTimes = Ranges.span(mRequestedTimes, effectiveAdded);
                                 }
 
-                                public Range<Long> addObservationsToDisplay(
+                                public Pair<Range<Long>, Range<Double>> addObservationsToDisplay(
                                         ScalarReadingList observations) {
                                     List<ScalarReading> points = ScalarReading.slurp(observations);
-                                    Range<Long> range = null;
+                                    long xMin = Long.MAX_VALUE;
+                                    long xMax = Long.MIN_VALUE;
+                                    double yMin = Double.MAX_VALUE;
+                                    double yMax = Double.MIN_VALUE;
+                                    Range<Long> timeRange = null;
+                                    Range<Double> valueRange = null;
                                     for (ScalarReading point : points) {
-                                        range = Ranges.span(range, Range.singleton(
-                                                point.getCollectedTimeMillis()));
+                                        if (point.getCollectedTimeMillis() < xMin) {
+                                            xMin = point.getCollectedTimeMillis();
+                                        }
+                                        if (point.getCollectedTimeMillis() > xMax) {
+                                            xMax = point.getCollectedTimeMillis();
+                                        }
+                                        if (point.getValue() < yMin) {
+                                            yMin = point.getValue();
+                                        }
+                                        if (point.getValue() > yMax) {
+                                            yMax = point.getValue();
+                                        }
                                     }
-                                    return range;
+                                    if (xMin != Long.MAX_VALUE && xMax != Long.MIN_VALUE) {
+                                        timeRange = Range.closed(xMin, xMax);
+                                    }
+                                    if (yMin != Double.MAX_VALUE && yMax != Double.MIN_VALUE) {
+                                        valueRange = Range.closed(yMin, yMax);
+                                    }
+                                    return new Pair<>(timeRange, valueRange);
                                 }
                             })
             );
@@ -177,7 +201,7 @@ public class GraphPopulator {
     }
 
     public interface ObservationDisplay {
-        void addRange(ScalarReadingList observations, long requestId);
+        void addRange(ScalarReadingList observations, Range<Double> valueRange, long requestId);
 
         void onFinish(long requestId);
     }

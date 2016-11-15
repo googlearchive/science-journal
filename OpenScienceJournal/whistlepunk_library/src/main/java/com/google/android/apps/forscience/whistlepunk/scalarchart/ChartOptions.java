@@ -42,7 +42,7 @@ public class ChartOptions {
 
     // Don't allow zoom out past this factor times the y range. At this point the line will look
     // basically flat anyway, so there's no need to keep allowing zoom out.
-    private static final double MAXIMUM_Y_SPREAD_FACTOR = 200;
+    private static final double MAXIMUM_Y_SPREAD_FACTOR = 100;
 
     // The fraction of the screen size by which we can zoom at the addition of each new data point.
     public static final double SCALE_SCREEN_SIZE_FRACTION = 0.05;
@@ -56,6 +56,7 @@ public class ChartOptions {
 
     private double mYMinPoint = Double.MAX_VALUE;
     private double mYMaxPoint = Double.MIN_VALUE;
+    private boolean mRequestResetZoomInY = false;
 
     private long mRenderedXMin;
     private long mRenderedXMax;
@@ -89,9 +90,9 @@ public class ChartOptions {
             case TYPE_RUN_REVIEW:
                 mShowLeadingEdge = false;
                 mCanPanX = true;
-                mCanPanY = false;
+                mCanPanY = true;
                 mCanZoomX = true;
-                mCanZoomY = false;
+                mCanZoomY = true;
                 mPinnedToNow = false;
                 break;
             case TYPE_PREVIEW_REVIEW:
@@ -121,8 +122,8 @@ public class ChartOptions {
     }
 
     public void setRenderedXRange(long renderedXMin, long renderedXMax) {
-        this.mRenderedXMin = renderedXMin;
-        this.mRenderedXMax = renderedXMax;
+        mRenderedXMin = renderedXMin;
+        mRenderedXMax = renderedXMax;
     }
 
     public double getRenderedYMin() {
@@ -133,15 +134,41 @@ public class ChartOptions {
         return mRenderedYMax;
     }
 
+    public double getYMinLimit() {
+        return mYMinPoint;
+    }
+
+    public double getYMaxLimit() {
+        return mYMaxPoint;
+    }
+
+    public void requestResetZoomInY() {
+        mRenderedYMin = mYMinPoint;
+        mRenderedYMax = mYMaxPoint;
+        mRequestResetZoomInY = true;
+    }
+
+    public boolean getRequestResetZoomInY() {
+        return mRequestResetZoomInY;
+    }
+
     public void setRenderedYRange(double renderedYMin, double renderedYMax) {
         if (renderedYMax - renderedYMin < MINIMUM_Y_SPREAD) {
+            // Minimum Y spread keeps us from zooming in too far.
             double avg = (renderedYMax + renderedYMin) / 2;
-            this.mRenderedYMin = avg - MINIMUM_Y_SPREAD / 2;
-            this.mRenderedYMax = avg + MINIMUM_Y_SPREAD / 2;
-        } else {
-            this.mRenderedYMin = renderedYMin;
-            this.mRenderedYMax = renderedYMax;
+            mRenderedYMin = avg - MINIMUM_Y_SPREAD / 2;
+            mRenderedYMax = avg + MINIMUM_Y_SPREAD / 2;
+        } else if (renderedYMax - renderedYMin < getMaxRenderedYRange() ||
+                mYMaxPoint == mYMinPoint) {
+            // If the requested points are inside of the max Y range allowed, save them.
+            mRenderedYMin = renderedYMin;
+            mRenderedYMax = renderedYMax;
         }
+    }
+
+    public void updateYMinAndMax(double minYPoint, double maxYPoint) {
+        mYMaxPoint = maxYPoint;
+        mYMinPoint = minYPoint;
     }
 
     public double getMaxRenderedYRange() {
@@ -246,6 +273,7 @@ public class ChartOptions {
         mRenderedYMax = Double.MIN_VALUE;
         mYMinPoint = Double.MAX_VALUE;
         mYMaxPoint = Double.MIN_VALUE;
+        mRequestResetZoomInY = false;
     }
 
     public boolean canPan() {

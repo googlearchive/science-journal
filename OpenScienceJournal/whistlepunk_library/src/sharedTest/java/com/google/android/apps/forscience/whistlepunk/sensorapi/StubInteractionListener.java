@@ -43,4 +43,9 @@ class StubInteractionListener implements ExternalAxisController.InteractionListe
     public void requestResetPinnedState() {
 
     }
+
+    @Override
+    public void requestResetZoom() {
+
+    }
 }

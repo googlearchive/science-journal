@@ -33,9 +33,6 @@ public class CropSeekBar extends GraphExploringSeekBar {
     public static final int TYPE_START = 1;
     public static final int TYPE_END = 2;
 
-    // Progress buffer for non-overlapping crop is 5% of the available seekbar range.
-    private static final int BUFFER_RANGE = (int) (SEEKBAR_MAX * .05);
-
     private double mMillisPerTick;
     private int mType;
     private CropSeekBar mOtherSeekbar;
@@ -105,8 +102,7 @@ public class CropSeekBar extends GraphExploringSeekBar {
         addOnSeekBarChangeListener(new OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int bufferTicks = (int) Math.ceil(
-                        Math.max(BUFFER_RANGE, CropHelper.MINIMUM_CROP_MILLIS / mMillisPerTick));
+                int bufferTicks = (int) Math.ceil(CropHelper.MINIMUM_CROP_MILLIS / mMillisPerTick);
                 if (mType == TYPE_START) {
                     if (progress > mOtherSeekbar.getFullProgress() - bufferTicks) {
                         ((CropSeekBar) seekBar).setFullProgress(

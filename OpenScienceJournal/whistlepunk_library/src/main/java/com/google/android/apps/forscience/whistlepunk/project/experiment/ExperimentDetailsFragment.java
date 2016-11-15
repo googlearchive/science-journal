@@ -1144,11 +1144,11 @@ public class ExperimentDetailsFragment extends Fragment
                                             // Display the graph.
                                             chartController.setXAxisWithBuffer(firstTimestamp,
                                                     lastTimestamp);
-                                            chartController.setYAxisWithBuffer(
+                                            chartController.setReviewYAxis(
                                                     holder.currentSensorStats.getStat(
                                                             StatsAccumulator.KEY_MIN),
                                                     holder.currentSensorStats.getStat(
-                                                            StatsAccumulator.KEY_MAX));
+                                                            StatsAccumulator.KEY_MAX), true);
                                         }
 
                                         @Override

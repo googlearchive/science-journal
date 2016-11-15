@@ -29,6 +29,7 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.support.v4.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -73,6 +74,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     private int mHeight;
     private int mWidth;
     private int mPaddingBottom;
+    private int mChartPaddingTop;
     private int mChartHeight;
     private int mChartMarginLeft;
     private int mChartMarginRight;
@@ -239,6 +241,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         mHeight = getMeasuredHeight();
         mWidth = getMeasuredWidth();
         mPaddingBottom = getPaddingBottom();
+        mChartPaddingTop = res.getDimensionPixelSize(R.dimen.run_review_section_margin);
         mChartHeight = res.getDimensionPixelSize(R.dimen.run_review_chart_height);
 
         mLabelPadding = res.getDimensionPixelSize(R.dimen.run_review_overlay_label_padding);
@@ -260,11 +263,11 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     public void onDraw(Canvas canvas) {
         if (mIsCropping) {
             // TODO: Click listeners for these flags open up dialogs for entering crop timestamps.
-            boolean canDrawCropStartFlag = canDrawFlagForScreenPoint(mCropStartData.screenPoint);
-            boolean canDrawCropEndFlag = canDrawFlagForScreenPoint(mCropEndData.screenPoint);
+            boolean cropStartOnChart = isXScreenPointInChart(mCropStartData.screenPoint);
+            boolean cropEndOnChart = isXScreenPointInChart(mCropEndData.screenPoint);
 
             // Draw grey overlays first, behind everything
-            if (canDrawCropStartFlag) {
+            if (cropStartOnChart) {
                 canvas.drawRect(mChartMarginLeft, mHeight - mChartHeight - mPaddingBottom,
                         mCropStartData.screenPoint.x, mHeight, mCropBackgroundPaint);
                 // We can handle crop seekbar visibility in onDraw because the Seekbar Group is
@@ -273,7 +276,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
             } else {
                 mCropSeekbarGroup.getStartSeekBar().setVisibility(View.INVISIBLE);
             }
-            if (canDrawCropEndFlag) {
+            if (cropEndOnChart) {
                 canvas.drawRect(mCropEndData.screenPoint.x, mHeight - mChartHeight - mPaddingBottom,
                         mWidth - mChartMarginRight, mHeight, mCropBackgroundPaint);
                 mCropSeekbarGroup.getEndSeekBar().setVisibility(View.VISIBLE);
@@ -282,7 +285,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
             }
 
             // Draw the flags themselves
-            if (canDrawCropStartFlag) {
+            if (cropStartOnChart) {
                 // Drawing the start flag sets mFlagMeasurements to have the start flag's bounding
                 // box. This will allow us to place the end flag appropriately.
                 drawFlag(canvas, mCropStartData.timestamp, mCropStartData.screenPoint.x,
@@ -297,52 +300,70 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                 // avoid.
                 mFlagMeasurements.boxEnd = -mCropFlagBufferX;
             }
-            if (canDrawCropEndFlag) {
+            if (cropEndOnChart) {
                 drawFlagAfter(canvas, mCropEndData.timestamp, mCropEndData.screenPoint.x,
                         mCropEndData.label, mFlagMeasurements, mFlagMeasurements.boxEnd, true);
             }
 
             // Neither flag can be drawn, but we might be in a region that can be cropped out
             // so the whole thing should be colored grey.
-            if (!canDrawCropEndFlag && !canDrawCropStartFlag) {
+            if (!cropEndOnChart && !cropStartOnChart) {
                 if (mCropStartData.timestamp > mExternalAxis.mXMax ||
                         mCropEndData.timestamp < mExternalAxis.mXMin) {
                     canvas.drawRect(mChartMarginLeft, mHeight - mChartHeight - mPaddingBottom,
                             mWidth - mChartMarginRight, mHeight, mCropBackgroundPaint);
                 }
             }
-        } else if (canDrawFlagForScreenPoint(mPointData.screenPoint)) {
-            // We are not cropping. Draw a standard flag.
-            drawFlag(canvas, mPointData.timestamp, mPointData.screenPoint.x, mPointData.label,
-                    mFlagMeasurements, false);
+        } else {
+            boolean xOnChart = isXScreenPointInChart(mPointData.screenPoint);
+            boolean yOnChart = isYScreenPointInChart(mPointData.screenPoint);
+            if (xOnChart && yOnChart) {
+                // We are not cropping. Draw a standard flag.
+                drawFlag(canvas, mPointData.timestamp, mPointData.screenPoint.x, mPointData.label,
+                        mFlagMeasurements, false);
 
-            // Draw the vertical line from the point to the bottom of the flag
-            float nudge = mDotRadius / 2;
-            float cy = mHeight - mChartHeight - mPaddingBottom + mPointData.screenPoint.y -
-                    2 * mDotBackgroundRadius + nudge;
-            mPath.reset();
-            mPath.moveTo(mPointData.screenPoint.x, mFlagMeasurements.notchBottom);
-            mPath.lineTo(mPointData.screenPoint.x, cy);
-            canvas.drawPath(mPath, mLinePaint);
+                // Draw the vertical line from the point to the bottom of the flag
+                float nudge = mDotRadius / 2;
+                float cy = mHeight - mChartHeight - mPaddingBottom + mPointData.screenPoint.y -
+                        2 * mDotBackgroundRadius + nudge;
+                mPath.reset();
+                mPath.moveTo(mPointData.screenPoint.x, mFlagMeasurements.notchBottom);
+                mPath.lineTo(mPointData.screenPoint.x, cy);
+                canvas.drawPath(mPath, mLinePaint);
 
-            // Draw the selected point
-            float cySmall = cy + 1.5f * mDotBackgroundRadius;
-            canvas.drawCircle(mPointData.screenPoint.x, cySmall, mDotBackgroundRadius,
-                    mDotBackgroundPaint);
-            canvas.drawCircle(mPointData.screenPoint.x, cySmall, mDotRadius, mDotPaint);
+                // Draw the selected point
+                float cySmall = cy + 1.5f * mDotBackgroundRadius;
+                canvas.drawCircle(mPointData.screenPoint.x, cySmall, mDotBackgroundRadius,
+                        mDotBackgroundPaint);
+                canvas.drawCircle(mPointData.screenPoint.x, cySmall, mDotRadius, mDotPaint);
+            }
         }
     }
 
-    private boolean canDrawFlagForScreenPoint(PointF screenPoint) {
+    /**
+     * Determines if a screen point is inside of the chart.
+     * @param screenPoint The point to test
+     * @return true if the screen point is on the graph in the X axis
+     */
+    private boolean isXScreenPointInChart(PointF screenPoint) {
         if (screenPoint == null) {
             return false;
         }
-        if (screenPoint.x < mChartMarginLeft || screenPoint.x > mWidth - mChartMarginRight) {
-            // Then we can't draw the overlay balloon because the point is close to the edge of
-            // the screen or offscreen.
+        // Check if we can't draw the overlay balloon because the point is close to the edge of
+        // the graph or offscreen.
+        return screenPoint.x >= mChartMarginLeft && screenPoint.x <= mWidth - mChartMarginRight;
+    }
+
+    /**
+     * Determines if a screen point is inside of the chart.
+     * @param screenPoint The point to test
+     * @return true if the screen point is on the graph in the Y axis
+     */
+    private boolean isYScreenPointInChart(PointF screenPoint) {
+        if (screenPoint == null) {
             return false;
         }
-        return true;
+        return screenPoint.y <= mChartHeight && screenPoint.y >= mChartPaddingTop;
     }
 
     /**
