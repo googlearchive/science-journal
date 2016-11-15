@@ -378,7 +378,9 @@ public class ChartView extends View {
                                 }
                             }
                         }
-                        return hasPanned || hasZoomedX || hasZoomedY;
+                        boolean eventUsed = hasPanned || hasZoomedX || hasZoomedY;
+                        getParent().requestDisallowInterceptTouchEvent(eventUsed);
+                        return eventUsed;
                     } else if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
                         int upIndex = event.getActionIndex();
                         // Whichever finger is still down gets to keep panning, so we need to update
@@ -395,6 +397,7 @@ public class ChartView extends View {
                         }
                         return true;
                     }
+                    getParent().requestDisallowInterceptTouchEvent(false);
                     return false;
                 }
 
