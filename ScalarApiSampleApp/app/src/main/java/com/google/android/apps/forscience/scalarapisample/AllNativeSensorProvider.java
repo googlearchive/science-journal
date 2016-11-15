@@ -36,6 +36,21 @@ import java.util.List;
 public class AllNativeSensorProvider extends ScalarSensorService {
     public static final String DEVICE_ID = "onlyDevice";
 
+    /**
+     * If true, only allow Google-built versions of Science Journal to access these sensors.
+     * Edit to false in your local version if you want to allow custom apps or open-source
+     * Science Journal to connect.
+     *
+     * But beware, if this is left as false in a publicly-released service, a malicious third-party
+     * client app could use this service to get access to device sensors without permission.
+     */
+    private static final boolean ONLY_ALLOW_SCIENCE_JOURNAL = true;
+
+    @Override
+    protected boolean shouldCheckBinderSignature() {
+        return ONLY_ALLOW_SCIENCE_JOURNAL;
+    }
+
     @Override
     protected List<? extends AdvertisedDevice> getDevices() {
         return Lists.newArrayList(new AdvertisedDevice(DEVICE_ID, "Phone native sensors") {

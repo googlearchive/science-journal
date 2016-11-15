@@ -17,6 +17,10 @@ package com.google.android.apps.forscience.whistlepunk.api;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.os.Binder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -34,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.Versions;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Support for creating your own sensor-exposing service.  To use, extend ScalarSensorService,
@@ -45,6 +50,7 @@ import java.util.Map;
  */
 public abstract class ScalarSensorService extends Service {
     private static final String TAG = "ScalarService";
+
     private ISensorDiscoverer.Stub mDiscoverer = null;
 
     /**
@@ -69,6 +75,66 @@ public abstract class ScalarSensorService extends Service {
         return getDiscoverer();
     }
 
+    /**
+     * @return whether this service should check for whether the binding process is a signed
+     * binary of Science Journal.  If true, and the signature check fails, this service will report
+     * no devices, to prevent sensor data being received by unauthorized clients.
+     */
+    protected boolean shouldCheckBinderSignature() {
+        return true;
+    }
+
+    /**
+     * Check that the connecting app is one we trust to stream sensor data to.
+     *
+     * By default, this will only accept Science Journal installed from the Play Store.
+     *
+     * Note that this method only returns valid results when called from within methods defined
+     * on the Binder class, not methods like onBind on the service itself.
+     */
+    protected boolean binderHasAllowedSignature() {
+        int uid = Binder.getCallingUid();
+        PackageManager pm = getPackageManager();
+        String bindingName = pm.getNameForUid(uid);
+        try {
+            PackageInfo info = pm.getPackageInfo(bindingName, PackageManager.GET_SIGNATURES);
+            Signature[] signatures = info.signatures;
+            Set<String> allowedSignatures = allowedSignatures();
+            if (Log.isLoggable(TAG, Log.INFO)) {
+                Log.i(TAG, "Number of signatures of binding app [" + bindingName + "]: "
+                        + signatures.length);
+            }
+            for (Signature signature : signatures) {
+                String charString = signature.toCharsString();
+                if (Log.isLoggable(TAG, Log.INFO)) {
+                    Log.i(TAG, "Checking signature: " + charString);
+                }
+                if (allowedSignatures.contains(charString)) {
+                    if (Log.isLoggable(TAG, Log.INFO)) {
+                        Log.i(TAG, "Signature match!");
+                    }
+                    return true;
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "Unknown package name: " + bindingName);
+            }
+        }
+        if (Log.isLoggable(TAG, Log.ERROR)) {
+            Log.e(TAG, "Signature check failed");
+        }
+        return false;
+    }
+
+    /**
+     * @return The set of allowed app signatures.  By default, this only includes Science Journal
+     * as installed from the Play Store, but extenders may add other trusted apps.
+     */
+    protected Set<String> allowedSignatures() {
+        return Signatures.DEFAULT_ALLOWED_SIGNATURES;
+    }
+
     private ISensorDiscoverer.Stub getDiscoverer() {
         if (mDiscoverer == null) {
             mDiscoverer = createDiscoverer();
@@ -78,12 +144,15 @@ public abstract class ScalarSensorService extends Service {
 
     private ISensorDiscoverer.Stub createDiscoverer() {
         final LinkedHashMap<String, AdvertisedDevice> devices = new LinkedHashMap<>();
+
         for (AdvertisedDevice device : getDevices()) {
             devices.put(device.getDeviceId(), device);
         }
 
         return new ISensorDiscoverer.Stub() {
             Map<String, AdvertisedSensor> mSensors = new ArrayMap<>();
+            private boolean mSignatureHasBeenChecked = false;
+            private boolean mSignatureCheckPassed = false;
 
             @Override
             public String getName() throws RemoteException {
@@ -92,24 +161,28 @@ public abstract class ScalarSensorService extends Service {
 
             @Override
             public void scanDevices(IDeviceConsumer c) throws RemoteException {
-                for (AdvertisedDevice device : devices.values()) {
-                    c.onDeviceFound(device.getDeviceId(), device.getDeviceName(),
-                            device.getSettingsIntent());
+                if (clientAllowed()) {
+                    for (AdvertisedDevice device : devices.values()) {
+                        c.onDeviceFound(device.getDeviceId(), device.getDeviceName(),
+                                device.getSettingsIntent());
+                    }
                 }
                 c.onScanDone();
             }
 
             @Override
             public void scanSensors(String deviceId, ISensorConsumer c) throws RemoteException {
-                AdvertisedDevice device = devices.get(deviceId);
-                if (device == null) {
-                    c.onScanDone();
-                    return;
-                }
-                for (AdvertisedSensor sensor : device.getSensors()) {
-                    mSensors.put(sensor.getAddress(), sensor);
-                    c.onSensorFound(sensor.getAddress(), sensor.getName(), sensor.getBehavior(),
-                            sensor.getAppearance());
+                if (clientAllowed()) {
+                    AdvertisedDevice device = devices.get(deviceId);
+                    if (device == null) {
+                        c.onScanDone();
+                        return;
+                    }
+                    for (AdvertisedSensor sensor : device.getSensors()) {
+                        mSensors.put(sensor.getAddress(), sensor);
+                        c.onSensorFound(sensor.getAddress(), sensor.getName(), sensor.getBehavior(),
+                                sensor.getAppearance());
+                    }
                 }
                 c.onScanDone();
             }
@@ -121,14 +194,26 @@ public abstract class ScalarSensorService extends Service {
                     public void startObserving(final String sensorId,
                             final ISensorObserver observer, final ISensorStatusListener listener,
                             String settingsKey) throws RemoteException {
-                        mSensors.get(sensorId).startObserving(observer, listener);
+                        if (clientAllowed()) {
+                            mSensors.get(sensorId).startObserving(observer, listener);
+                        }
                     }
 
                     @Override
                     public void stopObserving(String sensorId) throws RemoteException {
-                        mSensors.get(sensorId).stopObserving();
+                        if (clientAllowed()) {
+                            mSensors.get(sensorId).stopObserving();
+                        }
                     }
                 };
+            }
+
+            private boolean clientAllowed() {
+                if (!mSignatureHasBeenChecked) {
+                    mSignatureCheckPassed =
+                            !shouldCheckBinderSignature() || binderHasAllowedSignature();
+                }
+                return mSignatureCheckPassed;
             }
         };
     }
