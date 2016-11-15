@@ -1461,25 +1461,23 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         getView().findViewById(R.id.run_review_playback_button_holder).setVisibility(View.VISIBLE);
         mRunReviewOverlay.setCropModeOn(false);
 
-        // If we zoomed out past the run during crop, we need to get back into the run's range plus
-        // the original buffer.
+        // When we started cropping we may have changed the external axis review data. Reset that
+        // now that the crop is not happening any more.
         long runFirstTimestamp = mExperimentRun.getFirstTimestamp();
         long runLastTimestamp = mExperimentRun.getLastTimestamp();
         long buffer = ExternalAxisController.getReviewBuffer(runFirstTimestamp, runLastTimestamp);
         long renderedXMin = runFirstTimestamp - buffer;
         long renderedXMax = runLastTimestamp + buffer;
-        if (mExternalAxis.getXMin() < renderedXMin || mExternalAxis.getXMax() > renderedXMax) {
-            Bundle timestampBundle = new Bundle();
-            timestampBundle.putLong(KEY_EXTERNAL_AXIS_MINIMUM, Math.max(renderedXMin,
-                    mExternalAxis.getXMin()));
-            timestampBundle.putLong(KEY_EXTERNAL_AXIS_MAXIMUM, Math.min(renderedXMax,
-                    mExternalAxis.getXMax()));
-            timestampBundle.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
-            timestampBundle.putLong(KEY_CROP_START_TIMESTAMP,
-                    mRunReviewOverlay.getCropStartTimestamp());
-            timestampBundle.putLong(KEY_CROP_END_TIMESTAMP, mRunReviewOverlay.getCropEndTimestamp());
-            setUpAxis(timestampBundle, getView());
-        }
+        Bundle timestampBundle = new Bundle();
+        timestampBundle.putLong(KEY_EXTERNAL_AXIS_MINIMUM, Math.max(renderedXMin,
+                mExternalAxis.getXMin()));
+        timestampBundle.putLong(KEY_EXTERNAL_AXIS_MAXIMUM, Math.min(renderedXMax,
+                mExternalAxis.getXMax()));
+        timestampBundle.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
+        timestampBundle.putLong(KEY_CROP_START_TIMESTAMP,
+                mRunReviewOverlay.getCropStartTimestamp());
+        timestampBundle.putLong(KEY_CROP_END_TIMESTAMP, mRunReviewOverlay.getCropEndTimestamp());
+        setUpAxis(timestampBundle, getView());
 
         // TODO: Better way to throw out cropped (or out of range) data besides reloading,
         // As most all the data needed is already loaded -- this is really being done to throw
