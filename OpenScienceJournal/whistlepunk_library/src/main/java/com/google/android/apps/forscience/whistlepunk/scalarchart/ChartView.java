@@ -63,6 +63,9 @@ public class ChartView extends View {
     private static final int MINIMUM_NUM_LABELS = 3;
     private static final int MAXIMUM_NUM_LABELS = 6;
 
+    // How much can the user pan before we request the parent to stop processing touch events?
+    private static final float TOUCH_SLOP = 10;
+
     private List<ExternalAxisController.InteractionListener> mListeners = new ArrayList<>();
 
     private Paint mBackgroundPaint;
@@ -308,18 +311,19 @@ public class ChartView extends View {
                         float oldTouchX = mTouchX;
                         float oldTouchY = mTouchY;
                         updateTouchPoints(event, mDownIndex);
-                        boolean hasPanned = false;
+                        boolean hasPannedX = false;
+                        boolean hasPannedY = false;
                         if (mChartOptions.canPanX()) {
                             long dPanX = getXValueDeltaFromXScreenDelta(oldTouchX - mTouchX);
                             mChartOptions.setRenderedXRange(mChartOptions.getRenderedXMin() + dPanX,
                                     mChartOptions.getRenderedXMax() + dPanX);
-                            hasPanned = true;
+                            hasPannedX = true;
                         }
                         if (mChartOptions.canPanY()) {
                             double dPanY = getYValueDeltaFromYScreenDelta(mTouchY - oldTouchY);
                             mChartOptions.setRenderedYRange(mChartOptions.getRenderedYMin() + dPanY,
                                     mChartOptions.getRenderedYMax() + dPanY);
-                            hasPanned = true;
+                            hasPannedY = true;
                         }
 
                         boolean hasZoomedX = false;
@@ -346,7 +350,6 @@ public class ChartView extends View {
                                 if (scale < 1 || newDiff < mChartOptions.getMaxRenderedYRange()) {
                                     double avg = (mChartOptions.getRenderedYMax() +
                                             mChartOptions.getRenderedYMin()) / 2;
-
                                     mChartOptions.setRenderedYRange(avg - newDiff / 2,
                                             avg + newDiff / 2);
                                     hasZoomedY = true;
@@ -361,25 +364,28 @@ public class ChartView extends View {
                         // limits. However, if only the Y zoom has changed, update that immediately,
                         // because there are no callbacks from the external axis or other listeners
                         // to update a y zoom.
-                        if (hasZoomedY && (!hasPanned && !hasZoomedX)) {
-                            onAxisLimitsAdjusted();
+                        if ((hasZoomedY || hasPannedY) && (!hasPannedX && !hasZoomedX)) {
+                            transformPath();
                         }
 
-                        if (hasPanned || hasZoomedX) {
+                        if (hasPannedX || hasZoomedX) {
                             for (ExternalAxisController.InteractionListener listener : mListeners) {
                                 // No need to zoom and pan, this double-calls listeners.
                                 // Try zooming first, then panning.
                                 if (hasZoomedX) {
                                     listener.onZoom(mChartOptions.getRenderedXMin(),
                                             mChartOptions.getRenderedXMax());
-                                } else if (hasPanned) {
+                                } else if (hasPannedX) {
                                     listener.onPan(mChartOptions.getRenderedXMin(),
                                             mChartOptions.getRenderedXMax());
                                 }
                             }
                         }
-                        boolean eventUsed = hasPanned || hasZoomedX || hasZoomedY;
-                        getParent().requestDisallowInterceptTouchEvent(eventUsed);
+                        boolean eventUsed = (hasPannedX && significantPan(mTouchX - oldTouchX)) ||
+                                hasPannedY || hasZoomedX || hasZoomedY;
+                        if (eventUsed) {
+                            getParent().requestDisallowInterceptTouchEvent(true);
+                        }
                         return eventUsed;
                     } else if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
                         int upIndex = event.getActionIndex();
@@ -399,6 +405,10 @@ public class ChartView extends View {
                     }
                     getParent().requestDisallowInterceptTouchEvent(false);
                     return false;
+                }
+
+                private boolean significantPan(float panDistance) {
+                    return Math.abs(panDistance) >= TOUCH_SLOP;
                 }
 
                 private void updateTouchPoints(MotionEvent event, int panPointerIndex) {
