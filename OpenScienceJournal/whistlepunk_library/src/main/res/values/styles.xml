@@ -55,6 +55,11 @@
         <item name="colorPrimary">@color/color_accent</item>
     </style>
 
+    <style name="lightCheckBoxStyle" parent="Base.Theme.AppCompat">
+        <item name="colorAccent">@color/color_accent</item>
+        <item name="android:textColorSecondary">@color/text_color_light_grey</item>
+    </style>
+
     <style name="AppTheme.RunReview">
         <item name="android:actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
         <item name="android:actionModeBackground">@color/color_primary</item>

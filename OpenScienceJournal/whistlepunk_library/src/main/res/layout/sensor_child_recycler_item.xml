@@ -31,7 +31,7 @@
         android:layout_margin="8dp"
         android:gravity="center"
         android:layout_gravity="center_vertical"
-        android:buttonTint="@color/color_accent"
+        android:theme="@style/lightCheckBoxStyle"
         />
 
     <ImageView
