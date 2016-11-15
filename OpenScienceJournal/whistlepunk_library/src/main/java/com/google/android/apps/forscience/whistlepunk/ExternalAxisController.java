@@ -67,15 +67,15 @@ public class ExternalAxisController {
 
         /**
          * Called when the user is doing an action which means the X axis should pan (left/right).
-         * @param xMin
-         * @param xMax
+         * @param xMin The requested xMin for the pan.
+         * @param xMax The requested xMax for the pan.
          */
         void onPan(double xMin, double xMax);
 
         /**
          * Called when the user is doing an action that translates to a zoom in/out on the X axis.
-         * @param xMin
-         * @param xMax
+         * @param xMin The new xMin if the zoom were to be applied.
+         * @param xMax The new xMax if the zoom were to be applied.
          */
         void onZoom(double xMin, double xMax);
 
@@ -219,11 +219,14 @@ public class ExternalAxisController {
             @Override
             public void onZoom(double xMin, double xMax) {
                 if (!mIsLive && mReviewXMin != RUN_REVIEW_DATA_NOT_INITIALIZED) {
-                    if (xMax - xMin < MINIMUM_ZOOM_RANGE_MS) {
+                    // If we are zoomed into maximum, and trying to zoom smaller than our saved
+                    // mXMin to mXMax range...
+                    if (xMax - xMin < MINIMUM_ZOOM_RANGE_MS && xMax - xMin < mXMax - mXMin) {
                         // Don't apply the change.
                         updateAxis();
                         return;
                     }
+                    // Otherwise, make sure the change is within the review region
                     if (xMin < mReviewXMin) {
                         xMin = mReviewXMin;
                     }
