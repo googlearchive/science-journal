@@ -153,8 +153,8 @@ public class DeviceOptionsDialog extends DialogFragment {
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setView(view)
-                .setTitle(R.string.external_devices_settings_title)
-                .setPositiveButton(R.string.external_devices_settings_ok, onOK);
+                .setTitle(R.string.title_activity_sensor_settings)
+                .setPositiveButton(android.R.string.ok, onOK);
         if (showForget) {
             builder.setNegativeButton(R.string.external_devices_settings_forget,
                     new DialogInterface.OnClickListener() {
