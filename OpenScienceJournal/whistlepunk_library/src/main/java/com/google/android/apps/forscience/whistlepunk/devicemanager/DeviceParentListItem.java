@@ -102,4 +102,8 @@ public class DeviceParentListItem implements ParentListItem {
     public boolean canForget(DeviceRegistry deviceRegistry) {
         return !isPhoneSensorParent(deviceRegistry);
     }
+
+    public List<String> getSensorKeys() {
+        return mDevice.getSensorKeys();
+    }
 }

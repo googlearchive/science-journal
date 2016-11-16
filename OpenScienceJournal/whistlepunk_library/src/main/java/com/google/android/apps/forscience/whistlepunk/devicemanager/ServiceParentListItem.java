@@ -123,4 +123,13 @@ public class ServiceParentListItem implements ParentListItem {
     public String getGlobalServiceId() {
         return mService.getServiceId();
     }
+
+    public boolean containsSensorKey(String sensorKey) {
+        for (DeviceWithSensors device : mDevices) {
+            if (device.getSensorKeys().contains(sensorKey)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
