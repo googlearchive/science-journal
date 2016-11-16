@@ -244,6 +244,9 @@ public class SensorCardPresenter {
     }
 
     public void onNewData(long timestamp, Bundle bundle) {
+        if (mSensorPresenter == null) {
+            return;
+        }
         mSensorPresenter.onNewData(timestamp, bundle);
         boolean iconTimeHasElapsed =
                 timestamp > mLastUpdatedIconTimestamp + MAX_ICON_UPDATE_TIME_MS;
@@ -876,8 +879,11 @@ public class SensorCardPresenter {
             @Override
             public void run() {
                 if (mCardViewHolder != null) {
-                    mCardViewHolder.sensorTabLayout.getTabAt(
-                            mAvailableSensorIds.indexOf(sensorIdToSelect)).select();
+                    int i = mAvailableSensorIds.indexOf(sensorIdToSelect);
+                    if (i < 0) {
+                        i = 0;
+                    }
+                    mCardViewHolder.sensorTabLayout.getTabAt(i).select();
                 }
             }
         });
