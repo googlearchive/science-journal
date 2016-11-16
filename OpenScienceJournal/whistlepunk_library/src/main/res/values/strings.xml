@@ -275,14 +275,8 @@
     <!-- Header for a list of available external devices [CHAR_LIMIT=40]-->
     <string name="external_devices_available">Available devices</string>
 
-    <!-- Title for external device settings dialog [CHAR_LIMIT=25] -->
-    <string name="external_devices_settings_title">Device settings</string>
-
     <!-- Button label for option to forget a device [CHAR_LIMIT=15]-->
     <string name="external_devices_settings_forget">Forget</string>
-
-    <!-- Button label for option to accept device settings [CHAR_LIMIT=15]-->
-    <string name="external_devices_settings_ok">OK</string>
 
     <!-- Content description text for scanning progress [CHAR_LIMIT=NONE] -->
     <string name="progress_scanning">Scanning\u2026</string>
