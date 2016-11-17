@@ -180,7 +180,7 @@ public class ExpandableDeviceAdapterTest {
 
         // Replace only sensor of only device
         assertEquals(replacement.getName(), sensor.getAppearance(null).getName(null));
-        observer.assertMostRecentNotification("Changed 1 at 1 [null]");
+        observer.assertMostRecentNotification("Changed 2 at 0 [null]");
         assertEquals(1, adapter.getSensorCount());
 
         ConnectableSensor newSensor = mScenario.makeConnectedSensorNewDevice();
@@ -192,7 +192,7 @@ public class ExpandableDeviceAdapterTest {
         ScalarInputSpec newReplace = mScenario.makeSensorSameDevice(newSensor.getSpec());
         adapter.addSensor(newKey,
                 ConnectableSensor.connected(newReplace, newSensor.getConnectedSensorId()));
-        observer.assertMostRecentNotification("Changed 1 at 3 [null]");
+        observer.assertMostRecentNotification("Changed 2 at 2 [null]");
 
         ScalarInputSpec sensor3 = mScenario.makeSensorSameDevice(newReplace);
         String key3 = mScenario.newSensorKey();
@@ -201,6 +201,6 @@ public class ExpandableDeviceAdapterTest {
         // Replace second sensor of second device
         ScalarInputSpec replace3 = mScenario.makeSensorSameDevice(sensor3);
         adapter.addSensor(key3, ConnectableSensor.connected(replace3, "connectedId3"));
-        observer.assertMostRecentNotification("Changed 1 at 4 [null]");
+        observer.assertMostRecentNotification("Changed 3 at 2 [null]");
     }
 }

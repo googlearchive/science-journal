@@ -127,7 +127,7 @@ public class ExpandableDeviceAdapter extends
             mSensorMap.put(sensorKey, sensor);
             int parentIndex = findParentIndex(sensorKey);
             if (parentIndex >= 0) {
-                notifyChildItemChanged(findParentIndex(sensorKey), findChildIndex(sensorKey));
+                notifyParentItemChanged(parentIndex);
                 return true;
             }
         }
