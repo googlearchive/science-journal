@@ -46,6 +46,7 @@ public class ExpandableDeviceAdapter extends
     private final SensorAppearanceProvider mAppearanceProvider;
     private final SensorRegistry mSensorRegistry;
     private ArrayList<String> mInitiallyCollapsedAddresses = new ArrayList<>();
+    private final EnablementController mEnablementController = new EnablementController();
 
     public static ExpandableDeviceAdapter createEmpty(final ConnectableSensorRegistry registry,
             DeviceRegistry deviceRegistry, SensorAppearanceProvider appearanceProvider,
@@ -112,7 +113,7 @@ public class ExpandableDeviceAdapter extends
     @Override
     public void onBindChildViewHolder(SensorChildViewHolder childViewHolder,
             int position, Object childListItem) {
-        childViewHolder.bind((String) childListItem, mSensorMap, mRegistry);
+        childViewHolder.bind((String) childListItem, mSensorMap, mRegistry, mEnablementController);
     }
 
     @Override
@@ -314,5 +315,9 @@ public class ExpandableDeviceAdapter extends
     @Override
     public void onServiceScanComplete(String serviceId) {
         // This view doesn't track services
+    }
+
+    public void onDestroy() {
+        mEnablementController.onDestroy();
     }
 }

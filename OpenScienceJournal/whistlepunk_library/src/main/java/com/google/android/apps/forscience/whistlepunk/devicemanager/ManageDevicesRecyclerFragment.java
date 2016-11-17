@@ -143,6 +143,8 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     public void onDestroy() {
         stopScanning();
         mMainMenu = null;
+        mMyDevices.onDestroy();
+        mMyDevices = null;
         super.onDestroy();
 
         // Make sure we don't leak this fragment.

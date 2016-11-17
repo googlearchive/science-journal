@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
+import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
@@ -43,6 +44,7 @@ public class SensorChildViewHolder extends ChildViewHolder {
     private final SensorAppearanceProvider mAppearanceProvider;
     private final ImageButton mSettingsGear;
     private final ImageView mIcon;
+    private String mSensorKey;
 
     public SensorChildViewHolder(View itemView, SensorAppearanceProvider appearanceProvider) {
         super(itemView);
@@ -53,8 +55,13 @@ public class SensorChildViewHolder extends ChildViewHolder {
         mAppearanceProvider = appearanceProvider;
     }
 
+    // TODO: can we test this logic?
     public void bind(final String sensorKey, Map<String, ConnectableSensor> sensorMap,
-            final ConnectableSensorRegistry registry) {
+            final ConnectableSensorRegistry registry, final EnablementController econtroller) {
+        if (mSensorKey != null) {
+            econtroller.clearEnablementListener(mSensorKey);
+        }
+        mSensorKey = sensorKey;
         ConnectableSensor sensor = sensorMap.get(sensorKey);
         SensorAppearance appearance = sensor.getAppearance(mAppearanceProvider);
         Context context = itemView.getContext();
@@ -65,11 +72,13 @@ public class SensorChildViewHolder extends ChildViewHolder {
         boolean paired = sensor.isPaired();
         mPairedCheckbox.setOnCheckedChangeListener(null);
         mPairedCheckbox.setChecked(paired);
+        econtroller.setChecked(sensorKey, paired);
         updateCheckboxContentDescription(paired);
 
         mPairedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                econtroller.setChecked(sensorKey, isChecked);
                 if (isChecked) {
                     registry.pair(sensorKey);
                 } else {
@@ -83,7 +92,16 @@ public class SensorChildViewHolder extends ChildViewHolder {
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPairedCheckbox.setChecked(!mPairedCheckbox.isChecked());
+                if (mPairedCheckbox.isEnabled()) {
+                    mPairedCheckbox.setChecked(!mPairedCheckbox.isChecked());
+                }
+            }
+        });
+
+        econtroller.addEnablementListener(sensorKey, new Consumer<Boolean>() {
+            @Override
+            public void take(Boolean isEnabled) {
+                mPairedCheckbox.setEnabled(isEnabled);
             }
         });
 
