@@ -150,7 +150,11 @@ public class AllNativeSensorProvider extends ScalarSensorService {
     }
 
     private boolean isNexus6pThermometer(int sensorType) {
-        return Build.MODEL == "angler" && sensorType == 65536;
+        return isNexus6p() && sensorType == 65536;
+    }
+
+    private boolean isNexus6p() {
+        return Build.MODEL.equals("angler") || Build.MODEL.equals("Nexus 6P");
     }
 
     private SensorManager getSensorManager() {

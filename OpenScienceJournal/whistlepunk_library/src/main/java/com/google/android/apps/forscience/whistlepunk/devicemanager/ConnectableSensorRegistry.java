@@ -42,7 +42,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -288,8 +287,7 @@ public class ConnectableSensorRegistry {
 
     private void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor ds,
             Set<String> availableKeysSeen) {
-        final ExternalSensorSpec newSpec = ds.getSpec();
-        ConnectableSensor sensor = ConnectableSensor.disconnected(newSpec);
+        ConnectableSensor sensor = ConnectableSensor.disconnected(ds.getSpec());
         final String sensorKey = findSensorKey(sensor);
 
         if (sensorKey == null) {
@@ -307,8 +305,7 @@ public class ConnectableSensorRegistry {
         } else {
             sensor = mSensors.get(sensorKey);
             if (getPairedGroup().addAvailableSensor(sensorKey, sensor)) {
-                // My Devices is claiming the sensor, make sure the settings gear is enabled.
-                mSettingsIntents.put(sensorKey, ds.getSettingsInterface());
+                replaceSensor(sensorKey, sensor, ds);
                 return;
             }
             if (!sensor.isPaired()) {
@@ -318,23 +315,28 @@ public class ConnectableSensorRegistry {
                     getAvailableGroup().addSensor(sensorKey, sensor);
                 }
             } else {
-                // TODO: UI feedback
-                mSettingsIntents.put(sensorKey, ds.getSettingsInterface());
-                if (!newSpec.isSameSensorAndSpec(sensor.getSpec())) {
-                    final String oldSensorId = sensor.getConnectedSensorId();
-                    DeviceOptionsViewController.maybeReplaceSensor(mDataController, mExperimentId,
-                            oldSensorId, newSpec,
-                            new LoggingConsumer<String>(TAG, "replacing sensor on scan") {
-                                @Override
-                                public void success(String newSensorId) {
-                                    mOptionsListener.onExperimentSensorReplaced(oldSensorId,
-                                            newSensorId);
-                                    mSensors.put(sensorKey,
-                                            ConnectableSensor.connected(newSpec, newSensorId));
-                                }
-                            });
-                }
+                // TODO: can this ever happen?
+                replaceSensor(sensorKey, sensor, ds);
             }
+        }
+    }
+
+    private void replaceSensor(final String sensorKey, ConnectableSensor oldSensor,
+            final ExternalSensorDiscoverer.DiscoveredSensor newSensor) {
+        mSettingsIntents.put(sensorKey, newSensor.getSettingsInterface());
+        if (!newSensor.getSpec().isSameSensorAndSpec(oldSensor.getSpec())) {
+            final String oldSensorId = oldSensor.getConnectedSensorId();
+            DeviceOptionsViewController.maybeReplaceSensor(mDataController, mExperimentId,
+                    oldSensorId, newSensor.getSpec(),
+                    new LoggingConsumer<String>(TAG, "replacing sensor on scan") {
+                        @Override
+                        public void success(String newSensorId) {
+                            mOptionsListener.onExperimentSensorReplaced(oldSensorId,
+                                    newSensorId);
+                            mSensors.put(sensorKey,
+                                    ConnectableSensor.connected(newSensor.getSpec(), newSensorId));
+                        }
+                    });
         }
     }
 

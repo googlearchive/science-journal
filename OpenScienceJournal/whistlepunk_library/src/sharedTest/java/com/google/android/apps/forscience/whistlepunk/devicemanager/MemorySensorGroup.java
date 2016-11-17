@@ -79,7 +79,7 @@ class MemorySensorGroup implements SensorGroup {
 
     @Override
     public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
-        return false;
+        return mSensors.containsKey(sensorKey);
     }
 
     @Override
