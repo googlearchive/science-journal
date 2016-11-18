@@ -239,7 +239,11 @@ public class ExpandableDeviceAdapter extends
                 return;
             }
         }
-        mDeviceParents.remove(i);
+        DeviceParentListItem listItem = mDeviceParents.remove(i);
+        List<String> sensorKeys = listItem.getSensorKeys();
+        for (String sensorKey : sensorKeys) {
+            mSensorMap.remove(sensorKey);
+        }
         notifyParentItemRemoved(i);
     }
 

@@ -32,6 +32,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,7 @@ public class ExpandableServiceAdapter extends
     private List<ServiceParentListItem> mParentItemList;
     private SensorRegistry mSensorRegistry;
     private ConnectableSensorRegistry mConnectableSensorRegistry;
-    private ArrayList<InputDeviceSpec> mMyDevices;
+    private ArrayList<InputDeviceSpec> mMyDevices = Lists.newArrayList();
     private final DeviceRegistry mDeviceRegistry;
     private final FragmentManager mFragmentManager;
 
@@ -152,8 +153,12 @@ public class ExpandableServiceAdapter extends
 
     @Override
     public boolean hasSensorKey(String sensorKey) {
-        // We're not interested in sensors, just devices
-        return true;
+        for (ServiceParentListItem listItem : mParentItemList) {
+            if (listItem.containsSensorKey(sensorKey)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

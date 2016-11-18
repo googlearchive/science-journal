@@ -16,6 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.support.annotation.NonNull;
@@ -27,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDevic
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
+import com.google.common.collect.Lists;
 
 import org.junit.Test;
 
@@ -202,5 +204,20 @@ public class ExpandableDeviceAdapterTest {
         ScalarInputSpec replace3 = mScenario.makeSensorSameDevice(sensor3);
         adapter.addSensor(key3, ConnectableSensor.connected(replace3, "connectedId3"));
         observer.assertMostRecentNotification("Changed 3 at 2 [null]");
+    }
+
+    @Test public void forgetWhenNoLongerMyDevice() {
+        ExpandableDeviceAdapter adapter = ExpandableDeviceAdapter.createEmpty(mSensorRegistry,
+                mDeviceRegistry, null, null, 0);
+        ConnectableSensor sensor = mScenario.makeConnectedSensorNewDevice();
+        String key = mScenario.newSensorKey();
+
+        adapter.setMyDevices(Lists.newArrayList(mDeviceRegistry.getDevice(sensor.getSpec())));
+        adapter.addSensor(key, sensor);
+        assertTrue(adapter.hasSensorKey(key));
+
+        // Remove the my device, make sure we've forgotten the sensor as well
+        adapter.setMyDevices(Lists.<InputDeviceSpec>newArrayList());
+        assertFalse(adapter.hasSensorKey(key));
     }
 }
