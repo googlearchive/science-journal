@@ -34,6 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
@@ -302,6 +303,13 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                                         }
                                     }
                                 };
+                            }
+
+                            @Override
+                            public boolean shouldReplaceStoredSensor(ConnectableSensor oldSensor) {
+                                // The scalar API only has one set of settings per external sensor
+                                // in its current form, so any old settings are now invalid
+                                return true;
                             }
                         });
                     }

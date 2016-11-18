@@ -185,7 +185,6 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
             }
         });
 
-        // TODO: call onDevice, too!
         scanListener.onSensorFound(new DiscoveredSensor() {
             @Override
             public ExternalSensorSpec getSpec() {
@@ -203,6 +202,14 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
                         dialog.show(fragmentManager, "edit_device");
                     }
                 };
+            }
+
+            @Override
+            public boolean shouldReplaceStoredSensor(ConnectableSensor oldSensor) {
+                // The current implementation of this discoverer does not notice when it detects
+                // a sensor that has already been customized in the database, so we should not
+                // overwrite local customizations
+                return false;
             }
         });
     }

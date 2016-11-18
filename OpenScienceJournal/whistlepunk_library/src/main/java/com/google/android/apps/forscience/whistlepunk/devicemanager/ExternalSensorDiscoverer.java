@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.FragmentManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
@@ -39,6 +38,14 @@ public interface ExternalSensorDiscoverer {
         ExternalSensorSpec getSpec();
 
         SettingsInterface getSettingsInterface();
+
+        /**
+         * @return true if this newly-discovered sensor from a scan should replace oldSensor in
+         * any experiments.  (For example, in current implementations of the Scalar API).  false if
+         * oldSensor is a valid, but different, setting of this same sensor (For example, in current
+         * implementations of native BLE sensors)
+         */
+        boolean shouldReplaceStoredSensor(ConnectableSensor oldSensor);
     }
 
     public interface ServiceConnectionError {

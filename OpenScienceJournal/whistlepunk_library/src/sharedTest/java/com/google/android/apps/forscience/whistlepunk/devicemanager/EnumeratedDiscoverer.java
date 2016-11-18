@@ -50,6 +50,11 @@ public class EnumeratedDiscoverer extends StubSensorDiscoverer {
             public SettingsInterface getSettingsInterface() {
                 return null;
             }
+
+            @Override
+            public boolean shouldReplaceStoredSensor(ConnectableSensor oldSensor) {
+                return false;
+            }
         };
     }
 }

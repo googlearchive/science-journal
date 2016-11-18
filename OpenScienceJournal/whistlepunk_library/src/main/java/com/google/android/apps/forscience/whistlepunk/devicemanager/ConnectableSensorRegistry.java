@@ -305,7 +305,7 @@ public class ConnectableSensorRegistry {
         } else {
             sensor = mSensors.get(sensorKey);
             if (getPairedGroup().addAvailableSensor(sensorKey, sensor)) {
-                replaceSensor(sensorKey, sensor, ds);
+                replaceSensorDataDuringScan(sensorKey, sensor, ds);
                 return;
             }
             if (!sensor.isPaired()) {
@@ -316,15 +316,16 @@ public class ConnectableSensorRegistry {
                 }
             } else {
                 // TODO: can this ever happen?
-                replaceSensor(sensorKey, sensor, ds);
+                replaceSensorDataDuringScan(sensorKey, sensor, ds);
             }
         }
     }
 
-    private void replaceSensor(final String sensorKey, ConnectableSensor oldSensor,
+    private void replaceSensorDataDuringScan(final String sensorKey, ConnectableSensor oldSensor,
             final ExternalSensorDiscoverer.DiscoveredSensor newSensor) {
         mSettingsIntents.put(sensorKey, newSensor.getSettingsInterface());
-        if (!newSensor.getSpec().isSameSensorAndSpec(oldSensor.getSpec())) {
+        if (!newSensor.getSpec().isSameSensorAndSpec(oldSensor.getSpec())
+                && newSensor.shouldReplaceStoredSensor(oldSensor)) {
             final String oldSensorId = oldSensor.getConnectedSensorId();
             DeviceOptionsViewController.maybeReplaceSensor(mDataController, mExperimentId,
                     oldSensorId, newSensor.getSpec(),
