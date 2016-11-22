@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"Dispositius vinculats"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"S\'està vinculant…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"Dispositius disponibles"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"Configuració del dispositiu"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"Esborra"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"D\'acord"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"S\'està cercant…"</string>
     <string name="action_refresh" msgid="5908393033128600915">"Actualitza"</string>
     <string name="no_options_title" msgid="1760920590759723521">"No hi ha opcions per a <xliff:g id="NAME">%1$s</xliff:g>"</string>
@@ -323,7 +321,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Afegeix una llegenda"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Explora el teu món."</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"Funcions noves i millores: \n• Activadors dels sensors: rep alertes, crea notes o inicia i atura l\'enregistrament quan el sensor detecti uns valors concrets. Accedeix-hi a través del menú de la targeta del sensor. \n• Suprimeix proves i experiments arxivats. \n• S\'ha afegit assistència per al sensor de baròmetre. \n• Pots accedir a més tipus de sensors externs amb Science Journal. Per obtenir més informació, consulta https://makingscience.withgoogle.com/science-journal/materials \n• Correcció d\'errors."</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"Funcions noves i millores: \n• Activadors dels sensors: rep alertes, crea notes o inicia i atura l\'enregistrament quan el sensor detecti uns valors concrets. Accedeix-hi a través del menú de la targeta de sensor. \n• Suprimeix proves, experiments i projectes arxivats. \n• S\'ha afegit assistència per al sensor de baròmetre. \n• Pots accedir a més tipus de sensors externs amb Science Journal. \n• Correcció d\'errors."</string>
     <string name="listing__description" msgid="3975515995792990185">"Science Journal és una eina per fer experiments científics amb el teu telèfon intel·ligent. Pots fer servir els sensors del telèfon o connectar-te a sensors externs per dur a terme experiments al teu entorn. Organitza les teves idees en projectes, fes prediccions, pren notes i recopila dades de diverses proves i, a continuació, anota\'n i explora\'n els resultats. És el quadern de laboratori que sempre tens a mà. \n\n\nAgafa idees sobre activitats que pots fer amb l\'aplicació en aquest enllaç: https://makingscience.withgoogle.com/science-journal/activities \nMés informació sobre Making &amp; Science: https://makingscience.withgoogle.com \nAssistència: https://productforums.google.com/forum/#!forum/sciencejournal \nCodi disponible a: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Cerca sensors de tercers"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Cerca aplicacions que admetin l\'API de sensors de tercers i permet que s\'afegeixin aquests sensors als experiments."</string>
@@ -414,13 +412,23 @@
     <string name="my_devices" msgid="2753935122366940731">"Els meus dispositius"</string>
     <string name="available_devices" msgid="5671327872447270316">"Dispositius disponibles"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"S\'ha esgotat el temps d\'espera de la connexió"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"Mostra els sensors del dispositiu"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"Amaga els sensors del dispositiu"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"mostra els sensors del dispositiu"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"amaga els sensors del dispositiu"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"mostra els dispositius del servei"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"amaga els dispositius del servei"</string>
     <string name="select_sensors" msgid="7242531205153688282">"Selecciona els sensors que vols fer servir a <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"Sensors interns"</string>
     <string name="rename_device" msgid="6177379501609319531">"Canvia el nom del dispositiu"</string>
     <string name="forget_device" msgid="7258019924047721349">"Esborra aquest dispositiu"</string>
-    <string name="device_settings" msgid="5076827559934591801">"Configuració del dispositiu"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"Afegeix un sensor a l\'experiment"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"Suprimeix un sensor de l\'experiment"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"Configuració del dispositiu <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"afegeix a l\'experiment"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"treu el sensor de l\'experiment"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"Inclou el sensor <xliff:g id="SENSORNAME">%1$s</xliff:g> a l\'experiment"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"Opcions per al sensor <xliff:g id="SENSORNAME">%1$s</xliff:g>"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"Actualitza el dispositiu <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"mostra els sensors del dispositiu <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"amaga els sensors del dispositiu <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"mostra els dispositius del servei <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"amaga els dispositius del servei <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"Selecciona almenys un sensor per a aquest experiment."</string>
 </resources>

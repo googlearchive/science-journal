@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"ペアリング済みの端末"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"ペアリングしています…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"利用可能な端末"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"端末の設定"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"無視"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"OK"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"スキャンしています…"</string>
     <string name="action_refresh" msgid="5908393033128600915">"更新"</string>
     <string name="no_options_title" msgid="1760920590759723521">"<xliff:g id="NAME">%1$s</xliff:g> のオプションはありません"</string>
@@ -323,7 +321,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"説明を追加"</string>
     <string name="listing_title" msgid="1732490922169483408">"サイエンス ジャーナル"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"身の周りで実験しよう。"</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"新機能と改善点: \n• センサー トリガー: 特定のセンサー値を満たしたときにアラート、メモの作成、記録の開始 / 停止を行います。これらのトリガーにはセンサーカード メニューからアクセスします。\n• アーカイブした試行、実験、実行の削除。\n• 気圧計センサーのサポート追加。\n• サイエンス ジャーナルのその他の機能改善: アクセス可能な外部センサーの種類を追加。詳細については https://makingscience.withgoogle.com/science-journal/materials をご覧ください。\n• バグの修正。"</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"新機能と改善点: \n• センサー トリガー: 特定のセンサー値を満たしたときにアラート、メモの作成、記録の開始や停止を行います。これらのトリガーにはセンサーカード メニューからアクセスします。\n• アーカイブした試行、実験、プロジェクトの削除。\n• 気圧計センサーのサポート追加。\n• サイエンス ジャーナルのその他の機能改善: 利用可能な外部センサーの種類を追加。\n• バグの修正。"</string>
     <string name="listing__description" msgid="3975515995792990185">"サイエンス ジャーナルは、スマートフォンで科学を楽しむツールです。スマートフォンのセンサーを使うか外部センサーに接続して、身の周りで実験を始めましょう。アイデアからプロジェクトをまとめ、結果を予測し、試行を何回か繰り返してメモを取ってデータを収集し、注釈を付けて結果を考察します。常に持ち歩ける実験ノートとしてご活用ください。\n\n \nアプリでできるアクティビティのアイデアについては、こちらのサイトをご覧ください: https://makingscience.withgoogle.com/science-journal/activities \nMaking &amp; Science の詳細: https://makingscience.withgoogle.com \nサポート: https://productforums.google.com/forum/#!forum/sciencejournal \n使用可能なコード: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"サードパーティ製センサーのスキャン"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"サードパーティのセンサー API をサポートするアプリを探して、そのセンサーを実験に追加できるようにします。"</string>
@@ -414,13 +412,23 @@
     <string name="my_devices" msgid="2753935122366940731">"マイデバイス"</string>
     <string name="available_devices" msgid="5671327872447270316">"接続可能なデバイス"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"接続タイムアウト"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"デバイス センサーを表示"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"デバイス センサーを非表示"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"デバイス センサーを表示"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"デバイス センサーを非表示"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"サービスで使用できるデバイスを表示"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"サービスで使用できるデバイスを非表示"</string>
     <string name="select_sensors" msgid="7242531205153688282">"<xliff:g id="EXPERIMENTNAME">%1$s</xliff:g> で使用するセンサーを選択してください"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"内部センサー"</string>
     <string name="rename_device" msgid="6177379501609319531">"デバイス名を変更"</string>
     <string name="forget_device" msgid="7258019924047721349">"このデバイスとのペアを解除"</string>
-    <string name="device_settings" msgid="5076827559934591801">"デバイス設定"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"センサーを実験に追加"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"センサーを実験から削除"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"<xliff:g id="DEVICENAME">%1$s</xliff:g> のデバイス設定"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"実験に追加"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"実験から削除"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"<xliff:g id="SENSORNAME">%1$s</xliff:g> を実験に追加"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"<xliff:g id="SENSORNAME">%1$s</xliff:g> のオプション"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"<xliff:g id="DEVICENAME">%1$s</xliff:g> を更新"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"<xliff:g id="DEVICENAME">%1$s</xliff:g> のセンサーを表示"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"<xliff:g id="DEVICENAME">%1$s</xliff:g> のセンサーを非表示"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"<xliff:g id="SERVICENAME">%1$s</xliff:g> で使用できるデバイスを表示"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"<xliff:g id="SERVICENAME">%1$s</xliff:g> で使用できるデバイスを非表示"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"この実験で使用するセンサーを少なくとも 1 つ選択してください。"</string>
 </resources>

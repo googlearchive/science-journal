@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"युग्मित डिवाइस"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"युग्मित हो रहा है…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"उपलब्ध डिवाइस"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"डिवाइस सेटिंग"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"रहने दें"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"ठीक"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"स्कैन हो रहा है…"</string>
     <string name="action_refresh" msgid="5908393033128600915">"रीफ्रेश करें"</string>
     <string name="no_options_title" msgid="1760920590759723521">"<xliff:g id="NAME">%1$s</xliff:g> के लिए कोई विकल्प नहीं"</string>
@@ -323,7 +321,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"एक कैप्शन जोड़ें"</string>
     <string name="listing_title" msgid="1732490922169483408">"विज्ञान शोध पत्रिका"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"आपकी दुनिया पर प्रयोग."</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"नई सुविधाएं और सुधार: \n• सेंसर ट्रिगर: विशिष्ट सेंसर मान प्राप्त होने पर सूचित करें, नोट बनाएं या रिकॉर्डिंग शुरू करें या रोकें. सेंसर कार्ड मेनू के माध्यम से इन्हें एक्सेस करें. \n• संग्रहीत किए गए परीक्षण, प्रयोग और रन हटाएं. \n• बैरोमीटर सेंसर के लिए सहायता शामिल की गई है. \n• विज्ञान शोध पत्रिका के साथ और भी चीज़ें कार्य करती हैं: अधिक प्रकार के बाहरी सेंसर एक्सेस करें. अधिक जानकारी के लिए, कृपया यह देखें https://makingscience.withgoogle.com/science-journal/materials \n• बग समाधान."</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"नई सुविधाएं और सुधार: \n• सेंसर ट्रिगर: विशिष्ट सेंसर मान प्राप्त होने पर सूचित करें, नोट बनाएं या रिकॉर्डिंग शुरू करें या रोकें. सेंसर कार्ड मेनू के माध्यम से इन्हें एक्सेस करें. \n• संग्रहीत किए गए परीक्षण, प्रयोग और प्रोजेक्ट हटाएं. \n• बैरोमीटर सेंसर के लिए सहायता शामिल की गई है. \n• विज्ञान शोध पत्रिका के साथ और भी चीज़ें कार्य करती हैं: अधिक प्रकार के बाहरी सेंसर एक्सेस करें \n• बग समाधान."</string>
     <string name="listing__description" msgid="3975515995792990185">"विज्ञान शोध पत्रिका अपने स्मार्ट फ़ोन से विज्ञान संबंधी प्रयोग करने का एक टूल है. आप अपने आस-पास की दुनिया में मौजूद चीज़ों पर प्रयोग करने के लिए अपने फ़ोन में मौजूद सेंसर का उपयोग कर सकते हैं या बाहरी सेंसर से कनेक्ट कर सकते हैं. प्रोजेक्ट में अपने विचारों को व्यवस्थित करें, पूर्वानुमान लगाएं, नोट लें और एकाधिक परीक्षणों के डेटा जमा करें, फिर अपने परिणामों पर टिप्पणी दें और उन्हें एक्सप्लोर करें. यह एक ऐसी लैब नोटबुक है, जो आपके साथ हमेशा मौजूद रहती है. \n\n \nइस ऐप्लिकेशन के संगत गतिविधि उपायों को यहां से प्राप्त करें: https://makingscience.withgoogle.com/science-journal/activities \nMaking &amp; Science के बारे में यहां अधिक जानें: https://makingscience.withgoogle.com \nसहायता के लिए यहां जाएं: https://productforums.google.com/forum/#!forum/sciencejournal \nकोड यहां उपलब्ध है: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"तृतीय-पक्ष सेंसर के लिए स्कैन करें"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"ऐसे ऐप्लिकेशन खोजें जो तृतीय-पक्ष सेंसर API का समर्थन करते हैं और उन सेंसर को प्रयोगों में शामिल करना सक्षम करें."</string>
@@ -414,13 +412,23 @@
     <string name="my_devices" msgid="2753935122366940731">"मेरे डिवाइस"</string>
     <string name="available_devices" msgid="5671327872447270316">"उपलब्ध डिवाइस"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"कनेक्शन का समय समाप्त हुआ"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"डिवाइस सेंसर दिखाएं"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"डिवाइस सेंसर छिपाएं"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"डिवाइस सेंसर दिखाएं"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"डिवाइस सेंसर छिपाएं"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"सेवा डिवाइस दिखाएं"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"सेवा डिवाइस छिपाएं"</string>
     <string name="select_sensors" msgid="7242531205153688282">"<xliff:g id="EXPERIMENTNAME">%1$s</xliff:g> में उपयोग करने के लिए सेंसर चुनें"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"आंतरिक सेंसर"</string>
     <string name="rename_device" msgid="6177379501609319531">"डिवाइस का नाम बदलें"</string>
     <string name="forget_device" msgid="7258019924047721349">"इस डिवाइस को भूल जाएं"</string>
-    <string name="device_settings" msgid="5076827559934591801">"डिवाइस सेटिंग"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"प्रयोग में सेंसर जोड़ें"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"प्रयोग से सेंसर निकालें"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"<xliff:g id="DEVICENAME">%1$s</xliff:g> के लिए डिवाइस सेटिंग"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"प्रयोग करने के लिए जोड़ें"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"प्रयोग से निकालें"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"प्रयोग में <xliff:g id="SENSORNAME">%1$s</xliff:g> शामिल करें"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"<xliff:g id="SENSORNAME">%1$s</xliff:g> के लिए विकल्प"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"<xliff:g id="DEVICENAME">%1$s</xliff:g> रीफ्रेश करें"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"<xliff:g id="DEVICENAME">%1$s</xliff:g> के लिए सेंसर दिखाएं"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"<xliff:g id="DEVICENAME">%1$s</xliff:g> के लिए सेंसर छिपाएं"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"<xliff:g id="SERVICENAME">%1$s</xliff:g> के लिए डिवाइस दिखाएं"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"<xliff:g id="SERVICENAME">%1$s</xliff:g> के लिए डिवाइस छिपाएं"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"कृपया इस प्रयोग के लिए कम से कम एक सेंसर का चयन करें."</string>
 </resources>

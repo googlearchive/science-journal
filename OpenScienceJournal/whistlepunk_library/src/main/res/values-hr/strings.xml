@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"Upareni uređaji"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"Uparivanje…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"Dostupni uređaji"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"Postavke uređaja"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"Zaboravi"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"U redu"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"Skeniranje…"</string>
     <string name="action_refresh" msgid="5908393033128600915">"Osvježi"</string>
     <string name="no_options_title" msgid="1760920590759723521">"Nema opcija za <xliff:g id="NAME">%1$s</xliff:g>"</string>
@@ -326,7 +324,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Dodajte naslov"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Eksperimentirajte sa svijetom oko sebe."</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"Nove značajke i poboljšanja: \n• Okidači senzora: aktiviranje upozorenja, unos bilješki, pokretanje ili zaustavljanje snimanja kad senzor dosegne određene vrijednosti. Pristupa im se putem izbornika kartice senzora. \n• Brisanje arhiviranih pokusa, eksperimenata i postupaka. \n• Dodana podrška za barometarski senzor. \n• Još više dodataka za Science Journal: pristup novim vrstama vanjskih senzora. \n• Ispravci programskih pogrešaka."</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"Nove značajke i poboljšanja: \n• Okidači senzora: aktiviranje upozorenja, unos bilješki, pokretanje ili zaustavljanje snimanja kad senzor dosegne određene vrijednosti. Pristupa im se putem izbornika kartice senzora. \n• Brisanje arhiviranih pokusa, eksperimenata i projekata. \n• Dodana podrška za barometarski senzor. \n• Još više dodataka za Science Journal: pristup novim vrstama vanjskih senzora. \n• Ispravci programskih pogrešaka."</string>
     <string name="listing__description" msgid="3975515995792990185">"Science Journal alat je za provođenje znanstvenih istraživanja pomoću pametnog telefona. Pomoću senzora u svojem telefonu ili kroz povezivanje s vanjskim senzorima možete eksperimentirati sa svijetom oko sebe. Organizirajte svoje ideje u projekte, izrađujte predviđanja, pišite bilješke i prikupite podatke iz više pokusa, a zatim označite i istražite rezultate. Pravi laboratorijski dnevnik koji je uvijek uz vas. \n\n \nPrijedloge aktivnosti za upotrebu aplikacije potražite ovdje: https://makingscience.withgoogle.com/science-journal/activities \nSaznajte više o programu Making &amp; Science: https://makingscience.withgoogle.com \nAko vam je potrebna podrška, potražite je ovdje: https://productforums.google.com/forum/#!forum/sciencejournal \nDostupan kôd: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Potražite senzore treće strane"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Potražite aplikacije koje podržavaju API senzora treće strane i omogućite upotrebu tih senzora prilikom provođenja eksperimenata."</string>
@@ -417,13 +415,23 @@
     <string name="my_devices" msgid="2753935122366940731">"Moji uređaji"</string>
     <string name="available_devices" msgid="5671327872447270316">"Dostupni uređaji"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"Istek vremena veze"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"Otkrivanje senzora uređaja"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"Skrivanje senzora uređaja"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"prikaz senzora uređaja"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"skrivanje senzora uređaja"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"prikaz uređaja za uslugu"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"skrivanje uređaja za uslugu"</string>
     <string name="select_sensors" msgid="7242531205153688282">"Odaberite senzore za upotrebu u eksperimentu <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"Interni senzori"</string>
     <string name="rename_device" msgid="6177379501609319531">"Promijeni naziv uređaja"</string>
     <string name="forget_device" msgid="7258019924047721349">"Zaboravi ovaj uređaj"</string>
-    <string name="device_settings" msgid="5076827559934591801">"Postavke uređaja"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"Dodavanje senzora eksperimentu"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"Uklanjanje senzora iz eksperimenta"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"Postavke uređaja <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"dodavanje u eksperiment"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"uklanjanje iz eksperimenta"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"Uključivanje senzora <xliff:g id="SENSORNAME">%1$s</xliff:g> u eksperiment"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"Opcije za <xliff:g id="SENSORNAME">%1$s</xliff:g>"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"Osvježavanje uređaja <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"prikaz senzora za uređaj <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"skrivanje senzora za uređaj <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"prikaz uređaja za uslugu <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"skrivanje uređaja za uslugu <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"Za taj eksperiment trebate odabrati najmanje jedan senzor."</string>
 </resources>

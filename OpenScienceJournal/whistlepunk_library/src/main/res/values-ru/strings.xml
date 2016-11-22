@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"Подключенные устройства"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"Подключение..."</string>
     <string name="external_devices_available" msgid="720745596048662241">"Доступные устройства"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"Настройки устройства"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"Удалить"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"ОК"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"Сканирование..."</string>
     <string name="action_refresh" msgid="5908393033128600915">"Обновить"</string>
     <string name="no_options_title" msgid="1760920590759723521">"Нельзя настроить датчик \"<xliff:g id="NAME">%1$s</xliff:g>\""</string>
@@ -329,7 +327,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Добавьте подпись"</string>
     <string name="listing_title" msgid="1732490922169483408">"Научный журнал"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Мир вокруг глазами науки"</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"Новые функции и исправления: \n• Добавлены триггеры. Если вы их настроите, то каждый раз при достижении заданных вами условий в приложении будут выполняться определенные действия. Управлять триггерами можно на карточках датчиков. \n• Архивные тестирования и эксперименты теперь можно удалять. \n• Появилась поддержка барометра. \n• Поддерживаются новые типы внешних датчиков. Подробнее: https://makingscience.withgoogle.com/science-journal/materials \n• Исправлены ошибки."</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"Новые функции и исправления: \n• Добавлены триггеры. Если вы их настроите, то каждый раз при достижении заданных вами условий в приложении будут выполняться определенные действия. Управлять триггерами можно на карточках датчиков. \n• Архивные тестирования, эксперименты и проекты теперь можно удалять. \n• Появилась поддержка барометра. \n• Поддерживаются новые типы внешних датчиков. \n• Исправлены ошибки."</string>
     <string name="listing__description" msgid="3975515995792990185">"В приложении \"Научный журнал\" можно проводить настоящие научные эксперименты с помощью датчиков смартфона и внешних устройств. Создавайте проекты, составляйте прогнозы, проводите опыты, а затем записывайте и анализируйте результаты. \n\n \nПодробнее о том, какие эксперименты можно проводить в приложении, читайте на странице https://makingscience.withgoogle.com/science-journal/activities \nВот сайт нашего сервиса: https://makingscience.withgoogle.com \nЕсли у вас возникнут вопросы о работе с приложением, посетите форум: https://productforums.google.com/forum/#!forum/sciencejournal \nКоды для разработчиков можно найти на этой странице: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Поиск сторонних датчиков"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Искать приложения, которые поддерживают API сторонних датчиков и позволяют использовать их в экспериментах."</string>
@@ -420,13 +418,23 @@
     <string name="my_devices" msgid="2753935122366940731">"Мои устройства"</string>
     <string name="available_devices" msgid="5671327872447270316">"Доступные устройства"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"время ожидания соединения истекло"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"Раскрыть список датчиков"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"Свернуть список датчиков"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"показать датчики устройства"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"свернуть список датчиков устройства"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"показать устройства, которые можно использовать в сервисе"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"свернуть список устройств, которые можно использовать в сервисе"</string>
     <string name="select_sensors" msgid="7242531205153688282">"Выбор датчиков для эксперимента \"<xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>\""</string>
     <string name="phone_sensors" msgid="1093110931724349906">"Внутренние датчики"</string>
     <string name="rename_device" msgid="6177379501609319531">"Переименовать устройство"</string>
     <string name="forget_device" msgid="7258019924047721349">"Удалить это устройство"</string>
-    <string name="device_settings" msgid="5076827559934591801">"Настройки устройства"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"Использовать показания датчика в эксперименте"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"Не использовать показания датчика в эксперименте"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"Настройки устройства \"<xliff:g id="DEVICENAME">%1$s</xliff:g>\""</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"использовать показания датчика в эксперименте"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"не использовать показания датчика в эксперименте"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"Использовать показания датчика \"<xliff:g id="SENSORNAME">%1$s</xliff:g>\" в эксперименте"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"Параметры датчика \"<xliff:g id="SENSORNAME">%1$s</xliff:g>\""</string>
+    <string name="refresh_device" msgid="2603769844549842556">"Обновить сведения об устройстве \"<xliff:g id="DEVICENAME">%1$s</xliff:g>\""</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"показать датчики устройства \"<xliff:g id="DEVICENAME">%1$s</xliff:g>\""</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"свернуть список датчиков устройства \"<xliff:g id="DEVICENAME">%1$s</xliff:g>\""</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"показать устройства, которые можно использовать в сервисе \"<xliff:g id="SERVICENAME">%1$s</xliff:g>\""</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"свернуть список устройств, которые можно использовать в сервисе \"<xliff:g id="SERVICENAME">%1$s</xliff:g>\""</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"Для эксперимента нужно выбрать хотя бы один датчик."</string>
 </resources>

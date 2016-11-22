@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"Appareils associés"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"Association…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"Appareils disponibles"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"Paramètres de l\'appareil"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"Oublier"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"OK"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"Analyse…"</string>
     <string name="action_refresh" msgid="5908393033128600915">"Actualiser"</string>
     <string name="no_options_title" msgid="1760920590759723521">"Aucune option disponible pour <xliff:g id="NAME">%1$s</xliff:g>"</string>
@@ -323,7 +321,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Ajoutez une légende"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Testez votre monde."</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"Nouvelles fonctionnalités et améliorations : \n• Déclencheurs de capteur : lancez une alerte, créez des notes et démarrez ou arrêtez l\'enregistrement lorsque des valeurs spécifiques sont atteintes au niveau du capteur. Accédez à ces options dans le menu de la fiche du capteur. \n• Supprimez les essais, les tests et les rapports archivés. \n• Capteur barométrique désormais compatible. \n• Plus d\'outils compatibles avec Science Journal : accédez à d\'autres types de capteurs externes. \n• Correction de bugs."</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"Nouvelles fonctionnalités et améliorations : \n• Déclencheurs de capteur : lancez une alerte, créez des notes et démarrez ou arrêtez l\'enregistrement lorsque des valeurs spécifiques sont atteintes au niveau du capteur. Accédez à ces options dans le menu de la fiche du capteur. \n• Supprimez les essais, les expériences et les projets archivés. \n• Capteur barométrique désormais compatible. \n• Plus d\'outils compatibles avec Science Journal : accédez à d\'autres types de capteurs externes. \n• Correction de bugs."</string>
     <string name="listing__description" msgid="3975515995792990185">"Science Journal est un outil destiné à la recherche scientifique sur smartphone. Vous pouvez utiliser les capteurs de votre téléphone ou connecter des capteurs externes pour mener des expériences sur le monde qui vous entoure. Organisez vos idées en projets, faites des prévisions, prenez des notes, recueillez des données, multipliez les tests, annotez-les et examinez vos résultats. Vous disposez ainsi d\'un véritable carnet de laboratoire toujours à portée de main. \n\n\nPour des idées de tests à effectuer grâce à l\'application, rendez-vous à l\'adresse : https://makingscience.withgoogle.com/science-journal/activities. \nEn savoir plus sur Making &amp; Science : https://makingscience.withgoogle.com \nAssistance : https://productforums.google.com/forum/#!forum/sciencejournal \nCode disponible : https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Rechercher des capteurs tiers"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Cherchez des applications compatibles avec l\'API du capteur tiers, et activez l\'ajout de ces capteurs aux expériences."</string>
@@ -414,13 +412,23 @@
     <string name="my_devices" msgid="2753935122366940731">"Mes appareils"</string>
     <string name="available_devices" msgid="5671327872447270316">"Appareils disponibles"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"Expiration du délai d\'attente de la connexion"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"Afficher les capteurs de l\'appareil"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"Masquer les capteurs de l\'appareil"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"afficher les capteurs de l\'appareil"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"masquer les capteurs de l\'appareil"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"afficher les appareils disponibles pour ce service"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"masquer les appareils disponibles pour ce service"</string>
     <string name="select_sensors" msgid="7242531205153688282">"Sélectionnez les capteurs à utiliser pour <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"Capteurs internes"</string>
     <string name="rename_device" msgid="6177379501609319531">"Renommer l\'appareil"</string>
     <string name="forget_device" msgid="7258019924047721349">"Oublier cet appareil"</string>
-    <string name="device_settings" msgid="5076827559934591801">"Paramètres de l\'appareil"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"Ajouter un capteur au test"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"Supprimer le capteur du test"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"Paramètres de <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"ajouter à l\'expérience"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"supprimer de l\'expérience"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"Inclure <xliff:g id="SENSORNAME">%1$s</xliff:g> dans l\'expérience"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"Options de <xliff:g id="SENSORNAME">%1$s</xliff:g>"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"Actualiser <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"afficher les capteurs de <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"masquer les capteurs de <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"afficher les appareils disponibles pour <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"masquer les appareils disponibles pour <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"Veuillez sélectionner au moins un capteur pour cette expérience."</string>
 </resources>

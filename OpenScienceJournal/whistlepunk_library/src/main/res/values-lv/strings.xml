@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"Pārī savienotās ierīces"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"Notiek savienošana pārī…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"Pieejamās ierīces"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"Ierīces iestatījumi"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"Atmest"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"Labi"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"Notiek meklēšana…"</string>
     <string name="action_refresh" msgid="5908393033128600915">"Atsvaidzināt"</string>
     <string name="no_options_title" msgid="1760920590759723521">"Nav opciju sensoram: <xliff:g id="NAME">%1$s</xliff:g>"</string>
@@ -326,7 +324,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Pievienojiet parakstu"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Eksperimentējiet ar pasauli."</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"Jaunas funkcijas un uzlabojumi. \n• Sensora aktivizētāji: iestatiet brīdinājumus, veiciet piezīmes vai sāciet/beidziet ierakstīšanu, kad sasniegtas konkrētas sensoru vērtības. Piekļuve no sensora kartītes izvēlnes. \n• Dzēsiet arhivētos izmēģinājumus, eksperimentus un testus. \n• Papildu atbalsts barometra sensoram. \n• Vairāk iespēju lietotnē Science Journal: piekļuve plašākam ārējo sensoru klāstam. Plašāka informācija: https://makingscience.withgoogle.com/science-journal/materials \n• Kļūdu labojumi."</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"Jaunas funkcijas un uzlabojumi. \n• Sensora aktivizētāji: iestatiet brīdinājumus, veiciet piezīmes vai sāciet/beidziet ierakstīšanu, kad sasniegtas konkrētas sensoru vērtības. Piekļuve no sensora kartītes izvēlnes. \n• Dzēsiet arhivētos izmēģinājumus, eksperimentus un projektus. \n• Papildu atbalsts barometra sensoram. \n• Vairāk iespēju lietotnē Science Journal: piekļuve plašākam ārējo sensoru klāstam. \n• Kļūdu labojumi."</string>
     <string name="listing__description" msgid="3975515995792990185">"Science Journal ir rīks, ar kuru var veikt īstus eksperimentus ar tālruņa sensoriem vai izveidojot savienojumu ar ārējiem sensoriem. Pārvērtiet idejas par projektiem, prognozējiet iznākumus, veiciet piezīmes un apkopojiet daudzu izmēģinājumu datus, pēc tam komentējiet un analizējiet rezultātus. Tas ir laboratorijas darbu bloknots, kas vienmēr ir līdzi. \n\n \nŠeit varat gūt praktiskas idejas, kuras realizēt lietotnē: https://makingscience.withgoogle.com/science-journal/activities \nUzziniet vairāk par programmu Making &amp; Science: https://makingscience.withgoogle.com \nAtbalsts: https://productforums.google.com/forum/#!forum/sciencejournal \nPieejamais kods: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Atrodiet ārējos sensorus"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Atrodiet lietotnes, kas atbalsta ārējo sensoru API un ļauj pievienot šos sensorus eksperimentiem."</string>
@@ -417,13 +415,23 @@
     <string name="my_devices" msgid="2753935122366940731">"Manas ierīces"</string>
     <string name="available_devices" msgid="5671327872447270316">"Pieejamās ierīces"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"Savienojuma noildze"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"Atklāt ierīces sensorus"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"Paslēpt ierīces sensorus"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"rādīt ierīces sensorus"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"paslēpt ierīces sensorus"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"rādīt pakalpojumā pieejamās ierīces"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"paslēpt pakalpojumā pieejamās ierīces"</string>
     <string name="select_sensors" msgid="7242531205153688282">"Atlasīt sensorus izmantošanai šādā eksperimentā: <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"Iekšējie sensori"</string>
     <string name="rename_device" msgid="6177379501609319531">"Pārdēvēt ierīci"</string>
     <string name="forget_device" msgid="7258019924047721349">"Atmest šo ierīci"</string>
-    <string name="device_settings" msgid="5076827559934591801">"Ierīces iestatījumi"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"Pievienot sensoru eksperimentam"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"Noņemt sensoru no eksperimenta"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"Ierīces <xliff:g id="DEVICENAME">%1$s</xliff:g> iestatījumi"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"pievienot eksperimentam"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"noņemt no eksperimenta"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"Iekļaut eksperimentā sensoru <xliff:g id="SENSORNAME">%1$s</xliff:g>"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"Sensora <xliff:g id="SENSORNAME">%1$s</xliff:g> opcijas"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"Atsvaidzināt ierīci <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"rādīt ierīces <xliff:g id="DEVICENAME">%1$s</xliff:g> sensorus"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"paslēpt ierīces <xliff:g id="DEVICENAME">%1$s</xliff:g> sensorus"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"rādīt pakalpojuma <xliff:g id="SERVICENAME">%1$s</xliff:g> pieejamās ierīces"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"paslēpt pakalpojumā <xliff:g id="SERVICENAME">%1$s</xliff:g> pieejamās ierīces"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"Lūdzu, atlasiet vismaz vienu sensoru šim eksperimentam."</string>
 </resources>

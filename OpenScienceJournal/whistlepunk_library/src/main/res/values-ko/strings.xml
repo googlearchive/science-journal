@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"페어링된 기기"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"페어링 중…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"사용 가능한 기기"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"기기 설정"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"지우기"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"확인"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"스캔 중…"</string>
     <string name="action_refresh" msgid="5908393033128600915">"새로고침"</string>
     <string name="no_options_title" msgid="1760920590759723521">"<xliff:g id="NAME">%1$s</xliff:g> 옵션 없음"</string>
@@ -323,7 +321,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"사진 설명 추가"</string>
     <string name="listing_title" msgid="1732490922169483408">"과학 저널"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"실험의 세상이 열립니다."</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"새로운 기능 및 개선사항: \n• 센서 실행: 특정 센서 값에 도달하면 알림을 보내거나 메모를 만들거나 녹화를 시작 또는 중지합니다. 센서 카드 메뉴를 통해 이 기능에 액세스할 수 있습니다. \n• 보관처리된 시험, 실험, 실행을 삭제할 수 있습니다. \n• 기압계 센서 지원이 추가되었습니다. \n• 과학 저널에서 작동하는 유형 추가: 더 많은 외부 센서 유형에 액세스할 수 있습니다. 자세한 내용은 다음 페이지를 참조하세요. https://makingscience.withgoogle.com/science-journal/materials \n• 버그가 수정되었습니다."</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"새로운 기능 및 개선사항: \n• 센서 실행: 특정 센서 값에 도달하면 알림을 보내거나 메모를 만들거나 녹화를 시작 또는 중지합니다. 센서 카드 메뉴를 통해 이 기능에 액세스할 수 있습니다. \n• 보관처리된 실행, 실험 및 프로젝트를 삭제할 수 있습니다. \n• 기압계 센서 지원이 추가되었습니다. \n• 과학 저널에서 작동하는 유형 추가: 더 많은 외부 센서 유형에 액세스할 수 있습니다. \n• 버그가 수정되었습니다."</string>
     <string name="listing__description" msgid="3975515995792990185">"과학 저널은 스마트폰으로 과학 실험을 할 수 있는 앱입니다. 휴대전화의 센서를 사용하거나 외부 센서에 연결하여 자유롭게 실험해 보세요. 아이디어를 프로젝트로 정리하고, 예측하고, 여러 번 실험하며 메모하고, 데이터를 수집하고, 결과를 종합하고 탐구해 보세요. 항상 가지고 다닐 수 있는 실험 공책과 같습니다. \n\n \n앱으로 가능한 활동 아이디어: https://makingscience.withgoogle.com/science-journal/activities \n제작 및 과학 자세히 알아보기: https://makingscience.withgoogle.com \n지원 문의: https://productforums.google.com/forum/#!forum/sciencejournal \n제공되는 코드: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"타사 센서 검색"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"타사 센서 API를 지원하는 앱을 찾아 센서로 실험할 수 있도록 설정하세요."</string>
@@ -414,13 +412,23 @@
     <string name="my_devices" msgid="2753935122366940731">"내 기기"</string>
     <string name="available_devices" msgid="5671327872447270316">"사용 가능한 기기"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"연결 제한 시간 초과"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"기기 센서 표시"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"기기 센서 숨기기"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"기기 센서 표시"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"기기 센서 숨기기"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"서비스 기기 표시"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"서비스 기기 숨기기"</string>
     <string name="select_sensors" msgid="7242531205153688282">"<xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>에서 사용할 센서 선택"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"내부 센서"</string>
     <string name="rename_device" msgid="6177379501609319531">"기기 이름 변경"</string>
     <string name="forget_device" msgid="7258019924047721349">"이 기기 지우기"</string>
-    <string name="device_settings" msgid="5076827559934591801">"기기 설정"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"실험에 센서 추가"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"실험에서 센서 삭제"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"<xliff:g id="DEVICENAME">%1$s</xliff:g>의 기기 설정"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"실험에 추가"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"실험에서 삭제"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"실험에 <xliff:g id="SENSORNAME">%1$s</xliff:g> 포함"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"<xliff:g id="SENSORNAME">%1$s</xliff:g>의 옵션"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"<xliff:g id="DEVICENAME">%1$s</xliff:g> 새로고침"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"<xliff:g id="DEVICENAME">%1$s</xliff:g>의 센서 표시"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"<xliff:g id="DEVICENAME">%1$s</xliff:g>의 센서 숨기기"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"<xliff:g id="SERVICENAME">%1$s</xliff:g>의 기기 표시"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"<xliff:g id="SERVICENAME">%1$s</xliff:g>의 기기 숨기기"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"이 실험에 사용할 센서를 하나 이상 선택하세요."</string>
 </resources>

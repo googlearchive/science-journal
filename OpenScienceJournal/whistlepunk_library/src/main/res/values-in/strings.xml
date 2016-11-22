@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"Perangkat yang dipasangkan"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"Memasangkan..."</string>
     <string name="external_devices_available" msgid="720745596048662241">"Perangkat yang tersedia"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"Setelan perangkat"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"Lupakan"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"Oke"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"Memindai..."</string>
     <string name="action_refresh" msgid="5908393033128600915">"Segarkan"</string>
     <string name="no_options_title" msgid="1760920590759723521">"Tidak ada opsi untuk <xliff:g id="NAME">%1$s</xliff:g>"</string>
@@ -323,7 +321,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Tambahkan teks"</string>
     <string name="listing_title" msgid="1732490922169483408">"Jurnal Sains"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Eksperimen di sekitar Anda."</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"Peningkatan dan fitur baru: \n• Pemicu sensor: Peringatan, membuat catatan atau memulai dan menghentikan perekaman saat nilai sensor tertentu dicapai. Ini dapat diakses melalui menu kartu sensor. \n• Menghapus uji coba, eksperimen, dan proyek berjalan yang diarsipkan. \n• Dukungan tambahan untuk sensor barometer. \n• Semakin banyak hal yang kompatibel dengan Jurnal Sains: akses lebih banyak jenis sensor eksternal. \n• Perbaikan bug."</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"Fitur baru dan penyempurnaan: \n• Pemicu sensor: Peringatan, membuat catatan, atau memulai dan menghentikan perekaman saat nilai sensor tertentu dicapai. Ini dapat diakses melalui menu kartu sensor. \n• Menghapus uji coba, eksperimen, dan proyek yang diarsipkan. \n• Dukungan tambahan untuk sensor barometer. \n• Semakin banyak hal yang kompatibel dengan Jurnal Sains: akses lebih banyak jenis sensor eksternal. \n• Perbaikan bug."</string>
     <string name="listing__description" msgid="3975515995792990185">"Jurnal Sains adalah sebuah alat untuk menjalankan eksperimen sains menggunakan ponsel cerdas. Anda dapat menggunakan sensor di ponsel atau menghubungkan ponsel ke sensor eksternal untuk bereksperimen di lingkungan sekitar. Rumuskan berbagai ide Anda ke dalam proyek, buat prediksi, buat catatan, dan kumpulkan data dalam beberapa percobaan, kemudian tambahkan catatan dan teliti hasilnya. Ini adalah buku catatan lab yang selalu Anda bawa. \n\n \nDapatkan berbagai ide aktivitas untuk digunakan dengan aplikasi di sini: https://makingscience.withgoogle.com/science-journal/activities \nPelajari lebih lanjut tentang Making &amp; Science di sini: https://makingscience.withgoogle.com \nUntuk mendapatkan dukungan, buka: https://productforums.google.com/forum/#!forum/sciencejournal \nKode yang tersedia: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Pindai sensor pihak ketiga"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Cari aplikasi yang mendukung sensor API pihak ketiga dan sebisa mungkin gunakan sensor tersebut dalam eksperimen."</string>
@@ -414,13 +412,23 @@
     <string name="my_devices" msgid="2753935122366940731">"Perangkat Saya"</string>
     <string name="available_devices" msgid="5671327872447270316">"Perangkat yang Tersedia"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"Waktu koneksi habis"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"Tampilkan sensor perangkat"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"Sembunyikan sensor perangkat"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"tampilkan sensor perangkat"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"sembunyikan sensor perangkat"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"tampilkan perangkat layanan"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"sembunyikan perangkat layanan"</string>
     <string name="select_sensors" msgid="7242531205153688282">"Pilih sensor untuk digunakan di <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"Sensor internal"</string>
     <string name="rename_device" msgid="6177379501609319531">"Ganti nama perangkat"</string>
     <string name="forget_device" msgid="7258019924047721349">"Lupakan perangkat ini"</string>
-    <string name="device_settings" msgid="5076827559934591801">"Setelan perangkat"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"Tambahkan sensor pada eksperimen"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"Hapus sensor dari eksperimen"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"Setelan perangkat untuk <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"tambahkan ke eksperimen"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"hapus dari eksperimen"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"Sertakan <xliff:g id="SENSORNAME">%1$s</xliff:g> dalam eksperimen"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"Opsi untuk <xliff:g id="SENSORNAME">%1$s</xliff:g>"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"Segarkan <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"tampilkan sensor untuk <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"sembunyikan sensor untuk <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"tampilkan perangkat untuk <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"sembunyikan perangkat untuk <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"Pilih setidaknya satu sensor untuk eksperimen ini."</string>
 </resources>

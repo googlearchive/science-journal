@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"Spárované zariadenia"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"Prebieha párovanie..."</string>
     <string name="external_devices_available" msgid="720745596048662241">"Dostupné zariadenia"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"Nastavenia zariadenia"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"Zabudnúť"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"OK"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"Skenuje sa..."</string>
     <string name="action_refresh" msgid="5908393033128600915">"Obnoviť"</string>
     <string name="no_options_title" msgid="1760920590759723521">"Žiadne možnosti pre <xliff:g id="NAME">%1$s</xliff:g>"</string>
@@ -329,7 +327,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Pridať popis"</string>
     <string name="listing_title" msgid="1732490922169483408">"Vedecký zápisník"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Experimentujte so svetom."</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"Nové funkcie a vylepšenia: \n• Spúšťače senzorov: Upozornenie, zápis, začiatok alebo koniec záznamu pri určitých hodnotách nameraných senzormi. Dostanete sa k nim prostredníctvom ponuky karty senzora. \n• Odstránenie archivovaných skúšok, experimentov a pokusov. \n• Pridaná podpora pre senzor barometra. \n• S Vedeckým zápisníkom máte teraz širšie možnosti – viac typov externých senzorov. Ďalšie informácie získate na adrese https://makingscience.withgoogle.com/science-journal/materials \n• Opravy chýb."</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"Nové funkcie a vylepšenia: \n• Spúšťače senzorov: Upozornenie, zápis, začiatok alebo koniec záznamu pri určitých hodnotách nameraných senzormi. Dostanete sa k nim prostredníctvom ponuky karty senzora. \n• Odstránenie archivovaných skúšok, experimentov a projektov. \n• Pridaná podpora pre senzor barometra. \n• S Vedeckým zápisníkom máte teraz ďalšie možnosti – viac typov externých senzorov. \n• Opravy chýb."</string>
     <string name="listing__description" msgid="3975515995792990185">"Vedecký zápisník je nástroj na uskutočňovanie vedeckých pokusov pomocou smartfónu. Môžete využívať senzory telefónu alebo pripojiť externé senzory a experimentovať s okolitým svetom. Organizujte svoje nápady do projektov, robte predpoklady, zapisujte si poznámky pri viacerých pokusoch a následne výsledky skúmajte a pridajte k nim anotácie. Ide o laboratórny zápisník, ktorý máte vždy poruke. \n\n \nZískajte nápady na činnosti s touto aplikáciou na adrese: https://makingscience.withgoogle.com/science-journal/activities \nĎalšie informácie o webe Making &amp; Science nájdete na stránke: https://makingscience.withgoogle.com \nAk potrebujete pomoc, navštívte stránku: https://productforums.google.com/forum/#!forum/sciencejournal \nKód je k dispozícii na stránke: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Vyhľadanie senzorov tretích strán"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Vyhľadajte aplikácie, ktoré podporujú rozhranie API pre senzory tretích strán, a povoľte pridanie týchto senzorov do experimentov."</string>
@@ -420,13 +418,23 @@
     <string name="my_devices" msgid="2753935122366940731">"Moje zariadenia"</string>
     <string name="available_devices" msgid="5671327872447270316">"Dostupné zariadenia"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"Časový limit pripojenia uplynul"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"Ukázať senzory zariadenia"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"Skryť senzory zariadenia"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"zobraziť senzory zariadenia"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"skryť senzory zariadenia"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"zobraziť zariadenia služby"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"skryť zariadenia služby"</string>
     <string name="select_sensors" msgid="7242531205153688282">"Vyberte senzory na použitie v experimente <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"Interné senzory"</string>
     <string name="rename_device" msgid="6177379501609319531">"Premenovať zariadenie"</string>
     <string name="forget_device" msgid="7258019924047721349">"Zabudnúť toto zariadenie"</string>
-    <string name="device_settings" msgid="5076827559934591801">"Nastavenia zariadenia"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"Pridať senzor do experimentu"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"Odstrániť senzor z experimentu"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"Nastavenia zariadenia <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"pridať do experimentu"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"odstrániť z experimentu"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"Zahrnúť senzor <xliff:g id="SENSORNAME">%1$s</xliff:g> do experimentu"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"Možnosti pre senzor <xliff:g id="SENSORNAME">%1$s</xliff:g>"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"Obnoviť <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"zobraziť senzory zariadenia <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"skryť senzory zariadenia <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"zobraziť zariadenia služby <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"skryť zariadenia služby <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"Pre tento experiment vyberte aspoň jeden senzor."</string>
 </resources>

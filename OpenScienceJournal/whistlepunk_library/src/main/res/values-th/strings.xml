@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"อุปกรณ์ที่จับคู่"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"กำลังจับคู่…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"อุปกรณ์ที่ใช้ได้"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"การตั้งค่าอุปกรณ์"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"ไม่จำ"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"ตกลง"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"กำลังสแกน…"</string>
     <string name="action_refresh" msgid="5908393033128600915">"รีเฟรช"</string>
     <string name="no_options_title" msgid="1760920590759723521">"ไม่มีตัวเลือกสำหรับ <xliff:g id="NAME">%1$s</xliff:g>"</string>
@@ -323,7 +321,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"เพิ่มคำอธิบายภาพ"</string>
     <string name="listing_title" msgid="1732490922169483408">"วารสารวิทยาศาสตร์"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"ทำการทดลองกับโลกรอบตัวคุณ"</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"คุณลักษณะใหม่และการปรับปรุง: \n• ทริกเกอร์เซ็นเซอร์: แจ้งเตือน สร้างบันทึกย่อ หรือเริ่มและหยุดการบันทึกเมื่อค่าของเซ็นเซอร์ถึงเกณฑ์ที่ระบุไว้ เข้าถึงการทำงานเหล่านี้ผ่านเมนูการ์ดเซ็นเซอร์ \n• ลบการทดลองและการทดสอบที่เก็บถาวร \n• เพิ่มการสนับสนุนสำหรับเซ็นเซอร์บาโรมิเตอร์ \n• การดำเนินการเพิ่มเติมกับวารสารวิทยาศาสตร์: เข้าถึงเซ็นเซอร์ภายนอกประเภทต่างๆ ได้มากขึ้น สำหรับข้อมูลเพิ่มเติม โปรดดูที่ https://makingscience.withgoogle.com/science-journal/materials \n• แก้ไขข้อบกพร่องต่างๆ"</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"คุณลักษณะใหม่และการปรับปรุง: \n• ทริกเกอร์เซ็นเซอร์: แจ้งเตือน สร้างบันทึกย่อ หรือเริ่มและหยุดการบันทึกเมื่อค่าของเซ็นเซอร์ถึงเกณฑ์ที่ระบุไว้ เข้าถึงการทำงานเหล่านี้ผ่านเมนูการ์ดเซ็นเซอร์ \n• ลบการทดสอบ การทดลอง และโครงการที่เก็บถาวร \n• เพิ่มการสนับสนุนสำหรับเซ็นเซอร์บาโรมิเตอร์ \n• การดำเนินการเพิ่มเติมกับวารสารวิทยาศาสตร์: เข้าถึงเซ็นเซอร์ภายนอกประเภทต่างๆ ได้มากขึ้น \n• แก้ไขข้อบกพร่องต่างๆ"</string>
     <string name="listing__description" msgid="3975515995792990185">"วารสารวิทยาศาสตร์คือเครื่องมือสำหรับการทดลองทางวิทยาศาสตร์ด้วยสมาร์ทโฟนของคุณ คุณสามารถใช้เซ็นเซอร์ในโทรศัพท์หรือเชื่อมต่อกับเซ็นเซอร์ภายนอกเพื่อทำการทดลองกับโลกรอบตัวคุณ จัดระเบียบไอเดียของคุณให้เป็นโครงการ ตั้งสมมติฐาน จดบันทึก และเก็บรวบรวมข้อมูลในการทดลองหลายๆ ครั้ง จากนั้นทำหมายเหตุประกอบและสำรวจผลการทดลองของคุณ นี่คือสมุดบันทึกห้องทดลองที่คุณพกติดตัวไปได้ทุกที่\n\n \nดูไอเดียกิจกรรมเพื่อใช้กับแอปได้ที่นี่: https://makingscience.withgoogle.com/science-journal/activities \nเรียนรู้เพิ่มเติมเกี่ยวกับ Making &amp; Science: https://makingscience.withgoogle.com \nสำหรับความช่วยเหลือ: https://productforums.google.com/forum/#!forum/sciencejournal \nโค้ดที่ใช้งานได้: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"ค้นหาเซ็นเซอร์ของบุคคลที่สาม"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"ค้นหาแอปที่สนับสนุน API เซ็นเซอร์ของบุคคลที่สาม และเปิดใช้การเพิ่มเซ็นเซอร์เหล่านั้นลงในการทดลอง"</string>
@@ -414,13 +412,23 @@
     <string name="my_devices" msgid="2753935122366940731">"อุปกรณ์ของฉัน"</string>
     <string name="available_devices" msgid="5671327872447270316">"อุปกรณ์ที่ใช้ได้"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"หมดเวลาการเชื่อมต่อ"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"แสดงเซ็นเซอร์ของอุปกรณ์"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"ซ่อนเซ็นเซอร์ของอุปกรณ์"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"แสดงเซ็นเซอร์ของอุปกรณ์"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"ซ่อนเซ็นเซอร์ของอุปกรณ์"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"แสดงอุปกรณ์บนบริการ"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"ซ่อนอุปกรณ์บนบริการ"</string>
     <string name="select_sensors" msgid="7242531205153688282">"เลือกเซ็นเซอร์เพื่อใช้ใน <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"เซ็นเซอร์ภายใน"</string>
     <string name="rename_device" msgid="6177379501609319531">"เปลี่ยนชื่ออุปกรณ์"</string>
     <string name="forget_device" msgid="7258019924047721349">"ไม่จำอุปกรณ์นี้"</string>
-    <string name="device_settings" msgid="5076827559934591801">"การตั้งค่าอุปกรณ์"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"เพิ่มเซ็นเซอร์ลงในการทดลอง"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"นำเซ็นเซอร์ออกจากการทดลอง"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"การตั้งค่าอุปกรณ์สำหรับ <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"เพิ่มในการทดลอง"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"นำออกจากการทดลอง"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"รวม <xliff:g id="SENSORNAME">%1$s</xliff:g> ในการทดลอง"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"ตัวเลือกสำหรับ <xliff:g id="SENSORNAME">%1$s</xliff:g>"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"รีเฟรช <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"แสดงเซ็นเซอร์สำหรับ <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"ซ่อนเซ็นเซอร์สำหรับ <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"แสดงอุปกรณ์สำหรับ <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"ซ่อนอุปกรณ์สำหรับ <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"โปรดเลือกอย่างน้อย 1 เซ็นเซอร์สำหรับการทดลองนี้"</string>
 </resources>

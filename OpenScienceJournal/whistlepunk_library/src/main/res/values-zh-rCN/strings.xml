@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"已配对的设备"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"正在配对…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"可用设备"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"设备设置"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"断开"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"确定"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"正在扫描…"</string>
     <string name="action_refresh" msgid="5908393033128600915">"刷新"</string>
     <string name="no_options_title" msgid="1760920590759723521">"没有适用于<xliff:g id="NAME">%1$s</xliff:g>的选项"</string>
@@ -323,7 +321,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"添加图片说明"</string>
     <string name="listing_title" msgid="1732490922169483408">"科学日志"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"探索您周围世界的科学奥秘。"</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"新功能及改进：\n• 传感器触发设置：在达到特定传感器值时发出提醒、做记录或开始/停止记录。通过传感器卡片菜单可使用这些功能。\n• 删除已归档的测试、实验和运行记录。\n• 增加了对气压计传感器的支持。\n• 支持更多可与科学日志配合使用的工具：支持更多外部传感器类型。有关详情，请参见：https://makingscience.withgoogle.com/science-journal/materials \n• 修正了错误。"</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"新功能及改进：\n• 传感器触发设置：在达到特定传感器值时发出提醒、做记录或开始/停止记录。通过传感器卡片菜单可使用这些功能。\n• 删除已归档的测试、实验和项目。\n• 增加了对气压计传感器的支持。\n• 支持更多可与科学日志配合使用的工具：支持更多外部传感器类型。\n• 修正了错误。"</string>
     <string name="listing__description" msgid="3975515995792990185">"有了“科学日志”这个实用工具，使用智能手机就能进行科学实验了。您可以使用手机内置传感器，也可以连接外部传感器，开始尽情探索周围的世界。“科学日志”可以让您将各种零散的想法归类整理成不同的具体项目、进行预测、记录笔记并收集多次实验的数据，然后深入分析实验结果并加上相关注释，就像随身携带的一本实验室笔记本。\n\n \n您可以访问以下网址汲取实验灵感，让这款应用伴您遨游广阔的科学天地：https://makingscience.withgoogle.com/science-journal/activities \n欢迎详细了解 Making &amp; Science：https://makingscience.withgoogle.com \n如需获取支持，请访问：https://productforums.google.com/forum/#!forum/sciencejournal \n如需获取代码，请访问：https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"扫描第三方传感器"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"查找支持第三方传感器 API 并且能够将这些传感器添加到实验中的应用。"</string>
@@ -414,13 +412,23 @@
     <string name="my_devices" msgid="2753935122366940731">"我的设备"</string>
     <string name="available_devices" msgid="5671327872447270316">"可用设备"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"连接超时"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"显示设备传感器"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"隐藏设备传感器"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"显示设备传感器"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"隐藏设备传感器"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"显示支持相应服务的设备"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"隐藏支持相应服务的设备"</string>
     <string name="select_sensors" msgid="7242531205153688282">"选择用于“<xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>”的传感器"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"内置传感器"</string>
     <string name="rename_device" msgid="6177379501609319531">"重命名设备"</string>
     <string name="forget_device" msgid="7258019924047721349">"忽略此设备"</string>
-    <string name="device_settings" msgid="5076827559934591801">"设备设置"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"向实验添加传感器"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"移除实验中的传感器"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"<xliff:g id="DEVICENAME">%1$s</xliff:g> 的设备设置"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"添加到实验中"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"从实验中移除"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"将<xliff:g id="SENSORNAME">%1$s</xliff:g>添加到实验中"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"<xliff:g id="SENSORNAME">%1$s</xliff:g>的选项"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"刷新 <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"显示 <xliff:g id="DEVICENAME">%1$s</xliff:g> 的传感器"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"隐藏 <xliff:g id="DEVICENAME">%1$s</xliff:g> 的传感器"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"显示支持<xliff:g id="SERVICENAME">%1$s</xliff:g>的设备"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"隐藏支持<xliff:g id="SERVICENAME">%1$s</xliff:g>的设备"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"请为此实验选择至少一个传感器。"</string>
 </resources>

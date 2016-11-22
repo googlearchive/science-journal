@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"Сдвоени устройства"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"Сдвоява се…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"Налични устройства"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"Настройки на устройството"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"Отказ"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"ОK"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"Сканира се…"</string>
     <string name="action_refresh" msgid="5908393033128600915">"Опресняване"</string>
     <string name="no_options_title" msgid="1760920590759723521">"Няма опции за <xliff:g id="NAME">%1$s</xliff:g>"</string>
@@ -323,7 +321,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Добавете надпис"</string>
     <string name="listing_title" msgid="1732490922169483408">"Научно списание"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Експериментирайте със света."</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"Нови функции и подобрения: \n• Тригери за сензори: сигнализиране, добавяне на бележки или започване и спиране на запис, когато сензорите достигнат конкретни стойности. Достъпни са от менюто на сензорната карта. \n• Изтриване на архивирани изпитания, експерименти и опити. \n• Добавена поддръжка за барометър. \n• Възможност за свързване на повече типове външни сензори с Научно списание. \n• Поправки на програмни грешки."</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"Нови функции и подобрения: \n• Тригери за сензори: сигнализиране, добавяне на бележки или започване и спиране на запис, когато сензорите достигнат конкретни стойности. Достъпни са от менюто на сензорната карта. \n• Изтриване на архивирани изпитания, експерименти и проекти. \n• Добавена поддръжка за барометър. \n• Възможност за свързване на повече типове външни сензори с Научно списание. \n• Поправки на програмни грешки."</string>
     <string name="listing__description" msgid="3975515995792990185">"Научно списание е инструмент за провеждане на научни експерименти с помощта на смартфона ви. Можете да използвате вградените или външни сензори, за да експериментирате със света около себе си. Организирайте идеите си в проекти, правете прогнози, водете си бележки и събирайте данни от множество изпитания, след което добавяйте пояснения и преглеждайте резултатите си. Това е лабораторният дневник, който винаги е подръка. \n\n \nНаучете за какво можете да използвате приложението тук: https://makingscience.withgoogle.com/science-journal/activities \nНаучете повече за Making Science: https://makingscience.withgoogle.com \nЗа поддръжка: https://productforums.google.com/forum/#!forum/sciencejournal \nКод: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Сканиране за сензори на трети страни"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Търсене на приложения, които поддържат приложния програмен интерфейс (API) за сензори на трети страни, и активиране на добавянето на тези сензори към експерименти."</string>
@@ -414,13 +412,23 @@
     <string name="my_devices" msgid="2753935122366940731">"Моите устройства"</string>
     <string name="available_devices" msgid="5671327872447270316">"Налични устройства"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"Времето за изчакване на връзката изтече"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"Показване на сензорите на устройството"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"Скриване на сензорите на устройството"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"показване на сензорите на устройството"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"скриване на сензорите на устройството"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"показване на устройствата за услугата"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"скриване на устройствата за услугата"</string>
     <string name="select_sensors" msgid="7242531205153688282">"Избор на сензори за „<xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>“"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"Вътрешни сензори"</string>
     <string name="rename_device" msgid="6177379501609319531">"Преименуване на устройството"</string>
     <string name="forget_device" msgid="7258019924047721349">"Премахване на това устройство"</string>
-    <string name="device_settings" msgid="5076827559934591801">"Настройки на устройството"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"Добавяне на сензора към експеримента"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"Премахване на сензора от експеримента"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"Настройки на устройството за <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"добавяне към експеримента"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"премахване от експеримента"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"Включване на <xliff:g id="SENSORNAME">%1$s</xliff:g> в експеримента"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"Опции за <xliff:g id="SENSORNAME">%1$s</xliff:g>"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"Опресняване на <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"показване на сензорите за <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"скриване на сензорите за <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"показване на устройства за <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"скриване на устройства за <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"Моля, изберете поне един сензор за този експеримент."</string>
 </resources>

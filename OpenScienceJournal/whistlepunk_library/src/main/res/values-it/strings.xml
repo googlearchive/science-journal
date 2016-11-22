@@ -103,9 +103,7 @@
     <string name="external_devices_paired" msgid="4167288049155302614">"Dispositivi accoppiati"</string>
     <string name="external_devices_pairing" msgid="572657574850294026">"Accoppiamento in corso…"</string>
     <string name="external_devices_available" msgid="720745596048662241">"Dispositivi disponibili"</string>
-    <string name="external_devices_settings_title" msgid="952881146142956835">"Impostazioni dispositivo"</string>
     <string name="external_devices_settings_forget" msgid="466669859199297908">"Elimina"</string>
-    <string name="external_devices_settings_ok" msgid="7019210050520015615">"OK"</string>
     <string name="progress_scanning" msgid="9075247982494624322">"Scansione in corso…"</string>
     <string name="action_refresh" msgid="5908393033128600915">"Aggiorna"</string>
     <string name="no_options_title" msgid="1760920590759723521">"Nessuna opzione per <xliff:g id="NAME">%1$s</xliff:g>"</string>
@@ -323,7 +321,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Aggiungi una didascalia"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Sperimenta nel tuo ambiente."</string>
-    <string name="listing_changelog" msgid="5791385044176273701">"Nuove funzioni e miglioramenti: \n• Trigger dei sensori: imposta avvisi, crea annotazioni o avvia e arresta la registrazione quando i sensori rilevano valori specifici. Accedi alle funzioni dal menu della scheda del sensore. \n• Elimina prove, sessioni ed esperimenti archiviati. \n• Supporto per il sensore del barometro. \n• Ampliamento dei sensori utilizzabili con Science Journal: più tipi di sensori esterni. \n• Correzioni di bug."</string>
+    <string name="listing_changelog" msgid="5074516298921719431">"Nuove funzioni e miglioramenti: \n• Trigger dei sensori: imposta avvisi, crea annotazioni o avvia e arresta la registrazione quando i sensori rilevano valori specifici. Accedi alle funzioni dal menu della scheda del sensore. \n• Elimina prove, esperimenti e progetti archiviati. \n• Supporto per il sensore del barometro. \n• Ampliamento dei sensori utilizzabili con Science Journal: più tipi di sensori esterni. \n• Correzioni di bug."</string>
     <string name="listing__description" msgid="3975515995792990185">"Science Journal è uno strumento che ti permette di coltivare la tua passione per la scienza con lo smartphone. Puoi utilizzare i sensori del tuo telefono o collegare il dispositivo a sensori esterni per condurre esperimenti nell\'ambiente che ti circonda. Trasforma le tue idee in progetti, fai previsioni, prendi appunti e organizza i dati in più prove, quindi annota e analizza i risultati ottenuti. Questo notebook di laboratorio è sempre con te. \n\n\nCerca idee per attività da realizzare con l\'app qui: https://makingscience.withgoogle.com/science-journal/activities \nUlteriori informazioni su Making &amp; Science: https://makingscience.withgoogle.com \nPer assistenza, consulta: https://productforums.google.com/forum/#!forum/sciencejournal\nCodice disponibile: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Cerca sensori di terze parti"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Consente di cercare app che supportano l\'API dei sensori di terze parti permettendo di aggiungerli agli esperimenti."</string>
@@ -414,13 +412,23 @@
     <string name="my_devices" msgid="2753935122366940731">"I miei dispositivi"</string>
     <string name="available_devices" msgid="5671327872447270316">"Dispositivi disponibili"</string>
     <string name="api_connection_timeout_error" msgid="2767327583360399345">"Timeout connessione"</string>
-    <string name="btn_expand_device" msgid="5065622950345958436">"Mostra i sensori del dispositivo"</string>
-    <string name="btn_contract_device" msgid="1075694686012045562">"Nascondi i sensori del dispositivo"</string>
+    <string name="btn_expand_device" msgid="3870954521645587297">"Mostra i sensori del dispositivo"</string>
+    <string name="btn_contract_device" msgid="817730947206338211">"Nascondi i sensori del dispositivo"</string>
+    <string name="btn_expand_service" msgid="5010357201232343399">"Mostra i dispositivi utilizzabili con il servizio"</string>
+    <string name="btn_contract_service" msgid="7107148514331162439">"Nascondi i dispositivi utilizzabili con il servizio"</string>
     <string name="select_sensors" msgid="7242531205153688282">"Seleziona i sensori da utilizzare in <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"Sensori interni"</string>
     <string name="rename_device" msgid="6177379501609319531">"Rinomina dispositivo"</string>
     <string name="forget_device" msgid="7258019924047721349">"Ignora questo dispositivo"</string>
-    <string name="device_settings" msgid="5076827559934591801">"Impostazioni dispositivo"</string>
-    <string name="add_device_to_experiment_checkbox" msgid="7540802776286167910">"Aggiungi sensore all\'esperimento"</string>
-    <string name="remove_device_from_experiment_checkbox" msgid="7529998609427671478">"Rimuovi sensore dall\'esperimento"</string>
+    <string name="device_settings_for" msgid="903293384402586834">"Impostazioni dispositivo per <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"Aggiungi all\'esperimento"</string>
+    <string name="remove_device_from_experiment_checkbox" msgid="8932361755803655977">"Rimuovi dall\'esperimento"</string>
+    <string name="include_device_in_experiment" msgid="1212174887587695356">"Includi il sensore <xliff:g id="SENSORNAME">%1$s</xliff:g> nell\'esperimento"</string>
+    <string name="sensor_options_for" msgid="3679283831922840783">"Opzioni di <xliff:g id="SENSORNAME">%1$s</xliff:g>"</string>
+    <string name="refresh_device" msgid="2603769844549842556">"Aggiorna <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_device_for" msgid="8026131876389045417">"Mostra i sensori di <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_device_for" msgid="1801836696586227877">"Nascondi i sensori di <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_expand_service_for" msgid="1583182116793763414">"Mostra i dispositivi di <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="btn_contract_service_for" msgid="4288488406860885432">"Nascondi i dispositivi di <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
+    <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"Seleziona almeno un sensore per l\'esperimento."</string>
 </resources>
