@@ -837,6 +837,10 @@ public class SensorCardPresenter {
     }
 
     private String getSonificationType(Context context) {
+        if (context == null) {
+            // Probably tearing down anyway, but return something safe
+            return SonificationTypeAdapterFactory.DEFAULT_SONIFICATION_TYPE;
+        }
         return getCardOptions(mCurrentSource, context).load(
                 LoggingConsumer.expectSuccess(TAG, "loading card options")
         ).getReadOnly().getString(ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE,
