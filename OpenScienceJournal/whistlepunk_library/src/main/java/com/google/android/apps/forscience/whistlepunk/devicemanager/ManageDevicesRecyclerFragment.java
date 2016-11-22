@@ -153,6 +153,11 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
     }
 
     @Override
+    public boolean isDestroyed() {
+        return mMyDevices == null;
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_manage_devices, menu);
         super.onCreateOptionsMenu(menu, inflater);
