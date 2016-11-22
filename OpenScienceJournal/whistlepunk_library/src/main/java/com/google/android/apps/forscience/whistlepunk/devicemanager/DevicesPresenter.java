@@ -37,4 +37,9 @@ public interface DevicesPresenter {
     SensorGroup getAvailableSensorGroup();
 
     void unpair(String experimentId, String sensorId);
+
+    /**
+     * @return true if this presenter is destroyed and no longer useful for updates
+     */
+    boolean isDestroyed();
 }

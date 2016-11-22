@@ -145,6 +145,9 @@ public class ConnectableSensorRegistry {
                 new LoggingConsumer<ExperimentSensors>(TAG, "Load external sensors") {
                     @Override
                     public void success(ExperimentSensors sensors) {
+                        if (mPresenter.isDestroyed()) {
+                            return;
+                        }
                         List<ConnectableSensor> allSensors = new ArrayList<>();
                         addBuiltInSensors(sensors, allSensors);
                         addExternalSensors(sensors, allSensors);
@@ -381,6 +384,10 @@ public class ConnectableSensorRegistry {
      * @return true if at least one of {@code sensors} is paired
      */
     public boolean setPairedSensors(final List<ConnectableSensor> sensors) {
+        if (mPresenter.isDestroyed()) {
+            return false;
+        }
+
         boolean atLeastOneWasPaired = false;
 
         for (ConnectableSensor newSensor : sensors) {

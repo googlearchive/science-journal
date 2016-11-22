@@ -54,6 +54,11 @@ class TestDevicesPresenter implements DevicesPresenter {
 
     }
 
+    @Override
+    public boolean isDestroyed() {
+        return false;
+    }
+
     public void setPairedDevices(SensorGroup pairedDevices) {
         mPairedDevices = pairedDevices;
     }
