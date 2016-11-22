@@ -46,6 +46,12 @@ public class EnablementController {
                 setEnabled(key, true);
             }
         }
+
+        // Forgetting a device can cause the last checked checkbox to become unchecked, even
+        // though it is disabled.  Unchecked boxes should always be enabled.
+        if (!isChecked) {
+            setEnabled(sensorKey, true);
+        }
     }
 
     private void setEnabled(String sensorKey, boolean isEnabled) {

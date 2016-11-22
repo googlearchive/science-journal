@@ -95,6 +95,7 @@ public interface DataController {
 
     void getExternalSensors(MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess);
 
+    // TODO: fix docs, rename?
     /**
      * Passes to onSuccess a map from sensor ids to external sensor specs
      */

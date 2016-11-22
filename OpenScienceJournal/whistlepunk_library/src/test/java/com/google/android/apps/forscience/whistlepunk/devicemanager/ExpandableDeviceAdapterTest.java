@@ -22,23 +22,42 @@ import static org.junit.Assert.assertTrue;
 import android.support.annotation.NonNull;
 
 import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter;
+import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
+import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
 public class ExpandableDeviceAdapterTest {
-    private static final InputDeviceSpec BUILT_IN_DEVICE = new InputDeviceSpec(
-            InputDeviceSpec.TYPE, InputDeviceSpec.BUILT_IN_DEVICE_ADDRESS, "Phone sensors");
+    private static final InputDeviceSpec BUILT_IN_DEVICE = new InputDeviceSpec(InputDeviceSpec.TYPE,
+            InputDeviceSpec.BUILT_IN_DEVICE_ADDRESS, "Phone sensors");
     private DeviceRegistry mDeviceRegistry = new DeviceRegistry(BUILT_IN_DEVICE);
-    private DataController mDataController = InMemorySensorDatabase.makeSimpleController();
+    private final MemoryMetadataManager mMetadataManager = new MemoryMetadataManager();
+    private DataController mDataController = new InMemorySensorDatabase().makeSimpleController(
+            mMetadataManager);
+    private TestSensorRegistry mSensors = new TestSensorRegistry();
+    private Map<String, ExternalSensorDiscoverer> mDiscoverers = new HashMap<>();
+    private final MemorySensorGroup mAvailableDevices = new MemorySensorGroup(mDeviceRegistry);
+    private final MemorySensorGroup mPairedDevices = new MemorySensorGroup(mDeviceRegistry);
+    private final TestDevicesPresenter mPresenter = new TestDevicesPresenter(mAvailableDevices,
+            mPairedDevices);
     private ConnectableSensorRegistry mSensorRegistry = new ConnectableSensorRegistry(
-            mDataController, null, null, null, null, null, null, null);
+            mDataController, mDiscoverers, mPresenter, null, null, null,
+            mDeviceRegistry, null);
     private Scenario mScenario = new Scenario();
 
     private class Scenario {
@@ -83,6 +102,7 @@ public class ExpandableDeviceAdapterTest {
             return ConnectableSensor.connected(makeSensorNewDevice(), newConnectedSensorId());
         }
 
+
         private String newConnectedSensorId() {
             return Arbitrary.string("connectedSensorId" + mSensorCount);
         }
@@ -110,7 +130,8 @@ public class ExpandableDeviceAdapterTest {
                 adapter.getDevice(0).getDeviceName());
     }
 
-    @Test public void phoneSensorsAtTop() {
+    @Test
+    public void phoneSensorsAtTop() {
         ExpandableDeviceAdapter adapter = ExpandableDeviceAdapter.createEmpty(mSensorRegistry,
                 mDeviceRegistry, null, null, 0);
 
@@ -206,7 +227,8 @@ public class ExpandableDeviceAdapterTest {
         observer.assertMostRecentNotification("Changed 3 at 2 [null]");
     }
 
-    @Test public void forgetWhenNoLongerMyDevice() {
+    @Test
+    public void forgetWhenNoLongerMyDevice() {
         ExpandableDeviceAdapter adapter = ExpandableDeviceAdapter.createEmpty(mSensorRegistry,
                 mDeviceRegistry, null, null, 0);
         ConnectableSensor sensor = mScenario.makeConnectedSensorNewDevice();
@@ -219,5 +241,52 @@ public class ExpandableDeviceAdapterTest {
         // Remove the my device, make sure we've forgotten the sensor as well
         adapter.setMyDevices(Lists.<InputDeviceSpec>newArrayList());
         assertFalse(adapter.hasSensorKey(key));
+    }
+
+    @Test
+    public void checkBuiltInWhenForgettingLastSensor() {
+        String experimentId = "experimentId";
+        TestDevicesPresenter presenter = new TestDevicesPresenter(mAvailableDevices,
+                null);
+        ConnectableSensorRegistry sensorRegistry = new ConnectableSensorRegistry(
+                mDataController, mDiscoverers, presenter, null, null, null,
+                mDeviceRegistry, null);
+        ExpandableDeviceAdapter adapter = ExpandableDeviceAdapter.createEmpty(sensorRegistry,
+                mDeviceRegistry, null, mSensors, 0);
+        presenter.setPairedDevices(adapter);
+        sensorRegistry.setExperimentId(experimentId, mSensors);
+
+        final ConnectableSensor sensor = mScenario.makeConnectedSensorNewDevice();
+        String key = mScenario.newSensorKey();
+
+        // Add built-in device
+        String builtInId = "builtInId";
+        mSensors.addManualBuiltInSensor(builtInId);
+        mMetadataManager.removeSensorFromExperiment(builtInId, experimentId);
+
+        InputDeviceSpec device = mDeviceRegistry.getDevice(sensor.getSpec());
+        adapter.setMyDevices(Lists.newArrayList(device));
+        adapter.addSensor(key, sensor);
+        sensorRegistry.setPairedSensors(Lists.<ConnectableSensor>newArrayList(sensor));
+
+        assertTrue(adapter.hasSensorKey(key));
+
+        adapter.getMenuCallbacks().forgetDevice(device);
+
+        // Make sure the built-in sensor is added to the experiment
+        ExperimentSensors sensors = mMetadataManager.getExperimentExternalSensors(experimentId,
+                Maps.<String, ExternalSensorProvider>newHashMap());
+        List<ConnectableSensor> included = sensors.getIncludedSensors();
+        assertEquals(1, included.size());
+        assertEquals("builtInId", included.get(0).getConnectedSensorId());
+
+        // And make sure it's disabled
+        adapter.getEnablementController().addEnablementListener(adapter.getSensorKey(0, 0),
+                new Consumer<Boolean>() {
+                    @Override
+                    public void take(Boolean aBoolean) {
+                        assertFalse(aBoolean);
+                    }
+                });
     }
 }

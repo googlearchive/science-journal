@@ -19,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.RecordingRunnable;
 
 import org.junit.Test;
 
@@ -46,6 +47,12 @@ public class EnablementControllerTest {
         ec.setChecked("key1", false);
         assertTrue(rc1.lastValue);
         assertFalse(rc2.lastValue);
+
+        // Simulate somehow unchecking a disabled box (like, for example, forgetting the last
+        // selected device).
+        ec.setChecked("key2", false);
+        assertTrue(rc1.lastValue);
+        assertTrue(rc2.lastValue);
     }
 
     private static class RememberingConsumer extends Consumer<Boolean> {

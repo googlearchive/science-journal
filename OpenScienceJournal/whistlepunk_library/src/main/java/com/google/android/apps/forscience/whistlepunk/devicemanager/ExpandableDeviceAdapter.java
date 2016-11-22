@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.Runnables;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +48,14 @@ public class ExpandableDeviceAdapter extends
     private final SensorAppearanceProvider mAppearanceProvider;
     private final SensorRegistry mSensorRegistry;
     private ArrayList<String> mInitiallyCollapsedAddresses = new ArrayList<>();
-    private final EnablementController mEnablementController = new EnablementController();
+    private final EnablementController mEnablementController;
+    private DeviceParentViewHolder.MenuCallbacks mMenuCallbacks =
+            new DeviceParentViewHolder.MenuCallbacks() {
+                @Override
+                public void forgetDevice(InputDeviceSpec spec) {
+                    mRegistry.forgetMyDevice(spec, mSensorRegistry, mEnablementController);
+                }
+            };
 
     public static ExpandableDeviceAdapter createEmpty(final ConnectableSensorRegistry registry,
             DeviceRegistry deviceRegistry, SensorAppearanceProvider appearanceProvider,
@@ -66,6 +75,7 @@ public class ExpandableDeviceAdapter extends
         mDeviceRegistry = deviceRegistry;
         mAppearanceProvider = appearanceProvider;
         mSensorRegistry = sensorRegistry;
+        mEnablementController = new EnablementController();
     }
 
     @Override
@@ -88,13 +98,7 @@ public class ExpandableDeviceAdapter extends
             ViewGroup parentViewGroup) {
         View viewGroup = LayoutInflater.from(parentViewGroup.getContext()).inflate(
                 R.layout.device_expandable_recycler_item, parentViewGroup, false);
-        return new DeviceParentViewHolder(viewGroup, offsetSupplier(),
-                new DeviceParentViewHolder.MenuCallbacks() {
-                    @Override
-                    public void forgetDevice(InputDeviceSpec spec) {
-                        mRegistry.forgetMyDevice(spec, mSensorRegistry);
-                    }
-                });
+        return new DeviceParentViewHolder(viewGroup, offsetSupplier(), mMenuCallbacks);
     }
 
     @Override
@@ -125,7 +129,7 @@ public class ExpandableDeviceAdapter extends
     public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
         boolean isReplacement = mSensorMap.containsKey(sensorKey);
         if (isReplacement) {
-            mSensorMap.put(sensorKey, sensor);
+            putSensor(sensorKey, sensor);
             int parentIndex = findParentIndex(sensorKey);
             if (parentIndex >= 0) {
                 notifyParentItemChanged(parentIndex);
@@ -138,12 +142,17 @@ public class ExpandableDeviceAdapter extends
         InputDeviceSpec device = mDeviceRegistry.getDevice(spec);
         int i = findDevice(device);
         if (i >= 0) {
-            mSensorMap.put(sensorKey, sensor);
+            putSensor(sensorKey, sensor);
             addSensorToDevice(i, sensorKey);
             return true;
         }
 
         return false;
+    }
+
+    private ConnectableSensor putSensor(String sensorKey, ConnectableSensor sensor) {
+        mEnablementController.setChecked(sensorKey, sensor.isPaired());
+        return mSensorMap.put(sensorKey, sensor);
     }
 
     @Override
@@ -186,7 +195,7 @@ public class ExpandableDeviceAdapter extends
     @Override
     public void addSensor(String sensorKey, ConnectableSensor sensor) {
         boolean addedToMyDevice = addAvailableSensor(sensorKey, sensor);
-        mSensorMap.put(sensorKey, sensor);
+        putSensor(sensorKey, sensor);
         if (!addedToMyDevice) {
             // Otherwise, add a new device item.
             InputDeviceSpec device = mDeviceRegistry.getDevice(sensor.getSpec());
@@ -283,8 +292,6 @@ public class ExpandableDeviceAdapter extends
     public boolean removeSensor(String sensorKey) {
         // We don't expect this to be called, since we only use Expandable for "My Devices", and
         // there we only enable/disable known sensors under a device, and "forget" devices
-
-        // TODO: implement "forget my device"
         return false;
     }
 
@@ -323,5 +330,19 @@ public class ExpandableDeviceAdapter extends
 
     public void onDestroy() {
         mEnablementController.onDestroy();
+    }
+
+    @VisibleForTesting
+    public DeviceParentViewHolder.MenuCallbacks getMenuCallbacks() {
+        return mMenuCallbacks;
+    }
+
+    @VisibleForTesting EnablementController getEnablementController() {
+        return mEnablementController;
+    }
+
+    @VisibleForTesting
+    public String getSensorKey(int deviceIndex, int sensorIndex) {
+        return mDeviceParents.get(deviceIndex).getSensorKey(sensorIndex);
     }
 }

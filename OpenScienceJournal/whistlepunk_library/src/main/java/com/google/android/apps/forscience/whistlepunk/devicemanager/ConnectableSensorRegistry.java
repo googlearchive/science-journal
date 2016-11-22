@@ -16,6 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.util.ArrayMap;
 
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -34,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDevic
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Runnables;
 
@@ -116,6 +118,7 @@ public class ConnectableSensorRegistry {
     }
 
     public void refresh(final boolean clearSensorCache, final SensorRegistry sr) {
+        Preconditions.checkNotNull(sr);
         stopScanningInDiscoverers();
         mDataController.getMyDevices(
                 new LoggingConsumer<List<InputDeviceSpec>>(TAG, "Load my devices") {
@@ -128,6 +131,7 @@ public class ConnectableSensorRegistry {
 
     private void onMyDevicesLoaded(List<InputDeviceSpec> myDevices, final boolean clearSensorCache,
             final SensorRegistry sr) {
+        Preconditions.checkNotNull(sr);
         for (final InputDeviceSpec device : myDevices) {
             mDeviceRegistry.addDevice(device);
         }
@@ -144,7 +148,8 @@ public class ConnectableSensorRegistry {
                         List<ConnectableSensor> allSensors = new ArrayList<>();
                         addBuiltInSensors(sensors, allSensors);
                         addExternalSensors(sensors, allSensors);
-                        setPairedAndStartScanning(allSensors, clearSensorCache);
+
+                        setPairedAndStartScanning(allSensors, clearSensorCache, sr);
                     }
 
                     private void addBuiltInSensors(ExperimentSensors sensors,
@@ -168,8 +173,23 @@ public class ConnectableSensorRegistry {
     }
 
     private void setPairedAndStartScanning(List<ConnectableSensor> sensors,
-            boolean clearSensorCache) {
-        setPairedSensors(sensors);
+            boolean clearSensorCache, final SensorRegistry sr) {
+        boolean atLeastOneWasPaired = setPairedSensors(sensors);
+
+        // If we somehow had zero sensors when the experiment was loaded, add an
+        // arbitrary sensor (Currently, we can get here by someone choosing to
+        // "forget" the only device that had paired sensors, but this is also
+        // to add robustness against future unintentional exploits.)
+        if (!atLeastOneWasPaired && !sensors.isEmpty()) {
+            addSensorToCurrentExperiment(sensors.get(0),
+                    new LoggingConsumer<ConnectableSensor>(TAG, "Adding backup sensor") {
+                @Override
+                public void success(ConnectableSensor value) {
+                    refresh(false, sr);
+                }
+            });
+        }
+
         startScanningInDiscoverers(clearSensorCache);
     }
 
@@ -357,7 +377,12 @@ public class ConnectableSensorRegistry {
         }
     }
 
-    public void setPairedSensors(final List<ConnectableSensor> sensors) {
+    /**
+     * @return true if at least one of {@code sensors} is paired
+     */
+    public boolean setPairedSensors(final List<ConnectableSensor> sensors) {
+        boolean atLeastOneWasPaired = false;
+
         for (ConnectableSensor newSensor : sensors) {
             String sensorKey = findSensorKey(newSensor);
             if (sensorKey != null) {
@@ -372,10 +397,13 @@ public class ConnectableSensorRegistry {
             }
             // TODO(saff): test that this happens?
             mSensors.put(sensorKey, newSensor);
-
+            if (newSensor.isPaired()) {
+                atLeastOneWasPaired = true;
+            }
         }
 
         removeMissingPairedSensors(ConnectableSensor.makeMap(sensors));
+        return atLeastOneWasPaired;
     }
 
 
@@ -491,11 +519,15 @@ public class ConnectableSensorRegistry {
         mPresenter.unpair(mExperimentId, sensor.getConnectedSensorId());
     }
 
-    public void forgetMyDevice(final InputDeviceSpec spec, final SensorRegistry sr) {
+    public void forgetMyDevice(final InputDeviceSpec spec, final SensorRegistry sr,
+            EnablementController enablementController) {
+        Preconditions.checkNotNull(sr);
         List<String> idsToUnpair = Lists.newArrayList();
-        for (ConnectableSensor sensor : mSensors.values()) {
+        for (Map.Entry<String, ConnectableSensor> entry : mSensors.entrySet()) {
+            ConnectableSensor sensor = entry.getValue();
             if (mDeviceRegistry.getDevice(sensor.getSpec()).isSameSensor(spec)) {
                 idsToUnpair.add(sensor.getConnectedSensorId());
+                enablementController.setChecked(entry.getKey(), false);
             }
         }
         removeSensorsFromExperiment(idsToUnpair,

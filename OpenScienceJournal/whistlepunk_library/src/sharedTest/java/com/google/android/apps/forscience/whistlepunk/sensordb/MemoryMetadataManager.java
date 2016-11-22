@@ -40,6 +40,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 
 import java.util.ArrayList;
@@ -49,11 +50,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class MemoryMetadataManager implements MetaDataManager {
     private Project mLastUsedProject = null;
     private ListMultimap<String, Experiment> mExperimentsPerProject = ArrayListMultimap.create();
-    private Multimap<String, String> mExperimentToSensors = HashMultimap.create();
+    private Multimap<String, String> mExperimentIncluded = HashMultimap.create();
+    private Multimap<String, String> mExperimentExcluded = HashMultimap.create();
     private ListMultimap<String, Label> mLabels = LinkedListMultimap.create();
     private Table<String, String, RunStats> mStats = HashBasedTable.create();
     private Map<String, List<GoosciSensorLayout.SensorLayout>> mLayouts = new HashMap<>();
@@ -227,12 +230,14 @@ public class MemoryMetadataManager implements MetaDataManager {
 
     @Override
     public void addSensorToExperiment(String databaseTag, String experimentId) {
-        mExperimentToSensors.put(experimentId, databaseTag);
+        mExperimentExcluded.remove(experimentId, databaseTag);
+        mExperimentIncluded.put(experimentId, databaseTag);
     }
 
     @Override
     public void removeSensorFromExperiment(String databaseTag, String experimentId) {
-        mExperimentToSensors.remove(experimentId, databaseTag);
+        mExperimentIncluded.remove(experimentId, databaseTag);
+        mExperimentExcluded.put(experimentId, databaseTag);
     }
 
     @Override
@@ -240,10 +245,10 @@ public class MemoryMetadataManager implements MetaDataManager {
             Map<String, ExternalSensorProvider> providerMap) {
         // TODO: doesn't deal with exclusions
         List<ConnectableSensor> specs = new ArrayList<>();
-        for (String id : mExperimentToSensors.get(experimentId)) {
+        for (String id : mExperimentIncluded.get(experimentId)) {
             specs.add(ConnectableSensor.connected(mExternalSensors.get(id), id));
         }
-        return new ExperimentSensors(specs, Collections.EMPTY_SET);
+        return new ExperimentSensors(specs, Sets.newHashSet(mExperimentExcluded.get(experimentId)));
     }
 
     @Override

@@ -72,7 +72,6 @@ public class SensorChildViewHolder extends ChildViewHolder {
         boolean paired = sensor.isPaired();
         mPairedCheckbox.setOnCheckedChangeListener(null);
         mPairedCheckbox.setChecked(paired);
-        econtroller.setChecked(sensorKey, paired);
         updateCheckboxContentDescription(paired);
 
         mPairedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

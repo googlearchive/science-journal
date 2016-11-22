@@ -31,7 +31,6 @@ import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
-import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputScenario;
@@ -41,7 +40,6 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TestSensor
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TestSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
@@ -66,7 +64,8 @@ public class ConnectableSensorRegistryTest {
     private DeviceRegistry mDeviceRegistry = new DeviceRegistry(null);
     private MemorySensorGroup mAvailableDevices = new MemorySensorGroup(mDeviceRegistry);
     private MemorySensorGroup mPairedDevices = new MemorySensorGroup(mDeviceRegistry);
-    private TestDevicesPresenter mPresenter = new TestDevicesPresenter();
+    private TestDevicesPresenter mPresenter = new TestDevicesPresenter(mAvailableDevices,
+            mPairedDevices);
     private TestSensorRegistry mSensorRegistry = new TestSensorRegistry();
     private SensorAppearanceProvider mAppearanceProvider = new MemoryAppearanceProvider();
 
@@ -466,41 +465,4 @@ public class ConnectableSensorRegistryTest {
         assertEquals(2, mPairedDevices.getSensorCount());
     }
 
-    private static class TestSensorRegistry extends SensorRegistry {
-        public void addManualBuiltInSensor(String id) {
-            addBuiltInSensor(new ManualSensor(id, 0, 0));
-        }
-    }
-
-    private class TestDevicesPresenter implements DevicesPresenter {
-        public String experimentId;
-        public String sensorId;
-
-        @Override
-        public void refreshScanningUI() {
-
-        }
-
-        @Override
-        public void showSensorOptions(String experimentId, String sensorId,
-                ExternalSensorDiscoverer.SettingsInterface settings) {
-            this.experimentId = experimentId;
-            this.sensorId = sensorId;
-        }
-
-        @Override
-        public SensorGroup getPairedSensorGroup() {
-            return mPairedDevices;
-        }
-
-        @Override
-        public SensorGroup getAvailableSensorGroup() {
-            return mAvailableDevices;
-        }
-
-        @Override
-        public void unpair(String experimentId, String sensorId) {
-
-        }
-    }
 }
