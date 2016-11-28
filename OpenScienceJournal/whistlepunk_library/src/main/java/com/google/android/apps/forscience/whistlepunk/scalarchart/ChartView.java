@@ -32,6 +32,7 @@ import android.support.annotation.VisibleForTesting;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -62,9 +63,6 @@ public class ChartView extends View {
     private static final int PREFERRED_NUM_LABELS = 5;
     private static final int MINIMUM_NUM_LABELS = 3;
     private static final int MAXIMUM_NUM_LABELS = 6;
-
-    // How much can the user pan before we request the parent to stop processing touch events?
-    private static final float TOUCH_SLOP = 10;
 
     private List<ExternalAxisController.InteractionListener> mListeners = new ArrayList<>();
 
@@ -283,6 +281,8 @@ public class ChartView extends View {
         populatePath(false);
 
         if (mChartOptions.canPan() || mChartOptions.canZoom()) {
+            ViewConfiguration vc = ViewConfiguration.get(getContext());
+            final float touchSlop = vc.getScaledTouchSlop();
             setOnTouchListener(new OnTouchListener() {
                 private float mTouchX;
                 private float mTouchY;
@@ -408,7 +408,7 @@ public class ChartView extends View {
                 }
 
                 private boolean significantPan(float panDistance) {
-                    return Math.abs(panDistance) >= TOUCH_SLOP;
+                    return Math.abs(panDistance) >= touchSlop;
                 }
 
                 private void updateTouchPoints(MotionEvent event, int panPointerIndex) {
