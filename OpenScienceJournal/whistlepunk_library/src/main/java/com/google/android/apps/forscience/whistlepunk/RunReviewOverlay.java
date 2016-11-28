@@ -44,7 +44,6 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
  * Draws the value over a RunReview chart.
  */
 public class RunReviewOverlay extends View implements ChartController.ChartDataLoadedCallback {
-    private long mPreviouslySelectedTimestamp;
 
     public interface OnTimestampChangeListener {
         void onTimestampChanged(long timestamp);
@@ -105,6 +104,10 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     private Paint mCropVerticalLinePaint;
 
     public static final long NO_TIMESTAMP_SELECTED = -1;
+
+    private long mPreviouslySelectedTimestamp;
+    private long mPreviousCropStartTimestamp;
+    private long mPreviousCropEndTimestamp;
 
     // Represents the data associated with a seekbar point tracked in RunReviewOverlay.
     private static class OverlayPointData {
@@ -788,8 +791,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     }
 
     /**
-     * Sets the slider to a particular timestamp. The user did not initiate this action,
-     * so mIsActive is false, meaning the bubble is drawn small.
+     * Sets the slider to a particular timestamp. The user did not initiate this action.
      */
     public void setActiveTimestamp(long timestamp) {
         if (updateActiveTimestamp(timestamp)) {
@@ -947,11 +949,22 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
     @Override
     public void onChartDataLoaded(long firstTimestamp, long lastTimestamp) {
-        setActiveTimestamp(mPreviouslySelectedTimestamp);
+        if (mPreviouslySelectedTimestamp != -1) {
+            setAllTimestamps(mPreviouslySelectedTimestamp, mPreviousCropStartTimestamp,
+                    mPreviousCropEndTimestamp);
+        }
     }
 
     @Override
-    public void onLoadAttemptStarted() {
-        mPreviouslySelectedTimestamp = mPointData.timestamp;
+    public void onLoadAttemptStarted(boolean chartHiddenForLoad) {
+        if (chartHiddenForLoad) {
+            mPreviouslySelectedTimestamp = mPointData.timestamp;
+            mPreviousCropStartTimestamp = mCropStartData.timestamp;
+            mPreviousCropEndTimestamp = mCropEndData.timestamp;
+        } else {
+            mPreviouslySelectedTimestamp = -1;
+            mPreviousCropStartTimestamp = -1;
+            mPreviousCropEndTimestamp = -1;
+        }
     }
 }

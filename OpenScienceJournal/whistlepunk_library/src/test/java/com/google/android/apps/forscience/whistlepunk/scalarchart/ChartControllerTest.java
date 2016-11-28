@@ -47,7 +47,7 @@ public class ChartControllerTest {
         chartController.setSensorId("foo");
         DataController dc = new InMemorySensorDatabase().makeSimpleController(
                 new MemoryMetadataManager());
-        chartController.loadReadings(dc, 0, 50);
+        chartController.loadReadings(dc, 0, 50, false);
         // If loadReadings fails to clean out the pending loads (as was happening in a previous
         // version), then onGlobalXAxisChanged will _not_ trigger a second load.
         chartController.onGlobalXAxisChanged(1, 51, false, dc);
@@ -129,7 +129,7 @@ public class ChartControllerTest {
         }
 
         @Override
-        public void onLoadAttemptStarted() {
+        public void onLoadAttemptStarted(boolean unused) {
 
         }
     }

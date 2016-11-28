@@ -66,7 +66,14 @@ public class ChartController {
 
     public interface ChartDataLoadedCallback {
         void onChartDataLoaded(long firstTimestamp, long lastTimestamp);
-        void onLoadAttemptStarted();
+
+        /**
+         * Called when the chart starts trying to load more data.
+         * @param chartHiddenForLoad True if the graph is hidden for the load, like when a full
+         *                           refresh is done when loading at a new zoom level. False if the
+         *                           graph is not hidden, like when loading more data at the edges.
+         */
+        void onLoadAttemptStarted(boolean chartHiddenForLoad);
     }
 
     private static final String TAG = "ChartController";
@@ -480,7 +487,7 @@ public class ChartController {
         }
         updateColor(sensorLayout.color);
         status.setGraphLoadStatus(ChartLoadingStatus.GRAPH_LOAD_STATUS_LOADING);
-        dataLoadedCallback.onLoadAttemptStarted();
+        dataLoadedCallback.onLoadAttemptStarted(true);
         final ZoomPresenter zp = getZoomPresenter(stats);
         mMinLoadedX = firstTimestamp;
         mMaxLoadedX = lastTimestamp;
@@ -580,7 +587,7 @@ public class ChartController {
                 if (minPossibleToLoad < mMinLoadedX) {
                     long prevMinLoadedX = mMinLoadedX;
                     mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
-                    loadReadings(dataController, mMinLoadedX, prevMinLoadedX);
+                    loadReadings(dataController, mMinLoadedX, prevMinLoadedX, false);
                 }
                 long maxPossibleToLoad = isRecording ? xMax :
                         Math.min(xMax, mChartOptions.getRecordingEndTime());
@@ -591,7 +598,7 @@ public class ChartController {
                     // If it's pinned to now, then we don't expect to find data magically
                     // appearing in front of old data.
                     if (mNeedsForwardLoad || isRunReview || !isPinnedToNow) {
-                        loadReadings(dataController, prevMaxLoadedX, mMaxLoadedX);
+                        loadReadings(dataController, prevMaxLoadedX, mMaxLoadedX, false);
                         mNeedsForwardLoad = false;
                     }
                 }
@@ -602,7 +609,7 @@ public class ChartController {
                 // from resume.
                 mMinLoadedX = Math.max(xMin, mChartOptions.getRecordingStartTime());
                 mMaxLoadedX = xMax;
-                loadReadings(dataController, mMinLoadedX, mMaxLoadedX);
+                loadReadings(dataController, mMinLoadedX, mMaxLoadedX, false);
             }
         }
         setXAxis(xMin, xMax);
@@ -635,7 +642,7 @@ public class ChartController {
         mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
         mMaxLoadedX = Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
         mCurrentLoadIds.clear();
-        loadReadings(dataController, mMinLoadedX, mMaxLoadedX);
+        loadReadings(dataController, mMinLoadedX, mMaxLoadedX, true);
         setXAxis(xMin, xMax);
     }
 
@@ -645,7 +652,7 @@ public class ChartController {
 
     @VisibleForTesting
     public void loadReadings(DataController dataController, final long minToLoad,
-            final long maxToLoad) {
+            final long maxToLoad, final boolean chartHiddenForLoad) {
         int currentTier = mZoomPresenter == null ? 0 : mZoomPresenter.getCurrentTier();
         GraphPopulator graphPopulator = new GraphPopulator(new GraphPopulator.ObservationDisplay() {
             @Override
@@ -663,7 +670,9 @@ public class ChartController {
                 if (mCurrentLoadIds.size() == 0) {
                     refreshLabels();
                 }
-                setShowProgress(false);
+                if (chartHiddenForLoad) {
+                    setShowProgress(false);
+                }
                 refreshChartView();
                 callChartDataLoadedCallbacks(minToLoad, maxToLoad);
             }
@@ -672,7 +681,7 @@ public class ChartController {
         graphPopulator.requestObservations(GraphPopulator.constantGraphStatus(minToLoad, maxToLoad),
                 dataController, mDataFailureListener, currentTier, mSensorId);
 
-        callChartDataStartLoadingCallbacks();
+        callChartDataStartLoadingCallbacks(chartHiddenForLoad);
     }
 
     public void addChartDataLoadedCallback(ChartDataLoadedCallback callback) {
@@ -694,9 +703,9 @@ public class ChartController {
         }
     }
 
-    private void callChartDataStartLoadingCallbacks() {
+    private void callChartDataStartLoadingCallbacks(boolean chartHiddenForLoad) {
         for (ChartDataLoadedCallback callback : mChartDataLoadedCallbacks) {
-            callback.onLoadAttemptStarted();
+            callback.onLoadAttemptStarted(chartHiddenForLoad);
         }
     }
 }
