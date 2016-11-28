@@ -105,7 +105,7 @@ public class ExternalAxisController {
     // not truncated by the edge of the graph.
     // This draws the points of the graph slightly back from the edge of the view.
     // This is ms and related to the DEFAULT_GRAPH_RANGE_IN_SECONDS.
-    private static final double LEADING_EDGE_BUFFER_TIME =
+    public static final double LEADING_EDGE_BUFFER_TIME =
             DEFAULT_GRAPH_RANGE_IN_SECONDS * EDGE_POINTS_BUFFER_FRACTION * MS_IN_SEC;
 
     long mXMin = Long.MAX_VALUE;
