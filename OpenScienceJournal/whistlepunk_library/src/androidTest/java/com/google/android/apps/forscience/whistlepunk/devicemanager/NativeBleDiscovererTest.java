@@ -74,12 +74,22 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
         ExternalSensorDiscoverer.ScanListener listener =
                 new ExternalSensorDiscoverer.ScanListener() {
                     @Override
+                    public void onServiceFound(ExternalSensorDiscoverer.DiscoveredService service) {
+
+                    }
+
+                    @Override
+                    public void onDeviceFound(ExternalSensorDiscoverer.DiscoveredDevice device) {
+
+                    }
+
+                    @Override
                     public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
                         sensorsSeen.take(sensor);
                     }
 
                     @Override
-                    public void onDeviceFound(InputDeviceSpec device) {
+                    public void onServiceScanComplete(String serviceId) {
 
                     }
 

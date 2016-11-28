@@ -22,14 +22,14 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensordb.DataControllerTest;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
 import com.google.common.collect.Lists;
-
-import java.util.List;
+import com.google.common.collect.Sets;
 
 public class DeviceOptionsViewControllerTest extends AndroidTestCase {
     public void testCommit() {
@@ -39,7 +39,8 @@ public class DeviceOptionsViewControllerTest extends AndroidTestCase {
         BleSensorSpec oldSpec = new BleSensorSpec("address", "name");
         StoringConsumer<String> cOldSensorId = new StoringConsumer<>();
         dc.addOrGetExternalSensor(oldSpec, cOldSensorId);
-        assertEquals(ExternalSensorSpec.getSensorId(oldSpec, 0), cOldSensorId.getValue());
+        String oldSensorId = cOldSensorId.getValue();
+        assertEquals(ExternalSensorSpec.getSensorId(oldSpec, 0), oldSensorId);
         String experimentId = "experimentId";
         dc.addSensorToExperiment(experimentId, ExternalSensorSpec.getSensorId(oldSpec, 0),
                 TestConsumers.<Success>expectingSuccess());
@@ -57,9 +58,10 @@ public class DeviceOptionsViewControllerTest extends AndroidTestCase {
         assertEquals(ExternalSensorSpec.getSensorId(oldSpec, 1), listener.mostRecentNewSensorId);
 
         dc.getExternalSensorsByExperiment(experimentId,
-                TestConsumers.<List<ConnectableSensor>>expecting(
-                        Lists.newArrayList(ConnectableSensor.connected(newSpec,
-                                ExternalSensorSpec.getSensorId(oldSpec, 1)))));
+                TestConsumers.<ExperimentSensors>expecting(new ExperimentSensors(Lists.newArrayList(
+                        ConnectableSensor.connected(newSpec,
+                                ExternalSensorSpec.getSensorId(oldSpec, 1))),
+                        Sets.<String>newHashSet(oldSensorId))));
 
         ExternalSensorSpec options = c.getOptions();
         ((BleSensorSpec) options).setSensorType(SensorTypeProvider.TYPE_CUSTOM);

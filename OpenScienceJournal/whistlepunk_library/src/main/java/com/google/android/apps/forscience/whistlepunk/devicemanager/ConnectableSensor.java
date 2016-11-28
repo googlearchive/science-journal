@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 import java.util.HashMap;
@@ -72,6 +73,10 @@ public class ConnectableSensor {
             map.put(sensor.getConnectedSensorId(), sensor.getSpec());
         }
         return map;
+    }
+
+    public static Map<String, ExternalSensorSpec> makeMap(ExperimentSensors sensors) {
+        return makeMap(sensors.getIncludedSensors());
     }
 
     public boolean isPaired() {
@@ -176,4 +181,5 @@ public class ConnectableSensor {
             return ConnectableSensor.disconnected(mSpec);
         }
     }
+
 }
