@@ -135,10 +135,10 @@ public class GraphPopulator {
                                             yMax = point.getValue();
                                         }
                                     }
-                                    if (xMin != Long.MAX_VALUE && xMax != Long.MIN_VALUE) {
+                                    if (xMin <= xMax) {
                                         timeRange = Range.closed(xMin, xMax);
                                     }
-                                    if (yMin != Double.MAX_VALUE && yMax != Double.MIN_VALUE) {
+                                    if (yMin <= yMax) {
                                         valueRange = Range.closed(yMin, yMax);
                                     }
                                     return new Pair<>(timeRange, valueRange);
