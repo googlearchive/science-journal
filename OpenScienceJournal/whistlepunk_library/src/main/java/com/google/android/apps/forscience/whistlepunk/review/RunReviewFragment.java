@@ -1351,8 +1351,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         AccessibilityUtils.makeSnackbar(getView(),
                                 getResources().getString(R.string.crop_completed_message),
                                 Snackbar.LENGTH_SHORT).show();
-                        // TODO: Show undo button? P3: They can undo by
-                        // cropping wider again.
+                        // TODO: Show undo button? P3: They can undo by cropping wider again.
                         hookUpExperimentDetailsArea(mExperimentRun, getView());
                         mPinnedNoteAdapter.updateRunTimestamps(mExperimentRun.getFirstTimestamp(),
                                 mExperimentRun.getLastTimestamp());
@@ -1399,14 +1398,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             }
 
             notesOverlay.setVisibility(View.VISIBLE);
-            notesOverlay.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mActionMode != null) {
-                        mActionMode.finish();
-                    }
-                }
-            });
         } else {
             if (mActionMode != null) {
                 mActionMode.finish();
