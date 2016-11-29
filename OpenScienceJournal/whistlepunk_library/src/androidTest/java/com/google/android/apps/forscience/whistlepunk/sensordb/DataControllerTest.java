@@ -36,6 +36,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
@@ -237,9 +238,9 @@ public class DataControllerTest extends AndroidTestCase {
         dc.replaceSensorInExperiment("experimentId", "oldSensorId", newSensorId,
                 TestConsumers.<Success>expectingSuccess());
         dc.getExternalSensorsByExperiment("experimentId", TestConsumers.expectingSuccess(
-                new Consumer<List<ConnectableSensor>>() {
+                new Consumer<ExperimentSensors>() {
                     @Override
-                    public void take(List<ConnectableSensor> sensors) {
+                    public void take(ExperimentSensors sensors) {
                         assertEquals(Sets.newHashSet(newSensorId),
                                 ConnectableSensor.makeMap(sensors).keySet());
                     }
