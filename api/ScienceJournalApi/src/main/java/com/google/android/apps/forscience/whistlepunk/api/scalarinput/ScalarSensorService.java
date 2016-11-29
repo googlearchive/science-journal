@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.google.android.apps.forscience.whistlepunk.api;
+package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.app.Service;
 import android.content.Intent;
@@ -26,14 +26,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.ArrayMap;
 import android.util.Log;
-
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.IDeviceConsumer;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorConnector;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorConsumer;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorDiscoverer;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorObserver;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorStatusListener;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.Versions;
 
 import java.util.LinkedHashMap;
 import java.util.List;

@@ -13,10 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.google.android.apps.forscience.whistlepunk.api;
+package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
-import com.google.common.collect.Sets;
-
+import java.util.Arrays;
 import java.util.HashSet;
 
 public class Signatures {
@@ -109,6 +108,6 @@ public class Signatures {
                     + "99db59a2a3149225654aeadc077152cf455aad5778135c412aeb"
                     + "bfaaa10b3323ee5794b559bc6c8efeb14646398da5ded4db3f60";
 
-    public static final HashSet<String> DEFAULT_ALLOWED_SIGNATURES = Sets.newHashSet(
-            SCIENCE_JOURNAL_RELEASE, SCIENCE_JOURNAL_GOOGLE_INTERNAL_DEBUG);
+    public static final HashSet<String> DEFAULT_ALLOWED_SIGNATURES = new HashSet<>(Arrays.asList(
+            SCIENCE_JOURNAL_RELEASE, SCIENCE_JOURNAL_GOOGLE_INTERNAL_DEBUG));
 }
