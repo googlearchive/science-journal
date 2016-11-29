@@ -902,27 +902,26 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             overlayTimestamp = runFirstTimestamp;
         }
 
-        mRunReviewOverlay.setAllTimestamps(overlayTimestamp, cropStartTimestamp, cropEndTimestamp);
-
         // See if the crop UI is up
         if (isCropping) {
             // Launching crop also sets the review data.
             launchCrop(rootView);
+            mRunReviewOverlay.setAllTimestamps(overlayTimestamp, cropStartTimestamp,
+                    cropEndTimestamp);
+            mExternalAxis.zoomTo(firstTimestamp, lastTimestamp);
         } else {
             mExternalAxis.setReviewData(runFirstTimestamp, runFirstTimestamp, reviewXMin,
                     reviewXMax);
-        }
-
-        if (savedInstanceStateForLoad == null) {
-            mExternalAxis.zoomTo(reviewXMin, reviewXMax);
-        } else if (!isCropping) {
-            // If we just cropped the run, the prev min and max will be too wide, so make sure
-            // we clip to the current run size.
-            long xMin = Math.max(reviewXMin, firstTimestamp);
-            long xMax = Math.min(reviewXMax, lastTimestamp);
-            mExternalAxis.zoomTo(xMin, xMax);
-        } else {
-            mExternalAxis.zoomTo(firstTimestamp, lastTimestamp);
+            mRunReviewOverlay.setActiveTimestamp(overlayTimestamp);
+            if (savedInstanceStateForLoad == null) {
+                mExternalAxis.zoomTo(reviewXMin, reviewXMax);
+            } else {
+                // If we just cropped the run, the prev min and max will be too wide, so make sure
+                // we clip to the current run size.
+                long xMin = Math.max(reviewXMin, firstTimestamp);
+                long xMax = Math.min(reviewXMax, lastTimestamp);
+                mExternalAxis.zoomTo(xMin, xMax);
+            }
         }
     }
 
@@ -1464,17 +1463,18 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private void launchCrop(View rootView) {
         rootView.findViewById(R.id.run_review_playback_button_holder).setVisibility(View.GONE);
         mAudioPlaybackController.stopPlayback();
-        mRunReviewOverlay.setCropModeOn(true);
 
         long originalFirstTimestamp = mExperimentRun.getOriginalFirstTimestamp();
         long lastTimestamp = mExperimentRun.getOriginalLastTimestamp();
         // Load data even if it was previously cropped out of the graph
         mChartController.setShowOriginalRun(true);
+
+        mRunReviewOverlay.resetCropTimestamps();
+        mRunReviewOverlay.setCropModeOn(true);
+
         long buffer = ExternalAxisController.getReviewBuffer(originalFirstTimestamp, lastTimestamp);
-        long renderedXMin = originalFirstTimestamp - buffer;
-        long renderedXMax = lastTimestamp + buffer;
         mExternalAxis.setReviewData(originalFirstTimestamp, mExperimentRun.getFirstTimestamp(),
-                renderedXMin, renderedXMax);
+                originalFirstTimestamp - buffer, lastTimestamp + buffer);
         mExternalAxis.updateAxis();
 
         setCropUi(rootView, true);
@@ -1499,9 +1499,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         timestampBundle.putLong(KEY_EXTERNAL_AXIS_X_MAXIMUM, Math.min(renderedXMax,
                 mExternalAxis.getXMax()));
         timestampBundle.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
-        timestampBundle.putLong(KEY_CROP_START_TIMESTAMP,
-                mRunReviewOverlay.getCropStartTimestamp());
-        timestampBundle.putLong(KEY_CROP_END_TIMESTAMP, mRunReviewOverlay.getCropEndTimestamp());
         setUpAxis(timestampBundle, getView());
 
         // TODO: Better way to throw out cropped (or out of range) data besides reloading,

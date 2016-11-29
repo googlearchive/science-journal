@@ -944,6 +944,14 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         refreshAfterChartLoad(true);
     }
 
+    /**
+     * Sets the crop timestamps to be at 10% and 90% of the current X axis.
+     */
+    public void resetCropTimestamps() {
+        mCropStartData.timestamp = mExternalAxis.timestampAtAxisFraction(.1);
+        mCropEndData.timestamp = mExternalAxis.timestampAtAxisFraction(.9);
+    }
+
     public boolean getIsCropping() {
         return mIsCropping;
     }

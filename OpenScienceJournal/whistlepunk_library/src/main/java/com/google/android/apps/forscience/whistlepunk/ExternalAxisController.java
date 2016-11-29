@@ -491,4 +491,8 @@ public class ExternalAxisController {
     public static long getReviewBuffer(long firstTimestamp, long lastTimestamp) {
         return (long) (EDGE_POINTS_BUFFER_FRACTION * (lastTimestamp - firstTimestamp));
     }
+
+    public long timestampAtAxisFraction(double fraction) {
+        return (long) ((mXMax - mXMin) * fraction + mXMin);
+    }
 }
