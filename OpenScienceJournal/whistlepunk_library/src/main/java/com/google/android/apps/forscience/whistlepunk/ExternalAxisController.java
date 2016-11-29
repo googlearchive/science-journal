@@ -118,6 +118,10 @@ public class ExternalAxisController {
 
     private long mRecordingStart = RecordingMetadata.NOT_RECORDING;
 
+    // The original start to the run. This may differ from mRecordingStart if the run has been
+    // cropped, in which case this is always less than or equal to mRecordingStart.
+    private long mOriginalStart = RecordingMetadata.NOT_RECORDING;
+
     private boolean isInitialized = false;
     private Clock mCurrentTimeClock;
     private View mResetButton;
@@ -303,12 +307,13 @@ public class ExternalAxisController {
         return mInteractionListener;
     }
 
-    public void setReviewData(long runStart, long reviewMin, long reviewMax) {
-        mAxisView.setNumberFormat(new RelativeTimeFormat(runStart, mAxisView.getContext()));
-        mAxisView.setRecordingStart(runStart);
-
+    public void setReviewData(long originalStart, long runStart, long reviewMin, long reviewMax) {
         // The start and end of recording.
         mRecordingStart = runStart;
+        mOriginalStart = originalStart;
+
+        mAxisView.setNumberFormat(new RelativeTimeFormat(mRecordingStart, mAxisView.getContext()));
+        mAxisView.setRecordingStart(mRecordingStart);
 
         // The edges of the data which can be reviewed. Do not allow zoom or pan past these edges.
         // Slightly wider than the recording start and end, because of a zoom out to show endpoints.
@@ -395,7 +400,7 @@ public class ExternalAxisController {
         mLabels = labels;
         List<Long> timestamps = new ArrayList<>();
         for (Label label : mLabels) {
-            if (ChartOptions.isDisplayable(label, mRecordingStart,
+            if (ChartOptions.isDisplayable(label, mOriginalStart,
                     ChartOptions.ChartPlacementType.TYPE_OBSERVE)) {
                 timestamps.add(label.getTimeStamp());
             }
@@ -405,8 +410,8 @@ public class ExternalAxisController {
 
     public void onStartRecording(long timestamp) {
         mRecordingStart = timestamp;
-        mAxisView.setNumberFormat(new RelativeTimeFormat(timestamp, mAxisView.getContext()));
-        mAxisView.setRecordingStart(timestamp);
+        mAxisView.setNumberFormat(new RelativeTimeFormat(mRecordingStart, mAxisView.getContext()));
+        mAxisView.setRecordingStart(mRecordingStart);
     }
 
     public long getRecordingStartTime() {
@@ -416,7 +421,7 @@ public class ExternalAxisController {
     public void onStopRecording() {
         mRecordingStart = RecordingMetadata.NOT_RECORDING;
         mAxisView.setNumberFormat(new SecondsAgoFormat(mCurrentTimeClock, mAxisView.getContext()));
-        mAxisView.setRecordingStart(RecordingMetadata.NOT_RECORDING);
+        mAxisView.setRecordingStart(mRecordingStart);
     }
 
     // Returns an elapsed time for RunReview data. Will return the empty string otherwise.

@@ -934,6 +934,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         if (isCropping) {
             mSeekbar.setVisibility(View.GONE);
             mCropSeekbarGroup.setVisibility(View.VISIBLE);
+            setCropTimestamps(mCropStartData.timestamp, mCropEndData.timestamp);
         } else {
             mSeekbar.setVisibility(View.VISIBLE);
             mCropSeekbarGroup.setVisibility(View.GONE);

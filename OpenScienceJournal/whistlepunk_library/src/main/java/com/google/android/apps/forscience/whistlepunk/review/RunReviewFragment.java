@@ -858,8 +858,21 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     private void setUpAxis(Bundle savedInstanceStateForLoad, View rootView) {
+        // The first and last timestamps of the run.
+        long runFirstTimestamp = mExperimentRun.getFirstTimestamp();
+        long runLastTimestamp = mExperimentRun.getLastTimestamp();
+
+        // Buffer the endpoints a bit so they look nice, creating the edges of where the axis can
+        // be panned / zoomed.
+        long buffer = ExternalAxisController.getReviewBuffer(runFirstTimestamp, runLastTimestamp);
+        long reviewXMin = runFirstTimestamp - buffer;
+        long reviewXMax = runLastTimestamp + buffer;
+
+        // These are the visible first/last timestamp. They are equal to the run first/last
+        // timestamp if the user has not yet zoomed or panned.
         long firstTimestamp;
         long lastTimestamp;
+
         long cropStartTimestamp;
         long cropEndTimestamp;
         long overlayTimestamp;
@@ -873,46 +886,40 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             if (savedOverlayTimestamp != RunReviewOverlay.NO_TIMESTAMP_SELECTED) {
                 overlayTimestamp = savedOverlayTimestamp;
             } else {
-                overlayTimestamp = firstTimestamp;
+                overlayTimestamp = runFirstTimestamp;
             }
             // Remember the crop timestamps after a rotate, even if the crop UI is not up.
             cropStartTimestamp = savedInstanceStateForLoad.getLong(KEY_CROP_START_TIMESTAMP,
-                    mExperimentRun.getFirstTimestamp());
+                    runFirstTimestamp);
             cropEndTimestamp = savedInstanceStateForLoad.getLong(KEY_CROP_END_TIMESTAMP,
-                    mExperimentRun.getLastTimestamp());
+                    runLastTimestamp);
             isCropping = savedInstanceStateForLoad.getBoolean(KEY_CROP_UI_VISIBLE, false);
         } else {
-            firstTimestamp = mExperimentRun.getFirstTimestamp();
-            lastTimestamp = mExperimentRun.getLastTimestamp();
-            cropStartTimestamp = firstTimestamp;
-            cropEndTimestamp = lastTimestamp;
-            overlayTimestamp = firstTimestamp;
+            firstTimestamp = runFirstTimestamp;
+            lastTimestamp = runLastTimestamp;
+            cropStartTimestamp = runFirstTimestamp;
+            cropEndTimestamp = runLastTimestamp;
+            overlayTimestamp = runFirstTimestamp;
         }
 
         mRunReviewOverlay.setAllTimestamps(overlayTimestamp, cropStartTimestamp, cropEndTimestamp);
-
-        // Buffer the endpoints a bit so they look nice.
-        long runFirstTimestamp = mExperimentRun.getFirstTimestamp();
-        long runLastTimestamp = mExperimentRun.getLastTimestamp();
-        long buffer = ExternalAxisController.getReviewBuffer(runFirstTimestamp, runLastTimestamp);
-        long renderedXMin = runFirstTimestamp - buffer;
-        long renderedXMax = runLastTimestamp + buffer;
 
         // See if the crop UI is up
         if (isCropping) {
             // Launching crop also sets the review data.
             launchCrop(rootView);
         } else {
-            mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
+            mExternalAxis.setReviewData(runFirstTimestamp, runFirstTimestamp, reviewXMin,
+                    reviewXMax);
         }
 
         if (savedInstanceStateForLoad == null) {
-            mExternalAxis.zoomTo(renderedXMin, renderedXMax);
+            mExternalAxis.zoomTo(reviewXMin, reviewXMax);
         } else if (!isCropping) {
             // If we just cropped the run, the prev min and max will be too wide, so make sure
             // we clip to the current run size.
-            long xMin = Math.max(renderedXMin, firstTimestamp);
-            long xMax = Math.min(renderedXMax, lastTimestamp);
+            long xMin = Math.max(reviewXMin, firstTimestamp);
+            long xMax = Math.min(reviewXMax, lastTimestamp);
             mExternalAxis.zoomTo(xMin, xMax);
         } else {
             mExternalAxis.zoomTo(firstTimestamp, lastTimestamp);
@@ -1468,14 +1475,15 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mAudioPlaybackController.stopPlayback();
         mRunReviewOverlay.setCropModeOn(true);
 
-        long firstTimestamp = mExperimentRun.getOriginalFirstTimestamp();
+        long originalFirstTimestamp = mExperimentRun.getOriginalFirstTimestamp();
         long lastTimestamp = mExperimentRun.getOriginalLastTimestamp();
         // Load data even if it was previously cropped out of the graph
         mChartController.setShowOriginalRun(true);
-        long buffer = ExternalAxisController.getReviewBuffer(firstTimestamp, lastTimestamp);
-        long renderedXMin = firstTimestamp - buffer;
+        long buffer = ExternalAxisController.getReviewBuffer(originalFirstTimestamp, lastTimestamp);
+        long renderedXMin = originalFirstTimestamp - buffer;
         long renderedXMax = lastTimestamp + buffer;
-        mExternalAxis.setReviewData(firstTimestamp, renderedXMin, renderedXMax);
+        mExternalAxis.setReviewData(originalFirstTimestamp, mExperimentRun.getFirstTimestamp(),
+                renderedXMin, renderedXMax);
         mExternalAxis.updateAxis();
 
         setCropUi(rootView, true);
