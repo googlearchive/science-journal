@@ -1,2 +1,4 @@
 /build
 *.iml
+.gradle
+local.properties

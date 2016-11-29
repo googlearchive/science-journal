@@ -63,7 +63,16 @@ public abstract class ScalarSensorService extends Service {
      * {@link #getDevices()} instead.  Otherwise, your override should should spawn a new thread
      * to do the finding, and return immediately.
      *
-     * However, calls to {@link AdvertisedDeviceConsumer} must happen on the service's main thread.
+     * Calls back to {@link AdvertisedDeviceConsumer} must happen on the service's main thread.
+     *
+     * An appropriate extension of this method:
+     * <ol>
+     *     <li>Always eventually calls onDone</li>
+     *     <li>Always returns every discoverable device on every call (that is, do not filter
+     *         out discoverable devices just because you've reported them before; Science Journal
+     *         may decide this means the device has disappeared.)
+     *         </li>
+     * </ol>
      */
     protected void findDevices(AdvertisedDeviceConsumer c) throws RemoteException {
         for (AdvertisedDevice device : getDevices()) {
