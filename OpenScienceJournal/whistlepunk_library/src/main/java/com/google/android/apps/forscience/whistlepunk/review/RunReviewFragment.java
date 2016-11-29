@@ -992,7 +992,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                                     }
 
                                     @Override
-                                    public void onLoadAttemptStarted() {
+                                    public void onLoadAttemptStarted(boolean chartHiddenForLoad) {
                                         // Use getSensorLayout instead of the final sensorLayout
                                         // because the underlying sensor being loaded may have
                                         // changed since that final var was declared, in the case

@@ -1152,7 +1152,7 @@ public class ExperimentDetailsFragment extends Fragment
                                         }
 
                                         @Override
-                                        public void onLoadAttemptStarted() {
+                                        public void onLoadAttemptStarted(boolean unused) {
 
                                         }
                                     });
