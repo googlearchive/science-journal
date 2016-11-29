@@ -36,7 +36,7 @@ import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 /**
  * A dialogfragment for editing a note's timestamp.
  */
-public class EditTimeDialog extends DialogFragment implements RunReviewOverlay.OnTimestampChangeListener {
+public class EditLabelTimeDialog extends DialogFragment implements RunReviewOverlay.OnTimestampChangeListener {
     public static final String TAG = "edit_time_dialog";
     public static final String KEY_LABEL = "savedLabel";
     public static final String KEY_LABEL_TYPE = "savedLabelType";
@@ -67,25 +67,26 @@ public class EditTimeDialog extends DialogFragment implements RunReviewOverlay.O
     private boolean timestampSelected = false;
     private boolean mDismissed = false;
 
-    public static EditTimeDialog newInstance(Label label, GoosciLabelValue.LabelValue selectedValue,
-                                             long initialTimestamp, long runStartTimestamp) {
-        EditTimeDialog dialog = newInstanceHelper(selectedValue, initialTimestamp,
+    public static EditLabelTimeDialog newInstance(Label label,
+            GoosciLabelValue.LabelValue selectedValue, long initialTimestamp,
+            long runStartTimestamp) {
+        EditLabelTimeDialog dialog = newInstanceHelper(selectedValue, initialTimestamp,
                 runStartTimestamp);
         dialog.getArguments().putParcelable(KEY_LABEL, label);
         return dialog;
     }
 
-    public static EditTimeDialog newInstance(GoosciLabelValue.LabelValue selectedValue,
+    public static EditLabelTimeDialog newInstance(GoosciLabelValue.LabelValue selectedValue,
             int labelType, long initialTimestamp, long runStartTimestamp) {
-        EditTimeDialog dialog = newInstanceHelper(selectedValue, initialTimestamp,
+        EditLabelTimeDialog dialog = newInstanceHelper(selectedValue, initialTimestamp,
                 runStartTimestamp);
         dialog.getArguments().putInt(KEY_LABEL_TYPE, labelType);
         return dialog;
     }
 
-    private static EditTimeDialog newInstanceHelper(GoosciLabelValue.LabelValue selectedValue,
+    private static EditLabelTimeDialog newInstanceHelper(GoosciLabelValue.LabelValue selectedValue,
             long initialTimestamp, long runStartTimestamp) {
-        EditTimeDialog dialog = new EditTimeDialog();
+        EditLabelTimeDialog dialog = new EditLabelTimeDialog();
         Bundle args = new Bundle();
         args.putLong(KEY_INITIAL_TIMESTAMP, initialTimestamp);
         args.putLong(KEY_RUN_START_TIMESTAMP, runStartTimestamp);
@@ -94,7 +95,7 @@ public class EditTimeDialog extends DialogFragment implements RunReviewOverlay.O
         return dialog;
     }
 
-    public EditTimeDialog() {
+    public EditLabelTimeDialog() {
         setHasOptionsMenu(true);
     }
 

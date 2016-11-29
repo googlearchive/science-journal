@@ -52,8 +52,8 @@
             />
 
         <ImageButton
-            android:layout_width="@dimen/edit_time_select_buton_size"
-            android:layout_height="@dimen/edit_time_select_buton_size"
+            android:layout_width="@dimen/edit_time_select_button_size"
+            android:layout_height="@dimen/edit_time_select_button_size"
             android:id="@+id/submit_button"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"

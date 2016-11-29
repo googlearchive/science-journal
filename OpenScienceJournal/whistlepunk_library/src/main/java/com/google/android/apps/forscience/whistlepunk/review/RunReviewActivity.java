@@ -17,20 +17,13 @@
 package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.app.Fragment;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 
-import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
-import com.google.android.apps.forscience.whistlepunk.NotificationIds;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderService;
-import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.project.MetadataActivity;
 
 public class RunReviewActivity extends MetadataActivity {
@@ -95,10 +88,11 @@ public class RunReviewActivity extends MetadataActivity {
         Fragment fragment = getFragmentManager().findFragmentById(R.id.container);
         if (fragment != null) {
             // If the edit time dialog is showing, make it hide on back pressed.
-            EditTimeDialog editTimeDialog = (EditTimeDialog) fragment.getChildFragmentManager()
-                    .findFragmentByTag(EditTimeDialog.TAG);
-            if (editTimeDialog != null) {
-                editTimeDialog.dismiss();
+            EditLabelTimeDialog editLabelTimeDialog =
+                    (EditLabelTimeDialog) fragment.getChildFragmentManager()
+                            .findFragmentByTag(EditLabelTimeDialog.TAG);
+            if (editLabelTimeDialog != null) {
+                editLabelTimeDialog.dismiss();
                 return;
             }
         }

@@ -23,12 +23,8 @@ import android.content.res.Resources;
  * Formats elapsed time (in ms) to a short m:ss or h:mm:ss format.
  * Can also format to tenths of a second using formatToTenths.
  */
+// TODO: Switch to using JodaTime library?
 public class ElapsedTimeAxisFormatter {
-
-    private static final long SEC_IN_MIN = 60;
-    private static final long MIN_IN_HOUR = 60;
-    private static final long TENTHS_IN_SEC = 10;
-    private static final long MS_IN_SEC = 1000;
 
     private static ElapsedTimeAxisFormatter sInstance;
     private final String mSmallFormat;
@@ -87,28 +83,10 @@ public class ElapsedTimeAxisFormatter {
      */
     private void updateElapsedTimeValues(long elapsedTimeMs) {
         elapsedTimeMs = Math.abs(elapsedTimeMs);
-        mTempHours = getHours(elapsedTimeMs);
-        mTempMins = getMins(elapsedTimeMs, mTempHours);
-        mTempSecs = getSecs(elapsedTimeMs, mTempHours, mTempMins);
-        mTempTenthsOfSecs = getTenthsOfSecs(elapsedTimeMs, mTempHours, mTempMins, mTempSecs);
+        mTempHours = ElapsedTimeUtils.getHours(elapsedTimeMs);
+        mTempMins = ElapsedTimeUtils.getMins(elapsedTimeMs, mTempHours);
+        mTempSecs = ElapsedTimeUtils.getSecs(elapsedTimeMs, mTempHours, mTempMins);
+        mTempTenthsOfSecs = ElapsedTimeUtils.getTenthsOfSecs(elapsedTimeMs, mTempHours, mTempMins,
+                mTempSecs);
     }
-
-    private long getHours(long elapsedTime) {
-        return elapsedTime / MS_IN_SEC / (SEC_IN_MIN * MIN_IN_HOUR);
-    }
-
-    private long getMins(long elapsedTime, long hours) {
-        return (elapsedTime / MS_IN_SEC - hours * SEC_IN_MIN * MIN_IN_HOUR) / SEC_IN_MIN;
-    }
-
-    private long getSecs(long elapsedTime, long hours, long mins) {
-        return elapsedTime / MS_IN_SEC - hours * SEC_IN_MIN * MIN_IN_HOUR - mins * SEC_IN_MIN;
-    }
-
-    private long getTenthsOfSecs(long elapsedTime, long hours, long mins, long secs) {
-        return elapsedTime * TENTHS_IN_SEC / MS_IN_SEC -
-                hours * SEC_IN_MIN * MIN_IN_HOUR * TENTHS_IN_SEC -
-                mins * SEC_IN_MIN * TENTHS_IN_SEC - secs * TENTHS_IN_SEC;
-    }
-
 }

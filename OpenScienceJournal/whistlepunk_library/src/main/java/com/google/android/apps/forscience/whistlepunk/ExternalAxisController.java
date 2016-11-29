@@ -77,7 +77,7 @@ public class ExternalAxisController {
          * @param xMin The new xMin if the zoom were to be applied.
          * @param xMax The new xMax if the zoom were to be applied.
          */
-        void onZoom(double xMin, double xMax);
+        void onZoom(long xMin, long xMax);
 
         /**
          * Called when the user does an action that should cause the pinned state to be reset.
@@ -226,26 +226,8 @@ public class ExternalAxisController {
             }
 
             @Override
-            public void onZoom(double xMin, double xMax) {
-                if (!mIsLive && mReviewXMin != RUN_REVIEW_DATA_NOT_INITIALIZED) {
-                    // If we are zoomed into maximum, and trying to zoom smaller than our saved
-                    // mXMin to mXMax range...
-                    if (xMax - xMin < MINIMUM_ZOOM_RANGE_MS && xMax - xMin < mXMax - mXMin) {
-                        // Don't apply the change.
-                        updateAxis();
-                        return;
-                    }
-                    // Otherwise, make sure the change is within the review region
-                    if (xMin < mReviewXMin) {
-                        xMin = mReviewXMin;
-                    }
-                    if (xMax > mReviewXMax) {
-                        xMax = mReviewXMax;
-                    }
-                }
-                mXMin = (long) xMin;
-                mXMax = (long) xMax;
-                updateAxis();
+            public void onZoom(long xMin, long xMax) {
+                zoomTo(xMin, xMax);
             }
 
             @Override
@@ -334,8 +316,24 @@ public class ExternalAxisController {
     }
 
     public void zoomTo(long xMin, long xMax) {
-        mXMax = xMax;
+        if (!mIsLive && mReviewXMin != RUN_REVIEW_DATA_NOT_INITIALIZED) {
+            // If we are zoomed into maximum, and trying to zoom smaller than our saved
+            // mXMin to mXMax range...
+            if (xMax - xMin < MINIMUM_ZOOM_RANGE_MS && xMax - xMin < mXMax - mXMin) {
+                // Don't apply the change.
+                updateAxis();
+                return;
+            }
+            // Otherwise, make sure the change is within the review region
+            if (xMin < mReviewXMin) {
+                xMin = mReviewXMin;
+            }
+            if (xMax > mReviewXMax) {
+                xMax = mReviewXMax;
+            }
+        }
         mXMin = xMin;
+        mXMax = xMax;
         updateAxis();
     }
 

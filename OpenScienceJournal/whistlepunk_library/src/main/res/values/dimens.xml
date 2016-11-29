@@ -209,7 +209,7 @@
 
     <dimen name="edit_time_dialog_height">52dp</dimen>
     <dimen name="edit_time_dialog_margin">8dp</dimen>
-    <dimen name="edit_time_select_buton_size">36dp</dimen>
+    <dimen name="edit_time_select_button_size">36dp</dimen>
     <!-- The edit time dialog is shown anchored to the bottom of the app bar layout.
          To position it, we need to lower it 52 dp for the height of the dialog,
          plus 8dp for top margin, then some padding so it is below the app bar layout -->

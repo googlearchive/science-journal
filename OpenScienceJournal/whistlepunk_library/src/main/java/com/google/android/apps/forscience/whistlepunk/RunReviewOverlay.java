@@ -28,11 +28,15 @@ import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.support.v4.widget.ExploreByTouchHelper;
 import android.util.AttributeSet;
-import android.support.v4.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.SeekBar;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
@@ -40,6 +44,8 @@ import com.google.android.apps.forscience.whistlepunk.review.CoordinatedSeekbarV
 import com.google.android.apps.forscience.whistlepunk.review.GraphExploringSeekBar;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
+
+import java.util.List;
 
 /**
  * Draws the value over a RunReview chart.
@@ -57,6 +63,13 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     }
     private OnSeekbarTouchListener mOnSeekbarTouchListener;
 
+    public interface OnLabelClickListener {
+        void onValueLabelClicked();
+        void onCropStartLabelClicked();
+        void onCropEndLabelClicked();
+    }
+    private OnLabelClickListener mOnLabelClickListener;
+
     // Class to track the measurements of a RunReview overlay flag, which is bounded by
     // boxStart/End/Top/Bottom, and has a notch below it down to a certain height.
     private static class FlagMeasurements {
@@ -70,6 +83,9 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     private FlagMeasurements mFlagMeasurements = new FlagMeasurements();
 
     private static double SQRT_2_OVER_2 = Math.sqrt(2) / 2;
+
+    // A constant used to denote that a coordinate in screen coordinates is offscreen.
+    private static float OFFSCREEN = -1f;
 
     private int mHeight;
     private int mWidth;
@@ -109,6 +125,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     private long mPreviouslySelectedTimestamp;
     private long mPreviousCropStartTimestamp;
     private long mPreviousCropEndTimestamp;
+    private boolean mChartIsLoading = false;
 
     // Represents the data associated with a seekbar point tracked in RunReviewOverlay.
     private static class OverlayPointData {
@@ -123,6 +140,9 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
         // The string representing the current chart value for the standard overlay label.
         public String label;
+
+        // The rect representing where the label was drawn.
+        public RectF labelRect = new RectF(OFFSCREEN, OFFSCREEN, OFFSCREEN, OFFSCREEN);
     }
 
     private OverlayPointData mPointData = new OverlayPointData();
@@ -150,7 +170,6 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     private ExternalAxisController mExternalAxis;
     private String mTextFormat;
     private ElapsedTimeAxisFormatter mTimeFormat;
-    private RectF mBoxRect;
     private Path mPath;
     private float mDotRadius;
     private float mDotBackgroundRadius;
@@ -220,7 +239,6 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         mLinePaint.setStyle(Paint.Style.STROKE);
 
         mPath = new Path();
-        mBoxRect = new RectF();
 
         // TODO: Need to make sure this is at least as detailed as the SensorAppearance number
         // format!
@@ -266,7 +284,6 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
     public void onDraw(Canvas canvas) {
         if (mIsCropping) {
-            // TODO: Click listeners for these flags open up dialogs for entering crop timestamps.
             boolean cropStartOnChart = isXScreenPointInChart(mCropStartData.screenPoint);
             boolean cropEndOnChart = isXScreenPointInChart(mCropEndData.screenPoint);
 
@@ -292,8 +309,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
             if (cropStartOnChart) {
                 // Drawing the start flag sets mFlagMeasurements to have the start flag's bounding
                 // box. This will allow us to place the end flag appropriately.
-                drawFlag(canvas, mCropStartData.timestamp, mCropStartData.screenPoint.x,
-                        mCropStartData.label, mFlagMeasurements, true);
+                drawFlag(canvas, mCropStartData, mFlagMeasurements, true);
             } else {
                 // Clear flag measurements when the left hand flag is offscreen, so that
                 // drawFlagAfter does not see another flag to avoid.
@@ -303,10 +319,13 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                 // In drawFlagAfter we will use mFlagMeasurements.boxEnd to determine what to
                 // avoid.
                 mFlagMeasurements.boxEnd = -mCropFlagBufferX;
+                mCropStartData.labelRect.set(OFFSCREEN, OFFSCREEN, OFFSCREEN, OFFSCREEN);
             }
             if (cropEndOnChart) {
-                drawFlagAfter(canvas, mCropEndData.timestamp, mCropEndData.screenPoint.x,
-                        mCropEndData.label, mFlagMeasurements, mFlagMeasurements.boxEnd, true);
+                drawFlagAfter(canvas, mCropEndData, mFlagMeasurements, mFlagMeasurements.boxEnd,
+                        true);
+            } else {
+                mCropEndData.labelRect.set(OFFSCREEN, OFFSCREEN, OFFSCREEN, OFFSCREEN);
             }
 
             // Neither flag can be drawn, but we might be in a region that can be cropped out
@@ -323,8 +342,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
             boolean yOnChart = isYScreenPointInChart(mPointData.screenPoint);
             if (xOnChart && yOnChart) {
                 // We are not cropping. Draw a standard flag.
-                drawFlag(canvas, mPointData.timestamp, mPointData.screenPoint.x, mPointData.label,
-                        mFlagMeasurements, false);
+                drawFlag(canvas, mPointData, mFlagMeasurements, false);
 
                 // Draw the vertical line from the point to the bottom of the flag
                 float nudge = mDotRadius / 2;
@@ -340,6 +358,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                 canvas.drawCircle(mPointData.screenPoint.x, cySmall, mDotBackgroundRadius,
                         mDotBackgroundPaint);
                 canvas.drawCircle(mPointData.screenPoint.x, cySmall, mDotRadius, mDotPaint);
+            } else {
+                mPointData.labelRect.set(OFFSCREEN, OFFSCREEN, OFFSCREEN, OFFSCREEN);
             }
         }
     }
@@ -374,21 +394,19 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
      * Draw a flag above a specific timestamp with a given value, but make sure the flag starts
      * after the given flagXToDrawAfter or that the flag is raised up to avoid intersecting it.
      * @param canvas The canvas to use
-     * @param selectedTimestamp The timestamp to use on the label
-     * @param cx The X position of the timestamp
-     * @param label The value to use on the label
+     * @param pointData The point data to use
      * @param flagMeasurements This set of measurements will be updated in-place to hold the bounds
      *                         of the flag.
      * @param flagXToDrawAfter The x position past which the flag may not draw. If the flag needs
      *                       this space, it must draw itself higher.
      */
-    private void drawFlagAfter(Canvas canvas, long selectedTimestamp, float cx, String label,
+    private void drawFlagAfter(Canvas canvas, OverlayPointData pointData,
             FlagMeasurements flagMeasurements, float flagXToDrawAfter, boolean drawStem) {
-        if (label == null) {
-            label = "";
+        if (pointData.label == null) {
+            pointData.label = "";
         }
-        float labelWidth = mTextPaint.measureText(label);
-        String timeLabel = mTimeFormat.formatToTenths(selectedTimestamp -
+        float labelWidth = mTextPaint.measureText(pointData.label);
+        String timeLabel = mTimeFormat.formatToTenths(pointData.timestamp -
                 mExternalAxis.getRecordingStartTime());
         float timeWidth = mTimePaint.measureText(timeLabel);
 
@@ -400,8 +418,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         flagMeasurements.boxBottom = flagMeasurements.boxTop + textSize + mLabelPadding * 2 + 5;
         float width = mIntraLabelPadding + 2 * mLabelPadding + timeWidth + labelWidth;
         // Ideal box layout
-        flagMeasurements.boxStart = cx - width / 2;
-        flagMeasurements.boxEnd = cx + width / 2;
+        flagMeasurements.boxStart = pointData.screenPoint.x - width / 2;
+        flagMeasurements.boxEnd = pointData.screenPoint.x + width / 2;
 
         // Adjust it if the ideal doesn't work
         boolean isRaised = false;
@@ -409,7 +427,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
             // See if we can simply offset the flag, if it doesn't cause the notch to be drawn
             // off the edge of the flag.
             if (flagXToDrawAfter + mCropFlagBufferX <
-                    cx - mNotchHeight * SQRT_2_OVER_2 - mCornerRadius) {
+                    pointData.screenPoint.x - mNotchHeight * SQRT_2_OVER_2 - mCornerRadius) {
                 flagMeasurements.boxStart = flagXToDrawAfter + mCropFlagBufferX;
                 flagMeasurements.boxEnd = flagMeasurements.boxStart + width;
             } else {
@@ -429,20 +447,22 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         }
         flagMeasurements.notchBottom = flagMeasurements.boxBottom + mNotchHeight;
 
-        mBoxRect.set(flagMeasurements.boxStart, flagMeasurements.boxTop,
+        pointData.labelRect.set(flagMeasurements.boxStart, flagMeasurements.boxTop,
                 flagMeasurements.boxEnd, flagMeasurements.boxBottom);
-        canvas.drawRoundRect(mBoxRect, mCornerRadius, mCornerRadius, mPaint);
+        canvas.drawRoundRect(pointData.labelRect, mCornerRadius, mCornerRadius, mPaint);
 
         mPath.reset();
-        mPath.moveTo((int) (cx - mNotchHeight * SQRT_2_OVER_2), flagMeasurements.boxBottom);
-        mPath.lineTo(cx, flagMeasurements.boxBottom + mNotchHeight);
-        mPath.lineTo((int) (cx + mNotchHeight * SQRT_2_OVER_2), flagMeasurements.boxBottom);
+        mPath.moveTo((int) (pointData.screenPoint.x - mNotchHeight * SQRT_2_OVER_2),
+                flagMeasurements.boxBottom);
+        mPath.lineTo(pointData.screenPoint.x, flagMeasurements.boxBottom + mNotchHeight);
+        mPath.lineTo((int) (pointData.screenPoint.x + mNotchHeight * SQRT_2_OVER_2),
+                flagMeasurements.boxBottom);
         canvas.drawPath(mPath, mPaint);
 
         float textBase = flagMeasurements.boxTop + mLabelPadding + textSize;
         canvas.drawText(timeLabel, flagMeasurements.boxStart + mLabelPadding, textBase, mTimePaint);
-        canvas.drawText(label, flagMeasurements.boxEnd - labelWidth - mLabelPadding, textBase,
-                mTextPaint);
+        canvas.drawText(pointData.label, flagMeasurements.boxEnd - labelWidth - mLabelPadding,
+                textBase, mTextPaint);
 
         float center = flagMeasurements.boxStart + mLabelPadding + timeWidth +
                 mIntraLabelPadding / 2;
@@ -452,12 +472,13 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         if (drawStem) {
             // Draws a vertical line to the flag notch from the base.
             // If there is a flag to draw after, does not overlap that flag.
-            if (cx < flagXToDrawAfter) {
-                canvas.drawLine(cx, mHeight, cx, mFlagMeasurements.boxBottom - 5 +
-                        textSize + 3 * mLabelPadding, mCropVerticalLinePaint);
-            } else {
-                canvas.drawLine(cx, mHeight, cx, mFlagMeasurements.notchBottom - 5,
+            if (pointData.screenPoint.x < flagXToDrawAfter) {
+                canvas.drawLine(pointData.screenPoint.x, mHeight, pointData.screenPoint.x,
+                        mFlagMeasurements.boxBottom - 5 + textSize + 3 * mLabelPadding,
                         mCropVerticalLinePaint);
+            } else {
+                canvas.drawLine(pointData.screenPoint.x, mHeight, pointData.screenPoint.x,
+                        mFlagMeasurements.notchBottom - 5, mCropVerticalLinePaint);
             }
         }
     }
@@ -471,17 +492,14 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
     /**
      * Draw a flag above a specific timestamp with a given value.
-     * @param canvas The canvas to use
-     * @param selectedTimestamp The timestamp to use on the label
-     * @param cx The X position of the timestamp
-     * @param label The value to use on the label
+     * @param canvas The canvas to use.
+     * @param pointData The point data to use for the flag, including the timetstamp and X position.
      * @param flagMeasurements This set of measurements will be updated in-place to hold the bounds
      *                         of the flag.
      */
-    private void drawFlag(Canvas canvas, long selectedTimestamp, float cx, String label,
+    private void drawFlag(Canvas canvas, OverlayPointData pointData,
             FlagMeasurements flagMeasurements, boolean drawStem) {
-        drawFlagAfter(canvas, selectedTimestamp, cx, label, flagMeasurements, -mCropFlagBufferX,
-                drawStem);
+        drawFlagAfter(canvas, pointData, flagMeasurements, -mCropFlagBufferX, drawStem);
     }
 
     public void setChartController(ChartController controller) {
@@ -739,6 +757,48 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         mOnSeekbarTouchListener = listener;
     }
 
+    public void setOnLabelClickListener(OnLabelClickListener onLabelClickListener) {
+        mOnLabelClickListener = onLabelClickListener;
+        this.setOnTouchListener(new OnTouchListener() {
+            private PointF downPoint = new PointF();
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    if ((!mIsCropping && eventOnFlag(event, mPointData)) ||
+                            mIsCropping && (eventOnFlag(event, mCropStartData) ||
+                                    eventOnFlag(event, mCropEndData))) {
+                        downPoint.set(event.getX(), event.getY());
+                        return true;
+                    }
+                } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+                    // See if the click is ending in any of the label boxes
+                    if (!mIsCropping && eventOnFlag(event, mPointData) &&
+                            mPointData.labelRect.contains(downPoint.x, downPoint.y)) {
+                        mOnLabelClickListener.onValueLabelClicked();
+                        return true;
+                    } else if (mIsCropping && eventOnFlag(event, mCropStartData) &&
+                            mCropStartData.labelRect.contains(downPoint.x, downPoint.y)) {
+                        mOnLabelClickListener.onCropStartLabelClicked();
+                        return true;
+                    } else if (mIsCropping && eventOnFlag(event, mCropEndData) &&
+                            mCropEndData.labelRect.contains(downPoint.x, downPoint.y)) {
+                        mOnLabelClickListener.onCropEndLabelClicked();
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            private boolean eventOnFlag(MotionEvent event, OverlayPointData pointData) {
+                return pointData.labelRect.contains(event.getX(), event.getY());
+            }
+        });
+        // TODO: P3: Could add an ExploreByTouchHelper to make these discoverable for a11y users.
+        // Since the same functionality is accessible from the menu options, this is not high
+        // priority.
+        // https://developer.android.com/reference/android/support/v4/widget/ExploreByTouchHelper.html
+    }
+
     public void refreshAfterChartLoad(final boolean backUpdateProgressBar) {
         if (!mChartController.hasDrawnChart()) {
             // Refresh the Run Review Overlay after the line graph presenter's chart
@@ -795,11 +855,14 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
             mChartController.removeChartDataLoadedCallback(this);
             if (mOnDrawListener != null) {
                 final ViewTreeObserver observer = mChartController.getChartViewTreeObserver();
-                if (observer == null) {
-                    return;
+                if (observer != null) {
+                    observer.removeOnDrawListener(mOnDrawListener);
                 }
-                observer.removeOnDrawListener(mOnDrawListener);
+                mOnDrawListener = null;
             }
+            mOnLabelClickListener = null;
+            mTimestampChangeListener = null;
+            mOnSeekbarTouchListener = null;
         }
     }
 
@@ -819,6 +882,10 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
      *         needed.
      */
     private boolean updateActiveTimestamp(long timestamp) {
+        if (mChartIsLoading) {
+            mPreviouslySelectedTimestamp = timestamp;
+            return false;
+        }
         mPointData.timestamp = timestamp;
         if (mExternalAxis.containsTimestamp(mPointData.timestamp) && shouldShowSeekbars()) {
             mSeekbar.setThumb(mThumb);
@@ -851,6 +918,11 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
      *         a refresh is needed.
      */
     private boolean updateCropTimestamps(long startTimestamp, long endTimestamp) {
+        if (mChartIsLoading) {
+            mPreviousCropStartTimestamp = startTimestamp;
+            mPreviousCropEndTimestamp = endTimestamp;
+            return false;
+        }
         mCropStartData.timestamp = startTimestamp;
         mCropEndData.timestamp = endTimestamp;
         boolean hasSeekbarInRange = false;
@@ -868,7 +940,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
             double progress = (int) ((GraphExploringSeekBar.SEEKBAR_MAX *
                     (mCropEndData.timestamp - mExternalAxis.mXMin)) /
                     (mExternalAxis.mXMax - mExternalAxis.mXMin));
-            if (hasSeekbarInRange) {
+            if (hasSeekbarInRange &&
+                    mCropSeekbarGroup.getEndSeekBar().getFullProgress() != Math.round(progress)) {
                 mIgnoreNextSeekbarProgressUpdate = true;
             }
             mCropSeekbarGroup.getEndSeekBar().setFullProgress((int) Math.round(progress));
@@ -889,8 +962,9 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
      * work by only calling redraw once.
      */
     public void setAllTimestamps(long timestamp, long cropStartTimestamp, long cropEndTimestamp) {
-        if (updateActiveTimestamp(timestamp) ||
-                updateCropTimestamps(cropStartTimestamp, cropEndTimestamp)) {
+        boolean activeTimestampUpdated = updateActiveTimestamp(timestamp);
+        boolean cropTimestampsUpdated = updateCropTimestamps(cropStartTimestamp, cropEndTimestamp);
+        if (activeTimestampUpdated || cropTimestampsUpdated) {
             refreshAfterChartLoad(true);
         }
     }
@@ -905,6 +979,14 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
     public long getCropEndTimestamp() {
         return mCropEndData.timestamp;
+    }
+
+    public boolean isValidCropTimestamp(long timestamp, boolean isStartCrop) {
+        if (isStartCrop) {
+            return timestamp < mCropEndData.timestamp - CropHelper.MINIMUM_CROP_MILLIS;
+        } else {
+            return timestamp > mCropStartData.timestamp + CropHelper.MINIMUM_CROP_MILLIS;
+        }
     }
 
     public void setExternalAxisController(ExternalAxisController externalAxisController) {
@@ -994,7 +1076,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                 mCropSeekbarGroup.setVisibility(View.VISIBLE);
             }
         }
-        if (mPreviouslySelectedTimestamp != -1) {
+        if (mChartIsLoading) {
+            mChartIsLoading = false;
             setAllTimestamps(mPreviouslySelectedTimestamp, mPreviousCropStartTimestamp,
                     mPreviousCropEndTimestamp);
         }
@@ -1002,14 +1085,9 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
     @Override
     public void onLoadAttemptStarted(boolean chartHiddenForLoad) {
-        if (chartHiddenForLoad) {
-            mPreviouslySelectedTimestamp = mPointData.timestamp;
-            mPreviousCropStartTimestamp = mCropStartData.timestamp;
-            mPreviousCropEndTimestamp = mCropEndData.timestamp;
-        } else {
-            mPreviouslySelectedTimestamp = -1;
-            mPreviousCropStartTimestamp = -1;
-            mPreviousCropEndTimestamp = -1;
-        }
+        mPreviouslySelectedTimestamp = mPointData.timestamp;
+        mPreviousCropStartTimestamp = mCropStartData.timestamp;
+        mPreviousCropEndTimestamp = mCropEndData.timestamp;
+        mChartIsLoading = true;
     }
 }

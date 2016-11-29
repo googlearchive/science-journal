@@ -89,7 +89,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
-import com.google.android.apps.forscience.whistlepunk.review.EditTimeDialog.EditTimeDialogListener;
+import com.google.android.apps.forscience.whistlepunk.review.EditLabelTimeDialog.EditTimeDialogListener;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
@@ -363,6 +363,23 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         }
                     }
                 });
+        mRunReviewOverlay.setOnLabelClickListener(new RunReviewOverlay.OnLabelClickListener() {
+
+            @Override
+            public void onValueLabelClicked() {
+                // TODO: Allow manual timestamp editing on the normal overlay too.
+            }
+
+            @Override
+            public void onCropStartLabelClicked() {
+                openManualCropEditor(/*start crop*/ true);
+            }
+
+            @Override
+            public void onCropEndLabelClicked() {
+                openManualCropEditor(/*end crop*/ false);
+            }
+        });
 
         CoordinatedSeekbarViewGroup cropGroup =
                 (CoordinatedSeekbarViewGroup) rootView.findViewById(R.id.seekbar_view_group);
@@ -448,7 +465,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
         // If this isn't the first time we've made a view, check if the timepicker UI is up.
         if (savedInstanceState != null) {
-            if (getChildFragmentManager().findFragmentByTag(EditTimeDialog.TAG) != null) {
+            if (getChildFragmentManager().findFragmentByTag(EditLabelTimeDialog.TAG) != null) {
                 setTimepickerUi(rootView, true);
             }
         }
@@ -493,8 +510,10 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             menu.findItem(R.id.action_enable_auto_zoom).setVisible(
                     !mExperimentRun.getAutoZoomEnabled());
 
-            // TODO: Re-enable this for C++ release.
-            menu.findItem(R.id.action_run_review_crop).setVisible(enableDevTools);
+            menu.findItem(R.id.action_run_review_crop).setVisible(
+                    mExperimentRun.getOriginalLastTimestamp() -
+                            mExperimentRun.getOriginalFirstTimestamp() >
+                            CropHelper.MINIMUM_CROP_MILLIS);
             // You can only do a crop if the run length is long enough.
             menu.findItem(R.id.action_run_review_crop).setEnabled(
                     CropHelper.experimentIsLongEnoughForCrop(mExperimentRun));
@@ -656,7 +675,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_SELECTED_SENSOR_INDEX, mSelectedSensorIndex);
         outState.putBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE, getChildFragmentManager()
-                .findFragmentByTag(EditTimeDialog.TAG) != null);
+                .findFragmentByTag(EditLabelTimeDialog.TAG) != null);
         if (mSavedInstanceStateForLoad != null) {
             // We haven't finished loading the run from the database yet in onCreateView.
             // Go ahead and use the old savedInstanceState since we haven't reconstructed
@@ -683,7 +702,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM));
         } else {
             outState.putBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE, getChildFragmentManager()
-                    .findFragmentByTag(EditTimeDialog.TAG) != null);
+                    .findFragmentByTag(EditLabelTimeDialog.TAG) != null);
             outState.putLong(KEY_EXTERNAL_AXIS_X_MINIMUM, mExternalAxis.getXMin());
             outState.putLong(KEY_EXTERNAL_AXIS_X_MAXIMUM, mExternalAxis.getXMax());
             outState.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
@@ -840,7 +859,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         mRunReviewOverlay.getTimestamp(),
                         mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId);
             }
-            if (getChildFragmentManager().findFragmentByTag(EditTimeDialog.TAG) != null) {
+            if (getChildFragmentManager().findFragmentByTag(EditLabelTimeDialog.TAG) != null) {
                 // Reset the add note timepicker UI
                 setTimepickerUi(rootView, true);
             }
@@ -1237,10 +1256,10 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
         // Show the timestamp edit window below the graph / over the notes
         getView().findViewById(R.id.embedded).setVisibility(View.VISIBLE);
-        EditTimeDialog timeDialog = EditTimeDialog.newInstance(selectedValue, labelType,
+        EditLabelTimeDialog timeDialog = EditLabelTimeDialog.newInstance(selectedValue, labelType,
                 selectedTimestamp, mExperimentRun.getFirstTimestamp());
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        ft.add(R.id.embedded, timeDialog, EditTimeDialog.TAG);
+        ft.add(R.id.embedded, timeDialog, EditLabelTimeDialog.TAG);
         ft.commit();
         mRunReviewOverlay.setActiveTimestamp(selectedTimestamp);
         mRunReviewOverlay.setOnTimestampChangeListener(timeDialog);
@@ -1259,10 +1278,10 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
         // Show the timestamp edit window below the graph / over the notes
         getView().findViewById(R.id.embedded).setVisibility(View.VISIBLE);
-        EditTimeDialog timeDialog = EditTimeDialog.newInstance(label, selectedValue, labelTimestamp,
-                mExperimentRun.getFirstTimestamp());
+        EditLabelTimeDialog timeDialog = EditLabelTimeDialog.newInstance(label, selectedValue,
+                labelTimestamp, mExperimentRun.getFirstTimestamp());
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        ft.add(R.id.embedded, timeDialog, EditTimeDialog.TAG);
+        ft.add(R.id.embedded, timeDialog, EditLabelTimeDialog.TAG);
         ft.commit();
         mRunReviewOverlay.setActiveTimestamp(labelTimestamp);
         mRunReviewOverlay.setOnTimestampChangeListener(timeDialog);
@@ -1296,8 +1315,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                             }
                         }
             });
-            EditTimeDialog dialog = (EditTimeDialog) getChildFragmentManager()
-                    .findFragmentByTag(EditTimeDialog.TAG);
+            EditLabelTimeDialog dialog = (EditLabelTimeDialog) getChildFragmentManager()
+                    .findFragmentByTag(EditLabelTimeDialog.TAG);
             if (dialog != null) {
                 mRunReviewOverlay.setActiveTimestamp(dialog.getCurrentTimestamp());
                 mRunReviewOverlay.setOnTimestampChangeListener(dialog);
@@ -1326,6 +1345,15 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
                             if (item.getItemId() == R.id.action_save) {
                                 saveCrop(mode);
+                                return true;
+                            }
+                            if (item.getItemId() == R.id.action_edit_crop_start_time) {
+                                openManualCropEditor(/*start crop*/ true);
+                                return true;
+                            }
+                            if (item.getItemId() == R.id.action_edit_crop_end_time) {
+                                openManualCropEditor(/*end crop*/ false);
+                                return true;
                             }
                             return false;
                         }
@@ -1375,8 +1403,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     private void setUiForActionMode(View rootView, boolean showActionMode) {
         if (showActionMode) {
-            rootView.findViewById(R.id.embedded).setVisibility(View.VISIBLE);
-
             // Collapse app bar layout as much as possible to bring the graph to the top.
             AppBarLayout appBarLayout = (AppBarLayout) rootView.findViewById(R.id.app_bar_layout);
             appBarLayout.setExpanded(false);
@@ -1416,8 +1442,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     private void dismissEditTimeDialog() {
-        EditTimeDialog dialog = (EditTimeDialog) getChildFragmentManager()
-                .findFragmentByTag(EditTimeDialog.TAG);
+        EditLabelTimeDialog dialog = (EditLabelTimeDialog) getChildFragmentManager()
+                .findFragmentByTag(EditLabelTimeDialog.TAG);
         if (dialog != null) {
             dialog.dismiss();
         }
@@ -1513,6 +1539,50 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         // As most all the data needed is already loaded -- this is really being done to throw
         // away cropped data.
         loadRunData(getView());
+    }
+
+    public void openManualCropEditor(final boolean isStartCrop) {
+        // TODO: Remember this on resume
+        EditTimestampDialog timestampDialog = EditTimestampDialog.newInstance(isStartCrop,
+                mExperimentRun.getOriginalFirstTimestamp(),
+                mExperimentRun.getOriginalLastTimestamp(), mExperimentRun.getFirstTimestamp(),
+                isStartCrop ? mRunReviewOverlay.getCropStartTimestamp() :
+                        mRunReviewOverlay.getCropEndTimestamp());
+        timestampDialog.setOnPickerTimestampChangedListener(
+                new TimestampPickerController.TimestampPickerListener() {
+                    @Override
+                    public int isValidTimestamp(long timestamp) {
+                        // Is it too close to the other seekbar?
+                        if (mRunReviewOverlay.isValidCropTimestamp(timestamp, isStartCrop)) {
+                            return TimestampPickerController.NO_ERROR;
+                        } else {
+                            return R.string.timestamp_picker_crop_range_error;
+                        }
+                    }
+
+                    @Override
+                    public void onPickerTimestampChanged(long timestamp) {
+                        // Zoom out to show the new timestamp if needed.
+                        if (isStartCrop) {
+                            if (timestamp < mExternalAxis.getXMin()) {
+                                long buffer = ExternalAxisController.getReviewBuffer(timestamp,
+                                        mExternalAxis.getXMax());
+                                mExternalAxis.zoomTo(timestamp - buffer, mExternalAxis.getXMax());
+                            }
+                            mRunReviewOverlay.setCropTimestamps(timestamp,
+                                    mRunReviewOverlay.getCropEndTimestamp());
+                        } else {
+                            if (timestamp > mExternalAxis.getXMax()) {
+                                long buffer = ExternalAxisController.getReviewBuffer(
+                                        mExternalAxis.getXMin(), timestamp);
+                                mExternalAxis.zoomTo(mExternalAxis.getXMin(), timestamp + buffer);
+                            }
+                            mRunReviewOverlay.setCropTimestamps(
+                                    mRunReviewOverlay.getCropStartTimestamp(), timestamp);
+                        }
+                    }
+                });
+        timestampDialog.show(getChildFragmentManager(), EditTimestampDialog.TAG);
     }
 
     @Override

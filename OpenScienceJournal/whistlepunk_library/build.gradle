@@ -80,6 +80,7 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.google.guava:guava:19.0'
     compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-3.1'
+    compile 'joda-time:joda-time:2.9.4'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
     testCompile 'junit:junit:4.12'

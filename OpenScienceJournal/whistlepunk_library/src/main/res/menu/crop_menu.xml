@@ -16,11 +16,30 @@
  -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
     <item
         android:id="@+id/action_save"
         android:icon="@drawable/ic_check_white_24dp"
         android:title="@string/action_save"
         app:showAsAction="always"
         />
+    <item
+        android:id="@+id/crop_overflow_menu"
+        android:icon="@drawable/ic_menu_moreoverflow_mtrl_alpha"
+        android:title="@string/crop_overflow_menu_content_description"
+        app:showAsAction="always"
+        >
+        <menu>
+            <item
+                android:id="@+id/action_edit_crop_start_time"
+                android:title="@string/edit_crop_start_time"
+                app:showAsAction="never"
+                />
+
+            <item
+                android:id="@+id/action_edit_crop_end_time"
+                android:title="@string/edit_crop_end_time"
+                app:showAsAction="never"
+                />
+        </menu>
+    </item>
 </menu>
