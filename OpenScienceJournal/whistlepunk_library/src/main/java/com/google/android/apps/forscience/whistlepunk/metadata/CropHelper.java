@@ -114,7 +114,7 @@ public class CropHelper {
         }
 
         final CropLabels cropLabels = run.getCropLabels();
-        if (cropLabels.cropStartLabel != null && cropLabels.cropStartLabel != null) {
+        if (cropLabels.cropStartLabel != null && cropLabels.cropEndLabel != null) {
             // It is already cropped, so we can edit the old crop labels.
             cropLabels.cropStartLabel.setTimestamp(startTimestamp);
             cropLabels.cropEndLabel.setTimestamp(endTimestamp);
@@ -131,7 +131,7 @@ public class CropHelper {
                                     });
                         }
                     });
-        } else if (cropLabels.cropStartLabel == null && cropLabels.cropStartLabel == null) {
+        } else if (cropLabels.cropStartLabel == null && cropLabels.cropEndLabel == null) {
             // Otherwise we make new crop labels.
             ApplicationLabel cropStartLabel = new ApplicationLabel(
                     ApplicationLabel.TYPE_CROP_START, mDataController.generateNewLabelId(),
