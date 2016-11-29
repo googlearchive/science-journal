@@ -59,8 +59,32 @@ public abstract class ScalarSensorService extends Service {
     @NonNull
     protected abstract String getDiscovererName();
 
+    public interface AdvertisedDeviceConsumer {
+        void onDeviceFound(AdvertisedDevice device) throws RemoteException;
+        void onDone() throws RemoteException;
+    }
+
+    /**
+     * Call {@code c} with each device found, then call c.onDone().
+     *
+     * If you can compute all devices quickly, on the same thread, then override
+     * {@link #getDevices()} instead.  Otherwise, your override should should spawn a new thread
+     * to do the finding, and return immediately.
+     *
+     * However, calls to {@link AdvertisedDeviceConsumer} must happen on the service's main thread.
+     */
+    protected void findDevices(AdvertisedDeviceConsumer c) throws RemoteException {
+        for (AdvertisedDevice device : getDevices()) {
+            c.onDeviceFound(device);
+        }
+        c.onDone();
+    }
+
     /**
      * @return the devices that can currently be connected to.
+     *
+     * Only override this method if you can quickly, on the same thread, compute or scan for all
+     * matching devices.  Otherwise, override {@link #findDevices(AdvertisedDeviceConsumer)}
      */
     protected abstract List<? extends AdvertisedDevice> getDevices();
 
@@ -145,10 +169,6 @@ public abstract class ScalarSensorService extends Service {
     private ISensorDiscoverer.Stub createDiscoverer() {
         final LinkedHashMap<String, AdvertisedDevice> devices = new LinkedHashMap<>();
 
-        for (AdvertisedDevice device : getDevices()) {
-            devices.put(device.getDeviceId(), device);
-        }
-
         return new ISensorDiscoverer.Stub() {
             Map<String, AdvertisedSensor> mSensors = new ArrayMap<>();
             private boolean mSignatureHasBeenChecked = false;
@@ -160,14 +180,23 @@ public abstract class ScalarSensorService extends Service {
             }
 
             @Override
-            public void scanDevices(IDeviceConsumer c) throws RemoteException {
-                if (clientAllowed()) {
-                    for (AdvertisedDevice device : devices.values()) {
+            public void scanDevices(final IDeviceConsumer c) throws RemoteException {
+                if (!clientAllowed()) {
+                    return;
+                }
+                findDevices(new AdvertisedDeviceConsumer() {
+                    @Override
+                    public void onDeviceFound(AdvertisedDevice device) throws RemoteException {
+                        devices.put(device.getDeviceId(), device);
                         c.onDeviceFound(device.getDeviceId(), device.getDeviceName(),
                                 device.getSettingsIntent());
                     }
-                }
-                c.onScanDone();
+
+                    @Override
+                    public void onDone() throws RemoteException {
+                        c.onScanDone();
+                    }
+                });
             }
 
             @Override
