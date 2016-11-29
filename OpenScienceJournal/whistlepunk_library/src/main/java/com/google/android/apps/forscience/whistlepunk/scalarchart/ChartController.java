@@ -26,6 +26,7 @@ import android.widget.ProgressBar;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.Clock;
+import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.GraphPopulator;
@@ -111,12 +112,13 @@ public class ChartController {
     private boolean mNeedsForwardLoad = false;
     private List<Long> mCurrentLoadIds = new ArrayList<>();
     private final Clock mUptimeClock;
+    private final Clock mCurrentTimeClock;
     private List<ChartDataLoadedCallback> mChartDataLoadedCallbacks = new ArrayList<>();
 
     public ChartController(ChartOptions.ChartPlacementType type,
-            ScalarDisplayOptions lineGraphOptions, Clock clock) {
+            ScalarDisplayOptions lineGraphOptions, Clock uptimeClock) {
         this(type, lineGraphOptions, ChartData.DEFAULT_THROWAWAY_THRESHOLD,
-                ChartController.DEFAULT_DATA_LOAD_BUFFER_MILLIS, clock);
+                ChartController.DEFAULT_DATA_LOAD_BUFFER_MILLIS, uptimeClock);
     }
 
     public ChartController(ChartOptions.ChartPlacementType chartPlacementType,
@@ -145,6 +147,7 @@ public class ChartController {
         mDataFailureListener = dataFailureListener;
         mDefaultGraphRange = ExternalAxisController.DEFAULT_GRAPH_RANGE_IN_MILLIS;
         mDataLoadBuffer = dataLoadBuffer;
+        mCurrentTimeClock = new CurrentTimeClock();
     }
 
     public void setDefaultGraphRange(long defaultGraphRange) {
@@ -612,8 +615,13 @@ public class ChartController {
             mChartData.throwAwayAfter(mMaxLoadedX);
         } else {
             setPinnedToNow(isPinnedToNow);
-            long throwawayThreshold = xMin - (KEEP_THIS_MANY_SCREENS - 1) *
-                    mDefaultGraphRange;
+            long throwawayThreshold = xMin - (KEEP_THIS_MANY_SCREENS - 1) * mDefaultGraphRange;
+            if (!isPinnedToNow && !isRecording && xMax >
+                    mCurrentTimeClock.getNow() - ExternalAxisController.LEADING_EDGE_BUFFER_TIME) {
+                // Don't throw away data on a big scroll forward
+                throwawayThreshold = mCurrentTimeClock.getNow() - KEEP_THIS_MANY_SCREENS *
+                        mDefaultGraphRange;
+            }
             if (mMinLoadedX < throwawayThreshold) {
                 mMinLoadedX = throwawayThreshold;
             }
