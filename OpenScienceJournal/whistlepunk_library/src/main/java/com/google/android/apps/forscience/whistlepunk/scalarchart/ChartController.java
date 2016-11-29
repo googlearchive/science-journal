@@ -453,12 +453,16 @@ public class ChartController {
         }
     }
 
-    // Tries to load data into the chart with the given parameters.
-    // TODO: Seems like this loads the whole run data even if we are really zoomed in, so 
+    /**
+     * Tries to load data into the chart with the given parameters.
+     * @param fullChartLoadDataCallback A callback which is used just during this load, but is
+     *                                  not saved for future data loads.
+     */
+    // TODO: Seems like this loads the whole run data even if we are really zoomed in, so
     // this should be revisited to get a range for the original load.
     public void loadRunData(ExperimentRun run, GoosciSensorLayout.SensorLayout sensorLayout,
             DataController dc, ChartLoadingStatus status, RunStats stats,
-            ChartDataLoadedCallback chartDataLoadedCallback) {
+            ChartDataLoadedCallback fullChartLoadDataCallback) {
         updateColor(sensorLayout.color);
         setShowProgress(true);
         clearData();
@@ -469,7 +473,7 @@ public class ChartController {
         mSensorId = sensorLayout.sensorId;
         tryLoadingChartData(run.getRunId(), sensorLayout, dc,
                 mChartOptions.getRecordingStartTime(), mChartOptions.getRecordingEndTime(), status,
-                stats, chartDataLoadedCallback);
+                stats, fullChartLoadDataCallback);
     }
 
     // TODO: remove duplication with loadReadings?
@@ -477,7 +481,7 @@ public class ChartController {
             final GoosciSensorLayout.SensorLayout sensorLayout,
             final DataController dc, final long firstTimestamp, final long lastTimestamp,
             final ChartLoadingStatus status, final RunStats stats,
-            final ChartDataLoadedCallback dataLoadedCallback) {
+            final ChartDataLoadedCallback fullChartLoadDataCallback) {
         Preconditions.checkNotNull(runId);
 
         // If we are currently trying to load something, don't try and load something else.
@@ -490,7 +494,8 @@ public class ChartController {
         }
         updateColor(sensorLayout.color);
         status.setGraphLoadStatus(ChartLoadingStatus.GRAPH_LOAD_STATUS_LOADING);
-        dataLoadedCallback.onLoadAttemptStarted(true);
+        addChartDataLoadedCallback(fullChartLoadDataCallback);
+        callChartDataStartLoadingCallbacks(true);
         final ZoomPresenter zp = getZoomPresenter(stats);
         mMinLoadedX = firstTimestamp;
         mMaxLoadedX = lastTimestamp;
@@ -518,10 +523,13 @@ public class ChartController {
                     clearData();
                     tryLoadingChartData(status.getRunId(),
                             status.getSensorLayout(), dc, firstTimestamp, lastTimestamp,
-                            status, stats, dataLoadedCallback);
+                            status, stats, fullChartLoadDataCallback);
                 } else {
                     mCurrentLoadIds.remove(requestId);
-                    dataLoadedCallback.onChartDataLoaded(firstTimestamp, lastTimestamp);
+                    callChartDataLoadedCallbacks(firstTimestamp, lastTimestamp);
+                    if (fullChartLoadDataCallback != null) {
+                        removeChartDataLoadedCallback(fullChartLoadDataCallback);
+                    }
                     setShowProgress(false);
                 }
             }
@@ -613,6 +621,11 @@ public class ChartController {
                 mMinLoadedX = Math.max(xMin, mChartOptions.getRecordingStartTime());
                 mMaxLoadedX = xMax;
                 loadReadings(dataController, mMinLoadedX, mMaxLoadedX, false);
+            } else if (mChartData.isEmpty()) {
+                // If we haven't loaded anything, and we are not recording.
+                mMinLoadedX = Math.max(xMin, mChartOptions.getRecordingStartTime());
+                mMaxLoadedX = Math.min(xMax, mChartOptions.getRecordingEndTime());
+                loadReadings(dataController, mMinLoadedX, mMaxLoadedX, false);
             }
         }
         setXAxis(xMin, xMax);
@@ -693,7 +706,9 @@ public class ChartController {
     }
 
     public void addChartDataLoadedCallback(ChartDataLoadedCallback callback) {
-        mChartDataLoadedCallbacks.add(callback);
+        if (callback != null) {
+            mChartDataLoadedCallbacks.add(callback);
+        }
     }
 
     public void removeChartDataLoadedCallback(ChartDataLoadedCallback callback) {

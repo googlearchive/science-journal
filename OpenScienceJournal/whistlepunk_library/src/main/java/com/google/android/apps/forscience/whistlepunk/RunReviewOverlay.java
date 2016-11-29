@@ -517,7 +517,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                 }
                 // If the user is as early on the seekbar as they can go, hide the overlay.
                 ChartData.DataPoint point = getDataPointAtProgress(seekBar.getProgress());
-                if (point == null || !mChartController.hasData() ||
+                if (point == null || !shouldShowSeekbars() ||
                         point.getX() <= mChartController.getXMin()) {
                     setVisibility(View.INVISIBLE);
                 }
@@ -529,6 +529,11 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         mSeekbar.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                if (!shouldShowSeekbars()) {
+                    mSeekbar.setThumb(null);
+                    setVisibility(View.INVISIBLE);
+                    return false;
+                }
                 if (mOnSeekbarTouchListener != null) {
                     mOnSeekbarTouchListener.onTouchStart();
                 }
@@ -538,6 +543,11 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                 return false;
             }
         });
+    }
+
+    // Only show seekbars if there is data in the chart.
+    private boolean shouldShowSeekbars() {
+        return mChartController.hasData();
     }
 
     public void setCropSeekBarGroup(CoordinatedSeekbarViewGroup cropGroup) {
@@ -560,13 +570,15 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                seekBar.setVisibility(View.VISIBLE);
+                if (shouldShowSeekbars()) {
+                    seekBar.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 ChartData.DataPoint point = getDataPointAtProgress(seekBar.getProgress());
-                if (point == null || !mChartController.hasData() ||
+                if (point == null || !shouldShowSeekbars() ||
                         point.getX() < mChartController.getXMin() ||
                         point.getX() > mChartController.getXMax()) {
                     seekBar.setVisibility(View.INVISIBLE);
@@ -808,7 +820,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
      */
     private boolean updateActiveTimestamp(long timestamp) {
         mPointData.timestamp = timestamp;
-        if (mExternalAxis.containsTimestamp(mPointData.timestamp)) {
+        if (mExternalAxis.containsTimestamp(mPointData.timestamp) && shouldShowSeekbars()) {
             mSeekbar.setThumb(mThumb);
             double progress = (int) ((GraphExploringSeekBar.SEEKBAR_MAX *
                     (timestamp - mExternalAxis.mXMin)) /
@@ -862,7 +874,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
             mCropSeekbarGroup.getEndSeekBar().setFullProgress((int) Math.round(progress));
             hasSeekbarInRange = true;
         }
-        if (hasSeekbarInRange) {
+        if (hasSeekbarInRange && shouldShowSeekbars()) {
             setVisibility(View.VISIBLE);
             // Only back-update the seekbar if the selected timestamp is in range.
             return true;
@@ -934,13 +946,13 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
     public void setCropModeOn(boolean isCropping) {
         mIsCropping = isCropping;
+        mSeekbar.setVisibility(mIsCropping ? View.INVISIBLE : View.VISIBLE);
         if (isCropping) {
-            mSeekbar.setVisibility(View.GONE);
-            mCropSeekbarGroup.setVisibility(View.VISIBLE);
+            mCropSeekbarGroup.setVisibility(!shouldShowSeekbars() ?
+                    View.INVISIBLE : View.VISIBLE);
             setCropTimestamps(mCropStartData.timestamp, mCropEndData.timestamp);
         } else {
-            mSeekbar.setVisibility(View.VISIBLE);
-            mCropSeekbarGroup.setVisibility(View.GONE);
+            mCropSeekbarGroup.setVisibility(View.INVISIBLE);
         }
         refreshAfterChartLoad(true);
     }
@@ -967,6 +979,21 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
     @Override
     public void onChartDataLoaded(long firstTimestamp, long lastTimestamp) {
+        if (!shouldShowSeekbars()) {
+            setVisibility(View.INVISIBLE);
+            mSeekbar.setThumb(null);
+            if (mIsCropping) {
+                mCropSeekbarGroup.setVisibility(View.INVISIBLE);
+            }
+        } else {
+            setVisibility(View.VISIBLE);
+            if (mExternalAxis.containsTimestamp(mPreviouslySelectedTimestamp)) {
+                mSeekbar.setThumb(mThumb);
+            }
+            if (mIsCropping) {
+                mCropSeekbarGroup.setVisibility(View.VISIBLE);
+            }
+        }
         if (mPreviouslySelectedTimestamp != -1) {
             setAllTimestamps(mPreviouslySelectedTimestamp, mPreviousCropStartTimestamp,
                     mPreviousCropEndTimestamp);
