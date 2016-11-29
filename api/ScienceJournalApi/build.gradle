@@ -1,5 +1,14 @@
 apply plugin: 'com.android.library'
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.2'
+    }
+}
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
@@ -9,8 +18,8 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
-
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -23,3 +32,20 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:23.4.0'
 }
+
+// Metadata and tasks to generate a release zip.
+//
+// This zip can be uploaded to bintray, which will sync to jcenter, which will allow library
+// builders to download and use this library by simply saying
+//    compile 'com.google.android.apps.forscience:science-journal-api:0.1'
+// in their build.gradle file (see build.gradle in ScalarApiSampleApp for an example)
+
+ext {
+    PUBLISH_GROUP_ID = 'com.google.android.apps.forscience'
+    PUBLISH_ARTIFACT_ID = 'science-journal-api'
+    PUBLISH_VERSION = '0.1'
+}
+
+// From http://blog.blundellapps.co.uk/locally-release-an-android-library-for-jcenter-or-maven-central-inclusion/
+// To use this, run "gradle clean build generateRelease", from command line or Android Studio
+apply from: 'https://raw.githubusercontent.com/ArthurHub/release-android-library/master/android-release-aar.gradle'

@@ -21,7 +21,13 @@ android {
 }
 
 dependencies {
-    compile project(':scalarinputapi')
+    // Uncomment one of the following two lines.
+    // 1) For local rapid development on the API files themselves
+    // compile project(':scalarinputapi')
+
+    // 2) To download and build against the official public API library
+    compile 'com.google.android.apps.forscience:science-journal-api:0.1'
+
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.3.0'
