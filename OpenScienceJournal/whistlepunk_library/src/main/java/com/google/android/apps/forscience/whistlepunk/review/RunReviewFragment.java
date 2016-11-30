@@ -1380,6 +1380,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             appBarLayout.setExpanded(false);
             setFrozen(rootView, true);
 
+            rootView.findViewById(R.id.pinned_note_list).setImportantForAccessibility(
+                    View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+
             // Show a grey overlay over the notes. Make it so users can cancel the dialog
             // by clicking in the grey overlay to simulate a normal dialog.
             View notesOverlay = rootView.findViewById(R.id.pinned_note_overlay);
@@ -1404,6 +1407,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             setFrozen(rootView, false);
             rootView.findViewById(R.id.pinned_note_overlay).setVisibility(View.GONE);
             rootView.findViewById(R.id.embedded).setVisibility(View.GONE);
+
+            rootView.findViewById(R.id.pinned_note_list).setImportantForAccessibility(
+                    View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
         }
     }
 
