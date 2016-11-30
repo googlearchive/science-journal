@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.SeekBar;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.review.CoordinatedSeekbarViewGroup;
 import com.google.android.apps.forscience.whistlepunk.review.GraphExploringSeekBar;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
@@ -945,11 +946,19 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     }
 
     /**
-     * Sets the crop timestamps to be at 10% and 90% of the current X axis.
+     * Sets the crop timestamps to be at 10% and 90% of the current X axis, but no closer than
+     * the minimum crop size.
      */
     public void resetCropTimestamps() {
-        mCropStartData.timestamp = mExternalAxis.timestampAtAxisFraction(.1);
-        mCropEndData.timestamp = mExternalAxis.timestampAtAxisFraction(.9);
+        long newStartTimestamp = mExternalAxis.timestampAtAxisFraction(.1);
+        long newEndTimestamp = mExternalAxis.timestampAtAxisFraction(.9);
+        if (newEndTimestamp - newStartTimestamp < CropHelper.MINIMUM_CROP_MILLIS) {
+            long diff = CropHelper.MINIMUM_CROP_MILLIS - (newEndTimestamp - newStartTimestamp);
+            newStartTimestamp -= diff / 2 + 1;
+            newEndTimestamp += diff / 2 + 1;
+        }
+        mCropStartData.timestamp = newStartTimestamp;
+        mCropEndData.timestamp = newEndTimestamp;
     }
 
     public boolean getIsCropping() {
