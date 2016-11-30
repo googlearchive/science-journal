@@ -36,9 +36,8 @@ import java.util.Set;
  * Support for creating your own sensor-exposing service.  To use, extend ScalarSensorService,
  * and override the abstract methods.
  *
- * For an example implementation,
- *
- * @see com.google.android.apps.forscience.scalarapisample.AllNativeSensorProvider
+ * For an example implementation, see
+ * https://github.com/google/science-journal/blob/master/ScalarApiSampleApp/app/src/main/java/com/google/android/apps/forscience/scalarapisample/AllNativeSensorProvider.java
  */
 public abstract class ScalarSensorService extends Service {
     private static final String TAG = "ScalarService";
