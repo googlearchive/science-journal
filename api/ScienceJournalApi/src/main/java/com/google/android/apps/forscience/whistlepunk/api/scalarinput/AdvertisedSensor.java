@@ -25,7 +25,10 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.SensorAppe
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.SensorBehavior;
 
 /**
- * Sensor that is advertised through the API and connectable
+ * Sensor that is advertised through the API and connectable.
+ *
+ * A sensor may be connected to multiple times, sometimes quickly cycling between
+ * {@link #disconnect()} and {@link #connect()}, if the user is switching between multiple sensors.
  */
 public abstract class AdvertisedSensor {
     private static final String TAG = "AdvertisedSensor";
