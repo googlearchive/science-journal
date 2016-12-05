@@ -41,6 +41,7 @@ import android.widget.SeekBar;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.review.CoordinatedSeekbarViewGroup;
+import com.google.android.apps.forscience.whistlepunk.review.CropSeekBar;
 import com.google.android.apps.forscience.whistlepunk.review.GraphExploringSeekBar;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
@@ -534,7 +535,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                     mOnSeekbarTouchListener.onTouchStop();
                 }
                 // If the user is as early on the seekbar as they can go, hide the overlay.
-                ChartData.DataPoint point = getDataPointAtProgress(seekBar.getProgress());
+                ChartData.DataPoint point = mChartController.getClosestDataPointToTimestamp(
+                        getTimestampAtProgress(seekbar.getProgress()));
                 if (point == null || !shouldShowSeekbars() ||
                         point.getX() <= mChartController.getXMin()) {
                     setVisibility(View.INVISIBLE);
@@ -595,13 +597,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                ChartData.DataPoint point = getDataPointAtProgress(seekBar.getProgress());
-                if (point == null || !shouldShowSeekbars() ||
-                        point.getX() < mChartController.getXMin() ||
-                        point.getX() > mChartController.getXMax()) {
-                    seekBar.setVisibility(View.INVISIBLE);
-                }
-                invalidate();
+                // Unused
             }
         };
         mCropSeekbarGroup.getStartSeekBar().addOnSeekBarChangeListener(listener);
@@ -619,8 +615,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
      */
     public void refresh(boolean backUpdateProgressBar) {
         if (mIsCropping) {
-            refreshFromSeekbar(mCropSeekbarGroup.getStartSeekBar(), mCropStartData);
-            refreshFromSeekbar(mCropSeekbarGroup.getEndSeekBar(), mCropEndData);
+            refreshFromCropSeekbar(mCropSeekbarGroup.getStartSeekBar(), mCropStartData);
+            refreshFromCropSeekbar(mCropSeekbarGroup.getEndSeekBar(), mCropEndData);
             redrawCrop(backUpdateProgressBar);
         } else {
             refreshFromSeekbar(mSeekbar, mPointData);
@@ -629,12 +625,39 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     }
 
     /**
+     * Refreshes the OverlayPointData for a Crop seekbar's progress.
+     */
+    private void refreshFromCropSeekbar(CropSeekBar seekbar, OverlayPointData pointData) {
+        // Determine the timestamp at the current seekbar progress, using the other seekbar as
+        // a buffer.
+        ChartData.DataPoint point;
+        long startTimestamp = getTimestampAtProgress(
+                mCropSeekbarGroup.getStartSeekBar().getFullProgress());
+        long endTimestamp = getTimestampAtProgress(
+                mCropSeekbarGroup.getEndSeekBar().getFullProgress());
+        if (seekbar.getType() == CropSeekBar.TYPE_START) {
+            point = mChartController.getClosestDataPointToTimestampBelow(startTimestamp,
+                    endTimestamp - CropHelper.MINIMUM_CROP_MILLIS);
+        } else {
+            point = mChartController.getClosestDataPointToTimestampAbove(endTimestamp,
+                    startTimestamp + CropHelper.MINIMUM_CROP_MILLIS);
+        }
+        populatePointData(seekbar, pointData, point);
+    }
+
+    /**
      * Refreshes the OverlayPointData for a particular Seekbar's progress.
      */
-    public void refreshFromSeekbar(GraphExploringSeekBar seekbar, OverlayPointData pointData) {
+    private void refreshFromSeekbar(GraphExploringSeekBar seekbar, OverlayPointData pointData) {
         // Determine the timestamp at the current seekbar progress.
         int progress = seekbar.getFullProgress();
-        ChartData.DataPoint point = getDataPointAtProgress(progress);
+        ChartData.DataPoint point =
+                mChartController.getClosestDataPointToTimestamp(getTimestampAtProgress(progress));
+        populatePointData(seekbar, pointData, point);
+    }
+
+    private void populatePointData(GraphExploringSeekBar seekbar, OverlayPointData pointData,
+            ChartData.DataPoint point) {
         if (point == null) {
             // This happens when the user is dragging the thumb before the chart has loaded
             // data; there is no data loaded at all.
@@ -734,13 +757,10 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         return (int) (Math.min(Math.max(value, 0), GraphExploringSeekBar.SEEKBAR_MAX));
     }
 
-    private ChartData.DataPoint getDataPointAtProgress(int progress) {
+    private long getTimestampAtProgress(int progress) {
         double percent = progress / GraphExploringSeekBar.SEEKBAR_MAX;
         long axisDuration = mExternalAxis.mXMax - mExternalAxis.mXMin;
-        long timestamp = (long) (percent * axisDuration +
-                mExternalAxis.mXMin);
-        // Get the data point closest to this timestamp.
-        return mChartController.getClosestDataPointToTimestamp(timestamp);
+        return (long) (percent * axisDuration + mExternalAxis.mXMin);
     }
 
     /**

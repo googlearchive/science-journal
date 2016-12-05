@@ -64,6 +64,19 @@ public class ChartDataTest {
         populatePointsList(5, chartData.getPoints());
         assertEquals(0, chartData.exactBinarySearch(0, 0));
         assertEquals(4, chartData.exactBinarySearch(4, 0));
+
+        // Because the point is available, it shouldn't matter if we prefer the start or end.
+        assertEquals(4, chartData.exactBinarySearch(4, 0));
+    }
+
+    @Test public void textExactBinarySearch_startEnd() {
+        ChartData chartData = new ChartData();
+        for (int i = 0; i < 5; i++) {
+            chartData.addPoint(new ChartData.DataPoint(i * 2, i));
+        }
+        assertEquals(2, chartData.exactBinarySearch(4, 0));
+        // Search for 5, "exact" search rounds down.
+        assertEquals(2, chartData.exactBinarySearch(5, 0));
     }
 
     @Test public void testApproximateBinarySearch_sizeFiveApproxMid() {
