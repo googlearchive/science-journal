@@ -67,7 +67,7 @@ public class ChartControllerTest {
         final GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = "foo";
         chartController.loadRunData(erun, layout, dc, makeStatus(runId, layout), new RunStats(),
-                rc);
+                null);
 
         // If loadRunData fails to clean out the pending loads (as was happening in a previous
         // version), then onGlobalXAxisChanged will _not_ trigger a second load.

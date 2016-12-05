@@ -84,7 +84,16 @@ public class CropHelper {
     }
 
     public interface CropRunListener {
+        /**
+         * Called when a crop is completed, i.e. the metadata for the experiment is updated.
+         * The min, max and average may not yet be recalculated.
+         */
         void onCropCompleted();
+
+        /**
+         * Called when a crop fails to complete. No changes were made to the experiment, min,
+         * max or average.
+         */
         void onCropFailed();
     }
 
@@ -108,7 +117,7 @@ public class CropHelper {
 
         // Are we trying to crop too wide? Are the timestamps valid?
         if (startTimestamp < run.getOriginalFirstTimestamp() ||
-                run.getOriginalLastTimestamp() < endTimestamp || endTimestamp < startTimestamp) {
+                run.getOriginalLastTimestamp() < endTimestamp || endTimestamp <= startTimestamp) {
             listener.onCropFailed();
             return;
         }
@@ -239,9 +248,14 @@ public class CropHelper {
                             if (list.size() == 0 || list.size() < DATAPOINTS_PER_LOAD ||
                                     mStatsAccumulator.getLatestTimestamp() >=
                                             mExperimentRun.getLastTimestamp()) {
+                                if (!mStatsAccumulator.isInitialized()) {
+                                    // There was no data in this region, so the stats are still
+                                    // not valid.
+                                    return;
+                                }
                                 // Done! Save back to the database.
                                 // Note that we only need to save the stats we have changed, because
-                                // each stat is stored seperately. We do not need to update stats
+                                // each stat is stored separately. We do not need to update stats
                                 // like zoom tiers and zoom levels.
                                 RunStats runStats = mStatsAccumulator.makeSaveableStats();
                                 runStats.putStat(StatsAccumulator.KEY_STATUS,

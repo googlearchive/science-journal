@@ -1120,11 +1120,16 @@ public class ExperimentDetailsFragment extends Fragment
                                 return;
                             }
                             holder.statsLoadStatus = ViewHolder.STATS_LOAD_STATUS_IDLE;
-                            List<StreamStat> streamStats =
-                                    new StatsAccumulator.StatsDisplay(numberFormat)
-                                            .updateStreamStats(stats);
-                            holder.statsList.updateStats(streamStats);
-
+                            if (stats.getIntStat(StatsAccumulator.KEY_STATUS,
+                                    StatsAccumulator.STATUS_VALID) ==
+                                    StatsAccumulator.STATUS_NEEDS_UPDATE) {
+                                holder.statsList.clearStats();
+                            } else {
+                                List<StreamStat> streamStats =
+                                        new StatsAccumulator.StatsDisplay(numberFormat)
+                                                .updateStreamStats(stats);
+                                holder.statsList.updateStats(streamStats);
+                            }
                             // Save the sensor stats so they can be used to set the Y axis on load.
                             // If too many sensors are loaded in quick succession, having
                             // RunStats be a final local variable may cause the Y axis to be set

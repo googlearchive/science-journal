@@ -138,6 +138,10 @@ public class StatsAccumulator {
         mStatSize = 0;
     }
 
+    public boolean isInitialized() {
+        return mStatSize > 0;
+    }
+
     // Update the stream stats based on the new timestamp and value.
     // Assumes that all new timestamps acquired are bigger than the recording start time.
     public void updateRecordingStreamStats(long timestampMillis, double value) {

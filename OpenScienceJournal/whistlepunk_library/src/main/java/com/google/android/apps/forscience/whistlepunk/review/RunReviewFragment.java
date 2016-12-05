@@ -1057,9 +1057,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     private void onDataLoaded() {
-        // Show the replay play button
-        mRunReviewPlaybackButton.setVisibility(View.VISIBLE);
-
         // Add the labels after all the data is loaded
         // so that they are interpolated correctly.
         mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
@@ -1067,7 +1064,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
         mExternalAxis.updateAxis();
         adjustYAxis();
-        mRunReviewOverlay.setVisibility(View.VISIBLE);
+
+        if (mChartController.hasData()) {
+            // Show the replay play button
+            mRunReviewPlaybackButton.setVisibility(View.VISIBLE);
+            mRunReviewOverlay.setVisibility(View.VISIBLE);
+        }
     }
 
     // TODO(saff): probably extract ExperimentRunPresenter
