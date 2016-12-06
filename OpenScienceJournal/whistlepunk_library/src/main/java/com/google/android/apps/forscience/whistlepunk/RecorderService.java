@@ -82,7 +82,7 @@ public class RecorderService extends Service {
 
         intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, runId);
         intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, 0);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         PendingIntent notificationIntent = PendingIntent.getActivity(getApplicationContext(),
                 NotificationIds.RECORDING_COMPLETED,intent, PendingIntent.FLAG_UPDATE_CURRENT);
