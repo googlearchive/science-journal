@@ -43,8 +43,7 @@ import java.util.concurrent.Executor;
                 mUiThreadExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        addOrUpdateDevice(new NativeDevice(device), rssi,
-                                extractLongName(scanRecord));
+                        addOrUpdateDevice(new NativeDevice(device), rssi);
                     }
                 });
             }

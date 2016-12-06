@@ -22,7 +22,6 @@ import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.AccumulatingConsumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.RecordingRunnable;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -41,7 +40,6 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
                     @Override
                     public void onStartScanning() {
                         int rssi = Arbitrary.integer();
-                        String longName = Arbitrary.string();
                         addOrUpdateDevice(new WhistlepunkBleDevice() {
                             @Override
                             public String getName() {
@@ -52,7 +50,7 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
                             public String getAddress() {
                                 return address;
                             }
-                        }, rssi, longName);
+                        }, rssi);
                     }
 
                     @Override

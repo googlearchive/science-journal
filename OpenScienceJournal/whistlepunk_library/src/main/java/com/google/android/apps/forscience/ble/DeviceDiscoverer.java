@@ -65,21 +65,6 @@ public abstract class DeviceDiscoverer {
          * Last RSSI value seen.
          */
         public int lastRssi;
-
-        /**
-         * Long version of the device name.
-         */
-        private String mLongName;
-
-        @Override
-        public String toString() {
-            // If long name is available show the long name instead.
-            if (!mLongName.isEmpty()) {
-                return mLongName;
-            } else {
-                return device.getName();
-            }
-        }
     }
 
     private final Context mContext;
@@ -129,22 +114,17 @@ public abstract class DeviceDiscoverer {
 
     public abstract void onStopScanning();
 
-    public List<DeviceRecord> getDevices() {
-        return new ArrayList<>(mDevices.values());
-    }
-
     public boolean canScan() {
         return mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON;
     }
 
-    protected void addOrUpdateDevice(WhistlepunkBleDevice device, int rssi, String longName) {
+    protected void addOrUpdateDevice(WhistlepunkBleDevice device, int rssi) {
         DeviceRecord deviceRecord = mDevices.get(device.getAddress());
         boolean previouslyFound = deviceRecord != null;
         if (!previouslyFound) {
             deviceRecord = new DeviceRecord();
             deviceRecord.device = device;
             mDevices.put(device.getAddress(), deviceRecord);
-            deviceRecord.mLongName = longName;
         }
         // Update the last RSSI and last seen
         deviceRecord.lastRssi = rssi;
@@ -153,41 +133,5 @@ public abstract class DeviceDiscoverer {
         if (!previouslyFound && mCallback != null) {
             mCallback.onDeviceFound(deviceRecord);
         }
-    }
-
-    // Extract from raw scan record and combine with the shortname to make the long name.
-    // Offset 0 to 31 = Advertisement
-    // Offset 32 to 61 = Scan Response
-    // In the Scan Response:
-    //   - Offset 0 to 6 = Short name
-    //   - Offset 7 = length of the long name
-    //   - Offset 8 = AD type
-    //   - Offset 9 = LSB of UUID
-    //   - Offset 10 = MSB of UUID
-    //   - Offset 11 to 30 = Long name
-    // Scan Response = Short name + other data + long name
-    // String to return = "Longname (shortname)"
-    // The hardware side use standard ASCII code for name.
-    // See Bluetooth Core Specification (www.bluetooth.org)
-    protected String extractLongName(byte[] scanRecord) {
-        String longname = "";
-        int size = scanRecord.length;
-        if (size == 62) {
-            byte[] scanResponse = Arrays.copyOfRange(scanRecord, 32, 61);
-            if (scanResponse[0] != 0) {
-                byte[] shortname = Arrays.copyOfRange(scanResponse, 0, 7);
-                int length = scanResponse[7];
-//                int adType = scanResponse[8];
-//                int uuidLsb = scanResponse[9];
-//                int uuidMsb = scanResponse[10];
-                byte[] scandata = Arrays.copyOfRange(scanResponse, 11, length+11);
-                longname = new String(scandata, StandardCharsets.US_ASCII)
-                    + " ("
-                    + new String(shortname, StandardCharsets.US_ASCII)
-                    + ")";
-            }
-        }
-
-        return longname;
     }
 }

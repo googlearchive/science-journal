@@ -44,9 +44,7 @@ import java.util.List;
     private ScanCallback mCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            ScanRecord scanRecord = result.getScanRecord();
-            addOrUpdateDevice(getDevice(result), result.getRssi(),
-                    extractLongName(scanRecord.getBytes()));
+            addOrUpdateDevice(getDevice(result), result.getRssi());
         }
 
         private WhistlepunkBleDevice getDevice(ScanResult result) {
@@ -56,9 +54,7 @@ import java.util.List;
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
             for (ScanResult result : results) {
-                ScanRecord scanRecord = result.getScanRecord();
-                addOrUpdateDevice(getDevice(result), result.getRssi(),
-                        extractLongName(scanRecord.getBytes()));
+                addOrUpdateDevice(getDevice(result), result.getRssi());
             }
         }
 
