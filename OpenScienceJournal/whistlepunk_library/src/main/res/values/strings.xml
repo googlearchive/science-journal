@@ -75,7 +75,7 @@
     <string name="ambient_light">Ambient light</string>
 
     <!-- Displayed name of a sensor that shows magnetic field rotation measured by the phone's magnetometer [CHAR_LIMIT=25]  -->
-    <string name="magnetic_rotation">Magnetic rotation</string>
+    <string name="magnetic_rotation">Magnetometer</string>
 
     <!-- Displayed name of a sensor that measures air pressure [CHAR_LIMIT=25] -->
     <string name="barometer">Barometer</string>
@@ -647,7 +647,7 @@
     <string name="sensor_desc_short_light">The amount of light, measured in lux, reaching the ambient light sensor.</string>
 
     <!-- One-sentence description of the magnetic rotation sensor [CHAR_LIMIT=100] -->
-    <string name="sensor_desc_short_magnetic_rotation">The angle of rotation between the phone and the external magnetic field.</string>
+    <string name="sensor_desc_short_magnetic_rotation">The angle between the phone and the external magnetic field.</string>
 
     <!-- One-sentence description of an unknown bluetooth sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_bluetooth">An external sensor is displaying its data here, based on custom settings.</string>
@@ -673,16 +673,18 @@
     </string>
 
     <!-- Long description of a magnetic rotation sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
-    <string name="sensor_desc_first_paragraph_magnetic_rotation" translatable="false">The earth\'s magnetic field has a direction.  The phone has a magnetic sensor and detects the direction of the earth\'s field relative to the phone.</string>
+    <string name="sensor_desc_first_paragraph_magnetic_rotation">You probably already knew that the Earth has a magnetic field. What you may not have realized is that your phone contains a device designed to detect magnetic fields: a magnetometer.
+        \n\nAn old-fashioned compass is a low-tech magnetometer, with a magnetized needle that turns to align itself with the surrounding magnetic field. There\'s no tiny compass inside your phone, but instead a tiny three-axis sensor that uses electric currents to detect the magnetic field strength in the three dimensions of space.
+        \n\nSome magnetometers detect magnetic fields using the Hall effect—the tendency of magnetic fields to deflect moving charge as it flows. Newer magnetometers rely on magnetoresistors, metal alloys that change their resistance in response to magnetic fields.
+        \n\nWhy does a phone need a magnetometer? Knowing your orientation in space is useful for built-in compass and navigation apps, especially those that seek to give turn-by-turn directions.</string>
 
     <!-- Long description of a magnetic rotation sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
-    <string name="sensor_desc_second_paragraph_magnetic_rotation" translatable="false">If there are sufficiently strong magnets near the phone they will overwhelm the earth\'s magnetic field and the phone will detect the direction to the nearby magnet.</string>
+    <string name="sensor_desc_second_paragraph_magnetic_rotation">As you may have noticed, the magnetometer in your phone responds not just to the Earth\'s magnetic field, but also to any and every magnetic field that happens to be around. Magnets, electric currents, and metal objects will easily steer your phone\'s magnetometer this way and that. Stand in an open area—preferably outdoors and far from power lines— if you want to be sure that your magnetometer\'s red tip is aligning with the Earth\'s magnetic field. It helps to move your phone in a figure 8 pattern to calibrate the magnetometer in your phone.</string>
 
     <!-- Long description of a accelerometer sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_acc">Objects have a tendency to stay put, or to keep moving if they\'re moving—we call this tendency inertia. Newton\'s First Law expresses this idea formally: An object continues in its state of motion or rest unless acted on by an unbalanced force.
         \n\nWhen an unbalanced force does cause an object to budge, we say the object accelerates: its velocity, or speed, changes—either by speeding up, slowing down, or changing direction. Acceleration is measured as a change of velocity (meters per second) in time, or meters per second squared (m/s\u00B2).
-        \n\nYour phone has a device to measure these changes in motion—an accelerometer. Inside an accelerometer, small suspended masses are free to move. Changes in motion cause these masses to shift, much as your own head tends to flop forward when you\'re in a car that stops suddenly. Measuring these subtle inertial shifts, an accelerometer in a phone can detect changes in motion and orientation, useful for switching the screen from landscape to portrait mode, for playing games on your phone, and more.
-    </string>
+        \n\nYour phone has a device to measure these changes in motion—an accelerometer. Inside an accelerometer, small suspended masses are free to move. Changes in motion cause these masses to shift, much as your own head tends to flop forward when you\'re in a car that stops suddenly. Measuring these subtle inertial shifts, an accelerometer in a phone can detect changes in motion and orientation, useful for switching the screen from landscape to portrait mode, for playing games on your phone, and more.</string>
 
     <!-- Long description of a accelerometer sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_acc">You probably noticed a persistent acceleration in the Z axis, even with the phone sitting still on a table. This is the acceleration we experience here at the Earth\'s surface due to the pull of gravity, approximately 9.8 m/s\u00B2.</string>
@@ -998,9 +1000,6 @@
     -
     <!-- The summary for the option to enable third-party sensors [CHAR_LIMIT=None] -->
     <string name="use_new_manage_devices_ux_option_summary" translatable="false">Temporary until fully ready.</string>
-
-    <!-- Title of developer option to display a magnetic sensor [CHAR_LIMIT=35]-->
-    <string name="enable_magnetometer_sensor_title">Enable magnetometer</string>
 
     <!-- Summary of developer option to display a magnetic sensor [CHAR_LIMIT=none] -->
     <string name="enable_magnetometer_sensor_summary">Enable experimental magnetometer sensor</string>
