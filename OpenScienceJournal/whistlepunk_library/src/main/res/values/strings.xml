@@ -977,7 +977,7 @@
 
     <!-- Description text shown in the Play Store for this app. Ensure a space
          remains before and after urls. [CHAR LIMIT=4000]-->
-    <string name="listing__description">Science Journal is a tool for doing science with your smartphone. You can use the sensors in your phone or connect to external sensors to conduct experiments on the world around you.
+    <string name="listing__description">Science Journal is a tool for doing science with your phone, tablet, or Chromebook supporting Android apps.  You can use the sensors in your phone or connect to external sensors to conduct experiments on the world around you.
         Organize your ideas into projects, make predictions, take notes and collect data in multiple trials, then annotate and explore your results. It\'s the lab notebook you always have with you.
 \n\n
 \nGet activity ideas to use with the app here: https://makingscience.withgoogle.com/science-journal/activities
