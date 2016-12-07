@@ -97,7 +97,6 @@ public class CoordinatedSeekbarViewGroup extends RelativeLayout {
             // Make sure the accessibility focus is updated, so that announcements are generated
             // for the correct view.
             mSelectedSeekbar.requestFocus();
-            mSelectedSeekbar.requestFocusFromTouch();
         }
         mSelectedSeekbar.onTouchEvent(ev);
 

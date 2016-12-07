@@ -294,16 +294,16 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                         mCropStartData.screenPoint.x, mHeight, mCropBackgroundPaint);
                 // We can handle crop seekbar visibility in onDraw because the Seekbar Group is
                 // in charge of receiving touch events, and that is always visible during cropping.
-                mCropSeekbarGroup.getStartSeekBar().setVisibility(View.VISIBLE);
+                mCropSeekbarGroup.getStartSeekBar().showThumb();
             } else {
-                mCropSeekbarGroup.getStartSeekBar().setVisibility(View.INVISIBLE);
+                mCropSeekbarGroup.getStartSeekBar().hideThumb();
             }
             if (cropEndOnChart) {
                 canvas.drawRect(mCropEndData.screenPoint.x, mHeight - mChartHeight - mPaddingBottom,
                         mWidth - mChartMarginRight, mHeight, mCropBackgroundPaint);
-                mCropSeekbarGroup.getEndSeekBar().setVisibility(View.VISIBLE);
+                mCropSeekbarGroup.getEndSeekBar().showThumb();
             } else {
-                mCropSeekbarGroup.getEndSeekBar().setVisibility(View.INVISIBLE);
+                mCropSeekbarGroup.getEndSeekBar().hideThumb();
             }
 
             // Draw the flags themselves

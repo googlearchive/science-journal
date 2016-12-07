@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.review;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.SeekBar;
 
@@ -37,6 +38,7 @@ public class CropSeekBar extends GraphExploringSeekBar {
     private int mType;
     private CropSeekBar mOtherSeekbar;
     private List<OnSeekBarChangeListener> mSeekBarChangeListeners = new ArrayList<>();
+    private Drawable mThumb;
 
     public CropSeekBar(Context context) {
         super(context);
@@ -87,14 +89,15 @@ public class CropSeekBar extends GraphExploringSeekBar {
         Resources res = getContext().getResources();
         setThumbOffset(res.getDimensionPixelSize(R.dimen.crop_thumb_offset));
         if (mType == TYPE_START) {
-            setThumb(res.getDrawable(R.drawable.crop_thumb_start));
+            mThumb = res.getDrawable(R.drawable.crop_thumb_start);
             setFormat(res.getString(R.string.crop_start_seekbar_content_description));
         } else {
-            setThumb(res.getDrawable(R.drawable.crop_thumb_end));
+            mThumb = res.getDrawable(R.drawable.crop_thumb_end);
             setFormat(res.getString(R.string.crop_end_seekbar_content_description));
         }
         int color = res.getColor(R.color.color_accent);
-        getThumb().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        mThumb.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        setThumb(mThumb);
     }
 
     public void setOtherSeekbar(CropSeekBar other) {
@@ -138,5 +141,13 @@ public class CropSeekBar extends GraphExploringSeekBar {
 
     public void setMillisecondsInRange(long millisecondsInRange) {
         mMillisPerTick = millisecondsInRange / GraphExploringSeekBar.SEEKBAR_MAX;
+    }
+
+    public void hideThumb() {
+        setThumb(null);
+    }
+
+    public void showThumb() {
+        setThumb(mThumb);
     }
 }
