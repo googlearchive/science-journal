@@ -578,7 +578,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 launchCrop(getView());
             }
         } else if (id == R.id.action_run_review_add_note) {
-            if (mExperimentRun != null) {
+            if (mExperimentRun != null && !mRunReviewOverlay.getIsCropping()) {
                 launchLabelAdd(new GoosciLabelValue.LabelValue(), LABEL_TYPE_UNDECIDED,
                         Math.max(mRunReviewOverlay.getTimestamp(),
                                 mExperimentRun.getFirstTimestamp()));
