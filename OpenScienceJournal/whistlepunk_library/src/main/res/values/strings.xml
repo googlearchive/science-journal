@@ -1220,8 +1220,8 @@
     <!-- String formatting string for the accessibility description of the RunReview crop end slider [CHAR_LIMIT=None] -->
     <string name="crop_end_seekbar_content_description">crop end: <xliff:g id="time">%1$s</xliff:g>, <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
 
-    <!-- Message to show the user when a crop failed [CHAR_LIMIT=150] -->
-    <string name="crop_failed_message">Failed to save crop.</string>
+    <!-- Error message to show the user when a crop failed. This will be followed by more detailed information. [CHAR_LIMIT=50] -->
+    <string name="crop_failed_message">Failed to save crop: <xliff:g id="details">%1$s</xliff:g></string>
 
     <!-- Message to show the suer when a crop succeeded [CHAR_LIMIT=150] -->
     <string name="crop_completed_message">Trial cropped</string>
@@ -1336,6 +1336,15 @@
 
     <!-- Label for the timestamp picker text field, where the user enters a time in a certain format like h:mm:ss.SSS (milliseconds) [CHAR_LIMIT=25]-->
     <string name="timestamp_picker_prompt">New time (h:mm:ss.SSS)</string>
+
+    <!-- Error message when the user tries to save crop was outside the bounds of the trial [CHAR_LIMIT=100] -->
+    <string name="crop_failed_range_too_large">The trial cannot be cropped outside of the initially recorded range</string>
+
+    <!-- Error message when the user tries to save a crop that is too small, i.e. less than one second [CHAR_LIMIT=100] -->
+    <string name="crop_failed_range_too_small">The trial cannot be cropped to less than one second</string>
+
+    <!-- Error message when a crop fails due to an invalid data state [CHAR_LIMIT=100] -->
+    <string name="crop_failed_invalid_state">Invalid state</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

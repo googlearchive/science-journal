@@ -227,6 +227,15 @@ public class ExternalAxisController {
 
             @Override
             public void onZoom(long xMin, long xMax) {
+                if (!mIsLive && mReviewXMin != RUN_REVIEW_DATA_NOT_INITIALIZED) {
+                    // If we are zoomed into maximum, and trying to zoom smaller than our saved
+                    // mXMin to mXMax range...
+                    if (xMax - xMin < MINIMUM_ZOOM_RANGE_MS && xMax - xMin < mXMax - mXMin) {
+                        // Don't apply the change.
+                        updateAxis();
+                        return;
+                    }
+                }
                 zoomTo(xMin, xMax);
             }
 
@@ -317,13 +326,6 @@ public class ExternalAxisController {
 
     public void zoomTo(long xMin, long xMax) {
         if (!mIsLive && mReviewXMin != RUN_REVIEW_DATA_NOT_INITIALIZED) {
-            // If we are zoomed into maximum, and trying to zoom smaller than our saved
-            // mXMin to mXMax range...
-            if (xMax - xMin < MINIMUM_ZOOM_RANGE_MS && xMax - xMin < mXMax - mXMin) {
-                // Don't apply the change.
-                updateAxis();
-                return;
-            }
             // Otherwise, make sure the change is within the review region
             if (xMin < mReviewXMin) {
                 xMin = mReviewXMin;

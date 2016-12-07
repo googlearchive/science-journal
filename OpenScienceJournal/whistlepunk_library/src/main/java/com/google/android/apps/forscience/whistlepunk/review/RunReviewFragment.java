@@ -1390,9 +1390,10 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     }
 
                     @Override
-                    public void onCropFailed() {
-                        AccessibilityUtils.makeSnackbar(getView(),
+                    public void onCropFailed(int errorId) {
+                        AccessibilityUtils.makeSnackbar(getView(), String.format(
                                 getResources().getString(R.string.crop_failed_message),
+                                getResources().getString(errorId)),
                                 Snackbar.LENGTH_LONG).show();
                         if (mode != null) {
                             mode.finish();

@@ -149,7 +149,8 @@ public class ChartData {
         return mData.get(index);
     }
 
-    // Searches for the closest index to a given timestamp.
+    // Searches for the closest index to a given timestamp, round up or down if the search
+    // does not find an exact match, to the closest timestamp.
     public int getClosestIndexToTimestamp(long timestamp) {
         return exactBinarySearch(timestamp, 0);
     }
@@ -218,13 +219,15 @@ public class ChartData {
             return endIndex;
         }
         if (endIndex - startIndex <= searchRange) {
-            return preferStart ? startIndex: endIndex;
+            return preferStart ? startIndex : endIndex;
         }
         if (searchRange == 0 && endIndex - startIndex == 1) {
             long distanceToStart = searchX - startValue;
             long distanceToEnd = endValue - searchX;
             if (distanceToStart < distanceToEnd) {
                 return startIndex;
+            } else if (distanceToStart == distanceToEnd) {
+                return preferStart ? startIndex : endIndex;
             } else {
                 return endIndex;
             }
@@ -327,7 +330,7 @@ public class ChartData {
 
         // This should be the index to the right of max
         int indexEnd = approximateBinarySearch(throwAwayMaxX, 0, mData.size() - 1, false, 1);
-        int indexStart = exactBinarySearch(throwAwayMinX, 0);
+        int indexStart = approximateBinarySearch(throwAwayMinX, 0, mData.size() - 1, false, 1);
 
         // Only throw away in bulk once we reach a threshold, so that all the work is not done on
         // every iteration.

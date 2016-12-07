@@ -29,6 +29,7 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
+import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
@@ -47,6 +48,7 @@ public class CropHelper {
     public static final String TAG = "CropHelper";
 
     // Time buffer for non-overlapping crop: We do not allow crop less than 1 second.
+    // If this is changed, make sure to update R.string.crop_failed_range_too_small as well.
     public static final long MINIMUM_CROP_MILLIS = 1000;
 
     private static final int DATAPOINTS_PER_LOAD = 500;
@@ -94,7 +96,7 @@ public class CropHelper {
          * Called when a crop fails to complete. No changes were made to the experiment, min,
          * max or average.
          */
-        void onCropFailed();
+        void onCropFailed(int errorId);
     }
 
     private int mStatsUpdated = 0;
@@ -115,10 +117,14 @@ public class CropHelper {
     public void cropRun(final Context context, final ExperimentRun run, long startTimestamp,
             long endTimestamp, final CropRunListener listener) {
 
-        // Are we trying to crop too wide? Are the timestamps valid?
+        // Are we trying to crop too wide? Too narrow? Are the timestamps valid?
         if (startTimestamp < run.getOriginalFirstTimestamp() ||
-                run.getOriginalLastTimestamp() < endTimestamp || endTimestamp <= startTimestamp) {
-            listener.onCropFailed();
+                run.getOriginalLastTimestamp() < endTimestamp) {
+            listener.onCropFailed(R.string.crop_failed_range_too_large);
+            return;
+        }
+        if (endTimestamp - MINIMUM_CROP_MILLIS <= startTimestamp) {
+            listener.onCropFailed(R.string.crop_failed_range_too_small);
             return;
         }
 
@@ -171,7 +177,7 @@ public class CropHelper {
                     });
         } else {
             // One crop label is set and the other is not. This is an error!
-            listener.onCropFailed();
+            listener.onCropFailed(R.string.crop_failed_invalid_state);
         }
     }
 
@@ -234,7 +240,7 @@ public class CropHelper {
         }
 
         public void recalculateStats(DataController dc) {
-            TimeRange range = TimeRange.oldest(Range.closed(mExperimentRun.getFirstTimestamp() - 1,
+            TimeRange range = TimeRange.oldest(Range.closed(mExperimentRun.getFirstTimestamp(),
                     mExperimentRun.getLastTimestamp()));
             addReadingsToStats(dc, range);
         }

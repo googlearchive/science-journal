@@ -367,8 +367,57 @@ public class ChartController {
         }
     }
 
+    /**
+     * Gets the closest data point to a given time stamp.
+     * @param timestamp The timestamp to search for
+     * @return A data point that is closest to this timestamp
+     */
     public ChartData.DataPoint getClosestDataPointToTimestamp(long timestamp) {
         return mChartData.getClosestDataPointToTimestamp(timestamp);
+    }
+
+    /**
+     * Gets the closest data point to the given timestamp, so long as it is above or equal to
+     * the aboveTimestamp. The aboveTimestamp cannot be more than one index away from
+     * the closest data point's index.
+     * @param timestamp The timestamp to search for.
+     * @param aboveTimestamp This may not be more than one index away in ChartData.
+     * @return A data point, or null if none is available.
+     */
+    public ChartData.DataPoint getClosestDataPointToTimestampAbove(long timestamp,
+            long aboveTimestamp) {
+        int closestIndex = mChartData.getClosestIndexToTimestamp(timestamp);
+        ChartData.DataPoint closestPoint = mChartData.getPoints().get(closestIndex);
+        // Check if we are above the aboveTimestamp.
+        if (closestPoint.getX() >= aboveTimestamp) {
+            return closestPoint;
+        }
+        if (closestIndex + 1 < mChartData.getNumPoints() - 1) {
+            return mChartData.getPoints().get(closestIndex + 1);
+        }
+        return null;
+    }
+
+    /**
+     * Gets the closest data point to the given timestamp, so long as it is below or equal to
+     * the belowTimestamp. The belowTimestamp cannot be more than one index away from
+     * the closest data point's index.
+     * @param timestamp The timestamp to search for.
+     * @param belowTimestamp This may not be more than one index away in ChartData.
+     * @return A data point, or null if none is available.
+     */
+    public ChartData.DataPoint getClosestDataPointToTimestampBelow(long timestamp,
+            long belowTimestamp) {
+        int closestIndex = mChartData.getClosestIndexToTimestamp(timestamp);
+        ChartData.DataPoint closestPoint = mChartData.getPoints().get(closestIndex);
+        // Check if we are above the aboveTimestamp.
+        if (closestPoint.getX() <= belowTimestamp) {
+            return closestPoint;
+        }
+        if (closestIndex - 1 >= 0) {
+            return mChartData.getPoints().get(closestIndex - 1);
+        }
+        return null;
     }
 
     public boolean hasDrawnChart() {

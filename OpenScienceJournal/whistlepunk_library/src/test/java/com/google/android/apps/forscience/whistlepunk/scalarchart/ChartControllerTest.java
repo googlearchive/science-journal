@@ -75,6 +75,60 @@ public class ChartControllerTest {
         assertEquals("[[0, 50], [1, 51]]", rc.loadCallbacks.toString());
     }
 
+    @Test
+    public void testGetClosestDataPoint() {
+        ChartController chartController = makeChartController();
+        addData(chartController, 0, 10, 2);
+        assertEquals(chartController.getClosestDataPointToTimestamp(0).toString(),
+                new ChartData.DataPoint(0, 0).toString());
+        assertEquals(chartController.getClosestDataPointToTimestamp(4).toString(),
+                new ChartData.DataPoint(4, 4).toString());
+    }
+
+    @Test
+    public void testGetClosestDataPointAbove() {
+        ChartController chartController = makeChartController();
+        addData(chartController, 0, 10, 2);
+        assertEquals(chartController.getClosestDataPointToTimestampAbove(2, 0).toString(),
+                new ChartData.DataPoint(2, 2).toString());
+
+        // Two is above or equal to 2.
+        assertEquals(chartController.getClosestDataPointToTimestampAbove(2, 2).toString(),
+                new ChartData.DataPoint(2, 2).toString());
+
+        // The next point above 3 is 4.
+        assertEquals(chartController.getClosestDataPointToTimestampAbove(2, 3).toString(),
+                new ChartData.DataPoint(4, 4).toString());
+    }
+
+    @Test
+    public void testGetClosestDataPointBelow() {
+        ChartController chartController = makeChartController();
+        addData(chartController, 0, 10, 2);
+
+        // The next thing below 2 is 0.
+        assertEquals(chartController.getClosestDataPointToTimestampBelow(2, 0).toString(),
+                new ChartData.DataPoint(0, 0).toString());
+
+        // The point at 2 is OK.
+        assertEquals(chartController.getClosestDataPointToTimestampBelow(2, 2).toString(),
+                new ChartData.DataPoint(2, 2).toString());
+
+        // The point at 2 is safe.
+        assertEquals(chartController.getClosestDataPointToTimestampBelow(2, 3).toString(),
+                new ChartData.DataPoint(2, 2).toString());
+
+        // We need a point smaller than 3, so it is 2.
+        assertEquals(chartController.getClosestDataPointToTimestampBelow(4, 3).toString(),
+                new ChartData.DataPoint(2, 2).toString());
+    }
+
+    private void addData(ChartController controller, long start, long end, long interval) {
+        for (long i = start; i < end; i+= interval) {
+            controller.addPoint(new ChartData.DataPoint(i, (double) i));
+        }
+    }
+
     @NonNull
     private ChartController.ChartLoadingStatus makeStatus(final String runId,
             final GoosciSensorLayout.SensorLayout layout) {
