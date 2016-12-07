@@ -34,6 +34,10 @@ import java.util.List;
  * Discovers BLE devices and tracks when they come and go.
  */
 public abstract class DeviceDiscoverer {
+    public static boolean isBluetoothEnabled() {
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        return adapter != null && adapter.isEnabled();
+    }
 
     /**
      * Receives notification of devices being discovered or errors.

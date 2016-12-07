@@ -56,6 +56,7 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
@@ -1476,7 +1477,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             Fragment hasBluetoothDialog =
                     getChildFragmentManager().findFragmentByTag(BluetoothDisabledDialog.TAG);
             if (hasBluetoothDialog == null) {
-                boolean bluetoothEnabled = BluetoothAdapter.getDefaultAdapter().isEnabled();
+                boolean bluetoothEnabled = DeviceDiscoverer.isBluetoothEnabled();
                 if (!bluetoothEnabled) {
                     // Show an alert to have the user turn on bluetooth.
                     BluetoothDisabledDialog dialog = new BluetoothDisabledDialog();

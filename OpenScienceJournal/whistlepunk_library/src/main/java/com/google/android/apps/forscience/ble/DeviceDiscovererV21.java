@@ -17,11 +17,9 @@
 package com.google.android.apps.forscience.ble;
 
 import android.annotation.TargetApi;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
@@ -86,7 +84,7 @@ import java.util.List;
     @Override
     public void onStopScanning() {
         if (mScanner != null) {
-            if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            if (isBluetoothEnabled()) {
                 mScanner.stopScan(mCallback);
             }
         }
