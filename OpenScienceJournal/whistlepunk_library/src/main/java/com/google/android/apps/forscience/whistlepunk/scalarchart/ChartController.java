@@ -386,6 +386,9 @@ public class ChartController {
      */
     public ChartData.DataPoint getClosestDataPointToTimestampAbove(long timestamp,
             long aboveTimestamp) {
+        if (mChartData.isEmpty()) {
+            return null;
+        }
         int closestIndex = mChartData.getClosestIndexToTimestamp(timestamp);
         ChartData.DataPoint closestPoint = mChartData.getPoints().get(closestIndex);
         // Check if we are above the aboveTimestamp.
@@ -408,6 +411,9 @@ public class ChartController {
      */
     public ChartData.DataPoint getClosestDataPointToTimestampBelow(long timestamp,
             long belowTimestamp) {
+        if (mChartData.isEmpty()) {
+            return null;
+        }
         int closestIndex = mChartData.getClosestIndexToTimestamp(timestamp);
         ChartData.DataPoint closestPoint = mChartData.getPoints().get(closestIndex);
         // Check if we are above the aboveTimestamp.
