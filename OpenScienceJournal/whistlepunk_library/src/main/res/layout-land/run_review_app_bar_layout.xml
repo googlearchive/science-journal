@@ -37,32 +37,34 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/run_review_section_margin"
-        android:layout_marginRight="@dimen/run_review_section_margin"
-        android:layout_marginTop="@dimen/run_review_sensor_section_margin_top_bottom"
-        android:layout_marginBottom="@dimen/run_review_sensor_section_margin_top_bottom"
-        android:paddingStart="@dimen/run_review_margin_sides"
-        android:paddingEnd="@dimen/run_review_margin_sides"
-        app:layout_scrollFlags="scroll|enterAlways"
-        >
-
-        <include layout="@layout/run_review_sensor_selector_section"/>
-
-    </RelativeLayout>
-
-    <View
-        android:layout_height="@dimen/run_review_divider_thickness"
-        android:layout_width="match_parent"
-        android:background="@color/run_review_divider_color"
-        app:layout_scrollFlags="scroll"
-        />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:minHeight="200dp"
         app:layout_scrollFlags="scroll|exitUntilCollapsed"
         >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/run_review_section_margin"
+            android:layout_marginRight="@dimen/run_review_section_margin"
+            android:layout_marginTop="@dimen/run_review_sensor_section_margin_top_bottom"
+            android:layout_marginBottom="@dimen/run_review_sensor_section_margin_top_bottom"
+            android:paddingStart="@dimen/run_review_margin_sides"
+            android:paddingEnd="@dimen/run_review_margin_sides"
+            android:layout_alignParentTop="true"
+            android:id="@+id/sensor_selector_section_holder"
+            >
+
+            <include layout="@layout/run_review_sensor_selector_section"/>
+
+        </RelativeLayout>
+
+        <View
+            android:layout_height="@dimen/run_review_divider_thickness"
+            android:layout_width="match_parent"
+            android:background="@color/run_review_divider_color"
+            android:layout_below="@id/sensor_selector_section_holder"
+            android:id="@+id/sensor_data_section_separator"
+            />
 
         <include layout="@layout/run_review_data_section"/>
 

@@ -21,6 +21,7 @@ import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -1397,6 +1398,14 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     private void setUiForActionMode(View rootView, boolean showActionMode) {
         if (showActionMode) {
+            // Hide the min/max/avg section for landscape views.
+            // We could do this for portrait too, if desired, but it seems unnecessary.
+            if (rootView.getResources().getConfiguration().orientation ==
+                    Configuration.ORIENTATION_LANDSCAPE) {
+                // TODO: Animate hiding this view?
+                rootView.findViewById(R.id.stats_drawer).setVisibility(View.GONE);
+            }
+
             // Collapse app bar layout as much as possible to bring the graph to the top.
             AppBarLayout appBarLayout = (AppBarLayout) rootView.findViewById(R.id.app_bar_layout);
             appBarLayout.setExpanded(false);
@@ -1435,6 +1444,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             setFrozen(rootView, false);
             rootView.findViewById(R.id.pinned_note_overlay).setVisibility(View.GONE);
             rootView.findViewById(R.id.embedded).setVisibility(View.GONE);
+            rootView.findViewById(R.id.stats_drawer).setVisibility(View.VISIBLE);
 
             rootView.findViewById(R.id.pinned_note_list).setImportantForAccessibility(
                     View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
