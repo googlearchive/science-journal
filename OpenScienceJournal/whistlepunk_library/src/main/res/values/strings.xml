@@ -245,8 +245,8 @@
     <!-- Title of the navigation item to select observe page [CHAR_LIMIT=25] -->
     <string name="navigation_item_observe">Observe</string>
 
-    <!-- Title of the navigation item to select projects page [CHAR_LIMIT=25] -->
-    <string name="navigation_item_projects">Projects</string>
+    <!-- Title of the navigation item to select project library page [CHAR_LIMIT=25] -->
+    <string name="navigation_item_projects">Project library</string>
 
     <!-- Title of the navigation item to go to making science website [CHAR_LIMIT=25] -->
     <string name="navigation_item_web_link">Making &amp; Science website</string>

@@ -23,7 +23,10 @@
     android:layout_height="wrap_content"
     card_view:cardCornerRadius="@dimen/cardview_radius"
     android:elevation="@dimen/cardview_default_elevation"
-    android:layout_margin="@dimen/cardview_margin"
+    android:layout_marginStart="@dimen/cardview_margin_sides"
+    android:layout_marginEnd="@dimen/cardview_margin_sides"
+    android:layout_marginTop="@dimen/cardview_margin"
+    android:layout_marginBottom="@dimen/cardview_margin"
     card_view:cardPreventCornerOverlap="false"
     >
     <!-- TODO: In KitKat, the CornerRadius is lost with cardPreventCornerOverlap=false. -->

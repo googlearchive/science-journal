@@ -72,7 +72,7 @@
 
         <com.google.android.apps.forscience.whistlepunk.ReviewExternalAxisView
             app:mainColor="@color/text_color_dark_grey"
-            android:background="@color/run_review_background_color"
+            android:background="@color/text_color_white"
             android:id="@+id/external_x_axis"
             android:layout_height="@dimen/external_axis_height"
             android:paddingRight="@dimen/run_review_external_axis_right_padding"

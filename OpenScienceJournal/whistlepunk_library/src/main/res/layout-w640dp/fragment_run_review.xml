@@ -27,10 +27,11 @@
     >
 
     <android.support.design.widget.AppBarLayout
-        android:layout_width="wrap_content"
+        android:layout_width="640dp"
         android:layout_height="wrap_content"
         android:background="@color/text_color_white"
         android:id="@+id/app_bar_layout"
+        android:layout_gravity="top|center_horizontal"
         >
 
         <include layout="@layout/run_review_app_bar_layout"/>
@@ -38,21 +39,22 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
+        android:layout_width="640dp"
         android:layout_height="match_parent"
         android:id="@+id/pinned_note_list"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_gravity="top|center_horizontal"
         />
 
     <include layout="@layout/run_review_below_app_bar_layout"/>
 
     <FrameLayout
-        android:layout_width="match_parent"
+        android:layout_width="640dp"
         android:layout_height="wrap_content"
         android:id="@+id/embedded"
         android:layout_alignParentBottom="true"
         app:layout_anchor="@id/app_bar_layout"
-        app:layout_anchorGravity="bottom"
+        app:layout_anchorGravity="bottom|center_horizontal"
         android:visibility="gone"
         />
 

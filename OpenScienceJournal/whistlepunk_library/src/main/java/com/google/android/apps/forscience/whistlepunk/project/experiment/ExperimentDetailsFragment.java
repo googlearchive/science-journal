@@ -21,6 +21,7 @@ import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -233,6 +234,40 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         mDetails = (RecyclerView) view.findViewById(R.id.details_list);
+        final int experimentDescriptionPadding = mDetails.getContext().getResources()
+                .getDimensionPixelSize(R.dimen.metadata_description_overlap_bottom);
+        mDetails.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                    RecyclerView.State state) {
+                if (isDescriptionView(view)) {
+                    // Then it is the VIEW_TYPE_EXPERIMENT_DESCRIPTION, so we need to decrease
+                    // its bottom padding to let the next card overlap it to meet the UX spec.
+                    // Need to also check if this is an empty experiment before
+                    // deciding to set this.
+                    if (mAdapter.hasEmptyView()) {
+                        // Empty experiment view doesn't show as a card, so no overlap needed.
+                        super.getItemOffsets(outRect, view, parent, state);
+                    } else {
+                        outRect.set(0, 0, 0, experimentDescriptionPadding);
+                    }
+                } else {
+                    super.getItemOffsets(outRect, view, parent, state);
+                }
+            }
+
+            private boolean isDescriptionView(View view) {
+                if (mDetails.getChildAdapterPosition(view) != 0) {
+                    return false;
+                }
+                if (mExperiment != null && (mExperiment.isArchived() || !TextUtils.isEmpty(
+                        mExperiment.getDescription()))) {
+                    // Then it is the VIEW_TYPE_EXPERIMENT_DESCRIPTION
+                    return true;
+                }
+                return false;
+            }
+        });
         mDetails.setLayoutManager(new LinearLayoutManager(view.getContext(),
                 LinearLayoutManager.VERTICAL, false));
         mAdapter = new DetailsAdapter(this, savedInstanceState);
@@ -628,6 +663,7 @@ public class ExperimentDetailsFragment extends Fragment
         private Experiment mExperiment;
         private List<ExperimentDetailItem> mItems;
         private List<Integer> mSensorIndices = null;
+        private boolean mHasRunsOrLabels;
 
         DetailsAdapter(ExperimentDetailsFragment parent, Bundle savedInstanceState) {
             mItems = new ArrayList<>();
@@ -706,10 +742,10 @@ public class ExperimentDetailsFragment extends Fragment
                             }
                         }
                     };
-                    holder.itemView.setOnClickListener(clickListener);
+                    holder.cardView.setOnClickListener(clickListener);
                     autoTextView.setVisibility(View.GONE);
                 } else {
-                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    holder.cardView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             if (mParentReference.get() != null) {
@@ -730,8 +766,11 @@ public class ExperimentDetailsFragment extends Fragment
             if (type == VIEW_TYPE_EXPERIMENT_DESCRIPTION) {
                 TextView description = (TextView) holder.itemView.findViewById(
                         R.id.metadata_description);
-                description.setBackgroundColor(description.getResources().getColor(
-                        R.color.color_accent_dark));
+                holder.itemView.findViewById(R.id.metadata_description_holder)
+                        .setBackgroundColor(holder.itemView.getContext().getResources()
+                                .getColor(R.color.color_accent_dark));
+                holder.itemView.findViewById(R.id.description_overlap_spacer).setVisibility(
+                        hasEmptyView() ? View.GONE : View.VISIBLE);
                 description.setText(mExperiment.getDescription());
                 description.setVisibility(TextUtils.isEmpty(mExperiment.getDescription()) ?
                         View.GONE : View.VISIBLE);
@@ -872,7 +911,7 @@ public class ExperimentDetailsFragment extends Fragment
 
         public void setData(Experiment experiment, List<ExperimentRun> runs, List<Label> labels,
                 ScalarDisplayOptions scalarDisplayOptions) {
-            boolean hasRunsOrLabels = false;
+            mHasRunsOrLabels = false;
             mExperiment = experiment;
             // TODO: compare data and see if anything has changed. If so, don't reload at all.
             mItems.clear();
@@ -886,14 +925,14 @@ public class ExperimentDetailsFragment extends Fragment
                 ExperimentDetailItem item = new ExperimentDetailItem(run, scalarDisplayOptions);
                 item.setSensorTagIndex(mSensorIndices != null ? mSensorIndices.get(i++) : 0);
                 mItems.add(item);
-                hasRunsOrLabels = true;
+                mHasRunsOrLabels = true;
             }
             for (Label label : labels) {
                 if (TextUtils.equals(
                         label.getRunId(), RecordFragment.NOT_RECORDING_RUN_ID)) {
                     if (ExperimentDetailItem.canShowLabel(label)) {
                         mItems.add(new ExperimentDetailItem(label));
-                        hasRunsOrLabels = true;
+                        mHasRunsOrLabels = true;
                     }
                 }
             }
@@ -903,12 +942,12 @@ public class ExperimentDetailsFragment extends Fragment
                 mItems.add(0, new ExperimentDetailItem(VIEW_TYPE_EXPERIMENT_DESCRIPTION));
             }
 
-            if (!hasRunsOrLabels) {
+            if (!mHasRunsOrLabels) {
                 addEmptyView(false /* don't notify */);
             }
 
             if (mParentReference.get() != null) {
-                mParentReference.get().setToolbarScrollFlags(!hasRunsOrLabels);
+                mParentReference.get().setToolbarScrollFlags(!mHasRunsOrLabels);
             }
 
             notifyDataSetChanged();
@@ -956,6 +995,9 @@ public class ExperimentDetailsFragment extends Fragment
             mItems.add(new ExperimentDetailItem(VIEW_TYPE_EMPTY));
             if (notifyAdd) {
                 notifyItemInserted(mItems.size() - 1);
+                if (mExperiment.isArchived() || !TextUtils.isEmpty(mExperiment.getDescription())) {
+                    notifyItemChanged(0);
+                }
             }
             if (mParentReference.get() != null) {
                 mParentReference.get().setToolbarScrollFlags(true /* has an empty view*/);
@@ -966,12 +1008,18 @@ public class ExperimentDetailsFragment extends Fragment
             mItems.remove(location);
             if (notifyRemove) {
                 notifyItemRemoved(location);
+                if (mExperiment.isArchived() || !TextUtils.isEmpty(mExperiment.getDescription())) {
+                    notifyItemChanged(0);
+                }
             }
             if (mParentReference.get() != null) {
                 mParentReference.get().setToolbarScrollFlags(false /* has an empty view*/);
             }
         }
 
+        boolean hasEmptyView() {
+            return !mHasRunsOrLabels;
+        }
 
         void bindRun(final ViewHolder holder, final ExperimentDetailItem item) {
             final ExperimentRun run = item.getRun();
@@ -991,13 +1039,13 @@ public class ExperimentDetailsFragment extends Fragment
             } else {
                 holder.noteCount.setVisibility(View.GONE);
             }
-            holder.itemView.setOnClickListener(createRunClickListener(item.getSensorTagIndex()));
-            holder.itemView.setTag(R.id.run_title_text, run.getRunId());
+            holder.cardView.setOnClickListener(createRunClickListener(item.getSensorTagIndex()));
+            holder.cardView.setTag(R.id.run_title_text, run.getRunId());
 
-            holder.itemView.setAlpha(applicationContext.getResources().getFraction(
-                    run.isArchived() ?
-                    R.fraction.metadata_card_archived_alpha :
-                    R.fraction.metadata_card_alpha, 1, 1));
+            holder.itemView.findViewById(R.id.content).setAlpha(
+                    applicationContext.getResources().getFraction(run.isArchived() ?
+                        R.fraction.metadata_card_archived_alpha :
+                        R.fraction.metadata_card_alpha, 1, 1));
             View archivedIndicator = holder.itemView.findViewById(R.id.archived_indicator);
             archivedIndicator.setVisibility(run.isArchived() ? View.VISIBLE :
                     View.GONE);
@@ -1019,7 +1067,7 @@ public class ExperimentDetailsFragment extends Fragment
                         item.setSensorTagIndex(item.getSensorTagIndex() + 1);
                         loadSensorData(applicationContext, holder, item);
                         GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
-                        holder.itemView.setOnClickListener(createRunClickListener(
+                        holder.cardView.setOnClickListener(createRunClickListener(
                                 item.getSensorTagIndex()));
                         holder.setSensorLayout(layout);
                     }
@@ -1034,7 +1082,7 @@ public class ExperimentDetailsFragment extends Fragment
                         item.setSensorTagIndex(item.getSensorTagIndex() - 1);
                         loadSensorData(applicationContext, holder, item);
                         GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
-                        holder.itemView.setOnClickListener(createRunClickListener(
+                        holder.cardView.setOnClickListener(createRunClickListener(
                                 item.getSensorTagIndex()));
                         holder.setSensorLayout(layout);
                     }
@@ -1212,6 +1260,8 @@ public class ExperimentDetailsFragment extends Fragment
 
             int statsLoadStatus;
 
+            View cardView;
+
             // Run members.
             TextView runTitle;
             RelativeTimeTextView date;
@@ -1233,6 +1283,7 @@ public class ExperimentDetailsFragment extends Fragment
                 super(itemView);
                 mViewType = viewType;
                 if (mViewType == VIEW_TYPE_RUN_CARD) {
+                    cardView = itemView.findViewById(R.id.card_view);
                     runTitle = (TextView) itemView.findViewById(R.id.run_title_text);
                     date = (RelativeTimeTextView) itemView.findViewById(R.id.run_details_text);
                     noteCount = (TextView) itemView.findViewById(R.id.notes_count);
@@ -1251,6 +1302,10 @@ public class ExperimentDetailsFragment extends Fragment
                     chartView = (ChartView) itemView.findViewById(R.id.chart_view);
                     sensorImage = (ImageView) itemView.findViewById(R.id.sensor_icon);
                     progressView = (ProgressBar) itemView.findViewById(R.id.chart_progress);
+                } else if (mViewType == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL ||
+                        mViewType == VIEW_TYPE_EXPERIMENT_TEXT_LABEL ||
+                        mViewType == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL) {
+                    cardView = itemView.findViewById(R.id.card_view);
                 }
             }
 

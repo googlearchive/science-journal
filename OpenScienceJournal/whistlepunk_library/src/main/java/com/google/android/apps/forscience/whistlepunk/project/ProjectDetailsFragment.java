@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -153,7 +154,42 @@ public class ProjectDetailsFragment extends Fragment implements
         mProjectCover = (ImageView) view.findViewById(R.id.project_cover);
         ViewCompat.setTransitionName(mProjectCover, getArguments().getString(ARG_PROJECT_ID));
 
-        RecyclerView detailList = (RecyclerView) view.findViewById(R.id.details);
+        final RecyclerView detailList = (RecyclerView) view.findViewById(R.id.details);
+        final int descriptionPadding = detailList.getContext().getResources()
+                .getDimensionPixelSize(R.dimen.metadata_description_overlap_bottom);
+        detailList.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                    RecyclerView.State state) {
+                if (isDescriptionView(view)) {
+                    // We need to decrease its bottom padding to let the next card overlap it to
+                    // meet the UX spec. Need to also check if this is an empty project before
+                    // deciding to set this.
+                    if (mProjectDetailAdapter.hasEmptyView()) {
+                        // Empty project view doesn't show as a card, so no overlap needed.
+                        super.getItemOffsets(outRect, view, parent, state);
+                    } else {
+                        outRect.set(0, 0, 0, descriptionPadding);
+                    }
+                } else {
+                    super.getItemOffsets(outRect, view, parent, state);
+                }
+            }
+
+            private boolean isDescriptionView(View view) {
+                if (detailList.getChildAdapterPosition(view) != 0) {
+                    return false;
+                }
+                if (mProject != null && (mProject.isArchived() || !TextUtils.isEmpty(
+                        mProject.getDescription()))) {
+                    // Then it is the VIEW_TYPE_DESCRIPTION
+                    return true;
+                }
+                return false;
+            }
+        });
+
+
         mProjectDetailAdapter = new ProjectDetailAdapter(getActivity());
         detailList.setLayoutManager(new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false));
@@ -314,6 +350,7 @@ public class ProjectDetailsFragment extends Fragment implements
                         }
                         bar.show();
                         if (mProjectDetailAdapter != null) {
+                            mProjectDetailAdapter.updateExperimentStartPosition();
                             mProjectDetailAdapter.notifyDataSetChanged();
                         }
                         if (getActivity() != null) {
@@ -365,19 +402,23 @@ public class ProjectDetailsFragment extends Fragment implements
             mProject = project;
             mExperiments.clear();
             mExperiments.addAll(experiments);
+            updateExperimentStartPosition();
+            notifyDataSetChanged();
+        }
+
+        void updateExperimentStartPosition() {
             if (TextUtils.isEmpty(mProject.getDescription()) && !mProject.isArchived()) {
                 // Don't need to show the metadata card in this case.
                 mExperimentStartPosition = 0;
             } else {
                 mExperimentStartPosition = 1;
             }
-            notifyDataSetChanged();
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            View view = null;
+            View view;
             if (viewType == VIEW_TYPE_DESCRIPTION) {
                 view = inflater.inflate(R.layout.metadata_description, parent, false);
             } else if (viewType == VIEW_TYPE_EMPTY) {
@@ -393,8 +434,11 @@ public class ProjectDetailsFragment extends Fragment implements
             if (holder.viewType == VIEW_TYPE_DESCRIPTION) {
                 TextView description = ((TextView) holder.itemView.findViewById(
                         R.id.metadata_description));
-                description.setBackgroundColor(holder.itemView.getContext().getResources()
+                holder.itemView.findViewById(R.id.metadata_description_holder)
+                        .setBackgroundColor(holder.itemView.getContext().getResources()
                         .getColor(R.color.color_primary_dark));
+                holder.itemView.findViewById(R.id.description_overlap_spacer).setVisibility(
+                        hasEmptyView() ? View.GONE : View.VISIBLE);
                 description.setText(mProject.getDescription());
                 description.setVisibility(TextUtils.isEmpty(mProject.getDescription()) ? View.GONE :
                         View.VISIBLE);
@@ -441,15 +485,20 @@ public class ProjectDetailsFragment extends Fragment implements
             holder.experimentRunTotals.setText("");
             holder.archivedIndicator.setVisibility(experiment.isArchived() ? View.VISIBLE :
                     View.GONE);
-            holder.itemView.setAlpha(res.getFraction(experiment.isArchived() ?
-                    R.fraction.metadata_card_archived_alpha :
-                    R.fraction.metadata_card_alpha, 1, 1));
+
+
             if (experiment.isArchived()) {
                 holder.experimentTitle.setContentDescription(res.getString(
                         R.string.archived_content_description, experimentText));
+                holder.itemView.findViewById(R.id.content).setAlpha(res.getFraction(
+                        R.fraction.metadata_card_archived_alpha, 1, 1));
+                holder.cardView.setBackgroundColor(res.getColor(R.color.archived_background_color));
             } else {
                 // Use default.
                 holder.experimentTitle.setContentDescription("");
+                holder.itemView.findViewById(R.id.content).setAlpha(res.getFraction(
+                        R.fraction.metadata_card_alpha, 1, 1));
+                holder.cardView.setBackgroundColor(res.getColor(R.color.text_color_white));
             }
 
             holder.itemView.setTag(R.id.experiment_title, experiment.getExperimentId());
@@ -457,7 +506,7 @@ public class ProjectDetailsFragment extends Fragment implements
             final DataController dc = AppSingleton.getInstance(
                     holder.itemView.getContext()).getDataController();
 
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
+            holder.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ExperimentDetailsActivity.launch(v.getContext(), experiment.getExperimentId());
@@ -553,6 +602,10 @@ public class ProjectDetailsFragment extends Fragment implements
                         }
                     });
         }
+
+        public boolean hasEmptyView() {
+            return mExperiments.size() == 0;
+        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -582,6 +635,7 @@ public class ProjectDetailsFragment extends Fragment implements
         TextView experimentRunTotals;
         ImageView experimentImage;
         View archivedIndicator;
+        View cardView;
 
         int viewType;
 
@@ -589,6 +643,7 @@ public class ProjectDetailsFragment extends Fragment implements
             super(itemView);
             this.viewType = viewType;
             if (viewType == ProjectDetailAdapter.VIEW_TYPE_EXPERIMENT) {
+                cardView = itemView.findViewById(R.id.card_view);
                 experimentImage = (ImageView) itemView.findViewById(R.id.experiment_image);
                 experimentTitle = (TextView) itemView.findViewById(R.id.experiment_title);
                 experimentLastRun = (RelativeTimeTextView) itemView.findViewById(

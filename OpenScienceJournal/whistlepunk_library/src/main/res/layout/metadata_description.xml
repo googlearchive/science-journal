@@ -19,19 +19,30 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:id="@+id/metadata_description_holder"
     >
+
     <TextView
         android:id="@+id/metadata_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/experiment_description_padding"
         android:textColor="@color/text_color_white"
-        style="@style/TextAppearance.AppCompat.Medium">
-    </TextView>
+        android:textAlignment="center"
+        android:padding="@dimen/metadata_description_padding"
+        style="@style/TextAppearance.AppCompat.Medium"
+        />
+
     <include layout="@layout/archived_badge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/cardview_margin"
-        android:layout_marginTop="@dimen/cardview_margin"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_gravity="center_horizontal"
+        />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/metadata_description_padding_bottom"
+        android:id="@+id/description_overlap_spacer"
         />
 </LinearLayout>

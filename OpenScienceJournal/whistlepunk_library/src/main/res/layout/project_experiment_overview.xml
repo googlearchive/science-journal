@@ -17,68 +17,13 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/cardview_margin"
+    android:layout_marginStart="@dimen/cardview_margin_sides"
+    android:layout_marginEnd="@dimen/cardview_margin_sides"
+    android:layout_marginTop="@dimen/cardview_margin"
+    android:layout_marginBottom="@dimen/cardview_margin"
     android:foreground="?attr/selectableItemBackground"
     android:clickable="true"
+    android:id="@+id/card_view"
     >
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/cardview_content_margin"
-        >
-
-        <ImageView
-            android:id="@+id/experiment_image"
-            android:layout_centerVertical="true"
-            android:layout_width="@dimen/experiment_overview_image_size"
-            android:layout_height="@dimen/experiment_overview_image_size"
-            android:layout_alignParentStart="true"
-            android:layout_marginEnd="@dimen/cardview_content_margin"
-            android:contentDescription="@null"
-            />
-
-        <TextView
-            android:id="@+id/experiment_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/experiment_image"
-            android:layout_alignParentEnd="true"
-            android:singleLine="true"
-            android:textStyle="bold"
-            android:textColor="@color/text_color_dark_grey"
-            style="@style/TextAppearance.AppCompat.Medium"
-            />
-
-        <com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView
-            android:id="@+id/experiment_last_run"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_toEndOf="@id/experiment_image"
-            android:layout_below="@id/experiment_title"
-            android:singleLine="true"
-            style="@style/TextAppearance.AppCompat.Small"
-            />
-
-        <include layout="@layout/archived_badge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="@dimen/cardview_content_margin"
-            />
-
-        <TextView
-            android:id="@+id/experiment_total_runs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/experiment_image"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@id/experiment_last_run"
-            android:singleLine="true"
-            style="@style/TextAppearance.AppCompat.Small"
-            />
-
-    </RelativeLayout>
+    <include layout="@layout/project_experiment_overview_content"/>
 </android.support.v7.widget.CardView>

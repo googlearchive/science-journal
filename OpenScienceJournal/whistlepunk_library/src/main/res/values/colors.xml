@@ -38,7 +38,7 @@
     <color name="note_overlay_line_color">#9E9E9E</color>
     <color name="run_review_divider_color">#E0E0E0</color>
     <color name="run_review_duration_text_color">@color/color_primary</color>
-    <color name="run_review_background_color">#FFFFFF</color>
+    <color name="run_review_background_color">@color/background_color</color>
     <color name="run_review_graph_label_fill_color">#9E9E9E</color>
     <color name="run_review_notes_overlay">#77000000</color>
     <color name="graph_line_color_blue">#4285F4</color>
@@ -56,6 +56,7 @@
     <color name="color_accent">#4285F4</color>
     <color name="color_accent_dark">#3367D6</color>
     <color name="background_color">#ebebeb</color>
+    <color name="archived_background_color">#e9e9e9</color>
     <color name="nav_item_background_color">#e0e0e0</color>
     <color name="sensor_tab_indicator_color">#fff8f081</color>
     <color name="sensor_card_meter_view_color">#f0f0f0</color>

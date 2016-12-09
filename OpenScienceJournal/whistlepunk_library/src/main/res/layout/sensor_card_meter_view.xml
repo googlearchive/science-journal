@@ -29,34 +29,35 @@
 
     <!-- TODO: When the spec is available, update the spacing and sizes here. -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentTop="true"
         android:layout_above="@+id/sensor_card_meter_footer"
+        android:layout_centerHorizontal="true"
         >
 
         <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="@dimen/sensor_card_back_icon_size"
             android:layout_height="@dimen/sensor_card_back_icon_size"
             android:scaleType="center"
             android:id="@+id/card_meter_sensor_icon"
             android:contentDescription="@null"
             android:background="@android:color/transparent"
             android:layout_gravity="center"
+            android:layout_marginEnd="@dimen/meter_icon_value_spacing"
             />
 
         <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             >
 
             <com.google.android.apps.forscience.whistlepunk.SingleLineResizableTextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="@dimen/sensor_card_back_icon_size"
                 android:id="@+id/live_sensor_value"
                 android:textColor="@color/text_color_dark_grey"
                 android:textSize="@dimen/sensor_card_live_value_text_size"
@@ -86,6 +87,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:id="@id/sensor_card_meter_footer"
+        android:layout_marginBottom="@dimen/meter_mode_layout_margin_bottom"
         >
 
         <include layout="@layout/sensor_card_meter_view_info_section"/>

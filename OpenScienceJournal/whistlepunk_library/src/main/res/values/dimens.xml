@@ -51,6 +51,7 @@
 
     <dimen name="cardview_content_margin">16dp</dimen>
     <dimen name="cardview_margin">8dp</dimen>
+    <dimen name="cardview_margin_sides">8dp</dimen>
     <dimen name="cardview_radius">2dp</dimen>
 
     <dimen name="age_verifier_padding">16dp</dimen>
@@ -66,7 +67,10 @@
     <dimen name="toolbar_image_cover_height">250dp</dimen>
     <dimen name="appbar_subtitle_text_size">14sp</dimen>
 
-    <dimen name="project_card_margin">5dp</dimen>
+    <integer name="project_library_columns">1</integer>
+    <dimen name="project_list_padding_sides">0dp</dimen>
+    <dimen name="project_list_padding_top">0dp</dimen>
+    <dimen name="project_card_margin">4dp</dimen>
     <dimen name="project_card_content_padding">20dp</dimen>
     <dimen name="project_card_title_text_size">24sp</dimen>
     <item name="metadata_card_alpha" type="fraction">100%</item>
@@ -98,6 +102,8 @@
     <dimen name="sensor_card_back_padding">24dp</dimen>
     <dimen name="sensor_card_back_icon_size">110dp</dimen>
     <dimen name="sensor_card_back_info_section_margin_botton">6dp</dimen>
+    <dimen name="meter_icon_value_spacing">72dp</dimen>
+    <dimen name="meter_mode_layout_margin_bottom">0dp</dimen>
 
     <dimen name="project_thumb_height">150dp</dimen>
 
@@ -120,6 +126,7 @@
     <dimen name="stats_back_text_size">24sp</dimen>
     <dimen name="stats_view_small_text_size">12sp</dimen>
     <dimen name="small_stat_icon_size">12dp</dimen>
+    <dimen name="stats_meter_view_margin_start">0dp</dimen>
 
     <dimen name="observe_control_panel_bottom_height">62dp</dimen>
 
@@ -148,7 +155,9 @@
     <dimen name="recording_overlay_bar_width">1dp</dimen>
     <dimen name="recording_overlay_dash_size">4dp</dimen>
 
-    <dimen name="experiment_description_padding">16dp</dimen>
+    <dimen name="metadata_description_padding">16dp</dimen>
+    <dimen name="metadata_description_padding_bottom">56dp</dimen>
+    <dimen name="metadata_description_overlap_bottom">-56dp</dimen>
 
     <item name="icon_active_alpha" format="float" type="dimen">.87</item>
 
@@ -162,6 +171,7 @@
     <dimen name="run_review_sensor_name_text_size">16sp</dimen>
     <dimen name="run_review_chart_height">160dp</dimen>
     <dimen name="run_review_margin_sides">8dp</dimen>
+    <dimen name="run_review_pinned_note_item_margin">0dp</dimen>
     <dimen name="run_review_header_text_margin_top">8dp</dimen>
     <dimen name="run_review_external_axis_left_margin">48dp</dimen>
     <dimen name="run_review_external_axis_left_padding">4dp</dimen>

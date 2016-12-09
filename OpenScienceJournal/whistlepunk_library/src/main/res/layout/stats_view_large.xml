@@ -14,96 +14,82 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<LinearLayout
+<android.support.percent.PercentRelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:layout_height="@dimen/stats_drawer_large_height"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     >
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
+    <RelativeLayout
+        app:layout_widthPercent="33%"
         android:layout_height="match_parent"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_alignParentStart="true"
+        android:id="@+id/min_layout"
         >
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_data_min_color_24dph"
-            android:padding="@dimen/stats_drawer_large_icon_padding"
-            android:importantForAccessibility="no"
-            android:layout_gravity="center_vertical"
-            />
 
         <com.google.android.apps.forscience.whistlepunk.SingleLineResizableTextView
             android:id="@+id/stats_view_min"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:minWidth="48dp"
             android:textColor="@color/text_color_dark_grey"
             android:textSize="@dimen/stats_back_text_size"
             android:gravity="center_vertical"
             android:focusable="true"
+            android:drawableStart="@drawable/ic_data_min_color_24dph"
+            android:drawablePadding="@dimen/stats_drawer_large_icon_padding"
+            android:layout_centerHorizontal="true"
             />
 
-    </LinearLayout>
+    </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
+    <RelativeLayout
+        app:layout_widthPercent="33%"
         android:layout_height="match_parent"
-        android:layout_marginEnd="8dp"
+        android:layout_toEndOf="@id/min_layout"
+        android:id="@+id/avg_layout"
         >
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_data_average_color_24dph"
-            android:padding="@dimen/stats_drawer_large_icon_padding"
-            android:importantForAccessibility="no"
-            android:layout_gravity="center_vertical"
-            />
 
         <com.google.android.apps.forscience.whistlepunk.SingleLineResizableTextView
             android:id="@+id/stats_view_avg"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:minWidth="48dp"
             android:textColor="@color/text_color_dark_grey"
             android:textSize="@dimen/stats_back_text_size"
             android:gravity="center_vertical"
             android:focusable="true"
+            android:drawableStart="@drawable/ic_data_average_color_24dph"
+            android:drawablePadding="@dimen/stats_drawer_large_icon_padding"
+            android:layout_centerHorizontal="true"
             />
 
-    </LinearLayout>
+    </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
+    <RelativeLayout
+        app:layout_widthPercent="33%"
         android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@id/avg_layout"
+        android:id="@+id/max_layout"
         >
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_data_max_color_24dph"
-            android:padding="@dimen/stats_drawer_large_icon_padding"
-            android:importantForAccessibility="no"
-            android:layout_gravity="center_vertical"
-            />
 
         <com.google.android.apps.forscience.whistlepunk.SingleLineResizableTextView
             android:id="@+id/stats_view_max"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:minWidth="48dp"
             android:textColor="@color/text_color_dark_grey"
             android:textSize="@dimen/stats_back_text_size"
             android:gravity="center_vertical"
             android:focusable="true"
+            android:drawableStart="@drawable/ic_data_max_color_24dph"
+            android:drawablePadding="@dimen/stats_drawer_large_icon_padding"
+            android:layout_centerHorizontal="true"
             />
 
-    </LinearLayout>
+    </RelativeLayout>
 
-
-</LinearLayout>
+</android.support.percent.PercentRelativeLayout>

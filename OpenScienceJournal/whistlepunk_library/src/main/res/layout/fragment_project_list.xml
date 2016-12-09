@@ -29,6 +29,10 @@
         android:layout_height="match_parent"
         android:paddingBottom="@dimen/list_bottom_padding"
         android:clipToPadding="false"
+        android:layout_margin="@dimen/project_card_margin"
+        android:paddingStart="@dimen/project_list_padding_sides"
+        android:paddingEnd="@dimen/project_list_padding_sides"
+        android:paddingTop="@dimen/project_list_padding_top"
         />
 
     <include

@@ -20,16 +20,18 @@
     android:layout_height="wrap_content"
     android:id="@+id/back_view_info_section"
     android:layout_marginBottom="@dimen/sensor_card_back_info_section_margin_botton"
+    android:gravity="center"
     >
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/back_view_description"
         android:textColor="@color/text_color_dark_grey"
         android:textSize="@dimen/sensor_card_back_info_text_size"
         android:layout_marginTop="@dimen/sensor_card_back_text_margin_top"
         android:focusable="true"
+        android:textAlignment="center"
         />
 
     <Button

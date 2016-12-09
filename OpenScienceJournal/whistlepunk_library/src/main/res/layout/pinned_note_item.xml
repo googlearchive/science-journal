@@ -14,10 +14,18 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/run_review_section_margin"
+    android:paddingBottom="@dimen/run_review_section_margin"
+    android:background="@color/text_color_white"
+    android:elevation="2dp"
+    tools:ignore="unusedAttribute"
+    android:layout_marginStart="1dp"
+    android:layout_marginEnd="@dimen/run_review_pinned_note_item_margin"
     >
 
     <View
@@ -116,7 +124,7 @@
         android:contentDescription="@string/menu_btn_content_description"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/run_review_note_divider"
-        android:background="@color/run_review_background_color"
+        android:background="@color/text_color_white"
         android:scaleType="center"
         android:layout_marginEnd="@dimen/run_review_margin_sides"
         />

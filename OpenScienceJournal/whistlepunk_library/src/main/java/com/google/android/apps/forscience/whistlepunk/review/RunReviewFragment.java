@@ -41,6 +41,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -1419,6 +1420,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 notesOverlay.setLayoutParams(params);
                 notesOverlay.setPadding(0, 0, 0, 0);
             }
+            notesOverlay.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return true;
+                }
+            });
 
             notesOverlay.setVisibility(View.VISIBLE);
         } else {

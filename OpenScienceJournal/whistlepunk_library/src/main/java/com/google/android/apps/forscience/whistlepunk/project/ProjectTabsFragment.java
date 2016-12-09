@@ -27,6 +27,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -119,8 +120,8 @@ public class ProjectTabsFragment extends Fragment implements
         mEmptyView.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, null,
                 res.getDrawable(R.drawable.empty_project));
         mRecyclerView = (RecyclerView) view.findViewById(R.id.projects_list);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
-                LinearLayoutManager.VERTICAL, false));
+        mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),
+                view.getContext().getResources().getInteger(R.integer.project_library_columns)));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator() {
 
             private void setAlpha(RecyclerView.ViewHolder item) {
