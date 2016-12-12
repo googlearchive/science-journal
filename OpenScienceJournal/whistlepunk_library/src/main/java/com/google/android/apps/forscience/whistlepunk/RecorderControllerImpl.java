@@ -30,7 +30,6 @@ import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
@@ -38,7 +37,6 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
@@ -46,7 +44,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
@@ -90,104 +87,6 @@ public class RecorderControllerImpl implements RecorderController {
     // TODO: remove this comment when we're sure about the delay.
     // To disable delayed stop, comment out the above line, and uncomment this one.
     private static final Delay DEFAULT_STOP_DELAY = Delay.ZERO;
-
-    @VisibleForTesting
-    static class StatefulRecorder {
-        private boolean mObserving = false;
-        private boolean mRecording = false;
-        private final SensorRecorder mRecorder;
-        private final Scheduler mScheduler;
-        private Delay mStopDelay;
-        private boolean mForceHasDataForTesting = false;
-        private Runnable mStopRunnable;
-
-        private StatefulRecorder(SensorRecorder recorder, Scheduler scheduler, Delay stopDelay) {
-            mRecorder = recorder;
-            mScheduler = scheduler;
-            mStopDelay = stopDelay;
-        }
-
-        public void startObserving() {
-            cancelCurrentStopRunnable();
-            if (!isStillRunning()) {
-                mRecorder.startObserving();
-            }
-            mObserving = true;
-        }
-
-        private void cancelCurrentStopRunnable() {
-            if (mStopRunnable != null) {
-                mScheduler.unschedule(mStopRunnable);
-                mStopRunnable = null;
-            }
-        }
-
-        public void stopObserving() {
-            if (mStopRunnable != null) {
-                // Already stopping.
-                return;
-            }
-            Runnable stopRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    mObserving = false;
-                    maybeStopObserving();
-                }
-            };
-            if (mScheduler != null && !mStopDelay.isZero()) {
-                mStopRunnable = stopRunnable;
-                mScheduler.schedule(mStopDelay, mStopRunnable);
-            } else {
-                stopRunnable.run();
-            }
-        }
-
-        /**
-         * @param runId id for the run that is starting, to allow out-of-band data saving
-         */
-        public void startRecording(String runId) {
-            mRecorder.startRecording(runId);
-            mRecording = true;
-        }
-
-
-        private void stopRecording(MaybeConsumer<Success> onSuccess) {
-            mRecorder.stopRecording(onSuccess);
-            mRecording = false;
-        }
-
-        // The spec for SensorRecorder says that once you stopObserving, the recorder should
-        // shut down.  Unless we decide to change that (and retrofit all current sensors to that
-        // new design), we should only _actually_ call stopObserving once we're no longer
-        // observing OR recording.
-        private void maybeStopObserving() {
-            if (!isStillRunning()) {
-                mRecorder.stopObserving();
-            }
-        }
-
-        public boolean isStillRunning() {
-            return mObserving || mRecording;
-        }
-
-        public void applyOptions(ReadableSensorOptions settings) {
-            mRecorder.applyOptions(settings);
-        }
-
-        public boolean hasRecordedData() {
-            return mRecorder.hasRecordedData() || mForceHasDataForTesting;
-        }
-
-        // TODO: Find a better way to fake force add data than this method.
-        @VisibleForTesting
-        void forceHasDataForTesting(boolean hasDataForTesting) {
-            mForceHasDataForTesting = hasDataForTesting;
-        }
-
-        public boolean isRecording() {
-            return mRecording;
-        }
-    }
 
     private DataController mDataController;
     private final Scheduler mScheduler;

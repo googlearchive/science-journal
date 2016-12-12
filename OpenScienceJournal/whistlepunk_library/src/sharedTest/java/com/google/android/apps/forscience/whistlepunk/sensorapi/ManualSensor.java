@@ -56,6 +56,14 @@ public class ManualSensor extends ScalarSensor {
                 makeSensorEnvironment(context, rdc));
     }
 
+    /**
+     * Simulates an external event (like a BLE sensor being unplugged) that prevents further
+     * observation, outside of a direct call to stopObserving.
+     */
+    public void simulateExternalEventPreventingObservation() {
+        mConsumer = null;
+    }
+
     @Override
     protected SensorRecorder makeScalarControl(final StreamConsumer c, SensorEnvironment environment,
             Context context, SensorStatusListener listener) {
