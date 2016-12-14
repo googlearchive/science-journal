@@ -244,9 +244,10 @@ public class BluetoothSensor extends ScalarSensor {
 
             @Override
             public void onServicesDiscovered() {
-                if (mFlow.isCharacteristicValid(mServiceSpec.getVersionId())) {
-                    mFlow.lookupCharacteristic(mServiceSpec.getVersionId())
-                            .read();
+                if (mFlow.isCharacteristicValid(mServiceSpec.getServiceId(),
+                        mServiceSpec.getVersionId())) {
+                    mFlow.lookupCharacteristic(mServiceSpec.getServiceId(),
+                            mServiceSpec.getVersionId()).read();
                     BleFlow.run(mFlow);
                 } else {
                     writeConfigAndSetNotification();
@@ -311,11 +312,12 @@ public class BluetoothSensor extends ScalarSensor {
 
     private void writeConfigAndSetNotification() {
         byte[] sensorConfig = buildConfigProtoForDevice(mSensor);
-        if (sensorConfig != null && mFlow.isCharacteristicValid(mServiceSpec.getSettingId())) {
-            mFlow.lookupCharacteristic(mServiceSpec.getSettingId())
-                    .write(sensorConfig);
+        if (sensorConfig != null && mFlow.isCharacteristicValid(mServiceSpec.getServiceId(),
+                mServiceSpec.getSettingId())) {
+            mFlow.lookupCharacteristic(mServiceSpec.getServiceId(),
+                    mServiceSpec.getSettingId()).write(sensorConfig);
         }
-        mFlow.lookupCharacteristic(mServiceSpec.getValueId())
+        mFlow.lookupCharacteristic(mServiceSpec.getServiceId(), mServiceSpec.getValueId())
                 .enableNotification();
         BleFlow.run(mFlow);
     }
@@ -356,8 +358,8 @@ public class BluetoothSensor extends ScalarSensor {
                 mTimeSkew = -1;
                 mFlow.resetAndAddListener(mBleFlowListener);
                 if(mNotificationSubscribed) {
-                    mFlow.lookupService(mServiceSpec.getServiceId())
-                            .lookupCharacteristic(mServiceSpec.getValueId())
+                    mFlow.lookupService(mServiceSpec.getServiceId()).lookupCharacteristic(
+                            mServiceSpec.getServiceId(), mServiceSpec.getValueId())
                             .disableNotification();
                     BleFlow.run(mFlow);
                 } else {

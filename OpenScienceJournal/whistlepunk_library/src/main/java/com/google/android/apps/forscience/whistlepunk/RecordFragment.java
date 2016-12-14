@@ -933,11 +933,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                     @Override
                     public void onClick(View v) {
                         // Retry streaming.
-                        final String sensorId =
-                                sensorCardPresenter.getSelectedSensorId();
+                        final String sensorId = sensorCardPresenter.getSelectedSensorId();
                         if (sensorId != null && mSensorCardAdapter.getSensorCardPresenters()
                                 .contains(sensorCardPresenter)) {
-                            sensorCardPresenter.retryConnection();
+                            sensorCardPresenter.retryConnection(getActivity());
                         }
                     }
                 });
