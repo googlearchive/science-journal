@@ -22,15 +22,15 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
+import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;
+import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
+import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
+import com.google.android.apps.forscience.whistlepunk.StatsListener;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
-import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;
-import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
-import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
-import com.google.android.apps.forscience.whistlepunk.StatsListener;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.UptimeClock;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MonotonicClock;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -104,13 +104,20 @@ public class ManualSensor extends ScalarSensor {
     @Override
     protected ChartController createChartController(DataViewOptions dataViewOptions,
             String sensorId, long defaultGraphRange) {
-        mChartController = new ChartController(
-                ChartOptions.ChartPlacementType.TYPE_OBSERVE,
-                dataViewOptions.getLineGraphOptions(), mThrowawayThreshold,
+        mChartController = new ChartController(ChartOptions.ChartPlacementType.TYPE_OBSERVE,
+                getLineGraphOptions(dataViewOptions), mThrowawayThreshold,
                 /* no data loading buffer */ 0, new MonotonicClock());
         mChartController.setSensorId(sensorId);
         mChartController.setDefaultGraphRange(defaultGraphRange);
         return mChartController;
+    }
+
+    private ScalarDisplayOptions getLineGraphOptions(DataViewOptions dataViewOptions) {
+        if (dataViewOptions != null) {
+            return dataViewOptions.getLineGraphOptions();
+        } else {
+            return new ScalarDisplayOptions();
+        }
     }
 
     public List<ChartData.DataPoint> getRawData() {

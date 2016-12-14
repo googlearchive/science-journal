@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class BlankReadableSensorOptions implements ReadableSensorOptions {
+    public static BlankReadableSensorOptions INSTANCE = new BlankReadableSensorOptions();
+
     @Override
     public float getFloat(String key, float defaultValue) {
         return defaultValue;
@@ -50,5 +52,9 @@ public class BlankReadableSensorOptions implements ReadableSensorOptions {
     @Override
     public Collection<String> getWrittenKeys() {
         return Collections.emptyList();
+    }
+
+    public static ReadableSensorOptions blankIfNull(ReadableSensorOptions options) {
+        return options != null ? options : INSTANCE;
     }
 }

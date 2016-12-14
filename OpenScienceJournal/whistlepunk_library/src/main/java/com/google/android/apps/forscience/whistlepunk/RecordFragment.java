@@ -21,7 +21,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.Fragment;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -929,6 +928,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             }
         };
         sensorCardPresenter.setSensorStatusListener(sensorStatusListener);
+        // TODO: make this externally testable.
         sensorCardPresenter.setOnRetryClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -938,8 +938,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                 sensorCardPresenter.getSelectedSensorId();
                         if (sensorId != null && mSensorCardAdapter.getSensorCardPresenters()
                                 .contains(sensorCardPresenter)) {
-                            sensorCardPresenter.stopObserving();
-                            tryStartObserving(sensorCardPresenter, sensorId, true);
+                            sensorCardPresenter.retryConnection();
                         }
                     }
                 });

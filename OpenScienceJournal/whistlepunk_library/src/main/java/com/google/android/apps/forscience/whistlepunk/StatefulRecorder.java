@@ -42,10 +42,15 @@ public class StatefulRecorder {
 
     public void startObserving() {
         cancelCurrentStopRunnable();
-        if (!mObserving) {
+        if (!isStillRunning()) {
             mRecorder.startObserving();
         }
         mObserving = true;
+    }
+
+    public void reboot() {
+        mRecorder.stopObserving();
+        mRecorder.startObserving();
     }
 
     private void cancelCurrentStopRunnable() {

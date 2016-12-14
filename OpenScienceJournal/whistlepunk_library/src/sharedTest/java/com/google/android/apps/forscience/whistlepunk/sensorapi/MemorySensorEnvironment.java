@@ -18,8 +18,10 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.whistlepunk.Clock;
+import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorHistoryStorage;
+import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 
 public class MemorySensorEnvironment implements SensorEnvironment {
     private final RecordingDataController mDataController;
@@ -29,9 +31,10 @@ public class MemorySensorEnvironment implements SensorEnvironment {
 
     public MemorySensorEnvironment(RecordingDataController dataController, FakeBleClient bleClient,
             SensorHistoryStorage shs, Clock clock) {
-        mDataController = dataController;
+        mDataController = dataController != null ? dataController
+                : new InMemorySensorDatabase().makeSimpleRecordingController();
         mBleClient = bleClient;
-        mHistoryStorage = shs;
+        mHistoryStorage = shs != null ? shs : new MemorySensorHistoryStorage();
         mClock = clock;
     }
 
