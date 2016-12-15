@@ -463,13 +463,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mChartController.setShowStatsOverlay(mShowStatsOverlay);
         mRunReviewOverlay.setChartController(mChartController);
 
-        // If this isn't the first time we've made a view, check if the timepicker UI is up.
-        if (savedInstanceState != null) {
-            if (getChildFragmentManager().findFragmentByTag(EditLabelTimeDialog.TAG) != null) {
-                setTimepickerUi(rootView, true);
-            }
-        }
-
         return rootView;
     }
 
@@ -701,8 +694,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             outState.putDouble(KEY_CHART_AXIS_Y_MINIMUM,
                     mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM));
         } else {
-            outState.putBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE, getChildFragmentManager()
-                    .findFragmentByTag(EditLabelTimeDialog.TAG) != null);
             outState.putLong(KEY_EXTERNAL_AXIS_X_MINIMUM, mExternalAxis.getXMin());
             outState.putLong(KEY_EXTERNAL_AXIS_X_MAXIMUM, mExternalAxis.getXMax());
             outState.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
@@ -859,8 +850,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         mRunReviewOverlay.getTimestamp(),
                         mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId);
             }
-            if (getChildFragmentManager().findFragmentByTag(EditLabelTimeDialog.TAG) != null) {
-                // Reset the add note timepicker UI
+            // If this isn't the first time we've made a view, check if the timepicker UI is up.
+            if (mSavedInstanceStateForLoad.getBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE)) {
+                rootView.findViewById(R.id.embedded).setVisibility(View.VISIBLE);
                 setTimepickerUi(rootView, true);
             }
             mPreviousYPair = new Pair<>(
