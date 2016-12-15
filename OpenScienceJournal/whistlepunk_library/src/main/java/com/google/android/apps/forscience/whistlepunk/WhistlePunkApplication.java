@@ -24,6 +24,7 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSens
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewExporter;
+import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.Map;
@@ -81,6 +82,11 @@ public abstract class WhistlePunkApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            // This process is dedicated to LeakCanary for heap analysis.
+            // You should not init your app in this process.
+            return;
+        }
         mRefWatcher = installLeakCanary();
         onCreateInjector();
         RunReviewExporter.cleanOldFiles(this);
