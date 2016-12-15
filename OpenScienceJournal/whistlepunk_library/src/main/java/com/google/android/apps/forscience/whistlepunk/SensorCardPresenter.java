@@ -1176,6 +1176,13 @@ public class SensorCardPresenter {
         mSingleCardPresenterHeight = singleCardPresenterHeight;
     }
 
+    public void scrollToSensor(String sensorId) {
+        int index = mAvailableSensorIds.indexOf(sensorId);
+        if (index != -1) {
+            mCardViewHolder.sensorTabLayout.setScrollPosition(index, 0, false);
+        }
+    }
+
     private void updateButtonsVisibility(boolean animate) {
         if (mCardViewHolder == null) {
             return;

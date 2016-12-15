@@ -63,7 +63,6 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesActivity;
-import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryListener;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
@@ -1467,11 +1466,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 // the first time on the screen, highlight the left-most one,
                 // the one most likely to be on-screen.
                 String sensorId = sensorsActuallyAdded.get(0);
-                // Activate the first sensor card so the feature discovery has a place to attach.
-                if (mSensorCardAdapter != null &&
-                        mSensorCardAdapter.getSensorCardPresenters().size() > 0) {
-                    mSensorCardAdapter.getSensorCardPresenters().get(0).setActive(true, true);
-                }
                 scheduleFeatureDiscovery(sensorId);
             }
             Fragment hasBluetoothDialog =
@@ -1507,23 +1501,18 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (mSensorCardRecyclerView.getChildCount() == 0) {
             return;
         }
+        // Activate the first sensor card so the feature discovery has a place to attach.
+        if (mSensorCardAdapter != null &&
+                mSensorCardAdapter.getSensorCardPresenters().size() > 0) {
+            mSensorCardAdapter.getSensorCardPresenters().get(0).setActive(true, true);
+            mSensorCardAdapter.getSensorCardPresenters().get(0).scrollToSensor(sensorId);
+        }
         // Look for view with the tag.
         final View view = mSensorCardRecyclerView.getChildAt(0).findViewWithTag(
                 sensorId);
         if (view != null) {
-            SensorAppearance appearance = getSensorAppearanceProvider().getAppearance(
-                    sensorId);
-            mFeatureDiscoveryProvider.show(
-                    FeatureDiscoveryProvider.FEATURE_NEW_EXTERNAL_SENSOR,
-                    ((AppCompatActivity) getActivity()).getSupportFragmentManager(),
-                    view,
-                    new FeatureDiscoveryListener() {
-                        @Override
-                        public void onClick(String feature) {
-                            view.performClick();
-                        }
-                    },
-                    appearance.getIconDrawable(getActivity()));
+            mFeatureDiscoveryProvider.show(((AppCompatActivity) getActivity()),
+                    FeatureDiscoveryProvider.FEATURE_NEW_EXTERNAL_SENSOR, sensorId);
         }
     }
 

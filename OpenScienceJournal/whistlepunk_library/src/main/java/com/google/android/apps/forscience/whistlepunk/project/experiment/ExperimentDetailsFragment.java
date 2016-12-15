@@ -73,7 +73,6 @@ import com.google.android.apps.forscience.whistlepunk.TransitionUtils;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryListener;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -580,15 +579,9 @@ public class ExperimentDetailsFragment extends Fragment
         }
         FeatureDiscoveryProvider provider = WhistlePunkApplication.getFeatureDiscoveryProvider(
                 getActivity());
-        provider.show(FeatureDiscoveryProvider.FEATURE_OBSERVE_FAB,
-                ((AppCompatActivity) getActivity()).getSupportFragmentManager(),
-                mObserveButton,
-                new FeatureDiscoveryListener() {
-                    @Override
-                    public void onClick(String feature) {
-                        launchObserve();
-                    }
-                }, getResources().getDrawable(R.drawable.ic_observe_white_24dp));
+        mObserveButton.setTag(TAG);
+        provider.show(((AppCompatActivity) getActivity()),
+                FeatureDiscoveryProvider.FEATURE_OBSERVE_FAB, TAG);
     }
 
     private void confirmDelete() {
