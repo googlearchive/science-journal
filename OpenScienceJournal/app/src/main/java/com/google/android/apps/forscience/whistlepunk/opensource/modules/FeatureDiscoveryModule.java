@@ -16,12 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk.opensource.modules;
 
-import android.support.v4.app.FragmentManager;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.view.View;
+import android.support.v4.app.FragmentActivity;
 
-import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryListener;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 
 import dagger.Module;
@@ -41,8 +38,7 @@ public class FeatureDiscoveryModule {
             }
 
             @Override
-            public void show(String feature, FragmentManager fragmentManager, View view,
-                    FeatureDiscoveryListener listener, Drawable drawable) {
+            public void show(FragmentActivity activity, String feature, String tag) {
 
             }
         };

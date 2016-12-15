@@ -17,9 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.featurediscovery;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.support.v4.app.FragmentManager;
-import android.view.View;
+import android.support.v4.app.FragmentActivity;
 
 /**
  * An object which can show feature discovery to the user.
@@ -43,12 +41,9 @@ public interface FeatureDiscoveryProvider {
     /**
      * Shows the feature discovery view to the user.
      *
-     * @param feature             which feature is being promoted
-     * @param fragmentManager     support fragment manager for the activity
-     * @param view                view to site the feature discovery view at
-     * @param listener            object listening for events from the feature discovery view
-     * @param drawable            optional drawable to use for the feature discovery view
+     * @param activity    activity hosting the view
+     * @param feature     which feature to show
+     * @param tag         tag set on the view using View#setTag, used to find the view later
      */
-    public void show(String feature, FragmentManager fragmentManager,
-                     View view, FeatureDiscoveryListener listener, Drawable drawable);
+    public void show(FragmentActivity activity, String feature, String tag);
 }
