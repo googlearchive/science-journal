@@ -104,6 +104,9 @@ import java.util.concurrent.TimeUnit;
 public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
         Handler.Callback, StopRecordingNoDataDialog.StopRecordingDialogListener,
         AudioSettingsDialog.AudioSettingsDialogListener {
+    // Set to true to enable current experimental support for multi-window.  This flag will go away
+    // when we are confident there are no regressions with multi-window support
+    private static final boolean ENABLE_MULTI_WINDOW = false;
 
     private static final String TAG = "RecordFragment";
 
@@ -238,6 +241,21 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     @Override
     public void onPause() {
+        if (!ENABLE_MULTI_WINDOW) {
+            stopUI();
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        if (ENABLE_MULTI_WINDOW) {
+            stopUI();
+        }
+        super.onStop();
+    }
+
+    private void stopUI() {
         mExternalAxis.onPauseLiveAxis();
         cancelFeatureDiscovery();
         if (mSensorCardAdapter != null) {
@@ -255,7 +273,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         });
         AppSingleton.getInstance(getActivity()).removeListeners(TAG);
         mSensorLayoutsLoaded = false;
-        super.onPause();
     }
 
     private boolean isRecording() {
@@ -269,11 +286,25 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     @Override
     public void onResume() {
         super.onResume();
+        if (!ENABLE_MULTI_WINDOW) {
+            startUI();
+        }
 
         // Reload sensor appearances in case they have changed while away from this fragment,
         getSensorAppearanceProvider().loadAppearances(
                 LoggingConsumer.<Success>expectSuccess(TAG, "Load appearances"));
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (ENABLE_MULTI_WINDOW) {
+            startUI();
+        }
+    }
+
+    private void startUI() {
         setControlButtonsEnabled(false);
         mExternalAxis.onResumeLiveAxis();
 
