@@ -19,18 +19,29 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
 
+import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.google.common.collect.Lists;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // TODO: can we make this a JDK test?
 public class SensorCardPresenterTest extends AndroidTestCase {
+    private RecorderControllerImpl mRecorderController;
+    private SensorRegistry mSensorRegistry;
+    private List<String> mStoppedSensorIds = new ArrayList<>();
+
     public void testExtrasIncludedInLayout() {
         SensorCardPresenter scp = createSCP();
         String key = Arbitrary.string();
@@ -87,13 +98,36 @@ public class SensorCardPresenterTest extends AndroidTestCase {
 
     public void testKeepOrder() {
         SensorCardPresenter scp = createSCP();
-        scp.setAppearanceProvider(new MemoryAppearanceProvider());
-        scp.setUiForConnectingNewSensor("selected", "displayName", "units", false);
+        setSensorId(scp, "selected", "displayName");
         scp.updateAvailableSensors(Lists.newArrayList("available1", "available2", "available3"),
                 Lists.<String>newArrayList("available1", "selected", "available2",
                         "selectedElsewhere", "available3"));
         assertEquals(Lists.newArrayList("available1", "selected", "available2",
                 "available3"), scp.getAvailableSensorIds());
+    }
+
+    public void testRetry() {
+        ManualSensor sensor = new ManualSensor("sensorId", 100, 100);
+        getSensorRegistry().addBuiltInSensor(sensor);
+        SensorCardPresenter scp = createSCP();
+        setSensorId(scp, "sensorId", "Sensor Name");
+        scp.startObserving(sensor, sensor.createPresenter(null, null, null), null, null);
+        sensor.simulateExternalEventPreventingObservation();
+        assertFalse(sensor.isObserving());
+        scp.retryConnection();
+        assertTrue(sensor.isObserving());
+    }
+
+    public void testDestroyWithBlankSensorId() {
+        SensorCardPresenter scp = createSCP();
+        // Don't stop anything if we've never had a sensorId
+        scp.destroy();
+        assertEquals(0, mStoppedSensorIds.size());
+    }
+
+    private void setSensorId(SensorCardPresenter scp, String sensorId, String sensorDisplayName) {
+        scp.setAppearanceProvider(new MemoryAppearanceProvider());
+        scp.setUiForConnectingNewSensor(sensorId, sensorDisplayName, "units", false);
     }
 
     @NonNull
@@ -105,8 +139,30 @@ public class SensorCardPresenterTest extends AndroidTestCase {
     private SensorCardPresenter createSCP(GoosciSensorLayout.SensorLayout layout) {
         return new SensorCardPresenter(
                 new DataViewOptions(0, new ScalarDisplayOptions()),
-                new SensorSettingsControllerImpl(getContext()),
-                new RecorderControllerImpl(getContext(), null),
+                new SensorSettingsControllerImpl(getContext()), getRecorderController(),
                 layout, "", null, null);
+    }
+
+    @NonNull
+    private RecorderControllerImpl getRecorderController() {
+        if (mRecorderController == null) {
+            mRecorderController = new RecorderControllerImpl(getContext(), getSensorRegistry(),
+                    new MemorySensorEnvironment(null, null, null, null),
+                    new RecorderListenerRegistry(), null, null, new SystemScheduler(), Delay.ZERO) {
+                @Override
+                public void stopObserving(String sensorId, String observerId) {
+                    mStoppedSensorIds.add(sensorId);
+                    super.stopObserving(sensorId, observerId);
+                }
+            };
+        }
+        return mRecorderController;
+    }
+
+    private SensorRegistry getSensorRegistry() {
+        if (mSensorRegistry == null) {
+            mSensorRegistry = SensorRegistry.createWithBuiltinSensors(getContext());
+        }
+        return mSensorRegistry;
     }
 }

@@ -49,6 +49,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerListActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.BlankReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.OptionsListener;
@@ -373,17 +374,19 @@ public class SensorCardPresenter {
     }
 
     public void startObserving(SensorChoice sensorChoice, SensorPresenter sensorPresenter,
-            final ReadableSensorOptions readOptions, DataController dataController) {
+            ReadableSensorOptions readOptions, DataController dataController) {
+        final ReadableSensorOptions nonNullOptions = BlankReadableSensorOptions.blankIfNull(
+                readOptions);
         mCurrentSource = sensorChoice;
         mSensorPresenter = sensorPresenter;
         if (mLayout.activeSensorTriggerIds.length == 0) {
-            startObservingWithTriggers(readOptions, Collections.<SensorTrigger>emptyList());
+            startObservingWithTriggers(nonNullOptions, Collections.<SensorTrigger>emptyList());
         } else {
             dataController.getSensorTriggers(mLayout.activeSensorTriggerIds,
                     new LoggingConsumer<List<SensorTrigger>>(TAG, "get sensor triggers") {
                         @Override
                         public void success(List<SensorTrigger> triggers) {
-                            startObservingWithTriggers(readOptions, triggers);
+                            startObservingWithTriggers(nonNullOptions, triggers);
                             updateCardMenu();
                         }
                     });
@@ -1191,7 +1194,9 @@ public class SensorCardPresenter {
     }
 
     public void destroy() {
-        mRecorderController.stopObserving(mSensorId, mObserverId);
+        if (!TextUtils.isEmpty(mSensorId)) {
+            mRecorderController.stopObserving(mSensorId, mObserverId);
+        }
         mCardTriggerPresenter.onDestroy();
         if (mCardViewHolder != null) {
             mCardViewHolder.header.setOnHeaderTouchListener(null);
@@ -1242,6 +1247,10 @@ public class SensorCardPresenter {
             // Only clear the data if the disconnect didn't come from an error.
             clearSensorStreamData();
         }
+    }
+
+    public void retryConnection() {
+        mRecorderController.reboot(mSensorId);
     }
 
     private void clearSensorStreamData() {

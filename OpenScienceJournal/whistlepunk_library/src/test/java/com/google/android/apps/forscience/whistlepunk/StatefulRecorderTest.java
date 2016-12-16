@@ -38,8 +38,7 @@ public class StatefulRecorderTest {
         sensor.simulateExternalEventPreventingObservation();
 
         // Try to reset
-        sr.stopObserving();
-        sr.startObserving();
+        sr.reboot();
 
         // New value comes in.
         sensor.pushValue(0, 0);

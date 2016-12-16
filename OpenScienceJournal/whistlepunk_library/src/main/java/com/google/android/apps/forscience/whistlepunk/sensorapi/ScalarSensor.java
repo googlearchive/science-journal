@@ -51,6 +51,7 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.UptimeClock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FrequencyOptionsPresenter
         .FilterChangeListener;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -349,7 +350,8 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             final SensorObserver observer, SensorStatusListener listener,
             final SensorEnvironment environment) {
         final StatsAccumulator statsAccumulator = new StatsAccumulator();
-        final RecordingDataController dataController = environment.getDataController();
+        final RecordingDataController dataController = Preconditions.checkNotNull(
+                environment.getDataController());
 
         // We need twice the buffer as the zoom level, because in this implementation of zoom, we
         // decided to store min and max data points at each level.

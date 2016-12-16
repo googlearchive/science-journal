@@ -88,6 +88,11 @@ public interface RecorderController extends SensorRegistryListener {
 
     void stopRecording();
 
+    /**
+     * Retry connecting to the given sensor, which is currently in an error state.
+     */
+    void reboot(String sensorId);
+
     void stopRecordingWithoutSaving();
 
     /**

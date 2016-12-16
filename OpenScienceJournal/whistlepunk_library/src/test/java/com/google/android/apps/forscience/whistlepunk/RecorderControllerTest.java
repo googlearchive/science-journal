@@ -97,8 +97,8 @@ public class RecorderControllerTest {
         assertEquals("bluetooth_le|meter|audioOn", rc.getLayoutLoggingString(loggingId, layout));
 
         layout.sensorId = "AmbientLight";
-        assertEquals("AmbientLight|meter|audioOn", rc.getLayoutLoggingString("AmbientLight",
-                layout));
+        assertEquals("AmbientLight|meter|audioOn",
+                rc.getLayoutLoggingString("AmbientLight", layout));
     }
 
     @Test
@@ -150,6 +150,18 @@ public class RecorderControllerTest {
         assertEquals(0, scheduler.getScheduleCount());
     }
 
+    @Test
+    public void reboot() {
+        MockScheduler scheduler = new MockScheduler();
+        RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+                new RecorderListenerRegistry(), null, null, scheduler, Delay.ZERO);
+        rc.startObserving(mSensorId, null, new RecordingSensorObserver(),
+                new RecordingStatusListener(), null);
+        mSensor.simulateExternalEventPreventingObservation();
+        assertFalse(mSensor.isObserving());
+        rc.reboot(mSensorId);
+        assertTrue(mSensor.isObserving());
+    }
 
     private class TestTrigger extends SensorTrigger {
         int mTestCount = 0;

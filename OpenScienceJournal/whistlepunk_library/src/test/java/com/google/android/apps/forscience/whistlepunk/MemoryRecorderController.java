@@ -78,6 +78,11 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
+    public void reboot(String sensorId) {
+
+    }
+
+    @Override
     public void stopRecordingWithoutSaving() {
 
     }

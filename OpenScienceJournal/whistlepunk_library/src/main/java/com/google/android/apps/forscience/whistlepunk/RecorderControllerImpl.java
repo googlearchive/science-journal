@@ -195,6 +195,14 @@ public class RecorderControllerImpl implements RecorderController {
         return observerId;
     }
 
+    @Override
+    public void reboot(String sensorId) {
+        StatefulRecorder recorder = mRecorders.get(sensorId);
+        if (recorder != null) {
+            recorder.reboot();
+        }
+    }
+
     private void addServiceObserverIfNeeded(String sensorId,
             final List<SensorTrigger> activeTriggers) {
         if (!mServiceObservers.containsKey(sensorId)) {

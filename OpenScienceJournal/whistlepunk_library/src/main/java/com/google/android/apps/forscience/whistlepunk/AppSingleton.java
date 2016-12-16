@@ -107,6 +107,11 @@ public class AppSingleton {
     }
 
     public DataController getDataController() {
+        return internalGetDataController();
+    }
+
+    @NonNull
+    private DataControllerImpl internalGetDataController() {
         if (mDataController == null) {
             mDataController = new DataControllerImpl(
                     new SensorDatabaseImpl(mApplicationContext, SENSOR_DATABASE_NAME),
@@ -130,7 +135,7 @@ public class AppSingleton {
     }
 
     private RecordingDataController getRecordingDataController() {
-        return mDataController;
+        return internalGetDataController();
     }
 
     public BleClientImpl getBleClient() {
