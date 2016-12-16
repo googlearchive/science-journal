@@ -24,16 +24,20 @@
 
     <!-- VideoView is instantiated in code to work around bug
       https://code.google.com/p/android/issues/detail?id=152173 -->
-    <FrameLayout
-        android:layout_width="wrap_content"
+    <com.google.android.apps.forscience.whistlepunk.intro.SquareFrameLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/video_container"/>
-
+        android:id="@+id/video_container"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        />
 
     <TextView
         android:id="@+id/tutorial_header"
         android:layout_toEndOf="@id/video_container"
         android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
         android:layout_height="wrap_content"
         app:layout_marginTopPercent="10%"
         app:layout_marginLeftPercent="10%"
