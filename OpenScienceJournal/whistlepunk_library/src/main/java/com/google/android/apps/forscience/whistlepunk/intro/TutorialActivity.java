@@ -406,7 +406,7 @@ public class TutorialActivity extends AppCompatActivity {
             TextView bodyText = (TextView) view.findViewById(R.id.tutorial_body);
             ViewGroup videoContainer = (ViewGroup) view.findViewById(R.id.video_container);
             videoContainer.addView(mVideo, ViewPager.LayoutParams.MATCH_PARENT,
-                    ViewPager.LayoutParams.WRAP_CONTENT);
+                    ViewPager.LayoutParams.MATCH_PARENT);
             // Would like to use Uri.Builder, but it inserts an extra slash which confuses video
             // view.
             Uri video = Uri.parse("android.resource://" + view.getContext().getPackageName() + "/" +
