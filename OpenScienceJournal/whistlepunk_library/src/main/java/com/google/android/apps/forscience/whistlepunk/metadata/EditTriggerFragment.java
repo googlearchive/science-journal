@@ -197,7 +197,9 @@ public class EditTriggerFragment extends Fragment {
         mAudioAlert = (SwitchCompat) view.findViewById(R.id.alert_type_audio_selector);
         mVisualAlert = (SwitchCompat) view.findViewById(R.id.alert_type_visual_selector);
         mHapticAlert = (SwitchCompat) view.findViewById(R.id.alert_type_haptic_selector);
-        if (!PermissionUtils.permissionIsGranted(getActivity(), Manifest.permission.VIBRATE)) {
+        if (!TriggerHelper.hasVibrator(getActivity())) {
+            mHapticAlert.setEnabled(false);
+        } else if (!PermissionUtils.permissionIsGranted(getActivity(), Manifest.permission.VIBRATE)) {
             mHapticAlert.setEnabled(PermissionUtils.canRequestAgain(getActivity(),
                     Manifest.permission.VIBRATE));
         };
