@@ -505,10 +505,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             menu.findItem(R.id.action_enable_auto_zoom).setVisible(
                     !mExperimentRun.getAutoZoomEnabled());
 
-            menu.findItem(R.id.action_run_review_crop).setVisible(
-                    mExperimentRun.getOriginalLastTimestamp() -
-                            mExperimentRun.getOriginalFirstTimestamp() >
-                            CropHelper.MINIMUM_CROP_MILLIS);
             // You can only do a crop if the run length is long enough.
             menu.findItem(R.id.action_run_review_crop).setEnabled(
                     CropHelper.experimentIsLongEnoughForCrop(mExperimentRun));
