@@ -102,6 +102,10 @@ public class TriggerHelper {
         mVibrator.vibrate(TRIGGER_VIBRATION_DURATION_MS);
     }
 
+    public static boolean hasVibrator(Context context) {
+        return ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE)).hasVibrator();
+    }
+
     /**
      * Adds the trigger ID to the layout's active triggers if it is not already in the list.
      */
