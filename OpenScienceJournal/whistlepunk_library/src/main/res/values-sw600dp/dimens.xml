@@ -17,5 +17,5 @@
 <resources>
     <!-- For large views, the cards are always shown at the multiple card height. -->
     <bool name="always_use_multi_card_height">true</bool>
-    <dimen name="meter_mode_layout_margin_bottom">48dp</dimen>
+    <dimen name="meter_mode_layout_margin_bottom">36dp</dimen>
 </resources>
