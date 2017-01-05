@@ -120,7 +120,7 @@
         android:layout_width="@dimen/accessibility_touch_target_min_size"
         android:layout_height="@dimen/accessibility_touch_target_min_size"
         android:id="@id/note_menu_button"
-        android:src="@drawable/abc_ic_menu_moreoverflow_mtrl_alpha"
+        android:src="@drawable/ic_menu_moreoverflow_mtrl_alpha"
         android:contentDescription="@string/menu_btn_content_description"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/run_review_note_divider"
