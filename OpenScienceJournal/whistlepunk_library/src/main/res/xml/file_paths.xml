@@ -16,4 +16,5 @@
  -->
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <files-path name="exported_runs" path="exported_run_files"/>
+    <external-path name="pictures" path="Pictures" />
 </paths>

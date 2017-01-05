@@ -33,6 +33,8 @@ import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Static picture functions shared across many parts of the app.
@@ -45,21 +47,20 @@ public class PictureUtils {
     public static final int PERMISSIONS_WRITE_EXTERNAL_STORAGE = 2;
     public static final int PERMISSIONS_CAMERA = 3;
 
+    private static final String PICTURES_DIR_NAME = "ScienceJournal";
+    private static final String PICTURE_NAME_TEMPLATE = "Picture_%s.jpg";
+
     // From http://developer.android.com/training/camera/photobasics.html.
     public static File createImageFile(long timestamp) throws IOException {
         // Create an image file name
-        String timeStamp = String.valueOf(timestamp);
-        String imageFileName = "ScienceJournal_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+        String imageDate = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date(timestamp));
+        String imageFileName = String.format(PICTURE_NAME_TEMPLATE, imageDate);
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), PICTURES_DIR_NAME);
         if (!storageDir.exists()) {
             storageDir.mkdirs();
         }
-        File imageFile = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
+        File imageFile = new File(storageDir, imageFileName);
         return imageFile;
     }
 
@@ -93,7 +94,9 @@ public class PictureUtils {
                 }
             }
             if (photoFile != null) {
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                Uri photoUri = FileProvider.getUriForFile(activity, activity.getPackageName(),
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 String pictureLabelPath = "file:" + photoFile.getAbsoluteFile();
                 activity.startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
                 return pictureLabelPath;
