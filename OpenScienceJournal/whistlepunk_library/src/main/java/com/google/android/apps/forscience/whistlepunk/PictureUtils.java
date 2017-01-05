@@ -19,11 +19,13 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
@@ -97,6 +99,11 @@ public class PictureUtils {
                 Uri photoUri = FileProvider.getUriForFile(activity, activity.getPackageName(),
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                    // Needed to avoid security exception on KitKat.
+                    takePictureIntent.setClipData(ClipData.newRawUri(null, photoUri));
+                }
+                takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 String pictureLabelPath = "file:" + photoFile.getAbsoluteFile();
                 activity.startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
                 return pictureLabelPath;
