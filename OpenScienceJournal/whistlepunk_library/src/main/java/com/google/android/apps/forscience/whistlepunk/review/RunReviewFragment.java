@@ -251,12 +251,20 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     @Override
                     public void onExportEnd(Uri uri) {
                         resetExportUi();
-                        if (uri != null) {
+                        if (uri != null && getActivity() != null) {
                             Intent intent = new Intent(android.content.Intent.ACTION_SEND);
                             intent.setType("application/octet-stream");
                             intent.putExtra(Intent.EXTRA_STREAM, uri);
-                            getActivity().startActivity(Intent.createChooser(intent, getString(
-                                    R.string.export_run_chooser_title)));
+
+                            if (getActivity().getPackageManager().queryIntentActivities(intent, 0)
+                                    .size() > 0) {
+                                getActivity().startActivity(Intent.createChooser(intent, getString(
+                                        R.string.export_run_chooser_title)));
+                            } else {
+                                Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
+                                        getString(R.string.no_app_found), Snackbar.LENGTH_LONG);
+                                bar.show();
+                            }
                         }
                     }
 
