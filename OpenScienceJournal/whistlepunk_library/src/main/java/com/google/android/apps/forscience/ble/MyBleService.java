@@ -34,7 +34,9 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.ArraySet;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -86,6 +89,8 @@ public class MyBleService extends Service {
 
     private List<BleDeviceListener> mDeviceListeners;
 
+    private Set<String> mOutstandingServiceDiscoveryAddresses = new ArraySet<>();
+
     // BLE callback
     BluetoothAdapter.LeScanCallback scanCallback = new BluetoothAdapter.LeScanCallback() {
 
@@ -109,22 +114,22 @@ public class MyBleService extends Service {
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            if (DEBUG) Log.d(TAG, "CONNECTION CHANGED FOR " + gatt.getDevice().getAddress() + " : "
+            if (DEBUG) Log.d(TAG, "CONNECTION CHANGED FOR " + getAddressFromGatt(gatt) + " : "
                     + newState);
             if (status != BluetoothGatt.GATT_SUCCESS) {
-                sendGattBroadcast(gatt.getDevice().getAddress(), BleEvents.GATT_CONNECT_FAIL, null);
-                addressToGattClient.remove(gatt.getDevice().getAddress());
+                sendGattBroadcast(getAddressFromGatt(gatt), BleEvents.GATT_CONNECT_FAIL, null);
+                addressToGattClient.remove(getAddressFromGatt(gatt));
                 gatt.close();
                 return;
             }
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                sendGattBroadcast(gatt.getDevice().getAddress(), BleEvents.GATT_CONNECT, null);
+                sendGattBroadcast(getAddressFromGatt(gatt), BleEvents.GATT_CONNECT, null);
                 return;
             }
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                sendGattBroadcast(gatt.getDevice().getAddress(), BleEvents.GATT_DISCONNECT, null);
-                addressToGattClient.remove(gatt.getDevice().getAddress());
+                sendGattBroadcast(getAddressFromGatt(gatt), BleEvents.GATT_DISCONNECT, null);
+                addressToGattClient.remove(getAddressFromGatt(gatt));
                 gatt.close();
                 return;
             }
@@ -133,7 +138,9 @@ public class MyBleService extends Service {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            sendGattBroadcast(gatt.getDevice().getAddress(), status == BluetoothGatt.GATT_SUCCESS
+            String address = getAddressFromGatt(gatt);
+            mOutstandingServiceDiscoveryAddresses.remove(address);
+            sendGattBroadcast(address, status == BluetoothGatt.GATT_SUCCESS
                     ? BleEvents.SERVICES_OK : BleEvents.SERVICES_FAIL, null);
         }
 
@@ -141,7 +148,7 @@ public class MyBleService extends Service {
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             if (DEBUG) Log.d(TAG, "Got notification from " + characteristic.getUuid());
-            sendGattBroadcast(gatt.getDevice().getAddress(), BleEvents.CHAR_CHANGED,
+            sendGattBroadcast(getAddressFromGatt(gatt), BleEvents.CHAR_CHANGED,
                     characteristic);
         }
 
@@ -156,7 +163,7 @@ public class MyBleService extends Service {
                 Log.d(TAG, "Characteristic value: " + characteristic.getStringValue(0).toString());
             }
 
-            sendGattBroadcast(gatt.getDevice().getAddress(), status == BluetoothGatt.GATT_SUCCESS
+            sendGattBroadcast(getAddressFromGatt(gatt), status == BluetoothGatt.GATT_SUCCESS
                     ? BleEvents.READ_CHAR_OK : BleEvents.READ_CHAR_FAIL, characteristic);
         }
 
@@ -165,7 +172,7 @@ public class MyBleService extends Service {
                                           BluetoothGattCharacteristic characteristic, int status) {
             if (DEBUG) Log.d(TAG, "Characteristic write result: "
                     + characteristic.getUuid() + " - " + (status == BluetoothGatt.GATT_SUCCESS));
-            sendGattBroadcast(gatt.getDevice().getAddress(),
+            sendGattBroadcast(getAddressFromGatt(gatt),
                     status == BluetoothGatt.GATT_SUCCESS
                             ? BleEvents.WRITE_CHAR_OK : BleEvents.WRITE_CHAR_FAIL, characteristic);
         }
@@ -173,34 +180,40 @@ public class MyBleService extends Service {
         @Override
         public void onDescriptorRead(BluetoothGatt gatt,
                                      BluetoothGattDescriptor descriptor, int status) {
-            sendGattBroadcast(gatt.getDevice().getAddress(), status == BluetoothGatt.GATT_SUCCESS
+            sendGattBroadcast(getAddressFromGatt(gatt), status == BluetoothGatt.GATT_SUCCESS
                     ? BleEvents.READ_DESC_OK : BleEvents.READ_DESC_FAIL, null);
         }
 
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt,
                                       BluetoothGattDescriptor descriptor, int status) {
-            sendGattBroadcast(gatt.getDevice().getAddress(), status == BluetoothGatt.GATT_SUCCESS
+            sendGattBroadcast(getAddressFromGatt(gatt), status == BluetoothGatt.GATT_SUCCESS
                     ? BleEvents.WRITE_DESC_OK : BleEvents.WRITE_DESC_FAIL, null);
         }
 
         @Override
         public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
-            sendGattBroadcast(gatt.getDevice().getAddress(), status == BluetoothGatt.GATT_SUCCESS
+            sendGattBroadcast(getAddressFromGatt(gatt), status == BluetoothGatt.GATT_SUCCESS
                     ? BleEvents.COMMIT_OK : BleEvents.COMMIT_FAIL, null);
         }
 
         @Override
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            sendGattBroadcast(gatt.getDevice().getAddress(), status == BluetoothGatt.GATT_SUCCESS
+            sendGattBroadcast(getAddressFromGatt(gatt), status == BluetoothGatt.GATT_SUCCESS
                     ? BleEvents.MTU_CHANGE_OK : BleEvents.MTU_CHANGE_OK, null);
         }
     };
 
+    @VisibleForTesting
+    protected String getAddressFromGatt(BluetoothGatt gatt) {
+        return gatt.getDevice().getAddress();
+    }
+
     private final IBinder binder = new LocalBinder();
 
-    private void sendGattBroadcast(String address, String gattAction,
-                                   BluetoothGattCharacteristic characteristic) {
+    @VisibleForTesting
+    protected void sendGattBroadcast(String address, String gattAction,
+            BluetoothGattCharacteristic characteristic) {
         if (DEBUG) Log.d(TAG, "Sending the action: " + gattAction);
         Intent newIntent = BleEvents.createIntent(gattAction, address);
         if (characteristic != null) {
@@ -290,7 +303,7 @@ public class MyBleService extends Service {
         return btAdapter != null && btAdapter.isEnabled();
     }
 
-    boolean connect(String address) {
+    public boolean connect(String address) {
         BluetoothDevice device = btAdapter.getRemoteDevice(address);
         //  Explicitly check if Ble is enabled, otherwise it attempts a connection
         //  that never timesout even though it should.
@@ -373,6 +386,15 @@ public class MyBleService extends Service {
     }
 
     public boolean discoverServices(String address) {
+        if (mOutstandingServiceDiscoveryAddresses.contains(address)) {
+            return addressToGattClient.containsKey(address);
+        }
+        mOutstandingServiceDiscoveryAddresses.add(address);
+        return internalDiscoverServices(address);
+    }
+
+    @VisibleForTesting
+    protected boolean internalDiscoverServices(String address) {
         BluetoothGatt bluetoothGatt = addressToGattClient.get(address);
         return bluetoothGatt != null && bluetoothGatt.discoverServices();
     }
@@ -485,6 +507,9 @@ public class MyBleService extends Service {
             sendGattBroadcast(address, BleEvents.WRITE_DESC_FAIL, null);
             return;
         }
+
+        BluetoothGattCharacteristic characteristic = descriptor.getCharacteristic();
+        BluetoothGattService service = characteristic.getService();
 
         if (!descriptor.setValue(value) || !bluetoothGatt.writeDescriptor(descriptor)) {
             sendGattBroadcast(address, BleEvents.WRITE_DESC_FAIL, descriptor.getCharacteristic());

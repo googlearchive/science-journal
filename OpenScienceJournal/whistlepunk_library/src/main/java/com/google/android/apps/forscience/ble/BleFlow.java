@@ -22,7 +22,10 @@ import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Log;
 
 import java.io.IOException;
@@ -30,6 +33,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -92,21 +97,35 @@ public class BleFlow {
         public void onServicesDiscovered() {}
     };
 
+    private static class RichAction {
+        public Action action;
+        public Object param;
+
+        /**
+         * @param action the action to be undertaken
+         * @param param the parameter to the action, if any.  Can be null if that action does not
+         *              take a parameter.
+         */
+        public RichAction(Action action, Object param) {
+            this.action = action;
+            this.param = param;
+        }
+    }
+
     private final Context context;
     private final BleClient client;
-    private final List<Action> actions;
-    private final List<UUID> services;
+    private final List<RichAction> actions;
+    private final Set<UUID> serviceIdsToLookup = new ArraySet<>();
+    private final Map<UUID, BluetoothGattService> serviceMap = new ArrayMap<>();
     private final List<UUID> characteristics;
     private final List<UUID> descriptors;
     private final List<byte[]> values;
     private UUID[] scanServiceFilter;
 
     private BluetoothGattCharacteristic currentCharacteristic;
-    private BluetoothGattService currentService;
     private BluetoothGattDescriptor currentDescriptor;
 
     private BleFlowListener listener;
-    private int serviceIndex;
     private int characteristicIndex;
     private int valueIndex;
     private int actionIndex;
@@ -159,16 +178,15 @@ public class BleFlow {
                         + address));
                 flowEnded.set(true);
             } else if (BleEvents.SERVICES_OK.equals(action)) {
-                currentService = services.size() <= serviceIndex ? null
-                        : client.getService(address, services.get(serviceIndex++));
-                if (currentService == null) {
-                    listener.onFailure(new Exception("Service lookup failure at: "
-                            + address));
-                    flowEnded.set(true);
-                } else {
-                    listener.onServicesDiscovered();
-                    nextAction();
+                for (UUID serviceId : serviceIdsToLookup) {
+                    // This may put null in the serviceMap.  If so, either
+                    //   1) this is a stale serviceId we don't need anymore, so no harm done, or 
+                    //   2) the next characteristic lookup for serviceId will fail, correctly.
+                    serviceMap.put(serviceId, client.getService(address, serviceId));
                 }
+                serviceIdsToLookup.clear();
+                listener.onServicesDiscovered();
+                nextAction();
             } else if (BleEvents.SERVICES_FAIL.equals(action)) {
                 listener.onFailure(new Exception("Service lookup failure at: "
                         + address));
@@ -214,12 +232,12 @@ public class BleFlow {
             }
         }
     };
-    
-    private BleFlow(BleClient client, Context context, String address) {
+
+    @VisibleForTesting
+    protected BleFlow(BleClient client, Context context, String address) {
         this.client = client;
         this.context = context;
         actions = new ArrayList<>();
-        services = new ArrayList<>();
         characteristics = new ArrayList<>();
         values = new ArrayList<>();
         descriptors = new ArrayList<>();
@@ -229,11 +247,17 @@ public class BleFlow {
         flowEnded.set(true);
         maxNoDevices = MyBleService.MAX_NO_DEVICES;
 
+        registerReceiver(receiver);
+    }
+
+    @VisibleForTesting
+    protected void registerReceiver(BroadcastReceiver receiver) {
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver,
                 BleEvents.createIntentFilter(address));
     }
 
-    private void nextAction() {
+    @VisibleForTesting
+    protected void nextAction() {
         if (flowEnded.get()) {
             return;
         }
@@ -243,7 +267,9 @@ public class BleFlow {
             listener.onSuccess();
             return;
         }
-        Action action = actions.get(actionIndex++);
+        RichAction richAction = actions.get(actionIndex++);
+        Action action = richAction.action;
+        Object param = richAction.param;
         if (DEBUG) Log.d(TAG, "current action: " + action);
         switch (action) {
             case SCAN:
@@ -287,6 +313,9 @@ public class BleFlow {
                 break;
             case LOOKUP_CHARACT:
                 UUID charactId = characteristics.get(characteristicIndex++);
+                UUID serviceId = (UUID) param;
+                BluetoothGattService currentService = serviceId != null ? serviceMap.get(serviceId)
+                        : null;
                 currentCharacteristic = currentService != null ?
                         currentService.getCharacteristic(charactId) : null;
                 if (currentCharacteristic == null) {
@@ -372,19 +401,17 @@ public class BleFlow {
     }
 
     public BleFlow reset() {
-
         actions.clear();
-        services.clear();
+        serviceIdsToLookup.clear();
+        serviceMap.clear();
         characteristics.clear();
         descriptors.clear();
         values.clear();
-        serviceIndex = 0;
         characteristicIndex = 0;
         valueIndex = 0;
         actionIndex = 0;
         descriptorIndex = 0;
         currentCharacteristic = null;
-        currentService = null;
         currentDescriptor = null;
         inputStream = null;
         timeout = -1;
@@ -408,14 +435,18 @@ public class BleFlow {
     }
 
     public BleFlow scan(int timeout) {
-        actions.add(Action.SCAN);
+        addAction(Action.SCAN);
         scanServiceFilter = null;
         this.timeout = timeout;
         return this;
     }
 
+    private void addAction(Action action) {
+        actions.add(new RichAction(action, null));
+    }
+
     public BleFlow scan(int timeout, int maxNoDevices) {
-        actions.add(Action.SCAN);
+        addAction(Action.SCAN);
         this.maxNoDevices = maxNoDevices;
         scanServiceFilter = null;
         this.timeout = timeout;
@@ -423,14 +454,14 @@ public class BleFlow {
     }
 
     public BleFlow scanFor(UUID[] services, int timeout) {
-        actions.add(Action.SCAN);
+        addAction(Action.SCAN);
         scanServiceFilter = services;
         this.timeout = timeout;
         return this;
     }
 
     public BleFlow scanFor(UUID[] services, int timeout, int maxNoDevices) {
-        actions.add(Action.SCAN);
+        addAction(Action.SCAN);
         this.maxNoDevices = maxNoDevices;
         scanServiceFilter = services;
         this.timeout = timeout;
@@ -443,66 +474,66 @@ public class BleFlow {
     }
 
     public BleFlow setAddressToFirstFoundDevice() {
-        actions.add(Action.PICK_FIRST_DEVICE);
+        addAction(Action.PICK_FIRST_DEVICE);
         return this;
     }
 
     public BleFlow connect() {
-        actions.add(Action.CONNECT);
+        addAction(Action.CONNECT);
         return this;
     }
 
     public BleFlow lookupService(UUID serviceUuid) {
-        actions.add(Action.LOOKUP_SRV);
-        services.add(serviceUuid);
+        addAction(Action.LOOKUP_SRV);
+        serviceIdsToLookup.add(serviceUuid);
         return this;
     }
 
-    public BleFlow lookupCharacteristic(UUID characteristicUuid) {
-        actions.add(Action.LOOKUP_CHARACT);
+    public BleFlow lookupCharacteristic(UUID serviceId, UUID characteristicUuid) {
+        actions.add(new RichAction(Action.LOOKUP_CHARACT, serviceId));
         characteristics.add(characteristicUuid);
         return this;
     }
 
     public BleFlow lookupDescriptor(UUID descriptorUuid) {
-        actions.add(Action.LOOKUP_DESC);
+        addAction(Action.LOOKUP_DESC);
         descriptors.add(descriptorUuid);
         return this;
     }
 
     public BleFlow read() {
-        actions.add(Action.READ_CHARACT);
+        addAction(Action.READ_CHARACT);
         return this;
     }
 
     public BleFlow write(byte[] value) {
-        actions.add(Action.WRITE_CHARACT);
+        addAction(Action.WRITE_CHARACT);
         values.add(value);
         return this;
     }
 
     public BleFlow enableNotification() {
-        actions.add(Action.ENABLE_NOTIF);
+        addAction(Action.ENABLE_NOTIF);
 
         lookupDescriptor(BLE_CLIENT_CONFIG_CHARACTERISTIC);
 
-        actions.add(Action.WRITE_DESC);
+        addAction(Action.WRITE_DESC);
         values.add(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         return this;
     }
 
     public BleFlow disableNotification() {
-        actions.add(Action.DISABLE_NOTIF);
+        addAction(Action.DISABLE_NOTIF);
 
         lookupDescriptor(BLE_CLIENT_CONFIG_CHARACTERISTIC);
 
-        actions.add(Action.WRITE_DESC);
+        addAction(Action.WRITE_DESC);
         values.add(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
         return this;
     }
 
     public BleFlow beginTransaction() {
-        actions.add(Action.START_TX);
+        addAction(Action.START_TX);
         return this;
     }
 
@@ -515,12 +546,12 @@ public class BleFlow {
     //    }
 
     public BleFlow commit() {
-        actions.add(Action.COMMIT);
+        addAction(Action.COMMIT);
         return this;
     }
 
     public BleFlow disconnect() {
-        actions.add(Action.DISCONNECT);
+        addAction(Action.DISCONNECT);
         return this;
     }
 
@@ -530,7 +561,7 @@ public class BleFlow {
 
     private void run() {
         Log.v(TAG, "executing actions: " + actions);
-        Log.v(TAG, "services: " + services);
+        Log.v(TAG, "services: " + serviceMap);
         Log.v(TAG, "characteristics: " + characteristics);
         Log.v(TAG, "descriptors: " + descriptors);
         Log.v(TAG, "values: " + Arrays.toString(values.toArray()));
@@ -542,11 +573,12 @@ public class BleFlow {
 
     }
 
-    private BluetoothGattService getCurrentService() {
-        return currentService;
-    }
-
-    public boolean isCharacteristicValid (UUID characteristic) {
+    /**
+     * @return true iff {@code characteristic} is the id of a valid characteristic in the service
+     * with id {@code serviceId}.
+     */
+    public boolean isCharacteristicValid(UUID serviceId, UUID characteristic) {
+        BluetoothGattService currentService = serviceMap.get(serviceId);
         return currentService != null && currentService.getCharacteristic(characteristic) != null;
     }
 
@@ -563,7 +595,7 @@ public class BleFlow {
     }
 
     public BleFlow writeInputStream(InputStream stream) {
-        actions.add(Action.WRITE_STREAM);
+        addAction(Action.WRITE_STREAM);
         this.inputStream = stream;
         return this;
     }

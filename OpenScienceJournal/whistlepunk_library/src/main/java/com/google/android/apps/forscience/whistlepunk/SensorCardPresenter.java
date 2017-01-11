@@ -66,6 +66,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.text.NumberFormat;
@@ -1249,7 +1250,8 @@ public class SensorCardPresenter {
         }
     }
 
-    public void retryConnection() {
+    public void retryConnection(Context context) {
+        setConnectingUI(getSelectedSensorId(), false, context, true);
         mRecorderController.reboot(mSensorId);
     }
 
