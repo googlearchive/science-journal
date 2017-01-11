@@ -27,7 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.project.MetadataActivity;
 
 public class ExperimentDetailsActivity extends MetadataActivity {
-    private String mExperimentId;
+    private static final String FRAGMENT_TAG = "ExperimentDetailsFragment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,17 +36,36 @@ public class ExperimentDetailsActivity extends MetadataActivity {
 
         Bundle extras = getIntent().getExtras();
         if (savedInstanceState == null && extras != null) {
-            mExperimentId = extras.getString(
-                    ExperimentDetailsFragment.ARG_EXPERIMENT_ID);
-            ExperimentDetailsFragment fragment = ExperimentDetailsFragment.newInstance(
-                    mExperimentId, extras.getBoolean(ExperimentDetailsFragment.ARG_CREATE_TASK,
-                            false));
-            getFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
-        } else if (savedInstanceState != null){
-            mExperimentId = savedInstanceState.getString(
-                    ExperimentDetailsFragment.ARG_EXPERIMENT_ID);
+            String experimentId = extras.getString(ExperimentDetailsFragment.ARG_EXPERIMENT_ID);
+            ExperimentDetailsFragment fragment = ExperimentDetailsFragment.newInstance(experimentId,
+                    extras.getBoolean(ExperimentDetailsFragment.ARG_CREATE_TASK, false));
+            getFragmentManager().beginTransaction().add(R.id.container, fragment,
+                    FRAGMENT_TAG).commit();
+        } else if (savedInstanceState != null) {
+            setExperimentId(
+                    savedInstanceState.getString(ExperimentDetailsFragment.ARG_EXPERIMENT_ID));
         }
+    }
 
+    private void setExperimentId(String experimentId) {
+        ExperimentDetailsFragment fragment = getFragment();
+        if (fragment != null) {
+            fragment.setExperimentId(experimentId);
+        }
+    }
+
+    private ExperimentDetailsFragment getFragment() {
+        return (ExperimentDetailsFragment) getFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String experimentId = intent.getExtras().getString(
+                ExperimentDetailsFragment.ARG_EXPERIMENT_ID);
+        if (experimentId != null) {
+            setExperimentId(experimentId);
+        }
     }
 
     public static void launch(Context context, String experimentId) {
@@ -69,7 +88,8 @@ public class ExperimentDetailsActivity extends MetadataActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putString(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, mExperimentId);
+        savedInstanceState.putString(ExperimentDetailsFragment.ARG_EXPERIMENT_ID,
+                getExperimentId());
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -83,8 +103,12 @@ public class ExperimentDetailsActivity extends MetadataActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[],
-                                           int[] grantResults) {
+            int[] grantResults) {
         PictureUtils.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 
+    public String getExperimentId() {
+        ExperimentDetailsFragment fragment = getFragment();
+        return fragment != null ? fragment.getExperimentId() : null;
+    }
 }

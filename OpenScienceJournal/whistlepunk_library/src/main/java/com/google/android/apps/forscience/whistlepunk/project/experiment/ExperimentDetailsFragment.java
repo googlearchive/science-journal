@@ -102,6 +102,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A fragment to handle displaying Experiment details, runs and labels.
@@ -163,22 +164,17 @@ public class ExperimentDetailsFragment extends Fragment
         setHasOptionsMenu(true);
     }
 
+    public void setExperimentId(String experimentId) {
+        if (!Objects.equals(experimentId, mExperiment)) {
+            mExperimentId = experimentId;
+            loadExperiment();
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        getDataController().getExperimentById(mExperimentId,
-                new LoggingConsumer<Experiment>(TAG, "retrieve experiment") {
-                    @Override
-                    public void success(final Experiment experiment) {
-                        if (experiment == null) {
-                            // This was deleted on us. Finish and return so we don't try to load.
-                            getActivity().finish();
-                            return;
-                        }
-                        attachExperimentDetails(experiment);
-                        loadExperimentData(experiment);
-                    }
-                });
+        loadExperiment();
         // Create a BroadcastReceiver for when the stats get updated.
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -192,6 +188,22 @@ public class ExperimentDetailsFragment extends Fragment
 
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_EXPERIMENT_DETAIL);
+    }
+
+    private void loadExperiment() {
+        getDataController().getExperimentById(mExperimentId,
+                new LoggingConsumer<Experiment>(TAG, "retrieve experiment") {
+                    @Override
+                    public void success(final Experiment experiment) {
+                        if (experiment == null) {
+                            // This was deleted on us. Finish and return so we don't try to load.
+                            getActivity().finish();
+                            return;
+                        }
+                        attachExperimentDetails(experiment);
+                        loadExperimentData(experiment);
+                    }
+                });
     }
 
     @Override
@@ -646,6 +658,10 @@ public class ExperimentDetailsFragment extends Fragment
                     | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
         }
         mToolbar.setLayoutParams(params);
+    }
+
+    public String getExperimentId() {
+        return mExperimentId;
     }
 
     public static class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.ViewHolder> {
