@@ -81,14 +81,32 @@ public class PictureUtils {
                 });
     }
 
+    public static String capturePictureLabel(final Activity activity) {
+        return capturePictureLabel(activity, new IStartable() {
+            @Override
+            public void startActivityForResult(Intent intent, int requestCode) {
+                activity.startActivityForResult(intent, requestCode);
+            }
+        });
+    }
+
+    public static String capturePictureLabel(final android.support.v4.app.Fragment fragment) {
+        return capturePictureLabel(fragment.getActivity(), new IStartable() {
+            @Override
+            public void startActivityForResult(Intent intent, int requestCode) {
+                fragment.startActivityForResult(intent, requestCode);
+            }
+        });
+    }
+
     // From http://developer.android.com/training/camera/photobasics.html.
-    public static String capturePictureLabel(Activity activity) {
+    private static String capturePictureLabel(Context context, IStartable startable) {
         // Starts a picture intent.
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
+        if (takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
             File photoFile = null;
             try {
-                photoFile = PictureUtils.createImageFile(AppSingleton.getInstance(activity)
+                photoFile = PictureUtils.createImageFile(AppSingleton.getInstance(context)
                         .getSensorEnvironment().getDefaultClock().getNow());
             } catch (IOException ex) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -96,7 +114,7 @@ public class PictureUtils {
                 }
             }
             if (photoFile != null) {
-                Uri photoUri = FileProvider.getUriForFile(activity, activity.getPackageName(),
+                Uri photoUri = FileProvider.getUriForFile(context, context.getPackageName(),
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -105,11 +123,15 @@ public class PictureUtils {
                 }
                 takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 String pictureLabelPath = "file:" + photoFile.getAbsoluteFile();
-                activity.startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                startable.startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
                 return pictureLabelPath;
             }
         }
         return null;
+    }
+
+    private interface IStartable {
+        void startActivityForResult(Intent intent, int requestCode);
     }
 
     // Assumes that the Camera permission always requires external storage.
