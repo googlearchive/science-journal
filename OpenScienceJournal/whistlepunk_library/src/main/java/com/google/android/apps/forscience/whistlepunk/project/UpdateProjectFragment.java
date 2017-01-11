@@ -23,17 +23,16 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,6 +51,7 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -63,8 +63,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Fragment for saving/updating projects details (title, cover,...etc).
@@ -83,10 +81,12 @@ public class UpdateProjectFragment extends Fragment {
      */
     public static final String ARG_NEW = "new";
 
+    private static final String KEY_CAPTURED_PHOTO_PATH = "CAPTURED_PHOTO_PATH";
+
     /**
      * An action ID to handle results returned from photo picker intent.
      */
-    private static final int SELECT_PHOTO = 1;
+    private static final int SELECT_PHOTO = 141;
 
     /**
      * Alpha to use for add image drawable;
@@ -94,9 +94,9 @@ public class UpdateProjectFragment extends Fragment {
     private static final int ADD_IMAGE_ALPHA = (int) (255 * .5f);
 
     /**
-     * Permission request for writing to external storage.
+     * Permission request for writing to external storage when choosing a photo
      */
-    private static final int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
+    private static final int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 142;
 
     private String mProjectId;
     private Project mProject;
@@ -110,6 +110,11 @@ public class UpdateProjectFragment extends Fragment {
      * This is set if we get a photo result before the project finishes loading.
      */
     private String mPendingPhotoPath;
+
+    /**
+     * This is set if we are taking a picture, not choosing one.
+     */
+    private String mCapturedPhotoPath;
 
     public UpdateProjectFragment() {
     }
@@ -129,6 +134,9 @@ public class UpdateProjectFragment extends Fragment {
         setHasOptionsMenu(true);
         getActivity().setTitle(getString(isNewProject() ? R.string.title_activity_new_project :
                 R.string.title_activity_update_project));
+        if (savedInstanceState != null) {
+            mCapturedPhotoPath = savedInstanceState.getString(KEY_CAPTURED_PHOTO_PATH, null);
+        }
     }
 
     @Override
@@ -145,6 +153,12 @@ public class UpdateProjectFragment extends Fragment {
                 });
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(isNewProject() ?
                 TrackerConstants.SCREEN_NEW_PROJECT : TrackerConstants.SCREEN_UPDATE_PROJECT);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(KEY_CAPTURED_PHOTO_PATH, mCapturedPhotoPath);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -181,6 +195,28 @@ public class UpdateProjectFragment extends Fragment {
                     requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
                 }
+            }
+        });
+        mProjectCoverButton.setOnLongClickListener(new View.OnLongClickListener() {
+
+            @Override
+            public boolean onLongClick(View view) {
+                boolean grantedCamera = PermissionUtils.tryRequestingPermission(getActivity(),
+                        Manifest.permission.CAMERA,
+                        PictureUtils.PERMISSIONS_CAMERA, /* force retry */ true);
+                // If camera permission was not granted, on permission result we try requesting
+                // storage. If it was granted, then check storage separately here.
+                if (grantedCamera) {
+                    boolean grantedStorage = PermissionUtils.tryRequestingPermission(
+                            getActivity(),
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            PictureUtils.PERMISSIONS_WRITE_EXTERNAL_STORAGE,
+                                /* force retry */ true);
+                    if (grantedStorage) {
+                        launchPhotoTaker();
+                    }
+                }
+                return true;
             }
         });
         mProjectTitle.addTextChangedListener(new TextWatcher() {
@@ -350,37 +386,52 @@ public class UpdateProjectFragment extends Fragment {
     }
 
     private void launchPhotoPicker() {
+        // TODO: investigate using ACTION_OPEN_DOCUMENT and normalizing everywhere with PictureUtils
+        // so we can support choosing and taking photos everywhere.
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
         startActivityForResult(photoPickerIntent, SELECT_PHOTO);
     }
 
+    private void launchPhotoTaker() {
+        mCapturedPhotoPath = PictureUtils.capturePictureLabel(
+                UpdateProjectFragment.this);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check for non-null Uri here because of b/27899888
-        if (requestCode == SELECT_PHOTO && resultCode == Activity.RESULT_OK
+        String path = null;
+        if (requestCode == PictureUtils.REQUEST_TAKE_PHOTO && resultCode == Activity.RESULT_OK) {
+            path = mCapturedPhotoPath;
+        } else if (requestCode == SELECT_PHOTO
+                && resultCode == Activity.RESULT_OK
                 && data.getData() != null) {
+            // Check for non-null Uri here because of b/27899888
             try {
+
                 // The ACTION_PICK intent give temporary access to the
                 // selected photo. We need to copy the selected photo to
                 // to another file to get the real absolute path and store
                 // that file's path into the Project.
                 File imageFile = PictureUtils.createImageFile(System.currentTimeMillis());
                 copyUriToFile(data.getData(), imageFile);
-                String path = "file:" + imageFile.getAbsolutePath();
-                if (mProject != null) {
-                    mProject.setCoverPhoto(path);
-                    saveProject();
-                } else {
-                    mPendingPhotoPath = path;
-                }
-                loadImage(path);
-                // Update the color of the text to be white on top of the image.
-                mCoverButtonLabel.setTextColor(Color.WHITE);
-                mWasEdited = true;
+                path = "file:" + imageFile.getAbsolutePath();
+
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Could not save file", e);
             }
+        }
+        if (path != null) {
+            if (mProject != null) {
+                mProject.setCoverPhoto(path);
+                saveProject();
+            } else {
+                mPendingPhotoPath = path;
+            }
+            loadImage(path);
+            // Update the color of the text to be white on top of the image.
+            mCoverButtonLabel.setTextColor(Color.WHITE);
+            mWasEdited = true;
         }
     }
 
@@ -410,12 +461,17 @@ public class UpdateProjectFragment extends Fragment {
     public void onRequestPermissionsResult(
             int requestCode, String permissions[], int[] grantResults) {
 
-        if (requestCode == PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE) {
+        if (requestCode == PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE
+                || requestCode == PictureUtils.PERMISSIONS_WRITE_EXTERNAL_STORAGE) {
             // If request is cancelled, the result arrays are empty.
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted. Launch photo picker.
-                launchPhotoPicker();
+                if (requestCode == PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE) {
+                    // Permission granted. Launch photo picker.
+                    launchPhotoPicker();
+                } else if (requestCode == PictureUtils.PERMISSIONS_WRITE_EXTERNAL_STORAGE) {
+                    launchPhotoTaker();
+                }
             } else {
                 // Permission denied. Do nothing.
                 AccessibilityUtils.makeSnackbar(
@@ -423,7 +479,6 @@ public class UpdateProjectFragment extends Fragment {
                         Snackbar.LENGTH_SHORT).show();
             }
         }
-
     }
 
     private void loadImage(String path) {
