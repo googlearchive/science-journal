@@ -956,6 +956,9 @@
     <!-- Snackbar message shown to user if the export fails [CHAR_LIMIT=50]-->
     <string name="export_error">Export failed.</string>
 
+    <!-- Snackbar message shown to user if no application exists to handle this action [CHAR_LIMIT=100]-->
+    <string name="no_app_found">No installed app can handle this action.</string>
+
     <!-- Hint text for the caption text input field while picture note editing [CHAR_LIMIT=30]-->
     <string name="picture_note_caption_hint">Add a caption</string>
 
