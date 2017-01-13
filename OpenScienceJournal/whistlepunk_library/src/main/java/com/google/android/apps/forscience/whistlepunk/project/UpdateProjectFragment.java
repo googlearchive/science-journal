@@ -386,9 +386,10 @@ public class UpdateProjectFragment extends Fragment {
     }
 
     private void launchPhotoPicker() {
-        // TODO: investigate using ACTION_OPEN_DOCUMENT and normalizing everywhere with PictureUtils
+        // TODO: investigate normalizing everywhere with PictureUtils
         // so we can support choosing and taking photos everywhere.
-        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        photoPickerIntent.addCategory(Intent.CATEGORY_OPENABLE);
         photoPickerIntent.setType("image/*");
         startActivityForResult(photoPickerIntent, SELECT_PHOTO);
     }
@@ -409,7 +410,7 @@ public class UpdateProjectFragment extends Fragment {
             // Check for non-null Uri here because of b/27899888
             try {
 
-                // The ACTION_PICK intent give temporary access to the
+                // The ACTION_GET_CONTENT intent give temporary access to the
                 // selected photo. We need to copy the selected photo to
                 // to another file to get the real absolute path and store
                 // that file's path into the Project.
@@ -436,7 +437,7 @@ public class UpdateProjectFragment extends Fragment {
     }
 
     /**
-     * Copies a content URI returned from ACTION_PICK intent to another file.
+     * Copies a content URI returned from ACTION_GET_CONTENT intent to another file.
      * @param uri A content URI to get the content from using content resolver.
      * @param destFile A destination file to store the copy into.
      * @throws IOException
