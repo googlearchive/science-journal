@@ -26,6 +26,6 @@ public class MemoryAppearanceProvider implements SensorAppearanceProvider {
 
     @Override
     public SensorAppearance getAppearance(String sensorId) {
-        return new BuiltInSensorAppearance(0, 0);
+        return new BuiltInSensorAppearance(R.string.sensor_custom, 0);
     }
 }
