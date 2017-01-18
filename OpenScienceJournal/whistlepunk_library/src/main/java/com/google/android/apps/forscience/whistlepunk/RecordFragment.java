@@ -104,10 +104,6 @@ import java.util.concurrent.TimeUnit;
 public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
         Handler.Callback, StopRecordingNoDataDialog.StopRecordingDialogListener,
         AudioSettingsDialog.AudioSettingsDialogListener {
-    // Set to true to enable current experimental support for multi-window.  This flag will go away
-    // when we are confident there are no regressions with multi-window support
-    private static final boolean ENABLE_MULTI_WINDOW = false;
-
     private static final String TAG = "RecordFragment";
 
     private static final String KEY_SAVED_ACTIVE_SENSOR_CARD = "savedActiveCardIndex";
@@ -241,15 +237,30 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     @Override
     public void onPause() {
-        if (!ENABLE_MULTI_WINDOW) {
+        if (!isMultiWindowEnabled()) {
             stopUI();
         }
         super.onPause();
     }
 
+    // TODO: can we safely use onStop to shut down observing on pre-Nougat?
+    //       See discussion at b/34368790
+    private boolean isMultiWindowEnabled() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isARC());
+    }
+
+    private boolean isARC() {
+        Context context = getContext();
+        if (context == null) {
+            return false;
+        }
+        return context.getPackageManager().hasSystemFeature("org.chromium.arc.device_management");
+    }
+
     @Override
     public void onStop() {
-        if (ENABLE_MULTI_WINDOW) {
+        if (isMultiWindowEnabled()) {
             stopUI();
         }
         super.onStop();
@@ -286,7 +297,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     @Override
     public void onResume() {
         super.onResume();
-        if (!ENABLE_MULTI_WINDOW) {
+        if (!isMultiWindowEnabled()) {
             startUI();
         }
 
@@ -299,7 +310,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     public void onStart() {
         super.onStart();
 
-        if (ENABLE_MULTI_WINDOW) {
+        if (isMultiWindowEnabled()) {
             startUI();
         }
     }
