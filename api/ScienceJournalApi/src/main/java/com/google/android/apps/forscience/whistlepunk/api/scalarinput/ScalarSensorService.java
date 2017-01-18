@@ -166,7 +166,7 @@ public abstract class ScalarSensorService extends Service {
         return mDiscoverer;
     }
 
-    private ISensorDiscoverer.Stub createDiscoverer() {
+    protected ISensorDiscoverer.Stub createDiscoverer() {
         final LinkedHashMap<String, AdvertisedDevice> devices = new LinkedHashMap<>();
 
         return new ISensorDiscoverer.Stub() {
