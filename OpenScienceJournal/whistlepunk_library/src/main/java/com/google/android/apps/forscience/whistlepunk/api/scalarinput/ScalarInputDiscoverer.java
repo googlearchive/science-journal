@@ -289,7 +289,10 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
 
                             @Override
                             public SettingsInterface getSettingsInterface() {
-                                return behavior == null ? null : new SettingsInterface() {
+                                if (behavior == null || behavior.settingsIntent == null) {
+                                    return null;
+                                }
+                                return new SettingsInterface() {
                                     @Override
                                     public void show(String experimentId, String sensorId,
                                             FragmentManager fragmentManager,

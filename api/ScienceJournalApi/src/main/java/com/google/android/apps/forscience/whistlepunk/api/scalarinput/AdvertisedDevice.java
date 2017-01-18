@@ -38,7 +38,7 @@ public abstract class AdvertisedDevice {
         return null;
     }
 
-    public abstract List<AdvertisedSensor> getSensors();
+    public abstract List<? extends AdvertisedSensor> getSensors();
 
     String getDeviceId() {
         return mDeviceId;

@@ -19,11 +19,6 @@ import android.os.DeadObjectException;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorObserver;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorStatusListener;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.SensorAppearanceResources;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.SensorBehavior;
-
 /**
  * Sensor that is advertised through the API and connectable.
  *
@@ -67,8 +62,16 @@ public abstract class AdvertisedSensor {
     }
 
     public static interface DataConsumer {
+        /**
+         * @return true iff there is anyone still interested in this data
+         */
         public boolean isReceiving();
 
+        /**
+         * @param timestamp a timestamp (if none provided by an external device, use
+         * {@link System#currentTimeMillis()}.
+         * @param value the sensor's current value
+         */
         public void onNewData(long timestamp, double value);
     }
 
