@@ -255,7 +255,7 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     }
 
     private void markTaskTimeout(TaskPool pool, String taskId) {
-        if (pool.taskDone(taskId)) {
+        if (pool.taskDone(taskId) && mUsageTracker != null) {
             mUsageTracker.trackEvent(TrackerConstants.CATEGORY_API,
                     TrackerConstants.ACTION_API_SCAN_TIMEOUT, taskId, mScanTimeoutMillis);
         }

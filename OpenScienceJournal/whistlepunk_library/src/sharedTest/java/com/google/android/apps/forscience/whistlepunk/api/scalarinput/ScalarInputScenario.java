@@ -98,4 +98,19 @@ public class ScalarInputScenario {
     public Map<String, ExternalSensorProvider> makeScalarInputProviders() {
         return makeTestSensorDiscoverer().makeProviderMap(getServiceId());
     }
+
+    @NonNull
+    TestSensorDiscoverer neverDoneDiscoverer() {
+        return new TestSensorDiscoverer(getServiceName()) {
+            @Override
+            protected void onDevicesDone(IDeviceConsumer c) {
+                // override with empty implementation: we never call c.onScanDone, to test timeout
+            }
+
+            @Override
+            protected void onSensorsDone(ISensorConsumer c) {
+                // override with empty implementation: we never call c.onScanDone, to test timeout
+            }
+        };
+    }
 }

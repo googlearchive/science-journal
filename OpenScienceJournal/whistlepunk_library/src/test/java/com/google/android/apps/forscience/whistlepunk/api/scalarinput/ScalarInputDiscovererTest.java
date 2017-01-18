@@ -15,10 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 
@@ -36,7 +32,12 @@ import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.Test;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ScalarInputDiscovererTest {
     @Test
@@ -46,53 +47,23 @@ public class ScalarInputDiscovererTest {
         ExplicitExecutor uiThread = new ExplicitExecutor();
         ScalarInputDiscoverer sid = s.buildDiscoverer(uiThread);
 
-        final AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
-                new AccumulatingConsumer<>();
-
-        final AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredDevice> cDevice =
-                new AccumulatingConsumer<>();
-
-        final AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredService> cService =
-                new AccumulatingConsumer<>();
-        final RecordingRunnable onScanDone = new RecordingRunnable();
-        ExternalSensorDiscoverer.ScanListener listener =
-                new ExternalSensorDiscoverer.ScanListener() {
-                    @Override
-                    public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor1) {
-                        c.take(sensor1);
-                    }
-
-                    @Override
-                    public void onServiceScanComplete(String serviceId) {
-
-                    }
-
-                    @Override
-                    public void onServiceFound(ExternalSensorDiscoverer.DiscoveredService service) {
-                        cService.take(service);
-                    }
-
-                    @Override
-                    public void onDeviceFound(ExternalSensorDiscoverer.DiscoveredDevice device) {
-                        cDevice.take(device);
-                        deviceRegistry.addDevice(device.getSpec());
-                    }
-
-                    @Override
-                    public void onScanDone() {
-                        onScanDone.run();
-                    }
-                };
+        RecordingScanListener listener = new RecordingScanListener() {
+            @Override
+            public void onDeviceFound(ExternalSensorDiscoverer.DiscoveredDevice device) {
+                super.onDeviceFound(device);
+                deviceRegistry.addDevice(device.getSpec());
+            }
+        };
         assertEquals(true,
                 sid.startScanning(listener, TestConsumers.expectingSuccess()));
 
         // Haven't executed main thread yet.
-        assertEquals(0, c.seen.size());
+        assertEquals(0, listener.sensors.size());
         assertEquals(0, deviceRegistry.getDeviceCount());
-        assertFalse(onScanDone.hasRun);
+        assertFalse(listener.isDone);
 
         uiThread.drain();
-        ExternalSensorSpec sensor = c.getOnlySeen().getSpec();
+        ExternalSensorSpec sensor = getOnly(listener.sensors).getSpec();
         ScalarInputSpec spec = (ScalarInputSpec) sensor;
         assertEquals(s.getSensorName(), spec.getName());
         assertEquals(s.getSensorAddress(), spec.getSensorAddressInService());
@@ -105,15 +76,20 @@ public class ScalarInputDiscovererTest {
         assertEquals(s.getDeviceName(), device.getName());
         assertEquals(spec.getDeviceAddress(), device.getDeviceAddress());
 
-        ExternalSensorDiscoverer.DiscoveredDevice discovered = cDevice.getOnlySeen();
+        ExternalSensorDiscoverer.DiscoveredDevice discovered = getOnly(listener.devices);
         assertEquals(s.getServiceId(), discovered.getServiceId());
         assertEquals(s.getDeviceName(), discovered.getSpec().getName());
 
-        ExternalSensorDiscoverer.DiscoveredService service = cService.getOnlySeen();
+        ExternalSensorDiscoverer.DiscoveredService service = getOnly(listener.services);
         assertEquals(s.getServiceName(), service.getName());
         assertEquals(s.getServiceId(), service.getServiceId());
 
-        assertTrue(onScanDone.hasRun);
+        assertTrue(listener.isDone);
+    }
+
+    private <T> T getOnly(List<T> list) {
+        assertEquals(1, list.size());
+        return list.get(0);
     }
 
     @NonNull
@@ -240,17 +216,7 @@ public class ScalarInputDiscovererTest {
     @Test
     public void testTimeout() {
         final ScalarInputScenario s = new ScalarInputScenario();
-        final TestSensorDiscoverer discoverer = new TestSensorDiscoverer(s.getServiceName()) {
-            @Override
-            protected void onDevicesDone(IDeviceConsumer c) {
-                // override with empty implementation: we never call c.onScanDone, to test timeout
-            }
-
-            @Override
-            protected void onSensorsDone(ISensorConsumer c) {
-                // override with empty implementation: we never call c.onScanDone, to test timeout
-            }
-        };
+        final TestSensorDiscoverer discoverer = s.neverDoneDiscoverer();
         discoverer.addDevice(s.getDeviceId(), s.getDeviceName());
         final SensorAppearanceResources appearance = new SensorAppearanceResources();
         discoverer.addSensor(s.getDeviceId(),
@@ -281,5 +247,27 @@ public class ScalarInputDiscovererTest {
         }
         assertTrue(eventLabels.toString(), eventLabels.contains("SERVICE:serviceId"));
         assertTrue(eventLabels.toString(), eventLabels.contains("DEVICE:" + s.getDeviceId()));
+    }
+
+    @Test
+    public void testTimeoutWithNullUsageTracker() {
+        final ScalarInputScenario s = new ScalarInputScenario();
+        final TestSensorDiscoverer discoverer = s.neverDoneDiscoverer();
+        discoverer.addDevice(s.getDeviceId(), s.getDeviceName());
+        final SensorAppearanceResources appearance = new SensorAppearanceResources();
+        discoverer.addSensor(s.getDeviceId(),
+                new TestSensor(s.getSensorAddress(), s.getSensorName(), appearance));
+        MockScheduler scheduler = new MockScheduler();
+
+        ScalarInputDiscoverer sid = new ScalarInputDiscoverer(discoverer.makeFinder("serviceId"),
+                new TestStringSource(), MoreExecutors.directExecutor(), scheduler, 100, null);
+
+        AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
+                new AccumulatingConsumer<>();
+        RecordingRunnable onScanDone = new RecordingRunnable();
+        sid.startScanning(makeListener(c, onScanDone), TestConsumers.expectingSuccess());
+
+        // Just don't crash
+        scheduler.incrementTime(200);
     }
 }
