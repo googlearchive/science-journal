@@ -439,10 +439,12 @@ public class BleFlow {
         }
     }
 
-    public BleFlow reset() {
+    public BleFlow reset(boolean clearServiceMap) {
         actions.clear();
         serviceIdsToLookup.clear();
-        serviceMap.clear();
+        if (clearServiceMap) {
+            serviceMap.clear();
+        }
         characteristics.clear();
         descriptors.clear();
         values.clear();
@@ -460,8 +462,8 @@ public class BleFlow {
         return this;
     }
 
-    public BleFlow resetAndAddListener(BleFlowListener flowListener){
-        return this.reset().addListener(flowListener);
+    public BleFlow resetAndAddListener(BleFlowListener flowListener, boolean clearServiceMap) {
+        return this.reset(clearServiceMap).addListener(flowListener);
     }
     
     public static BleFlow getInstance(BleClient client, Context context, String address) {
@@ -523,8 +525,10 @@ public class BleFlow {
     }
 
     public BleFlow lookupService(UUID serviceUuid) {
-        addAction(Action.LOOKUP_SRV);
-        serviceIdsToLookup.add(serviceUuid);
+        if (!serviceMap.containsKey(serviceUuid)) {
+            addAction(Action.LOOKUP_SRV);
+            serviceIdsToLookup.add(serviceUuid);
+        }
         return this;
     }
 
@@ -603,6 +607,7 @@ public class BleFlow {
         Log.v(TAG, "services: " + serviceMap);
         Log.v(TAG, "characteristics: " + characteristics);
         Log.v(TAG, "descriptors: " + descriptors);
+        Log.v(TAG, "previous flow done: " + flowEnded.get());
         Log.v(TAG, "values: " + Arrays.toString(values.toArray()));
 
         if(flowEnded.get()) {

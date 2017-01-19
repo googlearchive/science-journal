@@ -193,7 +193,7 @@ public class BluetoothSensor extends ScalarSensor {
                 Log.d(TAG, "Failure " + error.getMessage());
                 listener.onSourceError(getId(), SensorStatusListener.ERROR_UNKNOWN,
                         error.getLocalizedMessage());
-                mFlow.resetAndAddListener(mBleFlowListener)
+                mFlow.resetAndAddListener(mBleFlowListener, true)
                         .disconnect();
                 BleFlow.run(mFlow);
             }
@@ -237,7 +237,7 @@ public class BluetoothSensor extends ScalarSensor {
             @Override
             public void onNotificationUnsubscribed() {
                 mNotificationSubscribed = false;
-                mFlow.resetAndAddListener(mBleFlowListener)
+                mFlow.resetAndAddListener(mBleFlowListener, true)
                         .disconnect();
                 BleFlow.run(mFlow);
             }
@@ -347,7 +347,7 @@ public class BluetoothSensor extends ScalarSensor {
                 mBleFlowListener =
                         createBleFlowListener(c, environment.getDefaultClock(), listener);
                 mTimeSkew = -1;
-                mFlow.resetAndAddListener(mBleFlowListener)
+                mFlow.resetAndAddListener(mBleFlowListener, true)
                         .connect()
                         .lookupService(mServiceSpec.getServiceId());
                 BleFlow.run(mFlow);
@@ -356,7 +356,10 @@ public class BluetoothSensor extends ScalarSensor {
             @Override
             public void stopObserving() {
                 mTimeSkew = -1;
-                mFlow.resetAndAddListener(mBleFlowListener);
+
+                // Don't reset service map: should still be valid from above, and it doesn't work
+                // on ChromeBooks
+                mFlow.resetAndAddListener(mBleFlowListener, false);
                 if(mNotificationSubscribed) {
                     mFlow.lookupService(mServiceSpec.getServiceId()).lookupCharacteristic(
                             mServiceSpec.getServiceId(), mServiceSpec.getValueId())
