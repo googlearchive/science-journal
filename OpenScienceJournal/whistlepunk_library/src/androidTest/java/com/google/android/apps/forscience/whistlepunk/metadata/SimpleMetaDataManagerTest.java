@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
@@ -356,7 +357,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     private Map<String, ExternalSensorProvider> getProviderMap() {
         HashMap<String, ExternalSensorProvider> map = new HashMap<>();
         map.put(BleSensorSpec.TYPE, new NativeBleDiscoverer(getContext()).getProvider());
-        map.put(ScalarInputSpec.TYPE, new ScalarInputDiscoverer(null, null).getProvider());
+        map.put(ScalarInputSpec.TYPE, new ScalarInputDiscoverer(null, null,
+                WhistlePunkApplication.getUsageTracker(null)).getProvider());
         return map;
     }
 

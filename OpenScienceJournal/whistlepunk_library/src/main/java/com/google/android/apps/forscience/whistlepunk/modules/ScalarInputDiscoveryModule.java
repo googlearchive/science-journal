@@ -16,11 +16,9 @@
 package com.google.android.apps.forscience.whistlepunk.modules;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.AppDiscoveryCallbacks;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
@@ -34,27 +32,12 @@ import dagger.multibindings.StringKey;
 
 @Module
 public class ScalarInputDiscoveryModule {
-    private static final String TAG = "SIDModule";
-
-    private static final Consumer<AppDiscoveryCallbacks> NULL_FINDER =
-            new Consumer<AppDiscoveryCallbacks>() {
-                @Override
-                public void take(AppDiscoveryCallbacks c) {
-                    // Didn't find any.
-                    c.onDiscoveryDone();
-                }
-            };
-
     @Provides
     @IntoMap
     @StringKey(ScalarInputSpec.TYPE)
-    public ExternalSensorDiscoverer providesScalarInputDiscoverer(Context context) {
-        // TODO: return the actual finder when DevOptionsFragment#isThirdPartyDiscoveryEnabled.
-        return new ScalarInputDiscoverer(chooseFinder(context), context);
-    }
-
-    @NonNull
-    private Consumer<AppDiscoveryCallbacks> chooseFinder(Context context) {
-        return new ScalarSensorServiceFinder(context);
+    public ExternalSensorDiscoverer providesScalarInputDiscoverer(Context context,
+            UsageTracker usageTracker) {
+        return new ScalarInputDiscoverer(new ScalarSensorServiceFinder(context), context,
+                usageTracker);
     }
 }
