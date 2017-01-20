@@ -36,6 +36,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 
@@ -52,6 +53,7 @@ import java.util.UUID;
  */
 public class MyBleService extends Service {
     private static String TAG = "MyBleService";
+    private static final int SERVICES_RETRY_COUNT = 3;
     private static final boolean DEBUG = false;
     private static final long PRUNE_DEVICE_TIMEOUT_MS = 10 * 1000;
     private static final int MSG_PRUNE = 1011;
@@ -70,6 +72,7 @@ public class MyBleService extends Service {
     public static String DATA = "data";
     public static String UUID = "uuid";
     public static String FLAGS = "flags";
+    public static String INT_PARAM = "int_param";
 
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter btAdapter;
@@ -111,25 +114,38 @@ public class MyBleService extends Service {
 
     // GATT callbacks
     private BluetoothGattCallback gattCallbacks = new BluetoothGattCallback() {
+        Map<String, Integer> mConnectionStatuses = new ArrayMap<>();
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            if (DEBUG) Log.d(TAG, "CONNECTION CHANGED FOR " + getAddressFromGatt(gatt) + " : "
-                    + newState);
+            String address = getAddressFromGatt(gatt);
+            if (DEBUG) Log.d(TAG, "CONNECTION CHANGED FOR " + address + " : " + newState);
+
+            // On ChromeOS (and maybe other platforms?), onConnectionStateChange can be called
+            // multiple times without any actual corresponding state change.  This confuses our
+            // (very brittle) downstream code, so filter the duplicates out here.  See
+            // b/31741822 for further discussion.
+            boolean isActualChange = !(mConnectionStatuses.containsKey(address)
+                                       && mConnectionStatuses.get(address) == newState);
+            mConnectionStatuses.put(address, newState);
+
             if (status != BluetoothGatt.GATT_SUCCESS) {
-                sendGattBroadcast(getAddressFromGatt(gatt), BleEvents.GATT_CONNECT_FAIL, null);
-                addressToGattClient.remove(getAddressFromGatt(gatt));
+                sendGattBroadcast(address, BleEvents.GATT_CONNECT_FAIL, null);
+                addressToGattClient.remove(address);
                 gatt.close();
                 return;
             }
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                sendGattBroadcast(getAddressFromGatt(gatt), BleEvents.GATT_CONNECT, null);
+                // TODO: extract testable code here
+                if (isActualChange) {
+                    sendGattBroadcast(address, BleEvents.GATT_CONNECT, null);
+                }
                 return;
             }
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                sendGattBroadcast(getAddressFromGatt(gatt), BleEvents.GATT_DISCONNECT, null);
-                addressToGattClient.remove(getAddressFromGatt(gatt));
+                sendGattBroadcast(address, BleEvents.GATT_DISCONNECT, null);
+                addressToGattClient.remove(address);
                 gatt.close();
                 return;
             }
@@ -140,8 +156,12 @@ public class MyBleService extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             String address = getAddressFromGatt(gatt);
             mOutstandingServiceDiscoveryAddresses.remove(address);
-            sendGattBroadcast(address, status == BluetoothGatt.GATT_SUCCESS
-                    ? BleEvents.SERVICES_OK : BleEvents.SERVICES_FAIL, null);
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                if (DEBUG) Log.d(TAG, "Sending the action: " + BleEvents.SERVICES_OK);
+                sendServiceDiscoveryIntent(MyBleService.this, address, SERVICES_RETRY_COUNT);
+            } else {
+                sendGattBroadcast(address, BleEvents.SERVICES_FAIL, null);
+            }
         }
 
         @Override
@@ -203,6 +223,13 @@ public class MyBleService extends Service {
                     ? BleEvents.MTU_CHANGE_OK : BleEvents.MTU_CHANGE_OK, null);
         }
     };
+
+    public static void sendServiceDiscoveryIntent(Context context, String address,
+            int retriesLeft) {
+        Intent newIntent = BleEvents.createIntent(BleEvents.SERVICES_OK, address);
+        newIntent.putExtra(INT_PARAM, retriesLeft);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(newIntent);
+    }
 
     @VisibleForTesting
     protected String getAddressFromGatt(BluetoothGatt gatt) {

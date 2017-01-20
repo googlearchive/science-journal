@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.ArrayMap;
@@ -61,6 +62,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * </code>
  */
 public class BleFlow {
+    private static final long SERVICES_RETRY_DELAY_MILLIS = 500;
+
     private enum Action {SCAN, CONNECT, LOOKUP_SRV, LOOKUP_CHARACT, READ_CHARACT, WRITE_CHARACT,
         LOOKUP_DESC, WRITE_DESC, ENABLE_NOTIF, DISABLE_NOTIF, DISCONNECT, COMMIT,
         CHANGE_MTU, START_TX, WRITE_STREAM, PICK_FIRST_DEVICE }
@@ -110,8 +113,14 @@ public class BleFlow {
             this.action = action;
             this.param = param;
         }
+
+        @Override
+        public String toString() {
+            return action + "(" + (param == null ? "" : param) + ")";
+        }
     }
 
+    // TODO: add prefixes to fields to fit standard
     private final Context context;
     private final BleClient client;
     private final List<RichAction> actions;
@@ -121,6 +130,7 @@ public class BleFlow {
     private final List<UUID> descriptors;
     private final List<byte[]> values;
     private UUID[] scanServiceFilter;
+    private Handler mDelayHandler = new Handler();
 
     private BluetoothGattCharacteristic currentCharacteristic;
     private BluetoothGattDescriptor currentDescriptor;
@@ -144,6 +154,7 @@ public class BleFlow {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
+
             if (BleEvents.CHAR_CHANGED.equals(action)) {
                 int flags = intent.getIntExtra(MyBleService.FLAGS, 0);
                 byte[] data = intent.getByteArrayExtra(MyBleService.DATA);
@@ -179,14 +190,33 @@ public class BleFlow {
                 flowEnded.set(true);
             } else if (BleEvents.SERVICES_OK.equals(action)) {
                 for (UUID serviceId : serviceIdsToLookup) {
-                    // This may put null in the serviceMap.  If so, either
-                    //   1) this is a stale serviceId we don't need anymore, so no harm done, or 
-                    //   2) the next characteristic lookup for serviceId will fail, correctly.
-                    serviceMap.put(serviceId, client.getService(address, serviceId));
+                    // If there's no service for a serviceId we wanted to look up, there are
+                    // several possibilities:
+                    //
+                    // 1) The device has actually gone away.  In this case, either we don't need
+                    //    it anymore, so no harm done, or the next characteristic lookup for
+                    //    serviceId will fail, correctly.
+                    // 2) We are on ChromeOS, or another platform that doesn't make the services
+                    //    available until some time _after_ calling back.  (see discussion at
+                    //    b/31741822)
+                    //
+                    // Rather than try to distinguish the difference eagerly, we retry a couple
+                    // of times, which is the correct behavior for #2, and is a small delay for
+                    // the (rare) times we're actually in #1.
+                    BluetoothGattService service = client.getService(address, serviceId);
+                    if (service != null) {
+                        serviceMap.put(serviceId, service);
+                        serviceIdsToLookup.remove(serviceId);
+                    }
                 }
-                serviceIdsToLookup.clear();
-                listener.onServicesDiscovered();
-                nextAction();
+                int retriesLeft = intent.getIntExtra(MyBleService.INT_PARAM, 0);
+                if (!serviceIdsToLookup.isEmpty() && retriesLeft > 0) {
+                    scheduleServiceLookupRetry(retriesLeft - 1);
+                } else {
+                    serviceIdsToLookup.clear();
+                    listener.onServicesDiscovered();
+                    nextAction();
+                }
             } else if (BleEvents.SERVICES_FAIL.equals(action)) {
                 listener.onFailure(new Exception("Service lookup failure at: "
                         + address));
@@ -232,6 +262,15 @@ public class BleFlow {
             }
         }
     };
+
+    private void scheduleServiceLookupRetry(final int retriesLeft) {
+        mDelayHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                MyBleService.sendServiceDiscoveryIntent(context, address, retriesLeft);
+            }
+        }, SERVICES_RETRY_DELAY_MILLIS);
+    }
 
     @VisibleForTesting
     protected BleFlow(BleClient client, Context context, String address) {
