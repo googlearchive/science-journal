@@ -31,7 +31,6 @@ import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
@@ -59,11 +58,9 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
     private List<String> mActiveServices = new ArrayList<>();
 
     public ScalarInputDiscoverer(Consumer<AppDiscoveryCallbacks> serviceFinder,
-            Context context) {
-        this(serviceFinder, defaultStringSource(context),
-                AppSingleton.getUiThreadExecutor(),
-                new SystemScheduler(), DEFAULT_SCAN_TIMEOUT_MILLIS,
-                WhistlePunkApplication.getUsageTracker(context));
+            Context context, UsageTracker usageTracker) {
+        this(serviceFinder, defaultStringSource(context), AppSingleton.getUiThreadExecutor(),
+                new SystemScheduler(), DEFAULT_SCAN_TIMEOUT_MILLIS, usageTracker);
     }
 
     private static ScalarInputStringSource defaultStringSource(final Context context) {
@@ -93,6 +90,11 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
         mScheduler = scheduler;
         mScanTimeoutMillis = scanTimeoutMillis;
         mUsageTracker = usageTracker;
+        if (usageTracker == null) {
+            if (Log.isLoggable(TAG, Log.WARN)) {
+                Log.w(TAG, "Configuration error: No usage tracking in ScalarInputDiscoverer");
+            }
+        }
     }
 
     @Override
