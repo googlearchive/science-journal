@@ -248,6 +248,12 @@
     <!-- Title of the navigation item to select project library page [CHAR_LIMIT=25] -->
     <string name="navigation_item_projects">Project library</string>
 
+    <!-- Title of the navigation item to go to making science activities [CHAR_LIMIT=25] -->
+    <string name="navigation_item_activities">Activities</string>
+
+    <!-- URL to go to when navigation to the activities. DO NOT TRANSLATE -->
+    <string name="activities_url" translatable="false">https://makingscience.withgoogle.com/science-journal/activities</string>
+
     <!-- Title of the navigation item to go to making science website [CHAR_LIMIT=25] -->
     <string name="navigation_item_web_link">Making &amp; Science website</string>
 

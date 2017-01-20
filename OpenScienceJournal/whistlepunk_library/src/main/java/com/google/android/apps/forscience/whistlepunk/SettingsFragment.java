@@ -20,10 +20,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceScreen;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.SettingsActivity.SettingsType;
@@ -41,6 +41,7 @@ public class SettingsFragment extends PreferenceFragment {
 
     private static final String KEY_VERSION = "version";
     private static final String KEY_OPEN_SOURCE = "open_source";
+    private static final String KEY_SITE_LINK = "website";
     private static final String KEY_REPLAY_TUTORIAL = "replay_tutorial";
 
     public static SettingsFragment newInstance(@SettingsType int type) {
@@ -69,6 +70,10 @@ public class SettingsFragment extends PreferenceFragment {
             Preference licensePreference = findPreference(KEY_OPEN_SOURCE);
             licensePreference.setIntent(new Intent(getActivity().getApplicationContext(),
                     LicenseActivity.class));
+
+            Preference linkPreference = findPreference(KEY_SITE_LINK);
+            linkPreference.setIntent(new Intent(Intent.ACTION_VIEW).setData(
+                    Uri.parse(getString(R.string.website_url))));
 
             loadVersion(getActivity());
         } else if (type == SettingsActivity.TYPE_SETTINGS) {

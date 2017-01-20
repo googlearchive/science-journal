@@ -35,9 +35,9 @@
         android:id="@+id/navigation_bottom"
         >
         <item
-            android:id="@+id/navigation_item_website"
+            android:id="@+id/navigation_item_activities"
             android:icon="@drawable/ic_web_asset_black_24dp"
-            android:title="@string/navigation_item_web_link"/>
+            android:title="@string/navigation_item_activities"/>
         <item
             android:id="@+id/navigation_item_settings"
             android:icon="@drawable/ic_settings_black_24dp"
