@@ -286,13 +286,6 @@ public class ExperimentDetailsFragment extends Fragment
         mDetails.setAdapter(mAdapter);
 
         mObserveButton = (FloatingActionButton) view.findViewById(R.id.observe);
-        mObserveButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                launchObserve();
-            }
-        });
 
         // TODO: Because mScalarDisplayOptions are static, if the options are changed during the
         // time we are on this page it probably won't have an effect. Since graph options are
@@ -317,6 +310,19 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     private void loadExperimentData(final Experiment experiment) {
+        if (experiment.isArchived()) {
+            mObserveButton.setVisibility(View.GONE);
+            mObserveButton.setOnClickListener(null);
+        } else {
+            mObserveButton.setVisibility(View.VISIBLE);
+            mObserveButton.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    launchObserve();
+                }
+            });
+        }
         final DataController dc = getDataController();
         dc.getExperimentRuns(experiment.getExperimentId(), mIncludeArchived,
                 new LoggingConsumer<List<ExperimentRun>>(TAG, "loading runs") {
