@@ -121,6 +121,7 @@
         android:layout_height="@dimen/accessibility_touch_target_min_size"
         android:id="@id/note_menu_button"
         android:src="@drawable/ic_menu_moreoverflow_mtrl_alpha"
+        android:tint="@color/text_color_light_grey"
         android:contentDescription="@string/menu_btn_content_description"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/run_review_note_divider"
