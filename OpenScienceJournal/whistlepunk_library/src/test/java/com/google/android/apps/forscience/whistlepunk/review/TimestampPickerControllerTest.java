@@ -40,7 +40,7 @@ public class TimestampPickerControllerTest {
 
     @Test
     public void testGetTimeString() {
-        TimestampPickerController tpc = new TimestampPickerController(Locale.US, "-",
+        TimestampPickerController tpc = new TimestampPickerController(Locale.US, true, "-",
                 ":", ":", mErrorListener);
         tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, 0);
         assertEquals("0:00:00.000", tpc.getTimeString());
@@ -59,8 +59,8 @@ public class TimestampPickerControllerTest {
 
     @Test
     public void testParseTimeString() {
-        TimestampPickerController tpc = new TimestampPickerController(Locale.getDefault(), "-",
-                ":", ":", mErrorListener);
+        TimestampPickerController tpc = new TimestampPickerController(Locale.getDefault(), true,
+                "-", ":", ":", mErrorListener);
         tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, 0);
         tpc.updateSelectedTime("0:00:03.141");
         assertEquals(3141, tpc.getSelectedTime());
@@ -80,8 +80,8 @@ public class TimestampPickerControllerTest {
 
     @Test
     public void testParseTimeStringOutsideRange() {
-        TimestampPickerController tpc = new TimestampPickerController(Locale.getDefault(), "-",
-                ":", ":", mErrorListener);
+        TimestampPickerController tpc = new TimestampPickerController(Locale.getDefault(), true,
+                "-", ":", ":", mErrorListener);
         tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, 0);
         int error = tpc.updateSelectedTime("1:00:00.000");
         assertNotEquals(error, TimestampPickerController.NO_ERROR);

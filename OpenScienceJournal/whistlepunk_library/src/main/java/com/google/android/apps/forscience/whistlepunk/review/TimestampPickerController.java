@@ -42,15 +42,16 @@ public class TimestampPickerController {
         /**
          * Allows for additional checks of timestamp validity.
          * @param timestamp The timestamp to check for validity
+         * @param isStartCrop Whether this is the start or end crop timestamp.
          * @return an error string ID if the timestamp is not valid, or NO_ERROR if it is valid.
          */
-        int isValidTimestamp(long timestamp);
+        int isValidTimestamp(long timestamp, boolean isStartCrop);
 
         /**
          * Called when the timestamp is successfully changed in the picker.
          * @param timestamp The updated timestamp
          */
-        void onPickerTimestampChanged(long timestamp);
+        void onPickerTimestampChanged(long timestamp, boolean isStartCrop);
     }
 
     public interface OnTimestampErrorListener {
@@ -66,22 +67,25 @@ public class TimestampPickerController {
 
     private PeriodFormatter mPeriodFormatter;
     private Locale mLocale;
+    private boolean mIsStartCrop;
 
     private TimestampPickerListener mListener;
     private OnTimestampErrorListener mErrorListener;
 
-    public TimestampPickerController(Locale locale, Context context,
+    public TimestampPickerController(Locale locale, Context context, boolean isStartCrop,
             OnTimestampErrorListener errorListener) {
-        this(locale, context.getResources().getString(R.string.negative_prefix),
+        this(locale, isStartCrop, context.getResources().getString(R.string.negative_prefix),
                 context.getResources().getString(R.string.hour_minute_divider),
                 context.getResources().getString(R.string.minute_second_divider),
                 errorListener);
     }
 
     @VisibleForTesting
-    public TimestampPickerController(Locale locale, String negativePrefix, String hourMinuteDivider,
-            String minuteSecondDivider, OnTimestampErrorListener errorListener) {
+    public TimestampPickerController(Locale locale, boolean isStartCrop, String negativePrefix,
+            String hourMinuteDivider, String minuteSecondDivider,
+            OnTimestampErrorListener errorListener) {
         mLocale = locale;
+        mIsStartCrop = isStartCrop;
         mErrorListener = errorListener;
         mNegativePrefix = negativePrefix;
         // Builds the formatter, which will be used to read and write timestamp strings.
@@ -137,7 +141,7 @@ public class TimestampPickerController {
         int errorId = updateSelectedTime(timeString);
         if (errorId == NO_ERROR) {
             if (mListener != null) {
-                mListener.onPickerTimestampChanged(mSelectedTime.getMillis());
+                mListener.onPickerTimestampChanged(mSelectedTime.getMillis(), mIsStartCrop);
             }
             return true;
         }
@@ -174,7 +178,7 @@ public class TimestampPickerController {
             return R.string.timestamp_picker_range_error;
         }
         if (mListener != null) {
-            return mListener.isValidTimestamp(mSelectedTime.getMillis());
+            return mListener.isValidTimestamp(mSelectedTime.getMillis(), mIsStartCrop);
         } else {
             return NO_ERROR;
         }

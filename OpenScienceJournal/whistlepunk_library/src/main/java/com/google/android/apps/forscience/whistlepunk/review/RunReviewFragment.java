@@ -126,6 +126,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private static final String KEY_CROP_END_TIMESTAMP = "crop_ui_end_timestamp";
     private static final String KEY_CHART_AXIS_Y_MAXIMUM = "chart_y_axis_min";
     private static final String KEY_CHART_AXIS_Y_MINIMUM = "chart_y_axis_max";
+    private static final String KEY_TIMESTAMP_PICKER_UI_VISIBLE = "timestamp_picker_visible";
 
     private int mLoadingStatus = GRAPH_LOAD_STATUS_IDLE;
 
@@ -675,6 +676,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         outState.putInt(KEY_SELECTED_SENSOR_INDEX, mSelectedSensorIndex);
         outState.putBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE, getChildFragmentManager()
                 .findFragmentByTag(EditLabelTimeDialog.TAG) != null);
+        outState.putBoolean(KEY_TIMESTAMP_PICKER_UI_VISIBLE, getChildFragmentManager()
+                .findFragmentByTag(EditTimestampDialog.TAG) != null);
         if (mSavedInstanceStateForLoad != null) {
             // We haven't finished loading the run from the database yet in onCreateView.
             // Go ahead and use the old savedInstanceState since we haven't reconstructed
@@ -860,6 +863,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             if (mSavedInstanceStateForLoad.getBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE)) {
                 rootView.findViewById(R.id.embedded).setVisibility(View.VISIBLE);
                 setTimepickerUi(rootView, true);
+            }
+            // Also check if the timestamp picker UI is up.
+            if (mSavedInstanceStateForLoad.getBoolean(KEY_TIMESTAMP_PICKER_UI_VISIBLE)) {
+                setTimestampDialogListener(
+                        (EditTimestampDialog) getChildFragmentManager().findFragmentByTag(
+                                EditTimestampDialog.TAG));
             }
             mPreviousYPair = new Pair<>(
                     mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM),
@@ -1555,17 +1564,21 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         loadRunData(getView());
     }
 
-    public void openManualCropEditor(final boolean isStartCrop) {
-        // TODO: Remember this on resume
+    public void openManualCropEditor(boolean isStartCrop) {
         EditTimestampDialog timestampDialog = EditTimestampDialog.newInstance(isStartCrop,
                 mExperimentRun.getOriginalFirstTimestamp(),
                 mExperimentRun.getOriginalLastTimestamp(), mExperimentRun.getFirstTimestamp(),
                 isStartCrop ? mRunReviewOverlay.getCropStartTimestamp() :
                         mRunReviewOverlay.getCropEndTimestamp());
+        setTimestampDialogListener(timestampDialog);
+        timestampDialog.show(getChildFragmentManager(), EditTimestampDialog.TAG);
+    }
+
+    private void setTimestampDialogListener(EditTimestampDialog timestampDialog) {
         timestampDialog.setOnPickerTimestampChangedListener(
                 new TimestampPickerController.TimestampPickerListener() {
                     @Override
-                    public int isValidTimestamp(long timestamp) {
+                    public int isValidTimestamp(long timestamp, boolean isStartCrop) {
                         // Is it too close to the other seekbar?
                         if (mRunReviewOverlay.isValidCropTimestamp(timestamp, isStartCrop)) {
                             return TimestampPickerController.NO_ERROR;
@@ -1575,7 +1588,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     }
 
                     @Override
-                    public void onPickerTimestampChanged(long timestamp) {
+                    public void onPickerTimestampChanged(long timestamp, boolean isStartCrop) {
                         // Zoom out to show the new timestamp if needed.
                         if (isStartCrop) {
                             if (timestamp < mExternalAxis.getXMin()) {
@@ -1596,7 +1609,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         }
                     }
                 });
-        timestampDialog.show(getChildFragmentManager(), EditTimestampDialog.TAG);
     }
 
     @Override
