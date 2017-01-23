@@ -78,19 +78,9 @@ public class EditTimestampDialog extends DialogFragment {
                                 mInputText.getContext().getResources().getString(errorId));
                     }
                 });
-        mPicker.setOnPickerTimestampChangedListener(
-                new TimestampPickerController.TimestampPickerListener() {
-                    @Override
-                    public int isValidTimestamp(long timestamp) {
-                        return mListener.isValidTimestamp(timestamp);
-                    }
-
-                    @Override
-                    public void onPickerTimestampChanged(long timestamp) {
-                        mListener.onPickerTimestampChanged(timestamp);
-                        getDialog().dismiss();
-                    }
-                });
+        if (mListener != null) {
+            setupListener();
+        }
     }
 
     @Override
@@ -161,5 +151,24 @@ public class EditTimestampDialog extends DialogFragment {
     public void setOnPickerTimestampChangedListener(
             final TimestampPickerController.TimestampPickerListener listener) {
         mListener = listener;
+        if (mPicker != null) {
+            setupListener();
+        }
+    }
+
+    private void setupListener() {
+        mPicker.setOnPickerTimestampChangedListener(
+                new TimestampPickerController.TimestampPickerListener() {
+                    @Override
+                    public int isValidTimestamp(long timestamp) {
+                        return mListener.isValidTimestamp(timestamp);
+                    }
+
+                    @Override
+                    public void onPickerTimestampChanged(long timestamp) {
+                        mListener.onPickerTimestampChanged(timestamp);
+                        getDialog().dismiss();
+                    }
+                });
     }
 }
