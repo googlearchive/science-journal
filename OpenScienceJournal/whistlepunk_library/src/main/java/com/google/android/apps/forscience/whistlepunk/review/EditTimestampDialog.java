@@ -70,7 +70,8 @@ public class EditTimestampDialog extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPicker = new TimestampPickerController(Locale.getDefault(), getActivity(),
+        mIsEditingStart = getArguments().getBoolean(KEY_EDITING_START);
+        mPicker = new TimestampPickerController(Locale.getDefault(), getActivity(), mIsEditingStart,
                 new TimestampPickerController.OnTimestampErrorListener() {
                     @Override
                     public void onTimestampError(int errorId) {
@@ -85,7 +86,6 @@ public class EditTimestampDialog extends DialogFragment {
 
     @Override
     public AlertDialog onCreateDialog(Bundle savedInstanceState) {
-        mIsEditingStart = getArguments().getBoolean(KEY_EDITING_START);
         long minMs = getArguments().getLong(KEY_MIN_MS);
         long maxMs = getArguments().getLong(KEY_MAX_MS);
         long zeroMs = getArguments().getLong(KEY_ZERO_MS);
@@ -160,13 +160,13 @@ public class EditTimestampDialog extends DialogFragment {
         mPicker.setOnPickerTimestampChangedListener(
                 new TimestampPickerController.TimestampPickerListener() {
                     @Override
-                    public int isValidTimestamp(long timestamp) {
-                        return mListener.isValidTimestamp(timestamp);
+                    public int isValidTimestamp(long timestamp, boolean isStartCrop) {
+                        return mListener.isValidTimestamp(timestamp, isStartCrop);
                     }
 
                     @Override
-                    public void onPickerTimestampChanged(long timestamp) {
-                        mListener.onPickerTimestampChanged(timestamp);
+                    public void onPickerTimestampChanged(long timestamp, boolean isStartCrop) {
+                        mListener.onPickerTimestampChanged(timestamp, isStartCrop);
                         getDialog().dismiss();
                     }
                 });
