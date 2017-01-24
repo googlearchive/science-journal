@@ -150,8 +150,10 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             public void onNewData(long timestamp, Bundle bundle) {
                 double value = getValue(bundle);
                 chartController.addPoint(new ChartData.DataPoint(timestamp, value));
-                audioGenerator.addData(timestamp, value, chartController.getRenderedYMin(),
-                        chartController.getRenderedYMax());
+                if (mAudioEnabled) {
+                    audioGenerator.addData(timestamp, value, chartController.getRenderedYMin(),
+                            chartController.getRenderedYMax());
+                }
                 statsDisplay.updateFromBundle(bundle);
             }
 
