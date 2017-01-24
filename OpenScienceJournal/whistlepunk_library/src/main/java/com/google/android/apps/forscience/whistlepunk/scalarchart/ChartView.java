@@ -895,7 +895,7 @@ public class ChartView extends View {
         int sizeShown = calculateSizeShownNext(mYAxisPoints, yMin, yMax);
         if (sizeShown < MINIMUM_NUM_LABELS || sizeShown > MAXIMUM_NUM_LABELS) {
             double range = yMax - yMin;
-            if (range == 0) {
+            if (range <= 0) {
                 return;
             }
             int increment = (int) Math.ceil(range / (PREFERRED_NUM_LABELS * 1.0));
