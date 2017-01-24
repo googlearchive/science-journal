@@ -865,8 +865,8 @@ public class ExperimentDetailsFragment extends Fragment
                 return;
             }
             mItems.remove(position);
-            notifyItemRemoved(position);
             updateEmptyView();
+            notifyItemRemoved(position);
         }
 
         private int findLabelIndex(Label label) {
@@ -896,6 +896,7 @@ public class ExperimentDetailsFragment extends Fragment
             long timestamp = label.getTimeStamp();
             boolean inserted = false;
             int emptyIndex = -1;
+            mHasRunsOrLabels = true;
             for (int i = 0; i < size; i++) {
                 ExperimentDetailItem item = mItems.get(i);
                 if (item.getViewType() == VIEW_TYPE_EXPERIMENT_DESCRIPTION) {
@@ -1004,6 +1005,7 @@ public class ExperimentDetailsFragment extends Fragment
                 }
             }
 
+            mHasRunsOrLabels = hasRunsOrLabels;
             if (hasRunsOrLabels && emptyIndex != -1) {
                 // We have runs but there is an empty item. Remove it.
                 removeEmptyView(emptyIndex, true);
