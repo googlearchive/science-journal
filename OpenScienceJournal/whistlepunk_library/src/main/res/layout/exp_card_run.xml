@@ -20,6 +20,7 @@
     android:layout_height="wrap_content"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
+    android:focusable="true"
     android:layout_marginStart="@dimen/cardview_margin_sides"
     android:layout_marginEnd="@dimen/cardview_margin_sides"
     android:layout_marginTop="@dimen/cardview_margin"

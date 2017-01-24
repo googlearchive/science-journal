@@ -23,6 +23,7 @@
     android:layout_marginBottom="@dimen/cardview_margin"
     android:foreground="?attr/selectableItemBackground"
     android:clickable="true"
+    android:focusable="true"
     android:id="@+id/card_view"
     >
     <include layout="@layout/project_experiment_overview_content"/>
