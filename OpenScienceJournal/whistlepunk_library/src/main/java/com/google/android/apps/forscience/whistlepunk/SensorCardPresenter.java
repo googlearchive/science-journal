@@ -1074,8 +1074,11 @@ public class SensorCardPresenter {
     // sensor, so check whether the view is recycled (unavailable) before updating.
     public void updateStats(List<StreamStat> stats) {
         if (mCardViewHolder != null && mSensorPresenter != null && mTextTimeHasElapsed) {
-            mCardViewHolder.graphStatsList.updateStats(stats);
-            mCardViewHolder.meterStatsList.updateStats(stats);
+            if (mLayout.cardView == GoosciSensorLayout.SensorLayout.GRAPH) {
+                mCardViewHolder.graphStatsList.updateStats(stats);
+            } else {
+                mCardViewHolder.meterStatsList.updateStats(stats);
+            }
             mSensorPresenter.updateStats(stats);
         }
     }
