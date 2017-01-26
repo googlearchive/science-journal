@@ -25,6 +25,11 @@
     </style>
 
     <style name="NoBarTheme.MainActivity" parent="NoBarTheme">
+        <!-- Set the background color in the theme to reduce overdraw. This is most important in
+             Observe, which is the heaviest GPU user in the app, but should be probably applied
+             to themes across the whole app.
+             TODO: Use background color in themes across the whole app. -->
+        <item name="android:background">@color/background_color</item>
     </style>
 
     <style name="NoBarTheme.ProjectDetails" parent="NoBarTheme">
