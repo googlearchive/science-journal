@@ -353,8 +353,8 @@ public class SensorCardPresenter {
 
         // Make the meter and graph view groups not explorable in TalkBack, so the user can't find
         // those views underneath the error state view.
-        mCardViewHolder.meterViewGroup.setVisibility(View.INVISIBLE);
-        mCardViewHolder.graphViewGroup.setVisibility(View.INVISIBLE);
+        mCardViewHolder.meterViewGroup.setVisibility(View.GONE);
+        mCardViewHolder.graphViewGroup.setVisibility(View.GONE);
 
         if (mCardStatus.shouldShowConnecting()) {
             // Show a progress bar inside the card while connecting.
@@ -571,7 +571,7 @@ public class SensorCardPresenter {
             mCardViewHolder.infoButton.setVisibility(View.VISIBLE);
         } else {
             mCardViewHolder.infoButton.setOnClickListener(null);
-            mCardViewHolder.infoButton.setVisibility(View.INVISIBLE);
+            mCardViewHolder.infoButton.setVisibility(View.GONE);
         }
     }
 
@@ -579,9 +579,9 @@ public class SensorCardPresenter {
         boolean graphIsVisible = mLayout.cardView == GoosciSensorLayout.SensorLayout.GRAPH;
         if (!animate) {
             mCardViewHolder.graphViewGroup.setVisibility(
-                    graphIsVisible ? View.VISIBLE : View.INVISIBLE);
+                    graphIsVisible ? View.VISIBLE : View.GONE);
             mCardViewHolder.meterViewGroup.setVisibility(
-                    graphIsVisible ? View.INVISIBLE : View.VISIBLE);
+                    graphIsVisible ? View.GONE : View.VISIBLE);
         } else {
             updateContentViewAnimated(graphIsVisible);
         }
@@ -625,7 +625,7 @@ public class SensorCardPresenter {
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    viewToHide.setVisibility(View.INVISIBLE);
+                    viewToHide.setVisibility(View.GONE);
                     anim.removeAllListeners();
                     // The card can get recycled mid-animation this NPEs
                     if (mCardViewHolder != null) {
@@ -647,7 +647,7 @@ public class SensorCardPresenter {
 
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            viewToHide.setVisibility(View.INVISIBLE);
+                            viewToHide.setVisibility(View.GONE);
                             if (mCardViewHolder != null) {
                                 mCardViewHolder.flipButton.setEnabled(true);
                             }
@@ -665,7 +665,7 @@ public class SensorCardPresenter {
 
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            viewToHide.setVisibility(View.INVISIBLE);
+                            viewToHide.setVisibility(View.GONE);
                             viewToHide.setAlpha(1.0f);
                         }
                     })
