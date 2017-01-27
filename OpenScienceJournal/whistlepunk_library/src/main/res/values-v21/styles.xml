@@ -24,7 +24,7 @@
              to themes across the whole app.
              TODO: Use background color in themes across the whole app. -->
         <item name="android:windowBackground">@color/background_color</item>
-    </style>\
+    </style>
 
     <style name="NoBarTheme.ProjectDetails" parent="NoBarTheme">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
