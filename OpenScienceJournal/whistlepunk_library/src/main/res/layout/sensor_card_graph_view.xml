@@ -28,11 +28,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="@dimen/stream_presenter_padding_sides"
-        android:layout_marginRight="@dimen/stream_presenter_padding_sides"
-        android:paddingTop="@dimen/stream_presenter_padding_top"
         android:layout_marginTop="@dimen/stream_presenter_margin_top"
+        android:paddingTop="@dimen/stream_presenter_padding_top"
         android:paddingBottom="@dimen/stream_presenter_padding_top_bottom"
-        android:background="@color/card_background_color"
         android:contentDescription="@string/live_graph_content_description"
         android:focusable="true"
         />

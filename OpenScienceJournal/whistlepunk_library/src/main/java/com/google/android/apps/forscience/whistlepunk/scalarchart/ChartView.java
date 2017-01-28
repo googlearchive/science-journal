@@ -78,6 +78,7 @@ public class ChartView extends View {
     private float mAxisTextHeight;
     private float mTopPadding;
     private float mBottomPadding;
+    private float mRightPadding;
     private float mAxisTextStartPadding;
 
     private List<Double> mYAxisPoints = new ArrayList<>();
@@ -144,6 +145,7 @@ public class ChartView extends View {
     private Path mStatsPath;
     private float mStartPadding;
     private Drawable mTriggerDrawable;
+    private int mBackgroundColor;
 
     public ChartView(Context context) {
         super(context);
@@ -207,6 +209,8 @@ public class ChartView extends View {
         mWidth = getMeasuredWidth();
         mTopPadding = getPaddingTop();
         mBottomPadding = getPaddingBottom();
+        mRightPadding = getResources().getDimensionPixelSize(
+                R.dimen.stream_presenter_padding_sides);
 
         if (mChartOptions == null || mChartData == null) {
             return;
@@ -258,7 +262,7 @@ public class ChartView extends View {
         // cycles.
         mStartPadding = chartStartPadding + getPaddingLeft();
         mChartHeight = mHeight - mBottomPadding - mTopPadding;
-        mChartWidth = mWidth - mStartPadding;
+        mChartWidth = mWidth - mStartPadding - mRightPadding;
 
         mChartRect = new RectF(mStartPadding, mTopPadding, mChartWidth + mStartPadding,
                 mChartHeight + mTopPadding);
@@ -480,7 +484,8 @@ public class ChartView extends View {
         mEndpointPaint.setColor(chartColor);
         mLabelFillPaint.setColor(res.getColor(mChartOptions.getLabelFillColorId()));
         mLabelOutlinePaint.setColor(mChartOptions.getLabelOutlineColor(res));
-        mBackgroundPaint.setColor(res.getColor(mChartOptions.getChartBackgroundColorId()));
+        mBackgroundColor = res.getColor(mChartOptions.getChartBackgroundColorId());
+        mBackgroundPaint.setColor(mBackgroundColor);
     }
 
     private double getYValueDeltaFromYScreenDelta(float screenDiff) {
@@ -664,7 +669,7 @@ public class ChartView extends View {
 
     @Override
     public void onDraw(Canvas canvas) {
-        canvas.drawRect(0, 0, mWidth, mHeight, mBackgroundPaint);
+        canvas.drawColor(mBackgroundColor);
 
         if (mChartData == null || mChartData.getNumPoints() == 0) {
             return;
@@ -695,6 +700,8 @@ public class ChartView extends View {
         canvas.drawRect(0, 0, mStartPadding, mHeight, mBackgroundPaint);
         canvas.drawRect(0, 0, mWidth, mTopPadding, mBackgroundPaint);
         canvas.drawRect(0, mHeight - mBottomPadding, mWidth, mHeight, mBackgroundPaint);
+        canvas.drawRect(mWidth - mRightPadding, 0, mWidth, mHeight,
+                mBackgroundPaint);
 
         drawTriggers(canvas);
 
@@ -824,11 +831,11 @@ public class ChartView extends View {
     private void drawRecordingOverlay(Canvas canvas) {
         float xRecordingStart = getScreenX(mChartOptions.getRecordingStartTime());
         if (xRecordingStart < 0) {
-            canvas.drawRect(0, mTopPadding, mWidth, mHeight - mBottomPadding,
+            canvas.drawRect(0, mTopPadding, mWidth - mRightPadding, mHeight - mBottomPadding,
                     mRecordingBackgroundPaint);
         } else {
-            canvas.drawRect(xRecordingStart, mTopPadding, mWidth, mHeight - mBottomPadding,
-                    mRecordingBackgroundPaint);
+            canvas.drawRect(xRecordingStart, mTopPadding, mWidth - mRightPadding,
+                    mHeight - mBottomPadding, mRecordingBackgroundPaint);
             canvas.drawLine(xRecordingStart, mTopPadding, xRecordingStart, mHeight - mBottomPadding,
                     mRecordingTimePaint);
         }

@@ -52,7 +52,6 @@
             android:id="@+id/chart_view"
             android:layout_height="@dimen/run_review_chart_height"
             android:paddingLeft="@dimen/stream_presenter_padding_sides"
-            android:layout_marginRight="@dimen/stream_presenter_padding_sides"
             android:layout_width="match_parent"
             android:paddingTop="@dimen/run_review_section_margin"
             android:contentDescription="@string/static_graph_content_description"
