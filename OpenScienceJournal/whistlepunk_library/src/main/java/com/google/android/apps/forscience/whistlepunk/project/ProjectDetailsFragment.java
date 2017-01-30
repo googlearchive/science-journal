@@ -23,6 +23,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -492,13 +493,13 @@ public class ProjectDetailsFragment extends Fragment implements
                         R.string.archived_content_description, experimentText));
                 holder.itemView.findViewById(R.id.content).setAlpha(res.getFraction(
                         R.fraction.metadata_card_archived_alpha, 1, 1));
-                holder.cardView.setBackgroundColor(res.getColor(R.color.archived_background_color));
+                setCardColor(holder, res.getColor(R.color.archived_background_color));
             } else {
                 // Use default.
                 holder.experimentTitle.setContentDescription("");
                 holder.itemView.findViewById(R.id.content).setAlpha(res.getFraction(
                         R.fraction.metadata_card_alpha, 1, 1));
-                holder.cardView.setBackgroundColor(res.getColor(R.color.text_color_white));
+                setCardColor(holder, res.getColor(R.color.text_color_white));
             }
 
             holder.itemView.setTag(R.id.experiment_title, experiment.getExperimentId());
@@ -529,6 +530,17 @@ public class ProjectDetailsFragment extends Fragment implements
                             loadRunData(holder, experiment, runs);
                         }
                     });
+        }
+
+        private void setCardColor(ViewHolder holder, int color) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+                holder.cardView.setBackgroundColor(color);
+            } else {
+                // Setting the color of the CardView in KitKat has a side-effect of making the
+                // drop shadow disappear around the card. Instead, we set the background color
+                // of the content of the card, which looks almost as good. And has UX approval.
+                holder.cardView.findViewById(R.id.content).setBackgroundColor(color);
+            }
         }
 
         private void loadRunData(final ViewHolder holder, final Experiment experiment,
