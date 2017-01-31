@@ -14,41 +14,32 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<RelativeLayout
+
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:id="@+id/timestamp_picker"
+    android:padding="@dimen/edit_note_dialog_margin"
     >
 
-    <LinearLayout
-        android:orientation="horizontal"
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/timestamp_picker_prompt"
+        android:labelFor="@+id/timestamp_text"
+        android:textColor="@color/text_color_light_grey"
+        android:textSize="14sp"
+        />
+
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:id="@+id/timestamp_picker"
-        android:layout_marginStart="@dimen/edit_note_dialog_margin"
-        android:layout_marginEnd="@dimen/edit_note_dialog_margin"
-        android:layout_marginTop="@dimen/edit_note_dialog_margin"
-        >
+        android:minHeight="@dimen/accessibility_touch_target_min_size"
+        android:singleLine="true"
+        android:id="@id/timestamp_text"
+        android:imeOptions="actionDone"
+        />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/timestamp_picker_prompt"
-            android:labelFor="@+id/timestamp_text"
-            android:textColor="@color/text_color_light_grey"
-            android:textSize="12sp"
-            />
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="@dimen/accessibility_touch_target_min_size"
-            android:singleLine="true"
-            android:id="@id/timestamp_text"
-            android:imeOptions="actionDone"
-            />
-
-    </LinearLayout>
-
-</RelativeLayout>
+</LinearLayout>
