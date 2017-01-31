@@ -1548,13 +1548,34 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         long runFirstTimestamp = mExperimentRun.getFirstTimestamp();
         long runLastTimestamp = mExperimentRun.getLastTimestamp();
         long buffer = ExternalAxisController.getReviewBuffer(runFirstTimestamp, runLastTimestamp);
-        long renderedXMin = runFirstTimestamp - buffer;
-        long renderedXMax = runLastTimestamp + buffer;
+        long idealRenderedXMin = runFirstTimestamp - buffer;
+        long idealRenderedXMax = runLastTimestamp + buffer;
         Bundle timestampBundle = new Bundle();
-        timestampBundle.putLong(KEY_EXTERNAL_AXIS_X_MINIMUM, Math.max(renderedXMin,
-                mExternalAxis.getXMin()));
-        timestampBundle.putLong(KEY_EXTERNAL_AXIS_X_MAXIMUM, Math.min(renderedXMax,
-                mExternalAxis.getXMax()));
+
+        long currentRenderedXMin = mExternalAxis.getXMin();
+        long currentRenderedXMax = mExternalAxis.getXMax();
+
+        long nextRenderedXMin;
+        long nextRenderedXMax;
+
+        if (currentRenderedXMin > idealRenderedXMax || currentRenderedXMax < idealRenderedXMin) {
+            // If we are currently viewing an area too high or too low on the X axis, just go back
+            // to the ideal default rendered range.
+            nextRenderedXMin = idealRenderedXMin;
+            nextRenderedXMax = idealRenderedXMax;
+        } else {
+            // Otherwise, clip back to the new range.
+            nextRenderedXMin = Math.max(currentRenderedXMin, idealRenderedXMin);
+            nextRenderedXMax = Math.min(currentRenderedXMax, idealRenderedXMax);
+            if (nextRenderedXMax - nextRenderedXMin < CropHelper.MINIMUM_CROP_MILLIS) {
+                // Make sure we aren't too zoomed in.
+                nextRenderedXMin = idealRenderedXMin;
+                nextRenderedXMax = idealRenderedXMax;
+            }
+        }
+
+        timestampBundle.putLong(KEY_EXTERNAL_AXIS_X_MINIMUM, nextRenderedXMin);
+        timestampBundle.putLong(KEY_EXTERNAL_AXIS_X_MAXIMUM, nextRenderedXMax);
         timestampBundle.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
         setUpAxis(timestampBundle, getView());
 
