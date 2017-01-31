@@ -33,6 +33,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.accessibility.AccessibilityManager;
 
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -146,6 +147,7 @@ public class ChartView extends View {
     private float mStartPadding;
     private Drawable mTriggerDrawable;
     private int mBackgroundColor;
+    private boolean mExploreByTouchEnabled;
 
     public ChartView(Context context) {
         super(context);
@@ -275,6 +277,17 @@ public class ChartView extends View {
         paint.setColor(getResources().getColor(colorId));
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        if (hasWindowFocus) {
+            // The user could have changed the accessibility mode while we were in the background,
+            // so just get it when window focus changes.
+            mExploreByTouchEnabled = ((AccessibilityManager) getContext().getSystemService(
+                    Context.ACCESSIBILITY_SERVICE)).isTouchExplorationEnabled();
+        }
+    }
+
     public void initialize(ChartOptions chartOptions, ChartData chartData) {
         mChartOptions = chartOptions;
         mChartData = chartData;
@@ -314,12 +327,7 @@ public class ChartView extends View {
                         long tapDelta = event.getDownTime() - mPreviousDownTime;
                         if (!isObserve && DOUBLE_TAP_MIN_TIME < tapDelta &&
                                 tapDelta < DOUBLE_TAP_MAX_TIME) {
-                            // Assume this is a double-tap, reset zoom if we aren't in observe.
-                            mChartOptions.requestResetZoomInY();
-                            for (ExternalAxisController.InteractionListener listener : mListeners) {
-                                listener.onStartInteracting();
-                                listener.requestResetZoom();
-                            }
+                            resetZoom();
                         } else {
                             for (ExternalAxisController.InteractionListener listener : mListeners) {
                                 listener.onStartInteracting();
@@ -439,6 +447,16 @@ public class ChartView extends View {
                         for (ExternalAxisController.InteractionListener listener : mListeners) {
                             listener.onStopInteracting();
                         }
+                        if (event.getAction() == MotionEvent.ACTION_UP && mExploreByTouchEnabled) {
+                            // A single quick tap when explore by touch is enabled is actually a
+                            // double-tap from the user, so we should zoom out.
+                            // Single tapping doesn't do anything anyway so this is the correct
+                            // behavior.
+                            long tapDelta = event.getEventTime() - mPreviousDownTime;
+                            if (!isObserve && tapDelta < DOUBLE_TAP_MAX_TIME / 2) {
+                                resetZoom();
+                            }
+                        }
                         return true;
                     }
                     getParent().requestDisallowInterceptTouchEvent(false);
@@ -469,6 +487,15 @@ public class ChartView extends View {
                 private void updateTouchPoints(MotionEvent event, int panPointerIndex) {
                     mTouchX = event.getX(panPointerIndex);
                     mTouchY = event.getY(panPointerIndex);
+                }
+
+                private void resetZoom() {
+                    // Assume this is a double-tap, reset zoom if we aren't in observe.
+                    mChartOptions.requestResetZoomInY();
+                    for (ExternalAxisController.InteractionListener listener : mListeners) {
+                        listener.onStartInteracting();
+                        listener.requestResetZoom();
+                    }
                 }
             });
         }
