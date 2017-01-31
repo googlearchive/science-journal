@@ -123,10 +123,54 @@ public class TriggerListFragment extends Fragment {
                         for (GoosciSensorLayout.SensorLayout layout : value) {
                             if (TextUtils.equals(layout.sensorId, mSensorId)) {
                                 mSensorLayout = layout;
+                                loadTriggers();
                             }
                         }
                     }
                 });
+        WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
+                TrackerConstants.SCREEN_TRIGGER_LIST);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveTriggerOrder();
+        outState.putStringArrayList(KEY_TRIGGER_ORDER, mTriggerOrder);
+    }
+
+    private DataController getDataController() {
+        return AppSingleton.getInstance(getActivity()).getDataController();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_trigger_list, parent, false);
+
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
+        }
+
+        RecyclerView triggerList = (RecyclerView) view.findViewById(R.id.trigger_recycler_view);
+        triggerList.setLayoutManager(new LinearLayoutManager(view.getContext(),
+                LinearLayoutManager.VERTICAL, false));
+        mTriggerAdapter = new TriggerListAdapter(this);
+        triggerList.setAdapter(mTriggerAdapter);
+
+        FloatingActionButton addButton =
+                (FloatingActionButton) view.findViewById(R.id.add_trigger_button);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                launchEditTriggerActivity(null);
+            }
+        });
+        return view;
+    }
+
+    private void loadTriggers() {
         getDataController().getSensorTriggersForSensor(mSensorId,
                 new LoggingConsumer<List<SensorTrigger>>(TAG, "get triggers for sensor") {
                     @Override
@@ -170,46 +214,6 @@ public class TriggerListFragment extends Fragment {
                         mTriggerAdapter.setSensorTriggers(triggers);
                     }
                 });
-        WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
-                TrackerConstants.SCREEN_TRIGGER_LIST);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        saveTriggerOrder();
-        outState.putStringArrayList(KEY_TRIGGER_ORDER, mTriggerOrder);
-    }
-
-    private DataController getDataController() {
-        return AppSingleton.getInstance(getActivity()).getDataController();
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_trigger_list, parent, false);
-
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeButtonEnabled(true);
-        }
-
-        RecyclerView triggerList = (RecyclerView) view.findViewById(R.id.trigger_recycler_view);
-        triggerList.setLayoutManager(new LinearLayoutManager(view.getContext(),
-                LinearLayoutManager.VERTICAL, false));
-        mTriggerAdapter = new TriggerListAdapter(this);
-        triggerList.setAdapter(mTriggerAdapter);
-
-        FloatingActionButton addButton =
-                (FloatingActionButton) view.findViewById(R.id.add_trigger_button);
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                launchEditTriggerActivity(null);
-            }
-        });
-        return view;
     }
 
     private void launchEditTriggerActivity(SensorTrigger trigger) {
