@@ -906,11 +906,16 @@ public class SensorCardPresenter {
         mCardViewHolder.sensorTabLayout.addTab(tab, index, false);
         // HACK: we need to retrieve the view using View#findViewByTag to avoid adding lots of
         // callbacks and plumbing, just for a one time use case (feature discovery).
-        // This is dependent on the current implementation of TabLayout, but since it comes from the
-        // support library, not worried about it changing on different devices.
+        // We also need to set the content description on the TabView so that FeatureDiscovery can
+        // retrieve it properly. This does not seem to cause a double content description in
+        // TalkBack, probably because the TabView's content description is otherwise unused.
+        // Finding the TabView is dependent on the current implementation of TabLayout, but since
+        // it comes from the support library, not worried about it changing on different devices.
         if (mCardViewHolder.sensorTabLayout.getChildCount() > 0) {
-            ((ViewGroup) mCardViewHolder.sensorTabLayout.getChildAt(0)).getChildAt(index).setTag(
-                    sensorId);
+            View tabView = ((ViewGroup) mCardViewHolder.sensorTabLayout.getChildAt(0))
+                    .getChildAt(index);
+            tabView.setTag(sensorId);
+            tabView.setContentDescription(appearance.getName(context));
         }
     }
 
