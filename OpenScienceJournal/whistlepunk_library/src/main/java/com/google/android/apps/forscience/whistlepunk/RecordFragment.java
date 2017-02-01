@@ -807,6 +807,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                         mSensorCardAdapter.getItemCount() - 1);
                             }
                             activateSensorCardPresenter(sensorCardPresenter, true);
+                            saveCurrentLayouts();
                         }
                     }
                 }, new SensorCardAdapter.CardRemovedListener() {
