@@ -287,9 +287,9 @@ public class MainActivity extends AppCompatActivity
             Intent intent = null;
             int itemId = menuItem.getItemId();
 
-            if (itemId == R.id.navigation_item_website) {
+            if (itemId == R.id.navigation_item_activities) {
                 intent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                        getString(R.string.website_url)));
+                        getString(R.string.activities_url)));
             } else if (itemId == R.id.navigation_item_settings) {
                 intent = SettingsActivity.getLaunchIntent(this, menuItem.getTitle(),
                         SettingsActivity.TYPE_SETTINGS);
