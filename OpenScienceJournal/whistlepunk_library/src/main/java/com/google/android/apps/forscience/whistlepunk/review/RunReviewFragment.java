@@ -190,6 +190,28 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     @Override
     public void onResume() {
         super.onResume();
+        final DataController dc = getDataController();
+        dc.getExperimentRun(mStartLabelId,
+                new LoggingConsumer<ExperimentRun>(TAG, "load experiment run") {
+                    @Override
+                    public void success(final ExperimentRun run) {
+                        if (run == null || run.getExperimentId() == null) {
+                            // This run or experiment no longer exists, finish.
+                            getActivity().finish();
+                        }
+                        dc.getExperimentById(run.getExperimentId(),
+                                new LoggingConsumer<Experiment>(TAG, "load experiment") {
+                                    @Override
+                                    public void success(Experiment experiment) {
+                                        if (experiment == null) {
+                                            // This experiment no longer exists, finish.
+                                            getActivity().finish();
+                                        }
+                                        attachToRun(experiment, run);
+                                    }
+                                });
+                    }
+                });
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_RUN_REVIEW);
     }
@@ -435,29 +457,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     @Override
                     public void onClick(View v) {
                         mRunReviewPlaybackButton.callOnClick();
-                    }
-                });
-
-        final DataController dc = getDataController();
-        dc.getExperimentRun(mStartLabelId,
-                new LoggingConsumer<ExperimentRun>(TAG, "load experiment run") {
-                    @Override
-                    public void success(final ExperimentRun run) {
-                        if (run == null || run.getExperimentId() == null) {
-                            // This run or experiment no longer exists, finish.
-                            getActivity().finish();
-                        }
-                        dc.getExperimentById(run.getExperimentId(),
-                                new LoggingConsumer<Experiment>(TAG, "load experiment") {
-                                    @Override
-                                    public void success(Experiment experiment) {
-                                        if (experiment == null) {
-                                            // This experiment no longer exists, finish.
-                                            getActivity().finish();
-                                        }
-                                        attachToRun(experiment, run);
-                                    }
-                                });
                     }
                 });
 
