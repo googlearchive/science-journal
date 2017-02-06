@@ -55,7 +55,6 @@ public class RunReviewActivity extends MetadataActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_run_review);
-        RecorderService.clearRecordingCompletedNotification(getApplicationContext());
         mFromRecord = getIntent().getExtras().getBoolean(EXTRA_FROM_RECORD, false);
         boolean createTask = getIntent().getExtras().getBoolean(EXTRA_CREATE_TASK, true);
         supportPostponeEnterTransition();
@@ -67,6 +66,12 @@ public class RunReviewActivity extends MetadataActivity {
             getFragmentManager().beginTransaction().add(R.id.container, fragment)
                     .commit();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        RecorderService.clearRecordingCompletedNotification(getApplicationContext());
     }
 
     @Override

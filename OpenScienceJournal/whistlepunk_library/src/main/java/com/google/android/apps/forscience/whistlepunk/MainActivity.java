@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -170,14 +171,9 @@ public class MainActivity extends AppCompatActivity
         if (showRequiredScreensIfNeeded()) {
             return;
         }
-        AppSingleton.getInstance(this).withRecorderController(TAG,
-                new Consumer<RecorderController>() {
-                    @Override
-                    public void take(RecorderController rc) {
-                        rc.addRecordingStateListener(TAG, mRecordingStateListener);
-                        rc.setRecordActivityInForeground(true);
-                    }
-                });
+        if (!isMultiWindowEnabled()) {
+            updateRecorderControllerForResume();
+        }
         mRecordFragment = (RecordFragment) getFragmentManager().findFragmentByTag(
                 String.valueOf(R.id.navigation_item_observe));
         // If we get to here, it's safe to log the mode we are in: user has completed age
@@ -211,6 +207,40 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onPause() {
+        if (!isMultiWindowEnabled()) {
+            updateRecorderControllerForPause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (isMultiWindowEnabled()) {
+            updateRecorderControllerForResume();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        if (isMultiWindowEnabled()) {
+            updateRecorderControllerForPause();
+        }
+        super.onStop();
+    }
+
+    private void updateRecorderControllerForResume() {
+        AppSingleton.getInstance(this).withRecorderController(TAG,
+                new Consumer<RecorderController>() {
+                    @Override
+                    public void take(RecorderController rc) {
+                        rc.addRecordingStateListener(TAG, mRecordingStateListener);
+                        rc.setRecordActivityInForeground(true);
+                    }
+                });
+    }
+
+    private void updateRecorderControllerForPause() {
         AppSingleton singleton = AppSingleton.getInstance(this);
         singleton.withRecorderController(TAG,
                 new Consumer<RecorderController>() {
@@ -221,7 +251,19 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
         singleton.removeListeners(TAG);
-        super.onPause();
+    }
+
+    private boolean isMultiWindowEnabled() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ||
+                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isARC());
+    }
+
+    private boolean isARC() {
+        if (getApplicationContext() == null) {
+            return false;
+        }
+        return getApplicationContext().getPackageManager().hasSystemFeature(
+                "org.chromium.arc.device_management");
     }
 
     /**
