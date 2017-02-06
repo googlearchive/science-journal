@@ -190,36 +190,18 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     @Override
     public void onResume() {
         super.onResume();
-        final DataController dc = getDataController();
-        dc.getExperimentRun(mStartLabelId,
-                new LoggingConsumer<ExperimentRun>(TAG, "load experiment run") {
-                    @Override
-                    public void success(final ExperimentRun run) {
-                        if (run == null || run.getExperimentId() == null) {
-                            // This run or experiment no longer exists, finish.
-                            getActivity().finish();
-                        }
-                        dc.getExperimentById(run.getExperimentId(),
-                                new LoggingConsumer<Experiment>(TAG, "load experiment") {
-                                    @Override
-                                    public void success(Experiment experiment) {
-                                        if (experiment == null) {
-                                            // This experiment no longer exists, finish.
-                                            getActivity().finish();
-                                        }
-                                        attachToRun(experiment, run);
-                                    }
-                                });
-                    }
-                });
+        if (!isMultiWindowEnabled()) {
+            initializeData();
+        }
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_RUN_REVIEW);
     }
 
     @Override
     public void onPause() {
-        mAudioWasPlayingBeforePause = mAudioPlaybackController.isPlaying();
-        mAudioPlaybackController.stopPlayback();
+        if (!isMultiWindowEnabled()) {
+            pausePlaybackForLifecycleEvent();
+        }
         super.onPause();
     }
 
@@ -339,9 +321,20 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if (isMultiWindowEnabled()) {
+            initializeData();
+        }
+    }
+
+    @Override
     public void onStop() {
         if (mRunReviewExporter.isExporting()) {
             mRunReviewExporter.stop();
+        }
+        if (isMultiWindowEnabled()) {
+            pausePlaybackForLifecycleEvent();
         }
         super.onStop();
     }
@@ -608,6 +601,49 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             launchAudioSettings();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean isMultiWindowEnabled() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ||
+                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isARC());
+    }
+
+    private boolean isARC() {
+        Context context = getContext();
+        if (context == null) {
+            return false;
+        }
+        return context.getPackageManager().hasSystemFeature("org.chromium.arc.device_management");
+    }
+
+    private void initializeData() {
+        final DataController dc = getDataController();
+        dc.getExperimentRun(mStartLabelId,
+                new LoggingConsumer<ExperimentRun>(TAG, "load experiment run") {
+                    @Override
+                    public void success(final ExperimentRun run) {
+                        if (run == null || run.getExperimentId() == null) {
+                            // This run or experiment no longer exists, finish.
+                            getActivity().finish();
+                        }
+                        dc.getExperimentById(run.getExperimentId(),
+                                new LoggingConsumer<Experiment>(TAG, "load experiment") {
+                                    @Override
+                                    public void success(Experiment experiment) {
+                                        if (experiment == null) {
+                                            // This experiment no longer exists, finish.
+                                            getActivity().finish();
+                                        }
+                                        attachToRun(experiment, run);
+                                    }
+                                });
+                    }
+                });
+    }
+
+    private void pausePlaybackForLifecycleEvent() {
+        mAudioWasPlayingBeforePause = mAudioPlaybackController.isPlaying();
+        mAudioPlaybackController.stopPlayback();
     }
 
     private void clearAudioPlaybackController() {
