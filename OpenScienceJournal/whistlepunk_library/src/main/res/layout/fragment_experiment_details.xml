@@ -59,5 +59,6 @@
         android:src="@drawable/ic_observe_white_24dp"
         android:contentDescription="@string/btn_observe_content_description"
         app:backgroundTint="@color/color_accent"
+        app:fabSize="normal"
         />
 </android.support.design.widget.CoordinatorLayout>

@@ -92,5 +92,7 @@
         android:src="@drawable/ic_plus_white_36dp"
         android:contentDescription="@string/btn_new_experiment_content_description"
         app:backgroundTint="@color/color_accent"
-        app:elevation="@dimen/fab_elevation"/>
+        app:elevation="@dimen/fab_elevation"
+        app:fabSize="normal"
+        />
 </android.support.design.widget.CoordinatorLayout>

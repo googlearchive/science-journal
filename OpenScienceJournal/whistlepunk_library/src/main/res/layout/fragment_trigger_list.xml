@@ -42,6 +42,7 @@
         android:src="@drawable/ic_plus_white_36dp"
         android:contentDescription="@string/btn_add_new_trigger"
         app:backgroundTint="@color/color_accent"
+        app:fabSize="normal"
         />
 
 </android.support.design.widget.CoordinatorLayout>
