@@ -66,6 +66,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
 import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
+import com.google.android.apps.forscience.whistlepunk.MultiWindowUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.PreviewNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -190,7 +191,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     @Override
     public void onResume() {
         super.onResume();
-        if (!isMultiWindowEnabled()) {
+        if (!MultiWindowUtils.isMultiWindowEnabled(getContext())) {
             initializeData();
         }
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
@@ -199,7 +200,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     @Override
     public void onPause() {
-        if (!isMultiWindowEnabled()) {
+        if (!MultiWindowUtils.isMultiWindowEnabled(getContext())) {
             pausePlaybackForLifecycleEvent();
         }
         super.onPause();
@@ -323,7 +324,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     @Override
     public void onStart() {
         super.onStart();
-        if (isMultiWindowEnabled()) {
+        if (MultiWindowUtils.isMultiWindowEnabled(getContext())) {
             initializeData();
         }
     }
@@ -333,7 +334,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (mRunReviewExporter.isExporting()) {
             mRunReviewExporter.stop();
         }
-        if (isMultiWindowEnabled()) {
+        if (MultiWindowUtils.isMultiWindowEnabled(getContext())) {
             pausePlaybackForLifecycleEvent();
         }
         super.onStop();
@@ -601,19 +602,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             launchAudioSettings();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private boolean isMultiWindowEnabled() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ||
-                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isARC());
-    }
-
-    private boolean isARC() {
-        Context context = getContext();
-        if (context == null) {
-            return false;
-        }
-        return context.getPackageManager().hasSystemFeature("org.chromium.arc.device_management");
     }
 
     private void initializeData() {

@@ -237,30 +237,17 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     @Override
     public void onPause() {
-        if (!isMultiWindowEnabled()) {
+        // TODO: can we safely use onStop to shut down observing on pre-Nougat?
+        //       See discussion at b/34368790
+        if (!MultiWindowUtils.isMultiWindowEnabled(getContext())) {
             stopUI();
         }
         super.onPause();
     }
 
-    // TODO: can we safely use onStop to shut down observing on pre-Nougat?
-    //       See discussion at b/34368790
-    private boolean isMultiWindowEnabled() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || (
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isARC());
-    }
-
-    private boolean isARC() {
-        Context context = getContext();
-        if (context == null) {
-            return false;
-        }
-        return context.getPackageManager().hasSystemFeature("org.chromium.arc.device_management");
-    }
-
     @Override
     public void onStop() {
-        if (isMultiWindowEnabled()) {
+        if (MultiWindowUtils.isMultiWindowEnabled(getContext())) {
             stopUI();
         }
         super.onStop();
@@ -297,7 +284,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     @Override
     public void onResume() {
         super.onResume();
-        if (!isMultiWindowEnabled()) {
+        if (!MultiWindowUtils.isMultiWindowEnabled(getContext())) {
             startUI();
         }
 
@@ -310,7 +297,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     public void onStart() {
         super.onStart();
 
-        if (isMultiWindowEnabled()) {
+        if (MultiWindowUtils.isMultiWindowEnabled(getContext())) {
             startUI();
         }
     }
