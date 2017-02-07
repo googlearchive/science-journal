@@ -436,16 +436,53 @@ public class TutorialActivity extends AppCompatActivity {
         @Override
         public void onResume() {
             super.onResume();
-            mVideo.start();
+            if (!isMultiWindowEnabled()) {
+                mVideo.start();
+            }
         }
 
         @Override
         public void onPause() {
+            if (!isMultiWindowEnabled()) {
+                pauseVideo();
+            }
+            super.onPause();
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+            if (isMultiWindowEnabled()) {
+                mVideo.start();
+            }
+        }
+
+        @Override
+        public void onStop() {
+            if (isMultiWindowEnabled()) {
+                pauseVideo();
+            }
+            super.onStop();
+        }
+
+        private void pauseVideo() {
             if (mVideo.canPause()) {
                 mVideo.pause();
             }
             mVideo.suspend();
-            super.onPause();
+        }
+
+        private boolean isMultiWindowEnabled() {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || (
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isARC());
+        }
+
+        private boolean isARC() {
+            Context context = getContext();
+            if (context == null) {
+                return false;
+            }
+            return context.getPackageManager().hasSystemFeature("org.chromium.arc.device_management");
         }
     }
 
