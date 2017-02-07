@@ -46,6 +46,7 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
+import com.google.android.apps.forscience.whistlepunk.MultiWindowUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
@@ -436,14 +437,14 @@ public class TutorialActivity extends AppCompatActivity {
         @Override
         public void onResume() {
             super.onResume();
-            if (!isMultiWindowEnabled()) {
+            if (!MultiWindowUtils.isMultiWindowEnabled(getContext())) {
                 mVideo.start();
             }
         }
 
         @Override
         public void onPause() {
-            if (!isMultiWindowEnabled()) {
+            if (!MultiWindowUtils.isMultiWindowEnabled(getContext())) {
                 pauseVideo();
             }
             super.onPause();
@@ -452,14 +453,14 @@ public class TutorialActivity extends AppCompatActivity {
         @Override
         public void onStart() {
             super.onStart();
-            if (isMultiWindowEnabled()) {
+            if (MultiWindowUtils.isMultiWindowEnabled(getContext())) {
                 mVideo.start();
             }
         }
 
         @Override
         public void onStop() {
-            if (isMultiWindowEnabled()) {
+            if (MultiWindowUtils.isMultiWindowEnabled(getContext())) {
                 pauseVideo();
             }
             super.onStop();
@@ -470,19 +471,6 @@ public class TutorialActivity extends AppCompatActivity {
                 mVideo.pause();
             }
             mVideo.suspend();
-        }
-
-        private boolean isMultiWindowEnabled() {
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || (
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isARC());
-        }
-
-        private boolean isARC() {
-            Context context = getContext();
-            if (context == null) {
-                return false;
-            }
-            return context.getPackageManager().hasSystemFeature("org.chromium.arc.device_management");
         }
     }
 

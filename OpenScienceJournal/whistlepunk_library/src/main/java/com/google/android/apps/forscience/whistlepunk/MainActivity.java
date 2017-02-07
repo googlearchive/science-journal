@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity
         if (showRequiredScreensIfNeeded()) {
             return;
         }
-        if (!isMultiWindowEnabled()) {
+        if (!MultiWindowUtils.isMultiWindowEnabled(getApplicationContext())) {
             updateRecorderControllerForResume();
         }
         mRecordFragment = (RecordFragment) getFragmentManager().findFragmentByTag(
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onPause() {
-        if (!isMultiWindowEnabled()) {
+        if (!MultiWindowUtils.isMultiWindowEnabled(getApplicationContext())) {
             updateRecorderControllerForPause();
         }
         super.onPause();
@@ -216,14 +216,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        if (isMultiWindowEnabled()) {
+        if (MultiWindowUtils.isMultiWindowEnabled(getApplicationContext())) {
             updateRecorderControllerForResume();
         }
     }
 
     @Override
     protected void onStop() {
-        if (isMultiWindowEnabled()) {
+        if (MultiWindowUtils.isMultiWindowEnabled(getApplicationContext())) {
             updateRecorderControllerForPause();
         }
         super.onStop();
@@ -251,19 +251,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
         singleton.removeListeners(TAG);
-    }
-
-    private boolean isMultiWindowEnabled() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ||
-                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isARC());
-    }
-
-    private boolean isARC() {
-        if (getApplicationContext() == null) {
-            return false;
-        }
-        return getApplicationContext().getPackageManager().hasSystemFeature(
-                "org.chromium.arc.device_management");
     }
 
     /**
