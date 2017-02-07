@@ -853,9 +853,12 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         // Load the data for the first sensor only.
         if (mSavedInstanceStateForLoad != null) {
             if (mSavedInstanceStateForLoad.getBoolean(KEY_AUDIO_PLAYBACK_ON, false)) {
+                mAudioPlaybackController.setYAxisRange(
+                        mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM),
+                        mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MAXIMUM));
                 mAudioPlaybackController.startPlayback(getDataController(),
                         mExperimentRun.getFirstTimestamp(), mExperimentRun.getLastTimestamp(),
-                        mRunReviewOverlay.getTimestamp(),
+                        mSavedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP),
                         mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId);
             }
             // If this isn't the first time we've made a view, check if the timepicker UI is up.
