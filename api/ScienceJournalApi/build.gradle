@@ -47,7 +47,7 @@ tasks.withType(Javadoc).all { enabled = false }
 ext {
     PUBLISH_GROUP_ID = 'com.google.android.apps.forscience'
     PUBLISH_ARTIFACT_ID = 'science-journal-api'
-    PUBLISH_VERSION = '0.1'
+    PUBLISH_VERSION = '0.2'
 }
 
 // From http://blog.blundellapps.co.uk/locally-release-an-android-library-for-jcenter-or-maven-central-inclusion/
