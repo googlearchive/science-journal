@@ -167,7 +167,10 @@ public class ExperimentDetailsFragment extends Fragment
     public void setExperimentId(String experimentId) {
         if (!Objects.equals(experimentId, mExperiment)) {
             mExperimentId = experimentId;
-            loadExperiment();
+            if (isResumed()) {
+                // If not resumed, wait to load until next resume!
+                loadExperiment();
+            }
         }
     }
 
