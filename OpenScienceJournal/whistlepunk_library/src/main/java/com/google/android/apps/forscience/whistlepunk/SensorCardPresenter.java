@@ -571,7 +571,7 @@ public class SensorCardPresenter {
             mCardViewHolder.infoButton.setVisibility(View.VISIBLE);
         } else {
             mCardViewHolder.infoButton.setOnClickListener(null);
-            mCardViewHolder.infoButton.setVisibility(View.GONE);
+            mCardViewHolder.infoButton.setVisibility(View.INVISIBLE);
         }
     }
 
