@@ -437,14 +437,14 @@ public class TutorialActivity extends AppCompatActivity {
         @Override
         public void onResume() {
             super.onResume();
-            if (!MultiWindowUtils.isMultiWindowEnabled(getContext())) {
+            if (!isMultiWindowEnabled()) {
                 mVideo.start();
             }
         }
 
         @Override
         public void onPause() {
-            if (!MultiWindowUtils.isMultiWindowEnabled(getContext())) {
+            if (!isMultiWindowEnabled()) {
                 pauseVideo();
             }
             super.onPause();
@@ -453,14 +453,18 @@ public class TutorialActivity extends AppCompatActivity {
         @Override
         public void onStart() {
             super.onStart();
-            if (MultiWindowUtils.isMultiWindowEnabled(getContext())) {
+            if (isMultiWindowEnabled()) {
                 mVideo.start();
             }
         }
 
+        private boolean isMultiWindowEnabled() {
+            return MultiWindowUtils.isMultiWindowEnabled(getActivity());
+        }
+
         @Override
         public void onStop() {
-            if (MultiWindowUtils.isMultiWindowEnabled(getContext())) {
+            if (isMultiWindowEnabled()) {
                 pauseVideo();
             }
             super.onStop();

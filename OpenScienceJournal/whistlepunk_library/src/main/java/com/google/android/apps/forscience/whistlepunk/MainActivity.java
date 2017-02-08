@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity
         if (showRequiredScreensIfNeeded()) {
             return;
         }
-        if (!MultiWindowUtils.isMultiWindowEnabled(getApplicationContext())) {
+        if (!isMultiWindowEnabled()) {
             updateRecorderControllerForResume();
         }
         mRecordFragment = (RecordFragment) getFragmentManager().findFragmentByTag(
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onPause() {
-        if (!MultiWindowUtils.isMultiWindowEnabled(getApplicationContext())) {
+        if (!isMultiWindowEnabled()) {
             updateRecorderControllerForPause();
         }
         super.onPause();
@@ -216,17 +216,21 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        if (MultiWindowUtils.isMultiWindowEnabled(getApplicationContext())) {
+        if (isMultiWindowEnabled()) {
             updateRecorderControllerForResume();
         }
     }
 
     @Override
     protected void onStop() {
-        if (MultiWindowUtils.isMultiWindowEnabled(getApplicationContext())) {
+        if (isMultiWindowEnabled()) {
             updateRecorderControllerForPause();
         }
         super.onStop();
+    }
+
+    private boolean isMultiWindowEnabled() {
+        return MultiWindowUtils.isMultiWindowEnabled(getApplicationContext());
     }
 
     private void updateRecorderControllerForResume() {

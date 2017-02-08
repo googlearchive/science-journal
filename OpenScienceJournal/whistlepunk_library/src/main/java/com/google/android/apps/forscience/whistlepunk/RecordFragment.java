@@ -239,7 +239,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     public void onPause() {
         // TODO: can we safely use onStop to shut down observing on pre-Nougat?
         //       See discussion at b/34368790
-        if (!MultiWindowUtils.isMultiWindowEnabled(getContext())) {
+        if (!isMultiWindowEnabled()) {
             stopUI();
         }
         super.onPause();
@@ -247,7 +247,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     @Override
     public void onStop() {
-        if (MultiWindowUtils.isMultiWindowEnabled(getContext())) {
+        if (isMultiWindowEnabled()) {
             stopUI();
         }
         super.onStop();
@@ -284,7 +284,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     @Override
     public void onResume() {
         super.onResume();
-        if (!MultiWindowUtils.isMultiWindowEnabled(getContext())) {
+        if (!isMultiWindowEnabled()) {
             startUI();
         }
 
@@ -297,9 +297,13 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     public void onStart() {
         super.onStart();
 
-        if (MultiWindowUtils.isMultiWindowEnabled(getContext())) {
+        if (isMultiWindowEnabled()) {
             startUI();
         }
+    }
+
+    private boolean isMultiWindowEnabled() {
+        return MultiWindowUtils.isMultiWindowEnabled(getActivity());
     }
 
     private void startUI() {

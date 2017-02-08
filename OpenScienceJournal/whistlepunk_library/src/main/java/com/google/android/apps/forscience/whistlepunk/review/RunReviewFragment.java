@@ -191,7 +191,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     @Override
     public void onResume() {
         super.onResume();
-        if (!MultiWindowUtils.isMultiWindowEnabled(getContext())) {
+        if (!isMultiWindowEnabled()) {
             initializeData();
         }
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
@@ -200,7 +200,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     @Override
     public void onPause() {
-        if (!MultiWindowUtils.isMultiWindowEnabled(getContext())) {
+        if (!isMultiWindowEnabled()) {
             pausePlaybackForLifecycleEvent();
         }
         super.onPause();
@@ -324,7 +324,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     @Override
     public void onStart() {
         super.onStart();
-        if (MultiWindowUtils.isMultiWindowEnabled(getContext())) {
+        if (isMultiWindowEnabled()) {
             initializeData();
         }
     }
@@ -334,10 +334,14 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (mRunReviewExporter.isExporting()) {
             mRunReviewExporter.stop();
         }
-        if (MultiWindowUtils.isMultiWindowEnabled(getContext())) {
+        if (isMultiWindowEnabled()) {
             pausePlaybackForLifecycleEvent();
         }
         super.onStop();
+    }
+
+    private boolean isMultiWindowEnabled() {
+        return MultiWindowUtils.isMultiWindowEnabled(getActivity());
     }
 
     @Override
