@@ -237,6 +237,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     @Override
     public void onPause() {
+        saveCurrentLayouts();
         // TODO: can we safely use onStop to shut down observing on pre-Nougat?
         //       See discussion at b/34368790
         if (!isMultiWindowEnabled()) {
@@ -260,7 +261,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             mSensorCardAdapter.onPause();
         }
         getMetadataController().clearExperimentChangeListener();
-        saveCurrentLayouts();
         withRecorderController(new Consumer<RecorderController>() {
             @Override
             public void take(RecorderController rc) {
