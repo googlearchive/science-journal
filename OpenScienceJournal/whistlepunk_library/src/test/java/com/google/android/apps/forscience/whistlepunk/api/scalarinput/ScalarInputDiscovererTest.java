@@ -16,7 +16,6 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
@@ -87,40 +86,26 @@ public class ScalarInputDiscovererTest {
         assertTrue(listener.isDone);
     }
 
+    @Test
+    public void testStartScanningWithBadScanDevices() {
+        final ScalarInputScenario s = new ScalarInputScenario();
+        ExplicitExecutor uiThread = new ExplicitExecutor();
+        final TestSensorDiscoverer discoverer = new TestSensorDiscoverer(s.getServiceName()) {
+            @Override
+            public void scanDevices(IDeviceConsumer c) throws RemoteException {
+                throw new NullPointerException();
+            }
+        };
+        ScalarInputDiscoverer sid =
+                discoverer.makeScalarInputDiscoverer(s.getServiceId(), uiThread);
+
+        RecordingScanListener listener = new RecordingScanListener();
+        sid.startScanning(listener, TestConsumers.expectingFailureType(NullPointerException.class));
+    }
+
     private <T> T getOnly(List<T> list) {
         assertEquals(1, list.size());
         return list.get(0);
-    }
-
-    @NonNull
-    private ExternalSensorDiscoverer.ScanListener makeListener(
-            final Consumer<ExternalSensorDiscoverer.DiscoveredSensor> c,
-            final Runnable onScanDone) {
-        return new ExternalSensorDiscoverer.ScanListener() {
-            @Override
-            public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
-                c.take(sensor);
-            }
-
-            @Override
-            public void onServiceScanComplete(String serviceId) {
-
-            }
-
-            @Override
-            public void onServiceFound(ExternalSensorDiscoverer.DiscoveredService service) {
-
-            }
-
-            @Override
-            public void onDeviceFound(ExternalSensorDiscoverer.DiscoveredDevice device) {
-            }
-
-            @Override
-            public void onScanDone() {
-                onScanDone.run();
-            }
-        };
     }
 
     @Test
@@ -156,7 +141,7 @@ public class ScalarInputDiscovererTest {
         AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
                 new AccumulatingConsumer<>();
         RecordingRunnable onScanDone = new RecordingRunnable();
-        assertEquals(true, sid.startScanning(makeListener(c, onScanDone),
+        assertEquals(true, sid.startScanning(new TestScanListener(c, onScanDone),
                 TestConsumers.expectingFailure(new FailureListener() {
                     @Override
                     public void fail(Exception e) {
@@ -205,7 +190,7 @@ public class ScalarInputDiscovererTest {
                 assertEquals(2, c.seen.size());
             }
         };
-        sid.startScanning(makeListener(c, onScanDone), TestConsumers.expectingSuccess());
+        sid.startScanning(new TestScanListener(c, onScanDone), TestConsumers.expectingSuccess());
 
         assertFalse(onScanDone.hasRun);
         executor.drain();
@@ -232,7 +217,8 @@ public class ScalarInputDiscovererTest {
                 new AccumulatingConsumer<>();
         RecordingRunnable onScanDone = new RecordingRunnable();
         assertEquals(true,
-                sid.startScanning(makeListener(c, onScanDone), TestConsumers.expectingSuccess()));
+                sid.startScanning(new TestScanListener(c, onScanDone),
+                        TestConsumers.expectingSuccess()));
         ExternalSensorSpec sensor = c.getOnlySeen().getSpec();
         ScalarInputSpec spec = (ScalarInputSpec) sensor;
         assertEquals(s.getSensorName(), spec.getName());
@@ -265,7 +251,7 @@ public class ScalarInputDiscovererTest {
         AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> c =
                 new AccumulatingConsumer<>();
         RecordingRunnable onScanDone = new RecordingRunnable();
-        sid.startScanning(makeListener(c, onScanDone), TestConsumers.expectingSuccess());
+        sid.startScanning(new TestScanListener(c, onScanDone), TestConsumers.expectingSuccess());
 
         // Just don't crash
         scheduler.incrementTime(200);

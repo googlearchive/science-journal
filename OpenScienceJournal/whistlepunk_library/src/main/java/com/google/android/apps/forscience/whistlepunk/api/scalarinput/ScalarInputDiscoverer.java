@@ -158,9 +158,10 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                         }
                     });
 
-                    service.scanDevices(
-                            makeDeviceConsumer(service, serviceId, pool));
+                    service.scanDevices(makeDeviceConsumer(service, serviceId, pool));
                 } catch (RemoteException e) {
+                    onScanError.fail(e);
+                } catch (RuntimeException e) {
                     onScanError.fail(e);
                 }
             }

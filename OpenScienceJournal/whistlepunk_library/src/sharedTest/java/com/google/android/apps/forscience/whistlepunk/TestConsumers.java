@@ -96,4 +96,18 @@ public class TestConsumers {
             }
         };
     }
+
+    public static <T> MaybeConsumer expectingFailureType(final Class<? extends Exception> type) {
+        return new MaybeConsumer<T>() {
+            @Override
+            public void success(T actual) {
+                throw new RuntimeException("Expected failure");
+            }
+
+            @Override
+            public void fail(Exception e) {
+                assert type.isInstance(e);
+            }
+        };
+    }
 }
