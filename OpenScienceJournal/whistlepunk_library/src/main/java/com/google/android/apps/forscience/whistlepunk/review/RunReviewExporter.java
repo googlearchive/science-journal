@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
@@ -135,8 +136,8 @@ public class RunReviewExporter implements Handler.Callback {
                     }
                 }
 
-                File file = new File(storageDir.getPath(), sanitizeFilename(experimentName + " "
-                        + run.getRunTitle(mContext)) + ".csv");
+                File file = new File(storageDir.getPath(),
+                        makeExportFilename(experimentName, run, mContext));
                 mFileName = file.getName();
                 FileOutputStream fs;
                 try {
@@ -163,6 +164,29 @@ public class RunReviewExporter implements Handler.Callback {
 
         Range<Long> times = Range.closed(mRun.getFirstTimestamp(), mRun.getLastTimestamp());
         getReadings(TimeRange.oldest(times));
+    }
+
+    @NonNull
+    @VisibleForTesting
+    public static String makeExportFilename(String experimentName, ExperimentRun run,
+            Context context) {
+        // 40 chars of experimentname + 35 chars of run title + " " + ".csv" = 80 chars
+        return sanitizeFilename(truncate(experimentName, 40)
+                                + " "
+                                + truncate(run.getRunTitle(context), 35)
+                                + ".csv");
+    }
+
+    private static String truncate(String string, int maxLength) {
+        int hexLength = 8;
+        if (string.length() < maxLength) {
+            return string;
+        }
+
+        // Use a hash of the overflow characters to minimize odds of collision.
+        int cutoff = maxLength - hexLength;
+        String hexString = Integer.toHexString(string.substring(cutoff).hashCode());
+        return string.substring(0, cutoff) + hexString;
     }
 
     @NonNull
