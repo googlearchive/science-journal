@@ -164,7 +164,14 @@ public class PictureUtils {
         String extension = MimeTypeMap.getFileExtensionFromUrl(fileUrl);
         String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         if (!TextUtils.isEmpty(type)) {
-            intent.setDataAndType(Uri.parse(fileUrl), type);
+            String filePath = fileUrl;
+            if (filePath.startsWith("file:")) {
+                filePath = filePath.substring("file:".length());
+            }
+            Uri photoUri = FileProvider.getUriForFile(activity, activity.getPackageName(),
+                    new File(filePath));
+            intent.setDataAndType(photoUri, type);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             try {
                 activity.startActivity(intent);
             } catch (ActivityNotFoundException e) {
