@@ -96,10 +96,16 @@ public class ProjectTabsFragment extends Fragment implements
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
+
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_PROJECTS);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         setHasOptionsMenu(true);
         loadProjects();
     }

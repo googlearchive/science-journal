@@ -116,10 +116,15 @@ public class ProjectDetailsFragment extends Fragment implements
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_PROJECT_DETAIL);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         mProjectId = getArguments().getString(ARG_PROJECT_ID);
         getDataController().getProjectById(mProjectId,
                 new LoggingConsumer<Project>(TAG, "Retrieve project") {

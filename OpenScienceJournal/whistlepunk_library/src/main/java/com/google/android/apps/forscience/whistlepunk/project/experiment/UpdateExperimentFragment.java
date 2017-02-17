@@ -111,8 +111,8 @@ public class UpdateExperimentFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 isNewExperiment() ? TrackerConstants.SCREEN_NEW_EXPERIMENT :
                         TrackerConstants.SCREEN_UPDATE_EXPERIMENT);

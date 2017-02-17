@@ -91,8 +91,8 @@ public class DeviceOptionsDialog extends DialogFragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_DEVICE_OPTIONS);
     }

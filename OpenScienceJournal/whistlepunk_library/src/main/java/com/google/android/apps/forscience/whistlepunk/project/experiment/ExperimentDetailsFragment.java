@@ -175,6 +175,13 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
+                TrackerConstants.SCREEN_EXPERIMENT_DETAIL);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         loadExperiment();
@@ -188,9 +195,6 @@ public class ExperimentDetailsFragment extends Fragment
         };
         CropHelper.registerStatsBroadcastReceiver(getActivity().getApplicationContext(),
                 mBroadcastReceiver);
-
-        WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
-                TrackerConstants.SCREEN_EXPERIMENT_DETAIL);
     }
 
     private void loadExperiment() {

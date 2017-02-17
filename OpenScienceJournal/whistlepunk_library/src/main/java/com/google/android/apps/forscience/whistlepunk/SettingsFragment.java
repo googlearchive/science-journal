@@ -84,8 +84,8 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         int type = getArguments().getInt(KEY_TYPE);
         String screenName;
         if (type == SettingsActivity.TYPE_SETTINGS) {

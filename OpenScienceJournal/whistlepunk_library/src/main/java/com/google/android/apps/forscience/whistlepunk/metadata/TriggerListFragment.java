@@ -114,6 +114,13 @@ public class TriggerListFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
+                TrackerConstants.SCREEN_TRIGGER_LIST);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         getDataController().getSensorLayouts(mExperimentId,
@@ -128,8 +135,6 @@ public class TriggerListFragment extends Fragment {
                         }
                     }
                 });
-        WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
-                TrackerConstants.SCREEN_TRIGGER_LIST);
     }
 
     @Override
