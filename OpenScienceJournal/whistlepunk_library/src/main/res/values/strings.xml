@@ -1311,10 +1311,10 @@
     <!-- Content description for the crop overflow menu button [CHAR_LIMIT=none] -->
     <string name="crop_overflow_menu_content_description">More options</string>
 
-    <!-- Content description for the manual edit crop start time menu option [CHAR_LIMIT=25] -->
+    <!-- Content description for the manual edit crop start time menu option [CHAR_LIMIT=30] -->
     <string name="edit_crop_start_time">Edit start time</string>
 
-    <!-- Content description for the manual edit crop end time menu option [CHAR_LIMIT=25] -->
+    <!-- Content description for the manual edit crop end time menu option [CHAR_LIMIT=30] -->
     <string name="edit_crop_end_time">Edit end time</string>
 
     <!-- Title of a dialog to manually edit a trial's start time when cropping [CHAR_LIMIT=40] -->
@@ -1332,16 +1332,16 @@
     <!-- The divider character used between minutes and seconds in time, i.e. ":" in 12:34:56.789 for 12 hours, 32 minutes, 56 seconds and 789 millis [CHAR_LIMIT=1] -->
     <string name="minute_second_divider">:</string>
 
-    <!-- Error text for the manual timestamp entry field when the timestamp is in an invalid format [CHAR_LIMIT=40] -->
+    <!-- Error text for the manual timestamp entry field when the timestamp is in an invalid format [CHAR_LIMIT=55] -->
     <string name="timestamp_picker_format_error">Use a valid format, h:mm:ss.SSS</string>
 
-    <!-- Error text for the manual timestamp entry field when the timestamp is outside of the run range [CHAR_LIMIT=40] -->
+    <!-- Error text for the manual timestamp entry field when the timestamp is outside of the run range [CHAR_LIMIT=55] -->
     <string name="timestamp_picker_range_error">The time must be within the trial</string>
 
-    <!-- Error text for the manual crop timestamp entry field when the timestamp would result in an invalid crop range of less than one second [CHAR_LIMIT=40] -->
+    <!-- Error text for the manual crop timestamp entry field when the timestamp would result in an invalid crop range of less than one second [CHAR_LIMIT=59] -->
     <string name="timestamp_picker_crop_range_error">Trials cannot be cropped to less than one second long</string>
 
-    <!-- Label for the timestamp picker text field, where the user enters a time in a certain format like h:mm:ss.SSS (milliseconds) [CHAR_LIMIT=25]-->
+    <!-- Label for the timestamp picker text field, where the user enters a time in a certain format like h:mm:ss.SSS (milliseconds) [CHAR_LIMIT=80]-->
     <string name="timestamp_picker_prompt">New time (h:mm:ss.SSS)</string>
 
     <!-- Error message when the user tries to save crop was outside the bounds of the trial [CHAR_LIMIT=100] -->
