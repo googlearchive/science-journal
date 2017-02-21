@@ -37,7 +37,7 @@
     <string name="acc_y" msgid="663998787829282850">"加速计 Y 轴"</string>
     <string name="acc_z" msgid="6875563648805408084">"加速计 Z 轴"</string>
     <string name="ambient_light" msgid="956709382703134737">"环境光"</string>
-    <string name="magnetic_rotation" msgid="300136225077841521">"磁场旋转"</string>
+    <string name="magnetic_rotation" msgid="7304010829539827205">"磁力计"</string>
     <string name="barometer" msgid="99316252932520865">"气压计"</string>
     <string name="ambient_temperature" msgid="1293814885248346186">"环境温度"</string>
     <string name="video_stream" msgid="6479736939735009121">"视频流"</string>
@@ -94,7 +94,8 @@
     <string name="picture_note_description" msgid="6443481127492010185">"测试图片备注"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"图片备注预览"</string>
     <string name="navigation_item_observe" msgid="8558454737213940045">"观察"</string>
-    <string name="navigation_item_projects" msgid="1428359552921228239">"项目"</string>
+    <string name="navigation_item_projects" msgid="2995007802369585217">"项目库"</string>
+    <string name="navigation_item_activities" msgid="2828059180911151657">"活动"</string>
     <string name="navigation_item_web_link" msgid="2569270479818502015">"Making &amp; Science 网站"</string>
     <string name="navigation_item_settings" msgid="2126253880412012953">"设置"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"测试选项"</string>
@@ -226,13 +227,15 @@
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"手机向上和向下移动的加速度，以米/秒² 为单位"</string>
     <string name="sensor_desc_short_decibel" msgid="2359189091191569028">"声音传感器或麦克风接收到的声音强度以分贝 (dB) 为单位进行衡量。"</string>
     <string name="sensor_desc_short_light" msgid="8639505918865988429">"环境光传感器接受到的光量以勒克斯为单位进行衡量。"</string>
-    <string name="sensor_desc_short_magnetic_rotation" msgid="1329789157704631467">"手机与外部磁场之间的旋转角度。"</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="4240862107662012031">"手机与外部磁场间的角度。"</string>
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"外部传感器会根据自定义设置在此处显示其数据。"</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"每分钟旋转的次数"</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"来自外部传感器的原始百分比读数。"</string>
     <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"以百帕 (hPa) 为单位测得的气压。"</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"环境光传感器用于以勒克斯为单位对光进行衡量，这是一种基于入射光的量和光线分散区域来测量照度的办法。\n\n满月的照度约为 1 勒克斯，普通客厅照明灯的照度约为 50 勒克斯，教室照明系统、日出时及日落时的照度约为 400 勒克斯，日光（非直射）的照度超过 10000 勒克斯，直射的照度超过 30000 勒克斯。\n\n大多数人并不熟悉勒克斯这个单位。我们买灯泡时，通常根据瓦特选购，但瓦特无法说明灯泡的亮度，只能说明它消耗的能源。选购灯具时，流明是一个更好的衡量单位，它说明了灯泡的实际亮度，而勒克斯则说明了特定区域的光照强度。"</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"由于光在传播时会不断扩散，因此随着您距离光源越来越远，勒克斯数会不断降低，即使光源仍在发出等量的光（以流明为单位）也是如此。光源侧面接收到的照度也较低，这就是赤道地区要比寒冷的极地地区暖和得多的原因。\n\n顺便提一下，手机中的光传感器用于控制屏幕亮度，使屏幕可以根据昏暗或明亮的环境相应进行调整。光传感器内部有一个微型半导体，能够感应到入射光线，产生细微但可测的电流，这就是光电效应。某些路灯也使用了类似的传感器，在天色变暗时，这种传感器就会打开路灯。"</string>
+    <string name="sensor_desc_first_paragraph_magnetic_rotation" msgid="7544395877395406770">"你可能已经知道地球拥有一个磁场，但你可能还不知道，你的手机中有一个用于检测磁场的装置：磁力计。\n\n老式指南针就是一种很简易的磁力计，它的指针经过磁化，会在周围磁场的影响下转动。但你手机中的可不是微型指南针，而是一个微型三轴传感器。这个传感器会利用电流检测三维空间的磁场强度。\n\n有些磁力计利用霍尔效应（即磁场有使电荷在移动过程中发生偏移的趋势）检测磁场。新型磁力计则使用的是磁敏电阻 - 一种随磁场变化改变电阻值的金属合金。\n\n手机中为何要有磁力计？掌握你的空间方位对于内置指南针和导航应用意义重大，特别是那些会尝试提供转弯指向的应用。"</string>
+    <string name="sensor_desc_second_paragraph_magnetic_rotation" msgid="975262966302662919">"你可能已经注意到，手机中的磁力计不仅对地球的磁场有反应，而且对周围的任何以及所有磁场都会有反应。磁铁、电流和金属物体很容易就会影响手机磁力计的指示方向。因此，请站在空旷的地方，最好是室外远离电线的环境，这样可确保磁力计的红色端与地球的磁场方向一致。按照 8 字形移动你的手机，这样有助于校准手机的磁力计。"</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"物体保持静止不动或匀速移动（在移动状态下）的倾向称之为惯性。牛顿第一定律正式提出了这个观点：除非有不平衡的力作用于物体，否则物体会保持匀速运动或静止状态。\n\n如果不平衡的力改变了物体的运动状态，我们就会说物体获得了加速度：速率或速度发生了改变。加速、减速或改变方向都会带来加速度。加速度通过一定时间内的速率（每秒米数）变化来衡量（也就是米/秒²）。\n\n您的手机配有计算这些运动变化的设备 - 加速计。在加速计内部有处于悬浮状态的微粒，这些微粒可以自由移动。手机运动状态的变化会使这些微粒移动，如同您坐在汽车中，汽车突然刹车时，您的头会不由自主前倾一样。通过计算这些微粒的移动情况，手机中的加速计可以检测自身的运动状态和方向变化，从而能够轻松将手机屏幕从横屏模式切换为纵向模式，方便您玩游戏或进行其他活动。"</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"您可能注意到了 Z 轴上持续存在的加速度，即使手机仍放在桌子上也是如此。这是我们在地球表面上由于重力所体验到的加速度，约为 9.8 米/秒²。"</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"声音是通过振动产生的。例如，人的声音是喉咙中的声带振动发出的。这些振动产生了交替出现的高气压区和低气压区，并向外传播，就如将鹅卵石扔进池塘形成不断扩大的环形涟漪一样。"</string>
@@ -244,13 +247,13 @@
     <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"此处所示的数据来自通过蓝牙与手机进行通信的外部传感器。"</string>
     <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"蓝牙是一种使用无线电波在短距离内在固定和移动设备之间交换数据的无线技术标准。"</string>
     <string name="sensor_desc_first_paragraph_barometer" msgid="2813905499808374316">"虽然我们很少注意到，但其实我们都生活在一个空气海洋的底部，这个空气海洋就是向上延伸 40 千米（130000 英尺）高的地球大气层。所有这些空气的重量从我们的上方向下挤压我们，就会产生所谓的大气压力。\n\n在海平面上，大气压会对每平方英寸的面积施加 14 磅的力，这相当于在标准纸张大小的面积上施加约 1300 磅的力。"</string>
-    <string name="sensor_desc_second_paragraph_barometer" msgid="4975611576005615149">"我们没有察觉这一巨大的压力，是因为我们对此已经习惯了，只有气压发生变化时，我们才会感觉到它的存在，哪怕只是很小的变化，例如当我们前往高海拔地区或乘坐飞机时。大气压也因天气状况而异，有暴风雨、空气不稳定时会下降，空气稳定、天空晴朗时会上升。\n\n手机中的数字气压计以百帕为单位测量大气压值（1 百帕等于 100 帕，1 帕相当于在 1 平方米的面积上施加 1 牛顿的力）。有的国家/地区在提供天气信息时，可能会用毫巴为单位来表示大气压力，1 毫巴就等于 1 百帕，不过前者听起来会让人感觉更熟悉。\n\n您可能会有疑问：为什么要用手机来测量气压？即使海拔高度只出现稍许变化，比如在您爬楼梯时，大气压都会发生可测量到的变化。因此，手机内置的数字气压计可以帮助检测位置的变化，例如，它可以告诉您当前所处的楼层位置，以及您开车过桥时是在上桥还是在下桥阶段。"</string>
+    <string name="sensor_desc_second_paragraph_barometer" msgid="1874873193563943664">"我们对这一巨大的压力早已习惯，浑然不觉，只有在气压变化时才会感受到它的存在，哪怕只是很小的变化，例如当我们前往高海拔地区或乘坐飞机时。大气压也因天气状况而异，出现暴风雨、气流不稳定时会下降，气流稳定、天空晴朗时会上升。\n\n手机中的数字气压计以百帕为单位测量大气压值（1 百帕等于 100 帕，1 帕相当于在 1 平方米的面积上施加 1 牛顿的力）。有的国家/地区在提供天气信息时，可能会用毫巴为单位来表示大气压力，1 毫巴就等于 1 百帕，不过前者听起来会让人感觉更熟悉。\n\n您可能会有疑问：为什么要用手机来测量气压？即使海拔高度只出现稍许变化，比如在您爬楼梯时，大气压都会发生可测量到的变化。因此，手机内置的数字气压计可以帮助检测位置的变化，例如，它可以告诉您当前所处的楼层位置，以及您开车过桥时是在桥上还是桥下。"</string>
     <string name="run_review_duration" msgid="1978235455271606762">"持续时间"</string>
     <string name="run_review_activity_label" msgid="5646135462344737004">"查看"</string>
     <string name="service_notification_content_title" msgid="791621361781451323">"科学日志"</string>
     <string name="service_notification_content_text" msgid="8364458347657207997">"正在记录…"</string>
-    <string name="live_graph_content_description" msgid="3509656099170703878">"传感器实时数据图表。拖动可平移 X 轴。"</string>
-    <string name="static_graph_content_description" msgid="8689642435844781150">"传感器图表。双指张合可缩放，拖动可平移 X 轴。"</string>
+    <string name="live_graph_content_description" msgid="7102643199006291209">"传感器实时数据图表。拖动可平移 X 轴，双指张合可缩放 Y 轴。"</string>
+    <string name="static_graph_content_description" msgid="4724363632843408472">"传感器图表。双指张合可缩放，拖动可平移，连续点按两次可缩小。"</string>
     <string name="sensor_card_overflow_menu_content_description" msgid="4358551973476442373">"卡片选项"</string>
     <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"切换为信息模式"</string>
     <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"切换为图表模式"</string>
@@ -318,14 +321,14 @@
     <string name="edit_trial_title_hint" msgid="2537511526292819270">"测试名称"</string>
     <string name="include_archived_trials" msgid="2976166896399146224">"包含已归档的测试"</string>
     <string name="export_error" msgid="2485739090885091041">"导出失败。"</string>
+    <string name="no_app_found" msgid="4158372008501245612">"已安装的应用均无法执行此活动。"</string>
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"添加图片说明"</string>
     <string name="listing_title" msgid="1732490922169483408">"科学日志"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"探索您周围世界的科学奥秘。"</string>
-    <string name="listing_changelog" msgid="5074516298921719431">"新功能及改进：\n• 传感器触发设置：在达到特定传感器值时发出提醒、做记录或开始/停止记录。通过传感器卡片菜单可使用这些功能。\n• 删除已归档的测试、实验和项目。\n• 增加了对气压计传感器的支持。\n• 支持更多可与科学日志配合使用的工具：支持更多外部传感器类型。\n• 修正了错误。"</string>
-    <string name="listing__description" msgid="3975515995792990185">"有了“科学日志”这个实用工具，使用智能手机就能进行科学实验了。您可以使用手机内置传感器，也可以连接外部传感器，开始尽情探索周围的世界。“科学日志”可以让您将各种零散的想法归类整理成不同的具体项目、进行预测、记录笔记并收集多次实验的数据，然后深入分析实验结果并加上相关注释，就像随身携带的一本实验室笔记本。\n\n \n您可以访问以下网址汲取实验灵感，让这款应用伴您遨游广阔的科学天地：https://makingscience.withgoogle.com/science-journal/activities \n欢迎详细了解 Making &amp; Science：https://makingscience.withgoogle.com \n如需获取支持，请访问：https://productforums.google.com/forum/#!forum/sciencejournal \n如需获取代码，请访问：https://github.com/google/science-journal"</string>
+    <string name="listing_changelog" msgid="1682128084009185355">"新功能及改进之处：\n• 正式对支持 Play 商店的 ChromeBook 提供支持：https://support.google.com/chromebook/answer/7021273。\n• 增加了对磁力计传感器的支持。\n• 修正了对 Nougat 多窗口模式的支持。\n• 现在可以从记录的测试中剪裁掉多余的数据。"</string>
+    <string name="listing__description" msgid="1437079553322248814">"有了科学日志这个实用工具，使用支持 Android 应用的手机、平板电脑或 Chromebook 就能进行科学实验了。你可以使用手机内置的传感器，或者使用外接传感器，来尽情探索周围的世界。科学日志有助于你将各种零散的想法归类整理成不同的具体项目、进行预测、记笔记并收集多次实验的数据，然后深入分析实验结果并加上相关注释，它就像随身携带的一本实验室笔记本。\n\n\n你可以访问以下网址汲取实验灵感，让这款应用伴你遨游广阔的科学天地：https://makingscience.withgoogle.com/science-journal/activities\n欢迎详细了解 Making &amp; Science：https://makingscience.withgoogle.com\n如需获取支持，请访问：https://productforums.google.com/forum/#!forum/sciencejournal\n如需获取代码，请访问：https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"扫描第三方传感器"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"查找支持第三方传感器 API 并且能够将这些传感器添加到实验中的应用。"</string>
-    <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"启用磁力计"</string>
     <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"启用实验性磁力计传感器"</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"启用环境温度"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"启用实验性环境温度传感器"</string>
@@ -405,7 +408,7 @@
     <string name="trigger_fired_text" msgid="8122555560445417775">"已激活触发规则"</string>
     <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"剪裁开始时间：<xliff:g id="TIME">%1$s</xliff:g>，<xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
     <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"剪裁结束时间：<xliff:g id="TIME">%1$s</xliff:g>，<xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
-    <string name="crop_failed_message" msgid="8583818349156861745">"未能保存剪裁内容。"</string>
+    <string name="crop_failed_message" msgid="5035154087997365574">"未能保存剪裁内容：<xliff:g id="DETAILS">%1$s</xliff:g>"</string>
     <string name="crop_completed_message" msgid="2902081668922934393">"已对测试进行剪裁"</string>
     <string name="launch_settings" msgid="2712101939691138420">"启动设置"</string>
     <string name="trigger_alert_prompt" msgid="7548827088664791710">"通过以下方式提醒我："</string>
@@ -431,4 +434,19 @@
     <string name="btn_expand_service_for" msgid="1583182116793763414">"显示支持<xliff:g id="SERVICENAME">%1$s</xliff:g>的设备"</string>
     <string name="btn_contract_service_for" msgid="4288488406860885432">"隐藏支持<xliff:g id="SERVICENAME">%1$s</xliff:g>的设备"</string>
     <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"请为此实验选择至少一个传感器。"</string>
+    <string name="crop_overflow_menu_content_description" msgid="7022344633844303904">"更多选项"</string>
+    <string name="edit_crop_start_time" msgid="7240636576416008596">"修改开始时间"</string>
+    <string name="edit_crop_end_time" msgid="2899599921668940387">"修改结束时间"</string>
+    <string name="edit_crop_start_time_title" msgid="1042995884370160920">"修改测试的开始时间"</string>
+    <string name="edit_crop_end_time_title" msgid="528433456600866972">"修改测试的结束时间"</string>
+    <string name="negative_prefix" msgid="5414754653834689057">"-"</string>
+    <string name="hour_minute_divider" msgid="9156315427116912975">":"</string>
+    <string name="minute_second_divider" msgid="1227776218919718096">":"</string>
+    <string name="timestamp_picker_format_error" msgid="7119140041902399744">"请使用有效的格式，即 h:mm:ss.SSS"</string>
+    <string name="timestamp_picker_range_error" msgid="1138095977022442393">"此时间不得超出测试的时间范围"</string>
+    <string name="timestamp_picker_crop_range_error" msgid="7993788975367469387">"测试的剪裁长度不得少于 1 秒"</string>
+    <string name="timestamp_picker_prompt" msgid="7006377675003309657">"新的时间 (h:mm:ss.SSS)"</string>
+    <string name="crop_failed_range_too_large" msgid="3346936676881544788">"剪裁测试时不能超出初始记录的范围"</string>
+    <string name="crop_failed_range_too_small" msgid="2107171169092126449">"测试的剪裁长度不得少于 1 秒"</string>
+    <string name="crop_failed_invalid_state" msgid="3637654578796335566">"无效的状态"</string>
 </resources>

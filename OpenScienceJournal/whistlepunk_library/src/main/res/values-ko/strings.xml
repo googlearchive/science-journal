@@ -37,7 +37,7 @@
     <string name="acc_y" msgid="663998787829282850">"가속도계 Y"</string>
     <string name="acc_z" msgid="6875563648805408084">"가속도계 Z"</string>
     <string name="ambient_light" msgid="956709382703134737">"주변광"</string>
-    <string name="magnetic_rotation" msgid="300136225077841521">"자기 회전"</string>
+    <string name="magnetic_rotation" msgid="7304010829539827205">"자기계"</string>
     <string name="barometer" msgid="99316252932520865">"기압계"</string>
     <string name="ambient_temperature" msgid="1293814885248346186">"주변 온도"</string>
     <string name="video_stream" msgid="6479736939735009121">"동영상 스트림"</string>
@@ -94,7 +94,8 @@
     <string name="picture_note_description" msgid="6443481127492010185">"시도 중에 찍은 사진"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"사진 메모 미리보기"</string>
     <string name="navigation_item_observe" msgid="8558454737213940045">"관찰"</string>
-    <string name="navigation_item_projects" msgid="1428359552921228239">"프로젝트"</string>
+    <string name="navigation_item_projects" msgid="2995007802369585217">"프로젝트 라이브러리"</string>
+    <string name="navigation_item_activities" msgid="2828059180911151657">"활동"</string>
     <string name="navigation_item_web_link" msgid="2569270479818502015">"제작 및 과학 웹사이트"</string>
     <string name="navigation_item_settings" msgid="2126253880412012953">"설정"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"테스트 옵션"</string>
@@ -226,13 +227,15 @@
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"휴대전화의 위아래 방향 가속도이며 단위는 m/s²입니다."</string>
     <string name="sensor_desc_short_decibel" msgid="2359189091191569028">"사운드 센서나 마이크에 도달한 소리의 세기이며 데시벨(dB) 단위로 측정됩니다."</string>
     <string name="sensor_desc_short_light" msgid="8639505918865988429">"광 센서에 도달한 빛의 양이며 럭스 단위로 측정됩니다."</string>
-    <string name="sensor_desc_short_magnetic_rotation" msgid="1329789157704631467">"휴대전화와 외부 자기장 사이의 회전각입니다."</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="4240862107662012031">"휴대전화와 외부 자기장이 이루는 각도입니다."</string>
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"맞춤 설정에 따라 여기에 외부 센서의 데이터가 표시되고 있습니다."</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"분당 회전수입니다."</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"외부 센서에서 읽은 원본 비율입니다."</string>
     <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"헥토파스칼(hPa) 단위로 측정한 대기압입니다."</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"주변광 센서는 빛이 유입되는 양과 빛이 퍼지는 영역을 기준으로 빛을 측정하는 단위인 럭스로 빛을 측정합니다. \n\n보름달은 약 1럭스, 일반적인 전등을 사용하는 거실은 약 50럭스, 교실 조명/일출/일몰은 약 400럭스, 직사광선이 아닌 햇빛은 10,000럭스 이상, 직사광선은 30,000럭스 이상입니다. \n\n럭스는 대부분의 사람들에게 친숙한 단위가 아닙니다. 전구를 살 때 종종 와트를 보고 구매하지만 전구의 전력량으로는 밝기를 알 수 없으며 소비하는 에너지만 알 수 있습니다. 루멘은 전구가 실제로 만들어 내는 빛의 양을 알려주므로 전구를 구매할 때 더 적합한 기준입니다. 한편 럭스는 특정 영역에 도달하는 빛의 양을 알려줍니다."</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"빛이 이동하면서 퍼지므로 광원이 루멘 단위로 계속 동일한 양으로 빛나더라도 광원에서 멀어질수록 럭스가 줄어듭니다. 또한 광원에서 기울어져 있는 영역은 빛을 덜 받습니다. 지구의 적도가 극지방보다 따뜻한 이유가 바로 이것입니다. \n\n휴대전화에 있는 광 센서의 용도는 어둡거나 밝은 사용 환경에 맞게 조절하여 화면의 밝기 수준을 관리하는 것입니다. 광 센서 내부의 소형 반도체에서 광전 효과라고 하는 현상인 작지만 측정 가능한 전류가 발생하여 유입되는 빛에 응답합니다. 어두워지면 자동으로 켜지는 가로등에 이와 비슷한 센서가 사용됩니다."</string>
+    <string name="sensor_desc_first_paragraph_magnetic_rotation" msgid="7544395877395406770">"지구에 자기장이 있다는 사실은 아마 아실 것입니다. 하지만 휴대전화에 자기장을 감지하는 기기가 내장되어 있다는 사실도 알고 계신가요? 바로 자기계입니다. \n\n예전부터 사용되던 나침반은 구식 자기계라고 할 수 있습니다. 자기화된 바늘이 스스로 돌면서 주위 자기장과 정렬되기 때문이죠. 휴대전화에 들어 있는 것은 작은 나침반이 아니라 전류를 사용하여 3차원 공간 속에서 자기장의 세기를 감지하는 3축 센서입니다. \n\n어떤 자기계는 홀(Hall) 효과, 즉 흐르는 전하가 자기장에 의해 굴절되는 현상으로 자기장을 감지합니다. 최신 자기계는 자기장에 반응하여 저항이 변화하는 금속합금인 자기저항소자를 이용합니다. \n\n휴대전화에 자기계는 왜 필요할까요? 공간 속에서 방향을 판단하는 기능은 내장된 나침반 및 내비게이션 앱, 특히 방향 전환 안내를 제공하려는 앱에 특히 유용합니다."</string>
+    <string name="sensor_desc_second_paragraph_magnetic_rotation" msgid="975262966302662919">"눈치를 채셨겠지만, 휴대전화의 자기계는 지구의 자기장뿐 아니라 주위의 모든 자기장에 반응합니다. 자석, 전류, 금속 물체 등이 휴대전화의 자기계를 이리저리 흔들어 놓을 수 있죠. 자기계의 탐침이 지구의 자기장과 정확히 정렬되도록 하려면 송전선에서 멀리 떨어진 야외의 탁 트인 공간에 서보세요. 8자를 그리면서 휴대전화를 움직이면 휴대전화의 자기계를 보정하는 데 도움이 됩니다."</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"물체는 그대로 있거나 이동 중인 경우에는 계속 이동하려는 경향이 있으며 이러한 경향을 관성이라고 합니다. 이 개념을 공식적으로 표현한 것이 뉴턴의 제1법칙입니다. 물체는 이동 상태로 계속 진행하거나 불균형한 힘이 작용하지 않는 한 움직이지 않습니다. \n\n불균형한 힘이 물체를 움직이게 하면 물체가 가속된다고 합니다. 가속, 감속 또는 방향 변경에 의해 물체의 속도가 변합니다. 가속도는 시간에 따른 속도 변화(초당 미터) 또는 미터 매 초 제곱(m/s²)으로 측정됩니다. \n\n휴대전화에 이러한 움직임 변화를 측정하는 장치인 가속도계가 있습니다. 가속도계 내부에 달려 있는 소형 질량 물체는 이동이 가능하며 움직임에 변화가 있을 때 이동합니다. 이는 자동차가 갑자기 멈출 때 탑승자의 머리가 앞쪽으로 이동하는 것과 같습니다. 휴대전화의 가속도계는 이러한 미묘한 관성에 의한 이동을 측정하여 움직임과 방향의 변화를 감지하므로 휴대전화에서 게임 등의 활동을 할 때 화면을 가로에서 세로 모드로 전환하는 데 유용합니다."</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"휴대전화를 탁자 위에 놓아둔 상태에서도 z축의 지속적인 가속을 확인할 수 있습니다. 이는 중력의 당기는 힘에 의해 지구 표면에서 발생하는 가속도이며 약 9.8m/s²입니다."</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"소리는 진동에 의해 발생합니다. 예를 들어 목소리는 성대의 진동을 통해 발생합니다. 이러한 진동은 높고 낮은 공기압이 번갈아 밖으로 배출되는 공간을 만듭니다. 이는 연못에 조약돌을 던지면 원형의 잔물결이 확대되는 것과 같습니다."</string>
@@ -244,13 +247,13 @@
     <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"여기에 표시되는 데이터는 블루투스를 통해 휴대전화와 외부 센서가 통신하여 제공합니다."</string>
     <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"블루투스는 무선 전파를 사용하여 고정된 기기와 휴대기기의 데이터를 근거리에서 교환하는 무선 기술 표준입니다."</string>
     <string name="sensor_desc_first_paragraph_barometer" msgid="2813905499808374316">"평상시에는 잘 느끼기 어렵지만 우리는 대기권이라는 공기로 가득 찬 바다 밑바닥에 살고 있습니다. 지구 대기층의 두께는 40킬로미터에 달하며 이 모든 공기가 우리를 내리누르는 힘을 대기압이라고 합니다. \n\n해수면 높이의 대기압은 1제곱센티미터에 약 1kg으로 A4 용지 1장에 624kg 정도의 무게가 작용하는 셈입니다."</string>
-    <string name="sensor_desc_second_paragraph_barometer" msgid="4975611576005615149">"인간은 이 거대한 압력에 익숙해져 있어서 평소에는 잘 느끼지 못하지만, 높은 산에 오르거나 비행기를 탈 때와 같이 기압이 조금만 바뀌어도 그 변화를 알아차립니다. 대기압은 날씨에 따라서도 변화하는데 폭풍이 부는 등 기후가 불안정할 때는 기압이 떨어지고 기후가 안정된 화창한 날에는 기압이 상승합니다. \n\n휴대전화의 디지털 기압계는 대기압을 헥토파스칼 단위로 측정합니다. 1헥토파스칼은 100파스칼이며, 1파스칼은 1평방미터 면적에 1뉴턴의 힘이 작용하는 압력을 나타냅니다. 일기예보를 보면 기압을 밀리바 단위로 설명하기도 하는데 표현은 다르지만 헥토파스칼과 동일한 단위입니다. \n\n휴대전화에 압력을 측정하는 기능이 왜 있는지 궁금하지 않으신가요? 대기압은 계단을 오르내리는 등 고도가 조금만 바뀌어도 측정 가능할 정도로 변화합니다. 따라서 휴대폰의 디지털 기압계는 위치 변화를 감지하는 데 도움을 줍니다. 예를 들어 사용자가 건물 몇 층에 있는지 또는 고가도로 위를 지나는지 아니면 아래를 지나는지를 알아낼 수 있습니다."</string>
+    <string name="sensor_desc_second_paragraph_barometer" msgid="1874873193563943664">"인간은 이 거대한 압력에 평소 익숙해져 있어서 잘 느끼지 못하지만, 높은 산에 오르거나 비행기를 탈 때와 같이 기압이 조금만 바뀌어도 그 변화를 알아차립니다. 대기압은 날씨에 따라서도 변화하는데 폭풍이 부는 등 기후가 불안정할 때는 기압이 떨어지고 기후가 안정된 화창한 날에는 기압이 상승합니다. \n\n휴대전화의 디지털 기압계는 대기압을 헥토파스칼 단위로 측정합니다. 1헥토파스칼은 100파스칼이며, 1파스칼은 1평방미터 면적에 1뉴턴의 힘이 작용하는 압력을 나타냅니다. 일기예보를 보면 기압을 밀리바 단위로 설명하기도 하는데 표현은 다르지만 헥토파스칼과 동일한 단위입니다. \n\n휴대전화에 압력을 측정하는 기능이 왜 있는지 궁금하지 않으신가요? 대기압은 계단을 오르내리는 등 고도가 조금만 바뀌어도 측정 가능할 정도로 변화합니다. 따라서 휴대폰의 디지털 기압계는 위치 변화를 감지하는 데 도움을 줍니다. 예를 들어 사용자가 건물 몇 층에 있는지 또는 고가도로 위를 지나는지 아니면 아래를 지나는지를 알아낼 수 있습니다."</string>
     <string name="run_review_duration" msgid="1978235455271606762">"길이"</string>
     <string name="run_review_activity_label" msgid="5646135462344737004">"검토"</string>
     <string name="service_notification_content_title" msgid="791621361781451323">"과학 저널"</string>
     <string name="service_notification_content_text" msgid="8364458347657207997">"기록 중..."</string>
-    <string name="live_graph_content_description" msgid="3509656099170703878">"실시간 센서 그래프입니다. x축을 이동하려면 드래그하세요."</string>
-    <string name="static_graph_content_description" msgid="8689642435844781150">"센서 그래프입니다. 확대 또는 축소하려면 손가락을 펼치거나 오므리고 x축을 이동하려면 드래그하세요."</string>
+    <string name="live_graph_content_description" msgid="7102643199006291209">"실시간 센서 그래프입니다. X축을 이동하려면 드래그하고, Y축을 확대하려면 손가락을 오므리세요."</string>
+    <string name="static_graph_content_description" msgid="4724363632843408472">"센서 그래프입니다. 확대하려면 손가락을 오므리고, 이동하려면 드래그하고, 축소하려면 두 번 탭하세요."</string>
     <string name="sensor_card_overflow_menu_content_description" msgid="4358551973476442373">"카드 옵션"</string>
     <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"정보 모드로 전환"</string>
     <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"그래프 모드로 전환"</string>
@@ -318,14 +321,14 @@
     <string name="edit_trial_title_hint" msgid="2537511526292819270">"시도 제목"</string>
     <string name="include_archived_trials" msgid="2976166896399146224">"보관처리된 시도 포함"</string>
     <string name="export_error" msgid="2485739090885091041">"내보내지 못했습니다."</string>
+    <string name="no_app_found" msgid="4158372008501245612">"이 작업을 처리할 수 있는 앱이 설치되어 있지 않습니다."</string>
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"사진 설명 추가"</string>
     <string name="listing_title" msgid="1732490922169483408">"과학 저널"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"실험의 세상이 열립니다."</string>
-    <string name="listing_changelog" msgid="5074516298921719431">"새로운 기능 및 개선사항: \n• 센서 실행: 특정 센서 값에 도달하면 알림을 보내거나 메모를 만들거나 녹화를 시작 또는 중지합니다. 센서 카드 메뉴를 통해 이 기능에 액세스할 수 있습니다. \n• 보관처리된 실행, 실험 및 프로젝트를 삭제할 수 있습니다. \n• 기압계 센서 지원이 추가되었습니다. \n• 과학 저널에서 작동하는 유형 추가: 더 많은 외부 센서 유형에 액세스할 수 있습니다. \n• 버그가 수정되었습니다."</string>
-    <string name="listing__description" msgid="3975515995792990185">"과학 저널은 스마트폰으로 과학 실험을 할 수 있는 앱입니다. 휴대전화의 센서를 사용하거나 외부 센서에 연결하여 자유롭게 실험해 보세요. 아이디어를 프로젝트로 정리하고, 예측하고, 여러 번 실험하며 메모하고, 데이터를 수집하고, 결과를 종합하고 탐구해 보세요. 항상 가지고 다닐 수 있는 실험 공책과 같습니다. \n\n \n앱으로 가능한 활동 아이디어: https://makingscience.withgoogle.com/science-journal/activities \n제작 및 과학 자세히 알아보기: https://makingscience.withgoogle.com \n지원 문의: https://productforums.google.com/forum/#!forum/sciencejournal \n제공되는 코드: https://github.com/google/science-journal"</string>
+    <string name="listing_changelog" msgid="1682128084009185355">"새로운 기능 및 개선사항: \n• Play 스토어를 지원하는 ChromeBook 공식 지원: https://support.google.com/chromebook/answer/7021273 \n• 자기계 지원 추가 \n• Nougat 멀티 윈도우 모드 지원 수정 \n• 기록된 시도에서 불필요한 데이터 자르기 가능"</string>
+    <string name="listing__description" msgid="1437079553322248814">"과학 저널은 Android 앱을 지원하는 휴대전화, 태블릿 또는 Chromebook으로 과학 실험을 할 수 있는 도구입니다. 휴대전화의 센서를 사용하거나 외부 센서에 연결하여 자유롭게 실험해 보세요. 아이디어를 프로젝트로 정리하고, 예측하고, 여러 번 실험하며 메모하고, 데이터를 수집하고, 결과를 종합하고 탐구해 보세요. 항상 가지고 다닐 수 있는 실험 공책과 같습니다. \n\n \n앱으로 가능한 활동 아이디어: https://makingscience.withgoogle.com/science-journal/activities \n제작 및 과학 자세히 알아보기: https://makingscience.withgoogle.com \n지원 문의: https://productforums.google.com/forum/#!forum/sciencejournal \n코드 제공: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"타사 센서 검색"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"타사 센서 API를 지원하는 앱을 찾아 센서로 실험할 수 있도록 설정하세요."</string>
-    <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"자기계 사용 설정"</string>
     <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"실험 버전 자기계 센서를 사용 설정합니다."</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"주변 온도 사용 설정"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"실험 버전 주변 온도 센서를 사용 설정합니다."</string>
@@ -405,7 +408,7 @@
     <string name="trigger_fired_text" msgid="8122555560445417775">"트리거 작동"</string>
     <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"자르기 시작: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
     <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"자르기 끝: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
-    <string name="crop_failed_message" msgid="8583818349156861745">"자르기를 저장하지 못했습니다."</string>
+    <string name="crop_failed_message" msgid="5035154087997365574">"자르기 저장 실패: <xliff:g id="DETAILS">%1$s</xliff:g>"</string>
     <string name="crop_completed_message" msgid="2902081668922934393">"시도 잘림"</string>
     <string name="launch_settings" msgid="2712101939691138420">"설정 실행"</string>
     <string name="trigger_alert_prompt" msgid="7548827088664791710">"알림 방법"</string>
@@ -431,4 +434,19 @@
     <string name="btn_expand_service_for" msgid="1583182116793763414">"<xliff:g id="SERVICENAME">%1$s</xliff:g>의 기기 표시"</string>
     <string name="btn_contract_service_for" msgid="4288488406860885432">"<xliff:g id="SERVICENAME">%1$s</xliff:g>의 기기 숨기기"</string>
     <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"이 실험에 사용할 센서를 하나 이상 선택하세요."</string>
+    <string name="crop_overflow_menu_content_description" msgid="7022344633844303904">"옵션 더보기"</string>
+    <string name="edit_crop_start_time" msgid="7240636576416008596">"시작 시간 수정"</string>
+    <string name="edit_crop_end_time" msgid="2899599921668940387">"종료 시간 수정"</string>
+    <string name="edit_crop_start_time_title" msgid="1042995884370160920">"시도 시작 시간 수정"</string>
+    <string name="edit_crop_end_time_title" msgid="528433456600866972">"시도 종료 시간 수정"</string>
+    <string name="negative_prefix" msgid="5414754653834689057">"-"</string>
+    <string name="hour_minute_divider" msgid="9156315427116912975">":"</string>
+    <string name="minute_second_divider" msgid="1227776218919718096">":"</string>
+    <string name="timestamp_picker_format_error" msgid="7119140041902399744">"올바른 형식(h:mm:ss.SSS)을 사용하세요."</string>
+    <string name="timestamp_picker_range_error" msgid="1138095977022442393">"시도에 포함된 시간이어야 합니다."</string>
+    <string name="timestamp_picker_crop_range_error" msgid="7993788975367469387">"시도를 1초 미만으로 자를 수 없습니다."</string>
+    <string name="timestamp_picker_prompt" msgid="7006377675003309657">"새 시간(h:mm:ss.SSS)"</string>
+    <string name="crop_failed_range_too_large" msgid="3346936676881544788">"처음에 기록한 범위를 벗어나도록 시도를 자를 수 없습니다."</string>
+    <string name="crop_failed_range_too_small" msgid="2107171169092126449">"시도를 1초 미만으로 자를 수 없습니다."</string>
+    <string name="crop_failed_invalid_state" msgid="3637654578796335566">"잘못된 상태입니다."</string>
 </resources>

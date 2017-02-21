@@ -37,7 +37,7 @@
     <string name="acc_y" msgid="663998787829282850">"Accelerometer Y"</string>
     <string name="acc_z" msgid="6875563648805408084">"Accelerometer Z"</string>
     <string name="ambient_light" msgid="956709382703134737">"Omgivningsljussensor"</string>
-    <string name="magnetic_rotation" msgid="300136225077841521">"Magnetisk rotation"</string>
+    <string name="magnetic_rotation" msgid="7304010829539827205">"Magnetometer"</string>
     <string name="barometer" msgid="99316252932520865">"Barometer"</string>
     <string name="ambient_temperature" msgid="1293814885248346186">"Omgivningstemperatur"</string>
     <string name="video_stream" msgid="6479736939735009121">"Videostream"</string>
@@ -94,7 +94,8 @@
     <string name="picture_note_description" msgid="6443481127492010185">"Bild från försök"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"Förhandsgranska bildanteckning"</string>
     <string name="navigation_item_observe" msgid="8558454737213940045">"Observera"</string>
-    <string name="navigation_item_projects" msgid="1428359552921228239">"Projekt"</string>
+    <string name="navigation_item_projects" msgid="2995007802369585217">"Projektbibliotek"</string>
+    <string name="navigation_item_activities" msgid="2828059180911151657">"Aktiviteter"</string>
     <string name="navigation_item_web_link" msgid="2569270479818502015">"Webbplatsen Making Science"</string>
     <string name="navigation_item_settings" msgid="2126253880412012953">"Inställningar"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"Testalternativ"</string>
@@ -226,13 +227,15 @@
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"Telefonens acceleration uppåt och nedåt i m/s²"</string>
     <string name="sensor_desc_short_decibel" msgid="2359189091191569028">"Ljudstyrka mäts i decibel (dB), det som når ljudsensorn eller mikrofonen."</string>
     <string name="sensor_desc_short_light" msgid="8639505918865988429">"Mängden ljus mätt i lux som når sensorn för omgivningsljus."</string>
-    <string name="sensor_desc_short_magnetic_rotation" msgid="1329789157704631467">"Rotationsvinkeln mellan telefonen och det externa magnetfältet."</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="4240862107662012031">"Vinkeln mellan telefonen och det externa magnetfältet."</string>
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"Här visas data från en extern sensor, baserat på anpassade inställningar."</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"Antalet varv per minut"</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"Procentandelen obearbetad avläsning från en extern sensor."</string>
     <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"Atmosfärstrycket mätt i hektopascal (hPa)."</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"Sensorn för omgivningsljus mäter ljuset i lux. Det här måttet baseras på den ljusmängd som når sensorn och vilken yta det sprids över. \n\nVid fullmåne är ljusmängden ungefär 1 lux, i ett vanligt rum upplyst med lampor är ljusmängden ungefär 50 lux, klassrumsbelysning, soluppgång och solnedgång mäter ungefär 400 lux, dagsljus (indirekt solljus) mäter över 10 000 lux, och direkt solljus över 30 000 lux. \n\nLux är ett mått som de flesta av oss inte känner till. När vi köper glödlampor väljer vi lampa efter watt. Men en glödlampas watt säger inget om hur ljusstark den är, bara hur mycket energi den förbrukar. Lumen är ett bättre mått att titta på för glödlampor eftersom det indikerar hur mycket ljus en glödlampa genererar. Lux visar däremot hur mycket av det ljuset som når ett visst område."</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"Ljus sprids ut när det färdas och luxtalet minskar också i takt med att du befinner dig längre från ljuskällan, även om ljuskällans styrka håller samma lumen. Områden som finns i en vinklad position från ljuskällan får också mindre ljus. Tänk bara på hur mycket varmare det är runt ekvatorn än vid polerna. \n\nSyftet med ljussensorn i din telefon är att kontrollera skärmens ljusstyrka, som justeras efter omgivningens svagare och starkare ljus. Inuti ljussensorn finns en liten halvledare som reagerar på inkommande ljus genom att generera en liten mätbar elektrisk ström. Detta kallas fotoelektrisk effekt. Liknande sensorer används till exempel i gatubelysning så att lamporna tänds när det blir mörkt ute."</string>
+    <string name="sensor_desc_first_paragraph_magnetic_rotation" msgid="7544395877395406770">"Du känner säkert redan till att jorden har ett magnetfält. Men visste du att din telefon identifierar magnetfält med en så kallad magnetometer?  \n\nEn gammaldags kompass är en förenklad variant av en magnetometer. Den har en magnetiserad nål som justerar sig efter omgivningens magnetfält. Telefonen identifierar magnetfältets tredimensionella styrka med en treaxlad sensor med elektrisk ström. \n\nVissa magnetometrar identifierar magnetfält med Halleffekten, det vill säga magnetfältens tendens att avleda rörliga laddningar som flödar. Nyare magnetometrar har metallegeringar som ändrar motstånd efter magnetfält. \n\nVarför finns det då en magnetometer i telefonen? För att de inbyggda kompass- och navigeringsapparna har nytta av att veta var du befinner dig – särskilt appar med färdbeskrivningar."</string>
+    <string name="sensor_desc_second_paragraph_magnetic_rotation" msgid="975262966302662919">"Som du kanske har märkt reagerar telefonens magnetometer inte bara på jordens magnetfält, utan på alla magnetfält omkring dig. Magneter, elektriska strömmar och metallföremål får telefonens magnetometer att snurra åt olika håll. Om du vill vara säker på att magnetometerns röda pil rättar sig efter jordens magnetfält ska du helst stå utomhus och långt ifrån elledningar. Gör en åtta i luften med telefonen för att kalibrera magnetometern."</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"Föremål förblir i vila eller så fortsätter de att röra på sig om de har satts i rörelse. Vi kallar detta tröghetslagen. I Newtons första lag uttrycks det så här: Varje kropp förblir i sitt tillstånd av vila eller likformig och rätlinjig rörelse, om den inte påverkas av någon kraft. \n\nNär en kraft påverkar ett föremål så att det rör sig säger vi att det accelererar. Dess hastighet ändras antingen genom att öka eller minska, eller ändra riktning. Acceleration mäts som hastighetsändring (meter per sekund) över tid, eller meter per sekundkvadrat (m/s²). \n\nI din telefon ingår en så kallad accelerometer för att mäta de här rörelseändringarna. Inuti en accelerometer finns små tyngder som rör sig fritt. Vid rörelseändringar rör sig även dessa tyngder, ungefär som när ditt huvud rör sig framåt om du sitter i en bil som plötsligt bromsar in. Genom att mäta sådana subtila rörelseändringar, känner telefonens accelerometer av ändringar i rörelse och riktning. Detta är viktigt för att du ska kunna växla skärmen från liggande till stående visning, spela spel på telefonen och mycket mer."</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"Du har förmodligen upptäckt den ihållande accelerationen för Z-axeln även när telefonen ligger på bordet. Det är jordens acceleration som orsakas av tyngdkraften – ungefär 9,8 m/s²."</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"Vibration genererar ljud. Din röst genereras till exempel av vibrationer i stämbanden. De här vibrationerna genererar alternerande zoner med högt och lågt lufttryck som förs ut, ungefär som ringarna på vattnet som sprids efter att man kastat i en sten."</string>
@@ -244,13 +247,13 @@
     <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"Den data som visas här kommer från Bluetooth-kommunikation mellan en extern sensor och din telefon."</string>
     <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"Bluetooth är en trådlös standardteknik som utväxlar data via radiovågor över korta avstånd för fasta och mobila enheter."</string>
     <string name="sensor_desc_first_paragraph_barometer" msgid="2813905499808374316">"Vi märker det knappt, men vi lever på botten av ett djupt hav av luft: Jordens atmosfär, som sträcker sig 40 kilometer uppåt. Vikten av all den luft som trycker ned på oss ovanifrån skapar vad som kallas för atmosfärstryck. \n\nVid havsnivå motsvarar atmosfärstrycket 7 kg kraft per kvadrattum, vilket motsvarar cirka 600 kg på en yta lika stor som ett vanligt pappersark."</string>
-    <string name="sensor_desc_second_paragraph_barometer" msgid="4975611576005615149">"Vi lägger inte märke till det stora trycket eftersom vi är vana vid det – åtminstone inte förrän det ändras lite, som det gör på höga höjder eller när vi flyger flygplan. Atmosfärstrycket varierar också med vädret. Det sjunker när storm och ostadig luft drar in, och ökar när luften blir stabilare vid klar himmel. \n\nDen digitala barometern i telefonen mäter atmosfärstrycket i hektopascal (en hektopascal är 100 pascal, och en pascal är en kraft på en newton över en kvadratmeter). Du har säkert hört meteorologer prata om atmosfärstryck i millibar. Det är en annan enhet som motsvarar hektopascal. \n\nDu kanske undrar: Varför behöver en telefon mäta tryck? Atmosfärstrycket ändras mätbart även med små förändringar i höjd, till exempel när du går upp för en trappa. En digital barometer i telefonen kan därför hjälpa till att upptäcka din position och till exempel avgöra vilken våning i en byggnad du är på, eller om du kör på det övre eller nedre planet på en bro."</string>
+    <string name="sensor_desc_second_paragraph_barometer" msgid="1874873193563943664">"Vi lägger inte märke till det stora trycket eftersom vi är vana vid det – åtminstone inte förrän det ändras lite, som det gör på höga höjder eller när vi flyger. Atmosfärstrycket varierar också efter väder. Det sjunker när storm och ostadig luft drar in, och ökar när luften blir stabilare vid klar himmel. \n\nDen digitala barometern i telefonen mäter atmosfärstrycket i hektopascal (en hektopascal är 100 pascal, och en pascal är en kraft på en newton över en kvadratmeter). Du har säkert hört meteorologer prata om atmosfärstryck i millibar. Det är en annan enhet som motsvarar hektopascal. \n\nDu kanske undrar: Varför behöver en telefon mäta tryck? Atmosfärstrycket ändras mätbart även med små förändringar i höjd, till exempel när du går upp för en trappa. En digital barometer i telefonen kan därför hjälpa till att upptäcka din position och till exempel avgöra vilken våning i en byggnad du är på, eller om du kör på det övre eller nedre planet på en bro."</string>
     <string name="run_review_duration" msgid="1978235455271606762">"Varaktighet"</string>
     <string name="run_review_activity_label" msgid="5646135462344737004">"Granska"</string>
     <string name="service_notification_content_title" msgid="791621361781451323">"Science Journal"</string>
     <string name="service_notification_content_text" msgid="8364458347657207997">"Spelar in ..."</string>
-    <string name="live_graph_content_description" msgid="3509656099170703878">"Sensorns livediagram. Dra för att panorera X-axeln."</string>
-    <string name="static_graph_content_description" msgid="8689642435844781150">"Sensordiagram. Nyp för att zooma och dra för att panorera X-axeln."</string>
+    <string name="live_graph_content_description" msgid="7102643199006291209">"Sensorns livediagram. Dra för att panorera X-axeln, nyp för att zooma Y-axeln."</string>
+    <string name="static_graph_content_description" msgid="4724363632843408472">"Sensordiagram. Nyp för att zooma och dra för att panorera, tryck snabbt två gånger om du vill zooma ut."</string>
     <string name="sensor_card_overflow_menu_content_description" msgid="4358551973476442373">"Kortalternativ"</string>
     <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"växla till informationsläge"</string>
     <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"växla till diagramläge"</string>
@@ -318,14 +321,14 @@
     <string name="edit_trial_title_hint" msgid="2537511526292819270">"Försökets namn"</string>
     <string name="include_archived_trials" msgid="2976166896399146224">"Inkludera arkiverade försök"</string>
     <string name="export_error" msgid="2485739090885091041">"Exporten misslyckades."</string>
+    <string name="no_app_found" msgid="4158372008501245612">"Ingen av de installerade apparna har stöd för åtgärden."</string>
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"Lägg till en bildtext"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Experimentera med omvärlden."</string>
-    <string name="listing_changelog" msgid="5074516298921719431">"Fler funktioner och förbättringar: \n• Sensorutlösare: varna, anteckna eller starta och stoppa inspelning när specifika sensorvärden nås. De finns i sensorkortets meny. \n• Ta bort arkiverade försök, experiment och projekt. \n• Lagt till stöd för barometersensorer. \n• Fler funktioner fungerar med Science Journal: visa fler typer av externa sensorer. \n• Felkorrigeringar."</string>
-    <string name="listing__description" msgid="3975515995792990185">"Science Journal är ett mobilverktyg för vetenskapliga experiment. Du kan använda telefonens egna sensorer eller ansluta externa sensorer för att utföra experiment på din omvärld. Organisera idéerna i olika projekt, formulera hypoteser, skriv anteckningar och samla in data i flera testomgångar. Sedan kan du kommentera och granska resultaten. Det är som en experimentjournal du alltid har med dig. \n\n \nFå inspiration här: https://makingscience.withgoogle.com/science-journal/activities \nLäs mer om Making &amp; Science: https://makingscience.withgoogle.com\nOm du behöver hjälp: https://productforums.google.com/forum/#!forum/sciencejournal\nKod finns på: https://github.com/google/science-journal"</string>
+    <string name="listing_changelog" msgid="1682128084009185355">"Nya funktioner och förbättringar: \n• Officiellt stöd för Chromebooks som stöder Play Butik: https://support.google.com/chromebook/answer/7021273. \n• Lagt till stöd för magnetometersensor. \n• Stöd för flerfönsterläge i Nougat. \n• Nu kan du beskära mer data från registrerade försök."</string>
+    <string name="listing__description" msgid="1437079553322248814">"Science Journal är ett verktyg för vetenskapliga experiment på en telefon, surfplatta eller Chromebook som stöder Android-appar. Du kan använda telefonens egna sensorer eller ansluta externa sensorer för att utföra experiment på din omvärld. Organisera idéerna i olika projekt, formulera hypoteser, skriv anteckningar och samla in data i flera testomgångar. Sedan kan du kommentera och granska resultaten. Det är som en experimentjournal du alltid har med dig. \n\n \nFå inspiration här: https://makingscience.withgoogle.com/science-journal/activities \nLäs mer om Making &amp; Science: https://makingscience.withgoogle.com BREAK_4Om du behöver hjälp: https://productforums.google.com/forum/#!forum/sciencejournal \nOm du behöver hjälp: https://productforums.google.com/forum/#!forum/sciencejournal \nKod finns på: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Sök efter sensorer från tredje part"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Sök efter appar som stöder sensor-API från tredje part, och gör det möjligt att lägga till sensorerna i experiment."</string>
-    <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"Aktivera magnetometer"</string>
     <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"Aktivera magnetometersensor för experiment"</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Aktivera omgivningstemperatur"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"Aktivera omgivningstemperatursensor för experiment"</string>
@@ -405,7 +408,7 @@
     <string name="trigger_fired_text" msgid="8122555560445417775">"Utlösare aktiverad"</string>
     <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"beskärningen börjar: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
     <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"beskärningen är klar: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
-    <string name="crop_failed_message" msgid="8583818349156861745">"Det gick inte att spara beskärningen."</string>
+    <string name="crop_failed_message" msgid="5035154087997365574">"Det gick inte att spara beskärningen: <xliff:g id="DETAILS">%1$s</xliff:g>"</string>
     <string name="crop_completed_message" msgid="2902081668922934393">"Försöket har beskurits"</string>
     <string name="launch_settings" msgid="2712101939691138420">"Öppna inställningar"</string>
     <string name="trigger_alert_prompt" msgid="7548827088664791710">"Meddela mig med"</string>
@@ -431,4 +434,19 @@
     <string name="btn_expand_service_for" msgid="1583182116793763414">"visa enheter för <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
     <string name="btn_contract_service_for" msgid="4288488406860885432">"dölj enheter för <xliff:g id="SERVICENAME">%1$s</xliff:g>"</string>
     <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"Välj minst en sensor för experimentet."</string>
+    <string name="crop_overflow_menu_content_description" msgid="7022344633844303904">"Fler alternativ"</string>
+    <string name="edit_crop_start_time" msgid="7240636576416008596">"Redigera starttid"</string>
+    <string name="edit_crop_end_time" msgid="2899599921668940387">"Redigera sluttid"</string>
+    <string name="edit_crop_start_time_title" msgid="1042995884370160920">"Redigera försökets starttid"</string>
+    <string name="edit_crop_end_time_title" msgid="528433456600866972">"Redigera försökets sluttid"</string>
+    <string name="negative_prefix" msgid="5414754653834689057">"–"</string>
+    <string name="hour_minute_divider" msgid="9156315427116912975">":"</string>
+    <string name="minute_second_divider" msgid="1227776218919718096">":"</string>
+    <string name="timestamp_picker_format_error" msgid="7119140041902399744">"Ange giltigt format, h:mm:ss.SSS"</string>
+    <string name="timestamp_picker_range_error" msgid="1138095977022442393">"Tiden måste infalla inom försöket."</string>
+    <string name="timestamp_picker_crop_range_error" msgid="7993788975367469387">"Försök kan inte beskäras till mindre än en sekund."</string>
+    <string name="timestamp_picker_prompt" msgid="7006377675003309657">"Ny tid (h:mm:ss.SSS)"</string>
+    <string name="crop_failed_range_too_large" msgid="3346936676881544788">"Försöket kan inte beskäras utanför det registrerade intervallet"</string>
+    <string name="crop_failed_range_too_small" msgid="2107171169092126449">"Försöket kan inte beskäras till mindre än en sekund"</string>
+    <string name="crop_failed_invalid_state" msgid="3637654578796335566">"Ogiltig status"</string>
 </resources>
