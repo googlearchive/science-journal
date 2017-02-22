@@ -36,6 +36,8 @@ public class ElapsedTimeAxisFormatter {
     private long mTempSecs;
     private long mTempTenthsOfSecs;
 
+    private final ReusableFormatter mFormatter;
+
     public static ElapsedTimeAxisFormatter getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new ElapsedTimeAxisFormatter(context);
@@ -49,28 +51,34 @@ public class ElapsedTimeAxisFormatter {
         mLargeFormat = res.getString(R.string.elapsed_time_axis_format_large);
         mSmallFormatTenths = res.getString(R.string.elapsed_time_axis_format_small_tenths);
         mLargeFormatTenths = res.getString(R.string.elapsed_time_axis_format_large_tenths);
+
+        mFormatter = new ReusableFormatter();
     }
 
     public String format(long elapsedTimeMs) {
         updateElapsedTimeValues(elapsedTimeMs);
         String result;
         if (mTempHours > 0) {
-            result = String.format(mLargeFormat, mTempHours, mTempMins, mTempSecs);
+            result = mFormatter.format(mLargeFormat, mTempHours, mTempMins, mTempSecs).toString();
         } else {
-            result = String.format(mSmallFormat, mTempMins, mTempSecs);
+            result = mFormatter.format(mSmallFormat, mTempMins, mTempSecs).toString();
         }
         boolean isNegative = elapsedTimeMs < 0;
-        return (isNegative ? "-" : "") + result;
+        if (!isNegative) {
+            return result;
+        }
+        return mFormatter.format("-%s", result).toString();
     }
 
     public String formatToTenths(long elapsedTimeMs) {
         updateElapsedTimeValues(elapsedTimeMs);
         String result;
         if (mTempHours > 0) {
-            result = String.format(mLargeFormatTenths, mTempHours, mTempMins, mTempSecs,
-                    mTempTenthsOfSecs);
+            result = mFormatter.format(mLargeFormatTenths, mTempHours, mTempMins, mTempSecs,
+                    mTempTenthsOfSecs).toString();
         } else {
-            result = String.format(mSmallFormatTenths, mTempMins, mTempSecs, mTempTenthsOfSecs);
+            result = mFormatter.format(mSmallFormatTenths, mTempMins, mTempSecs, mTempTenthsOfSecs)
+                    .toString();
         }
         boolean isNegative = elapsedTimeMs < 0;
         return (isNegative ? "-" : "") + result;
