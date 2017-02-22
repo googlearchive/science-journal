@@ -70,14 +70,19 @@ public class ManageDevicesActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        WhistlePunkApplication.getUsageTracker(this).trackScreenView(
+                TrackerConstants.SCREEN_DEVICE_MANAGER);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         setupFragment();
         // Set up a broadcast receiver in case the adapter is disabled from the notification shade.
         registerBtReceiverIfNecessary();
         final String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
-        WhistlePunkApplication.getUsageTracker(this).trackScreenView(
-                TrackerConstants.SCREEN_DEVICE_MANAGER);
         mDataController.getExperimentById(experimentId,
                 new LoggingConsumer<Experiment>(TAG, "load experiment with ID = " + experimentId) {
                     @Override

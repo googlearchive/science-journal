@@ -202,8 +202,8 @@ public class TutorialActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         WhistlePunkApplication.getUsageTracker(this).trackScreenView(isIntroduction() ?
                 TrackerConstants.SCREEN_INTRO : TrackerConstants.SCREEN_INTRO_REPLAY);
     }

@@ -194,8 +194,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (!isMultiWindowEnabled()) {
             initializeData();
         }
-        WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
-                TrackerConstants.SCREEN_RUN_REVIEW);
     }
 
     @Override
@@ -327,6 +325,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (isMultiWindowEnabled()) {
             initializeData();
         }
+        WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
+                TrackerConstants.SCREEN_RUN_REVIEW);
     }
 
     @Override
