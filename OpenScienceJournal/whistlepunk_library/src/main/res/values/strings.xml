@@ -252,13 +252,13 @@
     <string name="navigation_item_activities">Activities</string>
 
     <!-- URL to go to when navigation to the activities. DO NOT TRANSLATE -->
-    <string name="activities_url" translatable="false">https://makingscience.withgoogle.com/science-journal/activities?utm_source=app_menu_link</string>
+    <string name="activities_url" translatable="false">https://makingscience.withgoogle.com/science-journal/activities</string>
 
     <!-- Title of the navigation item to go to making science website [CHAR_LIMIT=25] -->
     <string name="navigation_item_web_link">Making &amp; Science website</string>
 
     <!-- URL to go to when navigation to the link. DO NOT TRANSLATE -->
-    <string name="website_url" translatable="false">https://makingscience.withgoogle.com?utm_source=app_menu_link</string>
+    <string name="website_url" translatable="false">https://makingscience.withgoogle.com</string>
 
     <!-- Title of the navigation item to show settings [CHAR_LIMIT=25] -->
     <string name="navigation_item_settings">Settings</string>
