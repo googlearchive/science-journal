@@ -37,7 +37,7 @@
     <string name="acc_y" msgid="663998787829282850">"加速計 Y"</string>
     <string name="acc_z" msgid="6875563648805408084">"加速計 Z"</string>
     <string name="ambient_light" msgid="956709382703134737">"環境光"</string>
-    <string name="magnetic_rotation" msgid="300136225077841521">"磁力旋轉"</string>
+    <string name="magnetic_rotation" msgid="7304010829539827205">"磁力儀"</string>
     <string name="barometer" msgid="99316252932520865">"氣壓計"</string>
     <string name="ambient_temperature" msgid="1293814885248346186">"環境溫度"</string>
     <string name="video_stream" msgid="6479736939735009121">"影片串流"</string>
@@ -94,7 +94,8 @@
     <string name="picture_note_description" msgid="6443481127492010185">"試驗過程圖片"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"圖片附註預覽"</string>
     <string name="navigation_item_observe" msgid="8558454737213940045">"觀察"</string>
-    <string name="navigation_item_projects" msgid="1428359552921228239">"專案"</string>
+    <string name="navigation_item_projects" msgid="2995007802369585217">"專案庫"</string>
+    <string name="navigation_item_activities" msgid="2828059180911151657">"活動"</string>
     <string name="navigation_item_web_link" msgid="2569270479818502015">"Making &amp; Science 網站"</string>
     <string name="navigation_item_settings" msgid="2126253880412012953">"設定"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"測試選項"</string>
@@ -226,13 +227,15 @@
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"手機往上及往下移動的加速度 (以 m/s² 為單位)"</string>
     <string name="sensor_desc_short_decibel" msgid="2359189091191569028">"音訊感測器或麥克風接收到的聲音強度 (以分貝為測量單位)。"</string>
     <string name="sensor_desc_short_light" msgid="8639505918865988429">"環境光感測器接收到的受光量 (以勒克斯為測量單位)。"</string>
-    <string name="sensor_desc_short_magnetic_rotation" msgid="1329789157704631467">"手機與外部磁場間的旋轉角度。"</string>
+    <string name="sensor_desc_short_magnetic_rotation" msgid="4240862107662012031">"手機與外部磁場之間的角度。"</string>
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"外部感測器的資料會根據自訂設定顯示在這裡。"</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"每分鐘旋轉次數"</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"來自外部感測器的原始讀數百分比。"</string>
     <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"以百帕 (hPa) 為單位測量到的大氣壓力。"</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"環境光感測器在測量光線亮度時會以勒克斯為單位；勒克斯是照度的測量單位，根據受光量和光線散佈的區域面積計算而得。\n\n常見的環境照度如下：滿月約 1 勒克斯，以一般電燈為光源的客廳約 50 勒克斯，教室電燈、日出和日落的照度約為 400 勒克斯，白天 (非直射日光) 超過 10,000 勒克斯，直射日光則超過 30,000 勒克斯。\n\n對多數人來說，勒克斯並非常用的測量單位。我們通常會根據瓦數選購燈泡，但瓦特代表的是用電量，而非燈泡的亮度。流明是更適合選購燈泡時使用的測量單位，代表燈泡實際產生的亮度，勒克斯則是照射在特定區域範圍上的光線量。"</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"由於光線會在移動過程中向外擴散，因此即使光源的流明數不變，勒克斯數也會在您背向光源時減少。如果受光面與光源之間相互傾斜，接收到的照明度也會較低，這也是地球赤道地區比極地更溫暖的原因。\n\n另外，手機中配備光感測器的用意，就是為了根據環境明暗程度自動調整螢幕的亮度。光感測器內的微型半導體受到光線照射時，會產生微弱但可測量的電流予以回應，這種現象稱為光電效應。類似的感測器也運用在部分街燈上，天黑時就會自動亮燈。"</string>
+    <string name="sensor_desc_first_paragraph_magnetic_rotation" msgid="7544395877395406770">"我們都知道，地球有磁場。不過你知道嗎？我們的手機中內建了一項專門用來偵測磁場的裝置，稱為「磁力儀」。\n\n傳統的指南針就是簡單的磁力儀，其中的磁針會隨著周遭磁場而轉向。你的手機裡沒有指南針，取而代之的是一個微小的三軸感測器，利用電流來偵測周遭三維空間中的磁場強度。\n\n部分磁力儀根據「霍爾效應」(意即當電流通過時，磁場受到干擾的現象) 來偵測磁場。新一代的磁力儀則是使用磁電阻，這是一種微小的金屬合金，會隨著磁場變化而改變電阻。\n\n手機之所以需要磁力儀，是為了讓內建的指南針和導航應用程式在空間中定位出你的方向，因此必須借助磁力儀，尤其對那些需要提供精確路線指引的應用程式來說，更為重要。"</string>
+    <string name="sensor_desc_second_paragraph_magnetic_rotation" msgid="975262966302662919">"或許你已經發現，手機中的磁力儀不僅可以隨著地球磁場而變動，也會被周遭任何的磁場影響，例如磁鐵、電流和金屬物都可能干擾磁力儀。如要確認磁力儀紅端是否正確反映地球磁場時，你可以站在一個開放區域，尤其以戶外和遠離電纜的地方為佳。此外，你也可以手持手機在空中畫數字 8，這有助於校正手機中的磁力儀。"</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"物體在原地保持不動、或在移動過程中持續移動的趨勢，稱為慣性。牛頓第一定律正式闡述了這個概念：除非施加不平衡力，否則物體的移動或靜止狀態不會改變。\n\n如果不平衡力造成物件輕微移動，就稱為物體「加速」，表示物體的速度或速率有變化 (無論是因速度增加、減緩或改變方向所造成)。加速度是指速度 (單位為 m/s) 之於時間的變化率，單位為 m/s²。\n\n手機裡的加速計可用於測量移動中的加速度變化。加速計內含有可任意移動的細小懸浮物質，運動產生變化時，這些物質就會隨之移動，就像人的頭部會在緊急煞車時往前傾一樣。只要測量這些物質的慣性移動，手機裡的加速計就能偵測運動與定向的變化，方便您將螢幕從橫向切換成縱向模式、在手機上玩遊戲或進行其他操作。"</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"您可能會發現，即使將手機靜置在桌面上，Z 軸的加速度仍然持續存在。這是地球表面上因重力牽引產生的加速度，大約為 9.8 m/s²。"</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"我們聽到的聲音是由空氣振動所產生。舉例來說，喉嚨的聲帶振動就會發出聲音。這些振動會產生向外移動的高氣壓和低氣壓，形成多個彼此交會的區域，原理類似把石子扔進池塘後形成的擴散漣漪。"</string>
@@ -244,13 +247,13 @@
     <string name="sensor_desc_first_paragraph_unknown_bluetooth" msgid="2733865806822919511">"這個畫面會顯示外部感測器透過藍牙傳送到手機的資料。"</string>
     <string name="sensor_desc_second_paragraph_unknown_bluetooth" msgid="359900635263638028">"藍牙是一項無線技術標準，可在短距離內利用無線電波在固定裝置或行動裝置間傳輸資料。"</string>
     <string name="sensor_desc_first_paragraph_barometer" msgid="2813905499808374316">"我們生活的地方就在地球大氣層底部 (雖然我們很少注意到這件事)，大氣層底部往上延伸高度有 40 公里 (130,000 呎)。覆蓋在地球表面的所有空氣重量會形成大氣壓力。\n\n在海平面上，每平方英吋會有 14 磅的大氣壓力，這等於在一張標準紙張大小的面積上施加約 1,300 磅的力量。"</string>
-    <string name="sensor_desc_second_paragraph_barometer" msgid="4975611576005615149">"我們之所以沒注意到這股龐大的壓力，是因為早已習慣它的存在，但只要這股壓力有變動，就算只是輕微的變動 (例如到高海拔地區或搭乘飛機時)，我們就能感受到它的存在。大氣壓力也會隨著天氣狀況改變，如果出現猛烈的不穩定氣流，大氣壓力就會下降，如果在氣流穩定、晴空萬里的情況下，大氣壓力則會上升。\n\n手機內的數位氣壓計可用於測量大氣壓力，測量單位為百帕 (1 百帕等於 100 帕斯卡，1 帕斯卡等於在 1 平方公尺的面積上施加 1 牛頓的力量)。你或許聽過天氣預報員以毫巴為單位播報大氣壓力，其實毫巴就等同於百帕。\n\n你可能想知道：為什麼手機可用來測量壓力？只要高度稍有變動 (例如，爬了一段樓梯後)，大氣壓力就會出現可輕易測量到的變動，因此手機的數位計壓器能協助偵測位置的改變，例如，讓你知道自己身在建築物中的哪一層樓，或車輛是行駛在橋上或橋下。"</string>
+    <string name="sensor_desc_second_paragraph_barometer" msgid="1874873193563943664">"我們之所以沒注意到這股龐大的壓力，是因為早已習慣它的存在；只要這股壓力有變動，就算只是輕微的變動 (例如到高海拔地區或搭乘飛機時)，我們就能感受到它的存在。大氣壓力也會隨著天氣狀況改變，如果出現猛烈的不穩定氣流，大氣壓力就會下降，如果在氣流穩定、晴空萬里的情況下，大氣壓力則會上升。\n\n手機內的數位氣壓計可用於測量大氣壓力，測量單位為百帕 (1 百帕等於 100 帕斯卡，1 帕斯卡等於在 1 平方公尺的面積上施加 1 牛頓的力量)。你或許聽過天氣預報員以毫巴為單位播報大氣壓力，其實毫巴就等同於百帕。\n\n你可能想知道：為什麼手機可用來測量壓力？只要高度稍有變動 (例如，爬了一段樓梯後)，大氣壓力就會出現可輕易測量到的變動，因此手機的數位計壓器能協助偵測位置的改變，例如，讓你知道自己身在建築物中的哪一層樓，或車輛是行駛在橋上或橋下。"</string>
     <string name="run_review_duration" msgid="1978235455271606762">"持續時間"</string>
     <string name="run_review_activity_label" msgid="5646135462344737004">"觀測"</string>
     <string name="service_notification_content_title" msgid="791621361781451323">"科學日誌"</string>
     <string name="service_notification_content_text" msgid="8364458347657207997">"記錄中…"</string>
-    <string name="live_graph_content_description" msgid="3509656099170703878">"即時感測器圖表。您可以透過拖曳的方式平移 X 軸。"</string>
-    <string name="static_graph_content_description" msgid="8689642435844781150">"感測器圖表。雙指撥動即可調整顯示比例，拖曳即可平移 X 軸。"</string>
+    <string name="live_graph_content_description" msgid="7102643199006291209">"即時感測器圖表。你可以透過拖曳的方式平移 X 軸，撥動雙指即可縮放 Y 軸。"</string>
+    <string name="static_graph_content_description" msgid="4724363632843408472">"感測器圖表。撥動雙指可以縮放畫面，拖曳可以平移畫面，輕觸兩下則可縮小。"</string>
     <string name="sensor_card_overflow_menu_content_description" msgid="4358551973476442373">"感測器卡片選項"</string>
     <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"切換為資訊模式"</string>
     <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"切換為圖表模式"</string>
@@ -318,14 +321,14 @@
     <string name="edit_trial_title_hint" msgid="2537511526292819270">"試驗標題"</string>
     <string name="include_archived_trials" msgid="2976166896399146224">"包括已封存的試驗"</string>
     <string name="export_error" msgid="2485739090885091041">"匯出失敗。"</string>
+    <string name="no_app_found" msgid="4158372008501245612">"現有的所有應用程式皆無法處理這項動作。"</string>
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"新增說明文字"</string>
     <string name="listing_title" msgid="1732490922169483408">"科學日誌"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"盡情探索周圍的世界。"</string>
-    <string name="listing_changelog" msgid="5074516298921719431">"全新及改良功能：\n• 感測器觸發條件：當感測器達到某數值時，會發出警示、演奏音符、開始或結束記錄。你可以從感測器卡片選單中選用這些功能。\n• 刪除封存的試驗、實驗和專案。\n• 新增氣壓感測器的說明。\n• 新增可搭配科學日誌使用的裝置：可使用更多種外部感測器。\n• 修正錯誤。"</string>
-    <string name="listing__description" msgid="3975515995792990185">"有了「科學日誌」這項實用工具，使用智慧型手機也能進行科學實驗。只要利用手機內建的感測器，或連接外部感測器，你就能盡情探索周圍的世界。科學日誌能讓你把創意分門別類成不同的專案、進行預測、撰寫筆記，以及收集多項試驗的資料，然後深入分析實驗結果並加上註解，就像隨身攜帶一本實驗筆記本！\n\n \n歡迎瀏覽以下網站汲取實驗靈感，讓這款應用程式伴你遨遊廣闊的科學天地：https://makingscience.withgoogle.com/science-journal/activities \n進一步瞭解 Making &amp; Science：https://makingscience.withgoogle.com \n如需相關支援，請造訪：https://productforums.google.com/forum/#!forum/sciencejournal \n如需使用程式碼，請造訪：https://github.com/google/science-journal"</string>
+    <string name="listing_changelog" msgid="1682128084009185355">"全新與改良功能：\n• 正式支援 Chromebook (僅限支援 Play 商店的 Chromebook)：https://support.google.com/chromebook/answer/7021273。\n• 為磁力儀感測器新增支援。\n• 修正對 Nougat 多視窗模式的相關支援。\n• 現在可從記錄的試驗中裁剪額外的資料。"</string>
+    <string name="listing__description" msgid="1437079553322248814">"只要在支援 Android 應用程式的手機、平板電腦或 Chromebook 上安裝科學日誌，這些裝置就能搖身一變，成為你進行科學實驗時的最佳工具。使用手機中的感測器，或是將裝置接上外部感測器，你就能對周遭的世界展開各種實驗。將你的想法彙整編寫為實驗專案、進行預測、撰寫筆記和收集多次試驗的數據，然後深入分析實驗結果並加上註解，就像隨身攜帶研究筆記本一樣方便！\n\n \n歡迎瀏覽以下網站，汲取靈感，想想如何利用科學日誌進行更多有趣的實驗：https://makingscience.withgoogle.com/science-journal/activities \n進一步瞭解 Making &amp; Science：https://makingscience.withgoogle.com \n瀏覽支援論壇：https://productforums.google.com/forum/#!forum/sciencejournal \n如需取得程式碼，請造訪：https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"掃描是否有第三方感測器"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"尋找支援第三方感測器 API 的應用程式，並啟用將這類感應器加入實驗的功能。"</string>
-    <string name="enable_magnetometer_sensor_title" msgid="6288715087954127390">"啟用磁力儀"</string>
     <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"啟用實驗性磁力儀感測器"</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"啟用環境溫度"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"啟用實驗性環境溫度感測器"</string>
@@ -405,7 +408,7 @@
     <string name="trigger_fired_text" msgid="8122555560445417775">"已啟用觸發條件"</string>
     <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"裁剪開始：<xliff:g id="TIME">%1$s</xliff:g>，<xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
     <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"裁剪結束：<xliff:g id="TIME">%1$s</xliff:g>，<xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
-    <string name="crop_failed_message" msgid="8583818349156861745">"無法儲存裁剪內容。"</string>
+    <string name="crop_failed_message" msgid="5035154087997365574">"無法儲存裁剪內容，詳細資訊：<xliff:g id="DETAILS">%1$s</xliff:g>"</string>
     <string name="crop_completed_message" msgid="2902081668922934393">"已裁剪試驗"</string>
     <string name="launch_settings" msgid="2712101939691138420">"啟動設定"</string>
     <string name="trigger_alert_prompt" msgid="7548827088664791710">"警示模式"</string>
@@ -431,4 +434,19 @@
     <string name="btn_expand_service_for" msgid="1583182116793763414">"顯示「<xliff:g id="SERVICENAME">%1$s</xliff:g>」的裝置"</string>
     <string name="btn_contract_service_for" msgid="4288488406860885432">"隱藏「<xliff:g id="SERVICENAME">%1$s</xliff:g>」的裝置"</string>
     <string name="dialog_message_please_add_one_sensor" msgid="6455481690415336974">"請至少為本實驗選取一部感測器。"</string>
+    <string name="crop_overflow_menu_content_description" msgid="7022344633844303904">"更多選項"</string>
+    <string name="edit_crop_start_time" msgid="7240636576416008596">"編輯開始時間"</string>
+    <string name="edit_crop_end_time" msgid="2899599921668940387">"編輯結束時間"</string>
+    <string name="edit_crop_start_time_title" msgid="1042995884370160920">"編輯試驗開始時間"</string>
+    <string name="edit_crop_end_time_title" msgid="528433456600866972">"編輯試驗結束時間"</string>
+    <string name="negative_prefix" msgid="5414754653834689057">"-"</string>
+    <string name="hour_minute_divider" msgid="9156315427116912975">":"</string>
+    <string name="minute_second_divider" msgid="1227776218919718096">":"</string>
+    <string name="timestamp_picker_format_error" msgid="7119140041902399744">"請使用有效的格式，例如小時:分:秒.毫秒"</string>
+    <string name="timestamp_picker_range_error" msgid="1138095977022442393">"時間必須落在試驗範圍內"</string>
+    <string name="timestamp_picker_crop_range_error" msgid="7993788975367469387">"裁剪完的試驗時間長度不能小於一秒"</string>
+    <string name="timestamp_picker_prompt" msgid="7006377675003309657">"新時間 (小時:分:秒.毫秒)"</string>
+    <string name="crop_failed_range_too_large" msgid="3346936676881544788">"裁剪的試驗內容不能超出原先的記錄範圍"</string>
+    <string name="crop_failed_range_too_small" msgid="2107171169092126449">"裁剪後的試驗時間長度不能小於一秒"</string>
+    <string name="crop_failed_invalid_state" msgid="3637654578796335566">"無效的州/省"</string>
 </resources>
