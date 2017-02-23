@@ -321,6 +321,10 @@ public class ChartController {
                 mChartOptions.getYMaxLimit()));
     }
 
+    public void clearReviewYAxis() {
+        mChartOptions.resetYAxisLimits();
+    }
+
     public void setReviewYAxis(double min, double max, boolean hasBuffer) {
         min = Math.min(mChartOptions.getYMinLimit(), min);
         max = Math.max(mChartOptions.getYMaxLimit(), max);
