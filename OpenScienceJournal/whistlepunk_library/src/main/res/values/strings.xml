@@ -994,6 +994,12 @@
 \nLearn more about Making &amp; Science: https://makingscience.withgoogle.com
 \nFor support: https://productforums.google.com/forum/#!forum/sciencejournal
 \nCode available: https://github.com/google/science-journal
+\n\n
+Requested permissions:
+\n\u2022 Location: needed to scan for bluetooth sensor devices.
+\n\u2022 Camera: needed to take pictures to document experiments.
+\n\u2022 Microphone: needed for sound intensity sensor.
+\n\u2022 Storage: needed to store pictures taken to document experiments.
     </string>
     <!-- End of Play Store Listing Strings -->
 
