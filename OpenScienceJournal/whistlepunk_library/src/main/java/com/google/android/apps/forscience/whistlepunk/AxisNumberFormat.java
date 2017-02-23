@@ -50,9 +50,11 @@ public class AxisNumberFormat extends NumberFormat {
     // Format numbers larger than 1 billion with scientific notation, like "2e10".
     private static final double MIN_SCIENTIFIC = 1e9;
     private final DecimalFormat mScientificFormatter;
+    private final ReusableFormatter mFormatter;
 
     public AxisNumberFormat() {
         mScientificFormatter = new DecimalFormat("0.#E0");
+        mFormatter = new ReusableFormatter();
     }
 
     @Override
@@ -60,13 +62,13 @@ public class AxisNumberFormat extends NumberFormat {
         if (Math.abs(value) < MIN_SMALL) {
             return buffer.append(FORMAT_TINY);
         } else if (Math.abs(value) < MIN_DECI) {
-            return buffer.append(String.format(FORMAT_SMALL, value));
+            return buffer.append(mFormatter.format(FORMAT_SMALL, value));
         } else if (Math.abs(value) < MIN_KILO) {
-            return buffer.append(String.format(FORMAT_DECI, value));
+            return buffer.append(mFormatter.format(FORMAT_DECI, value));
         } else if (Math.abs(value) < MIN_MIL){
-            return buffer.append(String.format(FORMAT_KILO, value / MIN_KILO, KILO_SUFFIX));
+            return buffer.append(mFormatter.format(FORMAT_KILO, value / MIN_KILO, KILO_SUFFIX));
         } else if (Math.abs(value) < MIN_SCIENTIFIC){
-            return buffer.append(String.format(FORMAT_MIL, value / MIN_MIL, MIL_SUFFIX));
+            return buffer.append(mFormatter.format(FORMAT_MIL, value / MIN_MIL, MIL_SUFFIX));
         } else {
             return buffer.append(mScientificFormatter.format(value));
         }
