@@ -71,6 +71,11 @@ public class SensorAnimationBehavior {
         }
     }
 
+    public void resetImageView(ImageView view) {
+        view.setImageLevel(0);
+        view.setRotation(0.0f);
+    }
+
     private int getUpdatedLevel(double newValue, double yMin, double yMax) {
         int index;
         if (mBehaviorType == TYPE_STATIC_ICON) {
