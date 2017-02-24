@@ -654,6 +654,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                                     getResources().getString(R.string.autozoom_failed),
                                     Snackbar.LENGTH_SHORT);
                         } else {
+                            mChartController.clearReviewYAxis();
                             adjustYAxis();
                         }
                         getActivity().invalidateOptionsMenu();

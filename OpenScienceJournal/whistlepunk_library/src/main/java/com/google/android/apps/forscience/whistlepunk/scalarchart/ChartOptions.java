@@ -276,6 +276,11 @@ public class ChartOptions {
         mRequestResetZoomInY = false;
     }
 
+    public void resetYAxisLimits() {
+        mYMinPoint = Double.MAX_VALUE;
+        mYMaxPoint = Double.MIN_VALUE;
+    }
+
     public boolean canPan() {
         return mCanPanX || mCanPanY;
     }
