@@ -38,14 +38,17 @@ public class ChartOptions {
     private static final double BUFFER_SCALE = .085;
 
     // The minimum spread between the minimum and maximum y values shown on the graph.
-    private static final double MINIMUM_Y_SPREAD = 1;
+    static final double MINIMUM_Y_SPREAD = 1;
 
     // Don't allow zoom out past this factor times the y range. At this point the line will look
     // basically flat anyway, so there's no need to keep allowing zoom out.
     private static final double MAXIMUM_Y_SPREAD_FACTOR = 100;
 
     // The fraction of the screen size by which we can zoom at the addition of each new data point.
-    public static final double SCALE_SCREEN_SIZE_FRACTION = 0.05;
+    static final double SCALE_SCREEN_SIZE_FRACTION = 0.05;
+
+    // For comparing doubles
+    private static final double EPSILON = 1E-7;
 
     private final boolean mCanPanX;
     private final boolean mCanPanY;
@@ -159,7 +162,7 @@ public class ChartOptions {
             mRenderedYMin = avg - MINIMUM_Y_SPREAD / 2;
             mRenderedYMax = avg + MINIMUM_Y_SPREAD / 2;
         } else if (renderedYMax - renderedYMin < getMaxRenderedYRange() ||
-                mYMaxPoint == mYMinPoint) {
+                Math.abs(mYMaxPoint - mYMinPoint) < EPSILON) {
             // If the requested points are inside of the max Y range allowed, save them.
             mRenderedYMin = renderedYMin;
             mRenderedYMax = renderedYMax;
@@ -172,7 +175,8 @@ public class ChartOptions {
     }
 
     public double getMaxRenderedYRange() {
-        return (mYMaxPoint - mYMinPoint) * MAXIMUM_Y_SPREAD_FACTOR;
+        // Minimum range 1, maximum range 10 if we are getting ymin ~= ymax.
+        return Math.max(10, (mYMaxPoint - mYMinPoint) * MAXIMUM_Y_SPREAD_FACTOR);
     }
 
     public void adjustYAxisStep(ChartData.DataPoint latestPoint) {
@@ -190,7 +194,9 @@ public class ChartOptions {
         double lastYMax = getRenderedYMax();
 
         if (lastYMax <= lastYMin) {
-            setRenderedYRange(idealYMin, idealYMax);
+            // TODO do we need to do bounds checking?
+            mRenderedYMin = idealYMin;
+            mRenderedYMax = idealYMax;
             return;
         }
 

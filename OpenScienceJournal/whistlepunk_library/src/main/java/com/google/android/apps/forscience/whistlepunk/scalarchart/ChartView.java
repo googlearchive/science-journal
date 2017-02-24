@@ -929,8 +929,8 @@ public class ChartView extends View {
         int sizeShown = calculateSizeShownNext(mYAxisPoints, yMin, yMax);
         if (sizeShown < MINIMUM_NUM_LABELS || sizeShown > MAXIMUM_NUM_LABELS) {
             double range = yMax - yMin;
-            if (range <= 0) {
-                return;
+            if (Double.isNaN(range) || range <= 0) {
+                range = ChartOptions.MINIMUM_Y_SPREAD;
             }
             int increment = (int) Math.ceil(range / (PREFERRED_NUM_LABELS * 1.0));
             int labelStart = increment * ((int) yMin / increment);
@@ -938,7 +938,7 @@ public class ChartView extends View {
             mYAxisPointLabels.clear();
 
             int count = 0;
-            for (int i = labelStart; i <= yMax;  i += increment) {
+            for (int i = labelStart; i < yMax + increment;  i += increment) {
                 mYAxisPoints.add(count++, i * 1.0);
                 mYAxisPointLabels.add(mChartOptions.getAxisNumberFormat().format(i * 1.0));
             }
