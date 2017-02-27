@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.FailureListener;
@@ -83,8 +84,7 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
         };
 
         mDeviceDiscoverer = createDiscoverer(mContext);
-        final boolean canScan = mDeviceDiscoverer.canScan() &&
-                ScanDisabledDialogFragment.hasScanPermission(mContext);
+        final boolean canScan = mDeviceDiscoverer.canScan() && hasScanPermission();
 
 
         listener.onServiceFound(new DiscoveredService() {
@@ -147,6 +147,11 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
             }
         });
         return true;
+    }
+
+    @VisibleForTesting
+    protected boolean hasScanPermission() {
+        return ScanDisabledDialogFragment.hasScanPermission(mContext);
     }
 
     protected DeviceDiscoverer createDiscoverer(Context context) {

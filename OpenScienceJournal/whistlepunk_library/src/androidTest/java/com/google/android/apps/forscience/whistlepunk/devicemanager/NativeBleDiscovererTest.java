@@ -64,6 +64,11 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
                     }
                 };
             }
+
+            @Override
+            protected boolean hasScanPermission() {
+                return true;
+            }
         };
 
         final AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> sensorsSeen =
