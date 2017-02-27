@@ -171,6 +171,10 @@ public class PictureUtils {
             Uri photoUri = FileProvider.getUriForFile(activity, activity.getPackageName(),
                     new File(filePath));
             intent.setDataAndType(photoUri, type);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                // Needed to avoid security exception on KitKat.
+                intent.setClipData(ClipData.newRawUri(null, photoUri));
+            }
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             try {
                 activity.startActivity(intent);
