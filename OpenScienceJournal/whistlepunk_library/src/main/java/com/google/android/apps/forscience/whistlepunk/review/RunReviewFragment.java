@@ -1086,7 +1086,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     private void onStatsRefreshed(final GoosciSensorLayout.SensorLayout sensorLayout) {
-        Log.d(TAG, "refresh stats!");
+        if (getView() == null) {
+            return;
+        }
         final StatsList statsList = (StatsList) getView().findViewById(R.id.stats_drawer);
         if (statsList == null) {
             return;
