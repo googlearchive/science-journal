@@ -115,7 +115,8 @@ public class MemoryMetadataManager implements MetaDataManager {
 
     @Override
     public void deleteExperiment(Experiment experiment) {
-
+        // TODO: test directly
+        mExperimentsPerProject.values().remove(experiment);
     }
 
     @Override

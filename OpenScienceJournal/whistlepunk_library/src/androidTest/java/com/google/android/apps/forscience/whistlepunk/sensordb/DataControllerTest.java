@@ -49,24 +49,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DataControllerTest extends AndroidTestCase {
-    // TODO: once DataControllerImpl and RecordingDataControllerImpl are split, split tests, too.
-
-    public void testAddScalarReading() {
-        final InMemorySensorDatabase db = new InMemorySensorDatabase();
-        RecordingDataController controller = db.makeSimpleRecordingController(
-                new MemoryMetadataManager());
-        controller.setDataErrorListenerForSensor("tag",
-                new ExplodingFactory().makeListenerForOperation(""));
-
-        controller.addScalarReading("tag", 0, 1234, 12.34);
-
-        List<InMemorySensorDatabase.Reading> readings = db.getReadings(0);
-        assertEquals(1, readings.size());
-        InMemorySensorDatabase.Reading reading = readings.get(0);
-        assertEquals("tag", reading.getDatabaseTag());
-        assertEquals(1234, reading.getTimestampMillis());
-        assertEquals(12.34, reading.getValue(), 0.001);
-    }
+    // TODO: continue moving tests (as possible) to DataControllerUnitTest
 
     public void testStoreStats() {
         final InMemorySensorDatabase db = new InMemorySensorDatabase();
@@ -291,5 +274,23 @@ public class DataControllerTest extends AndroidTestCase {
         clock.increment();
         String fourthLabelId = dc.generateNewLabelId();
         assertNotSame(thirdLabelId, fourthLabelId);
+    }
+
+    public void testDeleteProjectDeletesExperiments() {
+        final DataController dc = makeSimpleController();
+
+        StoringConsumer<Project> cp = new StoringConsumer<>();
+        dc.createProject(cp);
+        Project p = cp.getValue();
+
+        StoringConsumer<Experiment> onSuccess = new StoringConsumer<>();
+        dc.createExperiment(p, onSuccess);
+
+        dc.deleteProject(p, TestConsumers.<Success>expectingSuccess());
+
+        // Shouldn't be any experiments left
+        StoringConsumer<List<Experiment>> cExperiments = new StoringConsumer<>();
+        dc.getExperimentsForProject(p, true, cExperiments);
+        assertEquals(0, cExperiments.getValue().size());
     }
 }
