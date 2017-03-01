@@ -54,6 +54,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
@@ -100,7 +101,6 @@ public class RecorderControllerImpl implements RecorderController {
     private int mPauseCount = 0;
     private final SensorEnvironment mSensorEnvironment;
     private Experiment mSelectedExperiment;
-    private Map<String, TriggerFiredListener> mTriggerListeners = new HashMap<>();
     private List<GoosciSensorLayout.SensorLayout> mSensorLayouts = Collections.emptyList();
     private boolean mRecordingStateChangeInProgress;
     private TriggerHelper mTriggerHelper;
@@ -108,7 +108,12 @@ public class RecorderControllerImpl implements RecorderController {
     private int mStatsSaved = 0;
     private final Supplier<RecorderServiceConnection> mConnectionSupplier;
 
-    private Map<String, RecordingStateListener> mRecordingStateListeners = new ArrayMap<>();
+    private int mNextRecorderStateListenerId = 0;
+    private Map<Integer, RecordingStateListener> mRecordingStateListeners = new ArrayMap<>();
+
+    private int mNextTriggerListenerId = 0;
+    private Map<Integer, TriggerFiredListener> mTriggerListeners = new HashMap<>();
+
     private Map<String, ObservedIdsListener> mObservedIdListeners = new ArrayMap<>();
 
     /**
@@ -637,20 +642,28 @@ public class RecorderControllerImpl implements RecorderController {
 
     private void updateRecordingListeners() {
         for (RecordingStateListener listener : mRecordingStateListeners.values()) {
-            listener.onRecordingStateChanged(mRecording);
+            // TODO: this is needed because MetadataActivity calls removeRecordingStateListener from
+            //       its implementation of onRecordingStateChanged.  Consider changing that.
+            if (listener != null) {
+                listener.onRecordingStateChanged(mRecording);
+            }
         }
     }
 
     private void callRecordingStopFailedListeners(@RecordingStopErrorType int errorType) {
         for (RecordingStateListener listener : mRecordingStateListeners.values()) {
-            listener.onRecordingStopFailed(errorType);
+            if (listener != null) {
+                listener.onRecordingStopFailed(errorType);
+            }
         }
     }
 
     private void callRecordingStartFailedListeners(@RecordingStartErrorType int errorType,
             Exception e) {
         for (RecordingStateListener listener : mRecordingStateListeners.values()) {
-            listener.onRecordingStartFailed(errorType, e);
+            if (listener != null) {
+                listener.onRecordingStartFailed(errorType, e);
+            }
         }
     }
 
@@ -667,29 +680,28 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @Override
-    public void addRecordingStateListener(String listenerId, RecordingStateListener listener) {
-        if (mRecordingStateListeners.containsKey(listenerId)) {
-            throw new IllegalStateException("Already listening on: " + listenerId);
-        }
+    public int addRecordingStateListener(RecordingStateListener listener) {
+        Preconditions.checkNotNull(listener);
+        int listenerId = mNextRecorderStateListenerId++;
         mRecordingStateListeners.put(listenerId, listener);
         listener.onRecordingStateChanged(mRecording);
+        return listenerId;
     }
 
     @Override
-    public void removeRecordingStateListener(String listenerId) {
+    public void removeRecordingStateListener(int listenerId) {
         mRecordingStateListeners.remove(listenerId);
     }
 
-    @Override
-    public void addTriggerFiredListener(String listenerId, TriggerFiredListener listener) {
-        if (mTriggerListeners.containsKey(listenerId)) {
-            throw new IllegalStateException("Already listening to triggers on: " + listenerId);
-        }
+    public int addTriggerFiredListener(TriggerFiredListener listener) {
+        Preconditions.checkNotNull(listener);
+        int listenerId = mNextTriggerListenerId++;
         mTriggerListeners.put(listenerId, listener);
+        return listenerId;
     }
 
     @Override
-    public void removeTriggerFiredListener(String listenerId) {
+    public void removeTriggerFiredListener(int listenerId) {
         mTriggerListeners.remove(listenerId);
     }
 

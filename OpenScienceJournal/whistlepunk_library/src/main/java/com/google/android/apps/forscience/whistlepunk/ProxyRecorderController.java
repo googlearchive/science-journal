@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.util.ArrayMap;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
@@ -32,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSenso
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class ProxyRecorderController extends IRecorderController.Stub {
     public static interface BindingPolicy {
@@ -42,7 +44,8 @@ public class ProxyRecorderController extends IRecorderController.Stub {
     private final RecorderController mDelegate;
     private final FailureListener mFailureListener;
     private String mSensorId = null;
-    public String mObserverId = null;
+    private String mObserverId = null;
+    private Map<String, Integer> mRecorderListenerIds = new ArrayMap<>();
 
     public ProxyRecorderController(RecorderController delegate, BindingPolicy bindingPolicy,
             FailureListener failureListener) {
@@ -142,8 +145,12 @@ public class ProxyRecorderController extends IRecorderController.Stub {
     @Override
     public void addRecordingStateListener(String listenerId, IRecordingStateListener listener)
             throws RemoteException {
-        mDelegate.addRecordingStateListener(listenerId,
-                proxyRecordingStateListener(listener, mFailureListener));
+        if (mRecorderListenerIds.containsKey(listenerId)) {
+            throw new IllegalStateException("Already listening to id: " + listenerId);
+        }
+        mRecorderListenerIds.put(listenerId,
+                mDelegate.addRecordingStateListener(
+                        proxyRecordingStateListener(listener, mFailureListener)));
         mDelegate.addObservedIdsListener(listenerId,
                 proxyObservedIdsListener(listener, mFailureListener));
     }
@@ -193,7 +200,10 @@ public class ProxyRecorderController extends IRecorderController.Stub {
 
     @Override
     public void removeRecordingStateListener(String listenerId) throws RemoteException {
-        mDelegate.removeRecordingStateListener(listenerId);
+        if (mRecorderListenerIds.containsKey(listenerId)) {
+            mDelegate.removeRecordingStateListener(mRecorderListenerIds.get(listenerId));
+            mRecorderListenerIds.remove(listenerId);
+        }
         mDelegate.removeObservedIdsListener(listenerId);
     }
 

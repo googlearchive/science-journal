@@ -165,6 +165,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     private String mRecorderPauseId;
     private boolean mRecordingWasCanceled;
     private Set<String> mExcludedSensorIds = Sets.newHashSet();
+    private int mRecorderStateListenerId = RecorderController.NO_LISTENER_ID;
+    private int mTriggerFiredListenerId = RecorderController.NO_LISTENER_ID;
 
     public static RecordFragment newInstance() {
         return new RecordFragment();
@@ -265,8 +267,14 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             @Override
             public void take(RecorderController rc) {
                 mRecorderPauseId = rc.pauseObservingAll();
-                rc.removeRecordingStateListener(TAG);
-                rc.removeTriggerFiredListener(TAG);
+                if (mRecorderStateListenerId != RecorderController.NO_LISTENER_ID) {
+                    rc.removeRecordingStateListener(mRecorderStateListenerId);
+                    mRecorderStateListenerId = RecorderController.NO_LISTENER_ID;
+                }
+                if (mTriggerFiredListenerId != RecorderController.NO_LISTENER_ID) {
+                    rc.removeTriggerFiredListener(mTriggerFiredListenerId);
+                    mTriggerFiredListenerId = RecorderController.NO_LISTENER_ID;
+                }
             }
         });
         AppSingleton.getInstance(getActivity()).removeListeners(TAG);
@@ -313,79 +321,90 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         withRecorderController(new Consumer<RecorderController>() {
             @Override
             public void take(final RecorderController rc) {
-                rc.addRecordingStateListener(TAG, new RecorderController.RecordingStateListener() {
-                    @Override
-                    public void onRecordingStateChanged(RecordingMetadata currentRecording) {
-                        RecordingMetadata prevRecording = mCurrentRecording;
+                RecorderController.RecordingStateListener listener =
+                        new RecorderController.RecordingStateListener() {
+                            @Override
+                            public void onRecordingStateChanged(
+                                    RecordingMetadata currentRecording) {
+                                RecordingMetadata prevRecording = mCurrentRecording;
 
-                        mCurrentRecording = currentRecording;
-                        onRecordingMetadataUpdated();
-                        // If we have switched from a recording state to a not-recording state,
-                        // update the UI.
-                        if (prevRecording != null && !isRecording()) {
-                            mExternalAxis.onStopRecording();
-                            AddNoteDialog dialog = (AddNoteDialog) getChildFragmentManager()
-                                    .findFragmentByTag(AddNoteDialog.TAG);
-                            if (dialog != null) {
-                                dialog.dismiss();
+                                mCurrentRecording = currentRecording;
+                                onRecordingMetadataUpdated();
+                                // If we have switched from a recording state to a not-recording
+                                // state, update the UI.
+                                if (prevRecording != null && !isRecording()) {
+                                    mExternalAxis.onStopRecording();
+                                    AddNoteDialog dialog = (AddNoteDialog) getChildFragmentManager()
+                                            .findFragmentByTag(AddNoteDialog.TAG);
+                                    if (dialog != null) {
+                                        dialog.dismiss();
+                                    }
+                                    if (!mRecordingWasCanceled) {
+                                        onRecordingStopped(prevRecording.getRunId());
+                                    }
+                                }
+                                mRecordingWasCanceled = false;
                             }
-                            if (!mRecordingWasCanceled) {
-                                onRecordingStopped(prevRecording.getRunId());
+
+                            @Override
+                            public void onRecordingStartFailed(
+                                    @RecorderController.RecordingStartErrorType int errorType,
+                                    Exception e) {
+                                if (errorType == RecorderController.ERROR_START_FAILED) {
+                                    failedStartRecording(R.string.recording_start_failed);
+                                } else if (errorType ==
+                                           RecorderController.ERROR_START_FAILED_DISCONNECTED) {
+                                    failedStartRecording(
+                                            R.string.recording_start_failed_disconnected);
+                                }
+                                updateRecordingUIState();
                             }
-                        }
-                        mRecordingWasCanceled = false;
-                    }
 
-                    @Override
-                    public void onRecordingStartFailed(
-                            @RecorderController.RecordingStartErrorType int errorType, Exception e) {
-                        if (errorType == RecorderController.ERROR_START_FAILED) {
-                            failedStartRecording(R.string.recording_start_failed);
-                        } else if (errorType ==
-                                RecorderController.ERROR_START_FAILED_DISCONNECTED) {
-                            failedStartRecording(R.string.recording_start_failed_disconnected);
-                        }
-                        updateRecordingUIState();
-                    }
+                            @Override
+                            public void onRecordingStopFailed(
+                                    @RecorderController.RecordingStopErrorType int errorType) {
+                                if (errorType
+                                    == RecorderController.ERROR_STOP_FAILED_DISCONNECTED) {
+                                    failedStopRecording(
+                                            R.string.recording_stop_failed_disconnected);
+                                } else if (errorType
+                                           == RecorderController.ERROR_STOP_FAILED_NO_DATA) {
+                                    failedStopRecording(R.string.recording_stop_failed_no_data);
+                                } else if (errorType
+                                           == RecorderController.ERROR_FAILED_SAVE_RECORDING) {
+                                    AccessibilityUtils.makeSnackbar(getView(),
+                                            getActivity().getResources().getString(
+                                                    R.string.recording_stop_failed_save),
+                                            Snackbar.LENGTH_LONG).show();
+                                }
+                                updateRecordingUIState();
+                            }
+                        };
+                mRecorderStateListenerId = rc.addRecordingStateListener(listener);
 
-                    @Override
-                    public void onRecordingStopFailed(
-                            @RecorderController.RecordingStopErrorType int errorType) {
-                        if (errorType == RecorderController.ERROR_STOP_FAILED_DISCONNECTED) {
-                            failedStopRecording(R.string.recording_stop_failed_disconnected);
-                        } else if (errorType == RecorderController.ERROR_STOP_FAILED_NO_DATA) {
-                            failedStopRecording(R.string.recording_stop_failed_no_data);
-                        } else if (errorType == RecorderController.ERROR_FAILED_SAVE_RECORDING) {
-                            AccessibilityUtils.makeSnackbar(getView(),
-                                    getActivity().getResources().getString(
-                                            R.string.recording_stop_failed_save),
-                                    Snackbar.LENGTH_LONG).show();
-                        }
-                        updateRecordingUIState();
-                    }
-                });
-                rc.addTriggerFiredListener(TAG, new RecorderController.TriggerFiredListener() {
+                RecorderController.TriggerFiredListener tlistener =
+                        new RecorderController.TriggerFiredListener() {
+                            @Override
+                            public void onTriggerFired(SensorTrigger trigger) {
+                                doVisualAlert(trigger);
+                            }
 
-                    @Override
-                    public void onTriggerFired(SensorTrigger trigger) {
-                        doVisualAlert(trigger);
-                    }
+                            @Override
+                            public void onRequestStartRecording() {
+                                lockUiForRecording((AppCompatActivity) getActivity());
+                            }
 
-                    @Override
-                    public void onRequestStartRecording() {
-                        lockUiForRecording((AppCompatActivity) getActivity());
-                    }
+                            @Override
+                            public void onLabelAdded(Label label) {
+                                processAddedLabel(label);
+                            }
 
-                    @Override
-                    public void onLabelAdded(Label label) {
-                        processAddedLabel(label);
-                    }
-
-                    @Override
-                    public void onRequestStopRecording(RecorderController rc) {
-                        updateRecorderControllerLayouts(rc, buildCurrentLayouts());
-                    }
-                });
+                            @Override
+                            public void onRequestStopRecording(RecorderController rc) {
+                                updateRecorderControllerLayouts(rc, buildCurrentLayouts());
+                            }
+                        };
+                mTriggerFiredListenerId = rc.addTriggerFiredListener(tlistener);
 
                 if (!rc.resumeObservingAll(mRecorderPauseId)) {
                     // Force a reload of the current experiment's ob
@@ -409,7 +428,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                 onRecordingMetadataUpdated();
                             }
                         });
-
             }
 
             public boolean readSensorsFromExtras(RecorderController rc) {

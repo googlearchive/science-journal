@@ -93,24 +93,22 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public void addRecordingStateListener(String listenerId,
-            RecordingStateListener listener) {
+    public int addRecordingStateListener(RecordingStateListener listener) {
+        return 0;
+    }
+
+    @Override
+    public void removeRecordingStateListener(int listenerId) {
 
     }
 
     @Override
-    public void removeRecordingStateListener(String listenerId) {
-
+    public int addTriggerFiredListener(TriggerFiredListener listener) {
+        return 0;
     }
 
     @Override
-    public void addTriggerFiredListener(String listenerId,
-            TriggerFiredListener listener) {
-
-    }
-
-    @Override
-    public void removeTriggerFiredListener(String listenerId) {
+    public void removeTriggerFiredListener(int listenerId) {
 
     }
 
