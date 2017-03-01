@@ -28,20 +28,27 @@ import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
  */
 public class MetadataActivity extends AppCompatActivity {
     private static final String TAG = "MetadataActivity";
+    private int mRecorderListenerId = RecorderController.NO_LISTENER_ID;
 
     @Override
     protected void onResume() {
         super.onResume();
+
         AppSingleton.getInstance(this).withRecorderController(TAG,
                 new Consumer<RecorderController>() {
                     @Override
                     public void take(final RecorderController recorderController) {
-                        recorderController.addRecordingStateListener(TAG,
+                        RecorderController.RecordingStateListener listener =
                                 new RecorderController.RecordingStateListener() {
                                     @Override
                                     public void onRecordingStateChanged(
                                             RecordingMetadata currentRecording) {
-                                        recorderController.removeRecordingStateListener(TAG);
+                                        if (mRecorderListenerId
+                                            != RecorderController.NO_LISTENER_ID) {
+                                            recorderController.removeRecordingStateListener(
+                                                    mRecorderListenerId);
+                                            mRecorderListenerId = RecorderController.NO_LISTENER_ID;
+                                        }
                                         if (currentRecording != null) {
                                             finish();
                                         }
@@ -59,7 +66,10 @@ public class MetadataActivity extends AppCompatActivity {
                                             @RecorderController.RecordingStopErrorType int type) {
 
                                     }
-                                });
+                                };
+
+                        mRecorderListenerId =
+                                recorderController.addRecordingStateListener(listener);
                     }
                 });
     }

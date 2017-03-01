@@ -112,9 +112,15 @@ public interface RecorderController extends SensorRegistryListener {
         void onRecordingStopFailed(@RecordingStopErrorType int errorType);
     }
 
-    void addRecordingStateListener(String listenerId, RecordingStateListener listener);
+    public static int NO_LISTENER_ID = -1;
 
-    void removeRecordingStateListener(String listenerId);
+    /**
+     * @return an integer id that should be passed to {@link #removeRecordingStateListener(int)} to
+     *         stop listening.  Guaranteed to be >= 0.
+     */
+    int addRecordingStateListener(RecordingStateListener listener);
+
+    void removeRecordingStateListener(int listenerId);
 
     interface TriggerFiredListener {
         /**
@@ -141,9 +147,14 @@ public interface RecorderController extends SensorRegistryListener {
         void onRequestStopRecording(RecorderController rc);
     }
 
-    void addTriggerFiredListener(String listenerId, TriggerFiredListener listener);
 
-    void removeTriggerFiredListener(String listenerId);
+    /**
+     * @return an integer id that should be passed to {@link #removeTriggerFiredListener(int)} to
+     *         stop listening.  Guaranteed to be >= 0.
+     */
+    int addTriggerFiredListener(TriggerFiredListener listener);
+
+    void removeTriggerFiredListener(int listenerId);
 
     interface ObservedIdsListener {
         void onObservedIdsChanged(List<String> observedSensorIds);

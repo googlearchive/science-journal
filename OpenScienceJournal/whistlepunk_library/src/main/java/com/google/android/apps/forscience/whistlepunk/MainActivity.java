@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -68,6 +67,7 @@ public class MainActivity extends AppCompatActivity
     private int mSelectedItemId = NO_SELECTED_ITEM;
     private RecorderController.RecordingStateListener mRecordingStateListener;
     private boolean mIsRecording = false;
+    private int mRecordingStateListenerId = RecorderController.NO_LISTENER_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,12 +193,12 @@ public class MainActivity extends AppCompatActivity
         super.onNewIntent(intent);
 
         if (mNavigationView != null && mNavigationView.getMenu() != null) {
-            int desiredItemId = -1;
+            int desiredItemId = NO_SELECTED_ITEM;
             if (intent.getExtras() != null) {
                 desiredItemId = intent.getExtras().getInt(ARG_SELECTED_NAV_ITEM_ID,
                         NO_SELECTED_ITEM);
             }
-            if (desiredItemId != -1 && mSelectedItemId != desiredItemId) {
+            if (desiredItemId != NO_SELECTED_ITEM && mSelectedItemId != desiredItemId) {
                 onNavigationItemSelected(mNavigationView.getMenu().findItem(desiredItemId));
             }
         }
@@ -238,7 +238,8 @@ public class MainActivity extends AppCompatActivity
                 new Consumer<RecorderController>() {
                     @Override
                     public void take(RecorderController rc) {
-                        rc.addRecordingStateListener(TAG, mRecordingStateListener);
+                        mRecordingStateListenerId =
+                                rc.addRecordingStateListener(mRecordingStateListener);
                         rc.setRecordActivityInForeground(true);
                     }
                 });
@@ -250,7 +251,10 @@ public class MainActivity extends AppCompatActivity
                 new Consumer<RecorderController>() {
                     @Override
                     public void take(RecorderController rc) {
-                        rc.removeRecordingStateListener(TAG);
+                        if (mRecordingStateListenerId != RecorderController.NO_LISTENER_ID) {
+                            rc.removeRecordingStateListener(mRecordingStateListenerId);
+                            mRecordingStateListenerId = RecorderController.NO_LISTENER_ID;
+                        }
                         rc.setRecordActivityInForeground(false);
                     }
                 });
