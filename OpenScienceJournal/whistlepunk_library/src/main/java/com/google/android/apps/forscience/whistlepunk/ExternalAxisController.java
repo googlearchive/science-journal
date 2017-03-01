@@ -400,7 +400,7 @@ public class ExternalAxisController {
         mLabels = labels;
         List<Long> timestamps = new ArrayList<>();
         for (Label label : mLabels) {
-            if (ChartOptions.isDisplayable(label, mOriginalStart,
+            if (ChartOptions.isDisplayable(label, mRecordingStart,
                     ChartOptions.ChartPlacementType.TYPE_OBSERVE)) {
                 timestamps.add(label.getTimeStamp());
             }
