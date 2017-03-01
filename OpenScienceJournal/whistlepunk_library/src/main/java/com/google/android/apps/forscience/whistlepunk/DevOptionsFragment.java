@@ -35,6 +35,7 @@ public class DevOptionsFragment extends PreferenceFragment {
     @VisibleForTesting
     public static final String KEY_SINE_WAVE_SENSOR = "enable_sine_wave_sensor";
 
+    private static final String KEY_MAGNETOMETER = "enable_magnetometer_sensor";
     private static final String KEY_VIDEO_SENSOR = "enable_video_sensor";
     private static final String KEY_DEV_TOOLS = "dev_tools";
     private static final String KEY_LEAK_CANARY = "leak_canary";
@@ -104,6 +105,10 @@ public class DevOptionsFragment extends PreferenceFragment {
     @VisibleForTesting
     public static SharedPreferences getPrefs(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    public static boolean isMagnetometerEnabled(Context context) {
+        return getBoolean(KEY_MAGNETOMETER, false, context);
     }
 
     public static boolean isSineWaveEnabled(Context context) {

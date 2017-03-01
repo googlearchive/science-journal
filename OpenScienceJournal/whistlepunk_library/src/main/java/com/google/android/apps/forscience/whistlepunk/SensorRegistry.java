@@ -211,8 +211,10 @@ public class SensorRegistry {
             addBuiltInSensor(new BarometerSensor());
         }
 
-        if (MagneticRotationSensor.isMagneticRotationSensorAvailable(available)) {
-            addBuiltInSensor(new MagneticRotationSensor());
+        if (DevOptionsFragment.isMagnetometerEnabled(context)) {
+            if (MagneticRotationSensor.isMagneticRotationSensorAvailable(available)) {
+                addBuiltInSensor(new MagneticRotationSensor());
+            }
         }
 
         if (DevOptionsFragment.isAmbientTemperatureSensorEnabled(context)) {

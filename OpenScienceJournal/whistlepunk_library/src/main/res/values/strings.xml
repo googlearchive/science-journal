@@ -1015,6 +1015,10 @@ Requested permissions:
     <!-- The summary for the option to enable third-party sensors [CHAR_LIMIT=None] -->
     <string name="use_new_manage_devices_ux_option_summary" translatable="false">Temporary until fully ready.</string>
 
+    <!-- Title of developer option to display a magnetic sensor [CHAR_LIMIT=35]-->
+    <!-- TODO: enable translation if this is going to stay behind options in D release -->
+    <string name="enable_magnetometer_sensor_title" translatable="false">Enable magnetometer</string>
+
     <!-- Summary of developer option to display a magnetic sensor [CHAR_LIMIT=none] -->
     <string name="enable_magnetometer_sensor_summary">Enable experimental magnetometer sensor</string>
 

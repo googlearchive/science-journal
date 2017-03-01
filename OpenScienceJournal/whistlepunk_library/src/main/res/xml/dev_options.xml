@@ -17,6 +17,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <CheckBoxPreference
+        android:key="enable_magnetometer_sensor"
+        android:defaultValue="false"
+        android:title="@string/enable_magnetometer_sensor_title"
+        android:summary="@string/enable_magnetometer_sensor_summary"
+    />
+
+    <CheckBoxPreference
         android:key="enable_ambient_temp_sensor"
         android:defaultValue="false"
         android:title="@string/enable_temperature_sensor_title"
