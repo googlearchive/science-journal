@@ -325,7 +325,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"説明を追加"</string>
     <string name="listing_title" msgid="1732490922169483408">"サイエンス ジャーナル"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"身の周りで実験しよう。"</string>
-    <string name="listing_changelog" msgid="1682128084009185355">"新機能と改善点: \n• Play ストア対応の Chromebook の公式サポート（https://support.google.com/chromebook/answer/7021273）。\n• 磁力計センサーのサポートを追加。\n• Android Nougat のマルチウィンドウ モードのサポートを修正。\n• 記録した試行の余分なデータをクロップできるようになりました。"</string>
+    <string name="listing_changelog" msgid="1682128084009185355">"新機能と改善点: \n• Play ストア対応の Chromebook の公式サポート（https://support.google.com/chromebook/answer/7021273）。\n• Android Nougat のマルチウィンドウ モードのサポートを修正。\n• 記録した試行の余分なデータをクロップできるようになりました。"</string>
     <string name="listing__description" msgid="1437079553322248814">"サイエンス ジャーナルは、Android アプリに対応したスマートフォン、タブレット、Chromebook で科学を楽しむためのツールです。スマートフォンのセンサーを使ったり外部センサーを接続したりして、身の回りのものを調べる実験を始めましょう。アイデアをプロジェクトの形にまとめ、結果を予測し、メモを取り、試行を何回か繰り返してデータを収集し、注釈をつけて結果を考察します。常に持ち歩ける実験ノートとして活用してください。\n\n \nこちらのサイトで、このアプリでできるアクティビティのアイデアを紹介しています: https://makingscience.withgoogle.com/science-journal/activities\nMaking &amp; Scienceの詳細: https://makingscience.withgoogle.com \nサポートが必要な場合: https://productforums.google.com/forum/#!forum/sciencejournal \nコードも公開中: https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"サードパーティ製センサーのスキャン"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"サードパーティのセンサー API をサポートするアプリを探して、そのセンサーを実験に追加できるようにします。"</string>

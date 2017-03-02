@@ -325,7 +325,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"添加图片说明"</string>
     <string name="listing_title" msgid="1732490922169483408">"科学日志"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"探索您周围世界的科学奥秘。"</string>
-    <string name="listing_changelog" msgid="1682128084009185355">"新功能及改进之处：\n• 正式对支持 Play 商店的 ChromeBook 提供支持：https://support.google.com/chromebook/answer/7021273。\n• 增加了对磁力计传感器的支持。\n• 修正了对 Nougat 多窗口模式的支持。\n• 现在可以从记录的测试中剪裁掉多余的数据。"</string>
+    <string name="listing_changelog" msgid="1682128084009185355">"新功能及改进之处：\n• 正式对支持 Play 商店的 ChromeBook 提供支持：https://support.google.com/chromebook/answer/7021273。\n• 修正了对 Nougat 多窗口模式的支持。\n• 现在可以从记录的测试中剪裁掉多余的数据。"</string>
     <string name="listing__description" msgid="1437079553322248814">"有了科学日志这个实用工具，使用支持 Android 应用的手机、平板电脑或 Chromebook 就能进行科学实验了。你可以使用手机内置的传感器，或者使用外接传感器，来尽情探索周围的世界。科学日志有助于你将各种零散的想法归类整理成不同的具体项目、进行预测、记笔记并收集多次实验的数据，然后深入分析实验结果并加上相关注释，它就像随身携带的一本实验室笔记本。\n\n\n你可以访问以下网址汲取实验灵感，让这款应用伴你遨游广阔的科学天地：https://makingscience.withgoogle.com/science-journal/activities\n欢迎详细了解 Making &amp; Science：https://makingscience.withgoogle.com\n如需获取支持，请访问：https://productforums.google.com/forum/#!forum/sciencejournal\n如需获取代码，请访问：https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"扫描第三方传感器"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"查找支持第三方传感器 API 并且能够将这些传感器添加到实验中的应用。"</string>

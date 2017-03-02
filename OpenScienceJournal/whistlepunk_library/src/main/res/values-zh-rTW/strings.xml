@@ -325,7 +325,7 @@
     <string name="picture_note_caption_hint" msgid="9155126680230680734">"新增說明文字"</string>
     <string name="listing_title" msgid="1732490922169483408">"科學日誌"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"盡情探索周圍的世界。"</string>
-    <string name="listing_changelog" msgid="1682128084009185355">"全新與改良功能：\n• 正式支援 Chromebook (僅限支援 Play 商店的 Chromebook)：https://support.google.com/chromebook/answer/7021273。\n• 為磁力儀感測器新增支援。\n• 修正對 Nougat 多視窗模式的相關支援。\n• 現在可從記錄的試驗中裁剪額外的資料。"</string>
+    <string name="listing_changelog" msgid="1682128084009185355">"全新與改良功能：\n• 正式支援 Chromebook (僅限支援 Play 商店的 Chromebook)：https://support.google.com/chromebook/answer/7021273。\n• 修正對 Nougat 多視窗模式的相關支援。\n• 現在可從記錄的試驗中裁剪額外的資料。"</string>
     <string name="listing__description" msgid="1437079553322248814">"只要在支援 Android 應用程式的手機、平板電腦或 Chromebook 上安裝科學日誌，這些裝置就能搖身一變，成為你進行科學實驗時的最佳工具。使用手機中的感測器，或是將裝置接上外部感測器，你就能對周遭的世界展開各種實驗。將你的想法彙整編寫為實驗專案、進行預測、撰寫筆記和收集多次試驗的數據，然後深入分析實驗結果並加上註解，就像隨身攜帶研究筆記本一樣方便！\n\n \n歡迎瀏覽以下網站，汲取靈感，想想如何利用科學日誌進行更多有趣的實驗：https://makingscience.withgoogle.com/science-journal/activities \n進一步瞭解 Making &amp; Science：https://makingscience.withgoogle.com \n瀏覽支援論壇：https://productforums.google.com/forum/#!forum/sciencejournal \n如需取得程式碼，請造訪：https://github.com/google/science-journal"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"掃描是否有第三方感測器"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"尋找支援第三方感測器 API 的應用程式，並啟用將這類感應器加入實驗的功能。"</string>

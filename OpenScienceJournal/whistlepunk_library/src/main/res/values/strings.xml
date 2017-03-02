@@ -980,7 +980,6 @@
     <!-- Change log for Science Journal (note: this is multiline, with \n to separate lines) [CHAR LIMIT=500] -->
     <string name="listing_changelog">New features and improvements:
         \n\u2022 Official support for ChromeBooks that support the Play Store: https://support.google.com/chromebook/answer/7021273.
-        \n\u2022 Added support for magnetometer sensor.
         \n\u2022 Fix support for Nougat multi-window mode.
         \n\u2022 Can now crop extra data from recorded trials.
     </string>
