@@ -99,6 +99,7 @@ public class EditTriggerFragment extends Fragment {
     private ViewGroup mAlertGroup;
     private ViewGroup mOnlyWhenRecordingGroup;
     private boolean mIsSavingNewTrigger = false;
+    private boolean mTriggerWasEdited = false;
     private NumberFormat mNumberFormat;
 
     public static EditTriggerFragment newInstance(String sensorId, String experimentId,
@@ -150,6 +151,15 @@ public class EditTriggerFragment extends Fragment {
                 mTriggerToEdit = null;
             }
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mTriggerWasEdited) {
+            WhistlePunkApplication.getUsageTracker(getActivity()).trackEvent(
+                    TrackerConstants.CATEGORY_TRIGGERS, TrackerConstants.ACTION_EDITED, null, 0);
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -486,6 +496,7 @@ public class EditTriggerFragment extends Fragment {
             goToParent();
             return;
         }
+        mTriggerWasEdited = isUpdated;
         TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout,
                 mTriggerToEdit.getTriggerId());
         dc.updateSensorTrigger(mTriggerToEdit,
@@ -495,10 +506,6 @@ public class EditTriggerFragment extends Fragment {
                         updateSensorLayoutAndGoToParent(returnToParent);
                     }
                 });
-        if (returnToParent) {
-            WhistlePunkApplication.getUsageTracker(getActivity()).trackEvent(
-                    TrackerConstants.CATEGORY_TRIGGERS, TrackerConstants.ACTION_EDITED, null, 0);
-        }
     }
 
     private boolean updateLocalTriggerIfChanged(int triggerType, int triggerWhen,
