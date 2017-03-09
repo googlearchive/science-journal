@@ -90,6 +90,12 @@ public abstract class WhistlePunkApplication extends Application {
         mRefWatcher = installLeakCanary();
         onCreateInjector();
         RunReviewExporter.cleanOldFiles(this);
+        setupBackupAgent();
+    }
+
+    protected void setupBackupAgent() {
+        // Register your backup agent to receive settings change events here.
+        // Learn more at https://developer.android.com/guide/topics/data/keyvaluebackup.html#BackupAgentHelper.
     }
 
     protected RefWatcher installLeakCanary() {
