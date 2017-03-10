@@ -54,6 +54,7 @@ public class ProxyRecorderControllerTest {
     private static final StubDataController DATA_CONTROLLER = new StubDataController() {
         @Override
         public void startRun(Experiment experiment,
+                List<GoosciSensorLayout.SensorLayout> sensorLayouts,
                 MaybeConsumer<ApplicationLabel> onSuccess) {
             onSuccess.success(new ApplicationLabel(
                     ApplicationLabel.TYPE_RECORDING_START, "start", "start", 0));
@@ -61,7 +62,7 @@ public class ProxyRecorderControllerTest {
 
         @Override
         public void stopRun(Experiment experiment, String runId,
-                List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+                List<GoosciSensorLayout.SensorLayout> layouts,
                 MaybeConsumer<ApplicationLabel> onSuccess) {
             onSuccess.success(new ApplicationLabel(
                     ApplicationLabel.TYPE_RECORDING_STOP, "stop", "start", 10));

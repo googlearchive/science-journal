@@ -149,8 +149,8 @@ public class ChartControllerTest {
             }
 
             @Override
-            public GoosciSensorLayout.SensorLayout getSensorLayout() {
-                return layout;
+            public String getSensorId() {
+                return layout.sensorId;
             }
         };
     }

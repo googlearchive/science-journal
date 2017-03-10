@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -26,9 +25,8 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO(saff): get all of this from the actual database
 public class ExperimentRun {
-    public static final long NO_TIME_SPECIFIED = -1;
+    private static final long NO_TIME_SPECIFIED = -1;
 
     private final long mStartTime;
     private final long mStopTime;
@@ -116,16 +114,17 @@ public class ExperimentRun {
         return mCropLabels;
     }
 
-    public void setCropLabels(CropHelper.CropLabels cropLabels) {
-        mCropLabels = cropLabels;
-    }
-
     public List<String> getSensorTags() {
         return mRun.getSensorIds();
     }
 
     public long elapsedSeconds() {
-        return Math.round((getLastTimestamp() - getFirstTimestamp()) / 1000.0);
+        // TODO: write tests?
+        if (!isValidRun()) {
+            return 0;
+        } else {
+            return Math.round((getLastTimestamp() - getFirstTimestamp()) / 1000.0);
+        }
     }
 
     public String getRunId() {
@@ -134,10 +133,6 @@ public class ExperimentRun {
 
     public boolean isValidRun() {
         return mStartTime > 0 && mStopTime > mStartTime;
-    }
-
-    public int getRunIndex() {
-        return mRun.getRunIndex();
     }
 
     public String getRunTitle(Context context) {

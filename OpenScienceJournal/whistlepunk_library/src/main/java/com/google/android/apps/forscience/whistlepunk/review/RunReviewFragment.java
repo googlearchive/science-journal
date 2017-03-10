@@ -389,8 +389,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                                     mExperimentRun.getFirstTimestamp(),
                                     mExperimentRun.getLastTimestamp(),
                                     mRunReviewOverlay.getTimestamp(),
-                                    mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex)
-                                            .sensorId);
+                                    getSensorId());
                         }
                     }
                 });
@@ -444,7 +443,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                     mAudioPlaybackController.startPlayback(getDataController(),
                             mExperimentRun.getFirstTimestamp(), mExperimentRun.getLastTimestamp(),
                             mRunReviewOverlay.getTimestamp(),
-                            mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId);
+                            getSensorId());
                 }
             }
         });
@@ -672,8 +671,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (mExperimentRun.getAutoZoomEnabled()) {
             mChartController.setReviewYAxis(yMin, yMax, /* has buffer */ true);
         } else {
-            GoosciSensorLayout.SensorLayout layout =
-                    mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
+            GoosciSensorLayout.SensorLayout layout = getSensorLayout();
             // Don't zoom in more than the recorded data.
             // The layout's min/max y value may be too small to show the recorded data when
             // recording happened in the background and was stopped by a trigger.
@@ -765,8 +763,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 String statsRunId = intent.getStringExtra(CropHelper.EXTRA_RUN_ID);
                 if (TextUtils.equals(statsRunId, mExperimentRun.getRunId())) {
                     String statsSensorId = intent.getStringExtra(CropHelper.EXTRA_SENSOR_ID);
-                    GoosciSensorLayout.SensorLayout sensorLayout =
-                            mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
+                    GoosciSensorLayout.SensorLayout sensorLayout = getSensorLayout();
                     if (TextUtils.equals(statsSensorId, sensorLayout.sensorId)) {
                         onStatsRefreshed(sensorLayout);
                     }
@@ -888,7 +885,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 mAudioPlaybackController.startPlayback(getDataController(),
                         mExperimentRun.getFirstTimestamp(), mExperimentRun.getLastTimestamp(),
                         mSavedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP),
-                        mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex).sensorId);
+                        getSensorId());
             }
             // If this isn't the first time we've made a view, check if the timepicker UI is up.
             if (mSavedInstanceStateForLoad.getBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE)) {
@@ -1769,7 +1766,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
-    public GoosciSensorLayout.SensorLayout getSensorLayout() {
+    public String getSensorId() {
+        return getSensorLayout().sensorId;
+    }
+
+    protected GoosciSensorLayout.SensorLayout getSensorLayout() {
         return mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
     }
 }

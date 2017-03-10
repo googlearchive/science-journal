@@ -540,6 +540,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         final ApplicationLabel startLabel = newStartLabel("startId", 1);
         GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
         layout1.sensorId = "sensor1";
+        layout1.maximumYAxisValue = 5;
         GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
         layout2.sensorId = "sensor2";
         final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
@@ -551,6 +552,13 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(startLabel.getLabelId(), loaded.getId());
         assertEquals(sensorIds, saved.getSensorIds());
         assertEquals(sensorIds, loaded.getSensorIds());
+        assertEquals(5, saved.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
+        assertEquals(5, loaded.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
+
+        layout1.maximumYAxisValue = 15;
+        mMetaDataManager.updateRunLayouts(startLabel.getLabelId(), sensorLayouts);
+        Run updated = mMetaDataManager.getRun(startLabel.getLabelId());
+        assertEquals(15, updated.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
 
         // Test that runs are deleted.
         mMetaDataManager.deleteRun(startLabel.getLabelId());

@@ -25,7 +25,6 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
-import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
@@ -85,36 +84,6 @@ public class DataControllerTest extends AndroidTestCase {
                 }));
 
         assertTrue(success.get());
-    }
-
-    public void testStopRun() {
-        InMemorySensorDatabase db = new InMemorySensorDatabase();
-        MemoryMetadataManager manager = new MemoryMetadataManager();
-        final DataController dc = db.makeSimpleController(manager);
-
-        final StoringConsumer<Project> cProject = new StoringConsumer<>();
-        dc.createProject(cProject);
-        Project project = cProject.getValue();
-
-        final StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
-        dc.createExperiment(project, cExperiment);
-        final Experiment experiment = cExperiment.getValue();
-
-        final StoringConsumer<ApplicationLabel> cLabel = new StoringConsumer<>();
-        dc.startRun(experiment, cLabel);
-        final ApplicationLabel startLabel = cLabel.getValue();
-
-        dc.stopRun(experiment, startLabel.getRunId(),
-                new ArrayList<GoosciSensorLayout.SensorLayout>(),
-                TestConsumers.<ApplicationLabel>expectingSuccess());
-
-        final StoringConsumer<List<ExperimentRun>> cRuns = new StoringConsumer<>();
-        dc.getExperimentRuns(experiment.getExperimentId(), false, cRuns);
-        final List<ExperimentRun> runs = cRuns.getValue();
-
-        assertEquals("Failed.  experiment id: " + experiment.getExperimentId(), 1, runs.size());
-        final ExperimentRun experimentRun = runs.get(0);
-        assertEquals(startLabel.getRunId(), experimentRun.getRunId());
     }
 
     public void testLayouts() {

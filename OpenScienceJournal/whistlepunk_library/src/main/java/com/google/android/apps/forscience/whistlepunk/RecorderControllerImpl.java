@@ -467,7 +467,7 @@ public class RecorderControllerImpl implements RecorderController {
             public void take(final RecorderService recorderService) throws RemoteException {
                 final DataController dataController = mDataController;
                 dataController.startRun(mSelectedExperiment,
-                        new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
+                        mSensorLayouts, new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
                             @Override
                             public void success(ApplicationLabel label) {
                                 mRecording = new RecordingMetadata(label.getTimeStamp(),
@@ -527,9 +527,10 @@ public class RecorderControllerImpl implements RecorderController {
                 final List<GoosciSensorLayout.SensorLayout> sensorLayoutsAtStop =
                         new ArrayList<>(mSensorLayouts);
                 mDataController
-                        .stopRun(mSelectedExperiment, mRecording.getRunId(), mSensorLayouts,
-                        new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
-                            @Override
+                        .stopRun(mSelectedExperiment, mRecording.getRunId(),
+                                mSensorLayouts,
+                                new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
+                                    @Override
                             public void success(ApplicationLabel value) {
                                 trackStopRecording(recorderService.getApplicationContext(), value,
                                         sensorLayoutsAtStop);

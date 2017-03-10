@@ -98,20 +98,20 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     public void stopRun(final Experiment experiment, final String runId,
-            final List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+            final List<GoosciSensorLayout.SensorLayout> layouts,
             final MaybeConsumer<ApplicationLabel> onSuccess) {
         addApplicationLabel(experiment, ApplicationLabel.TYPE_RECORDING_STOP, runId,
                 MaybeConsumers.chainFailure(onSuccess, new Consumer<ApplicationLabel>() {
                     @Override
-                    public void take(final ApplicationLabel applicationLabel) {
+                    public void take(final ApplicationLabel label) {
                         background(DataControllerImpl.this.mMetaDataThread, onSuccess,
                                 new Callable<ApplicationLabel>() {
-                            @Override
-                            public ApplicationLabel call() throws Exception {
-                                mMetaDataManager.newRun(experiment, runId, sensorLayouts);
-                                return applicationLabel;
-                            }
-                        });
+                                    @Override
+                                    public ApplicationLabel call() throws Exception {
+                                        mMetaDataManager.updateRunLayouts(runId, layouts);
+                                        return label;
+                                    }
+                                });
                     }
                 }));
     }
@@ -238,10 +238,24 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override public void startRun(
-            final Experiment experiment, final MaybeConsumer<ApplicationLabel> onSuccess) {
+            final Experiment experiment, final List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+            final MaybeConsumer<ApplicationLabel> onSuccess) {
         String id = generateNewLabelId();
-        addApplicationLabelWithId(
-                experiment, ApplicationLabel.TYPE_RECORDING_START, id, id, onSuccess);
+        addApplicationLabelWithId(experiment, ApplicationLabel.TYPE_RECORDING_START, id, id,
+                MaybeConsumers.chainFailure(onSuccess, new Consumer<ApplicationLabel>() {
+                    @Override
+                    public void take(final ApplicationLabel label) {
+                        background(DataControllerImpl.this.mMetaDataThread, onSuccess,
+                                new Callable<ApplicationLabel>() {
+                                    @Override
+                                    public ApplicationLabel call() throws Exception {
+                                        mMetaDataManager.newRun(experiment, label.getRunId(),
+                                                sensorLayouts);
+                                        return label;
+                                    }
+                                });
+                    }
+                }));
     }
 
     private void addApplicationLabel(
@@ -350,11 +364,11 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     @Override
     public void getExperimentRuns(final String experimentId, final boolean includeArchived,
-            final MaybeConsumer<List<ExperimentRun>> onSuccess) {
+            final boolean includeInvalid, final MaybeConsumer<List<ExperimentRun>> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<List<ExperimentRun>>() {
             @Override
             public List<ExperimentRun> call() throws Exception {
-                return getExperimentRunsOnDataThread(experimentId, includeArchived, false);
+                return getExperimentRunsOnDataThread(experimentId, includeArchived, includeInvalid);
             }
         });
     }

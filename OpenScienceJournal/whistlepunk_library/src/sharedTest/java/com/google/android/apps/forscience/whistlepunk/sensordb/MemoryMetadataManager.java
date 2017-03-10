@@ -42,6 +42,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
+import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -299,10 +300,31 @@ public class MemoryMetadataManager implements MetaDataManager {
     @Override
     public Run newRun(Experiment experiment, String runId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-        final Run run = new Run(runId, mRuns.size(), sensorLayouts, true);
+        final Run run = new Run(runId, mRuns.size(), deepCopy(sensorLayouts), true);
         mRuns.put(run.getId(), run);
         mExperimentIdsToRunIds.put(experiment.getExperimentId(), run.getId());
         return run;
+    }
+
+    @Override
+    public void updateRunLayouts(String runId, List<GoosciSensorLayout.SensorLayout> layouts) {
+        List<GoosciSensorLayout.SensorLayout> sensorLayouts = mRuns.get(runId).getSensorLayouts();
+        sensorLayouts.clear();
+        sensorLayouts.addAll(deepCopy(layouts));
+    }
+
+    private List<GoosciSensorLayout.SensorLayout> deepCopy(
+            List<GoosciSensorLayout.SensorLayout> original) {
+        List<GoosciSensorLayout.SensorLayout> copy = new ArrayList<>();
+        for (GoosciSensorLayout.SensorLayout layout : original) {
+            try {
+                byte[] bytes = ExternalSensorSpec.getBytes(layout);
+                copy.add(GoosciSensorLayout.SensorLayout.parseFrom(bytes));
+            } catch (InvalidProtocolBufferNanoException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return copy;
     }
 
     @Override

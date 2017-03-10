@@ -52,13 +52,14 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void startRun(Experiment experiment, MaybeConsumer<ApplicationLabel> onSuccess) {
+    public void startRun(Experiment experiment, List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+            MaybeConsumer<ApplicationLabel> onSuccess) {
 
     }
 
     @Override
     public void stopRun(Experiment experiment, String runId,
-            List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+            List<GoosciSensorLayout.SensorLayout> layouts,
             MaybeConsumer<ApplicationLabel> onSuccess) {
 
     }
@@ -100,7 +101,7 @@ public class StubDataController implements DataController {
 
     @Override
     public void getExperimentRuns(String experiment, boolean includeArchived,
-            MaybeConsumer<List<ExperimentRun>> onSuccess) {
+            final boolean includeInvalid, MaybeConsumer<List<ExperimentRun>> onSuccess) {
 
     }
 
