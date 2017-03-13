@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
 
 apply from: project(':whistlepunk_library').projectDir.absolutePath + '/version.gradle'
 
@@ -10,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.google.android.apps.forscience.whistlepunk.opensource"
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode buildVersionCode()
         versionName buildVersionName()
     }
@@ -36,11 +35,11 @@ dependencies {
     releaseCompile project(path: ':whistlepunk_library', configuration: 'release')
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:support-annotations:23.4.0'
-    compile 'com.android.support:support-v4:23.4.0'
-    compile 'com.android.support:support-v13:23.4.0'
-    compile 'com.android.support:appcompat-v7:23.4.0'
-    apt 'com.google.dagger:dagger-compiler:2.5'
+    compile 'com.android.support:support-annotations:25.1.0'
+    compile 'com.android.support:support-v4:25.1.0'
+    compile 'com.android.support:support-v13:25.1.0'
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.5'
     compile 'com.google.dagger:dagger:2.5'
     provided 'javax.annotation:jsr250-api:1.0'
 }
