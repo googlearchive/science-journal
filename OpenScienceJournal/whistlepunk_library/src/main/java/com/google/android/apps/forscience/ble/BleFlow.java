@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.VisibleForTesting;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
@@ -109,7 +108,7 @@ public class BleFlow {
          * @param param the parameter to the action, if any.  Can be null if that action does not
          *              take a parameter.
          */
-        public RichAction(Action action, Object param) {
+        RichAction(Action action, Object param) {
             this.action = action;
             this.param = param;
         }
@@ -273,7 +272,7 @@ public class BleFlow {
     }
 
     @VisibleForTesting
-    protected BleFlow(BleClient client, Context context, String address) {
+    private BleFlow(BleClient client, Context context, String address) {
         this.client = client;
         this.context = context;
         actions = new ArrayList<>();
@@ -290,13 +289,13 @@ public class BleFlow {
     }
 
     @VisibleForTesting
-    protected void registerReceiver(BroadcastReceiver receiver) {
-        LocalBroadcastManager.getInstance(context).registerReceiver(receiver,
-                BleEvents.createIntentFilter(address));
+    private void registerReceiver(BroadcastReceiver receiver) {
+        MyBleService.getBroadcastManager(context)
+                    .registerReceiver(receiver, BleEvents.createIntentFilter(address));
     }
 
     @VisibleForTesting
-    protected void nextAction() {
+    private void nextAction() {
         if (flowEnded.get()) {
             return;
         }
@@ -465,12 +464,12 @@ public class BleFlow {
     public BleFlow resetAndAddListener(BleFlowListener flowListener, boolean clearServiceMap) {
         return this.reset(clearServiceMap).addListener(flowListener);
     }
-    
+
     public static BleFlow getInstance(BleClient client, Context context, String address) {
         return new BleFlow(client, context, address);
     }
 
-    public BleFlow addListener(BleFlowListener listener) {
+    private BleFlow addListener(BleFlowListener listener) {
         this.listener = listener;
         return this;
     }
@@ -538,7 +537,7 @@ public class BleFlow {
         return this;
     }
 
-    public BleFlow lookupDescriptor(UUID descriptorUuid) {
+    private BleFlow lookupDescriptor(UUID descriptorUuid) {
         addAction(Action.LOOKUP_DESC);
         descriptors.add(descriptorUuid);
         return this;
@@ -635,7 +634,7 @@ public class BleFlow {
     }
 
     void close() {
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver);
+        MyBleService.getBroadcastManager(context).unregisterReceiver(receiver);
     }
 
     public BleFlow writeInputStream(InputStream stream) {

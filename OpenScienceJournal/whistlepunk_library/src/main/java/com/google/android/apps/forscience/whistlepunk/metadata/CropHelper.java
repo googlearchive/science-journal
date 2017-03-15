@@ -53,18 +53,18 @@ public class CropHelper {
 
     private static final int DATAPOINTS_PER_LOAD = 500;
 
-    public static final String ACTION_CROP_STATS_RECALCULATED = "action_crop_stats_recalculated";
+    private static final String ACTION_CROP_STATS_RECALCULATED = "action_crop_stats_recalculated";
     public static final String EXTRA_SENSOR_ID = "extra_sensor_id";
     public static final String EXTRA_RUN_ID = "extra_run_id";
 
-    public static final IntentFilter STATS_INTENT_FILTER = new IntentFilter(
+    private static final IntentFilter STATS_INTENT_FILTER = new IntentFilter(
             ACTION_CROP_STATS_RECALCULATED);
 
-    public static class CropLabels {
-        public ApplicationLabel cropStartLabel;
-        public ApplicationLabel cropEndLabel;
+    static class CropLabels {
+        ApplicationLabel cropStartLabel;
+        ApplicationLabel cropEndLabel;
 
-        public CropLabels() {
+        CropLabels() {
 
         }
     }
@@ -72,7 +72,7 @@ public class CropHelper {
     private static class ProcessPriorityThreadFactory implements ThreadFactory {
         private final int mThreadPriority;
 
-        public ProcessPriorityThreadFactory(int threadPriority) {
+        ProcessPriorityThreadFactory(int threadPriority) {
             super();
             mThreadPriority = threadPriority;
         }
@@ -109,7 +109,7 @@ public class CropHelper {
     }
 
     @VisibleForTesting
-    public CropHelper(Executor executor, DataController dataController) {
+    CropHelper(Executor executor, DataController dataController) {
         mCropStatsExecutor = executor;
         mDataController = dataController;
     }
@@ -226,7 +226,7 @@ public class CropHelper {
         StreamConsumer mStreamConsumer;
         private Context mContext;
 
-        public StatsAdjuster(String sensorId, ExperimentRun run, Context context) {
+        StatsAdjuster(String sensorId, ExperimentRun run, Context context) {
             mStatsAccumulator = new StatsAccumulator();
             mSensorId = sensorId;
             mExperimentRun = run;
@@ -239,7 +239,7 @@ public class CropHelper {
             mContext = context;
         }
 
-        public void recalculateStats(DataController dc) {
+        void recalculateStats(DataController dc) {
             TimeRange range = TimeRange.oldest(Range.closed(mExperimentRun.getFirstTimestamp(),
                     mExperimentRun.getLastTimestamp()));
             addReadingsToStats(dc, range);
@@ -297,7 +297,7 @@ public class CropHelper {
             return;
         }
         // Use a LocalBroadcastManager, because we do not need this broadcast outside the app.
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
+        LocalBroadcastManager lbm = getBroadcastManager(context);
         Intent intent = new Intent();
         intent.setAction(ACTION_CROP_STATS_RECALCULATED);
         intent.putExtra(EXTRA_SENSOR_ID, sensorId);
@@ -305,12 +305,17 @@ public class CropHelper {
         lbm.sendBroadcast(intent);
     }
 
+    private static LocalBroadcastManager getBroadcastManager(Context context) {
+        // For security, only use local broadcasts (See b/32803250)
+        return LocalBroadcastManager.getInstance(context);
+    }
+
     public static void registerStatsBroadcastReceiver(Context context, BroadcastReceiver receiver) {
-        LocalBroadcastManager.getInstance(context).registerReceiver(receiver, STATS_INTENT_FILTER);
+        getBroadcastManager(context).registerReceiver(receiver, STATS_INTENT_FILTER);
     }
 
     public static void unregisterBroadcastReceiver(Context context, BroadcastReceiver receiver) {
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver);
+        getBroadcastManager(context).unregisterReceiver(receiver);
     }
 
     public static boolean experimentIsLongEnoughForCrop(ExperimentRun experimentRun) {
