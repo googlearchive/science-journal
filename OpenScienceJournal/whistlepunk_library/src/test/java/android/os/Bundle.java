@@ -40,4 +40,8 @@ public class Bundle {
     public boolean containsKey(String key) {
         return mValues.containsKey(key);
     }
+
+    public void clear() {
+        mValues.clear();
+    }
 }
