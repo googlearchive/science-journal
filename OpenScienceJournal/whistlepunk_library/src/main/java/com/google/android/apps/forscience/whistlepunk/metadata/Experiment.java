@@ -27,8 +27,12 @@ import com.google.common.annotations.VisibleForTesting;
  */
 public class Experiment {
 
+    // This ID is not the same as the experiment ID. It is an index or unique ID into the database.
     private long mId;
+
+    // This is the experiment's unique ID.
     private String mExperimentId;
+
     private long mTimestamp;
     private String mTitle;
     private String mDescription;

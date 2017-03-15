@@ -29,5 +29,17 @@ message LabelValue {
     // of the picture.
     // This storage flexibility enables future types of labels to store many different formats of
     // information without the programmer knowing ahead of time which label types might exist.
+    // Other files, like images, can be referenced using this map and should be named by a unique
+    // GUID and placed in the assets directory within the experiment.
     map<string, string> data = 1;
+
+    enum ValueType {
+        TEXT = 1;  // A text label.
+        PICTURE = 2;  // A label that has a picture and may also have a text caption.
+        SENSOR_TRIGGER = 3;  // A label created from a sensor trigger.
+        APPLICATION = 4;  // A label created automatically by Science Journal.
+    };
+
+    // The type this LabelValue represents.
+    optional ValueType type = 2;
 };

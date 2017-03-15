@@ -1,0 +1,107 @@
+/*
+ *  Copyright 2017 Google Inc. All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+syntax = "proto2";
+
+package goosci;
+option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
+option java_outer_classname = "GoosciTrial";
+option optimize_for = LITE_RUNTIME;
+
+import "sensor_layout.proto";
+
+/*
+ * Trial protobuf definition
+ */
+message Trial {
+    // Represents the ID of the trial data, which is stored separately.
+    // This ID should probably be a unique GUID.
+    optional string trialDataResourceId = 1;
+
+    // The timestamp that this trial was created.
+    optional int64 creationTimeMs = 2;
+
+    // The user-entered title of this trial.
+    optional string title = 3;
+
+    // Whether the experiment is currently archived.
+    optional bool archived = 4;
+
+    // The range of the original recording.
+    optional Range recordingRange = 5;
+
+    // The range of the cropped recording, if this trial is cropped.
+    optional Range cropRange = 6;
+
+    // Whether auto-zoom is enabled.
+    optional bool autoZoomEnabled = 7;
+
+    // SensorLayouts associated with this trial.
+    repeated SensorLayout sensorLayouts = 8;
+
+    // Stats associated with this trial.
+    repeated SensorTrialStats trialStats = 9;
+
+    // TODO: Add a repeated SensorAppearance field that allows each run to store
+    // data independently, enabling sharing for devices that don't have particular sensors.
+};
+
+/*
+ * A time range
+ */
+message Range {
+    // The start of a range.
+    optional int32 startMs = 1;
+
+    // The end of a range.
+    optional int32 endMs = 2;
+};
+
+/*
+ * Trial stats
+ */
+message SensorTrialStats {
+    // The sensor ID associated with this stat
+    optional string sensorId = 1;
+
+    enum StatStatus {
+        VALID = 1;  // The stats are updated and valid.
+        NEEDS_UPDATE = 2;  // The stats need an update and are not currently valid.
+    }
+
+    optional StatStatus statStatus = 2;
+
+    repeated SensorStat sensorStats = 3;
+}
+
+/*
+ * Stats for one sensor
+ */
+message SensorStat {
+    enum StatType {
+        MINIMUM = 1;  // The minimum value.
+        MAXIMUM = 2;  // The maximum value.
+        AVERAGE = 3;  // The average value.
+        NUM_DATA_POINTS = 4;  // The count of data points.
+        TOTAL_DURATION = 5;  // The total duration over which the stats are calculated.
+    }
+
+    // The stat type
+    optional StatType statType = 1;
+
+    // The value of the stat.
+    optional double statValue = 2;
+}

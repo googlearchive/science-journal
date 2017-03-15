@@ -1,5 +1,5 @@
 /*
- *  Copyright 2016 Google Inc. All Rights Reserved.
+ *  Copyright 2017 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,18 +14,24 @@
  *  limitations under the License.
  */
 
-/*
- * Sensor Value protobuf definition
- */
-
 syntax = "proto2";
 
-option java_package = "com.google.android.apps.forscience.whistlepunk.data";
-option java_outer_classname = "GoosciSensorValue";
+package goosci;
+option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
+option java_outer_classname = "GoosciLabel";
 option optimize_for = LITE_RUNTIME;
 
+import "label_value.proto";
 
-message SensorValue {
-  required int32 timestamp = 1;
-  required int32 value = 2;
+/*
+ * Label protobuf definition
+ */
+message Label {
+    // The time in ms since the epoch which represents this label in time.
+    // This may be the time at which the label was created, but some labels
+    // have editable timestamps.
+    optional int64 timestampMs = 1;
+
+    // The contents of the label.
+    repeated LabelValue values = 2;
 }
