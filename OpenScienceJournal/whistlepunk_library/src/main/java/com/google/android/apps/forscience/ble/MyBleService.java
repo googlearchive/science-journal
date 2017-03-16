@@ -59,10 +59,15 @@ public class MyBleService extends Service {
     private static final int MSG_PRUNE = 1011;
     static int MAX_NO_DEVICES = 100;
 
+    static LocalBroadcastManager getBroadcastManager(Context context) {
+        // For security, only use local broadcasts (See b/32803250)
+        return LocalBroadcastManager.getInstance(context);
+    }
+
     /**
      * The local binder for this service.
      */
-    public class LocalBinder extends Binder {
+    class LocalBinder extends Binder {
         public MyBleService getService() {
             return MyBleService.this;
         }
@@ -228,7 +233,7 @@ public class MyBleService extends Service {
             int retriesLeft) {
         Intent newIntent = BleEvents.createIntent(BleEvents.SERVICES_OK, address);
         newIntent.putExtra(INT_PARAM, retriesLeft);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(newIntent);
+        getBroadcastManager(context).sendBroadcast(newIntent);
     }
 
     @VisibleForTesting
@@ -248,7 +253,7 @@ public class MyBleService extends Service {
             newIntent.putExtra(FLAGS, characteristic.getProperties());
             newIntent.putExtra(DATA, characteristic.getValue());
         }
-        LocalBroadcastManager.getInstance(this).sendBroadcast(newIntent);
+        getBroadcastManager(this).sendBroadcast(newIntent);
     }
 
     public BluetoothDevice getSelectedDevice() {
@@ -296,7 +301,7 @@ public class MyBleService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Intent newIntent = new Intent(BleEvents.BLE_UNSUPPORTED);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(newIntent);
+            getBroadcastManager(this).sendBroadcast(newIntent);
             return START_NOT_STICKY;
         }
 
@@ -318,7 +323,7 @@ public class MyBleService extends Service {
     public boolean checkBleEnabled() {
         if (!isBleEnabled()) {
             Intent newIntent = new Intent(BleEvents.BLE_DISABLED);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(newIntent);
+            getBroadcastManager(this).sendBroadcast(newIntent);
             if (DEBUG) Log.d(TAG, "sent intent BLE_DISABLED");
             return false;
         }
@@ -456,8 +461,7 @@ public class MyBleService extends Service {
             }
             isScanning = false;
             btAdapter.stopLeScan(scanCallback);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(
-                    new Intent(BleEvents.BLE_SCAN_END));
+            getBroadcastManager(this).sendBroadcast(new Intent(BleEvents.BLE_SCAN_END));
         }
     }
 
