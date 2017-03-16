@@ -29,6 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.TestData;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ExplicitExecutor;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig
         .ScaleTransform;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
@@ -226,7 +227,7 @@ public class ScalarSensorTest {
         assertLineData(expectedLive, sensor);
     }
 
-    protected void assertLineData(TestData testData, ManualSensor sensor) {
+    private void assertLineData(TestData testData, ManualSensor sensor) {
         testData.checkRawData(sensor.getRawData());
     }
 
@@ -344,6 +345,24 @@ public class ScalarSensorTest {
         RunStats stats2 = mMetadata.getStats("runId2", "test");
         assertEquals(1.0, stats2.getStat(StatsAccumulator.KEY_NUM_DATA_POINTS), 0.001);
         assertEquals(1.0, stats2.getStat(ZoomRecorder.STATS_KEY_TIER_COUNT), 0.001);
+    }
+
+    @Test
+    public void dontReuseBundle() {
+        ExplicitExecutor executor = new ExplicitExecutor();
+        ManualSensor sensor = new ManualSensor("test", 1000, 5, executor);
+
+        RecordingSensorObserver observer = new RecordingSensorObserver();
+        sensor.createRecorder(getContext(), mRecordingController, observer).startObserving();
+
+        sensor.pushValue(0, 0);
+        sensor.pushValue(1, 1);
+        executor.drain();
+
+        TestData data = new TestData();
+        data.addPoint(0, 0);
+        data.addPoint(1, 1);
+        data.checkObserver(observer);
     }
 
     @NonNull

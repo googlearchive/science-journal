@@ -36,6 +36,7 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.MonotonicClock;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 public class ManualSensor extends ScalarSensor {
     private StreamConsumer mConsumer;
@@ -46,7 +47,13 @@ public class ManualSensor extends ScalarSensor {
 
     public ManualSensor(String sensorId, long defaultGraphRange,
             int zoomLevelBetweenResolutionTiers) {
-        super(sensorId, defaultGraphRange, MoreExecutors.directExecutor(),
+        this(sensorId, defaultGraphRange, zoomLevelBetweenResolutionTiers,
+                MoreExecutors.directExecutor());
+    }
+
+    public ManualSensor(String sensorId, long defaultGraphRange,
+            int zoomLevelBetweenResolutionTiers, Executor uiThreadExecutor) {
+        super(sensorId, defaultGraphRange, uiThreadExecutor,
                 zoomLevelBetweenResolutionTiers, new UptimeClock());
     }
 
@@ -65,8 +72,8 @@ public class ManualSensor extends ScalarSensor {
     }
 
     @Override
-    protected SensorRecorder makeScalarControl(final StreamConsumer c, SensorEnvironment environment,
-            Context context, SensorStatusListener listener) {
+    protected SensorRecorder makeScalarControl(final StreamConsumer c,
+            SensorEnvironment environment, Context context, SensorStatusListener listener) {
         return new SensorRecorder() {
             @Override
             public void startObserving() {

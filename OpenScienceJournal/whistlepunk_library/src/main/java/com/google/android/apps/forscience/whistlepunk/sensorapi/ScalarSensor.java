@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -69,7 +70,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     public static final int DEFAULT_ZOOM_LEVEL_BETWEEN_TIERS = 20;
 
     private static final String TAG = "ScalarSensor";
-    protected static final double DENOMINATOR_FOR_RPMS = 60 * 1000.0;
+    private static final double DENOMINATOR_FOR_RPMS = 60 * 1000.0;
     private static final String BUNDLE_KEY_SENSOR_VALUE = "key_sensor_value";
 
     private final FailureListener mDataFailureListener;
@@ -258,7 +259,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
     // Returns the existing chartController if available, or makes a new one if not.
     @NonNull
-    protected ChartController getChartController(DataViewOptions dataViewOptions, String id,
+    private ChartController getChartController(DataViewOptions dataViewOptions, String id,
             long defaultGraphRange) {
         if (mChartController == null) {
             mChartController = createChartController(dataViewOptions, id, defaultGraphRange);
@@ -270,7 +271,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     }
 
     @NonNull
-    protected AudioGenerator getAudioGenerator() {
+    private AudioGenerator getAudioGenerator() {
         if (mAudioGenerator == null) {
             mAudioGenerator = new SimpleJsynAudioGenerator();
         }
@@ -451,23 +452,21 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     private class ScalarStreamConsumer implements StreamConsumer {
         private static final int NO_DATA_RECORDED = -1;
 
-        private final Bundle mBundle;
         private final StatsAccumulator mStatsAccumulator;
-        private final SensorObserver mObserver;
         private final RecordingDataController mDataController;
         private final ZoomRecorder mZoomRecorder;
         private boolean mIsRecording = false;
         private long mLastDataTimestampMillis = NO_DATA_RECORDED;
         private long mTimestampBeforeRecordingStart = NO_DATA_RECORDED;
+        private SensorMessage.Pool mMessagePool;
 
         public ScalarStreamConsumer(StatsAccumulator statsAccumulator,
                 SensorObserver observer, RecordingDataController dataController,
                 ZoomRecorder zoomRecorder) {
             mStatsAccumulator = statsAccumulator;
-            mObserver = observer;
             mDataController = dataController;
-            mBundle = new Bundle();
             mZoomRecorder = zoomRecorder;
+            mMessagePool = new SensorMessage.Pool(observer);
         }
 
         public void startRecording() {
@@ -500,17 +499,17 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         }
 
         public void observeData(final long timestampMillis, double value) {
-            final Bundle data = makeBundle(value);
-            mStatsAccumulator.updateRecordingStreamStats(timestampMillis, value);
-            mStatsAccumulator.addStatsToBundle(data);
+            // Each call to obtain is guaranteed to retrieve a currently-unused message...
+            SensorMessage message = mMessagePool.obtain();
 
-            // TODO: try to remove this allocation
-            runOnMainThread(new Runnable() {
-                @Override
-                public void run() {
-                    mObserver.onNewData(timestampMillis, data);
-                }
-            });
+            // ...which is set up with the correct values here...
+            message.setTimestamp(timestampMillis);
+            message.getData().putDouble(BUNDLE_KEY_SENSOR_VALUE, value);
+            mStatsAccumulator.updateRecordingStreamStats(timestampMillis, value);
+            mStatsAccumulator.addStatsToBundle(message.getData());
+
+            // ..and will be cleared and released back to the message pool when getRunnable is run.
+            runOnMainThread(message.getRunnable());
         }
 
         public void recordData(long timestampMillis, double value) {
@@ -529,13 +528,6 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
         public boolean hasRecordedData() {
             return mLastDataTimestampMillis > mTimestampBeforeRecordingStart;
-        }
-
-        // TODO: profile this to make sure Bundles don't add extravagant memory and
-        // CPU overhead
-        private Bundle makeBundle(double value) {
-            mBundle.putDouble(BUNDLE_KEY_SENSOR_VALUE, value);
-            return mBundle;
         }
     }
 
