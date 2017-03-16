@@ -13,7 +13,11 @@ compatible service, then your app can discover and connect to additional
 sensors, and stream from them to Science Journal.  These sensors can be
 external devices, connected by a protocol like Bluetooth, or sensors internal
 to the phone, which Science Journal does not know how
-to connect to itself.
+to connect to itself.  The user can find a list of installed sensor services,
+and connect to any devices they discover, by pressing the "add sensor" icon
+from the Observe screen, which looks like this:
+
+![Add sensor icon](https://raw.githubusercontent.com/google/science-journal/master/api/ScienceJournalApi/docs/add_sensor.png)
 
 We have published an
 [example app](https://github.com/google/science-journal/tree/master/ScalarApiSampleApp)
