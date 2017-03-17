@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
@@ -45,6 +46,7 @@ public class ToggleArrow extends ImageButton {
         init();
     }
 
+    @TargetApi(21)
     public ToggleArrow(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
