@@ -143,7 +143,8 @@ public class ExperimentRun {
     public String getRunTitle(Context context) {
         if (TextUtils.isEmpty(mRun.getTitle())) {
             if (mRun.getRunIndex() != -1) {
-                return context.getString(R.string.run_label, mRun.getRunIndex() + 1);
+                return context.getString(R.string.run_label,
+                        Integer.toString(mRun.getRunIndex() + 1));
             } else {
                 return context.getString(R.string.run_label, "");
             }
