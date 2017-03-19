@@ -1204,7 +1204,7 @@ Permissions notice:
     <string name="trigger_label_icon_content_description">Trigger note: <xliff:g id="trigger description">%1$s</xliff:g></string>
 
     <!-- The format for a floating point data value when displayed to the user. This has more significant figures than on the Y axis. DO NOT TRANSLATE -->
-    <string name="run_review_chart_label_format"><xliff:g id="value">%.2f</xliff:g></string>
+    <string name="run_review_chart_label_format" translatable="false"><xliff:g id="value">%.2f</xliff:g></string>
 
     <!-- Auto-generated text for a snackbar that announces that a trigger has fired. For example, "Ambient light rose above 13 lux". [CHAR_LIMIT=50] -->
     <string name="trigger_snackbar_auto_text"><xliff:g id="sensor_name">%1$s</xliff:g> <xliff:g id="trigger_when">%2$s</xliff:g> <xliff:g id="trigger_value">%3$.2f</xliff:g> <xliff:g id="sensor_units">%4$s</xliff:g></string>
