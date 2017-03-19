@@ -15,17 +15,16 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.AppCompatImageButton;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.TouchDelegate;
-import android.widget.ImageButton;
 
-public class ToggleArrow extends ImageButton {
+public class ToggleArrow extends AppCompatImageButton {
     private int mStringToBecomeActive;
     private int mStringToBecomeInactive;
     private String mName;
@@ -46,13 +45,7 @@ public class ToggleArrow extends ImageButton {
         init();
     }
 
-    @TargetApi(21)
-    public ToggleArrow(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init();
-    }
-
-    private void init() {
+     private void init() {
         setImageDrawable(getResources().getDrawable(R.drawable.ic_expand_more_white_24dp));
     }
 
