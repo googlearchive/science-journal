@@ -1208,10 +1208,13 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void lockUiForRecording(AppCompatActivity activity) {
+        if (activity == null) {
+            return;
+        }
         // Lock the toolbar spinner
         ActionBar actionBar = activity.getSupportActionBar();
         Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
-        actionBar.invalidateOptionsMenu();
+        activity.supportInvalidateOptionsMenu();
         int toolbarColorResource = R.color.recording_toolbar_color;
         int statusBarColorResource = R.color.recording_status_bar_color;
         mSpinner.setVisibility(View.GONE);
@@ -1248,7 +1251,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         } else {
             ActionBar actionBar = activity.getSupportActionBar();
             Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
-            actionBar.invalidateOptionsMenu();
+            activity.supportInvalidateOptionsMenu();
             int toolbarColorResource = R.color.color_primary;
             int statusBarColorResource = R.color.color_primary_dark;
             updateToolbarRecordingUi(activity, toolbar, toolbarColorResource,
