@@ -23,6 +23,7 @@ android {
     }
 
     lintOptions {
+        warning "MissingTranslation"
         lintConfig file("lint.xml")
         abortOnError false
     }
