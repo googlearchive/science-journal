@@ -310,7 +310,7 @@ public class ProjectTabsFragment extends Fragment implements
         }
 
         @Override
-        public void onBindViewHolder(final CardViewHolder holder, final int position) {
+        public void onBindViewHolder(final CardViewHolder holder, int position) {
             final Project project = mProjects.get(position);
             Resources res = holder.itemView.getContext().getResources();
             String projectText = project.getDisplayTitle(getActivity());
@@ -346,7 +346,7 @@ public class ProjectTabsFragment extends Fragment implements
 
                         @Override
                         public void onClick(View v) {
-                            showPopup(v, project, position);
+                            showPopup(v, project, holder.getAdapterPosition());
                         }
                     });
             getDataController().getExperimentsForProject(project, false /* no archived */,
