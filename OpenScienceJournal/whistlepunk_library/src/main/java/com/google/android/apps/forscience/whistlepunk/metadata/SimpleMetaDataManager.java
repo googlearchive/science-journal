@@ -24,8 +24,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
+import android.support.v4.util.ArraySet;
 import android.text.TextUtils;
-import android.util.ArraySet;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;

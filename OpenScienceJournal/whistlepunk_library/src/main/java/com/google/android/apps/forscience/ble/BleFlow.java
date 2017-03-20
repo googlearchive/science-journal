@@ -24,8 +24,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.util.ArraySet;
 import android.util.ArrayMap;
-import android.util.ArraySet;
 import android.util.Log;
 
 import java.io.IOException;

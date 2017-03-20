@@ -36,8 +36,8 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.ArraySet;
 import android.util.ArrayMap;
-import android.util.ArraySet;
 import android.util.Log;
 
 import java.util.ArrayList;
