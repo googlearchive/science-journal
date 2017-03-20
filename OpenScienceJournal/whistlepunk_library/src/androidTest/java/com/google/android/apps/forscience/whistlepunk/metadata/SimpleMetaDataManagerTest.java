@@ -372,11 +372,6 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         final BleSensorSpec bleSpec = new BleSensorSpec(testAddress, testName);
         ExternalSensorSpec wackedSpec = new ExternalSensorSpec() {
             @Override
-            public void writeToParcel(Parcel dest, int flags) {
-
-            }
-
-            @Override
             public String getName() {
                 return testName;
             }

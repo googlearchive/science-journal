@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -31,42 +29,9 @@ import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 /**
  * Represents a specification of a BLE sensor which is exposing the Making Science service.
  */
-public class BleSensorSpec extends ExternalSensorSpec implements Parcelable {
+public class BleSensorSpec extends ExternalSensorSpec {
     private static final String TAG = "BleSensorSpec";
     public static final String TYPE = "bluetooth_le";
-
-    //
-    // PARCELABLE implementation
-    //
-    protected BleSensorSpec(Parcel in) {
-        super(in);
-        mName = in.readString();
-        int configSize = in.readInt();
-        byte[] config = new byte[configSize];
-        in.readByteArray(config);
-        loadFromConfig(config);
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
-        dest.writeString(mName);
-        byte[] config = getConfig();
-        dest.writeInt(config.length);
-        dest.writeByteArray(config);
-    }
-
-    public static final Creator<BleSensorSpec> CREATOR = new Creator<BleSensorSpec>() {
-        @Override
-        public BleSensorSpec createFromParcel(Parcel in) {
-            return new BleSensorSpec(in);
-        }
-
-        @Override
-        public BleSensorSpec[] newArray(int size) {
-            return new BleSensorSpec[size];
-        }
-    };
 
     /**
      * Human readable name of the sensor.
