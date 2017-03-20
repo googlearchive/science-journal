@@ -136,10 +136,6 @@ public class ExperimentRun {
         return mStartTime > 0 && mStopTime > mStartTime;
     }
 
-    public int getRunIndex() {
-        return mRun.getRunIndex();
-    }
-
     public String getRunTitle(Context context) {
         if (TextUtils.isEmpty(mRun.getTitle())) {
             if (mRun.getRunIndex() != -1) {
