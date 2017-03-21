@@ -26,7 +26,7 @@ android {
     }
 
     lintOptions {
-        abortOnError false
+        abortOnError true
 
         // Due to b/36261865, don't try to check icon shape when linting.
         disable 'IconLauncherShape'

@@ -23,7 +23,9 @@ android {
     }
 
     lintOptions {
-        abortOnError false
+        warning "MissingTranslation"
+        lintConfig file("lint.xml")
+        abortOnError true
     }
 
     sourceSets {

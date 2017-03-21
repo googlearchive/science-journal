@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
@@ -34,12 +32,8 @@ import java.util.Objects;
  * Represents a specification of an external sensor, including its name and address.  Subclasses
  * may include additional options.
  */
-public abstract class ExternalSensorSpec implements Parcelable {
+public abstract class ExternalSensorSpec {
     private static final String TAG = "ExternalSensorSpec";
-
-    protected ExternalSensorSpec(Parcel in) {
-        // do nothing
-    }
 
     protected ExternalSensorSpec() {
         // do nothing
@@ -57,11 +51,6 @@ public abstract class ExternalSensorSpec implements Parcelable {
             }
         }
         return output;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        // do nothing
     }
 
     /**
@@ -166,10 +155,5 @@ public abstract class ExternalSensorSpec implements Parcelable {
      */
     public ExternalSensorSpec maybeAdjustBeforePairing(int numPairedBeforeAdded) {
         return this;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 }

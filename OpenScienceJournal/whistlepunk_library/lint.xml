@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Ignore the InvalidPackage issue in the given files -->
+    <issue id="InvalidPackage">
+        <ignore path="libs/jsyn.jar" />
+    </issue>
+</lint>

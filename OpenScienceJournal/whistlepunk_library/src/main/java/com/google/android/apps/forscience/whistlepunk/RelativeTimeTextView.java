@@ -15,15 +15,14 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.format.DateUtils;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.TextView;
 
 /**
  * TextView which takes a relative time parameter and updates itself every minute.
@@ -31,7 +30,7 @@ import android.widget.TextView;
  * To use, call {@link #setTime(long)}. If no time is set or the time is set to {@link #NOT_SET},
  * then this functions like a regular TextView.
  */
-public class RelativeTimeTextView extends TextView implements View.OnAttachStateChangeListener {
+public class RelativeTimeTextView extends AppCompatTextView implements View.OnAttachStateChangeListener {
 
     public static final long NOT_SET = -1;
 
@@ -57,13 +56,6 @@ public class RelativeTimeTextView extends TextView implements View.OnAttachState
 
     public RelativeTimeTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    @TargetApi(21)
-    public RelativeTimeTextView(Context context, AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
 

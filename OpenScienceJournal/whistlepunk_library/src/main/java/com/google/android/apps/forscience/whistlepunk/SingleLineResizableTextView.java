@@ -16,15 +16,12 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
-import android.widget.TextView;
 
 /**
  * TextView which resizes its text to fit on a single line.
@@ -35,7 +32,7 @@ import android.widget.TextView;
  * For example, resetTextSize should be used when this view is recycled and something
  * totally different should be displayed in it.
  */
-public class SingleLineResizableTextView extends TextView {
+public class SingleLineResizableTextView extends AppCompatTextView {
 
     private static final String TAG = "ResizableTextView";
 
@@ -57,13 +54,6 @@ public class SingleLineResizableTextView extends TextView {
 
     public SingleLineResizableTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    @TargetApi(21)
-    public SingleLineResizableTextView(Context context, AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
 
