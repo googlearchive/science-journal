@@ -38,7 +38,7 @@ message Trial {
     optional string title = 3;
 
     // Whether the experiment is currently archived.
-    optional bool archived = 4;
+    optional bool archived = 4 [default = false];
 
     // The range of the original recording.
     optional Range recordingRange = 5;
@@ -47,7 +47,7 @@ message Trial {
     optional Range cropRange = 6;
 
     // Whether auto-zoom is enabled.
-    optional bool autoZoomEnabled = 7;
+    optional bool autoZoomEnabled = 7 [default = true];
 
     // SensorLayouts associated with this trial.
     repeated SensorLayout sensorLayouts = 8;
@@ -64,14 +64,14 @@ message Trial {
  */
 message Range {
     // The start of a range.
-    optional int32 startMs = 1;
+    optional int64 startMs = 1;
 
     // The end of a range.
-    optional int32 endMs = 2;
+    optional int64 endMs = 2;
 };
 
 /*
- * Trial stats
+ * Trial stats for a single sensor. Each sensor may have multiple individual stats.
  */
 message SensorTrialStats {
     // The sensor ID associated with this stat
@@ -88,7 +88,7 @@ message SensorTrialStats {
 }
 
 /*
- * Stats for one sensor
+ * Represents a single stat, i.e. average = 42 or num_data_points = 17.
  */
 message SensorStat {
     enum StatType {
