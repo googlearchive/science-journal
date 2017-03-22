@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 
 /**
  * Activity to display static information about a sensor.
@@ -41,6 +42,11 @@ public class SensorInfoActivity extends AppCompatActivity {
         final String sensorId = getIntent().getStringExtra(EXTRA_SENSOR_ID);
         final int color = getIntent().getIntExtra(EXTRA_COLOR_ID, R.color.color_primary);
         setContentView(R.layout.activity_sensor_info);
+
+        WhistlePunkApplication.getUsageTracker(this)
+                              .trackEvent(TrackerConstants.CATEGORY_INFO,
+                                      TrackerConstants.ACTION_INFO,
+                                      TrackerConstants.getLoggingId(sensorId, this), 0);
 
         // TODO: Set the action bar and window status bar colors. Need to get the darker color
         // for the window status bar first (b/26827677)
@@ -87,6 +93,13 @@ public class SensorInfoActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        WhistlePunkApplication.getUsageTracker(this)
+                              .trackScreenView(TrackerConstants.SCREEN_SENSOR_INFO);
     }
 
     @Override

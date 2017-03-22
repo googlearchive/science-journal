@@ -16,6 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk.analytics;
 
+import android.content.Context;
+
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
@@ -45,6 +48,7 @@ public final class TrackerConstants {
     public static final String SCREEN_UPDATE_RUN = "run_update";
     public static final String SCREEN_TRIGGER_LIST = "trigger_list";
     public static final String SCREEN_TRIGGER_EDIT = "trigger_edit";
+    public static final String SCREEN_SENSOR_INFO = "sensor_info";
 
     // Custom dimension indices.
     public static final int DIMENSION_MODE = 1;
@@ -58,6 +62,7 @@ public final class TrackerConstants {
     public static final String CATEGORY_APP = "App";
     public static final String CATEGORY_TRIGGERS = "Triggers";
     public static final String CATEGORY_API = "API";
+    public static final String CATEGORY_INFO = "INFO";
 
     // Event actions
     public static final String ACTION_CREATE = "Create";
@@ -73,6 +78,7 @@ public final class TrackerConstants {
     public static final String ACTION_TRY_STOP_RECORDING_FROM_TRIGGER =
             "TryStopRecordingFromTrigger";
     public static final String ACTION_API_SCAN_TIMEOUT = "ApiScanTimeout";
+    public static final String ACTION_INFO = "Info";
 
     // Labels
     public static final String LABEL_RECORD = "record";
@@ -103,5 +109,9 @@ public final class TrackerConstants {
         } else {
             throw new IllegalArgumentException("Label type is not supported for logging.");
         }
+    }
+
+    public static String getLoggingId(String sensorId, Context context) {
+        return AppSingleton.getInstance(context).getSensorRegistry().getLoggingId(sensorId);
     }
 }

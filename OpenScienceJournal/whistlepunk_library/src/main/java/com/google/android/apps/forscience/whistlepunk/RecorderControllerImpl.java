@@ -620,7 +620,8 @@ public class RecorderControllerImpl implements RecorderController {
         // Record which sensors were recorded and information about their layouts.
         List<String> sensorLogs = new ArrayList<>();
         for (GoosciSensorLayout.SensorLayout layout : sensorLayouts) {
-            sensorLogs.add(getLayoutLoggingString(registry.getLoggingId(layout.sensorId), layout));
+            String loggingId = TrackerConstants.getLoggingId(layout.sensorId, context);
+            sensorLogs.add(getLayoutLoggingString(loggingId, layout));
         }
         WhistlePunkApplication.getUsageTracker(context)
                 .trackEvent(TrackerConstants.CATEGORY_RUNS,
