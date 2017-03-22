@@ -22,6 +22,7 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.util.HashMap;
@@ -74,6 +75,7 @@ public class Label implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        updateLabelProtoWithValues();
         parcel.writeInt(mLabel.getSerializedSize());
         parcel.writeByteArray(ProtoUtils.makeBlob(mLabel));
     }
@@ -88,6 +90,11 @@ public class Label implements Parcelable {
             return new Label[size];
         }
     };
+
+    public GoosciLabel.Label getLabelProto() {
+        updateLabelProtoWithValues();
+        return mLabel;
+    }
 
     public long getTimeStamp() {
         return mLabel.timestampMs;
@@ -136,5 +143,14 @@ public class Label implements Parcelable {
      */
     public void setLabelValue(LabelValue value) {
         mLabelValues.put(value.getValue().type, value);
+    }
+
+    private void updateLabelProtoWithValues() {
+        GoosciLabelValue.LabelValue[] result = new GoosciLabelValue.LabelValue[mLabelValues.size()];
+        int index = 0;
+        for (LabelValue value : mLabelValues.values()) {
+            result[index++] = value.getValue();
+        }
+        mLabel.values = result;
     }
 }

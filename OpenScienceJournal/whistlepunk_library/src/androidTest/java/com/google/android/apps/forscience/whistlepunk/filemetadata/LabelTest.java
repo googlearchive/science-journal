@@ -120,6 +120,7 @@ public class LabelTest extends AndroidTestCase {
 
         assertTrue(label.hasValueType(GoosciLabelValue.LabelValue.PICTURE));
         assertTrue(label.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER));
+        assertFalse(label.hasValueType(GoosciLabelValue.LabelValue.TEXT));
     }
 
     public void testOnlyOneOfEachType() {
@@ -152,8 +153,13 @@ public class LabelTest extends AndroidTestCase {
                 GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_DROPS_BELOW, "note",
                 7.5);
         SensorTriggerLabelValue.populateLabelValue(labelValue, trigger, "note");
-
         Label label = new Label(goosciLabel);
+
+        // Add a text note after the label has been created.
+        TextLabelValue textLabelValue = new TextLabelValue();
+        textLabelValue.setText("Text notes rock!");
+        label.setLabelValue(textLabelValue);
+
         Parcel parcel = Parcel.obtain();
         label.writeToParcel(parcel, 0);
 
@@ -161,5 +167,8 @@ public class LabelTest extends AndroidTestCase {
         Label result = Label.CREATOR.createFromParcel(parcel);
         assertEquals(result.getLabelValue(GoosciLabelValue.LabelValue.SENSOR_TRIGGER),
                 label.getLabelValue(GoosciLabelValue.LabelValue.SENSOR_TRIGGER));
+        assertTrue(result.hasValueType(GoosciLabelValue.LabelValue.TEXT));
+        assertEquals(((TextLabelValue) result.getLabelValue(GoosciLabelValue.LabelValue.TEXT))
+                .getText(), "Text notes rock!");
     }
 }
