@@ -101,6 +101,9 @@ public class ConnectableSensorRegistry {
                 new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
                     @Override
                     public void success(final ConnectableSensor sensor) {
+                        if (mPresenter.isDestroyed()) {
+                            return;
+                        }
                         getPairedGroup().replaceSensor(sensorKey, sensor);
                         mAppearanceProvider.loadAppearances(
                                 new LoggingConsumer<Success>(TAG, "Load appearance") {
@@ -124,6 +127,9 @@ public class ConnectableSensorRegistry {
                 new LoggingConsumer<List<InputDeviceSpec>>(TAG, "Load my devices") {
                     @Override
                     public void success(List<InputDeviceSpec> myDevices) {
+                        if (mPresenter.isDestroyed()) {
+                            return;
+                        }
                         onMyDevicesLoaded(myDevices, clearSensorCache, sr);
                     }
                 });
