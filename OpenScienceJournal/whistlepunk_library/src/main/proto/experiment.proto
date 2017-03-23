@@ -27,7 +27,8 @@ import "sensor_layout.proto";
 import "sensor_trigger.proto";
 
 /*
- * Experiment protobuf definition
+ * Experiment protobuf definition.
+ * Added in V2.
  */
 message Experiment {
     // The timestamp that this experiment was created.

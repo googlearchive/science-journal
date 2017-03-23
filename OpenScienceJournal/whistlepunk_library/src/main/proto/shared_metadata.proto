@@ -24,6 +24,7 @@ option optimize_for = LITE_RUNTIME;
 
 /*
  * Represents metadata shared across the whole Science Journal app.
+ * Added in V2.
  */
 message SharedMetadata {
     // TODO: b/36397730
