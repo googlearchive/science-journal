@@ -62,7 +62,7 @@ public class ChartController {
         int getGraphLoadStatus();
         void setGraphLoadStatus(int graphLoadStatus);
         String getRunId();
-        GoosciSensorLayout.SensorLayout getSensorLayout();
+        String getSensorId();
     }
 
     public interface ChartDataLoadedCallback {
@@ -574,14 +574,14 @@ public class ChartController {
                 status.setGraphLoadStatus(ChartLoadingStatus.GRAPH_LOAD_STATUS_IDLE);
 
                 if (!runId.equals(status.getRunId()) ||
-                        !sensorLayout.sensorId.equals(status.getSensorLayout().sensorId) ||
+                        !sensorLayout.sensorId.equals(status.getSensorId()) ||
                         !mCurrentLoadIds.contains(requestId)) {
                     // The wrong run or the wrong sensor ID was loaded into this
                     // chartController, or this is the wrong request ID.
                     // Clear and try again with the updated run and sensor values from the holder.
                     clearData();
                     tryLoadingChartData(status.getRunId(),
-                            status.getSensorLayout(), dc, firstTimestamp, lastTimestamp,
+                            sensorLayout, dc, firstTimestamp, lastTimestamp,
                             status, stats, fullChartLoadDataCallback);
                 } else {
                     mCurrentLoadIds.remove(requestId);

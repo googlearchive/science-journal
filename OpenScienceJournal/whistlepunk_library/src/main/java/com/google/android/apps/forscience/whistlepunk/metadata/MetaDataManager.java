@@ -261,4 +261,10 @@ public interface MetaDataManager {
      * Deletes the SensorTrigger from the database.
      */
     void deleteSensorTrigger(SensorTrigger trigger);
+
+    /**
+     * Updates the layouts for a run (usually to reflect any changes between starting to
+     * record and stopping.
+     */
+    void updateRunLayouts(String runId, List<GoosciSensorLayout.SensorLayout> layouts);
 }

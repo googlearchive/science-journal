@@ -55,8 +55,8 @@ import java.util.Set;
  */
 public class SimpleMetaDataManager implements MetaDataManager {
 
-    public static final int STABLE_EXPERIMENT_ID_LENGTH = 12;
-    public static final int STABLE_PROJECT_ID_LENGTH = 6;
+    private static final int STABLE_EXPERIMENT_ID_LENGTH = 12;
+    private static final int STABLE_PROJECT_ID_LENGTH = 6;
     private static final String TAG = "SimpleMetaDataManager";
 
     private DatabaseHelper mDbHelper;
@@ -438,12 +438,34 @@ public class SimpleMetaDataManager implements MetaDataManager {
             values.put(RunSensorsColumns.RUN_ID, runId);
             for (int i = 0; i < sensorLayouts.size(); i++) {
                 GoosciSensorLayout.SensorLayout layout = sensorLayouts.get(i);
-                values.put(RunSensorsColumns.SENSOR_ID, layout.sensorId);
-                values.put(RunSensorsColumns.LAYOUT, ProtoUtils.makeBlob(layout));
+                fillLayoutValues(values, layout);
                 values.put(RunSensorsColumns.POSITION, i);
                 db.insert(Tables.RUN_SENSORS, null, values);
             }
         }
+    }
+
+    @Override
+    public void updateRunLayouts(String runId,
+            List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            final ContentValues values = new ContentValues();
+            String where =
+                    RunSensorsColumns.RUN_ID + "=? AND " + RunSensorsColumns.POSITION + "=?";
+            String[] whereArgs = new String[2];
+            whereArgs[0] = runId;
+            for (int i = 0; i < sensorLayouts.size(); i++) {
+                fillLayoutValues(values, sensorLayouts.get(i));
+                whereArgs[1] = String.valueOf(i);
+                db.update(Tables.RUN_SENSORS, values, where, whereArgs);
+            }
+        }
+    }
+
+    private void fillLayoutValues(ContentValues values, GoosciSensorLayout.SensorLayout layout) {
+        values.put(RunSensorsColumns.SENSOR_ID, layout.sensorId);
+        values.put(RunSensorsColumns.LAYOUT, ProtoUtils.makeBlob(layout));
     }
 
     private void updateRunSensors(String runId,
@@ -710,7 +732,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
-    public static class LabelQuery {
+    private static class LabelQuery {
         public static String[] PROJECTION = new String[]{
                 LabelColumns.TYPE,
                 LabelColumns.TIMESTAMP,
@@ -933,7 +955,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
-    static class SensorQuery {
+    private static class SensorQuery {
         public static String[] PROJECTION = new String[]{
                 SensorColumns.SENSOR_ID,
                 SensorColumns.TYPE,
@@ -1854,12 +1876,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + MyDevicesColumns.DEVICE_ID + " TEXT NOT NULL, "
                     + "UNIQUE (" + MyDevicesColumns.DEVICE_ID + ") ON CONFLICT REPLACE)");
-        }
-
-        private void populateUpgradedRunsTable(SQLiteDatabase db) {
-            db.execSQL("INSERT INTO " + Tables.RUNS + " SELECT (" + LabelColumns.START_LABEL_ID +
-                    ") FROM " + Tables.LABELS + " WHERE " + LabelColumns.START_LABEL_ID +
-                    " = " + LabelColumns.LABEL_ID);
         }
     }
 

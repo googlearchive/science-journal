@@ -331,7 +331,8 @@ public class ExperimentDetailsFragment extends Fragment
             });
         }
         final DataController dc = getDataController();
-        dc.getExperimentRuns(experiment.getExperimentId(), mIncludeArchived,
+        boolean includeInvalidRuns = false;
+        dc.getExperimentRuns(experiment.getExperimentId(), mIncludeArchived, includeInvalidRuns,
                 new LoggingConsumer<List<ExperimentRun>>(TAG, "loading runs") {
                     @Override
                     public void success(final List<ExperimentRun> runs) {
@@ -1086,7 +1087,10 @@ public class ExperimentDetailsFragment extends Fragment
             }
 
             ViewCompat.setTransitionName(holder.itemView, run.getRunId());
-            if (run.getSensorTags().size() > 0) {
+            if (!run.isValidRun()) {
+                removeSensorData(holder);
+
+            } else if (run.getSensorTags().size() > 0) {
                 loadSensorData(applicationContext, holder, item);
                 holder.sensorNext.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -1100,12 +1104,13 @@ public class ExperimentDetailsFragment extends Fragment
                         GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
                         holder.cardView.setOnClickListener(createRunClickListener(
                                 item.getSensorTagIndex()));
-                        holder.setSensorLayout(layout);
+                        holder.setSensorId(layout.sensorId);
                     }
                 });
                 holder.sensorPrev.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        // TODO: reduce duplication with next listener above?
                         //Sometimes we tap the button before it can disable so return if the button
                         //should be disabled.
                         if (item.getSensorTagIndex() == 0)
@@ -1115,16 +1120,19 @@ public class ExperimentDetailsFragment extends Fragment
                         GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
                         holder.cardView.setOnClickListener(createRunClickListener(
                                 item.getSensorTagIndex()));
-                        holder.setSensorLayout(layout);
+                        holder.setSensorId(layout.sensorId);
                     }
                 });
 
             } else {
-                holder.sensorName.setText("");
-                holder.clearSensorLayout();
-                setIndeterminateSensorData(holder);
-
+                removeSensorData(holder);
             }
+        }
+
+        private void removeSensorData(ViewHolder holder) {
+            holder.sensorName.setText("");
+            holder.setSensorId(null);
+            setIndeterminateSensorData(holder);
         }
 
         private View.OnClickListener createRunClickListener(final int selectedSensorIndex) {
@@ -1212,7 +1220,7 @@ public class ExperimentDetailsFragment extends Fragment
                             final ChartController chartController = item.getChartController();
                             chartController.setChartView(holder.chartView);
                             chartController.setProgressView(holder.progressView);
-                            holder.setSensorLayout(sensorLayout);
+                            holder.setSensorId(sensorLayout.sensorId);
                             chartController.loadRunData(run, sensorLayout, dc, holder, stats,
                                     new ChartController.ChartDataLoadedCallback() {
                                         @Override
@@ -1285,7 +1293,7 @@ public class ExperimentDetailsFragment extends Fragment
             // Loads are done on a background thread, so as cards are scrolled or sensors are
             // updated we need to track what needs to be reloaded.
             private String mRunId;
-            private GoosciSensorLayout.SensorLayout mSensorLayout;
+            private String mSensorId;
 
             final int mViewType;
 
@@ -1344,12 +1352,8 @@ public class ExperimentDetailsFragment extends Fragment
                 this.mRunId = runId;
             }
 
-            public void setSensorLayout(GoosciSensorLayout.SensorLayout sensorLayout) {
-                this.mSensorLayout = sensorLayout;
-            }
-
-            public void clearSensorLayout() {
-                this.mSensorLayout.clear();
+            public void setSensorId(String sensorId) {
+                this.mSensorId = sensorId;
             }
 
             @Override
@@ -1368,8 +1372,8 @@ public class ExperimentDetailsFragment extends Fragment
             }
 
             @Override
-            public GoosciSensorLayout.SensorLayout getSensorLayout() {
-                return mSensorLayout;
+            public String getSensorId() {
+                return mSensorId;
             }
         }
 

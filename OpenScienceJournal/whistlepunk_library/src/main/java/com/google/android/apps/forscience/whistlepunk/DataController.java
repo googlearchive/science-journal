@@ -47,10 +47,11 @@ public interface DataController {
 
     void addLabel(Label label, MaybeConsumer<Label> onSuccess);
 
-    void startRun(Experiment experiment, MaybeConsumer<ApplicationLabel> onSuccess);
+    void startRun(Experiment experiment, List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+            MaybeConsumer<ApplicationLabel> onSuccess);
 
     void stopRun(Experiment experiment, String runId,
-            List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+            List<GoosciSensorLayout.SensorLayout> layouts,
             MaybeConsumer<ApplicationLabel> onSuccess);
 
     void updateRun(final Run run, MaybeConsumer<Success> onSuccess);
@@ -69,7 +70,7 @@ public interface DataController {
     void getExperimentRun(String startLabelId, MaybeConsumer<ExperimentRun> onSuccess);
 
     void getExperimentRuns(String experiment, boolean includeArchived,
-            MaybeConsumer<List<ExperimentRun>> onSuccess);
+            final boolean includeInvalid, MaybeConsumer<List<ExperimentRun>> onSuccess);
 
     void createProject(MaybeConsumer<Project> onSuccess);
 

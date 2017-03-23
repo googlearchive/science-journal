@@ -39,7 +39,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -520,8 +519,9 @@ public class ProjectDetailsFragment extends Fragment implements
             });
 
             // Start loading data for runs.
-            dc.getExperimentRuns(
-                    experiment.getExperimentId(), /* don't include archived runs */ false,
+            boolean includeInvalidRuns = false;
+            dc.getExperimentRuns(experiment.getExperimentId(), /* don't include archived runs */
+                    false, includeInvalidRuns,
                     new LoggingConsumer<List<ExperimentRun>>(TAG, "loading runs") {
 
                         @Override
