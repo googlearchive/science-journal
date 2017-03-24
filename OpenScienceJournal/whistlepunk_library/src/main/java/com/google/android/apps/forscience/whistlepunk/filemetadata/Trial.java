@@ -10,7 +10,9 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a recorded trial
@@ -18,6 +20,7 @@ import java.util.List;
 public class Trial {
     private GoosciTrial.Trial mTrial;
     private List<Label> mLabels;
+    private Map<String, TrialStats> mTrialStats;
 
     // TODO: Does a trial need to track the index and name of the experiment it is in for
     // user navigation? Probably we can track that elsewhere.
@@ -25,6 +28,7 @@ public class Trial {
     public Trial(GoosciTrial.Trial trial, List<Label> labels) {
         mTrial = trial;
         mLabels = labels;
+        mTrialStats = TrialStats.fromTrial(mTrial);
     }
 
     // When recording starts on a trial, this is the bare minimum of information needed to save it.
@@ -36,6 +40,7 @@ public class Trial {
         mTrial.sensorLayouts = sensorLayouts;
         mTrial.trialDataResourceId = dataResourceId;
         mLabels = new ArrayList<>();
+        mTrialStats = new HashMap<>();
     }
 
     public List<Label> getLabels() {
@@ -133,6 +138,7 @@ public class Trial {
     }
 
     public GoosciTrial.Trial getTrialProto() {
+        updateTrialProtoWithStats();
         return mTrial;
     }
 
@@ -148,14 +154,12 @@ public class Trial {
         mTrial.autoZoomEnabled = enableAutoZoom;
     }
 
-    // TODO: Should we move from RunStats to SensorTrialStats everywhere?
-    public GoosciTrial.SensorTrialStats[] getStats() {
-        return mTrial.trialStats;
+    public TrialStats getStatsForSensor(String sensorId) {
+        return mTrialStats.get(sensorId);
     }
 
-    // TODO: Should we move from RunStats to SensorTrialStats everywhere?
-    public void setStats(GoosciTrial.SensorTrialStats[] trialStats) {
-        mTrial.trialStats = trialStats;
+    public void setStats(TrialStats newTrialStats) {
+        mTrialStats.put(newTrialStats.getSensorId(), newTrialStats);
     }
 
     public String getDataResourceId() {
@@ -164,5 +168,15 @@ public class Trial {
 
     public void setDataResourceId(String resourceId) {
         mTrial.trialDataResourceId = resourceId;
+    }
+
+    private void updateTrialProtoWithStats() {
+        GoosciTrial.SensorTrialStats[] result =
+                new GoosciTrial.SensorTrialStats[mTrialStats.size()];
+        int i = 0;
+        for (String key : mTrialStats.keySet()) {
+            result[i++] = mTrialStats.get(key).getSensorTrialStatsProto();
+        }
+        mTrial.trialStats = result;
     }
 }

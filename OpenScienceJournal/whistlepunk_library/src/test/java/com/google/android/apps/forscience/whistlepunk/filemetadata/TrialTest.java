@@ -14,12 +14,16 @@ import org.junit.Test;
  */
 public class TrialTest {
 
-    @Test
-    public void testTimestamps() {
+    private Trial makeSimpleTrial(long startTime, String sensorId) {
         GoosciSensorLayout.SensorLayout[] layouts = new GoosciSensorLayout.SensorLayout[]{
                 new GoosciSensorLayout.SensorLayout()};
-        layouts[0].sensorId = "sensorId";
-        Trial trial = new Trial(1000, layouts, "filename");
+        layouts[0].sensorId =  sensorId;
+        return new Trial(startTime, layouts, "filename");
+    }
+
+    @Test
+    public void testTimestamps() {
+        Trial trial = makeSimpleTrial(1000, "sensorId");
         trial.setRecordingEndTime(2000);
 
         assertEquals(trial.getOriginalFirstTimestamp(), 1000);
@@ -32,10 +36,7 @@ public class TrialTest {
 
     @Test
     public void testTimestampsWithCrop() {
-        GoosciSensorLayout.SensorLayout[] layouts = new GoosciSensorLayout.SensorLayout[]{
-                new GoosciSensorLayout.SensorLayout()};
-        layouts[0].sensorId = "sensorId";
-        Trial trial = new Trial(1000, layouts, "filename");
+        Trial trial = makeSimpleTrial(1000, "sensorId");
         trial.setRecordingEndTime(4000);
 
         GoosciTrial.Range cropRange = new GoosciTrial.Range();
@@ -53,10 +54,7 @@ public class TrialTest {
 
     @Test
     public void testInvalidTrial() {
-        GoosciSensorLayout.SensorLayout[] layouts = new GoosciSensorLayout.SensorLayout[]{
-                new GoosciSensorLayout.SensorLayout()};
-        layouts[0].sensorId = "sensorId";
-        Trial trial = new Trial(1000, layouts, "filename");
+        Trial trial = makeSimpleTrial(1000, "sensorId");
         assertFalse(trial.isValid());
 
         trial.setRecordingEndTime(999);
@@ -70,11 +68,30 @@ public class TrialTest {
 
     @Test
     public void testGetSensorInfo() {
-        GoosciSensorLayout.SensorLayout[] layouts = new GoosciSensorLayout.SensorLayout[]{
-                new GoosciSensorLayout.SensorLayout()};
-        layouts[0].sensorId = "sensorId";
-        Trial trial = new Trial(1000, layouts, "filename");
+        Trial trial = makeSimpleTrial(1000, "sensorId");
         trial.setRecordingEndTime(2000);
         assertTrue(trial.getSensorTags().contains("sensorId"));
+    }
+
+    @Test
+    public void testStats() {
+        Trial trial = makeSimpleTrial(1000, "sensorId");
+        TrialStats stats = new TrialStats("sensorId");
+        stats.setStatStatus(GoosciTrial.SensorTrialStats.VALID);
+        stats.putStat(GoosciTrial.SensorStat.AVERAGE, 42);
+        trial.setStats(stats);
+
+        assertEquals(trial.getStatsForSensor("sensorId").getStatStatus(),
+                GoosciTrial.SensorTrialStats.VALID);
+
+        // Test replace works
+        TrialStats newStats = new TrialStats("sensorId");
+        newStats.setStatStatus(GoosciTrial.SensorTrialStats.NEEDS_UPDATE);
+        newStats.putStat(GoosciTrial.SensorStat.AVERAGE, 42);
+        trial.setStats(newStats);
+
+        assertEquals(trial.getStatsForSensor("sensorId").getStatStatus(),
+                GoosciTrial.SensorTrialStats.NEEDS_UPDATE);
+
     }
 }
