@@ -25,6 +25,7 @@ import "sensor_layout.proto";
 
 /*
  * Trial protobuf definition
+ * Added in V2.
  */
 message Trial {
     // Represents the ID of the trial data, which is stored separately.

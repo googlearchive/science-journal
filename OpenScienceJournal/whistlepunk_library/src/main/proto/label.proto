@@ -25,6 +25,7 @@ import "label_value.proto";
 
 /*
  * Label protobuf definition
+ * Added in V2.
  */
 message Label {
     // The time in ms since the epoch which represents this label in time.

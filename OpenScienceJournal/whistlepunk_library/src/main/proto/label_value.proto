@@ -21,6 +21,9 @@ option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
 option java_outer_classname = "GoosciLabelValue";
 option optimize_for = LITE_RUNTIME;
 
+/*
+ * The contents of a label, able to represent many different types of data.
+ */
 message LabelValue {
     // Data can be used to store a diverse set of label values. Each label type should have its
     // own set of keys into this map to store required information. For example, a text label might
