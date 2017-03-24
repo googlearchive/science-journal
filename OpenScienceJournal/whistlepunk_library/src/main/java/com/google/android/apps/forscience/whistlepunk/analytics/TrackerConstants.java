@@ -62,7 +62,8 @@ public final class TrackerConstants {
     public static final String CATEGORY_APP = "App";
     public static final String CATEGORY_TRIGGERS = "Triggers";
     public static final String CATEGORY_API = "API";
-    public static final String CATEGORY_INFO = "INFO";
+    public static final String CATEGORY_INFO = "Info";
+    public static final String CATEGORY_SENSOR_MANAGEMENT = "ManageSensors";
 
     // Event actions
     public static final String ACTION_CREATE = "Create";
@@ -79,6 +80,7 @@ public final class TrackerConstants {
             "TryStopRecordingFromTrigger";
     public static final String ACTION_API_SCAN_TIMEOUT = "ApiScanTimeout";
     public static final String ACTION_INFO = "Info";
+    public static final String ACTION_SCAN = "Scan";
 
     // Labels
     public static final String LABEL_RECORD = "record";

@@ -16,7 +16,6 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 import android.util.ArrayMap;
 
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -31,6 +30,8 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
@@ -77,6 +78,7 @@ public class ConnectableSensorRegistry {
     private DeviceOptionsDialog.DeviceOptionsListener mOptionsListener;
     private DeviceRegistry mDeviceRegistry;
     private final SensorAppearanceProvider mAppearanceProvider;
+    private UsageTracker mUsageTracker;
     private Runnable mTimeoutRunnable;
 
     // TODO: reduce parameter list?
@@ -84,7 +86,8 @@ public class ConnectableSensorRegistry {
             Map<String, ExternalSensorDiscoverer> discoverers, DevicesPresenter presenter,
             Scheduler scheduler, Clock clock,
             DeviceOptionsDialog.DeviceOptionsListener optionsListener,
-            DeviceRegistry deviceRegistry, SensorAppearanceProvider appearanceProvider) {
+            DeviceRegistry deviceRegistry, SensorAppearanceProvider appearanceProvider,
+            UsageTracker usageTracker) {
         mDataController = dataController;
         mDiscoverers = discoverers;
         mPresenter = presenter;
@@ -93,6 +96,7 @@ public class ConnectableSensorRegistry {
         mOptionsListener = optionsListener;
         mDeviceRegistry = deviceRegistry;
         mAppearanceProvider = appearanceProvider;
+        mUsageTracker = usageTracker;
     }
 
     public void pair(final String sensorKey) {
@@ -120,6 +124,7 @@ public class ConnectableSensorRegistry {
                 });
     }
 
+    // TODO: should SensorRegistry be a field?
     public void refresh(final boolean clearSensorCache, final SensorRegistry sr) {
         Preconditions.checkNotNull(sr);
         stopScanningInDiscoverers();
@@ -254,6 +259,10 @@ public class ConnectableSensorRegistry {
         ExternalSensorProvider provider = discoverer.getProvider();
         final String providerId = provider.getProviderId();
         pool.addTask(providerId);
+
+        mUsageTracker.trackEvent(TrackerConstants.CATEGORY_SENSOR_MANAGEMENT,
+                TrackerConstants.ACTION_SCAN, providerId, 0);
+
         ExternalSensorDiscoverer.ScanListener listener =
                 new ExternalSensorDiscoverer.ScanListener() {
                     @Override
