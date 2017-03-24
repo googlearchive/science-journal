@@ -26,18 +26,15 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -46,8 +43,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageButton;
 
@@ -117,28 +112,43 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     public interface UICallbacks {
         public UICallbacks NULL = new UICallbacks() {
             @Override
-            public void setupSpinnerAdapter(Experiment currentlySelectedExperiment, Project project,
-                    List<Experiment> experiments) {
+            public void onSelectedExperimentChanged(Experiment selectedExperiment,
+                    Project containingProject, List<Experiment> allExperimentsInProject) {
 
             }
 
             @Override
-            public void lockUiForRecording() {
+            public void onRecordingStart(String experimentName) {
 
             }
 
             @Override
-            public void setNotRecording() {
+            public void onRecordingStop() {
 
             }
         };
 
-        void setupSpinnerAdapter(Experiment currentlySelectedExperiment, Project project,
-                List<Experiment> experiments);
+        /**
+         * Called when an experiment is selected
+         *
+         * @param selectedExperiment the experiment that has been selected
+         * @param containingProject the project that contains that experiment
+         * @param allExperimentsInProject all of the experiments in the project, including the
+         *                                selected one.
+         */
+        void onSelectedExperimentChanged(Experiment selectedExperiment, Project containingProject,
+                List<Experiment> allExperimentsInProject);
 
-        void lockUiForRecording();
+        /**
+         * Called when recording starts
+         * @param experimentName the name of the experiment we're recording in.
+         */
+        void onRecordingStart(String experimentName);
 
-        void setNotRecording();
+        /**
+         * Called when recording stops
+         */
+        void onRecordingStop();
     }
 
     public interface CallbacksProvider {
@@ -423,7 +433,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
                             @Override
                             public void onRequestStartRecording() {
-                                lockUiForRecording((AppCompatActivity) getActivity());
+                                lockUiForRecording();
                             }
 
                             @Override
@@ -452,8 +462,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                     // By spec, newExperiments should always be non-zero
                                     onSelectedExperimentChanged(newExperiments.get(0), rc);
                                 }
-                                mUICallbacks.setupSpinnerAdapter(mSelectedExperiment, newProject,
-                                        newExperiments);
+                                mUICallbacks.onSelectedExperimentChanged(mSelectedExperiment,
+                                        newProject, newExperiments);
 
                                 // The recording UI shows the current experiment in the toolbar,
                                 // so it cannot be set up until experiments are loaded.
@@ -583,7 +593,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                         if (isRecording()) {
                             tryStopRecording(rc);
                         } else {
-                            lockUiForRecording((AppCompatActivity) getActivity());
+                            lockUiForRecording();
                             tryStartRecording(rc);
                         }
                     }
@@ -1185,22 +1195,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
     }
 
-    private void lockUiForRecording(AppCompatActivity activity) {
-        if (activity == null) {
-            return;
-        }
-        // Lock the toolbar spinner
-        ActionBar actionBar = activity.getSupportActionBar();
-        Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
-        activity.supportInvalidateOptionsMenu();
-        int toolbarColorResource = R.color.recording_toolbar_color;
-        int statusBarColorResource = R.color.recording_status_bar_color;
-        mUICallbacks.lockUiForRecording();
-        actionBar.setTitle(getExperimentName());
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setSubtitle(R.string.recording_title_label);
-        updateToolbarRecordingUi(activity, toolbar, toolbarColorResource,
-                statusBarColorResource);
+    private void lockUiForRecording() {
+        mUICallbacks.onRecordingStart(getExperimentName());
 
         // Lock the sensor cards and add button
         if (mSensorCardAdapter != null) {
@@ -1213,13 +1209,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             mRecordButton.setEnabled(true);
         }
 
-        AppCompatActivity activity = ((AppCompatActivity) getActivity());
-        if (activity == null || mSelectedExperiment == null) {
+        if (mSelectedExperiment == null) {
             return;
         }
 
         if (isRecording()) {
-            lockUiForRecording(activity);
+            lockUiForRecording();
             mAddButton.setContentDescription(
                     getResources().getString(R.string.btn_add_run_note_description));
             mRecordButton.setContentDescription(getResources().getString(
@@ -1227,16 +1222,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             mRecordButton.setImageDrawable(getResources().getDrawable(
                     R.drawable.ic_recording_stop_36dp));
         } else {
-            ActionBar actionBar = activity.getSupportActionBar();
-            Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
-            activity.supportInvalidateOptionsMenu();
-            int toolbarColorResource = R.color.color_primary;
-            int statusBarColorResource = R.color.color_primary_dark;
-            updateToolbarRecordingUi(activity, toolbar, toolbarColorResource,
-                    statusBarColorResource);
-            mUICallbacks.setNotRecording();
-            actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setSubtitle(null);
+            mUICallbacks.onRecordingStop();
             mAddButton.setContentDescription(
                     getResources().getString(R.string.btn_add_experiment_note_description));
             mRecordButton.setContentDescription(getResources().getString(
@@ -1246,23 +1232,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             if (mSensorCardAdapter != null) {
                 mSensorCardAdapter.setUiLockedForRecording(false);
             }
-        }
-    }
-
-    private void updateToolbarRecordingUi(Activity activity, Toolbar toolbar,
-            int toolbarColorResource, int statusBarColorResource) {
-        // Update the toolbar and status bar colors.
-        toolbar.setBackgroundResource(toolbarColorResource);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = activity.getWindow();
-            if (statusBarColorResource == R.color.color_primary_dark) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            } else {
-                // For any color that is not the default, need to clear this flag so that we can
-                // draw the right color.
-                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            }
-            window.setStatusBarColor(getResources().getColor(statusBarColorResource));
         }
     }
 

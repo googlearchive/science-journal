@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -35,6 +36,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
@@ -482,23 +485,23 @@ public class MainActivity extends AppCompatActivity
     public RecordFragment.UICallbacks getRecordFragmentCallbacks() {
         return new RecordFragment.UICallbacks() {
             @Override
-            public void setupSpinnerAdapter(Experiment currentlySelectedExperiment,
-                    final Project project, List<Experiment> experiments) {
+            public void onSelectedExperimentChanged(Experiment selectedExperiment,
+                    final Project containingProject, List<Experiment> allExperimentsInProject) {
                 // Load the experiments into the spinner adapter.
                 final ExperimentsSpinnerAdapter adapter =
                         new ExperimentsSpinnerAdapter(MainActivity.this,
-                                (ArrayList<Experiment>) experiments);
+                                (ArrayList<Experiment>) allExperimentsInProject);
                 mSpinner.setAdapter(adapter);
 
                 // Set selection before item selected listener to avoid initial event being fired.
-                setSpinnerSelectedExperiment(currentlySelectedExperiment);
+                setSpinnerSelectedExperiment(selectedExperiment);
 
                 mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position,
                             long id) {
                         if (adapter.isNewExperimentPlaceholder(position)) {
-                            getDataController().createExperiment(project,
+                            getDataController().createExperiment(containingProject,
                                     new LoggingConsumer<Experiment>(TAG,
                                             "Create a new experiment") {
                                         @Override
@@ -542,13 +545,47 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void lockUiForRecording() {
+            public void onRecordingStart(String experimentName) {
+                // Lock the toolbar spinner
+                ActionBar actionBar = getSupportActionBar();
+                supportInvalidateOptionsMenu();
+                int toolbarColorResource = R.color.recording_toolbar_color;
+                int statusBarColorResource = R.color.recording_status_bar_color;
                 mSpinner.setVisibility(View.GONE);
+                actionBar.setTitle(experimentName);
+                actionBar.setDisplayShowTitleEnabled(true);
+                actionBar.setSubtitle(R.string.recording_title_label);
+                updateToolbarColors(toolbarColorResource, statusBarColorResource);
             }
 
             @Override
-            public void setNotRecording() {
+            public void onRecordingStop() {
+                ActionBar actionBar = getSupportActionBar();
+                supportInvalidateOptionsMenu();
+                int toolbarColorResource = R.color.color_primary;
+                int statusBarColorResource = R.color.color_primary_dark;
+                updateToolbarColors(toolbarColorResource, statusBarColorResource);
                 mSpinner.setVisibility(View.VISIBLE);
+                actionBar.setDisplayShowTitleEnabled(false);
+                actionBar.setSubtitle(null);
+            }
+
+            private void updateToolbarColors(int toolbarColorResource, int statusBarColorResource) {
+                Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+                // Update the toolbar and status bar colors.
+                toolbar.setBackgroundResource(toolbarColorResource);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Window window = getWindow();
+                    if (statusBarColorResource == R.color.color_primary_dark) {
+                        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                    } else {
+                        // For any color that is not the default, need to clear this flag so that
+                        // we can draw the right color.
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                    }
+                    window.setStatusBarColor(getResources().getColor(statusBarColorResource));
+                }
             }
         };
     }
