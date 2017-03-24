@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents a recorded trial
+ * Represents a recorded trial.
+ * All changes should be made using the getters and setters provided, rather than by getting the
+ * underlying protocol buffer and making changes to that directly.
  */
 public class Trial {
     private GoosciTrial.Trial mTrial;

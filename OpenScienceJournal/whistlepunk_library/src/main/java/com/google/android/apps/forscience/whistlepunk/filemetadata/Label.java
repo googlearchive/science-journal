@@ -31,6 +31,8 @@ import java.util.Set;
 
 /**
  * A label, which is user- or app-generated metadata tagged with a particular timestamp.
+ * All changes should be made using the getters and setters provided, rather than by getting the
+ * underlying protocol buffer and making changes to that directly.
  */
 public class Label implements Parcelable {
     private static final String TAG = "Label";
