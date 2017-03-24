@@ -51,6 +51,7 @@ public class Label implements Parcelable {
     public Label(long timestampMs) {
         mLabel = new GoosciLabel.Label();
         mLabel.timestampMs = timestampMs;
+        mLabel.creationTimeMs = timestampMs;
         mLabelValues = new HashMap<>();
     }
 
@@ -102,6 +103,10 @@ public class Label implements Parcelable {
 
     public void setTimestamp(long timestampMs) {
         mLabel.timestampMs = timestampMs;
+    }
+
+    public long getCreationTimeMs() {
+        return mLabel.creationTimeMs;
     }
 
     public boolean canEditTimestamp() {
