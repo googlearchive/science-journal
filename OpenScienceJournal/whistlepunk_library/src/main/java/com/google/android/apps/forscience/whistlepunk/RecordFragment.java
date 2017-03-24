@@ -49,11 +49,7 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -74,7 +70,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
-import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
@@ -117,8 +112,38 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
 
-    public SensorRegistry mSensorRegistry;
+    public interface UICallbacks {
+        public UICallbacks NULL = new UICallbacks() {
+            @Override
+            public void setupSpinnerAdapter(Experiment currentlySelectedExperiment, Project project,
+                    List<Experiment> experiments) {
 
+            }
+
+            @Override
+            public void lockUiForRecording() {
+
+            }
+
+            @Override
+            public void setNotRecording() {
+
+            }
+        };
+
+        void setupSpinnerAdapter(Experiment currentlySelectedExperiment, Project project,
+                List<Experiment> experiments);
+
+        void lockUiForRecording();
+
+        void setNotRecording();
+    }
+
+    public interface CallbacksProvider {
+        UICallbacks getRecordFragmentCallbacks();
+    }
+    private UICallbacks mUICallbacks = UICallbacks.NULL;
+    private SensorRegistry mSensorRegistry;
     private Snackbar mVisibleSnackbar;
 
     /**
@@ -138,7 +163,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     private LinearLayoutManager mSensorCardLayoutManager;
     private RecyclerView mSensorCardRecyclerView;
     private SensorCardAdapter mSensorCardAdapter;
-    private Spinner mSpinner;
     private ExternalAxisController mExternalAxis;
     private ViewTreeObserver.OnGlobalLayoutListener mRecyclerViewGlobalLayoutListener;
     private View mBottomPanel;
@@ -170,6 +194,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     public static RecordFragment newInstance() {
         return new RecordFragment();
+    }
+
+    @Override
+    public void onDetach() {
+        mUICallbacks = UICallbacks.NULL;
+        super.onDetach();
     }
 
     @Override
@@ -421,7 +451,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                     // By spec, newExperiments should always be non-zero
                                     onSelectedExperimentChanged(newExperiments.get(0), rc);
                                 }
-                                setupSpinnerAdapter(newProject, newExperiments);
+                                mUICallbacks.setupSpinnerAdapter(mSelectedExperiment, newProject,
+                                        newExperiments);
 
                                 // The recording UI shows the current experiment in the toolbar,
                                 // so it cannot be set up until experiments are loaded.
@@ -551,7 +582,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             }
         });
 
-        mSpinner = (Spinner) getActivity().findViewById(R.id.spinner_nav);
         mBottomPanel = rootView.findViewById(R.id.bottom_panel);
 
         mGraphOptionsController.loadIntoScalarDisplayOptions(mScalarDisplayOptions, getView());
@@ -575,50 +605,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 }
             }
         }
-    }
-
-    private void setupSpinnerAdapter(final Project project, List<Experiment> experiments) {
-        // If the activity has been killed, ignore this and just return.
-        if (this.getActivity() == null) {
-            return;
-        }
-
-        // Load the experiments into the spinner adapter.
-        final ExperimentsSpinnerAdapter adapter = new ExperimentsSpinnerAdapter(
-                this.getActivity(), (ArrayList<Experiment>) experiments);
-        mSpinner.setAdapter(adapter);
-
-        // Set selection before item selected listener to avoid initial event being fired.
-        setSpinnerSelectedExperiment(mSelectedExperiment);
-
-        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (adapter.isNewExperimentPlaceholder(position)) {
-                    getDataController().createExperiment(project,
-                            new LoggingConsumer<Experiment>(TAG, "Create a new experiment") {
-                                @Override
-                                public void success(final Experiment experiment) {
-                                    UpdateExperimentActivity.launch(getActivity(),
-                                            experiment.getExperimentId(), true /* is new */,
-                                            getActivity().getComponentName());
-                                }
-                            });
-                } else {
-                    userChangedSelectedExperiment((Experiment) mSpinner.getItemAtPosition(position));
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                userChangedSelectedExperiment((Experiment) mSpinner.getItemAtPosition(0));
-            }
-        });
-
-    }
-
-    private void userChangedSelectedExperiment(Experiment experiment) {
-        getMetadataController().changeSelectedExperiment(experiment);
     }
 
     private MetadataController getMetadataController() {
@@ -745,21 +731,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         layout.audioEnabled = DEFAULT_AUDIO_ENABLED;
         layout.showStatsOverlay = DEFAULT_SHOW_STATS_OVERLAY;
         return layout;
-    }
-
-    private void setSpinnerSelectedExperiment(Experiment experiment) {
-        int selectIndex = 0;
-        ExperimentsSpinnerAdapter adapter = (ExperimentsSpinnerAdapter) mSpinner.getAdapter();
-        final int count = adapter.getCount();
-        for (int i = 0; i < count; i++) {
-            if (adapter.getItem(i) != null) {
-                String adapterExperimentId = adapter.getItem(i).getExperimentId();
-                if (adapterExperimentId.equals(experiment.getExperimentId())) {
-                    selectIndex = i;
-                }
-            }
-        }
-        mSpinner.setSelection(selectIndex);
     }
 
     // TODO: can all of this logic live in a separate, testable class?
@@ -1176,8 +1147,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         super.onAttach(activity);
 
         mGraphOptionsController = new GraphOptionsController(activity);
-
         mSensorSettingsController = new SensorSettingsControllerImpl(activity);
+        mUICallbacks = ((CallbacksProvider) activity).getRecordFragmentCallbacks();
     }
 
     private void onRecordingMetadataUpdated() {
@@ -1217,7 +1188,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         activity.supportInvalidateOptionsMenu();
         int toolbarColorResource = R.color.recording_toolbar_color;
         int statusBarColorResource = R.color.recording_status_bar_color;
-        mSpinner.setVisibility(View.GONE);
+        mUICallbacks.lockUiForRecording();
         actionBar.setTitle(getExperimentName());
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setSubtitle(R.string.recording_title_label);
@@ -1256,7 +1227,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             int statusBarColorResource = R.color.color_primary_dark;
             updateToolbarRecordingUi(activity, toolbar, toolbarColorResource,
                     statusBarColorResource);
-            mSpinner.setVisibility(View.VISIBLE);
+            mUICallbacks.setNotRecording();
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setSubtitle(null);
             mAddButton.setContentDescription(
@@ -1751,46 +1722,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             }
         }
         return null;
-    }
-
-    private static class ExperimentsSpinnerAdapter extends ArrayAdapter<Experiment> {
-
-        public ExperimentsSpinnerAdapter(Context context, ArrayList<Experiment> experiments) {
-            super(context, R.layout.experiment_spinner_item, new ArrayList<>(experiments));
-            // Add a "new experiment" placeholder which is null.
-            add(null);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            return getSpinnerView(position, convertView, parent, R.layout.experiment_spinner_item);
-        }
-
-        @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            return getSpinnerView(position, convertView, parent,
-                    R.layout.experiment_spinner_dropdown_item);
-        }
-
-        private View getSpinnerView(int position, View convertView, ViewGroup parent,
-                int resource) {
-            Experiment experiment = getItem(position);
-            if (convertView == null) {
-                convertView = LayoutInflater.from(parent.getContext()).inflate(resource, null);
-            }
-            TextView textView = (TextView) convertView.findViewById(R.id.experiment_title);
-            if (isNewExperimentPlaceholder(position)) {
-                textView.setText(R.string.new_experiment_spinner_item);
-            } else {
-                textView.setText(experiment.getDisplayTitle(parent.getContext()));
-            }
-            return convertView;
-        }
-
-        public boolean isNewExperimentPlaceholder(int position) {
-            return getItem(position) == null;
-        }
-
     }
 
     private void showSnackbar(Snackbar bar) {
