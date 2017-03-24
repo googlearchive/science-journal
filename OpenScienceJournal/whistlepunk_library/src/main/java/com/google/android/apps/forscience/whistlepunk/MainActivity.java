@@ -35,6 +35,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Spinner;
 
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -42,13 +43,19 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.intro.TutorialActivity;
+import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.project.ProjectTabsFragment;
+import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-
+        implements NavigationView.OnNavigationItemSelectedListener,
+        RecordFragment.CallbacksProvider {
     private static final String TAG = "MainActivity";
     public static final String ARG_SELECTED_NAV_ITEM_ID = "selected_nav_item_id";
     public static final int PERMISSIONS_AUDIO_RECORD_REQUEST = 1;
@@ -422,9 +429,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[],
-                                           int[] grantResults) {
+            int[] grantResults) {
         final boolean granted = grantResults.length > 0 &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                                grantResults[0] == PackageManager.PERMISSION_GRANTED;
         switch (requestCode) {
             case PERMISSIONS_AUDIO_RECORD_REQUEST:
                 AppSingleton.getInstance(this).withRecorderController(TAG,
@@ -469,5 +476,88 @@ public class MainActivity extends AppCompatActivity
         if (fragment != null) {
             fragment.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    public RecordFragment.UICallbacks getRecordFragmentCallbacks() {
+        return new RecordFragment.UICallbacks() {
+            @Override
+            public void setupSpinnerAdapter(Experiment currentlySelectedExperiment,
+                    final Project project, List<Experiment> experiments) {
+                // Load the experiments into the spinner adapter.
+                final ExperimentsSpinnerAdapter adapter =
+                        new ExperimentsSpinnerAdapter(MainActivity.this,
+                                (ArrayList<Experiment>) experiments);
+                mSpinner.setAdapter(adapter);
+
+                // Set selection before item selected listener to avoid initial event being fired.
+                setSpinnerSelectedExperiment(currentlySelectedExperiment);
+
+                mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position,
+                            long id) {
+                        if (adapter.isNewExperimentPlaceholder(position)) {
+                            getDataController().createExperiment(project,
+                                    new LoggingConsumer<Experiment>(TAG,
+                                            "Create a new experiment") {
+                                        @Override
+                                        public void success(final Experiment experiment) {
+                                            UpdateExperimentActivity.launch(MainActivity.this,
+                                                    experiment.getExperimentId(), true /* is new */,
+                                                    getComponentName());
+                                        }
+                                    });
+                        } else {
+                            userChangedSelectedExperiment(
+                                    (Experiment) mSpinner.getItemAtPosition(position));
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        userChangedSelectedExperiment((Experiment) mSpinner.getItemAtPosition(0));
+                    }
+
+                    private void userChangedSelectedExperiment(Experiment experiment) {
+                        getMetadataController().changeSelectedExperiment(experiment);
+                    }
+                });
+            }
+
+            private void setSpinnerSelectedExperiment(Experiment experiment) {
+                int selectIndex = 0;
+                ExperimentsSpinnerAdapter adapter =
+                        (ExperimentsSpinnerAdapter) mSpinner.getAdapter();
+                final int count = adapter.getCount();
+                for (int i = 0; i < count; i++) {
+                    if (adapter.getItem(i) != null) {
+                        String adapterExperimentId = adapter.getItem(i).getExperimentId();
+                        if (adapterExperimentId.equals(experiment.getExperimentId())) {
+                            selectIndex = i;
+                        }
+                    }
+                }
+                mSpinner.setSelection(selectIndex);
+            }
+
+            @Override
+            public void lockUiForRecording() {
+                mSpinner.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void setNotRecording() {
+                mSpinner.setVisibility(View.VISIBLE);
+            }
+        };
+    }
+
+    private MetadataController getMetadataController() {
+        return AppSingleton.getInstance(this).getMetadataController();
+    }
+
+    private DataController getDataController() {
+        return AppSingleton.getInstance(this).getDataController();
     }
 }
