@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.ArrayMap;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
@@ -31,6 +32,7 @@ import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Handles which project and experiment are currently loaded and selected.
@@ -41,7 +43,7 @@ public class MetadataController {
     private FailureListenerFactory mListenerFactory;
     private Experiment mSelectedExperiment = null;
     private Project mSelectedProject = null;
-    private MetadataChangeListener mExperimentChangeListener;
+    private Map<String, MetadataChangeListener> mExperimentChangeListeners = new ArrayMap<>();
 
     public MetadataController(DataController dataController,
             FailureListenerFactory listenerFactory) {
@@ -72,18 +74,22 @@ public class MetadataController {
      * Update the internally stored selected experiment, and commit it to the database.  This does
      * _not_ call out to the listener, for that, use changeSelectedExperiment
      */
-    void internalSetSelectedExperiment(Experiment experiment) {
+    private void internalSetSelectedExperiment(Experiment experiment) {
         mSelectedExperiment = experiment;
         updateLastExperimentPreferences(mSelectedExperiment);
     }
 
     /**
-     * This sets the listener which is called when the experiment or project are updated. In doing
+     * This adds a listener which is called when the experiment or project are updated. In doing
      * so, it clears the selected experiment and then asks the database for the most up-to-date
      * selected experiment and project.
+     *
+     * @param listenerKey if a previous listener has been added with the same key, it will be
+     *                    overridden by this new value.  This must also be the key passed to
+     *                    {@link #removeExperimentChangeListener(String)}.
      */
-    public void setExperimentChangeListener(MetadataChangeListener listener) {
-        mExperimentChangeListener = listener;
+    public void addExperimentChangeListener(String listenerKey, MetadataChangeListener listener) {
+        mExperimentChangeListeners.put(listenerKey, listener);
         mSelectedExperiment = null;
         getDataController().getLastUsedProject(
                 doOrReportFailure("Loading last used project", new Consumer<Project>() {
@@ -99,7 +105,7 @@ public class MetadataController {
                 }));
     }
 
-    void loadExperiments(final Project project) {
+    private void loadExperiments(final Project project) {
         Preconditions.checkNotNull(project);
         getDataController().getExperimentsForProject(project,
                 false /* no archived */,
@@ -115,17 +121,17 @@ public class MetadataController {
                 }));
     }
 
-    void setMetadata(List<Experiment> experiments, Project project) {
+    private void setMetadata(List<Experiment> experiments, Project project) {
         mSelectedProject = project;
         // We retrieve the experiments in last used order.
         internalSetSelectedExperiment(experiments.get(0));
-        if (mExperimentChangeListener != null) {
-            mExperimentChangeListener.onMetadataChanged(
-                    project, new ArrayList<Experiment>(experiments));
+        ArrayList<Experiment> experimentsCopy = new ArrayList<>(experiments);
+        for (MetadataChangeListener listener : mExperimentChangeListeners.values()) {
+            listener.onMetadataChanged(project, experimentsCopy);
         }
     }
 
-    void createDefaultProjectAndExperiment() {
+    private void createDefaultProjectAndExperiment() {
         getDataController().createProject(
                 doOrReportFailure("Creating default project", new Consumer<Project>() {
                     @Override
@@ -135,7 +141,7 @@ public class MetadataController {
                 }));
     }
 
-    void createExperimentInProject(final Project project) {
+    private void createExperimentInProject(final Project project) {
         getDataController().createExperiment(project,
                 doOrReportFailure("Creating default experiment", new Consumer<Experiment>() {
                     @Override
@@ -148,7 +154,7 @@ public class MetadataController {
                 }));
     }
 
-    void updateLastExperimentPreferences(final Experiment experiment) {
+    private void updateLastExperimentPreferences(final Experiment experiment) {
         getDataController().updateLastUsedExperiment(experiment,
                 LoggingConsumer.<Success>expectSuccess(TAG,
                         "Update last used experiment preference"));
@@ -158,15 +164,19 @@ public class MetadataController {
         return mDataController;
     }
 
-    public void clearExperimentChangeListener() {
-        mExperimentChangeListener = null;
+    /**
+     * @param listenerKey must be the same value used in
+     * {@link #addExperimentChangeListener(String, MetadataChangeListener)}
+     */
+    public void removeExperimentChangeListener(String listenerKey) {
+        mExperimentChangeListeners.remove(listenerKey);
     }
 
     /**
      * Returns a MaybeConsumer that either passes a successful value to {@onSuccess}, or reports
      * a failre to {@code mListenerFactory}, tagged with the operation string {@code operation}.
      */
-    <T> MaybeConsumer<T> doOrReportFailure(String operation, Consumer<T> onSuccess) {
+    private <T> MaybeConsumer<T> doOrReportFailure(String operation, Consumer<T> onSuccess) {
         return MaybeConsumers.chainFailure(mListenerFactory.makeListenerForOperation(operation),
                 onSuccess);
     }

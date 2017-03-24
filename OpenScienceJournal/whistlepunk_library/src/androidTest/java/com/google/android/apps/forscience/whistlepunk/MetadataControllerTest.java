@@ -41,9 +41,11 @@ public class MetadataControllerTest extends AndroidTestCase {
         String e1id = e1.getExperimentId();
         String e2id = e2.getExperimentId();
 
+        String listenerKey = "key";
+
         listener.expectedProjectId = p.getProjectId();
         listener.expectedExperimentIds = Arrays.asList(e2id, e1id);
-        mc.setExperimentChangeListener(listener);
+        mc.addExperimentChangeListener(listenerKey, listener);
         listener.assertListenerCalled(1);
 
         // e1 is now first in the list
@@ -51,11 +53,11 @@ public class MetadataControllerTest extends AndroidTestCase {
         mc.changeSelectedExperiment(e1);
         listener.assertListenerCalled(1);
 
-        mc.clearExperimentChangeListener();
+        mc.removeExperimentChangeListener(listenerKey);
 
         listener.expectedProjectId = p.getProjectId();
         listener.expectedExperimentIds = Arrays.asList(e1id, e2id);
-        mc.setExperimentChangeListener(listener);
+        mc.addExperimentChangeListener(listenerKey, listener);
         listener.assertListenerCalled(1);
     }
 
@@ -75,7 +77,7 @@ public class MetadataControllerTest extends AndroidTestCase {
 
         listener.expectedProjectId = p.getProjectId();
         listener.expectedExperimentIds = Arrays.asList(e2id, e1id);
-        mc.setExperimentChangeListener(listener);
+        mc.addExperimentChangeListener("listenerKey", listener);
         assertEquals(e2.getTitle(), mc.getExperimentName(getContext()));
     }
 
