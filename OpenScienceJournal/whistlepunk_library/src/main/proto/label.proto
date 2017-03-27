@@ -35,4 +35,7 @@ message Label {
 
     // The contents of the label.
     repeated LabelValue values = 2;
+
+    // The time that the label was created. This is not editable.
+    optional int64 creationTimeMs = 3;
 }
