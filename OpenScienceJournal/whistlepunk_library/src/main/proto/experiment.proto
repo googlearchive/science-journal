@@ -32,7 +32,7 @@ import "sensor_trigger.proto";
  */
 message Experiment {
     // The timestamp that this experiment was created.
-    optional int32 creationTimeMs = 1;
+    optional int64 creationTimeMs = 1;
 
     // The user-entered title of this experiment.
     optional string title = 2;
