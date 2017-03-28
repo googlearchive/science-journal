@@ -26,6 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
 import java.util.HashMap;
@@ -127,7 +128,7 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public void setCurrentSensorLayouts(List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+    public void setLayoutSupplier(Supplier<List<GoosciSensorLayout.SensorLayout>> supplier) {
 
     }
 

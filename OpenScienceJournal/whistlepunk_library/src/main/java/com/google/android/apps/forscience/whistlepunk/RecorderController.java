@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
+import com.google.common.base.Supplier;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -166,9 +167,13 @@ public interface RecorderController extends SensorRegistryListener {
 
     void setSelectedExperiment(Experiment experiment);
 
-    void setCurrentSensorLayouts(final List<GoosciSensorLayout.SensorLayout> sensorLayouts);
-
     void setRecordActivityInForeground(boolean isInForeground);
 
     void clearSensorTriggers(String sensorId);
+
+    /**
+     * @param supplier can be called to get the current sensor layouts, for
+     *                 saving or storing with a trial.
+     */
+    void setLayoutSupplier(Supplier<List<GoosciSensorLayout.SensorLayout>> supplier);
 }
