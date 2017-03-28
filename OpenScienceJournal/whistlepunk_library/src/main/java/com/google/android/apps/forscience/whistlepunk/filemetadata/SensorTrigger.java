@@ -81,6 +81,7 @@ public class SensorTrigger {
     }
 
     public SensorTrigger(String sensorId, long lastUsed, TriggerInformation triggerInformation) {
+        mTriggerProto = new GoosciSensorTrigger.SensorTrigger();
         mTriggerProto.triggerInformation = triggerInformation;
         mTriggerProto.sensorId = sensorId;
         setLastUsed(lastUsed);
@@ -140,7 +141,7 @@ public class SensorTrigger {
     // Unless re-creating a SensorTrigger from the DB, nothing should call setLastUsed with a
     // timestamp except the updateLastUsed function.
     @VisibleForTesting
-    void setLastUsed(long lastUsed) {
+    public void setLastUsed(long lastUsed) {
         mTriggerProto.lastUsedMs = lastUsed;
     }
 

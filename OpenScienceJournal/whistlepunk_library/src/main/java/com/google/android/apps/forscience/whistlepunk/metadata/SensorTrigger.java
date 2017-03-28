@@ -17,16 +17,11 @@
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
 
-import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
-
-import com.google.common.primitives.Ints;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.Objects;
 
@@ -37,74 +32,56 @@ public class SensorTrigger {
     private static final String TAG = "SensorTrigger";
 
     private static final String KEY_TRIGGER_ID = "trigger_id";
-    private static final String KEY_SENSOR_ID = "sensor_id";
-    private static final String KEY_LAST_USED = "last_used";
-    private static final String KEY_TRIGGER_INFO = "trigger_info";
+    private static final String KEY_SENSOR_TRIGGER = "sensor_trigger";
 
-    // When comparing double values from sensors, use this epsilon.
-    // TODO: This could be passed in per-sensor as part of the API.
-    private static final Double EPSILON = .00001;
-
-    private TriggerInformation mTriggerInfo;
+    private com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
+            mSensorTrigger;
 
     // The trigger ID is a unique ID for this trigger only. It tends to be the time that this
     // trigger was initially created.
     private final String mTriggerId;
 
-    // The sensor ID is not mutatable.
-    private final String mSensorId;
-
-    // The time at which this trigger was last used. This is updated with any setters to the
-    // trigger, but it is the responsibility of the client to update the database.
-    private long mLastUsed;
-
-    // Used to determine when the trigger is triggered.
-    private Double mOldValue;
-    private boolean mIsInitialized = false;
-
     // Short cut to create an alert type SensorTrigger.
     public static SensorTrigger newAlertTypeTrigger(String triggerId, String sensorId,
             int triggerWhen, int[] alertTypes, double triggerValue) {
-        SensorTrigger result = new SensorTrigger(triggerId, sensorId, triggerWhen,
-                TriggerInformation.TRIGGER_ACTION_ALERT,
-                triggerValue);
-        result.setAlertTypes(alertTypes);
-        return result;
+        return new SensorTrigger(triggerId,
+                com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
+                        .newAlertTypeTrigger(sensorId, triggerWhen, alertTypes, triggerValue));
     }
 
     // Short cut to create a Note type SensorTrigger.
     public static SensorTrigger newNoteTypeTrigger(String triggerId, String sensorId,
             int triggerWhen, String noteText, double triggerValue) {
-        SensorTrigger result = new SensorTrigger(triggerId, sensorId, triggerWhen,
-                TriggerInformation.TRIGGER_ACTION_NOTE,
-                triggerValue);
-        result.setNoteText(noteText);
-        return result;
+        return new SensorTrigger(triggerId,
+                com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
+                        .newNoteTypeTrigger(sensorId, triggerWhen, noteText, triggerValue));
     }
 
     // Creates a SensorTrigger from scratch, assuming the time it was last used is just now,
     // when it is created.
     public SensorTrigger(String triggerId, String sensorId, int triggerWhen, int actionType,
             double triggerValue) {
-        mTriggerInfo = new TriggerInformation();
-        mTriggerInfo.triggerWhen = triggerWhen;
-        mTriggerInfo.triggerActionType = actionType;
-        mTriggerInfo.valueToTrigger = triggerValue;
-        mSensorId = sensorId;
         mTriggerId = triggerId;
-        updateLastUsed();
+        mSensorTrigger = new com.google.android.apps.forscience.whistlepunk.filemetadata
+                .SensorTrigger(sensorId, triggerWhen, actionType, triggerValue);
     }
 
     public SensorTrigger(String triggerId, String sensorId, long lastUsed,
             TriggerInformation triggerInformation) {
-        mTriggerInfo = triggerInformation;
-        mSensorId = sensorId;
+        mSensorTrigger = new com.google.android.apps.forscience.whistlepunk.filemetadata
+                .SensorTrigger(sensorId, lastUsed, triggerInformation);
         mTriggerId = triggerId;
-        setLastUsed(lastUsed);
     }
 
+    private SensorTrigger(String triggerId,
+            com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger trigger) {
+        mSensorTrigger = trigger;
+        mTriggerId = triggerId;
+    }
+
+
     public TriggerInformation getTriggerInformation() {
-        return mTriggerInfo;
+        return mSensorTrigger.getTriggerProto().triggerInformation;
     }
 
     public String getTriggerId() {
@@ -112,51 +89,42 @@ public class SensorTrigger {
     }
 
     public String getSensorId() {
-        return mSensorId;
+        return mSensorTrigger.getSensorId();
     }
 
     public Double getValueToTrigger() {
-        return mTriggerInfo.valueToTrigger;
+        return mSensorTrigger.getValueToTrigger();
     }
 
     public void setValueToTrigger(double valueToTrigger) {
-        mTriggerInfo.valueToTrigger = valueToTrigger;
+        mSensorTrigger.setValueToTrigger(valueToTrigger);
     }
 
     public int getTriggerWhen() {
-        return mTriggerInfo.triggerWhen;
+        return mSensorTrigger.getTriggerWhen();
     }
 
     public void setTriggerWhen(int triggerWhen) {
-        mTriggerInfo.triggerWhen = triggerWhen;
+        mSensorTrigger.setTriggerWhen(triggerWhen);
     }
 
     public int getActionType() {
-        return mTriggerInfo.triggerActionType;
+        return mSensorTrigger.getActionType();
     }
 
     public void setTriggerActionType(int actionType) {
-        if (mTriggerInfo.triggerActionType == actionType) {
-            return;
-        }
-        // Clear old metadata to defaults when the new trigger is set.
-        if (mTriggerInfo.triggerActionType == TriggerInformation.TRIGGER_ACTION_NOTE) {
-            mTriggerInfo.noteText = "";
-        } else if (mTriggerInfo.triggerActionType == TriggerInformation.TRIGGER_ACTION_ALERT) {
-            mTriggerInfo.triggerAlertTypes = new int[]{};
-        }
-        mTriggerInfo.triggerActionType = actionType;
+        mSensorTrigger.setTriggerActionType(actionType);
     }
 
     public long getLastUsed() {
-        return mLastUsed;
+        return mSensorTrigger.getLastUsed();
     }
 
     // Unless re-creating a SensorTrigger from the DB, nothing should call setLastUsed with a
     // timestamp except the updateLastUsed function.
     @VisibleForTesting
     void setLastUsed(long lastUsed) {
-        mLastUsed = lastUsed;
+        mSensorTrigger.setLastUsed(lastUsed);
     }
 
     // This can be called any time a trigger is "used", i.e. when the trigger is used in a card, or
@@ -166,48 +134,7 @@ public class SensorTrigger {
     }
 
     public boolean isTriggered(double newValue) {
-        boolean result = false;
-        if (!mIsInitialized) {
-            mIsInitialized = true;
-            result = false;
-        } else {
-            if (mTriggerInfo.triggerWhen == TriggerInformation.TRIGGER_WHEN_AT) {
-                // Not just an equality check: also test to see if the threshold was crossed in
-                // either direction.
-                result = doubleEquals(newValue, mTriggerInfo.valueToTrigger) ||
-                        crossedThreshold(newValue, mOldValue);
-            } else if (mTriggerInfo.triggerWhen == TriggerInformation.TRIGGER_WHEN_DROPS_BELOW) {
-                result = droppedBelow(newValue, mOldValue);
-            } else if (mTriggerInfo.triggerWhen == TriggerInformation.TRIGGER_WHEN_RISES_ABOVE) {
-                result = roseAbove(newValue, mOldValue);
-            } else if (mTriggerInfo.triggerWhen == TriggerInformation.TRIGGER_WHEN_BELOW) {
-                return newValue < mTriggerInfo.valueToTrigger;
-            } else if (mTriggerInfo.triggerWhen == TriggerInformation.TRIGGER_WHEN_ABOVE) {
-                return newValue > mTriggerInfo.valueToTrigger;
-            }
-        }
-        mOldValue = newValue;
-        // The last used time may be the last time it was used in a card.
-        updateLastUsed();
-        return result;
-    }
-
-    private boolean doubleEquals(double first, double second) {
-        return Math.abs(first - second) < EPSILON;
-    }
-
-    private boolean droppedBelow(double newValue, double oldValue) {
-        return newValue < mTriggerInfo.valueToTrigger &&
-                oldValue >= mTriggerInfo.valueToTrigger;
-    }
-
-    private boolean roseAbove(double newValue, double oldValue) {
-        return newValue > mTriggerInfo.valueToTrigger && oldValue <= mTriggerInfo.valueToTrigger;
-    }
-
-    private boolean crossedThreshold(double newValue, double oldValue) {
-        return (newValue < mTriggerInfo.valueToTrigger && oldValue > mTriggerInfo.valueToTrigger) ||
-                (newValue > mTriggerInfo.valueToTrigger && oldValue < mTriggerInfo.valueToTrigger);
+        return mSensorTrigger.isTriggered(newValue);
     }
 
     // Returns true if the other SensorTrigger is the same as this one, ignoring the trigger ID
@@ -233,56 +160,47 @@ public class SensorTrigger {
 
     // For TRIGGER_ACTION_ALERT only.
     public int[] getAlertTypes() {
-        return mTriggerInfo.triggerAlertTypes;
+        return mSensorTrigger.getAlertTypes();
     }
 
     public boolean hasAlertType(int alertType) {
-        int[] alertTypes = mTriggerInfo.triggerAlertTypes;
-        return Ints.indexOf(alertTypes, alertType) != -1;
+        return mSensorTrigger.hasAlertType(alertType);
     }
 
     // For TRIGGER_ACTION_ALERT only.
     public void setAlertTypes(int[] alertTypes) {
-        mTriggerInfo.triggerAlertTypes = alertTypes;
+        mSensorTrigger.setAlertTypes(alertTypes);
     }
 
     // For TRIGGER_ACTION_NOTE only.
     public String getNoteText() {
-        return mTriggerInfo.noteText;
+        return mSensorTrigger.getNoteText();
     }
 
     // For TRIGGER_ACTION_NOTE only.
     public void setNoteText(String newText) {
-        mTriggerInfo.noteText = newText;
+        mSensorTrigger.setNoteText(newText);
     }
 
     public Bundle toBundle() {
         Bundle bundle = new Bundle();
         bundle.putString(KEY_TRIGGER_ID, mTriggerId);
-        bundle.putString(KEY_SENSOR_ID, mSensorId);
-        bundle.putLong(KEY_LAST_USED, mLastUsed);
-        bundle.putByteArray(KEY_TRIGGER_INFO, ProtoUtils.makeBlob(mTriggerInfo));
+        bundle.putBundle(KEY_SENSOR_TRIGGER, mSensorTrigger.toBundle());
         return bundle;
     }
 
     public static SensorTrigger fromBundle(Bundle bundle) {
-        try {
-            return new SensorTrigger(bundle.getString(KEY_TRIGGER_ID),
-                    bundle.getString(KEY_SENSOR_ID), bundle.getLong(KEY_LAST_USED),
-                    TriggerInformation.parseFrom(bundle.getByteArray(KEY_TRIGGER_INFO)));
-        } catch (InvalidProtocolBufferNanoException e) {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "Error parsing SensorTrigger");
-            }
-            return null;
-        }
+        return new SensorTrigger(bundle.getString(KEY_TRIGGER_ID),
+                com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
+                        .fromBundle(bundle.getBundle(KEY_SENSOR_TRIGGER)));
+
     }
 
     public boolean shouldTriggerOnlyWhenRecording() {
-        return mTriggerInfo.triggerOnlyWhenRecording;
+        return mSensorTrigger.shouldTriggerOnlyWhenRecording();
     }
 
     public void setTriggerOnlyWhenRecording(boolean triggerOnlyWhenRecording) {
-        mTriggerInfo.triggerOnlyWhenRecording = triggerOnlyWhenRecording;
+        mSensorTrigger.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
     }
 }
