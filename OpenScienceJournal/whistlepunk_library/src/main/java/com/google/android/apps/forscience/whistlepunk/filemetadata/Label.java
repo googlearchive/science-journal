@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +36,13 @@ import java.util.Set;
  * underlying protocol buffer and making changes to that directly.
  */
 public class Label implements Parcelable {
+    public static final Comparator<Label> COMPARATOR_BY_TIMESTAMP = new Comparator<Label>() {
+        @Override
+        public int compare(Label first, Label second) {
+            return Long.compare(first.getTimeStamp(), second.getTimeStamp());
+        }
+    };
+
     private static final String TAG = "Label";
     private GoosciLabel.Label mLabel;
     private Map<Integer, LabelValue> mLabelValues;
@@ -163,6 +171,14 @@ public class Label implements Parcelable {
      */
     public void setLabelValue(LabelValue value) {
         mLabelValues.put(value.getValue().type, value);
+    }
+
+    /**
+     * Deletes any assets associated with this label
+     */
+    public void deleteAssets() {
+        // TODO: Delete any assets associated with this label, including pictures, etc.
+        // May need a reference to the FileMetadataManager to do this.
     }
 
     private void updateLabelProtoWithValues() {

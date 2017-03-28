@@ -27,9 +27,11 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,13 +40,12 @@ import java.util.List;
  * underlying protocol buffer and making changes to that directly. Changes to the underlying proto
  * outside this class may be overwritten and may not be saved.
  */
-public class Experiment {
+public class Experiment extends LabelListHolder {
     private boolean mArchived;
     private GoosciExperiment.Experiment mProto;
     private List<GoosciSensorLayout.SensorLayout> mSensorLayouts;
     private List<GoosciExperiment.ExperimentSensor> mExperimentSensors;
-    private List<SensorTrigger> mSensorTriggers;
-    private List<Label> mLabels;
+    private ArrayListMultimap<String, SensorTrigger> mSensorTriggers;
     private List<Trial> mTrials;
 
     public static Experiment newExperiment(long creationTime) {
@@ -60,6 +61,14 @@ public class Experiment {
     public Experiment(GoosciExperiment.Experiment experimentProto, boolean isArchived) {
         mProto = experimentProto;
         mArchived = isArchived;
+        mLabels = new ArrayList<>();
+        for (GoosciLabel.Label labelProto : mProto.labels) {
+            mLabels.add(Label.fromLabel(labelProto));
+        }
+        mTrials = new ArrayList<>();
+        for (GoosciTrial.Trial trial : mProto.trials) {
+            mTrials.add(Trial.fromTrial(trial));
+        }
     }
 
     /**
@@ -113,35 +122,10 @@ public class Experiment {
         mProto.lastUsedTimeMs = lastUsedTime;
     }
 
-    public List<Label> getLabels() {
-        if (mLabels == null) {
-            mLabels = new ArrayList<>();
-            for (GoosciLabel.Label labelProto : mProto.labels) {
-                mLabels.add(Label.fromLabel(labelProto));
-            }
-        }
-        return mLabels;
-    }
-
-    @VisibleForTesting
-    void setLabels(List<Label> labels) {
-        mLabels = Preconditions.checkNotNull(labels);;
-    }
-
-    /**
-     * Get the count separately from getting all the labels avoids unnecessary processing if the
-     * caller just has to know how many there are.
-     * @return The number of labels in this experiment.
-     */
-    public int getLabelCount() {
-        if (mLabels == null) {
-            return mProto.labels.length;
-        }
-        return mLabels.size();
-    }
-
     /**
      * Gets the labels which fall during a certain time range.
+     * Objects in this list should not be modified and expect that state to be saved, instead
+     * editing of labels should happen using updateLabel, addLabel, removeLabel.
      * @param range The time range in which to search for labels
      * @return A list of labels in that range, or an empty list if none are found.
      */
@@ -150,18 +134,21 @@ public class Experiment {
         for (Label label : getLabels()) {
             if (range.startMs <= label.getTimeStamp() && range.endMs >= label.getTimeStamp()) {
                 result.add(label);
+            } else if (range.endMs < label.getTimeStamp()) {
+                // These are sorted, so we can stop looking once we've found labels that are too
+                // recent.
+                break;
             }
         }
         return result;
     }
 
+    /**
+     * Gets the current list of trials in this experiment.
+     * Objects in this list should not be modified and expect that state to be saved, instead
+     * editing of trials should happen using updateTrial, addTrial, removeTrial.
+     */
     public List<Trial> getTrials() {
-        if (mTrials == null) {
-            mTrials = new ArrayList<>();
-            for (GoosciTrial.Trial trial : mProto.trials) {
-                mTrials.add(Trial.fromTrial(trial));
-            }
-        }
         return mTrials;
     }
 
@@ -176,10 +163,57 @@ public class Experiment {
      * @return The number of trials in this experiment.
      */
     public int getTrialCount() {
-        if (mTrials == null) {
-            return mProto.trials.length;
-        }
         return mTrials.size();
+    }
+
+    /**
+     * Gets a trial by its unique ID.
+     * Note that Trial IDs are only guarenteed to be unqiue in an experiment.
+     */
+    public Trial getTrial(String trialId) {
+        for (Trial trial : mTrials) {
+            if (TextUtils.equals(trial.getTrialId(), trialId)) {
+                return trial;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Updates a trial. If the trial is not yet in the experiment, it gets added.
+     * @param trial
+     */
+    public void updateTrial(Trial trial) {
+        for (int i = 0; i < mTrials.size(); i++) {
+            Trial next = mTrials.get(i);
+            if (TextUtils.equals(trial.getTrialId(), next.getTrialId())) {
+                mTrials.set(i, trial);
+                break;
+            }
+        }
+        // Update may involve crop, so re-sort just in case!
+        sortTrials();
+    }
+
+    /**
+     * Adds a new trial to the experiment.
+     * @param trial
+     */
+    public void addTrial(Trial trial) {
+        mTrials.add(trial);
+        sortTrials();
+    }
+
+    /**
+     * Removes a trial from the experiment.
+     */
+    public void deleteTrial(Trial trial) {
+        trial.deleteContents();
+        mTrials.remove(trial);
+    }
+
+    private void sortTrials() {
+        Collections.sort(mTrials, Trial.COMPARATOR_BY_TIMESTAMP);
     }
 
     public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
@@ -201,23 +235,38 @@ public class Experiment {
     }
 
     public void setExperimentSensors(List<GoosciExperiment.ExperimentSensor> experimentSensors) {
-        assert experimentSensors != null;
-        mExperimentSensors = experimentSensors;
+        mExperimentSensors = Preconditions.checkNotNull(experimentSensors);
     }
 
-    public List<SensorTrigger> getSensorTriggers() {
+    /**
+     * Gets the current list of sensor triggers in this experiment for a particular sensor.
+     * Objects in this list should not be modified and expect that state to be saved, instead
+     * editing of triggers should happen using update/add/remove functions.
+     */
+    public List<SensorTrigger> getSensorTriggers(String sensorId) {
         if (mSensorTriggers == null) {
-            mSensorTriggers = new ArrayList<>();
+            mSensorTriggers = ArrayListMultimap.create();
             for (GoosciSensorTrigger.SensorTrigger proto : mProto.sensorTriggers) {
-                mSensorTriggers.add(new SensorTrigger(proto));
+                mSensorTriggers.put(sensorId, new SensorTrigger(proto));
             }
         }
-        return mSensorTriggers;
+        return mSensorTriggers.get(sensorId);
     }
 
-    public void setSensorTriggers(List<SensorTrigger> sensorTriggers) {
-        assert sensorTriggers != null;
-        mSensorTriggers = sensorTriggers;
+    @VisibleForTesting
+    void setSensorTriggers(ArrayListMultimap<String, SensorTrigger> sensorTriggers) {
+        mSensorTriggers = Preconditions.checkNotNull(sensorTriggers);
+    }
+
+    /**
+     * Updates the sensor triggers for a sensor.
+     * @param sensorId
+     * @param triggers
+     */
+    public void updateSensorTriggers(String sensorId, List<SensorTrigger> triggers) {
+        // TODO: Do this by index? Or update a whole list at once? We can't use a trigger to update
+        // a trigger because it has no ID!
+        mSensorTriggers.replaceValues(sensorId, triggers);
     }
 
     /**
@@ -240,8 +289,10 @@ public class Experiment {
         if (mSensorTriggers != null) {
             mProto.sensorTriggers = new GoosciSensorTrigger.SensorTrigger[mSensorTriggers.size()];
             int index = 0;
-            for (SensorTrigger trigger : mSensorTriggers) {
-                mProto.sensorTriggers[index++] = trigger.getTriggerProto();
+            for (String sensorId : mSensorTriggers.keySet()) {
+                for (SensorTrigger trigger : mSensorTriggers.get(sensorId)) {
+                    mProto.sensorTriggers[index++] = trigger.getTriggerProto();
+                }
             }
         }
 

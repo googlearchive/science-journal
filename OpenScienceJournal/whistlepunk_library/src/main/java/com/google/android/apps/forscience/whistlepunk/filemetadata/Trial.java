@@ -12,7 +12,6 @@ import com.google.common.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -23,11 +22,18 @@ import java.util.Map;
  * All changes should be made using the getters and setters provided, rather than by getting the
  * underlying protocol buffer and making changes to that directly.
  */
-public class Trial {
+public class Trial extends LabelListHolder {
+    public static final Comparator<Trial> COMPARATOR_BY_TIMESTAMP = new Comparator<Trial>() {
+        @Override
+        public int compare(Trial first, Trial second) {
+            // Sort based on the recording first timestamp.
+            return Long.compare(first.getOriginalFirstTimestamp(),
+                    second.getOriginalFirstTimestamp());
+        }
+    };
+
     private GoosciTrial.Trial mTrial;
-    private List<Label> mLabels;
     private Map<String, TrialStats> mTrialStats;
-    private Comparator<Label> mComparator;
 
     /**
      * Populates the Trial from an existing proto.
@@ -64,65 +70,6 @@ public class Trial {
         mTrialStats = new HashMap<>();
     }
 
-    public int getNumLabels() {
-        return mLabels.size();
-    }
-
-    /**
-     * Gets the list of labels associated with this trial, in chronological order by timestamp.
-     */
-    public List<Label> getLabels() {
-        return mLabels;
-    }
-
-    /**
-     * Updates a label in the list. Maintains label sort order.
-     */
-    public void updateLabel(Label label) {
-        for (int i = 0; i < mLabels.size(); i++) {
-            Label next = mLabels.get(i);
-            if (!TextUtils.equals(label.getLabelId(), next.getLabelId())) {
-                continue;
-            }
-            mLabels.set(i, label);
-        }
-        sortLabels();
-    }
-
-    /**
-     * Adds a label to the trial's list of labels. The list will still be sorted by timestamp.
-     */
-    public void addLabel(Label label) {
-        mLabels.add(label);
-        sortLabels();
-    }
-
-    private void sortLabels() {
-        Collections.sort(mLabels, getLabelComparator());
-    }
-
-    private Comparator<Label> getLabelComparator() {
-        if (mComparator == null) {
-            mComparator = new Comparator<Label>() {
-                @Override
-                public int compare(Label first, Label second) {
-                    return Long.compare(first.getTimeStamp(), second.getTimeStamp());
-                }
-            };
-        }
-        return mComparator;
-    }
-
-    public void deleteLabel(Label label) {
-        // TODO: Delete any assets the label references, as needed.
-        mLabels.remove(label);
-    }
-
-    @VisibleForTesting
-    void setLabels(List<Label> labels) {
-        mLabels = labels;
-    }
-
     public Label getCoverPictureLabel() {
         for (Label label : mLabels) {
             if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
@@ -156,6 +103,10 @@ public class Trial {
 
     public void setRecordingEndTime(long recordingEndTime) {
         mTrial.recordingRange.endMs = recordingEndTime;
+    }
+
+    public GoosciTrial.Range getOriginalRecordingRange() {
+        return mTrial.recordingRange;
     }
 
     public GoosciTrial.Range getCropRange() {
@@ -242,6 +193,14 @@ public class Trial {
     // The Trial ID cannot be set after it is created.
     public String getTrialId() {
         return mTrial.trialId;
+    }
+
+    public void deleteContents() {
+        for (Label label : mLabels) {
+            deleteLabel(label);
+        }
+        // TODO: Also delete any assets associated with this trial, inc. sensor data, icons, etc.
+        // May need a reference to the FileMetadataManager to do this.
     }
 
     private void updateTrialProtoWithStats() {

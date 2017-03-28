@@ -19,7 +19,7 @@ public class TrialTest extends AndroidTestCase {
         trialProto.labels[0] = labelProto;
         Trial trial = Trial.fromTrial(trialProto);
 
-        assertEquals(trial.getNumLabels(), 1);
+        assertEquals(trial.getLabelCount(), 1);
 
         Label label = trial.getLabels().get(0);
         label.setTimestamp(10);
@@ -28,10 +28,10 @@ public class TrialTest extends AndroidTestCase {
 
         Label second = Label.newLabel(20);
         trial.addLabel(second);
-        assertEquals(trial.getNumLabels(), 2);
+        assertEquals(trial.getLabelCount(), 2);
 
         trial.deleteLabel(label);
-        assertEquals(trial.getNumLabels(), 1);
+        assertEquals(trial.getLabelCount(), 1);
     }
 
     public void testLabelsStillSortedOnAdd() {

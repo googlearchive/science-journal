@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * Tests for the Experiment class.
  */
-public class ExperimentTest {
+public class ExperimentUnitTest {
 
     @Test
     public void testNewExperiment() {
@@ -48,14 +48,15 @@ public class ExperimentTest {
 
         // No triggers on creation
         Experiment experiment = new Experiment(proto, false);
-        assertEquals(experiment.getSensorTriggers(), Collections.emptyList());
+        assertEquals(experiment.getSensorTriggers("sensorId"),
+                Collections.<SensorTrigger>emptyList());
 
         GoosciSensorTrigger.SensorTrigger triggerProto = new GoosciSensorTrigger.SensorTrigger();
         triggerProto.sensorId = "sensorid";
         SensorTrigger trigger = new SensorTrigger(triggerProto);
-        experiment.setSensorTriggers(Arrays.asList(trigger));
+        experiment.updateSensorTriggers("sensorId", Arrays.asList(trigger));
 
-        assertEquals(experiment.getSensorTriggers().size(), 1);
+        assertEquals(experiment.getSensorTriggers("sensorId").size(), 1);
         assertEquals(experiment.getExperimentProto().sensorTriggers.length, 1);
     }
 

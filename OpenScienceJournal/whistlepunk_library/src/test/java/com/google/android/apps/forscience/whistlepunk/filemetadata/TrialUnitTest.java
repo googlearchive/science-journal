@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  * Tests for the Trial class.
  */
-public class TrialTest {
+public class TrialUnitTest {
 
     private Trial makeSimpleTrial(long startTime, String sensorId) {
         GoosciSensorLayout.SensorLayout[] layouts = new GoosciSensorLayout.SensorLayout[]{
