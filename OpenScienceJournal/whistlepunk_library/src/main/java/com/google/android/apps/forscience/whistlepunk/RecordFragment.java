@@ -84,6 +84,8 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -431,7 +433,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
                             @Override
                             public void onRequestStopRecording(RecorderController rc) {
-                                updateRecorderControllerLayouts(rc, buildCurrentLayouts());
                             }
                         };
                 mTriggerFiredListenerId = rc.addTriggerFiredListener(tlistener);
@@ -483,11 +484,19 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     public void onDestroyView() {
         // TODO: extract presenter with lifespan identical to the views.
         mRecordButton = null;
-        saveCurrentLayouts();
+        final List<GoosciSensorLayout.SensorLayout> layouts = saveCurrentLayouts();
         if (mSensorCardAdapter != null) {
             mSensorCardAdapter.onDestroy();
             mSensorCardAdapter = null;
         }
+
+        // Freeze layouts to be saved if recording finishes
+        withRecorderController(new Consumer<RecorderController>() {
+            @Override
+            public void take(RecorderController recorderController) {
+                recorderController.setLayoutSupplier(Suppliers.ofInstance(layouts));
+            }
+        });
         if (mExternalAxis != null) {
             mExternalAxis.destroy();
         }
@@ -650,26 +659,16 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 sensorLayout, LoggingConsumer.<Success>expectSuccess(TAG, "saving layout"));
     }
 
-    private void saveCurrentLayouts() {
+    private List<GoosciSensorLayout.SensorLayout> saveCurrentLayouts() {
         if (mSelectedExperiment == null || !mSensorLayoutsLoaded) {
-            return;
+            return null;
         }
         final List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
         if (layouts != null) {
             getDataController().setSensorLayouts(mSelectedExperiment.getExperimentId(),
                     layouts, LoggingConsumer.<Success>expectSuccess(TAG, "saving layouts"));
         }
-        withRecorderController(new Consumer<RecorderController>() {
-            @Override
-            public void take(RecorderController recorderController) {
-                updateRecorderControllerLayouts(recorderController, layouts);
-            }
-        });
-    }
-
-    private void updateRecorderControllerLayouts(RecorderController rc,
-            List<GoosciSensorLayout.SensorLayout> layouts) {
-        rc.setCurrentSensorLayouts(layouts);
+        return layouts;
     }
 
     private List<GoosciSensorLayout.SensorLayout> buildCurrentLayouts() {
@@ -803,6 +802,14 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                 !sensorCardPresenter.isActive());
                     }
         });
+
+        rc.setLayoutSupplier(new Supplier<List<GoosciSensorLayout.SensorLayout>>() {
+            @Override
+            public List<GoosciSensorLayout.SensorLayout> get() {
+                return buildCurrentLayouts();
+            }
+        });
+
         updateSensorCount();
         mSensorCardAdapter.setRecording(isRecording(), getRecordingStartTime());
         long resetTime = mExternalAxis.resetAxes();
@@ -1295,7 +1302,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             return;
         }
 
-
         Intent mLaunchIntent;
         mLaunchIntent = MainActivity.launchIntent(getActivity(), R.id.navigation_item_observe);
         // This isn't currently used, but does ensure this intent doesn't match any other intent.
@@ -1313,7 +1319,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void tryStopRecording(final RecorderController rc) {
-        rc.setCurrentSensorLayouts(buildCurrentLayouts());
         rc.stopRecording();
     }
 

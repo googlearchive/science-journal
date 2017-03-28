@@ -101,7 +101,6 @@ public class RecorderControllerImpl implements RecorderController {
     private int mPauseCount = 0;
     private final SensorEnvironment mSensorEnvironment;
     private Experiment mSelectedExperiment;
-    private List<GoosciSensorLayout.SensorLayout> mSensorLayouts = Collections.emptyList();
     private boolean mRecordingStateChangeInProgress;
     private TriggerHelper mTriggerHelper;
     private boolean mActivityInForeground = false;
@@ -120,13 +119,13 @@ public class RecorderControllerImpl implements RecorderController {
      * Label for the start of the current recording session, or null if not recording
      */
     private RecordingMetadata mRecording = null;
+    private Supplier<List<GoosciSensorLayout.SensorLayout>> mLayoutSupplier;
 
     public RecorderControllerImpl(Context context) {
         this(context, AppSingleton.getInstance(context).getDataController());
     }
 
-    @VisibleForTesting
-    public RecorderControllerImpl(Context context, DataController dataController) {
+    private RecorderControllerImpl(Context context, DataController dataController) {
         this(context, SensorRegistry.createWithBuiltinSensors(context),
                 AppSingleton.getInstance(context).getSensorEnvironment(),
                 new RecorderListenerRegistry(), productionConnectionSupplier(context),
@@ -232,6 +231,10 @@ public class RecorderControllerImpl implements RecorderController {
                     }, null);
             mServiceObservers.put(sensorId, serviceObserverId);
         }
+    }
+
+    private List<GoosciSensorLayout.SensorLayout> buildSensorLayouts() {
+        return mLayoutSupplier == null ? null : mLayoutSupplier.get();
     }
 
     private void fireSensorTrigger(SensorTrigger trigger, long timestamp) {
@@ -344,6 +347,11 @@ public class RecorderControllerImpl implements RecorderController {
             mRegistry.remove(sensorId, observerId);
             addServiceObserverIfNeeded(sensorId, Collections.<SensorTrigger>emptyList());
         }
+    }
+
+    @Override
+    public void setLayoutSupplier(Supplier<List<GoosciSensorLayout.SensorLayout>> supplier) {
+        mLayoutSupplier = supplier;
     }
 
     @Override
@@ -467,7 +475,8 @@ public class RecorderControllerImpl implements RecorderController {
             public void take(final RecorderService recorderService) throws RemoteException {
                 final DataController dataController = mDataController;
                 dataController.startRun(mSelectedExperiment,
-                        mSensorLayouts, new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
+                        buildSensorLayouts(),
+                        new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
                             @Override
                             public void success(ApplicationLabel label) {
                                 mRecording = new RecordingMetadata(label.getTimeStamp(),
@@ -525,10 +534,9 @@ public class RecorderControllerImpl implements RecorderController {
             @Override
             public void take(final RecorderService recorderService) throws RemoteException {
                 final List<GoosciSensorLayout.SensorLayout> sensorLayoutsAtStop =
-                        new ArrayList<>(mSensorLayouts);
+                        buildSensorLayouts();
                 mDataController
-                        .stopRun(mSelectedExperiment, mRecording.getRunId(),
-                                mSensorLayouts,
+                        .stopRun(mSelectedExperiment, mRecording.getRunId(), sensorLayoutsAtStop,
                                 new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
                                     @Override
                             public void success(ApplicationLabel value) {
@@ -721,11 +729,6 @@ public class RecorderControllerImpl implements RecorderController {
     @Override
     public void setSelectedExperiment(Experiment experiment) {
         mSelectedExperiment = experiment;
-    }
-
-    @Override
-    public void setCurrentSensorLayouts(List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-        mSensorLayouts = sensorLayouts;
     }
 
     private boolean isRecording() {
