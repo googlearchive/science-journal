@@ -19,6 +19,7 @@ syntax = "proto2";
 package goosci;
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "GoosciSensorLayout";
+option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 message SensorLayout {
