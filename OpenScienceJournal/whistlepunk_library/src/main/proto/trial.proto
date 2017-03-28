@@ -29,9 +29,11 @@ import "sensor_layout.proto";
  * Added in V2.
  */
 message Trial {
-    // Represents the ID of the trial data, which is stored separately.
+    // The ID is unique within an experiment, but cannot be assumed to be unique across
+    // experiments. This is also used to reference the file containing trial data, which is stored
+    // separately, as users may "copy" entire experiments from Drive.
     // This ID should probably be a unique GUID.
-    optional string trialDataResourceId = 1;
+    optional string trialId = 1;
 
     // The timestamp that this trial was created.
     optional int64 creationTimeMs = 2;
@@ -59,6 +61,8 @@ message Trial {
 
     // TODO: Add a repeated SensorAppearance field that allows each run to store
     // data independently, enabling sharing for devices that don't have particular sensors.
+
+    // Any new fields must be added to filemetadata.Trial.copy if needed.
 };
 
 /*

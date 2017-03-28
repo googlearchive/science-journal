@@ -36,7 +36,7 @@ public class ExperimentTest extends AndroidTestCase {
         GoosciExperiment.Experiment result = new GoosciExperiment.Experiment();
         result.labels = new GoosciLabel.Label[labelTimes.length];
         for (int i = 0; i < labelTimes.length; i++) {
-            Label label = new Label(labelTimes[i]);
+            Label label = Label.newLabel(labelTimes[i]);
             result.labels[i] = label.getLabelProto();
         }
         return result;
@@ -56,7 +56,7 @@ public class ExperimentTest extends AndroidTestCase {
         GoosciLabel.Label labelProto = new GoosciLabel.Label();
         labelProto.values = new GoosciLabelValue.LabelValue[1];
         labelProto.values[0] = labelValueProto;
-        experiment.getLabels().add(new Label(labelProto));
+        experiment.getLabels().add(Label.fromLabel(labelProto));
         assertEquals(experiment.getLabelCount(), 1);
 
         // Make sure the proto gets updated properly
@@ -70,7 +70,7 @@ public class ExperimentTest extends AndroidTestCase {
                 .getLabelValue(GoosciLabelValue.LabelValue.PICTURE).getValue(), labelValueProto));
         assertEquals(experiment2.getLabelCount(), 1);
         List<Label> labels = experiment2.getLabels();
-        labels.add(new Label(20));
+        labels.add(Label.newLabel(20));
         assertEquals(experiment2.getLabelCount(), 2);
 
         assertEquals(experiment2.getExperimentProto().labels.length, 2);
@@ -124,7 +124,7 @@ public class ExperimentTest extends AndroidTestCase {
         range.startMs = 200;
         range.endMs = 500;
         trialProto2.recordingRange = range2;
-        Trial trial2 = new Trial(trialProto2, experiment1.getLabelsForRange(range2));
+        Trial trial2 = Trial.fromTrial(trialProto2, experiment1.getLabelsForRange(range2));
         experiment1.getTrials().add(trial2);
 
         assertEquals(experiment1.getTrialCount(), 2);

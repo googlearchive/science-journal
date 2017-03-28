@@ -117,7 +117,7 @@ public class Experiment {
         if (mLabels == null) {
             mLabels = new ArrayList<>();
             for (GoosciLabel.Label labelProto : mProto.labels) {
-                mLabels.add(new Label(labelProto));
+                mLabels.add(Label.fromLabel(labelProto));
             }
         }
         return mLabels;
@@ -159,7 +159,7 @@ public class Experiment {
         if (mTrials == null) {
             mTrials = new ArrayList<>();
             for (GoosciTrial.Trial trial : mProto.trials) {
-                mTrials.add(new Trial(trial, getLabelsForRange(trial.recordingRange)));
+                mTrials.add(Trial.fromTrial(trial, getLabelsForRange(trial.recordingRange)));
             }
         }
         return mTrials;

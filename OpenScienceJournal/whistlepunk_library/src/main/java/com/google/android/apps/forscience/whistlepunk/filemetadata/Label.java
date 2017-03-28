@@ -40,20 +40,29 @@ public class Label implements Parcelable {
     private Map<Integer, LabelValue> mLabelValues;
 
     /**
-     * Loads a label from a proto
+     * Loads an existing label from a proto.
      */
-    public Label(GoosciLabel.Label goosciLabel) {
-        mLabel = goosciLabel;
-        mLabelValues = LabelValue.getLabelValues(mLabel.values);
+    public static Label fromLabel(GoosciLabel.Label goosciLabel) {
+        return new Label(goosciLabel);
     }
 
     /**
      * Creates a new label with no content.
      */
-    public Label(long timestampMs) {
+    public static Label newLabel(long creationTimeMs) {
+        return new Label(creationTimeMs, java.util.UUID.randomUUID().toString());
+    }
+
+    private Label(GoosciLabel.Label goosciLabel) {
+        mLabel = goosciLabel;
+        mLabelValues = LabelValue.getLabelValues(mLabel.values);
+    }
+
+    private Label(long creationTimeMs, String labelId) {
         mLabel = new GoosciLabel.Label();
-        mLabel.timestampMs = timestampMs;
-        mLabel.creationTimeMs = timestampMs;
+        mLabel.timestampMs = creationTimeMs;
+        mLabel.creationTimeMs = creationTimeMs;
+        mLabel.labelId = labelId;
         mLabelValues = new HashMap<>();
     }
 
@@ -97,6 +106,10 @@ public class Label implements Parcelable {
     public GoosciLabel.Label getLabelProto() {
         updateLabelProtoWithValues();
         return mLabel;
+    }
+
+    public String getLabelId() {
+        return mLabel.labelId;
     }
 
     public long getTimeStamp() {

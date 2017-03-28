@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.protobuf.nano.MessageNano;
 
 
 /**
@@ -44,7 +45,7 @@ public class LabelTest extends AndroidTestCase {
 
     public void testCanEditLabelTimestamp() {
         GoosciLabel.Label goosciLabel = makeGoosciLabel(GoosciLabelValue.LabelValue.TEXT, 10);
-        Label label = new Label(goosciLabel);
+        Label label = Label.fromLabel(goosciLabel);
 
         assertEquals(label.getTimeStamp(), 10);
         label.setTimestamp(20);
@@ -53,7 +54,7 @@ public class LabelTest extends AndroidTestCase {
 
     public void testCanCreateTextLabel() {
         GoosciLabel.Label goosciLabel = makeGoosciLabel(GoosciLabelValue.LabelValue.TEXT, 10);
-        Label label = new Label(goosciLabel);
+        Label label = Label.fromLabel(goosciLabel);
 
         assertEquals(label.getValueTypes().size(), 1);
         assertTrue(label.getValueTypes().contains(GoosciLabelValue.LabelValue.TEXT));
@@ -70,7 +71,7 @@ public class LabelTest extends AndroidTestCase {
     public void testCanCreatePictureLabel() {
         GoosciLabel.Label goosciLabel = makeGoosciLabel(GoosciLabelValue.LabelValue.PICTURE, 10);
         PictureLabelValue.populateLabelValue(goosciLabel.values[0], "path/to/photo", "cheese!");
-        Label label = new Label(goosciLabel);
+        Label label = Label.fromLabel(goosciLabel);
 
         assertEquals(label.getValueTypes().size(), 1);
         assertTrue(label.getValueTypes().contains(GoosciLabelValue.LabelValue.PICTURE));
@@ -89,7 +90,7 @@ public class LabelTest extends AndroidTestCase {
                 GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_DROPS_BELOW, "note",
                 7.5);
         SensorTriggerLabelValue.populateLabelValue(goosciLabel.values[0], trigger, "note");
-        Label label = new Label(goosciLabel);
+        Label label = Label.fromLabel(goosciLabel);
 
         assertEquals(label.getValueTypes().size(), 1);
         assertTrue(label.getValueTypes().contains(GoosciLabelValue.LabelValue.SENSOR_TRIGGER));
@@ -116,7 +117,7 @@ public class LabelTest extends AndroidTestCase {
 
         goosciLabel.values = new GoosciLabelValue.LabelValue[] {value1, value2};
 
-        Label label = new Label(goosciLabel);
+        Label label = Label.fromLabel(goosciLabel);
 
         assertTrue(label.hasValueType(GoosciLabelValue.LabelValue.PICTURE));
         assertTrue(label.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER));
@@ -125,7 +126,7 @@ public class LabelTest extends AndroidTestCase {
 
     public void testOnlyOneOfEachType() {
         GoosciLabel.Label goosciLabel = makeGoosciLabel(GoosciLabelValue.LabelValue.PICTURE, 10);
-        Label label = new Label(goosciLabel);
+        Label label = Label.fromLabel(goosciLabel);
 
         assertTrue(label.hasValueType(GoosciLabelValue.LabelValue.PICTURE));
         assertEquals(label.getValueTypes().size(), 1);
@@ -153,7 +154,7 @@ public class LabelTest extends AndroidTestCase {
                 GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_DROPS_BELOW, "note",
                 7.5);
         SensorTriggerLabelValue.populateLabelValue(labelValue, trigger, "note");
-        Label label = new Label(goosciLabel);
+        Label label = Label.fromLabel(goosciLabel);
 
         // Add a text note after the label has been created.
         TextLabelValue textLabelValue = new TextLabelValue();
@@ -170,5 +171,14 @@ public class LabelTest extends AndroidTestCase {
         assertTrue(result.hasValueType(GoosciLabelValue.LabelValue.TEXT));
         assertEquals(((TextLabelValue) result.getLabelValue(GoosciLabelValue.LabelValue.TEXT))
                 .getText(), "Text notes rock!");
+    }
+
+    public void testUniqueIds() {
+        Label first = Label.newLabel(10);
+        Label second = Label.newLabel(10);
+        assertNotEquals(first.getLabelId(), second.getLabelId());
+
+        Label firstAgain = Label.fromLabel(first.getLabelProto());
+        assertEquals(first.getLabelId(), firstAgain.getLabelId());
     }
 }
