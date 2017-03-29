@@ -96,7 +96,7 @@ public class ExperimentTest extends AndroidTestCase {
     }
 
     public void testTrials() {
-        GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[]{99, 100, 125, 201});
+        GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[]{});
 
         // No trials on creation
         Experiment experiment = new Experiment(proto, false);
@@ -115,7 +115,6 @@ public class ExperimentTest extends AndroidTestCase {
 
         Experiment experiment1 = new Experiment(proto, false);
         assertEquals(experiment1.getTrialCount(), 1);
-        assertEquals(experiment1.getTrials().get(0).getLabels().size(), 2);
 
         // Adding a new trial should work as expected.
         GoosciTrial.Trial trialProto2 = new GoosciTrial.Trial();
@@ -124,7 +123,7 @@ public class ExperimentTest extends AndroidTestCase {
         range.startMs = 200;
         range.endMs = 500;
         trialProto2.recordingRange = range2;
-        Trial trial2 = Trial.fromTrial(trialProto2, experiment1.getLabelsForRange(range2));
+        Trial trial2 = Trial.fromTrial(trialProto2);
         experiment1.getTrials().add(trial2);
 
         assertEquals(experiment1.getTrialCount(), 2);

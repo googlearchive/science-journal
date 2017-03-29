@@ -5,11 +5,15 @@ import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +27,13 @@ public class Trial {
     private GoosciTrial.Trial mTrial;
     private List<Label> mLabels;
     private Map<String, TrialStats> mTrialStats;
+    private Comparator<Label> mComparator;
 
     /**
      * Populates the Trial from an existing proto.
      */
-    public static Trial fromTrial(GoosciTrial.Trial trial, List<Label> labels) {
-        return new Trial(trial, labels);
+    public static Trial fromTrial(GoosciTrial.Trial trial) {
+        return new Trial(trial);
     }
 
     /**
@@ -39,10 +44,13 @@ public class Trial {
         return new Trial(startTimeMs, sensorLayouts, trialId);
     }
 
-    private Trial(GoosciTrial.Trial trial, List<Label> labels) {
+    private Trial(GoosciTrial.Trial trial) {
         mTrial = trial;
-        mLabels = labels;
         mTrialStats = TrialStats.fromTrial(mTrial);
+        mLabels = new ArrayList<>();
+        for (GoosciLabel.Label proto : mTrial.labels) {
+            mLabels.add(Label.fromLabel(proto));
+        }
     }
 
     private Trial(long startTimeMs, GoosciSensorLayout.SensorLayout[] sensorLayouts,
@@ -56,11 +64,62 @@ public class Trial {
         mTrialStats = new HashMap<>();
     }
 
+    public int getNumLabels() {
+        return mLabels.size();
+    }
+
+    /**
+     * Gets the list of labels associated with this trial, in chronological order by timestamp.
+     */
     public List<Label> getLabels() {
         return mLabels;
     }
 
-    public void setLabels(List<Label> labels) {
+    /**
+     * Updates a label in the list. Maintains label sort order.
+     */
+    public void updateLabel(Label label) {
+        for (int i = 0; i < mLabels.size(); i++) {
+            Label next = mLabels.get(i);
+            if (!TextUtils.equals(label.getLabelId(), next.getLabelId())) {
+                continue;
+            }
+            mLabels.set(i, label);
+        }
+        sortLabels();
+    }
+
+    /**
+     * Adds a label to the trial's list of labels. The list will still be sorted by timestamp.
+     */
+    public void addLabel(Label label) {
+        mLabels.add(label);
+        sortLabels();
+    }
+
+    private void sortLabels() {
+        Collections.sort(mLabels, getLabelComparator());
+    }
+
+    private Comparator<Label> getLabelComparator() {
+        if (mComparator == null) {
+            mComparator = new Comparator<Label>() {
+                @Override
+                public int compare(Label first, Label second) {
+                    return Long.compare(first.getTimeStamp(), second.getTimeStamp());
+                }
+            };
+        }
+        return mComparator;
+    }
+
+    public void deleteLabel(Label label) {
+        // TODO: Delete any assets the label references, as needed.
+        mLabels.remove(label);
+    }
+
+    @VisibleForTesting
+    void setLabels(List<Label> labels) {
         mLabels = labels;
     }
 
@@ -156,6 +215,7 @@ public class Trial {
 
     public GoosciTrial.Trial getTrialProto() {
         updateTrialProtoWithStats();
+        updateTrialProtoWithLabels();
         return mTrial;
     }
 
@@ -192,5 +252,13 @@ public class Trial {
             result[i++] = mTrialStats.get(key).getSensorTrialStatsProto();
         }
         mTrial.trialStats = result;
+    }
+
+    private void updateTrialProtoWithLabels() {
+        GoosciLabel.Label[] result = new GoosciLabel.Label[mLabels.size()];
+        for (int i = 0; i < mLabels.size(); i++) {
+            result[i] = mLabels.get(i).getLabelProto();
+        }
+        mTrial.labels = result;
     }
 }

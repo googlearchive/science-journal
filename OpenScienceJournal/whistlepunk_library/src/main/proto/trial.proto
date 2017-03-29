@@ -22,6 +22,7 @@ option java_outer_classname = "GoosciTrial";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
+import "label.proto";
 import "sensor_layout.proto";
 
 /*
@@ -58,6 +59,9 @@ message Trial {
 
     // Stats associated with this trial.
     repeated SensorTrialStats trialStats = 9;
+
+    // Labels that are part of this trial.
+    repeated Label labels = 10;
 
     // TODO: Add a repeated SensorAppearance field that allows each run to store
     // data independently, enabling sharing for devices that don't have particular sensors.

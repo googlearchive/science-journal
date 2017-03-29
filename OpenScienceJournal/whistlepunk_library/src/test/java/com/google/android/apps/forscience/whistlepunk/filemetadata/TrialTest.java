@@ -93,7 +93,6 @@ public class TrialTest {
 
         assertEquals(trial.getStatsForSensor("sensorId").getStatStatus(),
                 GoosciTrial.SensorTrialStats.NEEDS_UPDATE);
-
     }
 
     @Test
@@ -102,7 +101,7 @@ public class TrialTest {
         Trial second = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0]);
         assertNotEquals(first.getTrialId(), second.getTrialId());
 
-        Trial firstAgain = Trial.fromTrial(first.getTrialProto(), first.getLabels());
+        Trial firstAgain = Trial.fromTrial(first.getTrialProto());
         assertEquals(first.getTrialId(), firstAgain.getTrialId());
     }
 }

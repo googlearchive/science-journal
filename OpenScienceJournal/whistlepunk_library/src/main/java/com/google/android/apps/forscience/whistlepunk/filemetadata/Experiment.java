@@ -159,7 +159,7 @@ public class Experiment {
         if (mTrials == null) {
             mTrials = new ArrayList<>();
             for (GoosciTrial.Trial trial : mProto.trials) {
-                mTrials.add(Trial.fromTrial(trial, getLabelsForRange(trial.recordingRange)));
+                mTrials.add(Trial.fromTrial(trial));
             }
         }
         return mTrials;
@@ -168,17 +168,6 @@ public class Experiment {
     @VisibleForTesting
     void setTrials(List<Trial> trials) {
         mTrials = Preconditions.checkNotNull(trials);
-    }
-
-    /**
-     * Sets a trial's labels appropriately.
-     * @param trial Trial to add
-     */
-    public void populateTrialLabels(Trial trial) {
-        GoosciTrial.Range range = new GoosciTrial.Range();
-        range.startMs = trial.getOriginalFirstTimestamp();
-        range.endMs = trial.getOriginalLastTimestamp();
-        trial.setLabels(getLabelsForRange(range));
     }
 
     /**
