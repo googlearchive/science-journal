@@ -24,12 +24,11 @@ import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
-import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
-import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
@@ -39,6 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,7 +47,6 @@ import java.util.List;
 public class CropHelperTest extends AndroidTestCase {
     private DataControllerImpl mDataController;
     private MemoryMetadataManager mMetadataManager;
-    private Run mRun;
     private CropHelper.CropRunListener mCropRunListener;
     private boolean mCropCompleted = false;
     private boolean mCropFailed = false;
@@ -68,7 +67,6 @@ public class CropHelperTest extends AndroidTestCase {
     public void setUp() {
         mMetadataManager = new MemoryMetadataManager();
         mDataController = new InMemorySensorDatabase().makeSimpleController(mMetadataManager);
-        mRun = new Run("runId", 42, null, false);
         mSensorLayouts = new ArrayList<>();
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = "sensor";
@@ -105,11 +103,15 @@ public class CropHelperTest extends AndroidTestCase {
 
     @Test
     public void testCropRun_failsOutsideBounds() {
-        ArrayList<Label> labels = new ArrayList<>();
-        labels.add(new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "0", "0", 0));
-        labels.add(new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "10", "0", 10));
+        GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
+        trialProto.trialId = "runId";
+        trialProto.creationTimeMs = 42;
+        trialProto.recordingRange = new GoosciTrial.Range();
+        trialProto.recordingRange.startMs = 0;
+        trialProto.recordingRange.endMs = 10;
+        Trial trial = Trial.fromTrial(trialProto);
 
-        ExperimentRun run = ExperimentRun.fromLabels(mRun, labels);
+        ExperimentRun run = ExperimentRun.fromLabels(trial, Collections.<Label>emptyList());
         CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), mDataController);
         cropHelper.cropRun(null, run, -1, 10, mCropRunListener);
         assertTrue(mCropFailed);
@@ -137,7 +139,7 @@ public class CropHelperTest extends AndroidTestCase {
                 mAddLabelConsumer);
         mDataController.addScalarReading("sensor", 0, 50, 50);
         setEmptyStats();
-        mMetadataManager.newRun(new Experiment(42L), "0", mSensorLayouts);
+        mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
         mDataController.getExperimentRun("0", new LoggingConsumer<ExperimentRun>("test", "test") {
             @Override
             public void success(ExperimentRun run) {
@@ -164,7 +166,7 @@ public class CropHelperTest extends AndroidTestCase {
         mDataController.addLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
                 mAddLabelConsumer);
-        mMetadataManager.newRun(new Experiment(42L), "0", mSensorLayouts);
+        mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
         mDataController.addScalarReading("sensor", 0, 1, 1); // This gets cropped out
         mDataController.addScalarReading("sensor", 0, 50, 50);
         mDataController.addScalarReading("sensor", 0, 60, 60);
@@ -200,7 +202,7 @@ public class CropHelperTest extends AndroidTestCase {
         mDataController.addLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
                 mAddLabelConsumer);
-        mMetadataManager.newRun(new Experiment(42L), "0", mSensorLayouts);
+        mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
         setEmptyStats();
         mDataController.getExperimentRun("0", new LoggingConsumer<ExperimentRun>("test", "test") {
             @Override

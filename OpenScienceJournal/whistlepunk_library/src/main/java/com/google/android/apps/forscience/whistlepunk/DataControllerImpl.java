@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.support.v4.util.ArrayMap;
-
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
@@ -25,6 +23,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -34,7 +33,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
-import com.google.android.apps.forscience.whistlepunk.metadata.Run;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase;
@@ -108,7 +106,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                                 new Callable<ApplicationLabel>() {
                                     @Override
                                     public ApplicationLabel call() throws Exception {
-                                        mMetaDataManager.updateRunLayouts(runId, layouts);
+                                        mMetaDataManager.updateTrialLayouts(runId, layouts);
                                         return label;
                                     }
                                 });
@@ -117,11 +115,11 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void updateRun(final Run run, MaybeConsumer<Success> onSuccess) {
+    public void updateTrial(final Trial trial, MaybeConsumer<Success> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {
-                mMetaDataManager.updateRun(run);
+                mMetaDataManager.updateTrial(trial);
                 return Success.SUCCESS;
             }
         });
@@ -132,7 +130,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {
-                mMetaDataManager.deleteRun(run.getRunId());
+                mMetaDataManager.deleteTrial(run.getTrialId());
                 removeRunSensorData(run);
                 return Success.SUCCESS;
             }
@@ -146,7 +144,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             public void run() {
                 TimeRange times = TimeRange.oldest(Range.closed(run.getFirstTimestamp(),
                         run.getLastTimestamp()));
-                for (String tag : run.getSensorTags()) {
+                for (String tag : run.getSensorIds()) {
                     mSensorDatabase.deleteScalarReadings(tag, times);
                 }
             }
@@ -249,8 +247,8 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                                 new Callable<ApplicationLabel>() {
                                     @Override
                                     public ApplicationLabel call() throws Exception {
-                                        mMetaDataManager.newRun(experiment, label.getRunId(),
-                                                sensorLayouts);
+                                        mMetaDataManager.newTrial(experiment, label.getRunId(),
+                                                label.getTimeStamp(), sensorLayouts);
                                         return label;
                                     }
                                 });
@@ -389,8 +387,14 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     private ExperimentRun buildExperimentRunOnDataThread(String startLabelId) {
         final List<Label> allLabels = mMetaDataManager.getLabelsWithStartId(startLabelId);
-        Run run = mMetaDataManager.getRun(startLabelId);
-        return ExperimentRun.fromLabels(run, allLabels);
+        List<ApplicationLabel> applicationLabels = new ArrayList<>();
+        for (Label label : allLabels) {
+            if (label instanceof ApplicationLabel) {
+                applicationLabels.add((ApplicationLabel) label);
+            }
+        }
+        Trial trial = mMetaDataManager.getTrial(startLabelId, applicationLabels);
+        return ExperimentRun.fromLabels(trial, allLabels);
     }
 
     @Override public void createProject(final MaybeConsumer<Project> onSuccess) {

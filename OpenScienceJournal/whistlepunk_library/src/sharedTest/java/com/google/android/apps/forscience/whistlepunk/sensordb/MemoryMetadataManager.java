@@ -23,16 +23,19 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.Run;
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashBasedTable;
@@ -46,13 +49,13 @@ import com.google.common.collect.Table;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class MemoryMetadataManager implements MetaDataManager {
     private Project mLastUsedProject = null;
@@ -63,7 +66,7 @@ public class MemoryMetadataManager implements MetaDataManager {
     private Table<String, String, TrialStats> mStats = HashBasedTable.create();
     private Map<String, List<GoosciSensorLayout.SensorLayout>> mLayouts = new HashMap<>();
     private Map<String, ExternalSensorSpec> mExternalSensors = new HashMap<>();
-    private Map<String, Run> mRuns = new HashMap<>();
+    private Map<String, Trial> mTrials = new HashMap<>();
     private ListMultimap<String, String> mExperimentIdsToRunIds = LinkedListMultimap.create();
     private Map<String, List<SensorTrigger>> mSensorTriggers = new HashMap<>();
 
@@ -299,28 +302,34 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public Run newRun(Experiment experiment, String runId,
+    public Trial newTrial(Experiment experiment, String runId, long startTimestamp,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-        final Run run = new Run(runId, mRuns.size(), deepCopy(sensorLayouts), true);
-        mRuns.put(run.getId(), run);
-        mExperimentIdsToRunIds.put(experiment.getExperimentId(), run.getId());
-        return run;
+        GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
+        trialProto.trialId = runId;
+        trialProto.sensorLayouts = deepCopy(sensorLayouts);
+        final Trial trial = Trial.fromTrial(trialProto);
+        mTrials.put(trial.getTrialId(), trial);
+        mExperimentIdsToRunIds.put(experiment.getExperimentId(), trial.getTrialId());
+        return trial;
     }
 
     @Override
-    public void updateRunLayouts(String runId, List<GoosciSensorLayout.SensorLayout> layouts) {
-        List<GoosciSensorLayout.SensorLayout> sensorLayouts = mRuns.get(runId).getSensorLayouts();
+    public void updateTrialLayouts(String trialId, List<GoosciSensorLayout.SensorLayout> layouts) {
+        List<GoosciSensorLayout.SensorLayout> sensorLayouts = mTrials.get(trialId).getSensorLayouts();
         sensorLayouts.clear();
-        sensorLayouts.addAll(deepCopy(layouts));
+        sensorLayouts.addAll(Arrays.asList(deepCopy(layouts)));
+        mTrials.get(trialId).setSensorLayouts(sensorLayouts);
     }
 
-    private List<GoosciSensorLayout.SensorLayout> deepCopy(
+    private GoosciSensorLayout.SensorLayout[] deepCopy(
             List<GoosciSensorLayout.SensorLayout> original) {
-        List<GoosciSensorLayout.SensorLayout> copy = new ArrayList<>();
-        for (GoosciSensorLayout.SensorLayout layout : original) {
+        GoosciSensorLayout.SensorLayout[] copy = new GoosciSensorLayout.SensorLayout[
+                original.size()];
+        for (int i = 0; i < original.size(); i++) {
+            GoosciSensorLayout.SensorLayout layout = original.get(i);
             try {
                 byte[] bytes = ExternalSensorSpec.getBytes(layout);
-                copy.add(GoosciSensorLayout.SensorLayout.parseFrom(bytes));
+                copy[i] = (GoosciSensorLayout.SensorLayout.parseFrom(bytes));
             } catch (InvalidProtocolBufferNanoException e) {
                 throw new RuntimeException(e);
             }
@@ -329,8 +338,11 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public Run getRun(String runId) {
-        return mRuns.get(runId);
+    public Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels) {
+        Trial trial = mTrials.get(trialId);
+        SimpleMetaDataManager.populateTrialProtoFromLabels(trial.getTrialProto(),
+                applicationLabels);
+        return trial;
     }
 
     @Override
@@ -365,12 +377,12 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public void updateRun(Run run) {
+    public void updateTrial(Trial trial) {
 
     }
 
     @Override
-    public void deleteRun(String runId) {
+    public void deleteTrial(String runId) {
 
     }
 

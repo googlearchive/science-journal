@@ -645,7 +645,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     private void setAutoZoomEnabled(boolean enableAutoZoom) {
         mExperimentRun.setAutoZoomEnabled(enableAutoZoom);
-        getDataController().updateRun(mExperimentRun.getRun(),
+        getDataController().updateTrial(mExperimentRun.getTrial(),
                 new LoggingConsumer<Success>(TAG, "update auto zoom") {
                     @Override
                     public void success(Success value) {
@@ -762,7 +762,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             @Override
             public void onReceive(Context context, Intent intent) {
                 String statsRunId = intent.getStringExtra(CropHelper.EXTRA_RUN_ID);
-                if (TextUtils.equals(statsRunId, mExperimentRun.getRunId())) {
+                if (TextUtils.equals(statsRunId, mExperimentRun.getTrialId())) {
                     String statsSensorId = intent.getStringExtra(CropHelper.EXTRA_SENSOR_ID);
                     GoosciSensorLayout.SensorLayout sensorLayout = getSensorLayout();
                     if (TextUtils.equals(statsSensorId, sensorLayout.sensorId)) {
@@ -988,7 +988,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     private void setArchived(final boolean archived) {
         mExperimentRun.setArchived(archived);
-        getDataController().updateRun(mExperimentRun.getRun(), new LoggingConsumer<Success>(TAG,
+        getDataController().updateTrial(mExperimentRun.getTrial(), new LoggingConsumer<Success>(TAG,
                 "Editing run") {
             @Override
             public void success(Success value) {
@@ -1023,7 +1023,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mAudioPlaybackController.stopPlayback();
         final GoosciSensorLayout.SensorLayout sensorLayout = getSensorLayout();
         populateSensorViews(rootView, sensorLayout);
-        updateSwitchSensorArrows(rootView, mExperimentRun.getSensorTags(), sensorLayout.sensorId);
+        updateSwitchSensorArrows(rootView, mExperimentRun.getSensorIds(), sensorLayout.sensorId);
 
         String sonificationType = getSonificationType(sensorLayout);
         mAudioPlaybackController.setSonificationType(sonificationType);
@@ -1036,7 +1036,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             final StatsList statsList) {
         final DataController dataController = getDataController();
         final ChartController.ChartLoadingStatus fragmentRef = this;
-        dataController.getStats(mExperimentRun.getRunId(), sensorLayout.sensorId,
+        dataController.getStats(mExperimentRun.getTrialId(), sensorLayout.sensorId,
                 new LoggingConsumer<TrialStats>(TAG, "load stats") {
                     @Override
                     public void success(final TrialStats trialStats) {
@@ -1226,7 +1226,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             long timestamp) {
         String labelTimeText =
                 PinnedNoteAdapter.getNoteTimeText(timestamp, mExperimentRun.getFirstTimestamp());
-        AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, mExperimentRun.getRunId(),
+        AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, mExperimentRun.getTrialId(),
                 mExperimentRun.getExperimentId(), R.string.add_note_hint_text,
                 /* show timestamp section */ true, labelTimeText, selectedValue, labelType,
                 PinnedNoteAdapter.getNoteTimeContentDescription(timestamp,
@@ -1687,7 +1687,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         }
 
         // Save the updated layouts to the DB.
-        getDataController().updateRun(mExperimentRun.getRun(),
+        getDataController().updateTrial(mExperimentRun.getTrial(),
                 LoggingConsumer.<Success>expectSuccess(TAG, "updating audio settings"));
     }
 
@@ -1762,7 +1762,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     @Override
     public String getRunId() {
-        return mExperimentRun.getRunId();
+        return mExperimentRun.getTrialId();
     }
 
     @Override

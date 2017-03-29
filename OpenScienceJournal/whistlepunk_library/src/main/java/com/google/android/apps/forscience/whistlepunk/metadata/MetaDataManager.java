@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 
 import java.util.List;
@@ -184,19 +185,19 @@ public interface MetaDataManager {
     void updateLastUsedExperiment(Experiment experiment);
 
     /**
-     * @param experiment which experiment this run is attached to
-     * @param runId the label that marks the start of this run
-     * @param sensorLayouts sensor layouts of sensors recording during the run
-     * @return a new Run object, which has been stored in the database
+     * @param experiment which experiment this trial is attached to
+     * @param trialId the label that marks the start of this trial
+     * @param sensorLayouts sensor layouts of sensors recording during the trial
+     * @return a new Trial object, which has been stored in the database
      */
-    Run newRun(Experiment experiment, String runId,
+    Trial newTrial(Experiment experiment, String trialId, long startTimestamp,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts);
 
     /**
-     * @param runId
-     * @return the Run stored with that id, or null if no such Run exists.
+     * @param trialId
+     * @return the Trial stored with that id, or null if no such Trial exists.
      */
-    Run getRun(String runId);
+    Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels);
 
     /**
      * Set the sensor selection and layout for an experiment
@@ -219,15 +220,15 @@ public interface MetaDataManager {
     void close();
 
     /**
-     * Updates a run.
+     * Updates a trial.
      */
-    void updateRun(Run run);
+    void updateTrial(Trial trial);
 
     /**
-     * Deletes a run and any of its associated labels.
-     * @param runId The ID of the run to delete
+     * Deletes a trial and any of its associated labels.
+     * @param trialId The ID of the trial to delete
      */
-    void deleteRun(String runId);
+    void deleteTrial(String trialId);
 
     /**
      * Adds a new trigger.
@@ -264,8 +265,8 @@ public interface MetaDataManager {
     void deleteSensorTrigger(SensorTrigger trigger);
 
     /**
-     * Updates the layouts for a run (usually to reflect any changes between starting to
+     * Updates the layouts for a trial (usually to reflect any changes between starting to
      * record and stopping.
      */
-    void updateRunLayouts(String runId, List<GoosciSensorLayout.SensorLayout> layouts);
+    void updateTrialLayouts(String trialId, List<GoosciSensorLayout.SensorLayout> layouts);
 }

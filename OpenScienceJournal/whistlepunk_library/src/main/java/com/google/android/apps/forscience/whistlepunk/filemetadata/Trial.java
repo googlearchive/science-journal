@@ -117,7 +117,7 @@ public class Trial extends LabelListHolder {
         mTrial.cropRange = cropRange;
     }
 
-    public List<String> getSensorTags() {
+    public List<String> getSensorIds() {
         List<String> result = new ArrayList<>();
         for (GoosciSensorLayout.SensorLayout layout : mTrial.sensorLayouts) {
             result.add(layout.sensorId);
@@ -152,6 +152,10 @@ public class Trial extends LabelListHolder {
         }
     }
 
+    public String getRawTitle() {
+        return mTrial.title;
+    }
+
     public void setTitle(String title) {
         mTrial.title = title;
     }
@@ -171,7 +175,13 @@ public class Trial extends LabelListHolder {
     }
 
     public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
-        return Arrays.asList(mTrial.sensorLayouts);
+        return new ArrayList(Arrays.asList(mTrial.sensorLayouts));
+    }
+
+    @VisibleForTesting
+    public void setSensorLayouts(List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+        mTrial.sensorLayouts = sensorLayouts.toArray(new GoosciSensorLayout.SensorLayout[
+                sensorLayouts.size()]);
     }
 
     public boolean getAutoZoomEnabled() {
@@ -195,6 +205,10 @@ public class Trial extends LabelListHolder {
         return mTrial.trialId;
     }
 
+    /**
+     * Deletes the trial and any assets associated with it, including labels and label pictures,
+     * run data, etc.
+     */
     public void deleteContents() {
         for (Label label : mLabels) {
             deleteLabel(label);

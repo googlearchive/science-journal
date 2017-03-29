@@ -1057,7 +1057,7 @@ public class ExperimentDetailsFragment extends Fragment
         void bindRun(final ViewHolder holder, final ExperimentDetailItem item) {
             final ExperimentRun run = item.getRun();
             final Context applicationContext = holder.itemView.getContext().getApplicationContext();
-            holder.setRunId(run.getRunId());
+            holder.setRunId(run.getTrialId());
             String title = run.getRunTitle(applicationContext);
             holder.runTitle.setText(title);
             holder.date.setTime(run.getFirstTimestamp());
@@ -1073,7 +1073,7 @@ public class ExperimentDetailsFragment extends Fragment
                 holder.noteCount.setVisibility(View.GONE);
             }
             holder.cardView.setOnClickListener(createRunClickListener(item.getSensorTagIndex()));
-            holder.cardView.setTag(R.id.run_title_text, run.getRunId());
+            holder.cardView.setTag(R.id.run_title_text, run.getTrialId());
 
             holder.itemView.findViewById(R.id.content).setAlpha(
                     applicationContext.getResources().getFraction(run.isArchived() ?
@@ -1087,18 +1087,18 @@ public class ExperimentDetailsFragment extends Fragment
                         R.string.archived_content_description, title));
             }
 
-            ViewCompat.setTransitionName(holder.itemView, run.getRunId());
+            ViewCompat.setTransitionName(holder.itemView, run.getTrialId());
             if (!run.isValidRun()) {
                 removeSensorData(holder);
 
-            } else if (run.getSensorTags().size() > 0) {
+            } else if (run.getSensorIds().size() > 0) {
                 loadSensorData(applicationContext, holder, item);
                 holder.sensorNext.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         //Sometimes we tap the button before it can disable so return if the button
                         //should be disabled.
-                        if (item.getSensorTagIndex() >= item.getRun().getSensorTags().size() - 1)
+                        if (item.getSensorTagIndex() >= item.getRun().getSensorIds().size() - 1)
                             return;
                         item.setSensorTagIndex(item.getSensorTagIndex() + 1);
                         loadSensorData(applicationContext, holder, item);
@@ -1160,8 +1160,8 @@ public class ExperimentDetailsFragment extends Fragment
         private void loadSensorData(Context appContext, final ViewHolder holder,
                                     final ExperimentDetailItem item) {
             final ExperimentRun run = item.getRun();
-            final String sensorTag = run.getSensorTags().get(item.getSensorTagIndex());
-            final String runId = run.getRunId();
+            final String sensorTag = run.getSensorIds().get(item.getSensorTagIndex());
+            final String runId = run.getTrialId();
 
             final SensorAppearance appearance = AppSingleton.getInstance(appContext)
                     .getSensorAppearanceProvider()
@@ -1172,7 +1172,7 @@ public class ExperimentDetailsFragment extends Fragment
             Appearances.applyDrawableToImageView(appearance.getIconDrawable(appContext),
                     holder.sensorImage, sensorLayout.color);
 
-            boolean hasNextButton = item.getSensorTagIndex() < run.getSensorTags().size() - 1;
+            boolean hasNextButton = item.getSensorTagIndex() < run.getSensorIds().size() - 1;
             boolean hasPrevButton = item.getSensorTagIndex() > 0;
             holder.sensorPrev.setVisibility(hasPrevButton ? View.VISIBLE : View.INVISIBLE);
             holder.sensorNext.setVisibility(hasNextButton ? View.VISIBLE : View.INVISIBLE);
@@ -1190,7 +1190,7 @@ public class ExperimentDetailsFragment extends Fragment
             setIndeterminateSensorData(holder);
             final DataController dc = AppSingleton.getInstance(appContext).getDataController();
             dc.getStats(
-                    run.getRunId(), run.getSensorTags().get(item.getSensorTagIndex()),
+                    run.getTrialId(), run.getSensorIds().get(item.getSensorTagIndex()),
                     new LoggingConsumer<TrialStats>(TAG,
                             "loading stats") {
                         @Override
@@ -1273,7 +1273,7 @@ public class ExperimentDetailsFragment extends Fragment
                 if (run == null) {
                     continue;
                 }
-                if (TextUtils.equals(statsRunId, run.getRunId())) {
+                if (TextUtils.equals(statsRunId, run.getTrialId())) {
                     // Rebind the View Holder to reload the stats and graphs.
                     notifyItemChanged(i);
                     return;
@@ -1396,7 +1396,7 @@ public class ExperimentDetailsFragment extends Fragment
                 mRun = run;
                 mTimestamp = mRun.getFirstTimestamp();
                 mViewType = VIEW_TYPE_RUN_CARD;
-                mSensorTagIndex = run.getSensorTags().size() > 0 ? 0 : -1;
+                mSensorTagIndex = run.getSensorIds().size() > 0 ? 0 : -1;
                 mChartController = new ChartController(
                         ChartOptions.ChartPlacementType.TYPE_PREVIEW_REVIEW,
                         scalarDisplayOptions);
@@ -1446,11 +1446,11 @@ public class ExperimentDetailsFragment extends Fragment
             }
 
             String getNextSensorId() {
-                return mRun.getSensorTags().get(mSensorTagIndex + 1);
+                return mRun.getSensorIds().get(mSensorTagIndex + 1);
             }
 
             String getPrevSensorId() {
-                return mRun.getSensorTags().get(mSensorTagIndex - 1);
+                return mRun.getSensorIds().get(mSensorTagIndex - 1);
             }
 
             void setSensorTagIndex(int index) {

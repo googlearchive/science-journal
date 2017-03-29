@@ -38,7 +38,9 @@ import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
@@ -74,7 +76,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
      * List of table names. NOTE: when adding a new table, make sure to delete the metadata in the
      * appropriate delete calls: {@link #deleteProject(Project)},
      * {@link #deleteExperiment(Experiment)}, {@link #deleteLabel(Label)},
-     * {@link #deleteRun(String)}, {@link #deleteSensorTrigger(SensorTrigger)}, etc.
+     * {@link #deleteTrial(String)}, {@link #deleteSensorTrigger(SensorTrigger)}, etc.
      */
     interface Tables {
         String PROJECTS = "projects";
@@ -277,7 +279,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         List<String> runIds = getExperimentRunIds(experiment.getExperimentId(),
                 /* include archived runs */ true);
         for (String runId : runIds) {
-            deleteRun(runId);
+            deleteTrial(runId);
         }
         List<Label> labels = getLabelsForExperiment(experiment);
         for (Label label : labels) {
@@ -404,25 +406,36 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public Run newRun(Experiment experiment, String runId,
+    public Trial newTrial(Experiment experiment, String trialId, long startTimestamp,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
         // How many runs already exist?
         List<String> runIds = getExperimentRunIds(experiment.getExperimentId(),
                 /* include archived runs for indexing */ true);
         int runIndex = runIds.size();
         synchronized (mLock) {
-            insertRun(runId, runIndex);
-            insertRunSensors(runId, sensorLayouts);
+            insertTrial(trialId, runIndex);
+            insertRunSensors(trialId, sensorLayouts);
         }
 
-        return new Run(runId, runIndex, sensorLayouts, /* enable auto zoom by default */ true);
+        // Can't use Trial.newTrial because runId must be the start label ID for this trial.
+        // That method can be used after DB upgrade, however.
+        GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
+        trialProto.creationTimeMs = mClock.getNow();
+        trialProto.sensorLayouts = sensorLayouts.toArray(
+                new GoosciSensorLayout.SensorLayout[sensorLayouts.size()]);
+        trialProto.trialId = trialId;
+        trialProto.archived = false;
+        trialProto.autoZoomEnabled = true;
+        trialProto.recordingRange = new GoosciTrial.Range();
+        trialProto.recordingRange.startMs = startTimestamp;
+        return Trial.fromTrial(trialProto);
     }
 
-    private void insertRun(String runId, int runIndex) {
+    private void insertTrial(String trialId, int runIndex) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             final ContentValues values = new ContentValues();
-            values.put(RunsColumns.RUN_ID, runId);
+            values.put(RunsColumns.RUN_ID, trialId);
             values.put(RunsColumns.RUN_INDEX, runIndex);
             values.put(RunsColumns.TIMESTAMP, getCurrentTime());
             values.put(RunsColumns.ARCHIVED, false);
@@ -448,7 +461,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public void updateRunLayouts(String runId,
+    public void updateTrialLayouts(String trialId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -456,7 +469,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             String where =
                     RunSensorsColumns.RUN_ID + "=? AND " + RunSensorsColumns.POSITION + "=?";
             String[] whereArgs = new String[2];
-            whereArgs[0] = runId;
+            whereArgs[0] = trialId;
             for (int i = 0; i < sensorLayouts.size(); i++) {
                 fillLayoutValues(values, sensorLayouts.get(i));
                 whereArgs[1] = String.valueOf(i);
@@ -470,7 +483,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         values.put(RunSensorsColumns.LAYOUT, ProtoUtils.makeBlob(layout));
     }
 
-    private void updateRunSensors(String runId,
+    // TODO: How is this different from updateTrialLayouts above?
+    private void updateTrialSensors(String runId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -485,45 +499,47 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public void updateRun(Run run) {
+    public void updateTrial(Trial trial) {
         // Only the layout, title, archived state, and autozoom selection can be edited.
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             final ContentValues values = new ContentValues();
-            values.put(RunsColumns.TITLE, run.getTitle());
-            values.put(RunsColumns.ARCHIVED, run.isArchived());
-            values.put(RunsColumns.AUTO_ZOOM_ENABLED, run.getAutoZoomEnabled());
+            values.put(RunsColumns.TITLE, trial.getRawTitle());
+            values.put(RunsColumns.ARCHIVED, trial.isArchived());
+            values.put(RunsColumns.AUTO_ZOOM_ENABLED, trial.getAutoZoomEnabled());
             db.update(Tables.RUNS, values, RunsColumns.RUN_ID + "=?",
-                    new String[]{run.getId()});
+                    new String[]{trial.getTrialId()});
         }
-        updateRunSensors(run.getId(), run.getSensorLayouts());
+        updateTrialSensors(trial.getTrialId(), trial.getSensorLayouts());
     }
 
     @Override
-    public Run getRun(String runId) {
+    public Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels) {
         List<GoosciSensorLayout.SensorLayout> sensorLayouts = new ArrayList<>();
         int runIndex = -1;
         boolean archived = false;
         String title = "";
         boolean autoZoomEnabled = true;
+        long creationTimeMs = -1;
 
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
             final String selection = RunSensorsColumns.RUN_ID + "=?";
-            final String[] selectionArgs = new String[]{runId};
+            final String[] selectionArgs = new String[]{trialId};
 
             Cursor cursor = null;
             try {
                 cursor = db.query(Tables.RUNS, new String[]{RunsColumns.RUN_INDEX,
                                 RunsColumns.TITLE, RunsColumns.ARCHIVED,
-                                RunsColumns.AUTO_ZOOM_ENABLED},
+                                RunsColumns.AUTO_ZOOM_ENABLED, RunsColumns.TIMESTAMP},
                         selection, selectionArgs, null, null, null);
                 if (cursor != null & cursor.moveToFirst()) {
                     runIndex = cursor.getInt(0);
                     title = cursor.getString(1);
                     archived = cursor.getInt(2) != 0;
                     autoZoomEnabled = cursor.getInt(3) != 0;
+                    creationTimeMs = cursor.getLong(4);
                 }
             } finally {
                 if (cursor != null) {
@@ -562,12 +578,45 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
         }
         if (runIndex != -1) {
-            Run result = new Run(runId, runIndex, sensorLayouts, autoZoomEnabled);
-            result.setArchived(archived);
-            result.setTitle(title);
+            GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
+            trialProto.trialId = trialId;
+            trialProto.sensorLayouts = sensorLayouts.toArray(
+                    new GoosciSensorLayout.SensorLayout[sensorLayouts.size()]);
+            trialProto.title = title;
+            trialProto.autoZoomEnabled = autoZoomEnabled;
+            trialProto.archived = archived;
+            trialProto.creationTimeMs = creationTimeMs;
+
+            populateTrialProtoFromLabels(trialProto, applicationLabels);
+
+            Trial result = Trial.fromTrial(trialProto);
             return result;
         } else {
             return null;
+        }
+    }
+
+    @VisibleForTesting
+    public static void populateTrialProtoFromLabels(GoosciTrial.Trial trialProto,
+            List<ApplicationLabel> applicationLabels) {
+        // Populate the recording and crop ranges from labels.
+        trialProto.recordingRange = new GoosciTrial.Range();
+        for (ApplicationLabel label : applicationLabels) {
+            if (label.getType() == ApplicationLabel.TYPE_RECORDING_START) {
+                trialProto.recordingRange.startMs = label.getTimeStamp();
+            } else if (label.getType() == ApplicationLabel.TYPE_RECORDING_STOP) {
+                trialProto.recordingRange.endMs = label.getTimeStamp();
+            } else if (label.getType() == ApplicationLabel.TYPE_CROP_START) {
+                if (trialProto.cropRange == null) {
+                    trialProto.cropRange = new GoosciTrial.Range();
+                }
+                trialProto.cropRange.startMs = label.getTimeStamp();
+            } else if (label.getType() == ApplicationLabel.TYPE_CROP_END) {
+                if (trialProto.cropRange == null) {
+                    trialProto.cropRange = new GoosciTrial.Range();
+                }
+                trialProto.cropRange.endMs = label.getTimeStamp();
+            }
         }
     }
 
@@ -643,7 +692,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public void deleteRun(String runId) {
+    public void deleteTrial(String runId) {
         for (Label label : getLabelsWithStartId(runId)) {
             deleteLabel(label);
         }

@@ -97,13 +97,13 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    private ArrayList<Label> mPinnedNotes = new ArrayList<>();
+    private List<Label> mPinnedNotes = new ArrayList<>();
     private long mStartTimestamp;
     private long mEndTimestamp;
     private ListItemEditListener mEditListener;
     private ListItemClickListener mClickListener;
 
-    public PinnedNoteAdapter(ArrayList<Label> pinnedNotes, long startTimestamp, long endTimestamp) {
+    public PinnedNoteAdapter(List<Label> pinnedNotes, long startTimestamp, long endTimestamp) {
         mPinnedNotes = pinnedNotes;
         mStartTimestamp = startTimestamp;
         mEndTimestamp = endTimestamp;

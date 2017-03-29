@@ -28,7 +28,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
@@ -37,8 +36,6 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
-import com.google.android.apps.forscience.whistlepunk.metadata.Run;
 
 /**
  * Fragment for updating a run's metadata.
@@ -127,7 +124,7 @@ public class UpdateRunFragment extends Fragment {
 
     private void saveAndReturn() {
         mExperimentRun.setRunTitle(mRunTitle.getText().toString().trim());
-        getDataController().updateRun(mExperimentRun.getRun(), new LoggingConsumer<Success>(TAG,
+        getDataController().updateTrial(mExperimentRun.getTrial(), new LoggingConsumer<Success>(TAG,
                 "updating run") {
             @Override
             public void success(Success value) {

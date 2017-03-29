@@ -17,7 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk.review;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Run;
 
@@ -75,9 +77,10 @@ public class RunReviewExporterTest {
     }
 
     private ExperimentRun makeExperimentRun(String runTitle) {
-        Run run = new Run("runId", 0, new ArrayList<GoosciSensorLayout.SensorLayout>(), false);
-        run.setTitle(runTitle);
-        return ExperimentRun.fromLabels(run, new ArrayList<Label>());
+        GoosciTrial.Trial trial = new GoosciTrial.Trial();
+        trial.trialId ="runId";
+        trial.title = runTitle;
+        return ExperimentRun.fromLabels(Trial.fromTrial(trial), new ArrayList<Label>());
     }
 
 

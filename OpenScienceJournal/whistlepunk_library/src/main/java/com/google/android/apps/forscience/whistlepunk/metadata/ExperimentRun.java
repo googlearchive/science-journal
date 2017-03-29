@@ -17,27 +17,21 @@
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.content.Context;
-import android.text.TextUtils;
 
-import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExperimentRun {
-    private static final long NO_TIME_SPECIFIED = -1;
-
-    private final long mStartTime;
-    private final long mStopTime;
     private final ArrayList<Label> mLabels;
-    private final Run mRun;
-    private String mExperimentId;
-    private CropHelper.CropLabels mCropLabels;
 
-    public static ExperimentRun fromLabels(Run run, List<Label> allLabels) {
-        long startTime = NO_TIME_SPECIFIED;
-        long stopTime = NO_TIME_SPECIFIED;
+    private Trial mTrial;
+    private String mExperimentId;
+    private CropHelper.CropLabels mCropLabels; // Need these around for writing to the DB
+
+    public static ExperimentRun fromLabels(Trial trial, List<Label> allLabels) {
         ArrayList<Label> labels = new ArrayList<>();
         CropHelper.CropLabels cropLabels = new CropHelper.CropLabels();
         String experimentId = null;
@@ -45,10 +39,7 @@ public class ExperimentRun {
             if (label instanceof ApplicationLabel) {
                 ApplicationLabel appLabel = (ApplicationLabel) label;
                 if (appLabel.getType() == ApplicationLabel.TYPE_RECORDING_START) {
-                    startTime = appLabel.getTimeStamp();
                     experimentId = appLabel.getExperimentId();
-                } else if (appLabel.getType() == ApplicationLabel.TYPE_RECORDING_STOP) {
-                    stopTime = appLabel.getTimeStamp();
                 } else if (appLabel.getType() == ApplicationLabel.TYPE_CROP_START) {
                     cropLabels.cropStartLabel = (ApplicationLabel) label;
                 } else if (appLabel.getType() == ApplicationLabel.TYPE_CROP_END) {
@@ -58,24 +49,23 @@ public class ExperimentRun {
                 labels.add(label);
             }
         }
-        return new ExperimentRun(run, experimentId, startTime, stopTime, labels, cropLabels);
+        return new ExperimentRun(trial, experimentId, labels, cropLabels);
     }
 
-    private ExperimentRun(Run run, String experimentId, long startTime, long stopTime,
+    private ExperimentRun(Trial trial, String experimentId,
             ArrayList<Label> labels, CropHelper.CropLabels cropLabels) {
+        mTrial = trial;
         mExperimentId = experimentId;
-        mStartTime = startTime;
-        mStopTime = stopTime;
         mLabels = labels;
         mCropLabels = cropLabels;
-        mRun = run;
     }
 
     public int getNoteCount() {
-        return mLabels.size();
+        return mTrial.getLabelCount();
     }
 
-    public ArrayList<Label> getPinnedNotes() {
+    public List<Label> getPinnedNotes() {
+        // TODO: Switch to List<filemetadata.Label when possible
         return mLabels;
     }
 
@@ -93,86 +83,79 @@ public class ExperimentRun {
     }
 
     public long getFirstTimestamp() {
-        return mCropLabels.cropStartLabel == null ?
-                mStartTime : mCropLabels.cropStartLabel.getTimeStamp();
+        return mTrial.getFirstTimestamp();
     }
 
     public long getLastTimestamp() {
-        return mCropLabels.cropEndLabel == null ?
-                mStopTime : mCropLabels.cropEndLabel.getTimeStamp();
+        return mTrial.getLastTimestamp();
     }
 
     public long getOriginalFirstTimestamp() {
-        return mStartTime;
+        return mTrial.getOriginalFirstTimestamp();
     }
 
     public long getOriginalLastTimestamp() {
-        return mStopTime;
+        return mTrial.getOriginalLastTimestamp();
     }
 
     public CropHelper.CropLabels getCropLabels() {
+        // TODO: Delete crop labels and use trial crop range during DB to File upgrade.
         return mCropLabels;
     }
 
-    public List<String> getSensorTags() {
-        return mRun.getSensorIds();
+    public void setCropLabels(CropHelper.CropLabels cropLabels) {
+        mCropLabels = cropLabels;
+        GoosciTrial.Range cropRange = new GoosciTrial.Range();
+        cropRange.startMs = cropLabels.cropStartLabel.getTimeStamp();
+        cropRange.endMs = cropLabels.cropEndLabel.getTimeStamp();
+        mTrial.setCropRange(cropRange);
+    }
+
+    public List<String> getSensorIds() {
+        return mTrial.getSensorIds();
     }
 
     public long elapsedSeconds() {
-        // TODO: write tests?
-        if (!isValidRun()) {
-            return 0;
-        } else {
-            return Math.round((getLastTimestamp() - getFirstTimestamp()) / 1000.0);
-        }
+        return mTrial.elapsedSeconds();
     }
 
-    public String getRunId() {
-        return mRun.getId();
+    public String getTrialId() {
+        return mTrial.getTrialId();
     }
 
     public boolean isValidRun() {
-        return mStartTime > 0 && mStopTime > mStartTime;
+        return mTrial.isValid();
     }
 
     public String getRunTitle(Context context) {
-        if (TextUtils.isEmpty(mRun.getTitle())) {
-            if (mRun.getRunIndex() != -1) {
-                return context.getString(R.string.run_label,
-                        Integer.toString(mRun.getRunIndex() + 1));
-            } else {
-                return context.getString(R.string.run_label, "");
-            }
-        } else {
-            return mRun.getTitle();
-        }
+        return mTrial.getTitle(context);
     }
 
     public void setRunTitle(String title) {
-        mRun.setTitle(title);
+        mTrial.setTitle(title);
     }
 
     public boolean isArchived() {
-        return mRun.isArchived();
+        return mTrial.isArchived();
     }
 
     public void setArchived(boolean isArchived) {
-        mRun.setArchived(isArchived);
+        mTrial.setArchived(isArchived);
     }
 
-    public Run getRun() {
-        return mRun;
+    public Trial getTrial() {
+        return mTrial;
     }
 
     public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
-        return mRun.getSensorLayouts();
+        return mTrial.getSensorLayouts();
     }
 
     public boolean getAutoZoomEnabled() {
-        return mRun.getAutoZoomEnabled();
+        return mTrial.getAutoZoomEnabled();
     }
 
     public void setAutoZoomEnabled(boolean enableAutoZoom) {
-        mRun.setAutoZoomEnabled(enableAutoZoom);
+        mTrial.setAutoZoomEnabled(enableAutoZoom);
     }
 }

@@ -133,6 +133,7 @@ public class CropHelper {
             // It is already cropped, so we can edit the old crop labels.
             cropLabels.cropStartLabel.setTimestamp(startTimestamp);
             cropLabels.cropEndLabel.setTimestamp(endTimestamp);
+            run.setCropLabels(cropLabels);
             mDataController.editLabel(cropLabels.cropStartLabel,
                     new LoggingConsumer<Label>(TAG, "edit crop start label") {
                         @Override
@@ -150,16 +151,17 @@ public class CropHelper {
             // Otherwise we make new crop labels.
             ApplicationLabel cropStartLabel = new ApplicationLabel(
                     ApplicationLabel.TYPE_CROP_START, mDataController.generateNewLabelId(),
-                    run.getRunId(), startTimestamp);
+                    run.getTrialId(), startTimestamp);
             final ApplicationLabel cropEndLabel = new ApplicationLabel(
                     ApplicationLabel.TYPE_CROP_END, mDataController.generateNewLabelId(),
-                    run.getRunId(), endTimestamp);
+                    run.getTrialId(), endTimestamp);
             cropStartLabel.setExperimentId(run.getExperimentId());
             cropEndLabel.setExperimentId(run.getExperimentId());
 
             // Update the run.
             cropLabels.cropStartLabel = cropStartLabel;
             cropLabels.cropEndLabel = cropEndLabel;
+            run.setCropLabels(cropLabels);
 
             // Add new crop labels to the database.
             mDataController.addLabel(cropStartLabel,
@@ -189,7 +191,7 @@ public class CropHelper {
         mStatsUpdated = 0;
         for (GoosciSensorLayout.SensorLayout layout : run.getSensorLayouts()) {
             final String sensorId = layout.sensorId;
-            mDataController.setSensorStatsStatus(run.getRunId(), sensorId,
+            mDataController.setSensorStatsStatus(run.getTrialId(), sensorId,
                     GoosciTrial.SensorTrialStats.NEEDS_UPDATE,
                     new LoggingConsumer<Success>(TAG, "update stats") {
                         @Override
@@ -265,12 +267,13 @@ public class CropHelper {
                                 // like zoom tiers and zoom levels.
                                 TrialStats trialStats = mStatsAccumulator.makeSaveableStats();
                                 trialStats.setStatStatus(GoosciTrial.SensorTrialStats.VALID);
-                                dc.updateTrialStats(mExperimentRun.getRunId(), mSensorId, trialStats,
+                                dc.updateTrialStats(mExperimentRun.getTrialId(), mSensorId,
+                                        trialStats,
                                         new LoggingConsumer<Success>(TAG, "update stats") {
                                             @Override
                                             public void success(Success value) {
                                                 sendStatsUpdatedBroadcast(mContext, mSensorId,
-                                                        mExperimentRun.getRunId());
+                                                        mExperimentRun.getTrialId());
                                             }
                                         });
                             } else {

@@ -20,6 +20,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -54,7 +55,7 @@ public interface DataController {
             List<GoosciSensorLayout.SensorLayout> layouts,
             MaybeConsumer<ApplicationLabel> onSuccess);
 
-    void updateRun(final Run run, MaybeConsumer<Success> onSuccess);
+    void updateTrial(final Trial trial, MaybeConsumer<Success> onSuccess);
 
     void deleteRun(ExperimentRun run, MaybeConsumer<Success> onSuccess);
 

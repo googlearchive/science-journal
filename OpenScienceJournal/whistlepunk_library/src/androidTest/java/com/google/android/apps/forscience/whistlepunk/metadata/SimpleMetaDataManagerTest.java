@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
 import android.text.TextUtils;
@@ -25,7 +24,6 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
@@ -33,13 +31,14 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInpu
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -308,13 +307,13 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         final List<String> experimentRunIds = mMetaDataManager.getExperimentRunIds(
                 experiment.getExperimentId(), true);
         assertEquals(Lists.newArrayList(), experimentRunIds);
-        mMetaDataManager.newRun(experiment, startId1.getRunId(),
+        mMetaDataManager.newTrial(experiment, startId1.getRunId(), 0,
                 new ArrayList<GoosciSensorLayout.SensorLayout>());
         mTestSystemClock.advanceClock();
-        mMetaDataManager.newRun(experiment, startId2.getRunId(),
+        mMetaDataManager.newTrial(experiment, startId2.getRunId(), 2,
                 new ArrayList<GoosciSensorLayout.SensorLayout>());
         mTestSystemClock.advanceClock();
-        mMetaDataManager.newRun(experiment, startId3.getRunId(),
+        mMetaDataManager.newTrial(experiment, startId3.getRunId(), 5,
                 new ArrayList<GoosciSensorLayout.SensorLayout>());
         mTestSystemClock.advanceClock();
         final List<String> experimentRunIds2 = mMetaDataManager.getExperimentRunIds(
@@ -537,23 +536,24 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
                 Lists.newArrayList(layout1, layout2);
         final ArrayList<String> sensorIds = Lists.newArrayList("sensor1", "sensor2");
-        Run saved = mMetaDataManager.newRun(experiment, startLabel.getRunId(), sensorLayouts);
-        Run loaded = mMetaDataManager.getRun(startLabel.getLabelId());
-        assertEquals(startLabel.getLabelId(), saved.getId());
-        assertEquals(startLabel.getLabelId(), loaded.getId());
+        Trial saved = mMetaDataManager.newTrial(experiment, startLabel.getRunId(),
+                startLabel.getTimeStamp(), sensorLayouts);
+        Trial loaded = mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel));
+        assertEquals(startLabel.getLabelId(), saved.getTrialId());
+        assertEquals(startLabel.getLabelId(), loaded.getTrialId());
         assertEquals(sensorIds, saved.getSensorIds());
         assertEquals(sensorIds, loaded.getSensorIds());
         assertEquals(5, saved.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
         assertEquals(5, loaded.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
 
         layout1.maximumYAxisValue = 15;
-        mMetaDataManager.updateRunLayouts(startLabel.getLabelId(), sensorLayouts);
-        Run updated = mMetaDataManager.getRun(startLabel.getLabelId());
+        mMetaDataManager.updateTrialLayouts(startLabel.getLabelId(), sensorLayouts);
+        Trial updated = mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel));
         assertEquals(15, updated.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
 
         // Test that runs are deleted.
-        mMetaDataManager.deleteRun(startLabel.getLabelId());
-        loaded = mMetaDataManager.getRun(startLabel.getLabelId());
+        mMetaDataManager.deleteTrial(startLabel.getLabelId());
+        loaded = mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel));
         assertNull(loaded);
     }
 
@@ -568,14 +568,15 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
                 Lists.newArrayList(layout1, layout2);
         mMetaDataManager.addLabel(experiment, startLabel);
-        mMetaDataManager.newRun(experiment, startLabel.getRunId(), sensorLayouts);
+        mMetaDataManager.newTrial(experiment, startLabel.getRunId(), startLabel.getTimeStamp(),
+                sensorLayouts);
         mMetaDataManager.setExperimentSensorLayouts(experiment.getExperimentId(), sensorLayouts);
 
         mMetaDataManager.deleteExperiment(experiment);
 
         assertNull(mMetaDataManager.getExperimentById(experiment.getExperimentId()));
         // Test that runs are deleted when deleting experiments.
-        assertNull(mMetaDataManager.getRun(startLabel.getLabelId()));
+        assertNull(mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel)));
         // Test that sensor layouts are gone.
         assertEquals(0, mMetaDataManager.getExperimentSensorLayouts(experiment.getExperimentId())
                 .size());
@@ -592,7 +593,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
                 Lists.newArrayList(layout1, layout2);
         mMetaDataManager.addLabel(experiment, startLabel);
-        Run saved = mMetaDataManager.newRun(experiment, startLabel.getRunId(), sensorLayouts);
+        Trial saved = mMetaDataManager.newTrial(experiment, startLabel.getRunId(),
+                startLabel.getTimeStamp(), sensorLayouts);
 
         mMetaDataManager.deleteProject(project);
 
@@ -600,7 +602,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
         // Test that experiments and runs are deleted when deleting projects.
         assertNull(mMetaDataManager.getExperimentById(experiment.getExperimentId()));
-        assertNull(mMetaDataManager.getRun(startLabel.getLabelId()));
+        assertNull(mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel)));
         assertEquals(0, mMetaDataManager.getLabelsWithStartId(startLabel.getLabelId()).size());
     }
 

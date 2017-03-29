@@ -19,6 +19,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -66,7 +67,7 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void updateRun(Run run, MaybeConsumer<Success> onSuccess) {
+    public void updateTrial(Trial trial, MaybeConsumer<Success> onSuccess) {
 
     }
 

@@ -35,7 +35,6 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.review.ZoomPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
@@ -531,7 +530,7 @@ public class ChartController {
         mChartOptions.setRecordingTimes(firstTimestamp, lastTimestamp,
                 run.getOriginalFirstTimestamp(), run.getOriginalLastTimestamp());
         mSensorId = sensorLayout.sensorId;
-        tryLoadingChartData(run.getRunId(), sensorLayout, dc,
+        tryLoadingChartData(run.getTrialId(), sensorLayout, dc,
                 mChartOptions.getRecordingStartTime(), mChartOptions.getRecordingEndTime(), status,
                 stats, fullChartLoadDataCallback);
     }

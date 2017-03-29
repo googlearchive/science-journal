@@ -6,9 +6,12 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.*;
+import com.google.common.collect.Lists;
 
 import org.junit.Test;
+
+import java.util.ArrayList;
 
 /**
  * Tests for the Trial class.
@@ -71,7 +74,7 @@ public class TrialUnitTest {
     public void testGetSensorInfo() {
         Trial trial = makeSimpleTrial(1000, "sensorId");
         trial.setRecordingEndTime(2000);
-        assertTrue(trial.getSensorTags().contains("sensorId"));
+        assertTrue(trial.getSensorIds().contains("sensorId"));
     }
 
     @Test
@@ -101,5 +104,14 @@ public class TrialUnitTest {
 
         Trial firstAgain = Trial.fromTrial(first.getTrialProto());
         assertEquals(first.getTrialId(), firstAgain.getTrialId());
+    }
+
+    @Test
+    public void testElapsedSeconds() {
+        Trial trial = Trial.newTrial(7, new GoosciSensorLayout.SensorLayout[0]);
+        assertEquals(0, trial.elapsedSeconds());
+
+        trial.setRecordingEndTime(5007);
+        assertEquals(5, trial.elapsedSeconds());
     }
 }
