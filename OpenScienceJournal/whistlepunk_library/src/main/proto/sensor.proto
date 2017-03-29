@@ -19,6 +19,7 @@ syntax = "proto2";
 package goosci;
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "GoosciSensor";
+option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 // Common messages which can go Phone -> Device or Device -> Phone.
@@ -98,11 +99,6 @@ message SensorDataRequest {
 };
 
 /// Device -> Phone reponses
-
-// Legacy SensorConfig
-message BleSensorConfig {
-  optional string address = 1;
-}
 
 // AnalogValue contains a stream of single-dimensional integer values
 // collected from an analog pin on the Device.
