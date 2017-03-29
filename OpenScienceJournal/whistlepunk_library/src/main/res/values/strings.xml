@@ -1362,6 +1362,12 @@ Permissions notice:
     <!-- Error message when a crop fails due to an invalid data state [CHAR_LIMIT=100] -->
     <string name="crop_failed_invalid_state">Invalid state</string>
 
+    <!-- Title of developer option to enable Android StrictMode [CHAR_LIMIT=35] -->
+    <string name="dev_tools_strict_mode_title" translatable="false">Enable Android StrictMode</string>
+
+    <!-- Summary of developer option to enable Android StrictMode [CHAR_LIMIT=none] -->
+    <string name="dev_tools_strict_mode_summary" translatable="false">Changes to this setting only take effect after closing the application.</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

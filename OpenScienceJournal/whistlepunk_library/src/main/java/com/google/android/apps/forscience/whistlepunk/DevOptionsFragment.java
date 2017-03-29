@@ -39,6 +39,7 @@ public class DevOptionsFragment extends PreferenceFragment {
     private static final String KEY_VIDEO_SENSOR = "enable_video_sensor";
     private static final String KEY_DEV_TOOLS = "dev_tools";
     private static final String KEY_LEAK_CANARY = "leak_canary";
+    private static final String KEY_STRICT_MODE = "strict_mode";
     public static final String KEY_DEV_SONIFICATION_TYPES = "enable_dev_sonification_types";
     public static final String KEY_ENABLE_ZOOM_IN = "live_zoom_type";
     public static final String KEY_BAROMETER_SENSOR = "enable_barometer_sensor";
@@ -126,6 +127,10 @@ public class DevOptionsFragment extends PreferenceFragment {
     public static boolean isLeakCanaryEnabled(Context context) {
         // Enable by default for non user builds, otherwise respect the preference.
         return getBoolean(KEY_LEAK_CANARY, !Build.TYPE.equals("user"), context);
+    }
+
+    public static boolean isStrictModeEnabled(Context context) {
+        return getBoolean(KEY_STRICT_MODE, false, context);
     }
 
     public static boolean isDebugVersion(Context context) {
