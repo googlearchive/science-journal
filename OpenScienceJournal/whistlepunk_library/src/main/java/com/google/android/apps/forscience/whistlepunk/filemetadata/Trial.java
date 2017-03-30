@@ -24,23 +24,34 @@ public class Trial {
     private List<Label> mLabels;
     private Map<String, TrialStats> mTrialStats;
 
-    // TODO: Does a trial need to track the index and name of the experiment it is in for
-    // user navigation? Probably we can track that elsewhere.
+    /**
+     * Populates the Trial from an existing proto.
+     */
+    public static Trial fromTrial(GoosciTrial.Trial trial, List<Label> labels) {
+        return new Trial(trial, labels);
+    }
 
-    public Trial(GoosciTrial.Trial trial, List<Label> labels) {
+    /**
+     * When recording starts on a trial, this is the bare minimum of information needed to save it.
+     */
+    public static Trial newTrial(long startTimeMs, GoosciSensorLayout.SensorLayout[] sensorLayouts) {
+        String trialId = java.util.UUID.randomUUID().toString();
+        return new Trial(startTimeMs, sensorLayouts, trialId);
+    }
+
+    private Trial(GoosciTrial.Trial trial, List<Label> labels) {
         mTrial = trial;
         mLabels = labels;
         mTrialStats = TrialStats.fromTrial(mTrial);
     }
 
-    // When recording starts on a trial, this is the bare minimum of information needed to save it.
-    public Trial(long startTimeMs, GoosciSensorLayout.SensorLayout[] sensorLayouts,
-            String dataResourceId) {
+    private Trial(long startTimeMs, GoosciSensorLayout.SensorLayout[] sensorLayouts,
+            String trialId) {
         mTrial = new GoosciTrial.Trial();
         mTrial.recordingRange = new GoosciTrial.Range();
         mTrial.recordingRange.startMs = startTimeMs;
         mTrial.sensorLayouts = sensorLayouts;
-        mTrial.trialDataResourceId = dataResourceId;
+        mTrial.trialId = trialId;
         mLabels = new ArrayList<>();
         mTrialStats = new HashMap<>();
     }
@@ -60,6 +71,10 @@ public class Trial {
             }
         }
         return null;
+    }
+
+    public long getCreationTimeMs() {
+        return mTrial.creationTimeMs;
     }
 
     public long getFirstTimestamp() {
@@ -164,12 +179,9 @@ public class Trial {
         mTrialStats.put(newTrialStats.getSensorId(), newTrialStats);
     }
 
-    public String getDataResourceId() {
-        return mTrial.trialDataResourceId;
-    }
-
-    public void setDataResourceId(String resourceId) {
-        mTrial.trialDataResourceId = resourceId;
+    // The Trial ID cannot be set after it is created.
+    public String getTrialId() {
+        return mTrial.trialId;
     }
 
     private void updateTrialProtoWithStats() {

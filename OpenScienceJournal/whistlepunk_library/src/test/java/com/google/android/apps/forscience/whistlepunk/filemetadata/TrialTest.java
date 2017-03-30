@@ -2,6 +2,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -18,7 +19,7 @@ public class TrialTest {
         GoosciSensorLayout.SensorLayout[] layouts = new GoosciSensorLayout.SensorLayout[]{
                 new GoosciSensorLayout.SensorLayout()};
         layouts[0].sensorId =  sensorId;
-        return new Trial(startTime, layouts, "filename");
+        return Trial.newTrial(startTime, layouts);
     }
 
     @Test
@@ -93,5 +94,15 @@ public class TrialTest {
         assertEquals(trial.getStatsForSensor("sensorId").getStatStatus(),
                 GoosciTrial.SensorTrialStats.NEEDS_UPDATE);
 
+    }
+
+    @Test
+    public void testUniqueIds() {
+        Trial first = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0]);
+        Trial second = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0]);
+        assertNotEquals(first.getTrialId(), second.getTrialId());
+
+        Trial firstAgain = Trial.fromTrial(first.getTrialProto(), first.getLabels());
+        assertEquals(first.getTrialId(), firstAgain.getTrialId());
     }
 }

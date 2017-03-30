@@ -29,14 +29,21 @@ import "label_value.proto";
  * Added in V2.
  */
 message Label {
+    // The ID is unique within an experiment, but cannot be assumed to be unique across
+    // experiments, as users may "copy" entire experiments from Drive.
+    // This ID should probably be a unique GUID.
+    optional string labelId = 1;
+
     // The time in ms since the epoch which represents this label in time.
     // This may be the time at which the label was created, but some labels
     // have editable timestamps.
-    optional int64 timestampMs = 1;
+    optional int64 timestampMs = 2;
 
     // The contents of the label.
-    repeated LabelValue values = 2;
+    repeated LabelValue values = 3;
 
     // The time that the label was created. This is not editable.
-    optional int64 creationTimeMs = 3;
+    optional int64 creationTimeMs = 4;
+
+    // Any new fields must be added to filemetadata.Label.copy if needed.
 }
