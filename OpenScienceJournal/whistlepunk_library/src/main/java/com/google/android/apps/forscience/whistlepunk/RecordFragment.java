@@ -304,7 +304,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         if (mSensorCardAdapter != null) {
             mSensorCardAdapter.onPause();
         }
-        getMetadataController().clearExperimentChangeListener();
+        getMetadataController().removeExperimentChangeListener(TAG);
         withRecorderController(new Consumer<RecorderController>() {
             @Override
             public void take(RecorderController rc) {
@@ -452,7 +452,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                     mSelectedExperiment = null;
                 }
 
-                getMetadataController().setExperimentChangeListener(
+                getMetadataController().addExperimentChangeListener(TAG,
                         new MetadataController.MetadataChangeListener() {
                             @Override
                             public void onMetadataChanged(Project newProject,
@@ -1165,7 +1165,15 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
         mGraphOptionsController = new GraphOptionsController(activity);
         mSensorSettingsController = new SensorSettingsControllerImpl(activity);
-        mUICallbacks = ((CallbacksProvider) activity).getRecordFragmentCallbacks();
+        mUICallbacks = getUiCallbacks(activity);
+    }
+
+    private UICallbacks getUiCallbacks(Activity activity) {
+        if (activity instanceof CallbacksProvider) {
+            return ((CallbacksProvider) activity).getRecordFragmentCallbacks();
+        } else {
+            return UICallbacks.NULL;
+        }
     }
 
     private void onRecordingMetadataUpdated() {
