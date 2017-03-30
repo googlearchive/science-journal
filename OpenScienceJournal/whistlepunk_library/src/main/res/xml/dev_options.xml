@@ -58,6 +58,13 @@
         />
 
     <CheckBoxPreference
+        android:key="strict_mode"
+        android:defaultValue="false"
+        android:title="@string/dev_tools_strict_mode_title"
+        android:summary="@string/dev_tools_strict_mode_summary"
+        />
+
+    <CheckBoxPreference
         android:key="enable_dev_sonification_types"
         android:title="@string/dev_sonification_types_title"
         android:summary="@string/dev_sonification_types_summary"
