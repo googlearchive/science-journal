@@ -15,10 +15,13 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -30,15 +33,32 @@ import java.util.List;
 public class PanesActivity extends AppCompatActivity {
     private static final String TAG = "PanesActivity";
     private ExperimentDetailsFragment mExperimentFragment = null;
+    private AddNoteDialog mAddNoteDialog = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.panes_layout);
 
-        getFragmentManager().beginTransaction()
-                            .replace(R.id.toolbox_pane, RecordFragment.newInstance())
-                            .commit();
+        ViewPager pager = (ViewPager) findViewById(R.id.pager);
+        final FragmentPagerAdapter adapter = new FragmentPagerAdapter(getFragmentManager()) {
+            @Override
+            public Fragment getItem(int position) {
+                switch (position) {
+                    case 0:
+                        return RecordFragment.newInstance();
+                    case 1:
+                        return mAddNoteDialog;
+                }
+                return null;
+            }
+
+            @Override
+            public int getCount() {
+                return mAddNoteDialog == null ? 1 : 2;
+            }
+        };
+        pager.setAdapter(adapter);
 
         getMetadataController().addExperimentChangeListener(TAG,
                 new MetadataController.MetadataChangeListener() {
@@ -46,6 +66,11 @@ public class PanesActivity extends AppCompatActivity {
                     public void onMetadataChanged(Project newProject,
                             List<Experiment> newExperiments) {
                         String experimentId = newExperiments.get(0).getExperimentId();
+                        setExperimentFragmentId(experimentId);
+                        setNoteFragmentId(experimentId);
+                    }
+
+                    private void setExperimentFragmentId(String experimentId) {
                         if (mExperimentFragment == null) {
                             boolean createTaskStack = false;
                             mExperimentFragment =
@@ -60,7 +85,23 @@ public class PanesActivity extends AppCompatActivity {
                             mExperimentFragment.setExperimentId(experimentId);
                         }
                     }
+
+                    private void setNoteFragmentId(String experimentId) {
+                        if (mAddNoteDialog == null) {
+                            mAddNoteDialog = makeNoteFragment(experimentId);
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            mAddNoteDialog.setExperimentId(experimentId);
+                        }
+                    }
                 });
+    }
+
+    private AddNoteDialog makeNoteFragment(String experimentId) {
+        // TODO: this is wrong, should be timestamp of _creation_
+        long now = AppSingleton.getInstance(this).getSensorEnvironment().getDefaultClock().getNow();
+        return AddNoteDialog.newInstance(now, RecordFragment.NOT_RECORDING_RUN_ID, experimentId,
+                R.string.add_experiment_note_placeholder_text);
     }
 
     @NonNull

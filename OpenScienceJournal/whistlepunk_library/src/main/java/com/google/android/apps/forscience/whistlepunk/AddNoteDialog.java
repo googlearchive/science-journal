@@ -23,11 +23,14 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -140,6 +143,10 @@ public class AddNoteDialog extends DialogFragment {
     public AddNoteDialog() {
     }
 
+    public void setExperimentId(String experimentId) {
+        mExperimentId = experimentId;
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putString(KEY_SAVED_PICTURE_PATH, mPictureLabelPath);
@@ -147,8 +154,51 @@ public class AddNoteDialog extends DialogFragment {
                 mInput == null ? null : mInput.getText().toString());
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+            Bundle savedInstanceState) {
+        if (getShowsDialog()) {
+            // dialog builder will build entire view in dialog mode, don't try to replicate here.
+            return super.onCreateView(inflater, container, savedInstanceState);
+        }
+
+        return createAddNoteViewFromSavedState(savedInstanceState, inflater);
+    }
+
     @Override
     public AlertDialog onCreateDialog(Bundle savedInstanceState) {
+        final LinearLayout rootView = createAddNoteViewFromSavedState(savedInstanceState,
+                LayoutInflater.from(getActivity()));
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+        alertDialog.setView(rootView);
+        alertDialog.setPositiveButton(R.string.action_save, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog1, int which) {
+                addLabel();
+            }
+        });
+        alertDialog.setNegativeButton(android.R.string.cancel,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mPictureLabelPath = null;
+                        dialog.cancel();
+                    }
+                });
+        alertDialog.setCancelable(true);
+        final AlertDialog dialog = alertDialog.create();
+        if (!hasPicture()) {
+            dialog.getWindow().setSoftInputMode(
+                    WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        }
+        return dialog;
+    }
+
+    @NonNull
+    protected LinearLayout createAddNoteViewFromSavedState(Bundle savedInstanceState,
+            LayoutInflater inflater) {
         String text = "";
         GoosciLabelValue.LabelValue value;
         if (getArguments() != null) {
@@ -189,21 +239,13 @@ public class AddNoteDialog extends DialogFragment {
             text = savedInstanceState.getString(KEY_SAVED_INPUT_TEXT, text);
         }
 
-        final AlertDialog.Builder alertDialog = inflateAddNoteView(text);
-        alertDialog.setCancelable(true);
-        final AlertDialog dialog = alertDialog.create();
-        if (!hasPicture()) {
-            dialog.getWindow().setSoftInputMode(
-                    WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        }
-        return dialog;
+        return createAddNoteView(text, inflater);
     }
 
-    private AlertDialog.Builder inflateAddNoteView(String text) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+    @NonNull
+    private LinearLayout createAddNoteView(String text, LayoutInflater inflater) {
         final LinearLayout rootView =
-                (LinearLayout) LayoutInflater.from(getActivity()).inflate(R.layout.label_add, null);
-        alertDialog.setView(rootView);
+                (LinearLayout) inflater.inflate(R.layout.label_add, null);
 
         final ImageButton takePictureBtn =
                 (ImageButton) rootView.findViewById(R.id.add_label_picture_btn);
@@ -241,44 +283,29 @@ public class AddNoteDialog extends DialogFragment {
                     .load(mPictureLabelPath)
                     .into(imageView);
         }
-        alertDialog.setPositiveButton(R.string.action_save, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                addLabel();
-            }
-        });
-        alertDialog.setNegativeButton(android.R.string.cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mPictureLabelPath = null;
-                        dialog.cancel();
-                    }
-                });
 
-            takePictureBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    boolean grantedCamera = PermissionUtils.tryRequestingPermission(getActivity(),
-                            Manifest.permission.CAMERA,
-                            PictureUtils.PERMISSIONS_CAMERA, /* force retry */ true);
-                    // If camera permission was not granted, on permission result we try requesting
-                    // storage. If it was granted, then check storage separately here.
-                    if (grantedCamera) {
-                        boolean grantedStorage = PermissionUtils.tryRequestingPermission(
-                                getActivity(),
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                PictureUtils.PERMISSIONS_WRITE_EXTERNAL_STORAGE,
+        takePictureBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean grantedCamera = PermissionUtils.tryRequestingPermission(getActivity(),
+                        Manifest.permission.CAMERA,
+                        PictureUtils.PERMISSIONS_CAMERA, /* force retry */ true);
+                // If camera permission was not granted, on permission result we try requesting
+                // storage. If it was granted, then check storage separately here.
+                if (grantedCamera) {
+                    boolean grantedStorage = PermissionUtils.tryRequestingPermission(
+                            getActivity(),
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            PictureUtils.PERMISSIONS_WRITE_EXTERNAL_STORAGE,
                                 /* force retry */ true);
-                        if (grantedStorage) {
-                            // TODO: Error states if these are not granted (b/24303452)
-                            mPictureLabelPath = PictureUtils.capturePictureLabel(getActivity());
-                        }
+                    if (grantedStorage) {
+                        // TODO: Error states if these are not granted (b/24303452)
+                        mPictureLabelPath = PictureUtils.capturePictureLabel(getActivity());
                     }
                 }
-            });
-
-        return alertDialog;
+            }
+        });
+        return rootView;
     }
 
     private GoosciLabelValue.LabelValue getCurrentValue() {
@@ -315,20 +342,21 @@ public class AddNoteDialog extends DialogFragment {
     private void addTextLabel() {
         TextLabel label = new TextLabel(mInput.getText().toString(),
                 getDataController().generateNewLabelId(), mRunId, mTimestamp);
-        label.setExperimentId(mExperimentId);
-        getDataController().addLabel(label,
-                ((AddNoteDialogListener) getParentFragment()).onLabelAdd(label));
+        addLabel(label);
     }
 
     private void addPictureLabel() {
         PictureLabel label = new PictureLabel(mPictureLabelPath, mInput.getText().toString(),
-                getDataController().generateNewLabelId(), mRunId,
-                mTimestamp);
+                getDataController().generateNewLabelId(), mRunId, mTimestamp);
+        addLabel(label);
+        PictureUtils.scanFile(mPictureLabelPath, getParentFragment().getActivity());
+        mPictureLabelPath = null;
+    }
+
+    private void addLabel(Label label) {
         label.setExperimentId(mExperimentId);
         getDataController().addLabel(label,
                 ((AddNoteDialogListener) getParentFragment()).onLabelAdd(label));
-        PictureUtils.scanFile(mPictureLabelPath, getParentFragment().getActivity());
-        mPictureLabelPath = null;
     }
 
     private DataController getDataController() {

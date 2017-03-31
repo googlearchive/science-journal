@@ -494,7 +494,7 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     private void launchLabelAdd() {
-        Long now = AppSingleton.getInstance(getActivity()).getSensorEnvironment()
+        long now = AppSingleton.getInstance(getActivity()).getSensorEnvironment()
                 .getDefaultClock().getNow();
         AddNoteDialog dialog = AddNoteDialog.newInstance(now, RecordFragment.NOT_RECORDING_RUN_ID,
                 mExperimentId, R.string.add_experiment_note_placeholder_text);

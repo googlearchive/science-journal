@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
     <Spinner
         android:id="@+id/spinner_nav"
         android:layout_width="wrap_content"
@@ -10,19 +11,22 @@
         android:background="@android:color/transparent"
         android:visibility="gone"
         />
+
     <FrameLayout
         android:id="@+id/experiment_pane"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"/>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="@color/text_color_black"
         />
-    <FrameLayout
-        android:id="@+id/toolbox_pane"
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"/>
 </LinearLayout>
