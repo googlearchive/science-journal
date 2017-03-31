@@ -34,9 +34,11 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.common.collect.Lists;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
@@ -833,23 +835,31 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public void setStats(String startLabelId, String sensorId, RunStats stats) {
+    public void setStats(String startLabelId, String sensorId, TrialStats stats) {
         ContentValues values = new ContentValues();
         values.put(RunStatsColumns.START_LABEL_ID, startLabelId);
         values.put(RunStatsColumns.SENSOR_TAG, sensorId);
-        for (String key : stats.getKeys()) {
+        RunStats runStats = RunStats.fromTrialStats(stats);
+        for (String key : runStats.getKeys()) {
             values.put(RunStatsColumns.STAT_NAME, key);
-            values.put(RunStatsColumns.STAT_VALUE, stats.getStat(key));
+            values.put(RunStatsColumns.STAT_VALUE, runStats.getStat(key));
             synchronized (mLock) {
                 final SQLiteDatabase db = mDbHelper.getWritableDatabase();
                 db.insert(Tables.RUN_STATS, null, values);
             }
         }
+        // Add the status too
+        values.put(RunStatsColumns.STAT_NAME, StatsAccumulator.KEY_STATUS);
+        values.put(RunStatsColumns.STAT_VALUE, runStats.getStatus());
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.insert(Tables.RUN_STATS, null, values);
+        }
     }
 
     @Override
-    public RunStats getStats(String startLabelId, String sensorId) {
-        final RunStats runStats = new RunStats();
+    public TrialStats getStats(String startLabelId, String sensorId) {
+        final RunStats runStats = new RunStats(sensorId);
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
             Cursor cursor = null;
@@ -862,7 +872,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 while (cursor.moveToNext()) {
                     final String statName = cursor.getString(0);
                     final double statValue = cursor.getDouble(1);
-                    runStats.putStat(statName, statValue);
+                    if (TextUtils.equals(statName, StatsAccumulator.KEY_STATUS)) {
+                        runStats.setStatus((int) statValue);
+                    } else {
+                        runStats.putStat(statName, statValue);
+                    }
                 }
             } finally {
                 if (cursor != null) {
@@ -871,7 +885,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             }
         }
 
-        return runStats;
+        return runStats.getTrialStats();
     }
 
     @Override

@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 
 import java.util.List;
 import java.util.Map;
@@ -92,9 +93,9 @@ public interface MetaDataManager {
 
     List<Label> getLabelsWithStartId(String startLabelId);
 
-    void setStats(String startLabelId, String sensorId, RunStats stats);
+    void setStats(String startLabelId, String sensorId, TrialStats stats);
 
-    RunStats getStats(String startLabelId, String sensorId);
+    TrialStats getStats(String startLabelId, String sensorId);
 
     List<String> getExperimentRunIds(String experimentId, boolean includeArchived);
 

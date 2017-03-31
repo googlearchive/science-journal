@@ -82,8 +82,7 @@ public class TrialTest {
         stats.putStat(GoosciTrial.SensorStat.AVERAGE, 42);
         trial.setStats(stats);
 
-        assertEquals(trial.getStatsForSensor("sensorId").getStatStatus(),
-                GoosciTrial.SensorTrialStats.VALID);
+        assertTrue(trial.getStatsForSensor("sensorId").statsAreValid());
 
         // Test replace works
         TrialStats newStats = new TrialStats("sensorId");
@@ -91,8 +90,7 @@ public class TrialTest {
         newStats.putStat(GoosciTrial.SensorStat.AVERAGE, 42);
         trial.setStats(newStats);
 
-        assertEquals(trial.getStatsForSensor("sensorId").getStatStatus(),
-                GoosciTrial.SensorTrialStats.NEEDS_UPDATE);
+        assertFalse(trial.getStatsForSensor("sensorId").statsAreValid());
     }
 
     @Test

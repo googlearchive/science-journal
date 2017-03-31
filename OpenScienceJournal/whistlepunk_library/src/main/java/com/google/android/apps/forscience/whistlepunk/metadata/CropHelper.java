@@ -26,12 +26,12 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
-import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -190,7 +190,7 @@ public class CropHelper {
         for (GoosciSensorLayout.SensorLayout layout : run.getSensorLayouts()) {
             final String sensorId = layout.sensorId;
             mDataController.setSensorStatsStatus(run.getRunId(), sensorId,
-                    StatsAccumulator.STATUS_NEEDS_UPDATE,
+                    GoosciTrial.SensorTrialStats.NEEDS_UPDATE,
                     new LoggingConsumer<Success>(TAG, "update stats") {
                         @Override
                         public void success(Success success) {
@@ -227,7 +227,7 @@ public class CropHelper {
         private Context mContext;
 
         StatsAdjuster(String sensorId, ExperimentRun run, Context context) {
-            mStatsAccumulator = new StatsAccumulator();
+            mStatsAccumulator = new StatsAccumulator(sensorId);
             mSensorId = sensorId;
             mExperimentRun = run;
             mStreamConsumer = new StreamConsumer() {
@@ -263,10 +263,9 @@ public class CropHelper {
                                 // Note that we only need to save the stats we have changed, because
                                 // each stat is stored separately. We do not need to update stats
                                 // like zoom tiers and zoom levels.
-                                RunStats runStats = mStatsAccumulator.makeSaveableStats();
-                                runStats.putStat(StatsAccumulator.KEY_STATUS,
-                                        StatsAccumulator.STATUS_VALID);
-                                dc.updateRunStats(mExperimentRun.getRunId(), mSensorId, runStats,
+                                TrialStats trialStats = mStatsAccumulator.makeSaveableStats();
+                                trialStats.setStatStatus(GoosciTrial.SensorTrialStats.VALID);
+                                dc.updateTrialStats(mExperimentRun.getRunId(), mSensorId, trialStats,
                                         new LoggingConsumer<Success>(TAG, "update stats") {
                                             @Override
                                             public void success(Success value) {

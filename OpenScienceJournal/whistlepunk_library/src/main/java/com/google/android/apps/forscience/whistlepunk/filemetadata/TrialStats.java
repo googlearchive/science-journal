@@ -60,8 +60,8 @@ public class TrialStats {
         return mTrialStats.sensorId;
     }
 
-    public int getStatStatus() {
-        return mTrialStats.statStatus;
+    public boolean statsAreValid() {
+        return mTrialStats.statStatus == GoosciTrial.SensorTrialStats.VALID;
     }
 
     public void setStatStatus(int status) {

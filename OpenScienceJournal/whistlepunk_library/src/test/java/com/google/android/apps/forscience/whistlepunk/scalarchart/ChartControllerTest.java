@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
@@ -66,8 +67,8 @@ public class ChartControllerTest {
         ExperimentRun erun = experimentRunBetween(mmm, 0, 50, runId);
         final GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = "foo";
-        chartController.loadRunData(erun, layout, dc, makeStatus(runId, layout), new RunStats(),
-                null);
+        chartController.loadRunData(erun, layout, dc, makeStatus(runId, layout),
+                new TrialStats("foo"), null);
 
         // If loadRunData fails to clean out the pending loads (as was happening in a previous
         // version), then onGlobalXAxisChanged will _not_ trigger a second load.

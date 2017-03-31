@@ -107,6 +107,11 @@ message SensorStat {
         AVERAGE = 3;  // The average value.
         NUM_DATA_POINTS = 4;  // The count of data points.
         TOTAL_DURATION = 5;  // The total duration over which the stats are calculated.
+        ZOOM_PRESENTER_TIER_COUNT = 6;  // The number of zoom presenter tiers.
+        ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS = 7;  // The zoom level between tiers.
+
+        // If a new value is added here before we upgrade from a database system to a file based
+        // system, it needs to also be added to the mapping in RunStats#initializeKeyMap().
     }
 
     // The stat type

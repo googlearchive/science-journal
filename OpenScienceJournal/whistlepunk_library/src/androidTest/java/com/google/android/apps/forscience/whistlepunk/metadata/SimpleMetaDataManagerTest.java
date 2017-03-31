@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
@@ -32,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInpu
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -507,26 +509,20 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testStoreStats() {
-        final RunStats stats = new RunStats();
+        final TrialStats stats = new TrialStats("sensorId");
 
-        final List<String> strings = Arbitrary.distinctStrings(3);
-        final String key1 = strings.get(0);
-        final String key2 = strings.get(1);
-        final String key3 = strings.get(2);
-
-        stats.putStat(key1, 1);
-        stats.putStat(key2, 2);
-        stats.putStat(key3, 3);
+        stats.putStat(GoosciTrial.SensorStat.MINIMUM, 1);
+        stats.putStat(GoosciTrial.SensorStat.AVERAGE, 2);
+        stats.putStat(GoosciTrial.SensorStat.MAXIMUM, 3);
 
         mMetaDataManager.setStats("startLabelId", "sensorId", stats);
         mMetaDataManager.close();
 
-        final RunStats runStats = makeMetaDataManager().getStats("startLabelId", "sensorId");
-        assertEquals(Sets.newHashSet(key1, key2, key3), runStats.getKeys());
+        final TrialStats trialStats = makeMetaDataManager().getStats("startLabelId", "sensorId");
 
-        assertEquals(1.0, runStats.getStat(key1), 0.001);
-        assertEquals(2.0, runStats.getStat(key2), 0.001);
-        assertEquals(3.0, runStats.getStat(key3), 0.001);
+        assertEquals(1.0, trialStats.getStatValue(GoosciTrial.SensorStat.MINIMUM, -1), 0.001);
+        assertEquals(2.0, trialStats.getStatValue(GoosciTrial.SensorStat.AVERAGE, -1), 0.001);
+        assertEquals(3.0, trialStats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, -1), 0.001);
     }
 
     public void testRunStorage() {

@@ -19,6 +19,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
@@ -197,7 +198,7 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void getStats(String runId, String sensorId, MaybeConsumer<RunStats> onSuccess) {
+    public void getStats(String runId, String sensorId, MaybeConsumer<TrialStats> onSuccess) {
 
     }
 
@@ -208,14 +209,8 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void updateRunStats(String runId, String sensorId, RunStats runStats,
+    public void updateTrialStats(String runId, String sensorId, TrialStats trialStats,
             MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void getExperimentStats(String experimentId,
-            MaybeConsumer<Map<String, RunStats>> onSuccess) {
 
     }
 

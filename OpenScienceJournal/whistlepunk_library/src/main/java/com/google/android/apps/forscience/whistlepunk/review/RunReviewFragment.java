@@ -81,14 +81,15 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
@@ -155,7 +156,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private ActionMode mActionMode;
     private ProgressBar mExportProgress;
     private RunReviewExporter mRunReviewExporter;
-    private RunStats mCurrentSensorStats;
+    private TrialStats mCurrentSensorStats;
     private boolean mShowStatsOverlay = false;
     private BroadcastReceiver mBroadcastReceiver;
     private Pair<Double, Double> mPreviousYPair;
@@ -666,8 +667,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 mAudioPlaybackController == null) {
             return;
         }
-        double yMin = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MIN);
-        double yMax = mCurrentSensorStats.getStat(StatsAccumulator.KEY_MAX);
+        double yMin = mCurrentSensorStats.getStatValue(GoosciTrial.SensorStat.MINIMUM, 0);
+        double yMax = mCurrentSensorStats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, 0);
         if (mExperimentRun.getAutoZoomEnabled()) {
             mChartController.setReviewYAxis(yMin, yMax, /* has buffer */ true);
         } else {
@@ -1036,13 +1037,13 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         final DataController dataController = getDataController();
         final ChartController.ChartLoadingStatus fragmentRef = this;
         dataController.getStats(mExperimentRun.getRunId(), sensorLayout.sensorId,
-                new LoggingConsumer<RunStats>(TAG, "load stats") {
+                new LoggingConsumer<TrialStats>(TAG, "load stats") {
                     @Override
-                    public void success(final RunStats runStats) {
-                        populateStats(runStats, statsList, sensorLayout.sensorId);
+                    public void success(final TrialStats trialStats) {
+                        populateStats(trialStats, statsList, sensorLayout.sensorId);
 
                         mChartController.loadRunData(mExperimentRun, sensorLayout, dataController,
-                                fragmentRef, runStats,
+                                fragmentRef, trialStats,
                                 new ChartController.ChartDataLoadedCallback() {
 
                                     @Override
@@ -1066,17 +1067,16 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 });
     }
 
-    private void populateStats(RunStats runStats, StatsList statsList, String sensorId) {
-        mCurrentSensorStats = runStats;
-        if (mCurrentSensorStats.getIntStat(StatsAccumulator.KEY_STATUS,
-                StatsAccumulator.STATUS_VALID) == StatsAccumulator.STATUS_NEEDS_UPDATE) {
+    private void populateStats(TrialStats trialStats, StatsList statsList, String sensorId) {
+        mCurrentSensorStats = trialStats;
+        if (!mCurrentSensorStats.statsAreValid()) {
             statsList.clearStats();
             mChartController.updateStats(Collections.<StreamStat>emptyList());
         } else {
             NumberFormat numberFormat = AppSingleton.getInstance(getActivity())
                     .getSensorAppearanceProvider().getAppearance(sensorId).getNumberFormat();
             List<StreamStat> streamStats = new StatsAccumulator.StatsDisplay(numberFormat)
-                    .updateStreamStats(runStats);
+                    .updateStreamStats(trialStats);
             statsList.updateStats(streamStats);
             mChartController.updateStats(streamStats);
         }

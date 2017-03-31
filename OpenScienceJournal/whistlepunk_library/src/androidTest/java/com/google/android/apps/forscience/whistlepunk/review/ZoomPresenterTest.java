@@ -22,6 +22,8 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.TestData;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
@@ -39,11 +41,11 @@ public class ZoomPresenterTest extends AndroidTestCase {
     public void testTierZeroWhenNotManyDataPoints() {
         int perZoomLevel = 20;
 
-        RunStats stats = new RunStats();
-        stats.putStat(StatsAccumulator.KEY_TOTAL_DURATION, 99);
-        stats.putStat(StatsAccumulator.KEY_NUM_DATA_POINTS, 100);
-        stats.putStat(ZoomRecorder.STATS_KEY_TIER_COUNT, 2);
-        stats.putStat(ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS, perZoomLevel);
+        TrialStats stats = new TrialStats("sensorId");
+        stats.putStat(GoosciTrial.SensorStat.TOTAL_DURATION, 99);
+        stats.putStat(GoosciTrial.SensorStat.NUM_DATA_POINTS, 100);
+        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, 2);
+        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS, perZoomLevel);
 
         ZoomPresenter zp = new ZoomPresenter(200);
         zp.setRunStats(stats);
@@ -56,7 +58,7 @@ public class ZoomPresenterTest extends AndroidTestCase {
         SensorRecorder recorder = createRecorder(sensor);
         sensor.pushDataPoints(recorder, 100);
 
-        RunStats stats = mMetadataManager.getStats("runId", "test");
+        TrialStats stats = mMetadataManager.getStats("runId", "test");
 
         int howManyDesiredDataPoints = 4;
 
@@ -67,7 +69,7 @@ public class ZoomPresenterTest extends AndroidTestCase {
 
     public void testTierZeroWhenNoTierStats() {
         // We have none of the tier information we need
-        RunStats stats = new RunStats();
+        TrialStats stats = new TrialStats("sensorId");
 
         int howManyDesiredDataPoints = 4;
 
@@ -77,26 +79,26 @@ public class ZoomPresenterTest extends AndroidTestCase {
     }
 
     public void testWantMoreTiersThanWeHave() {
-        RunStats stats = new RunStats();
-        stats.putStat(StatsAccumulator.KEY_TOTAL_DURATION, 99);
-        stats.putStat(StatsAccumulator.KEY_NUM_DATA_POINTS, 100);
-        stats.putStat(ZoomRecorder.STATS_KEY_TIER_COUNT, 5);
-        stats.putStat(ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS, 5);
+        TrialStats stats = new TrialStats("sensorId");
+        stats.putStat(GoosciTrial.SensorStat.TOTAL_DURATION, 99);
+        stats.putStat(GoosciTrial.SensorStat.NUM_DATA_POINTS, 100);
+        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, 5);
+        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS, 5);
 
         // This is the ideal tier level
         assertEquals(2, ZoomPresenter.computeTier(-1, 4, stats, 100));
 
         // Now, we have fewer tiers than we wish
-        stats.putStat(ZoomRecorder.STATS_KEY_TIER_COUNT, 2);
+        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, 2);
         assertEquals(1, ZoomPresenter.computeTier(-1, 4, stats, 100));
     }
 
     public void testBiasToCurrentTier() {
-        RunStats stats = new RunStats();
-        stats.putStat(StatsAccumulator.KEY_TOTAL_DURATION, 99);
-        stats.putStat(StatsAccumulator.KEY_NUM_DATA_POINTS, 100);
-        stats.putStat(ZoomRecorder.STATS_KEY_TIER_COUNT, 5);
-        stats.putStat(ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS, 5);
+        TrialStats stats = new TrialStats("sensorId");
+        stats.putStat(GoosciTrial.SensorStat.TOTAL_DURATION, 99);
+        stats.putStat(GoosciTrial.SensorStat.NUM_DATA_POINTS, 100);
+        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, 5);
+        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS, 5);
 
         // Establish the ideal fractional tiers
         assertEquals(1.006, ZoomPresenter.computeIdealTier(20, stats, 100), 0.01);

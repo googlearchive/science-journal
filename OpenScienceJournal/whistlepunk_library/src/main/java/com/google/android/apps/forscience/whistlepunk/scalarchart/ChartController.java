@@ -32,6 +32,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.GraphPopulator;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
@@ -520,7 +521,7 @@ public class ChartController {
     // TODO: Seems like this loads the whole run data even if we are really zoomed in, so
     // this should be revisited to get a range for the original load.
     public void loadRunData(ExperimentRun run, GoosciSensorLayout.SensorLayout sensorLayout,
-            DataController dc, ChartLoadingStatus status, RunStats stats,
+            DataController dc, ChartLoadingStatus status, TrialStats stats,
             ChartDataLoadedCallback fullChartLoadDataCallback) {
         updateColor(sensorLayout.color);
         setShowProgress(true);
@@ -539,7 +540,7 @@ public class ChartController {
     private void tryLoadingChartData(final String runId,
             final GoosciSensorLayout.SensorLayout sensorLayout,
             final DataController dc, final long firstTimestamp, final long lastTimestamp,
-            final ChartLoadingStatus status, final RunStats stats,
+            final ChartLoadingStatus status, final TrialStats stats,
             final ChartDataLoadedCallback fullChartLoadDataCallback) {
         Preconditions.checkNotNull(runId);
 
@@ -600,7 +601,7 @@ public class ChartController {
                 mDataFailureListener, currentTier, mSensorId);
     }
 
-    private ZoomPresenter getZoomPresenter(RunStats stats) {
+    private ZoomPresenter getZoomPresenter(TrialStats stats) {
         if (mZoomPresenter == null) {
             mZoomPresenter = new ZoomPresenter();
         }

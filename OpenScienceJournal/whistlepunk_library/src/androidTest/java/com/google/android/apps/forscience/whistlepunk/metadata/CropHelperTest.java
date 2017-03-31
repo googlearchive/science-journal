@@ -23,11 +23,14 @@ import static org.junit.Assert.assertFalse;
 import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
+import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -90,6 +93,16 @@ public class CropHelperTest extends AndroidTestCase {
         };
     }
 
+    // Adds stats to the MemoryMetadataManager for any test that has a getStats and expects
+    // there to exist stats for this sensor.
+    // In a real trial, stats are set when recording stops, so any crop should have some sensor
+    // stats already set and this kind of thing is unnecessary. But we don't need to set legit stats
+    // because we aren't checking the "pre-crop" values, so empty stats are fine here.
+    private void setEmptyStats() {
+        mDataController.setStats("0", "sensor", new TrialStats("sensor"),
+                TestConsumers.<Success>expectingSuccess());
+    }
+
     @Test
     public void testCropRun_failsOutsideBounds() {
         ArrayList<Label> labels = new ArrayList<>();
@@ -123,6 +136,7 @@ public class CropHelperTest extends AndroidTestCase {
                 new ApplicationLabel(ApplicationLabel.TYPE_CROP_END, "1008", "0", 1008),
                 mAddLabelConsumer);
         mDataController.addScalarReading("sensor", 0, 50, 50);
+        setEmptyStats();
         mMetadataManager.newRun(new Experiment(42L), "0", mSensorLayouts);
         mDataController.getExperimentRun("0", new LoggingConsumer<ExperimentRun>("test", "test") {
             @Override
@@ -136,9 +150,7 @@ public class CropHelperTest extends AndroidTestCase {
                 assertEquals(run.getOriginalFirstTimestamp(), 0);
                 assertEquals(run.getOriginalLastTimestamp(), 2000);
 
-                assertEquals(mMetadataManager.getStats("0", "sensor").getIntStat(
-                        StatsAccumulator.KEY_STATUS, StatsAccumulator.STATUS_NEEDS_UPDATE),
-                        StatsAccumulator.STATUS_VALID);
+                assertTrue(mMetadataManager.getStats("0", "sensor").statsAreValid());
             }
         });
 
@@ -157,6 +169,7 @@ public class CropHelperTest extends AndroidTestCase {
         mDataController.addScalarReading("sensor", 0, 50, 50);
         mDataController.addScalarReading("sensor", 0, 60, 60);
         mDataController.addScalarReading("sensor", 0, 70, 70);
+        setEmptyStats();
         mDataController.getExperimentRun("0", new LoggingConsumer<ExperimentRun>("test", "test") {
             @Override
             public void success(ExperimentRun run) {
@@ -169,14 +182,12 @@ public class CropHelperTest extends AndroidTestCase {
                 assertEquals(run.getOriginalFirstTimestamp(), 0);
                 assertEquals(run.getOriginalLastTimestamp(), 2000);
 
-                RunStats stats = mMetadataManager.getStats("0", "sensor");
-                assertEquals(stats.getIntStat(
-                        StatsAccumulator.KEY_STATUS, StatsAccumulator.STATUS_NEEDS_UPDATE),
-                        StatsAccumulator.STATUS_VALID);
-                assertEquals(stats.getStat(StatsAccumulator.KEY_MIN), 50.0);
-                assertEquals(stats.getStat(StatsAccumulator.KEY_AVERAGE), 60.0);
-                assertEquals(stats.getStat(StatsAccumulator.KEY_MAX), 70.0);
-                assertEquals(stats.getStat(StatsAccumulator.KEY_NUM_DATA_POINTS), 3.0);
+                TrialStats stats = mMetadataManager.getStats("0", "sensor");
+                assertTrue(stats.statsAreValid());
+                assertEquals(stats.getStatValue(GoosciTrial.SensorStat.MINIMUM, -1), 50.0);
+                assertEquals(stats.getStatValue(GoosciTrial.SensorStat.AVERAGE, -1), 60.0);
+                assertEquals(stats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, -1), 70.0);
+                assertEquals(stats.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1), 3.0);
             }
         });
     }
@@ -190,6 +201,7 @@ public class CropHelperTest extends AndroidTestCase {
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
                 mAddLabelConsumer);
         mMetadataManager.newRun(new Experiment(42L), "0", mSensorLayouts);
+        setEmptyStats();
         mDataController.getExperimentRun("0", new LoggingConsumer<ExperimentRun>("test", "test") {
             @Override
             public void success(ExperimentRun run) {
@@ -197,9 +209,7 @@ public class CropHelperTest extends AndroidTestCase {
                         mDataController);
                 cropHelper.cropRun(null, run, 2, 1008, mCropRunListener);
                 assertTrue(mCropCompleted);
-                assertEquals(mMetadataManager.getStats("0", "sensor").getIntStat(
-                        StatsAccumulator.KEY_STATUS, StatsAccumulator.STATUS_VALID),
-                        StatsAccumulator.STATUS_NEEDS_UPDATE);
+                assertFalse(mMetadataManager.getStats("0", "sensor").statsAreValid());
             }
         });
     }

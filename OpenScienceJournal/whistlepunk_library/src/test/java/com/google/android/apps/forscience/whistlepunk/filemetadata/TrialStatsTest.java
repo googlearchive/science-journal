@@ -63,8 +63,8 @@ public class TrialStatsTest {
         TrialStats other = new TrialStats("sensorId");
         other.setStatStatus(GoosciTrial.SensorTrialStats.VALID);
 
-        assertEquals(GoosciTrial.SensorTrialStats.NEEDS_UPDATE, initial.getStatStatus());
+        assertFalse(initial.statsAreValid());
         initial.copyFrom(other);
-        assertEquals(GoosciTrial.SensorTrialStats.VALID, initial.getStatStatus());
+        assertTrue(initial.statsAreValid());
     }
 }

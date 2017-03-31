@@ -41,6 +41,8 @@ import com.google.android.apps.forscience.whistlepunk.StatsListener;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioGenerator;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SimpleJsynAudioGenerator;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
@@ -352,7 +354,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     public SensorRecorder createRecorder(final Context context,
             final SensorObserver observer, SensorStatusListener listener,
             final SensorEnvironment environment) {
-        final StatsAccumulator statsAccumulator = new StatsAccumulator();
+        final StatsAccumulator statsAccumulator = new StatsAccumulator(getId());
         final RecordingDataController dataController = Preconditions.checkNotNull(
                 environment.getDataController());
 
@@ -392,12 +394,13 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             public void stopRecording(MaybeConsumer<Success> onSuccess) {
                 super.stopRecording(onSuccess);
 
-                RunStats runStats = statsAccumulator.makeSaveableStats();
-                runStats.putStat(ZoomRecorder.STATS_KEY_TIER_COUNT, zoomRecorder.countTiers());
-                runStats.putStat(ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS,
+                TrialStats trialStats = statsAccumulator.makeSaveableStats();
+                trialStats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT,
+                        zoomRecorder.countTiers());
+                trialStats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS,
                         mZoomLevelBetweenTiers);
                 consumer.stopRecording();
-                environment.getDataController().setStats(mRunId, getId(), runStats, onSuccess);
+                environment.getDataController().setStats(mRunId, getId(), trialStats, onSuccess);
                 statsAccumulator.clearStats();
             }
 

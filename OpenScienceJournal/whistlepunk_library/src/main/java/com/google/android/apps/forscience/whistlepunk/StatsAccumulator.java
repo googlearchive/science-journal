@@ -19,7 +19,8 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
@@ -91,15 +92,15 @@ public class StatsAccumulator {
             mStatsListeners.add(listener);
         }
 
-        public List<StreamStat> updateStreamStats(RunStats runStats) {
-            if (runStats.hasStat(KEY_MIN)) {
-                mMinStat.setValue(runStats.getStat(KEY_MIN));
+        public List<StreamStat> updateStreamStats(TrialStats trialStats) {
+            if (trialStats.hasStat(GoosciTrial.SensorStat.MINIMUM)) {
+                mMinStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.MINIMUM, 0));
             }
-            if (runStats.hasStat(KEY_MAX)) {
-                mMaxStat.setValue(runStats.getStat(KEY_MAX));
+            if (trialStats.hasStat(GoosciTrial.SensorStat.MAXIMUM)) {
+                mMaxStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, 0));
             }
-            if (runStats.hasStat(KEY_AVERAGE)) {
-                mAvgStat.setValue(runStats.getStat(KEY_AVERAGE));
+            if (trialStats.hasStat(GoosciTrial.SensorStat.AVERAGE)) {
+                mAvgStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.AVERAGE, 0));
             }
 
             updateListeners();
@@ -124,7 +125,10 @@ public class StatsAccumulator {
     private long mLatestTimestamp = RecordingMetadata.NOT_RECORDING;
     private int mStatSize;
 
-    public StatsAccumulator() {
+    private String mSensorId;
+
+    public StatsAccumulator(String sensorId) {
+        mSensorId = sensorId;
         clearStats();
     }
 
@@ -182,13 +186,14 @@ public class StatsAccumulator {
         display.updateFromBundle(bundle);
     }
 
-    public RunStats makeSaveableStats() {
-        final RunStats stats = new RunStats();
-        stats.putStat(KEY_MIN, mMin);
-        stats.putStat(KEY_MAX, mMax);
-        stats.putStat(KEY_AVERAGE, getAverage());
-        stats.putStat(KEY_NUM_DATA_POINTS, mStatSize);
-        stats.putStat(KEY_TOTAL_DURATION, mLatestTimestamp - mStartTimestamp);
+    public TrialStats makeSaveableStats() {
+        final TrialStats stats = new TrialStats(mSensorId);
+        stats.setStatStatus(GoosciTrial.SensorTrialStats.VALID);
+        stats.putStat(GoosciTrial.SensorStat.MINIMUM, mMin);
+        stats.putStat(GoosciTrial.SensorStat.MAXIMUM, mMax);
+        stats.putStat(GoosciTrial.SensorStat.AVERAGE, getAverage());
+        stats.putStat(GoosciTrial.SensorStat.NUM_DATA_POINTS, mStatSize);
+        stats.putStat(GoosciTrial.SensorStat.TOTAL_DURATION, mLatestTimestamp - mStartTimestamp);
         return stats;
     }
 }

@@ -33,7 +33,9 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ExplicitEx
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig
         .ScaleTransform;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
@@ -335,16 +337,18 @@ public class ScalarSensorTest {
                 new InMemorySensorDatabase.Reading("test", 99, 99));
         assertEquals(expected, mDb.getReadings(2));
         recorder.stopRecording(TestConsumers.<Success>expectingSuccess());
-        RunStats stats = mMetadata.getStats("runId", "test");
-        assertEquals(100.0, stats.getStat(StatsAccumulator.KEY_NUM_DATA_POINTS), 0.001);
-        assertEquals(3.0, stats.getStat(ZoomRecorder.STATS_KEY_TIER_COUNT), 0.001);
+        TrialStats stats = mMetadata.getStats("runId", "test");
+        assertEquals(100.0, stats.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1), 0.001);
+        assertEquals(3.0, stats.getStatValue(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, -1),
+                0.001);
 
         recorder.startRecording("runId2");
         sensor.pushValue(200, 0);
         recorder.stopRecording(TestConsumers.<Success>expectingSuccess());
-        RunStats stats2 = mMetadata.getStats("runId2", "test");
-        assertEquals(1.0, stats2.getStat(StatsAccumulator.KEY_NUM_DATA_POINTS), 0.001);
-        assertEquals(1.0, stats2.getStat(ZoomRecorder.STATS_KEY_TIER_COUNT), 0.001);
+        TrialStats stats2 = mMetadata.getStats("runId2", "test");
+        assertEquals(1.0, stats2.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1), 0.001);
+        assertEquals(1.0, stats2.getStatValue(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, -1),
+                0.001);
     }
 
     @Test

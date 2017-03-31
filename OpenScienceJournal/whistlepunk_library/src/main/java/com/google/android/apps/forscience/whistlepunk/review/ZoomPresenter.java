@@ -16,12 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
-import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.ZoomRecorder;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 
 /**
  * Controls the zoom level at which to load data points into a line graph, based on the zoom levels
@@ -46,7 +44,7 @@ public class ZoomPresenter {
     private static final String TAG = "ZoomPresenter";
 
     private final int mIdealNumberOfDisplayedDatapoints;
-    private RunStats mRunStats;
+    private TrialStats mTrialStats;
     private int mCurrentTier;
 
     public ZoomPresenter() {
@@ -58,12 +56,12 @@ public class ZoomPresenter {
         mIdealNumberOfDisplayedDatapoints = idealNumberOfDisplayedDatapoints;
     }
 
-    public void setRunStats(RunStats stats) {
-        mRunStats = stats;
+    public void setRunStats(TrialStats stats) {
+        mTrialStats = stats;
     }
 
     public int updateTier(long loadedRange) {
-        mCurrentTier = computeTier(mCurrentTier, mIdealNumberOfDisplayedDatapoints, mRunStats,
+        mCurrentTier = computeTier(mCurrentTier, mIdealNumberOfDisplayedDatapoints, mTrialStats,
                 loadedRange);
         return mCurrentTier;
     }
@@ -74,13 +72,13 @@ public class ZoomPresenter {
 
     @VisibleForTesting
     public static int computeTier(int currentTier, int idealNumberOfDisplayedDatapoints,
-            RunStats runStats, long loadedRange) {
-        if (!hasRequiredStats(runStats)) {
+            TrialStats trialStats, long loadedRange) {
+        if (!hasRequiredStats(trialStats)) {
             // Must be an old run from before we started saving zoom info, so only base tier exists.
             return 0;
         }
 
-        double idealTier = computeIdealTier(idealNumberOfDisplayedDatapoints, runStats,
+        double idealTier = computeIdealTier(idealNumberOfDisplayedDatapoints, trialStats,
                 loadedRange);
 
         if (Math.abs(idealTier - currentTier) < THRESHOLD_TO_CHANGE_ZOOM_LEVEL) {
@@ -91,7 +89,8 @@ public class ZoomPresenter {
         if (actualTier < 0) {
             actualTier = 0;
         }
-        int maxTier = runStats.getIntStat(ZoomRecorder.STATS_KEY_TIER_COUNT, 0) - 1;
+        int maxTier = (int) trialStats.getStatValue(
+                GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, 0) - 1;
         if (actualTier > maxTier) {
             actualTier = maxTier;
         }
@@ -101,24 +100,25 @@ public class ZoomPresenter {
 
     @VisibleForTesting
     public static double computeIdealTier(int idealNumberOfDisplayedDatapoints,
-            RunStats runStats, long loadedRange) {
-        double meanMillisPerDataPoint = runStats.getStat(StatsAccumulator.KEY_TOTAL_DURATION)
-                / runStats.getStat(StatsAccumulator.KEY_NUM_DATA_POINTS);
+            TrialStats trialStats, long loadedRange) {
+        double meanMillisPerDataPoint =
+                trialStats.getStatValue(GoosciTrial.SensorStat.TOTAL_DURATION, 0)
+                / trialStats.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, 1);
         double expectedTierZeroDatapointsInRange = loadedRange / meanMillisPerDataPoint;
         double idealTierZeroDatapointsPerDisplayedPoint =
                 expectedTierZeroDatapointsInRange / idealNumberOfDisplayedDatapoints;
 
-        int zoomLevelBetweenTiers = runStats.getIntStat(
-                ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS,
+        int zoomLevelBetweenTiers = (int) trialStats.getStatValue(
+                GoosciTrial.SensorStat.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS,
                 ScalarSensor.DEFAULT_ZOOM_LEVEL_BETWEEN_TIERS);
         return Math.log(idealTierZeroDatapointsPerDisplayedPoint) / Math.log(
                 zoomLevelBetweenTiers);
     }
 
-    private static boolean hasRequiredStats(RunStats stats) {
-        return stats.hasStat(StatsAccumulator.KEY_TOTAL_DURATION) && stats.hasStat(
-                StatsAccumulator.KEY_NUM_DATA_POINTS) && stats.hasStat(
-                ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS) && stats.hasStat(
-                ZoomRecorder.STATS_KEY_TIER_COUNT);
+    private static boolean hasRequiredStats(TrialStats stats) {
+        return stats.hasStat(GoosciTrial.SensorStat.TOTAL_DURATION) && stats.hasStat(
+                GoosciTrial.SensorStat.NUM_DATA_POINTS) && stats.hasStat(
+                GoosciTrial.SensorStat.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS) && stats.hasStat(
+                GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT);
     }
 }

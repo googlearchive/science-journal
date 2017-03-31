@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
@@ -34,7 +35,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.Run;
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase;
@@ -543,51 +543,48 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     @Override
     public void getStats(final String runId, final String sensorId,
-            MaybeConsumer<RunStats> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<RunStats>() {
+            MaybeConsumer<TrialStats> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<TrialStats>() {
             @Override
-            public RunStats call() throws Exception {
+            public TrialStats call() throws Exception {
                 return mMetaDataManager.getStats(runId, sensorId);
             }
         });
     }
 
     @Override
-    public void setSensorStatsStatus(final String runId, final String sensorId,
-            @StatsAccumulator.StatStatus final int status, MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                // Because MetadataManager saves stats separately (by runId, sensor tag and
-                // stat name), here we can update only the stat we want changed and the rest of the
-                // stats will not be impacted.
-                RunStats runStats = new RunStats();
-                runStats.putStat(StatsAccumulator.KEY_STATUS, status);
-                mMetaDataManager.setStats(runId, sensorId, runStats);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
-    @Override
-    public void updateRunStats(final String runId, final String sensorId, final RunStats runStats,
+    public void setSensorStatsStatus(final String runId, final String sensorId, final int status,
             MaybeConsumer<Success> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {
-                mMetaDataManager.setStats(runId, sensorId, runStats);
+                TrialStats trialStats = mMetaDataManager.getStats(runId, sensorId);
+                trialStats.setStatStatus(status);
+                mMetaDataManager.setStats(runId, sensorId, trialStats);
                 return Success.SUCCESS;
             }
         });
     }
 
     @Override
-    public void setStats(final String runId, final String sensorId, final RunStats runStats,
+    public void updateTrialStats(final String runId, final String sensorId,
+            final TrialStats trialStats, MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            @Override
+            public Success call() throws Exception {
+                mMetaDataManager.setStats(runId, sensorId, trialStats);
+                return Success.SUCCESS;
+            }
+        });
+    }
+
+    @Override
+    public void setStats(final String runId, final String sensorId, final TrialStats trialStats,
             final MaybeConsumer<Success> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {
-                mMetaDataManager.setStats(runId, sensorId, runStats);
+                mMetaDataManager.setStats(runId, sensorId, trialStats);
                 return Success.SUCCESS;
             }
         });
@@ -601,56 +598,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     @Override
     public void clearDataErrorListenerForSensor(String sensorId) {
         mSensorFailureListeners.remove(sensorId);
-    }
-
-    @Override
-    public void getExperimentStats(final String experimentId,
-            MaybeConsumer<Map<String, RunStats>> onSuccess) {
-        // TODO: perhaps return a different data structure?
-        background(mMetaDataThread, onSuccess, new Callable<Map<String, RunStats>>() {
-            @Override
-            public Map<String, RunStats> call() throws Exception {
-                Map<String, RunStats> returnValues = new ArrayMap<String, RunStats>();
-                // Need to count the runs that have the sensor, or else the averages will be off.
-                Map<String, Integer> runCount = new ArrayMap<String, Integer>();
-                List<String> runIds = mMetaDataManager.getExperimentRunIds(experimentId,
-                        /* don't include archived runs */ false);
-                for (String runId : runIds) {
-                    Run run = mMetaDataManager.getRun(runId);
-                    for (String sensorId : run.getSensorIds()) {
-                        // First increment the runCount for this sensor.
-                        if (!runCount.containsKey(sensorId)) {
-                            runCount.put(sensorId, 0);
-                        }
-                        runCount.put(sensorId, runCount.get(sensorId) + 1);
-
-                        RunStats stats;
-                        if (!returnValues.containsKey(sensorId)) {
-                            returnValues.put(sensorId, new RunStats());
-                        }
-                        stats = returnValues.get(sensorId);
-                        RunStats runStats = mMetaDataManager.getStats(runId, sensorId);
-                        for (String key : runStats.getKeys()) {
-                            double existingValue = stats.getStat(key, 0.0d);
-                            double newValue = runStats.getStat(key, 0.0d);
-                            // Currently just averaging these numbers, might do something else based
-                            // on the value.
-                            stats.putStat(key, existingValue + newValue);
-                        }
-                    }
-                }
-
-                // Now loop through the stats and divide by the runCount to get the average.
-                for (String sensorId : runCount.keySet()) {
-                    RunStats stats = returnValues.get(sensorId);
-                    for (String key : stats.getKeys()) {
-                        stats.putStat(key, stats.getStat(key, 0.0d) / runCount.get(sensorId));
-                    }
-                }
-
-                return returnValues;
-            }
-        });
     }
 
     @Override

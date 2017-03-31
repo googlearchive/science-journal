@@ -75,13 +75,14 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
@@ -1190,19 +1191,17 @@ public class ExperimentDetailsFragment extends Fragment
             final DataController dc = AppSingleton.getInstance(appContext).getDataController();
             dc.getStats(
                     run.getRunId(), run.getSensorTags().get(item.getSensorTagIndex()),
-                    new LoggingConsumer<RunStats>(TAG,
+                    new LoggingConsumer<TrialStats>(TAG,
                             "loading stats") {
                         @Override
-                        public void success(RunStats stats) {
+                        public void success(TrialStats stats) {
                             // Only load this if the holder run value is the same. Otherwise,
                             // bail.
                             if (!runId.equals(holder.getRunId())) {
                                 return;
                             }
                             holder.statsLoadStatus = ViewHolder.STATS_LOAD_STATUS_IDLE;
-                            if (stats.getIntStat(StatsAccumulator.KEY_STATUS,
-                                    StatsAccumulator.STATUS_VALID) ==
-                                    StatsAccumulator.STATUS_NEEDS_UPDATE) {
+                            if (!stats.statsAreValid()) {
                                 holder.statsList.clearStats();
                             } else {
                                 List<StreamStat> streamStats =
@@ -1230,10 +1229,11 @@ public class ExperimentDetailsFragment extends Fragment
                                             chartController.setXAxisWithBuffer(firstTimestamp,
                                                     lastTimestamp);
                                             chartController.setReviewYAxis(
-                                                    holder.currentSensorStats.getStat(
-                                                            StatsAccumulator.KEY_MIN),
-                                                    holder.currentSensorStats.getStat(
-                                                            StatsAccumulator.KEY_MAX), true);
+                                                    holder.currentSensorStats.getStatValue(
+                                                            GoosciTrial.SensorStat.MINIMUM, 0),
+                                                    holder.currentSensorStats.getStatValue(
+                                                            GoosciTrial.SensorStat.MAXIMUM, 0),
+                                                    true);
                                         }
 
                                         @Override
@@ -1316,7 +1316,7 @@ public class ExperimentDetailsFragment extends Fragment
             ImageButton sensorPrev;
             ImageButton sensorNext;
             public ProgressBar progressView;
-            public RunStats currentSensorStats;
+            public TrialStats currentSensorStats;
 
             public ViewHolder(View itemView, int viewType) {
                 super(itemView);

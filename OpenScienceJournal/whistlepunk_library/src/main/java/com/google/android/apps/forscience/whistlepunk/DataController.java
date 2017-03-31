@@ -20,6 +20,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
@@ -28,7 +29,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.Run;
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -135,26 +135,19 @@ public interface DataController {
      *
      * @param runId (previously startLabelId) identifies the run
      */
-    void getStats(String runId, String sensorId, MaybeConsumer<RunStats> onSuccess);
+    void getStats(String runId, String sensorId, MaybeConsumer<TrialStats> onSuccess);
 
     /**
      * Sets the stat status for a sensor and run.
      */
     void setSensorStatsStatus(final String runId, final String sensorId,
-            @StatsAccumulator.StatStatus final int status, MaybeConsumer<Success> onSuccess);
+            final int status, MaybeConsumer<Success> onSuccess);
 
     /**
      * Recalculates the statistics for all the sensors in a run
      */
-    void updateRunStats(final String runId, final String sensorId, final RunStats runStats,
+    void updateTrialStats(final String runId, final String sensorId, final TrialStats trialStats,
             MaybeConsumer<Success> onSuccess);
-
-    /**
-     * Get the aggregated stats for an entire experiment for all sensors.
-     *
-     * @return a Map of sensor ID to run stats
-     */
-    void getExperimentStats(String experimentId, MaybeConsumer<Map<String,RunStats>> onSuccess);
 
     /**
      * Set the sensor selection and layout for an experiment

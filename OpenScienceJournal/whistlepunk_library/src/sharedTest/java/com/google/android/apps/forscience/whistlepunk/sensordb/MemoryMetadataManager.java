@@ -23,6 +23,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -59,7 +60,7 @@ public class MemoryMetadataManager implements MetaDataManager {
     private Multimap<String, String> mExperimentIncluded = HashMultimap.create();
     private Multimap<String, String> mExperimentExcluded = HashMultimap.create();
     private ListMultimap<String, Label> mLabels = LinkedListMultimap.create();
-    private Table<String, String, RunStats> mStats = HashBasedTable.create();
+    private Table<String, String, TrialStats> mStats = HashBasedTable.create();
     private Map<String, List<GoosciSensorLayout.SensorLayout>> mLayouts = new HashMap<>();
     private Map<String, ExternalSensorSpec> mExternalSensors = new HashMap<>();
     private Map<String, Run> mRuns = new HashMap<>();
@@ -157,12 +158,12 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public void setStats(String startLabelId, String sensorId, RunStats stats) {
+    public void setStats(String startLabelId, String sensorId, TrialStats stats) {
         mStats.put(startLabelId, sensorId, stats);
     }
 
     @Override
-    public RunStats getStats(String startLabelId, String sensorId) {
+    public TrialStats getStats(String startLabelId, String sensorId) {
         return mStats.get(startLabelId, sensorId);
     }
 
