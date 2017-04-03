@@ -204,12 +204,36 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void editLabel(final Label updatedLabel, final MaybeConsumer<Label> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Label>() {
+    public void addApplicationLabel(final ApplicationLabel label,
+            MaybeConsumer<ApplicationLabel> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<ApplicationLabel>() {
             @Override
-            public Label call() throws Exception {
+            public ApplicationLabel call() throws Exception {
+                mMetaDataManager.addApplicationLabel(label.getExperimentId(), label);
+                return label;
+            }
+        });
+    }
+
+    @Override
+    public void editLabel(final Label updatedLabel, final MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            @Override
+            public Success call() throws Exception {
                 mMetaDataManager.editLabel(updatedLabel);
-                return updatedLabel;
+                return Success.SUCCESS;
+            }
+        });
+    }
+
+    @Override
+    public void editApplicationLabel(final ApplicationLabel updatedLabel,
+            MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            @Override
+            public Success call() throws Exception {
+                mMetaDataManager.editApplicationLabel(updatedLabel);
+                return Success.SUCCESS;
             }
         });
     }
@@ -247,7 +271,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                                 new Callable<ApplicationLabel>() {
                                     @Override
                                     public ApplicationLabel call() throws Exception {
-                                        mMetaDataManager.newTrial(experiment, label.getRunId(),
+                                        mMetaDataManager.newTrial(experiment, label.getTrialId(),
                                                 label.getTimeStamp(), sensorLayouts);
                                         return label;
                                     }
@@ -271,7 +295,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             public ApplicationLabel call() throws Exception {
                 final ApplicationLabel label = new ApplicationLabel(type, id, startLabelId,
                         mClock.getNow());
-                mMetaDataManager.addLabel(experiment, label);
+                mMetaDataManager.addApplicationLabel(experiment.getExperimentId(), label);
                 return label;
             }
         });
@@ -349,13 +373,14 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     // TODO(saff): test
-    @Override public void getExperimentRun(final String startLabelId,
+    @Override
+    public void getExperimentRun(final String experimentId, final String startLabelId,
             final MaybeConsumer<ExperimentRun> onSuccess) {
         Preconditions.checkNotNull(startLabelId);
         background(mMetaDataThread, onSuccess, new Callable<ExperimentRun>() {
             @Override
             public ExperimentRun call() throws Exception {
-                return buildExperimentRunOnDataThread(startLabelId);
+                return buildExperimentRunOnDataThread(experimentId, startLabelId);
             }
         });
     }
@@ -377,7 +402,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         List<String> startLabelIds = mMetaDataManager.getExperimentRunIds(experimentId,
                 includeArchived);
         for (String startLabelId : startLabelIds) {
-            ExperimentRun run = buildExperimentRunOnDataThread(startLabelId);
+            ExperimentRun run = buildExperimentRunOnDataThread(experimentId, startLabelId);
             if (run.isValidRun() || includeInvalid) {
                 runs.add(run);
             }
@@ -385,16 +410,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         return runs;
     }
 
-    private ExperimentRun buildExperimentRunOnDataThread(String startLabelId) {
-        final List<Label> allLabels = mMetaDataManager.getLabelsWithStartId(startLabelId);
-        List<ApplicationLabel> applicationLabels = new ArrayList<>();
-        for (Label label : allLabels) {
-            if (label instanceof ApplicationLabel) {
-                applicationLabels.add((ApplicationLabel) label);
-            }
-        }
+    private ExperimentRun buildExperimentRunOnDataThread(String experimentId, String startLabelId) {
+        final List<Label> labels = mMetaDataManager.getLabelsWithStartId(startLabelId);
+        final List<ApplicationLabel> applicationLabels =
+                mMetaDataManager.getApplicationLabelsWithStartId(startLabelId);
         Trial trial = mMetaDataManager.getTrial(startLabelId, applicationLabels);
-        return ExperimentRun.fromLabels(trial, allLabels);
+        return ExperimentRun.fromLabels(trial, experimentId, applicationLabels, labels);
     }
 
     @Override public void createProject(final MaybeConsumer<Project> onSuccess) {

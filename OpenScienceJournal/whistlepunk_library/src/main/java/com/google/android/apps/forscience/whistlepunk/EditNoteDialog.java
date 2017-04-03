@@ -33,6 +33,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
@@ -63,7 +65,7 @@ public class EditNoteDialog extends DialogFragment {
          * controller during the label edit.
          * @return A MaybeConsumer on whether the label was successfully edited..
          */
-        public MaybeConsumer<Label> onLabelEdit(Label updatedLabel);
+        public MaybeConsumer<Success> onLabelEdit(Label updatedLabel);
 
         /**
          * Called when a timestamp was clicked. The responder may use this to allow
@@ -151,8 +153,8 @@ public class EditNoteDialog extends DialogFragment {
         } else if (mLabel instanceof SensorTriggerLabel) {
             imageView.setVisibility(View.GONE);
             autoTextView.setVisibility(View.VISIBLE);
-            editText.setText(SensorTriggerLabel.getCustomText(mSelectedValue));
-            String autoText = SensorTriggerLabel.getAutogenText(mSelectedValue);
+            editText.setText(SensorTriggerLabelValue.getCustomText(mSelectedValue));
+            String autoText = SensorTriggerLabelValue.getAutogenText(mSelectedValue);
             TriggerHelper.populateAutoTextViews(autoTextView, autoText,
                     R.drawable.ic_label_black_24dp, getResources());
         }

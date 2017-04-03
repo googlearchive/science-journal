@@ -111,6 +111,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         EditNoteDialog.EditNoteDialogListener, EditTimeDialogListener,
         DeleteMetadataItemDialog.DeleteDialogListener, AudioSettingsDialog.AudioSettingsDialogListener,
         ChartController.ChartLoadingStatus {
+    public static final String ARG_EXPERIMENT_ID = "experimentId";
     public static final String ARG_START_LABEL_ID = "start_label_id";
     public static final String ARG_SENSOR_INDEX = "sensor_tag_index";
     public static final String ARG_CREATE_TASK = "create_task";
@@ -144,6 +145,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private boolean mAudioWasPlayingBeforePause = false;
 
     private String mStartLabelId;
+    private String mExperimentId;
     private int mSelectedSensorIndex = 0;
     private GraphOptionsController mGraphOptionsController;
     private ScalarDisplayOptions mScalarDisplayOptions;
@@ -174,10 +176,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
      * @param createTask if {@code true}, will create tasks when navigating up
      * @return A new instance of fragment RunReviewFragment.
      */
-    public static RunReviewFragment newInstance(String startLabelId, int sensorIndex,
-            boolean createTask) {
+    public static RunReviewFragment newInstance(String experimentId, String startLabelId,
+            int sensorIndex, boolean createTask) {
         RunReviewFragment fragment = new RunReviewFragment();
         Bundle args = new Bundle();
+        args.putString(ARG_EXPERIMENT_ID, experimentId);
         args.putString(ARG_START_LABEL_ID, startLabelId);
         args.putInt(ARG_SENSOR_INDEX, sensorIndex);
         args.putBoolean(ARG_CREATE_TASK, createTask);
@@ -233,6 +236,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (getArguments() != null) {
             mStartLabelId = getArguments().getString(ARG_START_LABEL_ID);
             mSelectedSensorIndex = getArguments().getInt(ARG_SENSOR_INDEX);
+            mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
         }
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(KEY_SELECTED_SENSOR_INDEX)) {
@@ -543,8 +547,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (id == android.R.id.home) {
             Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
             if (mExperimentRun != null) {
-                upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID,
-                        mExperimentRun.getExperimentId());
+                upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, mExperimentId);
                 upIntent.putExtra(ExperimentDetailsFragment.ARG_CREATE_TASK,
                         getArguments().getBoolean(ARG_CREATE_TASK, false));
                 upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -563,7 +566,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             mGraphOptionsController.launchOptionsDialog(mScalarDisplayOptions,
                     new NewOptionsStorage.SnackbarFailureListener(getView()));
         } else if (id == R.id.action_export) {
-            getDataController().getExperimentRun(mStartLabelId,
+            getDataController().getExperimentRun(mExperimentId, mStartLabelId,
                 new LoggingConsumer<ExperimentRun>(TAG, "retrieve argument") {
                     @Override
                     public void success(final ExperimentRun run) {
@@ -610,7 +613,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     private void initializeData() {
         final DataController dc = getDataController();
-        dc.getExperimentRun(mStartLabelId,
+        dc.getExperimentRun(mExperimentId, mStartLabelId,
                 new LoggingConsumer<ExperimentRun>(TAG, "load experiment run") {
                     @Override
                     public void success(final ExperimentRun run) {
@@ -626,7 +629,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                                             // This experiment no longer exists, finish.
                                             getActivity().finish();
                                         }
-                                        attachToRun(experiment, run);
+                                        mExperiment = experiment;
+                                        attachToRun(run);
                                     }
                                 });
                     }
@@ -750,12 +754,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         }
     }
 
-    private void attachToRun(final Experiment experiment, final ExperimentRun run) {
+    private void attachToRun(final ExperimentRun run) {
         if (getActivity() == null) {
             return;
         }
         mExperimentRun = run;
-        mExperiment = experiment;
 
         // Create a BroadcastReceiver for when the stats get updated.
         mBroadcastReceiver = new BroadcastReceiver() {
@@ -1266,11 +1269,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
-    public MaybeConsumer<Label> onLabelEdit(final Label label) {
-        return new LoggingConsumer<Label>(TAG, "edit label") {
+    public MaybeConsumer<Success> onLabelEdit(final Label label) {
+        return new LoggingConsumer<Success>(TAG, "edit label") {
             @Override
-            public void success(Label value) {
-                mPinnedNoteAdapter.editLabel(value);
+            public void success(Success value) {
+                mPinnedNoteAdapter.editLabel(label);
                 // The timestamp may have been edited, so also refresh the line graph presenter.
                 mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
                 WhistlePunkApplication.getUsageTracker(getActivity())

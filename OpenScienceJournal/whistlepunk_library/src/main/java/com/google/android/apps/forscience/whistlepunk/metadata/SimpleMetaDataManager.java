@@ -696,6 +696,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
         for (Label label : getLabelsWithStartId(runId)) {
             deleteLabel(label);
         }
+        for (ApplicationLabel label : getApplicationLabelsWithStartId(runId)) {
+            deleteApplicationLabel(label);
+        }
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             String selectionRunId = RunsColumns.RUN_ID + "=?";
@@ -764,11 +767,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public void addLabel(Experiment experiment, Label label) {
-        addLabel(experiment.getExperimentId(), label);
-    }
-
-    @Override
     public void addLabel(String experimentId, Label label) {
         ContentValues values = new ContentValues();
         values.put(LabelColumns.EXPERIMENT_ID, experimentId);
@@ -776,6 +774,21 @@ public class SimpleMetaDataManager implements MetaDataManager {
         values.put(LabelColumns.TIMESTAMP, label.getTimeStamp());
         values.put(LabelColumns.LABEL_ID, label.getLabelId());
         values.put(LabelColumns.START_LABEL_ID, label.getRunId());
+        values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(label.getValue()));
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.insert(Tables.LABELS, null, values);
+        }
+    }
+
+    @Override
+    public void addApplicationLabel(String experimentId, ApplicationLabel label) {
+        ContentValues values = new ContentValues();
+        values.put(LabelColumns.EXPERIMENT_ID, experimentId);
+        values.put(LabelColumns.TYPE, label.getTag());
+        values.put(LabelColumns.TIMESTAMP, label.getTimeStamp());
+        values.put(LabelColumns.LABEL_ID, label.getLabelId());
+        values.put(LabelColumns.START_LABEL_ID, label.getTrialId());
         values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(label.getValue()));
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -820,6 +833,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
                         null, null, null);
                 while (cursor.moveToNext()) {
                     String type = cursor.getString(LabelQuery.TYPE_INDEX);
+                    if (ApplicationLabel.isTag(type)) {
+                        continue;
+                    }
                     Label label;
                     // TODO: fix code smell: perhaps make a factory?
                     final String labelId = cursor.getString(LabelQuery.LABEL_ID_INDEX);
@@ -840,8 +856,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
                             label = new TextLabel(labelId, startLabelId, timestamp, value);
                         } else if (PictureLabel.isTag(type)) {
                             label = new PictureLabel(labelId, startLabelId, timestamp, value);
-                        } else if (ApplicationLabel.isTag(type)) {
-                            label = new ApplicationLabel(labelId, startLabelId, timestamp, value);
                         } else if (SensorTriggerLabel.isTag(type)) {
                             label = new SensorTriggerLabel(labelId, startLabelId, timestamp, value);
                         } else {
@@ -857,8 +871,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
                         } else if (PictureLabel.isTag(type)) {
                             // Early picture labels had no captions.
                             label = new PictureLabel(data, "", labelId, startLabelId, timestamp);
-                        } else if (ApplicationLabel.isTag(type)) {
-                            label = new ApplicationLabel(data, labelId, startLabelId, timestamp);
                         } else {
                             throw new IllegalStateException("Unknown label type: " + type);
                         }
@@ -881,6 +893,57 @@ public class SimpleMetaDataManager implements MetaDataManager {
         final String selection = LabelColumns.START_LABEL_ID + "=?";
         final String[] selectionArgs = new String[]{startLabelId};
         return getLabels(selection, selectionArgs);
+    }
+
+    @Override
+    public List<ApplicationLabel> getApplicationLabelsWithStartId(String startLabelId) {
+        final String selection = LabelColumns.START_LABEL_ID + "=? and " + LabelColumns.TYPE + "=?";
+        final String[] selectionArgs = new String[]{startLabelId, ApplicationLabel.TAG};
+        return getApplicationLabels(selection, selectionArgs);
+    }
+
+    private List<ApplicationLabel> getApplicationLabels(String selection, String[] selectionArgs) {
+        List<ApplicationLabel> labels = new ArrayList<>();
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+            Cursor cursor = null;
+            try {
+                cursor = db.query(Tables.LABELS, LabelQuery.PROJECTION, selection, selectionArgs,
+                        null, null, null);
+                while (cursor.moveToNext()) {
+                    String type = cursor.getString(LabelQuery.TYPE_INDEX);
+                    ApplicationLabel label;
+                    // TODO: fix code smell: perhaps make a factory?
+                    final String labelId = cursor.getString(LabelQuery.LABEL_ID_INDEX);
+                    final String startLabelId = cursor.getString(LabelQuery.START_LABEL_ID_INDEX);
+                    long timestamp = cursor.getLong(LabelQuery.TIMESTAMP_INDEX);
+                    GoosciLabelValue.LabelValue value = null;
+                    try {
+                        byte[] blob = cursor.getBlob(LabelQuery.VALUE_INDEX);
+                        if (blob != null) {
+                            value = GoosciLabelValue.LabelValue.parseFrom(blob);
+                        }
+                    } catch (InvalidProtocolBufferNanoException ex) {
+                        Log.d(TAG, "Unable to parse label value");
+                    }
+                    if (value == null) {
+                        // Old text, picture and application labels were added when label data
+                        // was stored as a string. New types of labels should not be added to this
+                        // list.
+                        final String data = cursor.getString(LabelQuery.DATA_INDEX);
+                        label = new ApplicationLabel(data, labelId, startLabelId, timestamp);
+                    } else {
+                        label = new ApplicationLabel(labelId, startLabelId, timestamp, value);
+                    }
+                    labels.add(label);
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+            return labels;
+        }
     }
 
     @Override
@@ -982,6 +1045,18 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
+    public void editApplicationLabel(ApplicationLabel updatedLabel) {
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            final ContentValues values = new ContentValues();
+            values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(updatedLabel.getValue()));
+            values.put(LabelColumns.TIMESTAMP, updatedLabel.getTimeStamp());
+            db.update(Tables.LABELS, values, LabelColumns.LABEL_ID + "=?",
+                    new String[]{updatedLabel.getLabelId()});
+        }
+    }
+
+    @Override
     public void deleteLabel(Label label) {
         if (label instanceof PictureLabel) {
             File file = new File(((PictureLabel) label).getAbsoluteFilePath());
@@ -991,6 +1066,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
             }
             PictureUtils.scanFile(file.getAbsolutePath(), mContext);
         }
+        String selection = LabelColumns.LABEL_ID + "=?";
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            db.delete(Tables.LABELS, selection, new String[]{label.getLabelId()});
+        }
+    }
+
+    private void deleteApplicationLabel(ApplicationLabel label) {
         String selection = LabelColumns.LABEL_ID + "=?";
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();

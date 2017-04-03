@@ -69,7 +69,7 @@ public class UpdateRunFragment extends Fragment {
         super.onStart();
         mRunId = getArguments().getString(ARG_RUN_ID);
 
-        getDataController().getExperimentRun(mRunId,
+        getDataController().getExperimentRun(mExperimentRun.getExperimentId(), mRunId,
                 new LoggingConsumer<ExperimentRun>(TAG, "retrieve run") {
                     @Override
                     public void success(ExperimentRun run) {

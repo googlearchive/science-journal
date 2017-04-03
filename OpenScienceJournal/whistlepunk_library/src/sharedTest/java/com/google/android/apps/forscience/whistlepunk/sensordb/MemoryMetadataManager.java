@@ -33,7 +33,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
-import com.google.android.apps.forscience.whistlepunk.metadata.Run;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
 import com.google.common.base.Preconditions;
@@ -63,6 +62,7 @@ public class MemoryMetadataManager implements MetaDataManager {
     private Multimap<String, String> mExperimentIncluded = HashMultimap.create();
     private Multimap<String, String> mExperimentExcluded = HashMultimap.create();
     private ListMultimap<String, Label> mLabels = LinkedListMultimap.create();
+    private ListMultimap<String, ApplicationLabel> mApplicationLabels = LinkedListMultimap.create();
     private Table<String, String, TrialStats> mStats = HashBasedTable.create();
     private Map<String, List<GoosciSensorLayout.SensorLayout>> mLayouts = new HashMap<>();
     private Map<String, ExternalSensorSpec> mExternalSensors = new HashMap<>();
@@ -135,13 +135,13 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public void addLabel(Experiment experiment, Label label) {
-        mLabels.put(experiment.getExperimentId(), label);
+    public void addLabel(String experimentId, Label label) {
+        mLabels.put(experimentId, label);
     }
 
     @Override
-    public void addLabel(String experimentId, Label label) {
-        mLabels.put(experimentId, label);
+    public void addApplicationLabel(String experimentId, ApplicationLabel label) {
+        mApplicationLabels.put(experimentId, label);
     }
 
     @Override
@@ -154,6 +154,17 @@ public class MemoryMetadataManager implements MetaDataManager {
         final ArrayList<Label> labels = new ArrayList<>();
         for (Label label : mLabels.values()) {
             if (label.getRunId().equals(startLabelId)) {
+                labels.add(label);
+            }
+        }
+        return labels;
+    }
+
+    @Override
+    public List<ApplicationLabel> getApplicationLabelsWithStartId(String startLabelId) {
+        final ArrayList<ApplicationLabel> labels = new ArrayList<>();
+        for (ApplicationLabel label : mApplicationLabels.values()) {
+            if (label.getTrialId().equals(startLabelId)) {
                 labels.add(label);
             }
         }
@@ -177,6 +188,11 @@ public class MemoryMetadataManager implements MetaDataManager {
 
     @Override
     public void editLabel(Label updatedLabel) {
+
+    }
+
+    @Override
+    public void editApplicationLabel(ApplicationLabel updatedLabel) {
 
     }
 

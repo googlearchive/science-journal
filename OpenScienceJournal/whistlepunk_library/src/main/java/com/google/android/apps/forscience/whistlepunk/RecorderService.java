@@ -65,21 +65,22 @@ public class RecorderService extends Service {
      * @param runId If notifiyRecordingEnded is false, can be empty.
      * @param experimentTitle If notifyRecordingEnded is false, can be empty.
      */
-    public void endServiceRecording(boolean notifyRecordingEnded, String runId,
+    public void endServiceRecording(boolean notifyRecordingEnded, String runId, String experimentId,
             String experimentTitle) {
         // Remove the recording notification before notifying that recording has stopped, so that
         // Science Journal only has one notification at a time.
         clearNotification(getApplicationContext(), NotificationIds.RECORDER_SERVICE);
         if (notifyRecordingEnded) {
-            notifyRecordingEnded(runId, experimentTitle);
+            notifyRecordingEnded(runId, experimentId, experimentTitle);
         }
         stopForeground(true);
         stopSelf();
     }
 
-    private void notifyRecordingEnded(String runId, String experimentTitle) {
+    private void notifyRecordingEnded(String runId, String experimentId, String experimentTitle) {
         Intent intent = new Intent(getApplicationContext(), RunReviewActivity.class);
 
+        intent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, experimentId);
         intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, runId);
         intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, 0);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);

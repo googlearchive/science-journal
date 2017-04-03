@@ -134,14 +134,15 @@ public class CropHelper {
             cropLabels.cropStartLabel.setTimestamp(startTimestamp);
             cropLabels.cropEndLabel.setTimestamp(endTimestamp);
             run.setCropLabels(cropLabels);
-            mDataController.editLabel(cropLabels.cropStartLabel,
-                    new LoggingConsumer<Label>(TAG, "edit crop start label") {
+            mDataController.editApplicationLabel(cropLabels.cropStartLabel,
+                    new LoggingConsumer<Success>(TAG, "edit crop start label") {
                         @Override
-                        public void success(Label value) {
-                            mDataController.editLabel(cropLabels.cropEndLabel,
-                                    new LoggingConsumer<Label>(TAG,"edit crop end label") {
+                        public void success(Success value) {
+                            mDataController.editApplicationLabel(cropLabels.cropEndLabel,
+                                    new LoggingConsumer<Success>(TAG,
+                                            "edit crop end label") {
                                         @Override
-                                        public void success(Label value) {
+                                        public void success(Success value) {
                                             markRunStatsForAdjustment(context, run, listener);
                                         }
                                     });
@@ -164,14 +165,15 @@ public class CropHelper {
             run.setCropLabels(cropLabels);
 
             // Add new crop labels to the database.
-            mDataController.addLabel(cropStartLabel,
-                    new LoggingConsumer<Label>(TAG, "add crop start label") {
+            mDataController.addApplicationLabel(cropStartLabel,
+                    new LoggingConsumer<ApplicationLabel>(TAG, "add crop start label") {
                         @Override
-                        public void success(Label value) {
-                            mDataController.addLabel(cropEndLabel,
-                                    new LoggingConsumer<Label>(TAG, "Add crop end label") {
+                        public void success(ApplicationLabel value) {
+                            mDataController.addApplicationLabel(cropEndLabel,
+                                    new LoggingConsumer<ApplicationLabel>(TAG,
+                                            "Add crop end label") {
                                         @Override
-                                        public void success(Label value) {
+                                        public void success(ApplicationLabel value) {
                                             markRunStatsForAdjustment(context, run, listener);
                                         }
                                     });

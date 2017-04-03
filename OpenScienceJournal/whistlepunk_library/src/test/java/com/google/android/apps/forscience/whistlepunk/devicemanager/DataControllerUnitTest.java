@@ -82,17 +82,17 @@ public class DataControllerUnitTest {
         final ApplicationLabel startLabel = cLabel.getValue();
 
         final ExperimentRun runWhileStarted = getOnlyExperimentRun(dc, experiment);
-        assertEquals(startLabel.getRunId(), runWhileStarted.getTrialId());
+        assertEquals(startLabel.getTrialId(), runWhileStarted.getTrialId());
         assertFalse(runWhileStarted.isValidRun());
         assertEquals(5, runWhileStarted.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
 
         layout.maximumYAxisValue = 15;
 
-        dc.stopRun(experiment, startLabel.getRunId(), layouts,
+        dc.stopRun(experiment, startLabel.getTrialId(), layouts,
                 TestConsumers.<ApplicationLabel>expectingSuccess());
 
         final ExperimentRun runWhileStopped = getOnlyExperimentRun(dc, experiment);
-        assertEquals(startLabel.getRunId(), runWhileStopped.getTrialId());
+        assertEquals(startLabel.getTrialId(), runWhileStopped.getTrialId());
         assertTrue(runWhileStopped.isValidRun());
         assertEquals(15, runWhileStarted.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
     }

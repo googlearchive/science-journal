@@ -528,16 +528,16 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     @Override
-    public MaybeConsumer<Label> onLabelEdit(final Label label) {
-        return new LoggingConsumer<Label>(TAG, "edit label text") {
+    public MaybeConsumer<Success> onLabelEdit(final Label label) {
+        return new LoggingConsumer<Success>(TAG, "edit label text") {
             @Override
-            public void success(Label value) {
+            public void success(Success value) {
                 mAdapter.replaceLabelText(label);
                 WhistlePunkApplication.getUsageTracker(getActivity())
                         .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                 TrackerConstants.ACTION_EDITED,
                                 TrackerConstants.LABEL_EXPERIMENT_DETAIL,
-                                TrackerConstants.getLabelValueType(value));
+                                TrackerConstants.getLabelValueType(label));
             }
         };
     }
@@ -1146,8 +1146,9 @@ public class ExperimentDetailsFragment extends Fragment
                     ActivityOptionsCompat options = ActivityOptionsCompat
                             .makeSceneTransitionAnimation(activity, TransitionUtils
                                     .getTransitionPairs(activity, v, runId));
-                    RunReviewActivity.launch(v.getContext(), runId, selectedSensorIndex,
-                            false /* from record */, false /* create task */, options.toBundle());
+                    RunReviewActivity.launch(v.getContext(), runId, mExperiment.getExperimentId(),
+                            selectedSensorIndex, false /* from record */, false /* create task */,
+                            options.toBundle());
                 }
             };
         }

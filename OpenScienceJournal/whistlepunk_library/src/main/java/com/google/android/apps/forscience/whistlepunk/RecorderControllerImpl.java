@@ -480,7 +480,7 @@ public class RecorderControllerImpl implements RecorderController {
                             @Override
                             public void success(ApplicationLabel label) {
                                 mRecording = new RecordingMetadata(label.getTimeStamp(),
-                                        label.getRunId(),
+                                        label.getTrialId(),
                                         mSelectedExperiment.getDisplayTitle(mContext));
 
                                 ensureUnarchived(mSelectedExperiment, project, dataController);
@@ -558,6 +558,7 @@ public class RecorderControllerImpl implements RecorderController {
                                             // so this needs to be the last thing to happen!
                                             recorderService.endServiceRecording(
                                                     !activityInForground, runId,
+                                                    mSelectedExperiment.getExperimentId(),
                                                     mSelectedExperiment.getDisplayTitle(mContext));
                                         }
                                     }
@@ -608,7 +609,8 @@ public class RecorderControllerImpl implements RecorderController {
         withBoundRecorderService(new FallibleConsumer<RecorderService>() {
             @Override
             public void take(RecorderService recorderService) throws RemoteException {
-                recorderService.endServiceRecording(false, "", "");
+                recorderService.endServiceRecording(false, "",
+                        mSelectedExperiment.getExperimentId(), "");
                 mRecordingStateChangeInProgress = false;
             }
         });

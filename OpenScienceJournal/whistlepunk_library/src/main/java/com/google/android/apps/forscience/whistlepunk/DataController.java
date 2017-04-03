@@ -29,7 +29,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
-import com.google.android.apps.forscience.whistlepunk.metadata.Run;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -47,6 +46,8 @@ public interface DataController {
             int maxRecords, MaybeConsumer<ScalarReadingList> onSuccess);
 
     void addLabel(Label label, MaybeConsumer<Label> onSuccess);
+
+    void addApplicationLabel(ApplicationLabel label, MaybeConsumer<ApplicationLabel> onSuccess);
 
     void startRun(Experiment experiment, List<GoosciSensorLayout.SensorLayout> sensorLayouts,
             MaybeConsumer<ApplicationLabel> onSuccess);
@@ -68,7 +69,8 @@ public interface DataController {
 
     void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
-    void getExperimentRun(String startLabelId, MaybeConsumer<ExperimentRun> onSuccess);
+    void getExperimentRun(final String experimentId, final String startLabelId,
+            final MaybeConsumer<ExperimentRun> onSuccess);
 
     void getExperimentRuns(String experiment, boolean includeArchived,
             final boolean includeInvalid, MaybeConsumer<List<ExperimentRun>> onSuccess);
@@ -82,7 +84,9 @@ public interface DataController {
     void getProjects(int maxNumber, boolean includeArchived,
                      MaybeConsumer<List<Project>> onSuccess);
 
-    void editLabel(Label updatedLabel, MaybeConsumer<Label> onSuccess);
+    void editLabel(final Label updatedLabel, final MaybeConsumer<Success> onSuccess);
+
+    void editApplicationLabel(ApplicationLabel updatedLabel, MaybeConsumer<Success> onSuccess);
 
     void deleteLabel(Label label, MaybeConsumer<Success> onSuccess);
 

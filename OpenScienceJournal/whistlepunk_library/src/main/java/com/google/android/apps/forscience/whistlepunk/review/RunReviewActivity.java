@@ -40,10 +40,11 @@ public class RunReviewActivity extends MetadataActivity {
      *                   from another part of the app.
      * @param options  Options bundle for launch
      */
-    public static void launch(Context context, String startLabelId, int activeSensorIndex,
-                              boolean fromRecord, boolean createTask, Bundle options) {
+    public static void launch(Context context, String startLabelId, String experimentId,
+            int activeSensorIndex, boolean fromRecord, boolean createTask, Bundle options) {
         // TODO(saff): fancy schmancy material transition here (see specs)
         final Intent intent = new Intent(context, RunReviewActivity.class);
+        intent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, experimentId);
         intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, startLabelId);
         intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, activeSensorIndex);
         intent.putExtra(EXTRA_FROM_RECORD, fromRecord);
@@ -60,6 +61,7 @@ public class RunReviewActivity extends MetadataActivity {
         supportPostponeEnterTransition();
         if (savedInstanceState == null) {
             RunReviewFragment fragment = RunReviewFragment.newInstance(
+                    getIntent().getExtras().getString(RunReviewFragment.ARG_EXPERIMENT_ID),
                     getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID),
                     getIntent().getExtras().getInt(RunReviewFragment.ARG_SENSOR_INDEX),
                     createTask /* create a task when going up */);

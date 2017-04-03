@@ -382,7 +382,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                         dialog.dismiss();
                                     }
                                     if (!mRecordingWasCanceled) {
-                                        onRecordingStopped(prevRecording.getRunId());
+                                        onRecordingStopped(prevRecording.getRunId(),
+                                                mSelectedExperiment.getExperimentId());
                                     }
                                 }
                                 mRecordingWasCanceled = false;
@@ -1243,8 +1244,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         }
     }
 
-    private void onRecordingStopped(final String startLabelId) {
-        RunReviewActivity.launch(RecordFragment.this.getActivity(), startLabelId, 0,
+    private void onRecordingStopped(String startLabelId, String experimentId) {
+        RunReviewActivity.launch(RecordFragment.this.getActivity(), startLabelId, experimentId, 0,
                 true /* from record */, true /* create task */, null);
     }
 

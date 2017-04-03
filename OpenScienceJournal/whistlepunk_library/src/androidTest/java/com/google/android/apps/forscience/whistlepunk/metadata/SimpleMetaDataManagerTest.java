@@ -210,7 +210,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
         String testLabelString = "test label";
         TextLabel textLabel = new TextLabel(testLabelString, "textId", Arbitrary.string(), 1);
-        mMetaDataManager.addLabel(experiment, textLabel);
+        mMetaDataManager.addLabel(experiment.getExperimentId(), textLabel);
         File tmpFile;
         try {
              tmpFile = File.createTempFile("testfile_" + experiment.getExperimentId(), "png");
@@ -225,7 +225,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         String testPictureCaption = "life, the universe, and everything";
         PictureLabel pictureLabel = new PictureLabel(testPicturePath, testPictureCaption,
                 "pictureId", Arbitrary.string(), 2);
-        mMetaDataManager.addLabel(experiment, pictureLabel);
+        mMetaDataManager.addLabel(experiment.getExperimentId(), pictureLabel);
 
         List<Label> labels = mMetaDataManager.getLabelsForExperiment(experiment);
         assertEquals(2, labels.size());
@@ -265,10 +265,10 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         final TextLabel during1 = new TextLabel("during1Text", "during1Id", "duringStartId", 2);
         final TextLabel during2 = new TextLabel("during2Text", "during2Id", "duringStartId", 3);
         final TextLabel after = new TextLabel("afterText", "afterId", "afterStartId", 4);
-        mMetaDataManager.addLabel(experiment, before);
-        mMetaDataManager.addLabel(experiment, during1);
-        mMetaDataManager.addLabel(experiment, during2);
-        mMetaDataManager.addLabel(experiment, after);
+        mMetaDataManager.addLabel(experiment.getExperimentId(), before);
+        mMetaDataManager.addLabel(experiment.getExperimentId(), during1);
+        mMetaDataManager.addLabel(experiment.getExperimentId(), during2);
+        mMetaDataManager.addLabel(experiment.getExperimentId(), after);
         final List<Label> labels = mMetaDataManager.getLabelsWithStartId("duringStartId");
         assertEqualLabels(during1, labels.get(0));
         assertEqualLabels(during2, labels.get(1));
@@ -290,30 +290,31 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
                 ApplicationLabel.TYPE_RECORDING_START, "startId3", "startId3", 5);
         final ApplicationLabel stopId3 = new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP,
                 "stopId3", "startId3", 6);
-        mMetaDataManager.addLabel(experiment, startId1);
+        String experimentId = experiment.getExperimentId();
+        mMetaDataManager.addApplicationLabel(experimentId, startId1);
         mTestSystemClock.advanceClock();
-        mMetaDataManager.addLabel(experiment, stopId1);
+        mMetaDataManager.addApplicationLabel(experimentId, stopId1);
         mTestSystemClock.advanceClock();
-        mMetaDataManager.addLabel(experiment, startId2);
+        mMetaDataManager.addApplicationLabel(experimentId, startId2);
         mTestSystemClock.advanceClock();
-        mMetaDataManager.addLabel(experiment, textLabel);
+        mMetaDataManager.addLabel(experimentId, textLabel);
         mTestSystemClock.advanceClock();
-        mMetaDataManager.addLabel(experiment, stopId2);
+        mMetaDataManager.addApplicationLabel(experimentId, stopId2);
         mTestSystemClock.advanceClock();
-        mMetaDataManager.addLabel(experiment, startId3);
+        mMetaDataManager.addApplicationLabel(experimentId, startId3);
         mTestSystemClock.advanceClock();
-        mMetaDataManager.addLabel(experiment, stopId3);
+        mMetaDataManager.addApplicationLabel(experimentId, stopId3);
         mTestSystemClock.advanceClock();
         final List<String> experimentRunIds = mMetaDataManager.getExperimentRunIds(
                 experiment.getExperimentId(), true);
         assertEquals(Lists.newArrayList(), experimentRunIds);
-        mMetaDataManager.newTrial(experiment, startId1.getRunId(), 0,
+        mMetaDataManager.newTrial(experiment, startId1.getTrialId(), 0,
                 new ArrayList<GoosciSensorLayout.SensorLayout>());
         mTestSystemClock.advanceClock();
-        mMetaDataManager.newTrial(experiment, startId2.getRunId(), 2,
+        mMetaDataManager.newTrial(experiment, startId2.getTrialId(), 2,
                 new ArrayList<GoosciSensorLayout.SensorLayout>());
         mTestSystemClock.advanceClock();
-        mMetaDataManager.newTrial(experiment, startId3.getRunId(), 5,
+        mMetaDataManager.newTrial(experiment, startId3.getTrialId(), 5,
                 new ArrayList<GoosciSensorLayout.SensorLayout>());
         mTestSystemClock.advanceClock();
         final List<String> experimentRunIds2 = mMetaDataManager.getExperimentRunIds(
@@ -536,7 +537,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
                 Lists.newArrayList(layout1, layout2);
         final ArrayList<String> sensorIds = Lists.newArrayList("sensor1", "sensor2");
-        Trial saved = mMetaDataManager.newTrial(experiment, startLabel.getRunId(),
+        Trial saved = mMetaDataManager.newTrial(experiment, startLabel.getTrialId(),
                 startLabel.getTimeStamp(), sensorLayouts);
         Trial loaded = mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel));
         assertEquals(startLabel.getLabelId(), saved.getTrialId());
@@ -567,8 +568,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         layout2.sensorId = "sensor2";
         final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
                 Lists.newArrayList(layout1, layout2);
-        mMetaDataManager.addLabel(experiment, startLabel);
-        mMetaDataManager.newTrial(experiment, startLabel.getRunId(), startLabel.getTimeStamp(),
+        mMetaDataManager.addApplicationLabel(experiment.getExperimentId(), startLabel);
+        mMetaDataManager.newTrial(experiment, startLabel.getTrialId(), startLabel.getTimeStamp(),
                 sensorLayouts);
         mMetaDataManager.setExperimentSensorLayouts(experiment.getExperimentId(), sensorLayouts);
 
@@ -592,8 +593,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         layout2.sensorId = "sensor2";
         final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
                 Lists.newArrayList(layout1, layout2);
-        mMetaDataManager.addLabel(experiment, startLabel);
-        Trial saved = mMetaDataManager.newTrial(experiment, startLabel.getRunId(),
+        mMetaDataManager.addApplicationLabel(experiment.getExperimentId(), startLabel);
+        Trial saved = mMetaDataManager.newTrial(experiment, startLabel.getTrialId(),
                 startLabel.getTimeStamp(), sensorLayouts);
 
         mMetaDataManager.deleteProject(project);

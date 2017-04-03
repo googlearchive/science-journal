@@ -33,66 +33,65 @@ public interface MetaDataManager {
     /**
      * @return the project with matching projectId
      */
-    public Project getProjectById(String projectId);
+    Project getProjectById(String projectId);
 
     /**
      * @return the list of saved projects
      */
-    public List<Project> getProjects(int maxNumber, boolean archived);
+    List<Project> getProjects(int maxNumber, boolean archived);
 
     /**
      * @return a new project with a random ID.
      */
-    public Project newProject();
+    Project newProject();
 
     /**
      * Updates project data.
      */
-    public void updateProject(Project project);
+    void updateProject(Project project);
 
     /**
      * Removes a project, all its associated experiments and labels.
      */
-    public void deleteProject(Project project);
+    void deleteProject(Project project);
 
-    public Experiment getExperimentById(String experimentId);
+    Experiment getExperimentById(String experimentId);
 
     /**
      * Creates a new experiment for a given project.
      */
-    public Experiment newExperiment(Project project);
+    Experiment newExperiment(Project project);
 
     /**
      * Deletes the experiment and any associated runs and labels.
      */
-    public void deleteExperiment(Experiment experiment);
+    void deleteExperiment(Experiment experiment);
 
     /**
      * Updates experiment details.
      */
-    public void updateExperiment(Experiment experiment);
+    void updateExperiment(Experiment experiment);
 
     /**
      * @return the list of experiments for a given project.
      */
-    public List<Experiment> getExperimentsForProject(Project project, boolean includeArchived);
-
-    /**
-     * Saves label to storage.
-     */
-    public void addLabel(Experiment experiment, Label label);
+    List<Experiment> getExperimentsForProject(Project project, boolean includeArchived);
 
     /**
      * Saves label to storage for the given experiment ID.
      */
-    public void addLabel(String experimentId, Label label);
+    void addLabel(String experimentId, Label label);
+
+    void addApplicationLabel(String experimentId, ApplicationLabel label);
 
     /**
      * @return the list of labels for a given experiment
      */
-    public List<Label> getLabelsForExperiment(Experiment experiment);
+    List<Label> getLabelsForExperiment(Experiment experiment);
 
     List<Label> getLabelsWithStartId(String startLabelId);
+
+    List<ApplicationLabel> getApplicationLabelsWithStartId(String startLabelId);
 
     void setStats(String startLabelId, String sensorId, TrialStats stats);
 
@@ -106,19 +105,21 @@ public interface MetaDataManager {
      */
     void editLabel(Label updatedLabel);
 
+    void editApplicationLabel(ApplicationLabel updatedLabel);
+
     void deleteLabel(Label label);
 
     /**
      * Gets all the external sensors previously saved.
      * @param providerMap
      */
-    public Map<String, ExternalSensorSpec> getExternalSensors(
+    Map<String, ExternalSensorSpec> getExternalSensors(
             Map<String, ExternalSensorProvider> providerMap);
 
     /**
      * Gets the external sensor or {@null} if no sensor with that ID was added.
      */
-    public ExternalSensorSpec getExternalSensorById(String id,
+    ExternalSensorSpec getExternalSensorById(String id,
             Map<String, ExternalSensorProvider> providerMap);
 
     /**
@@ -127,7 +128,7 @@ public interface MetaDataManager {
      * @param providerMap
      * @return
      */
-    public String addOrGetExternalSensor(ExternalSensorSpec sensor,
+    String addOrGetExternalSensor(ExternalSensorSpec sensor,
             Map<String, ExternalSensorProvider> providerMap);
 
     /**
@@ -136,39 +137,39 @@ public interface MetaDataManager {
      * affect display of saved experiments.
      * </p>
      */
-    public void removeExternalSensor(String databaseTag);
+    void removeExternalSensor(String databaseTag);
 
     /**
      * Adds a linkage between an experiment and a sensor, which could be external or internal.
      */
-    public void addSensorToExperiment(String databaseTag, String experimentId);
+    void addSensorToExperiment(String databaseTag, String experimentId);
 
     /**
      * Removes a linkage between an experiment and a sensor, which could be external or internal.
      */
-    public void removeSensorFromExperiment(String databaseTag, String experimentId);
+    void removeSensorFromExperiment(String databaseTag, String experimentId);
 
     /**
      * Gets all the external sensors which are linked to an experiment, in insertion order
      */
-    public ExperimentSensors getExperimentExternalSensors(String experimentId,
+    ExperimentSensors getExperimentExternalSensors(String experimentId,
             Map<String, ExternalSensorProvider> providerMap);
 
     /**
      * Adds this device as one to be remembered as "my device" in the manage devices screen from
      * here on out.
      */
-    public void addMyDevice(InputDeviceSpec deviceSpec);
+    void addMyDevice(InputDeviceSpec deviceSpec);
 
     /**
      * Removes this device from "my devices"
      */
-    public void removeMyDevice(InputDeviceSpec deviceSpec);
+    void removeMyDevice(InputDeviceSpec deviceSpec);
 
     /**
      * @return all of "my devices", in insertion order
      */
-    public List<InputDeviceSpec> getMyDevices();
+    List<InputDeviceSpec> getMyDevices();
 
     /**
      * @returns Last used experiment.

@@ -28,8 +28,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
-import com.google.android.apps.forscience.whistlepunk.metadata.Run;
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -50,6 +48,12 @@ public class StubDataController implements DataController {
 
     @Override
     public void addLabel(Label label, MaybeConsumer<Label> onSuccess) {
+
+    }
+
+    @Override
+    public void addApplicationLabel(ApplicationLabel label,
+            MaybeConsumer<ApplicationLabel> onSuccess) {
 
     }
 
@@ -97,7 +101,8 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void getExperimentRun(String startLabelId, MaybeConsumer<ExperimentRun> onSuccess) {
+    public void getExperimentRun(String experimentId, String startLabelId,
+            MaybeConsumer<ExperimentRun> onSuccess) {
 
     }
 
@@ -129,7 +134,13 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void editLabel(Label updatedLabel, MaybeConsumer<Label> onSuccess) {
+    public void editLabel(Label updatedLabel, MaybeConsumer<Success> onSuccess) {
+
+    }
+
+    @Override
+    public void editApplicationLabel(ApplicationLabel updatedLabel,
+            MaybeConsumer<Success> onSuccess) {
 
     }
 

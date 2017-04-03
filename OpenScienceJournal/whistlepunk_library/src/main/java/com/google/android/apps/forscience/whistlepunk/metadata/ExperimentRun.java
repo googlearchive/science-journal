@@ -21,39 +21,30 @@ import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ExperimentRun {
-    private final ArrayList<Label> mLabels;
+    private final List<Label> mLabels;
 
     private Trial mTrial;
     private String mExperimentId;
     private CropHelper.CropLabels mCropLabels; // Need these around for writing to the DB
 
-    public static ExperimentRun fromLabels(Trial trial, List<Label> allLabels) {
-        ArrayList<Label> labels = new ArrayList<>();
+    public static ExperimentRun fromLabels(Trial trial, String experimentId,
+            List<ApplicationLabel> applicationLabels, List<Label> labels) {
         CropHelper.CropLabels cropLabels = new CropHelper.CropLabels();
-        String experimentId = null;
-        for (Label label : allLabels) {
-            if (label instanceof ApplicationLabel) {
-                ApplicationLabel appLabel = (ApplicationLabel) label;
-                if (appLabel.getType() == ApplicationLabel.TYPE_RECORDING_START) {
-                    experimentId = appLabel.getExperimentId();
-                } else if (appLabel.getType() == ApplicationLabel.TYPE_CROP_START) {
-                    cropLabels.cropStartLabel = (ApplicationLabel) label;
-                } else if (appLabel.getType() == ApplicationLabel.TYPE_CROP_END) {
-                    cropLabels.cropEndLabel = (ApplicationLabel) label;
-                }
-            } else {
-                labels.add(label);
+        for (ApplicationLabel label : applicationLabels) {
+            if (label.getType() == ApplicationLabel.TYPE_CROP_START) {
+                cropLabels.cropStartLabel = label;
+            } else if (label.getType() == ApplicationLabel.TYPE_CROP_END) {
+                cropLabels.cropEndLabel = label;
             }
         }
         return new ExperimentRun(trial, experimentId, labels, cropLabels);
     }
 
     private ExperimentRun(Trial trial, String experimentId,
-            ArrayList<Label> labels, CropHelper.CropLabels cropLabels) {
+            List<Label> labels, CropHelper.CropLabels cropLabels) {
         mTrial = trial;
         mExperimentId = experimentId;
         mLabels = labels;

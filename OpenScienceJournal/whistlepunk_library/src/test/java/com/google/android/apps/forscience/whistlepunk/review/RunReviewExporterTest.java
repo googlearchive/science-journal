@@ -16,16 +16,16 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.Run;
 
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -80,8 +80,7 @@ public class RunReviewExporterTest {
         GoosciTrial.Trial trial = new GoosciTrial.Trial();
         trial.trialId ="runId";
         trial.title = runTitle;
-        return ExperimentRun.fromLabels(Trial.fromTrial(trial), new ArrayList<Label>());
+        return ExperimentRun.fromLabels(Trial.fromTrial(trial), "experiment",
+                Collections.<ApplicationLabel>emptyList(), Collections.<Label>emptyList());
     }
-
-
 }
