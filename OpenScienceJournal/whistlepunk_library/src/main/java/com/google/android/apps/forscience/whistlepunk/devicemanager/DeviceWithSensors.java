@@ -22,12 +22,10 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class DeviceWithSensors {
     private final InputDeviceSpec mDevice;
@@ -51,8 +49,7 @@ public class DeviceWithSensors {
         return mDevice.isSameSensor(spec);
     }
 
-    void addToRegistry(ConnectableSensorRegistry registry,
-            SensorRegistry sensorRegistry) {
+    void addToRegistry(ConnectableSensorRegistry registry, SensorRegistry sensorRegistry) {
         registry.addMyDevice(mDevice, sensorRegistry, Lists.<String>newArrayList(mSensorKeys));
     }
 

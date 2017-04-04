@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -40,6 +39,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
@@ -72,9 +72,11 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
         DeviceRegistry deviceRegistry = new DeviceRegistry(
                 InputDeviceSpec.builtInDevice(getActivity()));
         SensorAppearanceProvider appearanceProvider = appSingleton.getSensorAppearanceProvider();
+
+        UsageTracker tracker = WhistlePunkApplication.getUsageTracker(getActivity());
         mRegistry = new ConnectableSensorRegistry(dc, discoverers, this, new SystemScheduler(),
                 new CurrentTimeClock(), ManageDevicesActivity.getOptionsListener(this
-                .getActivity()), deviceRegistry, appearanceProvider);
+                .getActivity()), deviceRegistry, appearanceProvider, tracker);
         mSensorRegistry = appSingleton.getSensorRegistry();
 
         mMyDevices = ExpandableDeviceAdapter.createEmpty(mRegistry, deviceRegistry,

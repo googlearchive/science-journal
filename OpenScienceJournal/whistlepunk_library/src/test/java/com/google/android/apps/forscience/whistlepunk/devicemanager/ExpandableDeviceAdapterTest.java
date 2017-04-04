@@ -15,10 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import android.support.annotation.NonNull;
 
 import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter;
@@ -26,6 +22,7 @@ import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
@@ -38,9 +35,12 @@ import com.google.common.collect.Maps;
 import org.junit.Test;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ExpandableDeviceAdapterTest {
     private static final InputDeviceSpec BUILT_IN_DEVICE = new InputDeviceSpec(InputDeviceSpec.TYPE,
@@ -57,7 +57,7 @@ public class ExpandableDeviceAdapterTest {
             mPairedDevices);
     private ConnectableSensorRegistry mSensorRegistry = new ConnectableSensorRegistry(
             mDataController, mDiscoverers, mPresenter, null, null, null,
-            mDeviceRegistry, null);
+            mDeviceRegistry, null, UsageTracker.STUB);
     private Scenario mScenario = new Scenario();
 
     private class Scenario {
@@ -250,7 +250,7 @@ public class ExpandableDeviceAdapterTest {
                 null);
         ConnectableSensorRegistry sensorRegistry = new ConnectableSensorRegistry(
                 mDataController, mDiscoverers, presenter, null, null, null,
-                mDeviceRegistry, null);
+                mDeviceRegistry, null, UsageTracker.STUB);
         ExpandableDeviceAdapter adapter = ExpandableDeviceAdapter.createEmpty(sensorRegistry,
                 mDeviceRegistry, null, mSensors, 0);
         presenter.setPairedDevices(adapter);
