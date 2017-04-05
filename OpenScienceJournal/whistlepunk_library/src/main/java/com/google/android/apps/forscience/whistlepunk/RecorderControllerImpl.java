@@ -539,10 +539,10 @@ public class RecorderControllerImpl implements RecorderController {
                         .stopRun(mSelectedExperiment, mRecording.getRunId(), sensorLayoutsAtStop,
                                 new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
                                     @Override
-                            public void success(ApplicationLabel value) {
-                                trackStopRecording(recorderService.getApplicationContext(), value,
-                                        sensorLayoutsAtStop);
-                                final String runId = mRecording.getRunId();
+                                    public void success(ApplicationLabel value) {
+                                        trackStopRecording(recorderService.getApplicationContext(),
+                                                value, sensorLayoutsAtStop);
+                                        final String runId = mRecording.getRunId();
 
                                 // Now actually stop the recording.
                                 mRecording = null;
@@ -566,18 +566,6 @@ public class RecorderControllerImpl implements RecorderController {
                                 for (StatefulRecorder recorder : mRecorders.values()) {
                                     recorder.stopRecording(onSuccess);
                                 }
-
-                                // Now stop observing in the service, because after recording
-                                // completes we don't want to keep observing and firing triggers in
-                                // the foreground or background.
-                                // NOTE: We assume that after recording stops we do *not* want
-                                // to keep observing.
-                                List<String> sensorIds = new ArrayList();
-                                sensorIds.addAll(mServiceObservers.keySet());
-                                for (String sensorId : sensorIds) {
-                                    stopObservingServiceObserver(sensorId);
-                                }
-                                mServiceObservers.clear();
 
                                 cleanUpUnusedRecorders();
                                 updateRecordingListeners();

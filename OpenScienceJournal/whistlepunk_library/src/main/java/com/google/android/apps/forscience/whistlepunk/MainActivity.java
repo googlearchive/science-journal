@@ -50,6 +50,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.project.ProjectTabsFragment;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
 import java.util.ArrayList;
@@ -559,7 +560,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void onRecordingStop() {
+            public void onRecordingStopped() {
                 ActionBar actionBar = getSupportActionBar();
                 supportInvalidateOptionsMenu();
                 int toolbarColorResource = R.color.color_primary;
@@ -568,6 +569,25 @@ public class MainActivity extends AppCompatActivity
                 mSpinner.setVisibility(View.VISIBLE);
                 actionBar.setDisplayShowTitleEnabled(false);
                 actionBar.setSubtitle(null);
+            }
+
+            @Override
+            public void onRecordingSaved(String runId, String experimentId) {
+                boolean fromRecord = true;
+                boolean createTask = true;
+                RunReviewActivity.launch(MainActivity.this, runId, experimentId, 0, fromRecord,
+                        createTask, null);
+            }
+
+            @Override
+            public void onRecordStopRequested() {
+                // When using (V1) MainActivity, stop observing the sensors right before recording
+                // stops.  This will stop triggers from re-starting a recording in the few seconds
+                // while the run is saved and RunReviewFragment is brought up.
+
+                if (mRecordFragment != null) {
+                    mRecordFragment.stopObservingCurrentSensors();
+                }
             }
 
             private void updateToolbarColors(int toolbarColorResource, int statusBarColorResource) {

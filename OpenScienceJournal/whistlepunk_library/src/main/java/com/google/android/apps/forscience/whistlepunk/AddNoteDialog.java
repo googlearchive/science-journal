@@ -20,6 +20,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,6 +34,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -40,6 +43,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
@@ -56,6 +60,7 @@ public class AddNoteDialog extends DialogFragment {
 
     private static final String KEY_SAVED_INPUT_TEXT = "savedInputText";
     private static final String KEY_SAVED_PICTURE_PATH = "savedPicturePath";
+    private static final String KEY_SHOULD_USE_SAVED_TIMESTAMP = "shouldUseSavedTimestamp";
     private static final String KEY_SAVED_TIMESTAMP = "savedTimestamp";
     private static final String KEY_SAVED_RUN_ID = "savedRunId";
     private static final String KEY_SAVED_EXPERIMENT_ID = "savedExperimentId";
@@ -67,6 +72,24 @@ public class AddNoteDialog extends DialogFragment {
             "keySavedTimeTextDescription";
 
     public interface AddNoteDialogListener {
+        static AddNoteDialogListener NULL = new AddNoteDialogListener() {
+            @Override
+            public MaybeConsumer<Label> onLabelAdd(Label label) {
+                return MaybeConsumers.noop();
+            }
+
+            @Override
+            public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
+                    int labelType, long selectedTimestamp) {
+
+            }
+
+            @Override
+            public String toString() {
+                return "AddNoteDialogListener.NULL";
+            }
+        };
+
         /**
          * Called when a label is being added to the database. Return value is passed to data
          * controller during the label add.
@@ -83,7 +106,13 @@ public class AddNoteDialog extends DialogFragment {
                 int labelType, long selectedTimestamp);
     }
 
+    public interface ListenerProvider {
+        AddNoteDialogListener getAddNoteDialogListener();
+    }
+
+    private AddNoteDialogListener mListener = AddNoteDialogListener.NULL;
     private long mTimestamp;
+    private boolean mUseSavedTimestamp;
     private boolean mShowTimestampSection;
     private String mLabelTimeText;
     private String mLabelTimeTextDescription = "";
@@ -95,21 +124,46 @@ public class AddNoteDialog extends DialogFragment {
 
     /**
      * Create an AddNoteDialog that does not show the timestamp section, and where the note
-     * has no previous value.
+     * has no previous value, with a timestamp that will be used as the current time when
+     * the note is created
      */
-    public static AddNoteDialog newInstance(long timestamp, String currentRunId,
+    public static AddNoteDialog createWithSavedTimestamp(long timestamp, String currentRunId,
             String experimentId, int hintTextId) {
+        return AddNoteDialog.newInstance(timestamp, currentRunId, experimentId, hintTextId, true);
+    }
+
+    /**
+     * Create an AddNoteDialog that does not show the timestamp section, and where the note
+     * has no previous value, which will create notes that reference the time whenever the form is
+     * submitted
+     */
+    public static AddNoteDialog createWithDynamicTimestamp(String currentRunId, String experimentId,
+            int hintTextId) {
+        return AddNoteDialog.newInstance(-1, currentRunId, experimentId, hintTextId, false);
+    }
+
+    /**
+     * Create an AddNoteDialog that does not show the timestamp section, and where the note
+     * has no previous value.
+     *
+     * @param shouldUseSavedTimestamp if true, use the timestamp provided when creating a note.
+     *                                otherwise, use the current time when the form is submitted.
+     */
+    private static AddNoteDialog newInstance(long timestamp, String currentRunId,
+            String experimentId, int hintTextId, boolean shouldUseSavedTimestamp) {
         return AddNoteDialog.newInstance(timestamp, currentRunId, experimentId,
-                hintTextId, false, "", "");
+                hintTextId, false, "", "",
+                shouldUseSavedTimestamp);
     }
 
     public static AddNoteDialog newInstance(long timestamp, String currentRunId,
-            String experimentId, int hintTextId, boolean showTimestampSection,
-            String labelTimeText, String labelTimeTextDescription) {
+            String experimentId, int hintTextId, boolean showTimestampSection, String labelTimeText,
+            String labelTimeTextDescription, boolean shouldUseSavedTimestamp) {
         AddNoteDialog dialog = new AddNoteDialog();
 
         Bundle args = new Bundle();
         args.putLong(KEY_SAVED_TIMESTAMP, timestamp);
+        args.putBoolean(KEY_SHOULD_USE_SAVED_TIMESTAMP, shouldUseSavedTimestamp);
         args.putString(KEY_SAVED_RUN_ID, currentRunId);
         args.putString(KEY_SAVED_EXPERIMENT_ID, experimentId);
         args.putInt(KEY_HINT_TEXT_ID, hintTextId);
@@ -124,9 +178,10 @@ public class AddNoteDialog extends DialogFragment {
     public static AddNoteDialog newInstance(long timestamp, String currentRunId,
             String experimentId, int hintTextId, boolean showTimestampSection,
             String labelTimeText, GoosciLabelValue.LabelValue currentValue, int labelType,
-            String labelTimeTextDescription) {
+            String labelTimeTextDescription, boolean shouldUseSavedTimestamp) {
         AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, currentRunId, experimentId,
-                hintTextId, showTimestampSection, labelTimeText, labelTimeTextDescription);
+                hintTextId, showTimestampSection, labelTimeText, labelTimeTextDescription,
+                shouldUseSavedTimestamp);
 
         if (labelType == RunReviewFragment.LABEL_TYPE_UNDECIDED) {
             // no user added value yet, so no need to store anything else.
@@ -163,13 +218,13 @@ public class AddNoteDialog extends DialogFragment {
             return super.onCreateView(inflater, container, savedInstanceState);
         }
 
-        return createAddNoteViewFromSavedState(savedInstanceState, inflater);
+        return createAddNoteViewFromSavedState(savedInstanceState, inflater, true);
     }
 
     @Override
     public AlertDialog onCreateDialog(Bundle savedInstanceState) {
         final LinearLayout rootView = createAddNoteViewFromSavedState(savedInstanceState,
-                LayoutInflater.from(getActivity()));
+                LayoutInflater.from(getActivity()), false);
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
         alertDialog.setView(rootView);
@@ -196,13 +251,42 @@ public class AddNoteDialog extends DialogFragment {
         return dialog;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        internalOnAttach(context);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        internalOnAttach(activity);
+    }
+
+    @Override
+    public void onDetach() {
+        mListener = AddNoteDialogListener.NULL;
+        super.onDetach();
+    }
+
+    private void internalOnAttach(Context context) {
+        if (context instanceof ListenerProvider) {
+            mListener = ((ListenerProvider) context).getAddNoteDialogListener();
+        }
+        Fragment parentFragment = getParentFragment();
+        if (parentFragment instanceof ListenerProvider) {
+            mListener = ((ListenerProvider) parentFragment).getAddNoteDialogListener();
+        }
+    }
+
     @NonNull
     protected LinearLayout createAddNoteViewFromSavedState(Bundle savedInstanceState,
-            LayoutInflater inflater) {
+            LayoutInflater inflater, boolean nativeSaveButton) {
         String text = "";
         GoosciLabelValue.LabelValue value;
         if (getArguments() != null) {
             mTimestamp = getArguments().getLong(KEY_SAVED_TIMESTAMP, -1);
+            mUseSavedTimestamp = getArguments().getBoolean(KEY_SHOULD_USE_SAVED_TIMESTAMP, true);
             mShowTimestampSection = getArguments().getBoolean(KEY_SHOW_TIMESTAMP_SECTION, false);
             mRunId = getArguments().getString(KEY_SAVED_RUN_ID);
             mExperimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
@@ -239,7 +323,20 @@ public class AddNoteDialog extends DialogFragment {
             text = savedInstanceState.getString(KEY_SAVED_INPUT_TEXT, text);
         }
 
-        return createAddNoteView(text, inflater);
+        LinearLayout addNoteView = createAddNoteView(text, inflater);
+
+        if (nativeSaveButton) {
+            Button button = (Button) addNoteView.findViewById(R.id.create_note);
+            button.setVisibility(View.VISIBLE);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    addLabel();
+                }
+            });
+        }
+
+        return addNoteView;
     }
 
     @NonNull
@@ -266,10 +363,10 @@ public class AddNoteDialog extends DialogFragment {
             timestampSection.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ((AddNoteDialogListener) getParentFragment()).onAddNoteTimestampClicked(
+                    mListener.onAddNoteTimestampClicked(
                             getCurrentValue(), hasPicture() ? RunReviewFragment.LABEL_TYPE_PICTURE :
                                     RunReviewFragment.LABEL_TYPE_TEXT,
-                            mTimestamp);
+                            getTimestamp());
                 }
             });
         } else {
@@ -279,7 +376,7 @@ public class AddNoteDialog extends DialogFragment {
         setViewVisibilities(takePictureBtn, imageView, !hasPicture());
         if (mPictureLabelPath != null) {
             Glide.clear(imageView);
-            Glide.with(getParentFragment())
+            Glide.with(getActivity())
                     .load(mPictureLabelPath)
                     .into(imageView);
         }
@@ -305,6 +402,7 @@ public class AddNoteDialog extends DialogFragment {
                 }
             }
         });
+
         return rootView;
     }
 
@@ -341,22 +439,32 @@ public class AddNoteDialog extends DialogFragment {
 
     private void addTextLabel() {
         TextLabelValue labelValue = TextLabelValue.fromText(mInput.getText().toString());
-        Label label = Label.newLabelWithValue(mTimestamp, labelValue);
+        Label label = Label.newLabelWithValue(getTimestamp(), labelValue);
         addLabel(label);
+    }
+
+    private long getTimestamp() {
+        if (mUseSavedTimestamp) {
+            return mTimestamp;
+        } else {
+            return AppSingleton.getInstance(getActivity())
+                               .getSensorEnvironment()
+                               .getDefaultClock()
+                               .getNow();
+        }
     }
 
     private void addPictureLabel() {
         PictureLabelValue labelValue = PictureLabelValue.fromPicture(mPictureLabelPath,
                 mInput.getText().toString());
-        Label label = Label.newLabelWithValue(mTimestamp, labelValue);
+        Label label = Label.newLabelWithValue(getTimestamp(), labelValue);
         addLabel(label);
-        PictureUtils.scanFile(mPictureLabelPath, getParentFragment().getActivity());
+        PictureUtils.scanFile(mPictureLabelPath, getActivity());
         mPictureLabelPath = null;
     }
 
     private void addLabel(Label label) {
-        getDataController().addLabel(label, mExperimentId, mRunId,
-                ((AddNoteDialogListener) getParentFragment()).onLabelAdd(label));
+        getDataController().addLabel(label, mExperimentId, mRunId, mListener.onLabelAdd(label));
     }
 
     private DataController getDataController() {
@@ -370,7 +478,7 @@ public class AddNoteDialog extends DialogFragment {
             ImageView imageView = (ImageView) dialog.findViewById(R.id.picture_note_preview_image);
             if (resultCode == Activity.RESULT_OK) {
                 Glide.clear(imageView);
-                Glide.with(getParentFragment())
+                Glide.with(getActivity())
                         .load(mPictureLabelPath)
                         .into(imageView);
             } else {

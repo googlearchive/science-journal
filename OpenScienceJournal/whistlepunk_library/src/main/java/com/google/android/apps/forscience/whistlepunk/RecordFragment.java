@@ -48,6 +48,7 @@ import android.widget.ImageButton;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -64,7 +65,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
-import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
@@ -92,7 +92,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
+public class RecordFragment extends Fragment implements AddNoteDialog.ListenerProvider,
         Handler.Callback, StopRecordingNoDataDialog.StopRecordingDialogListener,
         AudioSettingsDialog.AudioSettingsDialogListener {
     private static final String TAG = "RecordFragment";
@@ -122,7 +122,17 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             }
 
             @Override
-            public void onRecordingStop() {
+            public void onRecordingStopped() {
+
+            }
+
+            @Override
+            public void onRecordingSaved(String runId, String experimentId) {
+
+            }
+
+            @Override
+            public void onRecordStopRequested() {
 
             }
         };
@@ -145,14 +155,28 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         void onRecordingStart(String experimentName);
 
         /**
-         * Called when recording stops
+         * Called when we first know that we're supposed to stop recording.  This allows us, for
+         * example, to know not to allow additional recordings to start if we plan to display
+         * a full-screen review once the recording is saved.
          */
-        void onRecordingStop();
+        void onRecordStopRequested();
+
+        /**
+         * Called when recording actually stops.  Updates the UI to remove "recording" markers
+         */
+        void onRecordingStopped();
+
+        /**
+         * Called when a trial is fully saved and assigned a runId, so that we can update the UI
+         * accordingly
+         */
+        void onRecordingSaved(String runId, String experimentId);
     }
 
     public interface CallbacksProvider {
         UICallbacks getRecordFragmentCallbacks();
     }
+
     private UICallbacks mUICallbacks = UICallbacks.NULL;
     private SensorRegistry mSensorRegistry;
     private Snackbar mVisibleSnackbar;
@@ -377,7 +401,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                                         dialog.dismiss();
                                     }
                                     if (!mRecordingWasCanceled) {
-                                        onRecordingStopped(prevRecording.getRunId(),
+                                        mUICallbacks.onRecordingSaved(prevRecording.getRunId(),
                                                 mSelectedExperiment.getExperimentId());
                                     }
                                 }
@@ -527,7 +551,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         super.onDestroy();
     }
 
-    private void stopObservingCurrentSensors() {
+    public void stopObservingCurrentSensors() {
         if (mSensorCardAdapter != null) {
             for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
                 presenter.stopObserving();
@@ -1053,38 +1077,44 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     private void launchLabelAdd(long timestamp) {
         String currentRunId = getCurrentRunId();
-        final AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, currentRunId,
+        final AddNoteDialog dialog = AddNoteDialog.createWithSavedTimestamp(timestamp, currentRunId,
                 mSelectedExperiment.getExperimentId(),
-                isRecording() ? R.string.add_run_note_placeholder_text :
-                        R.string.add_experiment_note_placeholder_text);
+                isRecording() ? R.string.add_run_note_placeholder_text : R.string
+                        .add_experiment_note_placeholder_text);
 
         dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
     }
 
     @Override
-    public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue, int labelType,
-            long selectedTimestamp) {
-        // Do nothing. Timestamp will not be shown and this is unused.
-    }
-
-    @Override
-    public LoggingConsumer<Label> onLabelAdd(Label label) {
-        if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-            // We want to set the time stamp of this label to the time of the picture
-            PictureLabelValue pictureLabel =
-                    (PictureLabelValue) label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE);
-            File file = new File(pictureLabel.getAbsoluteFilePath());
-            // Check to make sure this value is not crazy: should be within 10 minutes of now and
-            // not from the future.
-            long delta = System.currentTimeMillis() - file.lastModified();
-            if (delta < TimeUnit.MINUTES.toMillis(10) && delta > 0) {
-                label.setTimestamp(file.lastModified());
-            }
-        }
-        return new LoggingConsumer<Label>(TAG, "store label") {
+    public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
+        return new AddNoteDialog.AddNoteDialogListener() {
             @Override
-            public void success(Label value) {
-                processAddedLabel(value);
+            public MaybeConsumer<Label> onLabelAdd(Label label) {
+                if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+                    // We want to set the time stamp of this label to the time of the picture
+                    PictureLabelValue pictureLabel =
+                            (PictureLabelValue) label.getLabelValue(
+                                    GoosciLabelValue.LabelValue.PICTURE);
+                    File file = new File(pictureLabel.getAbsoluteFilePath());
+                    // Check to make sure this value is not crazy: should be within 10 minutes of
+                    // now and not from the future.
+                    long delta = System.currentTimeMillis() - file.lastModified();
+                    if (delta < TimeUnit.MINUTES.toMillis(10) && delta > 0) {
+                        label.setTimestamp(file.lastModified());
+                    }
+                }
+                return new LoggingConsumer<Label>(TAG, "store label") {
+                    @Override
+                    public void success(Label value) {
+                        processAddedLabel(value);
+                    }
+                };
+            }
+
+            public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
+                    int labelType,
+                    long selectedTimestamp) {
+                // Do nothing. Timestamp will not be shown and this is unused.
             }
         };
     }
@@ -1227,7 +1257,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
             mRecordButton.setImageDrawable(getResources().getDrawable(
                     R.drawable.ic_recording_stop_36dp));
         } else {
-            mUICallbacks.onRecordingStop();
+            mUICallbacks.onRecordingStopped();
             mAddButton.setContentDescription(
                     getResources().getString(R.string.btn_add_experiment_note_description));
             mRecordButton.setContentDescription(getResources().getString(
@@ -1238,11 +1268,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
                 mSensorCardAdapter.setUiLockedForRecording(false);
             }
         }
-    }
-
-    private void onRecordingStopped(String startLabelId, String experimentId) {
-        RunReviewActivity.launch(RecordFragment.this.getActivity(), startLabelId, experimentId, 0,
-                true /* from record */, true /* create task */, null);
     }
 
     private void setControlButtonsEnabled(boolean enabled) {
@@ -1293,6 +1318,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void tryStopRecording(final RecorderController rc) {
+        mUICallbacks.onRecordStopRequested();
         rc.stopRecording();
     }
 

@@ -98,10 +98,8 @@ public class PanesActivity extends AppCompatActivity {
     }
 
     private AddNoteDialog makeNoteFragment(String experimentId) {
-        // TODO: this is wrong, should be timestamp of _creation_
-        long now = AppSingleton.getInstance(this).getSensorEnvironment().getDefaultClock().getNow();
-        return AddNoteDialog.newInstance(now, RecorderController.NOT_RECORDING_RUN_ID, experimentId,
-                R.string.add_experiment_note_placeholder_text);
+        return AddNoteDialog.createWithDynamicTimestamp(RecorderController.NOT_RECORDING_RUN_ID,
+                experimentId, R.string.add_experiment_note_placeholder_text);
     }
 
     @NonNull

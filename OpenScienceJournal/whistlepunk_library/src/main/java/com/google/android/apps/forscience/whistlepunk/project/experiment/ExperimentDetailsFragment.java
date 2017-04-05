@@ -110,7 +110,7 @@ import java.util.Objects;
  * A fragment to handle displaying Experiment details, runs and labels.
  */
 public class ExperimentDetailsFragment extends Fragment
-        implements AddNoteDialog.AddNoteDialogListener, EditNoteDialog.EditNoteDialogListener,
+        implements AddNoteDialog.ListenerProvider, EditNoteDialog.EditNoteDialogListener,
         Handler.Callback, DeleteMetadataItemDialog.DeleteDialogListener {
 
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
@@ -501,8 +501,9 @@ public class ExperimentDetailsFragment extends Fragment
     private void launchLabelAdd() {
         long now = AppSingleton.getInstance(getActivity()).getSensorEnvironment()
                 .getDefaultClock().getNow();
-        AddNoteDialog dialog = AddNoteDialog.newInstance(now, RecorderController.NOT_RECORDING_RUN_ID,
-                mExperimentId, R.string.add_experiment_note_placeholder_text);
+        AddNoteDialog dialog =
+                AddNoteDialog.createWithSavedTimestamp(now, RecorderController.NOT_RECORDING_RUN_ID,
+                        mExperimentId, R.string.add_experiment_note_placeholder_text);
         dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
     }
 
@@ -517,16 +518,27 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     @Override
-    public LoggingConsumer<Label> onLabelAdd(Label label) {
-        return  new LoggingConsumer<Label>(TAG, "add label") {
+    public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
+        return new AddNoteDialog.AddNoteDialogListener() {
             @Override
-            public void success(Label value) {
-                mAdapter.insertNote(value);
-                WhistlePunkApplication.getUsageTracker(getActivity())
-                        .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                TrackerConstants.ACTION_CREATE,
-                                TrackerConstants.LABEL_EXPERIMENT_DETAIL,
-                                TrackerConstants.getLabelValueType(value));
+            public MaybeConsumer<Label> onLabelAdd(Label label) {
+                return  new LoggingConsumer<Label>(TAG, "add label") {
+                    @Override
+                    public void success(Label value) {
+                        mAdapter.insertNote(value);
+                        WhistlePunkApplication.getUsageTracker(getActivity())
+                                              .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                                      TrackerConstants.ACTION_CREATE,
+                                                      TrackerConstants.LABEL_EXPERIMENT_DETAIL,
+                                                      TrackerConstants.getLabelValueType(value));
+                    }
+                };
+            }
+
+            @Override
+            public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
+                    int labelType, long selectedTimestamp) {
+                // No timestamp editing available in Experiments.
             }
         };
     }
@@ -549,12 +561,6 @@ public class ExperimentDetailsFragment extends Fragment
     @Override
     public void onEditNoteTimestampClicked(Label label, GoosciLabelValue.LabelValue selectedValue,
             long labelTimestamp) {
-        // No timestamp editing available in Experiments.
-    }
-
-    @Override
-    public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue, int labelType,
-            long selectedTimestamp) {
         // No timestamp editing available in Experiments.
     }
 
@@ -741,7 +747,6 @@ public class ExperimentDetailsFragment extends Fragment
                     textView.setTextColor(
                             textView.getResources().getColor(R.color.text_color_light_grey));
                 }
-                Context appContext = holder.itemView.getContext().getApplicationContext();
                 ((RelativeTimeTextView) holder.itemView.findViewById(R.id.duration_text)).setTime(
                         label.getTimeStamp());
                 setupNoteMenu(label, holder.itemView.findViewById(R.id.note_menu_button),

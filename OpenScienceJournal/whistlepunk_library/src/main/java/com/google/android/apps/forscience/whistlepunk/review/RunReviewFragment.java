@@ -108,8 +108,10 @@ import java.util.Comparator;
 import java.util.List;
 
 public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
+        AddNoteDialog.ListenerProvider,
         EditNoteDialog.EditNoteDialogListener, EditTimeDialogListener,
-        DeleteMetadataItemDialog.DeleteDialogListener, AudioSettingsDialog.AudioSettingsDialogListener,
+        DeleteMetadataItemDialog.DeleteDialogListener,
+        AudioSettingsDialog.AudioSettingsDialogListener,
         ChartController.ChartLoadingStatus {
     public static final String ARG_EXPERIMENT_ID = "experimentId";
     public static final String ARG_START_LABEL_ID = "start_label_id";
@@ -1220,7 +1222,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 mExperimentRun.getExperimentId(), R.string.add_note_hint_text,
                 /* show timestamp section */ true, labelTimeText, selectedValue, labelType,
                 PinnedNoteAdapter.getNoteTimeContentDescription(timestamp,
-                        mExperimentRun.getFirstTimestamp(), getActivity()));
+                        mExperimentRun.getFirstTimestamp(), getActivity()), true);
         dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
     }
 
@@ -1766,5 +1768,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     protected GoosciSensorLayout.SensorLayout getSensorLayout() {
         return mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
+    }
+
+    @Override
+    public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
+        // TODO: pull out separate object to return here?
+        return this;
     }
 }
