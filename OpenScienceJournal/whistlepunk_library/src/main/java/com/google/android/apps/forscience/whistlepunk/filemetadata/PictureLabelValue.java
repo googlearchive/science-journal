@@ -18,11 +18,12 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * A Label which is represented by a set of pictures.
  */
-class PictureLabelValue extends LabelValue {
+public class PictureLabelValue extends LabelValue {
     private static final int NUM_FIELDS = 2;
     private static final String KEY_FILE_PATH = "file_path";
     private static final int INDEX_FILE_PATH = 0;
@@ -33,7 +34,12 @@ class PictureLabelValue extends LabelValue {
         super(value);
     }
 
-    public PictureLabelValue() {
+    public static PictureLabelValue fromPicture(String path, String caption) {
+        return new PictureLabelValue(createLabelValue(path, caption));
+    }
+
+    @VisibleForTesting
+    PictureLabelValue() {
         super();
         mValue.type = GoosciLabelValue.LabelValue.PICTURE;
     }

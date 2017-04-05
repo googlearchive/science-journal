@@ -81,6 +81,10 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
@@ -88,10 +92,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.review.EditLabelTimeDialog.EditTimeDialogListener;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
@@ -794,7 +794,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         mPinnedNoteAdapter.setListItemModifyListener(new PinnedNoteAdapter.ListItemEditListener() {
             @Override
             public void onListItemEdit(final Label item) {
-                launchLabelEdit(item, run, item.getValue(), item.getTimeStamp());
+                // This assumes one value per label. Update when it is possible to have more.
+                launchLabelEdit(item, run, item.getLabelProto().values[0], item.getTimeStamp());
             }
 
             @Override
@@ -813,24 +814,10 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                             return;
                         }
                         mUndone = true;
-                        Label label;
-                        if (item instanceof TextLabel) {
-                            String title = ((TextLabel) item).getText();
-                            label = new TextLabel(title, dc.generateNewLabelId(),
-                                    item.getRunId(), item.getTimeStamp());
-                        } else if (item instanceof PictureLabel) {
-                            label = new PictureLabel(((PictureLabel) item).getFilePath(),
-                                    ((PictureLabel) item).getCaption(), dc.generateNewLabelId(),
-                                    item.getRunId(), item.getTimeStamp());
-                        } else if (item instanceof SensorTriggerLabel) {
-                            label = new SensorTriggerLabel(dc.generateNewLabelId(),
-                                    item.getRunId(), item.getTimeStamp(), item.getValue());
-                        } else {
-                            // Not a known label type
-                            return;
-                        }
-                        label.setExperimentId(item.getExperimentId());
-                        dc.addLabel(label, new LoggingConsumer<Label>(TAG, "re-add deleted label") {
+                        Label label = Label.copyOf(item);
+                        label.setTimestamp(item.getTimeStamp());
+                        dc.addLabel(label, mExperimentId, mExperimentRun.getTrialId(),
+                                new LoggingConsumer<Label>(TAG, "re-add deleted label") {
                             @Override
                             public void success(Label label) {
                                 mPinnedNoteAdapter.insertNote(label);
@@ -869,7 +856,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             }
 
             @Override
-            public void onPictureItemClicked(PictureLabel item) {
+            public void onPictureItemClicked(Label item) {
                 launchPicturePreview(item);
             }
         });
@@ -1263,7 +1250,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         }
     }
 
-    private void launchPicturePreview(PictureLabel label) {
+    private void launchPicturePreview(Label label) {
         PreviewNoteDialog dialog = PreviewNoteDialog.newInstance(label);
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
@@ -1529,7 +1516,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 PinnedNoteAdapter.getNoteTimeText(selectedTimestamp, run.getFirstTimestamp());
         EditNoteDialog dialog = EditNoteDialog.newInstance(label, newValue, labelTimeText,
                 selectedTimestamp, PinnedNoteAdapter.getNoteTimeContentDescription(
-                        selectedTimestamp, run.getFirstTimestamp(), getActivity()));
+                        selectedTimestamp, run.getFirstTimestamp(), getActivity()),
+                mExperimentRun.getTrialId());
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 

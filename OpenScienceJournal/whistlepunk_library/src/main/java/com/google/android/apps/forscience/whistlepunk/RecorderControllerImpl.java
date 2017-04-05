@@ -35,14 +35,14 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
@@ -308,11 +308,11 @@ public class RecorderControllerImpl implements RecorderController {
         if (mSelectedExperiment == null) {
             return;
         }
-        Label triggerLabel = new SensorTriggerLabel(mDataController.generateNewLabelId(),
-                getCurrentRunId(), timestamp, trigger, context);
-        triggerLabel.setExperimentId(mSelectedExperiment.getExperimentId());
-        mDataController.addLabel(triggerLabel,
-                new LoggingConsumer<Label>(TAG, "add trigger label") {
+        SensorTriggerLabelValue labelValue = SensorTriggerLabelValue.fromTrigger(trigger,
+                context);
+        Label triggerLabel = Label.newLabelWithValue(timestamp, labelValue);
+        mDataController.addLabel(triggerLabel, mSelectedExperiment.getExperimentId(),
+                getCurrentRunId(), new LoggingConsumer<Label>(TAG, "add trigger label") {
                     @Override
                     public void success(Label label) {
                         String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
@@ -330,7 +330,7 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     private String getCurrentRunId() {
-        return mRecording == null? RecordFragment.NOT_RECORDING_RUN_ID : mRecording.getRunId();
+        return mRecording == null? RecorderController.NOT_RECORDING_RUN_ID : mRecording.getRunId();
     }
 
     private void startObserving(StatefulRecorder sr) {

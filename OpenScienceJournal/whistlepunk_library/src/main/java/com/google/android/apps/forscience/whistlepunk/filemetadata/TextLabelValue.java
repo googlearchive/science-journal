@@ -15,21 +15,30 @@
  */
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import android.content.Context;
+
+import com.google.android.apps.forscience.whistlepunk.metadata.*;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * A label value which represents a piece of text.
  */
-class TextLabelValue extends LabelValue {
+public class TextLabelValue extends LabelValue {
     private static final int NUM_FIELDS = 1;
     private static final int INDEX_LABEL_TEXT = 0;
     private static final String KEY_LABEL_TEXT = "label_text";
 
     public TextLabelValue(GoosciLabelValue.LabelValue value) {
         super(value);
+        mValue.type = GoosciLabelValue.LabelValue.TEXT;
     }
 
-    public TextLabelValue() {
+    public static TextLabelValue fromText(String text) {
+        return new TextLabelValue(createLabelValue(text));
+    }
+
+    @VisibleForTesting
+    TextLabelValue() {
         super();
         mValue.type = GoosciLabelValue.LabelValue.TEXT;
     }

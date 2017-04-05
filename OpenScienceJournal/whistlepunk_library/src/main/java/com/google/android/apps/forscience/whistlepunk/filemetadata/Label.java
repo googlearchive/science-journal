@@ -25,8 +25,10 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,7 +45,7 @@ public class Label implements Parcelable {
         }
     };
 
-    private static final String TAG = "Label";
+    private static final String TAG = "label";
     private GoosciLabel.Label mLabel;
     private Map<Integer, LabelValue> mLabelValues;
 
@@ -59,6 +61,28 @@ public class Label implements Parcelable {
      */
     public static Label newLabel(long creationTimeMs) {
         return new Label(creationTimeMs, java.util.UUID.randomUUID().toString());
+    }
+
+    /**
+     * Creates a new label with the specified label value.
+     */
+    public static Label newLabelWithValue(long creationTimeMs, LabelValue labelValue) {
+        Label result = new Label(creationTimeMs, java.util.UUID.randomUUID().toString());
+        result.setLabelValue(labelValue);
+        return result;
+    }
+
+    /**
+     * Creates a deep copy of an existing label. The creation time and label ID will be different.
+     */
+    public static Label copyOf(Label label) {
+        Parcel parcel = Parcel.obtain();
+        label.writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
+        Label result = Label.CREATOR.createFromParcel(parcel);
+        result.getLabelProto().creationTimeMs = System.currentTimeMillis();
+        result.getLabelProto().labelId = java.util.UUID.randomUUID().toString();
+        return result;
     }
 
     private Label(GoosciLabel.Label goosciLabel) {
@@ -171,6 +195,13 @@ public class Label implements Parcelable {
      */
     public void setLabelValue(LabelValue value) {
         mLabelValues.put(value.getValue().type, value);
+    }
+
+    /**
+     * Gets all the values of this label.
+     */
+    public List<LabelValue> getLabelValues() {
+        return new ArrayList<>(mLabelValues.values());
     }
 
     /**

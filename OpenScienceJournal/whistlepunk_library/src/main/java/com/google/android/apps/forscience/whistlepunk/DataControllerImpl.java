@@ -23,6 +23,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
@@ -30,7 +31,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
@@ -193,14 +193,22 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         });
     }
 
-    public void addLabel(final Label label, final MaybeConsumer<Label> onSuccess) {
+    public void addLabel(final Label label, final String experimentId, final String trialId,
+            final MaybeConsumer<Label> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Label>() {
             @Override
             public Label call() throws Exception {
-                mMetaDataManager.addLabel(label.getExperimentId(), label);
+                mMetaDataManager.addLabel(experimentId, trialId, label);
                 return label;
             }
         });
+    }
+
+    @Override
+    public void addExperimentLabel(Label label, String experimentId,
+            MaybeConsumer<Label> onSuccess) {
+        // An experiment label has a Trial ID of NOT_RECORDING_RUN_ID.
+        addLabel(label, experimentId, RecorderController.NOT_RECORDING_RUN_ID, onSuccess);
     }
 
     @Override
@@ -411,11 +419,11 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     private ExperimentRun buildExperimentRunOnDataThread(String experimentId, String startLabelId) {
-        final List<Label> labels = mMetaDataManager.getLabelsWithStartId(startLabelId);
+        final List<Label> labels = mMetaDataManager.getLabelsForTrial(startLabelId);
         final List<ApplicationLabel> applicationLabels =
                 mMetaDataManager.getApplicationLabelsWithStartId(startLabelId);
-        Trial trial = mMetaDataManager.getTrial(startLabelId, applicationLabels);
-        return ExperimentRun.fromLabels(trial, experimentId, applicationLabels, labels);
+        Trial trial = mMetaDataManager.getTrial(startLabelId, applicationLabels, labels);
+        return ExperimentRun.fromLabels(trial, experimentId, applicationLabels);
     }
 
     @Override public void createProject(final MaybeConsumer<Project> onSuccess) {
@@ -550,6 +558,16 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             @Override
             public List<Label> call() throws Exception {
                 return mMetaDataManager.getLabelsForExperiment(experiment);
+            }
+        });
+    }
+
+    @Override
+    public void getLabelsForTrial(final String trialId, MaybeConsumer<List<Label>> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<List<Label>>() {
+            @Override
+            public List<Label> call() throws Exception {
+                return mMetaDataManager.getLabelsForTrial(trialId);
             }
         });
     }

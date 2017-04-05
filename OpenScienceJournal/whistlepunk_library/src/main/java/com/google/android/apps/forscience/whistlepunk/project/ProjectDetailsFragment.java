@@ -60,10 +60,11 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
@@ -560,10 +561,10 @@ public class ProjectDetailsFragment extends Fragment implements
                 // Take the first run, which should be the last created run.
                 holder.experimentLastRun.setTime(runs.get(0).getFirstTimestamp());
 
-                PictureLabel expPhoto = null;
+                PictureLabelValue expPhoto = null;
                 for (ExperimentRun run : runs) {
-                    if (run.getCoverPictureLabel() != null) {
-                        expPhoto = run.getCoverPictureLabel();
+                    if (run.getCoverPictureLabelValue() != null) {
+                        expPhoto = run.getCoverPictureLabelValue();
                         break;
                     }
                 }
@@ -593,8 +594,9 @@ public class ProjectDetailsFragment extends Fragment implements
                     }
                     holder.labelLoadStatus = ViewHolder.LOAD_STATUS_IDLE;
                     for (Label label : labels) {
-                        if (label instanceof PictureLabel) {
-                            loadPhoto(holder, (PictureLabel) label);
+                        if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+                            loadPhoto(holder, (PictureLabelValue) label.getLabelValue(
+                                    GoosciLabelValue.LabelValue.PICTURE));
                             break;
                         }
                     }
@@ -602,7 +604,7 @@ public class ProjectDetailsFragment extends Fragment implements
             });
         }
 
-        private void loadPhoto(final ViewHolder holder, PictureLabel expPhoto) {
+        private void loadPhoto(final ViewHolder holder, PictureLabelValue expPhoto) {
             Glide.with(holder.experimentImage.getContext())
                     .load(expPhoto.getFilePath())
                     .asBitmap()

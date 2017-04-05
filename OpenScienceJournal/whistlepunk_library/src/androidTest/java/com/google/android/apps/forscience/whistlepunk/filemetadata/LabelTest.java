@@ -181,4 +181,21 @@ public class LabelTest extends AndroidTestCase {
         Label firstAgain = Label.fromLabel(first.getLabelProto());
         assertEquals(first.getLabelId(), firstAgain.getLabelId());
     }
+
+    public void testDeepCopy() {
+        TextLabelValue labelValue = TextLabelValue.fromText("peanutbutter");
+        Label first = Label.newLabelWithValue(10, labelValue);
+        Label second = Label.copyOf(first);
+        assertNotEquals(first.getLabelId(), second.getLabelId());
+        assertEquals(first.getTimeStamp(), second.getTimeStamp());
+        assertEquals(((TextLabelValue) second.getLabelValue(GoosciLabelValue.LabelValue.TEXT))
+                .getText(), "peanutbutter");
+
+        ((TextLabelValue) first.getLabelValue(GoosciLabelValue.LabelValue.TEXT)).setText("jelly");
+        assertEquals(((TextLabelValue) second.getLabelValue(GoosciLabelValue.LabelValue.TEXT))
+                .getText(), "peanutbutter");
+
+        first.setTimestamp(20);
+        assertEquals(second.getTimeStamp(), 10);
+    }
 }

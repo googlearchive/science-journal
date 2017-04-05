@@ -20,8 +20,8 @@ import android.content.Intent;
 import android.support.annotation.IntDef;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
@@ -35,6 +35,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 public interface RecorderController extends SensorRegistryListener {
+    /**
+     * Used as the Run ID for labels that are created when no run is being recorded.
+     */
+    String NOT_RECORDING_RUN_ID = "NOT_RECORDING";
 
     // Errors when a recording state fails to change.
     int ERROR_START_FAILED = 0;

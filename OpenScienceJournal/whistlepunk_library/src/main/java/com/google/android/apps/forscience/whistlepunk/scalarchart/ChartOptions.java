@@ -21,8 +21,8 @@ import android.graphics.Color;
 
 import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
 import java.text.NumberFormat;
@@ -415,19 +415,15 @@ public class ChartOptions {
     }
 
     // A label is displayable if:
-    //   - It is not an "application" label (including recording start/stop), and either:
     //   - It is after the recording start time, and we are recording
     //   - We are not recording
     public static boolean isDisplayable(Label label, long recordingStartTime,
             ChartPlacementType chartPlacementType) {
-        if (label.getTag() != ApplicationLabel.TAG) {
-            if (chartPlacementType == ChartPlacementType.TYPE_RUN_REVIEW) {
-                return true;
-            }
-            return recordingStartTime != RecordingMetadata.NOT_RECORDING &&
-                    label.getTimeStamp() >= recordingStartTime;
+        if (chartPlacementType == ChartPlacementType.TYPE_RUN_REVIEW) {
+            return true;
         }
-        return false;
+        return recordingStartTime != RecordingMetadata.NOT_RECORDING &&
+                label.getTimeStamp() >= recordingStartTime;
     }
 
     public void setScalarDisplayOptions(ScalarDisplayOptions scalarDisplayOptions) {

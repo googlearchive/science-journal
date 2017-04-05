@@ -20,9 +20,11 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
@@ -30,7 +32,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
@@ -62,6 +63,7 @@ public class MemoryMetadataManager implements MetaDataManager {
     private Multimap<String, String> mExperimentIncluded = HashMultimap.create();
     private Multimap<String, String> mExperimentExcluded = HashMultimap.create();
     private ListMultimap<String, Label> mLabels = LinkedListMultimap.create();
+    private ListMultimap<String, Label> mTrialLabels = LinkedListMultimap.create();
     private ListMultimap<String, ApplicationLabel> mApplicationLabels = LinkedListMultimap.create();
     private Table<String, String, TrialStats> mStats = HashBasedTable.create();
     private Map<String, List<GoosciSensorLayout.SensorLayout>> mLayouts = new HashMap<>();
@@ -135,8 +137,12 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public void addLabel(String experimentId, Label label) {
-        mLabels.put(experimentId, label);
+    public void addLabel(String experimentId, String trialId, Label label) {
+        if (TextUtils.equals(trialId, RecorderController.NOT_RECORDING_RUN_ID)) {
+            mTrialLabels.put(trialId, label);
+        } else {
+            mLabels.put(experimentId, label);
+        }
     }
 
     @Override
@@ -150,14 +156,8 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public List<Label> getLabelsWithStartId(String startLabelId) {
-        final ArrayList<Label> labels = new ArrayList<>();
-        for (Label label : mLabels.values()) {
-            if (label.getRunId().equals(startLabelId)) {
-                labels.add(label);
-            }
-        }
-        return labels;
+    public List<Label> getLabelsForTrial(String trialId) {
+        return mTrialLabels.get(trialId);
     }
 
     @Override
@@ -354,10 +354,11 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels) {
+    public Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels,
+            List<Label> labels) {
         Trial trial = mTrials.get(trialId);
         SimpleMetaDataManager.populateTrialProtoFromLabels(trial.getTrialProto(),
-                applicationLabels);
+                applicationLabels, labels);
         return trial;
     }
 

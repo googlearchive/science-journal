@@ -45,7 +45,7 @@ import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerListActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
