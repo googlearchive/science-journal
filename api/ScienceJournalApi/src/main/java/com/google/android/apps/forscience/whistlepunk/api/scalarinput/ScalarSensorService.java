@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -167,83 +168,124 @@ public abstract class ScalarSensorService extends Service {
     }
 
     protected ISensorDiscoverer.Stub createDiscoverer() {
-        final LinkedHashMap<String, AdvertisedDevice> devices = new LinkedHashMap<>();
+        return new ScalarDiscoverer();
+    }
 
-        return new ISensorDiscoverer.Stub() {
-            Map<String, AdvertisedSensor> mSensors = new ArrayMap<>();
-            private boolean mSignatureHasBeenChecked = false;
-            private boolean mSignatureCheckPassed = false;
+    private class ScalarDiscoverer extends ISensorDiscoverer.Stub {
+        private LinkedHashMap<String, AdvertisedDevice> mDevices = new LinkedHashMap<>();
+        private Map<String, AdvertisedSensor> mSensors = new ArrayMap<>();
+        private boolean mSignatureHasBeenChecked = false;
+        private boolean mSignatureCheckPassed = false;
 
-            @Override
-            public String getName() throws RemoteException {
-                return getDiscovererName();
+        @Override
+        public String getName() throws RemoteException {
+            return getDiscovererName();
+        }
+
+        @Override
+        public void scanDevices(final IDeviceConsumer c) throws RemoteException {
+            if (!clientAllowed()) {
+                return;
             }
+            findDevices(new AdvertisedDeviceConsumer() {
+                @Override
+                public void onDeviceFound(AdvertisedDevice device) throws RemoteException {
+                    mDevices.put(device.getDeviceId(), device);
+                    c.onDeviceFound(device.getDeviceId(), device.getDeviceName(),
+                            device.getSettingsIntent());
+                }
 
-            @Override
-            public void scanDevices(final IDeviceConsumer c) throws RemoteException {
-                if (!clientAllowed()) {
+                @Override
+                public void onDone() throws RemoteException {
+                    c.onScanDone();
+                }
+            });
+        }
+
+        @Override
+        public void scanSensors(String deviceId, ISensorConsumer c) throws RemoteException {
+            if (clientAllowed()) {
+                AdvertisedDevice device = mDevices.get(deviceId);
+                if (device == null) {
+                    c.onScanDone();
                     return;
                 }
-                findDevices(new AdvertisedDeviceConsumer() {
-                    @Override
-                    public void onDeviceFound(AdvertisedDevice device) throws RemoteException {
-                        devices.put(device.getDeviceId(), device);
-                        c.onDeviceFound(device.getDeviceId(), device.getDeviceName(),
-                                device.getSettingsIntent());
-                    }
-
-                    @Override
-                    public void onDone() throws RemoteException {
-                        c.onScanDone();
-                    }
-                });
-            }
-
-            @Override
-            public void scanSensors(String deviceId, ISensorConsumer c) throws RemoteException {
-                if (clientAllowed()) {
-                    AdvertisedDevice device = devices.get(deviceId);
-                    if (device == null) {
-                        c.onScanDone();
-                        return;
-                    }
-                    for (AdvertisedSensor sensor : device.getSensors()) {
-                        mSensors.put(sensor.getAddress(), sensor);
-                        c.onSensorFound(sensor.getAddress(), sensor.getName(), sensor.getBehavior(),
-                                sensor.getAppearance());
-                    }
+                for (AdvertisedSensor sensor : device.getSensors()) {
+                    mSensors.put(sensor.getAddress(), sensor);
+                    c.onSensorFound(sensor.getAddress(), sensor.getName(), sensor.getBehavior(),
+                            sensor.getAppearance());
                 }
-                c.onScanDone();
             }
+            c.onScanDone();
+        }
 
-            @Override
-            public ISensorConnector getConnector() throws RemoteException {
-                return new ISensorConnector.Stub() {
-                    @Override
-                    public void startObserving(final String sensorId,
-                            final ISensorObserver observer, final ISensorStatusListener listener,
-                            String settingsKey) throws RemoteException {
-                        if (clientAllowed()) {
-                            mSensors.get(sensorId).startObserving(observer, listener);
+        @Override
+        public ISensorConnector getConnector() throws RemoteException {
+            return new ISensorConnector.Stub() {
+                @Override
+                public void startObserving(final String sensorId,
+                        final ISensorObserver observer, final ISensorStatusListener listener,
+                        String settingsKey) throws RemoteException {
+                    if (clientAllowed()) {
+                        AdvertisedSensor sensor = mSensors.get(sensorId);
+                        // TODO: write tests for this
+                        if (sensor != null) {
+                            sensor.startObserving(observer, listener);
+                        } else {
+                            // TODO: create scanner class?
+                            findAndStartObserving(sensorId, observer, listener);
                         }
                     }
-
-                    @Override
-                    public void stopObserving(String sensorId) throws RemoteException {
-                        if (clientAllowed()) {
-                            mSensors.get(sensorId).stopObserving();
-                        }
-                    }
-                };
-            }
-
-            private boolean clientAllowed() {
-                if (!mSignatureHasBeenChecked) {
-                    mSignatureCheckPassed =
-                            !shouldCheckBinderSignature() || binderHasAllowedSignature();
                 }
-                return mSignatureCheckPassed;
+
+                @Override
+                public void stopObserving(String sensorId) throws RemoteException {
+                    if (clientAllowed()) {
+                        mSensors.get(sensorId).stopObserving();
+                    }
+                }
+
+                private void findAndStartObserving(final String sensorId,
+                        final ISensorObserver observer, final ISensorStatusListener listener)
+                        throws RemoteException {
+                    scanDevices(new IDeviceConsumer.Stub() {
+                        @Override
+                        public void onDeviceFound(String deviceId, String name,
+                                PendingIntent settingsIntent) throws RemoteException {
+                            scanSensors(deviceId, new ISensorConsumer.Stub() {
+                                @Override
+                                public void onSensorFound(String sensorAddress, String name,
+                                        SensorBehavior behavior,
+                                        SensorAppearanceResources appearance)
+                                        throws RemoteException {
+                                    if (sensorAddress.equals(sensorId)) {
+                                        mSensors.get(sensorId).startObserving(observer, listener);
+                                    }
+                                }
+
+                                @Override
+                                public void onScanDone() throws RemoteException {
+                                    // TODO: flag failure if all scans complete without finding
+                                    // the sensor
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onScanDone() throws RemoteException {
+                            // TODO: flag failure if all scans complete without finding the sensor
+                        }
+                    });
+                }
+            };
+        }
+
+        private boolean clientAllowed() {
+            if (!mSignatureHasBeenChecked) {
+                mSignatureCheckPassed =
+                        !shouldCheckBinderSignature() || binderHasAllowedSignature();
             }
-        };
+            return mSignatureCheckPassed;
+        }
     }
 }
