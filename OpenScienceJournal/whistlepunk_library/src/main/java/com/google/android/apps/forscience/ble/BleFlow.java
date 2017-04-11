@@ -142,7 +142,6 @@ public class BleFlow {
     private int timeout = -1;
     private String address;
     private AtomicBoolean flowEnded;
-    private int mtu;
     private InputStream inputStream;
     private int maxNoDevices;
 
@@ -250,9 +249,6 @@ public class BleFlow {
                 listener.onFailure(new Exception("Commit TX fail for: "
                         + currentDescriptor));
                 flowEnded.set(true);
-            } else if (BleEvents.MTU_CHANGE_OK.equals(action)) {
-                currentBufferSize = mtu - 3;
-                nextAction();
             } else if (BleEvents.MTU_CHANGE_FAIL.equals(action)) {
                 listener.onFailure(new Exception("Mtu change failed."));
                 flowEnded.set(true);
@@ -342,9 +338,6 @@ public class BleFlow {
                 break;
             case COMMIT:
                 client.commit(address);
-                break;
-            case CHANGE_MTU:
-                client.changeMtu(address, mtu);
                 break;
             case LOOKUP_SRV:
                 client.findServices(address);
@@ -493,28 +486,8 @@ public class BleFlow {
         return this;
     }
 
-    public BleFlow scanFor(UUID[] services, int timeout) {
-        addAction(Action.SCAN);
-        scanServiceFilter = services;
-        this.timeout = timeout;
-        return this;
-    }
-
-    public BleFlow scanFor(UUID[] services, int timeout, int maxNoDevices) {
-        addAction(Action.SCAN);
-        this.maxNoDevices = maxNoDevices;
-        scanServiceFilter = services;
-        this.timeout = timeout;
-        return this;
-    }
-
     public BleFlow setAddress(String address) {
         this.address = address;
-        return this;
-    }
-
-    public BleFlow setAddressToFirstFoundDevice() {
-        addAction(Action.PICK_FIRST_DEVICE);
         return this;
     }
 
@@ -625,22 +598,8 @@ public class BleFlow {
         return currentService != null && currentService.getCharacteristic(characteristic) != null;
     }
 
-    public BluetoothGattCharacteristic getCharacteristic(UUID serviceId, UUID charractId) {
-        BluetoothGattService service = client.getService(address, serviceId);
-        if (service == null) {
-            return null;
-        }
-        return service.getCharacteristic(charractId);
-    }
-
     void close() {
         MyBleService.getBroadcastManager(context).unregisterReceiver(receiver);
-    }
-
-    public BleFlow writeInputStream(InputStream stream) {
-        addAction(Action.WRITE_STREAM);
-        this.inputStream = stream;
-        return this;
     }
 
     private void writeStream() {

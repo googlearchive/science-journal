@@ -73,7 +73,6 @@ public class MyBleService extends Service {
         }
     }
 
-    public static String ADDRESS = "address";
     public static String DATA = "data";
     public static String UUID = "uuid";
     public static String FLAGS = "flags";
@@ -86,9 +85,6 @@ public class MyBleService extends Service {
 
     // the list of discovered devices
     private BleDevices bleDevices;
-
-    // currently selected device
-    private BluetoothDevice selectedDevice;
 
     private Map<String, BluetoothGatt> addressToGattClient =
             Collections.synchronizedMap(new LinkedHashMap<String, BluetoothGatt>());
@@ -254,14 +250,6 @@ public class MyBleService extends Service {
         getBroadcastManager(this).sendBroadcast(newIntent);
     }
 
-    public BluetoothDevice getSelectedDevice() {
-        return selectedDevice;
-    }
-
-    String getSelectedDeviceAddress() {
-        return selectedDevice == null ? null : selectedDevice.getAddress();
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -295,6 +283,7 @@ public class MyBleService extends Service {
             btAdapter = bluetoothManager.getAdapter();
         }
         if (!checkBleEnabled()) {
+            stopSelf();
             return START_NOT_STICKY;
         }
         // Intent newIntent = new Intent(BleEvents.BLE_ENABLED);
@@ -319,6 +308,11 @@ public class MyBleService extends Service {
     }
 
     public boolean connect(String address) {
+        if (btAdapter == null) {
+            // Not sure how we could get here, but it happens (b/36738130), so flag an error
+            // instead of crashing.
+            return false;
+        }
         BluetoothDevice device = btAdapter.getRemoteDevice(address);
         //  Explicitly check if Ble is enabled, otherwise it attempts a connection
         //  that never timesout even though it should.
@@ -393,11 +387,6 @@ public class MyBleService extends Service {
 
     public BleDevices getBleDevices() {
         return bleDevices;
-    }
-
-    public void setSelectedDevice(BluetoothDevice device) {
-        selectedDevice = device;
-        if (DEBUG) Log.d(TAG, "Device: " + selectedDevice.getAddress());
     }
 
     public boolean discoverServices(String address) {
@@ -521,9 +510,6 @@ public class MyBleService extends Service {
             sendGattBroadcast(address, BleEvents.WRITE_DESC_FAIL, null);
             return;
         }
-
-        BluetoothGattCharacteristic characteristic = descriptor.getCharacteristic();
-        BluetoothGattService service = characteristic.getService();
 
         if (!descriptor.setValue(value) || !bluetoothGatt.writeDescriptor(descriptor)) {
             sendGattBroadcast(address, BleEvents.WRITE_DESC_FAIL, descriptor.getCharacteristic());
