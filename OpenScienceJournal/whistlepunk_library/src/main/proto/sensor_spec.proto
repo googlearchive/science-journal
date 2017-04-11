@@ -1,0 +1,61 @@
+/*
+ *  Copyright 2017 Google Inc. All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+syntax = "proto2";
+
+package goosci;
+option java_package = "com.google.android.apps.forscience.whistlepunk.data";
+option java_outer_classname = "GoosciSensorSpec";
+option objc_class_prefix = "GSJ";
+option optimize_for = LITE_RUNTIME;
+
+import "basic_sensor_appearance.proto";
+
+message SensorSpec {
+    // Platform on which this sensor was instantiated.  Current possible values are "android" and
+    // "ios".
+    optional string platformId = 1;
+
+    // Identifies a SensorDiscoverer implementation.  The result should be a key in the map
+    // returned by WhistlePunkApplication#getExternalSensorDiscoverers.
+    optional string providerId = 2;
+
+    // Opaque to Science Journal, but meaningful to each SensorDiscoverer.
+    // It should have a one-to-one relationship with connectable sensors.
+    // That is, if two SensorSpecs have the same address, that means they refer to the same sensor,
+    // possibly with two different configurations.
+    // We assume that it’s not possible to observe two SensorSpecs with the same address
+    // at the same time.
+    optional string address = 3;
+
+    // A meaningless GUID that identifies the host device that hosted this sensor last.
+    // This allows us to distinguish between sensors that were recorded on the user’s current host
+    // devices, and sensors that were recorded on some other device.
+    optional string hostId = 4;
+
+    // A human-readable string that can be displayed to explain which host device hosted this
+    // sensor.
+    optional string hostDescription = 5;
+
+    // Opaque to Science Journal, but meaningful to each SensorDiscoverer.
+    // Each SensorDiscoverer can place whatever proto it wants here that contains all the
+    // information it needs, beyond the address, to connect to, configure,
+    // and relay data from a particular sensor in a particular configuration.
+    optional bytes config = 6;
+
+    // contains all of the data necessary to display a sensor as part of a trial
+    optional BasicSensorAppearance rememberedAppearance = 7;
+};
