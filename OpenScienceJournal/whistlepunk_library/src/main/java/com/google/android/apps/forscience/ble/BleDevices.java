@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * The list of discovered BLE devices, indexed by name and address.
  */
-/* package */ abstract class BleDevices {
+/* package */ class BleDevices {
 
     /**
      * Amount of time after the last scan time when a device may have been seen.
@@ -63,7 +63,6 @@ import java.util.List;
                 record.scanRecord = scanRecord;
                 record.updateParams(rssi);
                 devices.put(key, record);
-                onDeviceAdded(device, rssi, scanRecord);
                 return true;
             } else {
                 // update the last known rssi and seen time.
@@ -77,7 +76,6 @@ import java.util.List;
         synchronized (devices) {
             String key = device.getAddress();
             devices.remove(key);
-            onDeviceRemoved(device);
         }
     }
 
@@ -122,16 +120,6 @@ import java.util.List;
             return devices.keySet().iterator().next();
         }
     }
-
-    /**
-    * Called when adding a new device.
-    */
-    public abstract void onDeviceAdded(BluetoothDevice device, int rssi, byte[] scanRecord);
-
-    /**
-    * Called when a device has been removed.
-    */
-    public abstract void onDeviceRemoved(BluetoothDevice device);
 
     /**
      * Removes devices which haven't been seen since the last scan time and are not currently

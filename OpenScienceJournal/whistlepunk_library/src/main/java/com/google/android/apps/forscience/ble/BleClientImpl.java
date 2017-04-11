@@ -35,40 +35,21 @@ import java.util.UUID;
 /**
  * The BLE client, a thin wrapper around the MyBleService.
  */
-public class BleClientImpl implements BleDeviceListener, BleClient {
-
-    /**
-     * Called after the client started successfully.
-     */
-    public interface BleClientStartListener {
-
-        /**
-         * To be overridden by apps, e.g., to start a scan right away.
-         */
-        void onClientStarted();
-    }
-
+public class BleClientImpl implements BleClient {
     private static String TAG = "BLEClient";
     private static final boolean DEBUG = false;
 
     private MyBleService bleService;
-    Handler handler = new Handler();
+    private Handler handler = new Handler();
 
     private final Context context;
     private final List<BleFlow> flows;
-    private BleClientStartListener startListener;
-    private BleDeviceListener deviceListener;
 
     // service state changes
     private final ServiceConnection serviceConnection = new ServiceConnection() {
-
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             bleService = ((MyBleService.LocalBinder) service).getService();
-            bleService.addDeviceListener(BleClientImpl.this);
-            if (startListener != null) {
-                startListener.onClientStarted();
-            }
             if (DEBUG)  Log.d(TAG, "bleService connected");
         }
 
@@ -79,22 +60,9 @@ public class BleClientImpl implements BleDeviceListener, BleClient {
         }
     };
 
-    public void setOnStartListener(BleClientStartListener listener) {
-        this.startListener = listener;
-    }
-
-    public void setDeviceListener(BleDeviceListener deviceListener) {
-        this.deviceListener = deviceListener;
-    }
-
     public BleClientImpl(Context context) {
         this.context = context;
         flows = new ArrayList<>();
-    }
-
-    public void setSelectedDevice(String selected) {
-        if (DEBUG) Log.d(TAG, "Selected device: " + selected);
-        bleService.setSelectedDevice(bleService.getBleDevices().getDevice(selected));
     }
 
     public final boolean create() {
@@ -118,7 +86,6 @@ public class BleClientImpl implements BleDeviceListener, BleClient {
             flow.close();
         }
         if (bleService != null) {
-            bleService.removeDeviceListener(this);
             context.unbindService(serviceConnection);
         }
         if (DEBUG) Log.d(TAG, "client stopped");
@@ -170,10 +137,6 @@ public class BleClientImpl implements BleDeviceListener, BleClient {
         bleService.discoverServices(address);
     }
 
-    public void onServicesFound(String device, boolean success) {
-        if (DEBUG) Log.d(TAG, (success ? "OK" : "FAIL") + " finding services on " + device);
-    }
-
     @Override
     public BluetoothGattService getService(String address, UUID serviceId) {
         return bleService.getService(address, serviceId);
@@ -209,19 +172,9 @@ public class BleClientImpl implements BleDeviceListener, BleClient {
         return flow;
     }
 
-    public BleFlow createFlow() {
-        BleFlow flow = BleFlow.getInstance(this, context, null);
-        flows.add(flow);
-        return flow;
-    }
-
     @Override
     public void disconnectDevice(String address) {
         bleService.disconnectDevice(address);
-    }
-
-    public String getSelectedDeviceAddress() {
-        return bleService.getSelectedDeviceAddress();
     }
 
     @Override
@@ -267,19 +220,5 @@ public class BleClientImpl implements BleDeviceListener, BleClient {
     @Override
     public void setMaxNoDevices(int maxNoDevices) {
         bleService.setMaxNoDevices(maxNoDevices <= 0 ? 1 : maxNoDevices);
-    }
-
-    @Override
-    public void onDeviceAdded(BluetoothDevice device) {
-        if (deviceListener != null) {
-            deviceListener.onDeviceAdded(device);
-        }
-    }
-
-    @Override
-    public void onDeviceRemoved(BluetoothDevice device) {
-        if (deviceListener != null) {
-            deviceListener.onDeviceRemoved(device);
-        }
     }
 }

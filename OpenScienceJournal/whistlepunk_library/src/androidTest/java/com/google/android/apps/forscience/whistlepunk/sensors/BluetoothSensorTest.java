@@ -30,7 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StubStatusListen
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 
 public class BluetoothSensorTest extends AndroidTestCase {
-    private static final BluetoothSensor.BleServiceSpec SPEC =
+    private static final BleServiceSpec SPEC =
             BluetoothSensor.ANNING_SERVICE_SPEC;
 
     public void testGetFrequency() {
@@ -69,87 +69,4 @@ public class BluetoothSensorTest extends AndroidTestCase {
         recorder.startObserving();
         assertEquals("address", bleClient.mostRecentAddress);
     }
-
-    public void testVersionDecodeMajor() {
-        BluetoothSensor.BleProtocolVersion versionDecoder;
-
-        byte[] version_1_0_0 = {0x00, 0x08};
-        versionDecoder = new BluetoothSensor.BleProtocolVersion(version_1_0_0);
-        assertEquals(1, versionDecoder.getMajorVersion());
-        assertEquals(0, versionDecoder.getMinorVersion());
-        assertEquals(0, versionDecoder.getPatchVersion());
-
-        byte[] version_2_0_0 = {0x00, 0x10};
-        versionDecoder = new BluetoothSensor.BleProtocolVersion(version_2_0_0);
-        assertEquals(2, versionDecoder.getMajorVersion());
-        assertEquals(0, versionDecoder.getMinorVersion());
-        assertEquals(0, versionDecoder.getPatchVersion());
-
-        byte[] version_MAX_0_0 = {0x00, -0x08};
-        versionDecoder = new BluetoothSensor.BleProtocolVersion(version_MAX_0_0);
-        assertEquals(versionDecoder.getMaxMajorVersion(), versionDecoder.getMajorVersion());
-        assertEquals(0, versionDecoder.getMinorVersion());
-        assertEquals(0, versionDecoder.getPatchVersion());
-    }
-
-    public void testVersionDecodeMinor() {
-        BluetoothSensor.BleProtocolVersion versionDecoder;
-
-        byte[] version_0_1_0 = {0x40, 0x00};
-        versionDecoder = new BluetoothSensor.BleProtocolVersion(version_0_1_0);
-        assertEquals(0, versionDecoder.getMajorVersion());
-        assertEquals(1, versionDecoder.getMinorVersion());
-        assertEquals(0, versionDecoder.getPatchVersion());
-
-        byte[] version_0_2_0 = {-0x80, 0x00};
-        versionDecoder = new BluetoothSensor.BleProtocolVersion(version_0_2_0);
-        assertEquals(0, versionDecoder.getMajorVersion());
-        assertEquals(2, versionDecoder.getMinorVersion());
-        assertEquals(0, versionDecoder.getPatchVersion());
-
-        byte[] version_0_MAX_0 = {-0x40, 0x07};
-        versionDecoder = new BluetoothSensor.BleProtocolVersion(version_0_MAX_0);
-        assertEquals(0, versionDecoder.getMajorVersion());
-        assertEquals(versionDecoder.getMaxMinorVersion(), versionDecoder.getMinorVersion());
-        assertEquals(0, versionDecoder.getPatchVersion());
-    }
-
-    public void testVersionDecodePatch() {
-        BluetoothSensor.BleProtocolVersion versionDecoder;
-
-        byte[] version_0_0_1 = {0x01, 0x00};
-        versionDecoder = new BluetoothSensor.BleProtocolVersion(version_0_0_1);
-        assertEquals(0, versionDecoder.getMajorVersion());
-        assertEquals(0, versionDecoder.getMinorVersion());
-        assertEquals(1, versionDecoder.getPatchVersion());
-
-        byte[] version_0_0_2 = {0x02, 0x00};
-        versionDecoder = new BluetoothSensor.BleProtocolVersion(version_0_0_2);
-        assertEquals(0, versionDecoder.getMajorVersion());
-        assertEquals(0, versionDecoder.getMinorVersion());
-        assertEquals(2, versionDecoder.getPatchVersion());
-
-        byte[] version_0_0_MAX = {0x3F, 0x00};
-        versionDecoder = new BluetoothSensor.BleProtocolVersion(version_0_0_MAX);
-        assertEquals(0, versionDecoder.getMajorVersion());
-        assertEquals(0, versionDecoder.getMinorVersion());
-        assertEquals(versionDecoder.getMaxPatchVersion(), versionDecoder.getPatchVersion());
-    }
-
-    public void testVersionDecodeAll() {
-        BluetoothSensor.BleProtocolVersion versionDecoder;
-
-        byte[] version_1_1_1 = {0x41, 0x08};
-        versionDecoder = new BluetoothSensor.BleProtocolVersion(version_1_1_1);
-        assertEquals(1, versionDecoder.getMajorVersion());
-        assertEquals(1, versionDecoder.getMinorVersion());
-        assertEquals(1, versionDecoder.getPatchVersion());
-
-        byte[] version_MAX_MAX_MAX = {-0x01, -0x01};
-        versionDecoder = new BluetoothSensor.BleProtocolVersion(version_MAX_MAX_MAX);
-        assertEquals(versionDecoder.getMaxMajorVersion(), versionDecoder.getMajorVersion());
-        assertEquals(versionDecoder.getMaxMinorVersion(), versionDecoder.getMinorVersion());
-        assertEquals(versionDecoder.getMaxPatchVersion(), versionDecoder.getPatchVersion());
-    }
-
 }

@@ -95,8 +95,6 @@ public class MyBleService extends Service {
 
     private Handler handler;
 
-    private List<BleDeviceListener> mDeviceListeners;
-
     private Set<String> mOutstandingServiceDiscoveryAddresses = new ArraySet<>();
 
     // BLE callback
@@ -267,22 +265,8 @@ public class MyBleService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mDeviceListeners = new ArrayList<BleDeviceListener>();
-        bleDevices = new BleDevices() {
-            @Override
-            public void onDeviceAdded(BluetoothDevice device, int rssi, byte[] scanRecord) {
-                for (BleDeviceListener listener : mDeviceListeners) {
-                    listener.onDeviceAdded(device);
-                }
-            }
-
-            @Override
-            public void onDeviceRemoved(BluetoothDevice device) {
-                for (BleDeviceListener listener : mDeviceListeners) {
-                    listener.onDeviceRemoved(device);
-                }
-            }
-        };
+        // SAFF: simplify?
+        bleDevices = new BleDevices();
         handler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
@@ -584,14 +568,6 @@ public class MyBleService extends Service {
 
     public void setMaxNoDevices(int maxNoDevices) {
         this.maxNoDevices = maxNoDevices;
-    }
-
-    public void addDeviceListener(BleDeviceListener listener) {
-        mDeviceListeners.add(listener);
-    }
-
-    public void removeDeviceListener(BleDeviceListener listener) {
-        mDeviceListeners.remove(listener);
     }
 
     private void setLastScanTime() {

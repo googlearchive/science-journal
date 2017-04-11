@@ -26,6 +26,7 @@ import android.content.Context;
 import android.os.ParcelUuid;
 
 import com.google.android.apps.forscience.whistlepunk.devicemanager.WhistlepunkBleDevice;
+import com.google.android.apps.forscience.whistlepunk.sensors.BleServiceSpec;
 import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
 
 import java.util.ArrayList;
@@ -70,7 +71,7 @@ import java.util.List;
     public void onStartScanning() {
         mScanner = getBluetoothAdapter().getBluetoothLeScanner();
         List<ScanFilter> filters = new ArrayList<>();
-        for (BluetoothSensor.BleServiceSpec spec : BluetoothSensor.SUPPORTED_SERVICES) {
+        for (BleServiceSpec spec : BluetoothSensor.SUPPORTED_SERVICES) {
             filters.add(new ScanFilter.Builder()
                     .setServiceUuid(ParcelUuid.fromString(spec.getServiceId().toString()))
                     .build());

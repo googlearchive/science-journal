@@ -21,6 +21,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.sensors.BleServiceSpec;
 import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
 
 import java.nio.ByteBuffer;
@@ -105,7 +106,7 @@ import java.util.concurrent.Executor;
     }
 
     private boolean isScienceSensor(List<UUID> ids) {
-        for (BluetoothSensor.BleServiceSpec spec : BluetoothSensor.SUPPORTED_SERVICES) {
+        for (BleServiceSpec spec : BluetoothSensor.SUPPORTED_SERVICES) {
             for (UUID loopId : ids) {
                 if (loopId.compareTo(spec.getServiceId()) == 0) {
                     return true;
