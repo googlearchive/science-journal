@@ -265,7 +265,6 @@ public class MyBleService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        // SAFF: simplify?
         bleDevices = new BleDevices();
         handler = new Handler(new Handler.Callback() {
             @Override

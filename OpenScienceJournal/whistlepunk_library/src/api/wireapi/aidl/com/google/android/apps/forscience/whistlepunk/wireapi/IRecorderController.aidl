@@ -25,7 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSenso
 // Next method id = 12
 interface IRecorderController {
     void startObserving(String sensorId, ISensorObserver observer,
-            ISensorStatusListener listener, in TransportableSensorOptions initialOptions) = 0;
+            ISensorStatusListener failureListener, in TransportableSensorOptions initialOptions) = 0;
 
     void stopObserving(String sensorId) = 1;
 
@@ -46,7 +46,7 @@ interface IRecorderController {
 
     RecordingMetadata getCurrentRecording() = 8;
 
-    void addRecordingStateListener(String listenerId, IRecordingStateListener listener) = 9;
+    void addRecordingStateListener(String listenerId, IRecordingStateListener failureListener) = 9;
 
     // listenerId must match a previous listenerId supplied to addRecordingStateListener, or this
     // call has no effect.

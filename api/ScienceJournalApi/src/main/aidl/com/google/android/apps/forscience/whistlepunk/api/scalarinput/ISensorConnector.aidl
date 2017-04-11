@@ -21,7 +21,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ISensorSta
 interface ISensorConnector {
     oneway void startObserving(String sensorAddress,
                                ISensorObserver observer,
-                               ISensorStatusListener listener,
+                               ISensorStatusListener failureListener,
                                String settingsKey) = 0;
     oneway void stopObserving(String sensorAddress) = 1;
 }

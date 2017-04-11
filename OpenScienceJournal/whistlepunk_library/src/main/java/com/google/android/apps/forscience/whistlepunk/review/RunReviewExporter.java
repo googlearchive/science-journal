@@ -25,10 +25,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
+import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.collect.Range;
@@ -50,10 +50,9 @@ public class RunReviewExporter implements Handler.Callback {
 
     private Context mContext;
     private OutputStreamWriter mOutputStreamWriter;
-    private StreamConsumer mStreamConsumer;
+    private ExportStreamConsumer mStreamConsumer;
     private String mFileName;
     private ExperimentRun mRun;
-    private long mLastTimeStampWritten = -1;
     private boolean mStop;
 
     private HandlerThread mHandlerThread;
@@ -91,8 +90,13 @@ public class RunReviewExporter implements Handler.Callback {
         mListener = listener;
     }
 
+    /**
+     * @param startAtZero if true, adjusts all timestamps so that the first timestamp is reported
+     *                    as 0.
+     */
     public void startExport(Context context, final String experimentName, final ExperimentRun run,
-            String sensorTag) {
+            String sensorTag, final boolean startAtZero) {
+        // TODO: can some of these be constructor parameters?
         mStop = false;
         mRun = run;
         mSensorTag = sensorTag;
@@ -100,26 +104,12 @@ public class RunReviewExporter implements Handler.Callback {
         mHandlerThread = new HandlerThread("export", Thread.MIN_PRIORITY);
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper(), this);
-        mStreamConsumer = new StreamConsumer() {
+        mStreamConsumer = new ExportStreamConsumer(mOutputStreamWriter, startAtZero, new FailureListener() {
             @Override
-            public void addData(final long timestampMillis, final double value) {
-                try {
-                    if (mOutputStreamWriter == null) {
-                        mListener.onExportError(new IllegalStateException("Output stream closed."));
-                        return;
-                    }
-                    mOutputStreamWriter.write(Long.toString(timestampMillis));
-                    mOutputStreamWriter.write(",");
-                    mOutputStreamWriter.write(Double.toString(value));
-                    mOutputStreamWriter.write("\n");
-                    mLastTimeStampWritten = timestampMillis;
-
-                } catch (IOException e) {
-                    mListener.onExportError(e);
-                    return;
-                }
+            public void fail(Exception e) {
+                mListener.onExportError(e);
             }
-        };
+        });
         mHandler.post(new Runnable() {
 
             @Override
@@ -149,7 +139,7 @@ public class RunReviewExporter implements Handler.Callback {
 
                 mOutputStreamWriter = new OutputStreamWriter(fs);
                 try {
-                    mOutputStreamWriter.write("timestamp");
+                    mOutputStreamWriter.write(startAtZero ? "relative_time" : "timestamp");
                     mOutputStreamWriter.write(",");
                     mOutputStreamWriter.write("value");
                     mOutputStreamWriter.write("\n");
@@ -212,14 +202,14 @@ public class RunReviewExporter implements Handler.Callback {
     /**
      * Adds readings to the output stream.
      */
-    public void addReadings(ScalarReadingList readings) {
+    private void addReadings(ScalarReadingList readings) {
         // Check if we are not stopped.
         if (mHandler != null) {
             mHandler.sendMessage(Message.obtain(mHandler, MSG_WRITE, readings));
         }
     }
 
-    public void endExport() {
+    private void endExport() {
         mHandler.post(new Runnable() {
 
             @Override
@@ -280,17 +270,18 @@ public class RunReviewExporter implements Handler.Callback {
             }
             ScalarReadingList list = (ScalarReadingList) msg.obj;
             list.deliver(mStreamConsumer);
+            long lastTimeStampWritten = mStreamConsumer.getLastTimeStampWritten();
             if (mStop) {
                 return false;
             }
             final long start = mRun.getFirstTimestamp();
             final long end = mRun.getLastTimestamp();
-            int progress = (int) (((mLastTimeStampWritten - start) / (double) (end - start)) * 100);
+            int progress = (int) (((lastTimeStampWritten - start) / (double) (end - start)) * 100);
             mListener.onExportProgress(progress);
-            if (list.size() == 0 || list.size() < MAX_RECORDS || mLastTimeStampWritten >= end) {
+            if (list.size() == 0 || list.size() < MAX_RECORDS || lastTimeStampWritten >= end) {
                 endExport();
             } else {
-                Range<Long> times = Range.openClosed(mLastTimeStampWritten, end);
+                Range<Long> times = Range.openClosed(lastTimeStampWritten, end);
                 getReadings(TimeRange.oldest(times));
             }
             return true;
@@ -324,4 +315,5 @@ public class RunReviewExporter implements Handler.Callback {
     public static String sanitizeFilename(String inputName) {
         return inputName.replaceAll("[^ a-zA-Z0-9-_\\.]", "_");
     }
+
 };

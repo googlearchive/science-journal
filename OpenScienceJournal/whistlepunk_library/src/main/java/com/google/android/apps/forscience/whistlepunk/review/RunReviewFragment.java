@@ -1714,8 +1714,11 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
 
     private void exportRun(final ExperimentRun run) {
+        // Until we have UI to override it, we never use relative timestamps.
+        boolean startAtZero = false;
         mRunReviewExporter.startExport(getActivity(), mExperiment.getDisplayTitle(
-                getActivity()), run, run.getSensorLayouts().get(mSelectedSensorIndex).sensorId);
+                getActivity()), run, run.getSensorLayouts().get(mSelectedSensorIndex).sensorId,
+                startAtZero);
         // Disable the item.
         getActivity().invalidateOptionsMenu();
     }
