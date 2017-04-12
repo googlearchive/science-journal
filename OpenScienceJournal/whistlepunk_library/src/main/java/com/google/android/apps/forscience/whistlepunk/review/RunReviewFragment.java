@@ -1557,6 +1557,9 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 originalFirstTimestamp - buffer, lastTimestamp + buffer);
         mExternalAxis.updateAxis();
 
+        WhistlePunkApplication.getUsageTracker(getActivity()).trackEvent(
+                TrackerConstants.CATEGORY_RUNS, TrackerConstants.ACTION_CROP_STARTED, "", 1);
+
         setCropUi(rootView, true);
     }
 

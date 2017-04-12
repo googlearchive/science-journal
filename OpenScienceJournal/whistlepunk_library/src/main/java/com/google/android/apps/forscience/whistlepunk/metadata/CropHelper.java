@@ -30,6 +30,8 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
@@ -120,10 +122,12 @@ public class CropHelper {
         // Are we trying to crop too wide? Too narrow? Are the timestamps valid?
         if (startTimestamp < run.getOriginalFirstTimestamp() ||
                 run.getOriginalLastTimestamp() < endTimestamp) {
+            logEvent(context, TrackerConstants.ACTION_CROP_FAILED);
             listener.onCropFailed(R.string.crop_failed_range_too_large);
             return;
         }
         if (endTimestamp - MINIMUM_CROP_MILLIS <= startTimestamp) {
+            logEvent(context, TrackerConstants.ACTION_CROP_FAILED);
             listener.onCropFailed(R.string.crop_failed_range_too_small);
             return;
         }
@@ -181,6 +185,7 @@ public class CropHelper {
                     });
         } else {
             // One crop label is set and the other is not. This is an error!
+            logEvent(context, TrackerConstants.ACTION_CROP_FAILED);
             listener.onCropFailed(R.string.crop_failed_invalid_state);
         }
     }
@@ -200,12 +205,18 @@ public class CropHelper {
                         public void success(Success success) {
                             mStatsUpdated++;
                             if (mStatsUpdated == statsToUpdate) {
+                                logEvent(context, TrackerConstants.ACTION_CROP_COMPLETED);
                                 listener.onCropCompleted();
                             }
                             adjustRunStats(context, run, sensorId);
                         }
                     });
         }
+    }
+
+    private void logEvent(Context context, String event) {
+        WhistlePunkApplication.getUsageTracker(context).trackEvent(TrackerConstants.CATEGORY_RUNS,
+                event, "", 1);
     }
 
     private void adjustRunStats(final Context context, final ExperimentRun run,

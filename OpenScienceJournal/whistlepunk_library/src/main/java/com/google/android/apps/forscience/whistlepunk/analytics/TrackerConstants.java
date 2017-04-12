@@ -79,6 +79,9 @@ public final class TrackerConstants {
     public static final String ACTION_API_SCAN_TIMEOUT = "ApiScanTimeout";
     public static final String ACTION_INFO = "Info";
     public static final String ACTION_SCAN = "Scan";
+    public static final String ACTION_CROP_COMPLETED = "CropCompleted";
+    public static final String ACTION_CROP_STARTED = "CropStarted";
+    public static final String ACTION_CROP_FAILED = "CropFailed";
 
     // Labels
     public static final String LABEL_RECORD = "record";
