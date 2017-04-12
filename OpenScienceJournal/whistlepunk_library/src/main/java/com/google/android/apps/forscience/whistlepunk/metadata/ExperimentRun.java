@@ -19,19 +19,20 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+
 
 import java.util.List;
 
 public class ExperimentRun {
-    private final List<Label> mLabels;
-
     private Trial mTrial;
     private String mExperimentId;
     private CropHelper.CropLabels mCropLabels; // Need these around for writing to the DB
 
     public static ExperimentRun fromLabels(Trial trial, String experimentId,
-            List<ApplicationLabel> applicationLabels, List<Label> labels) {
+            List<ApplicationLabel> applicationLabels) {
         CropHelper.CropLabels cropLabels = new CropHelper.CropLabels();
         for (ApplicationLabel label : applicationLabels) {
             if (label.getType() == ApplicationLabel.TYPE_CROP_START) {
@@ -40,14 +41,12 @@ public class ExperimentRun {
                 cropLabels.cropEndLabel = label;
             }
         }
-        return new ExperimentRun(trial, experimentId, labels, cropLabels);
+        return new ExperimentRun(trial, experimentId, cropLabels);
     }
 
-    private ExperimentRun(Trial trial, String experimentId,
-            List<Label> labels, CropHelper.CropLabels cropLabels) {
+    private ExperimentRun(Trial trial, String experimentId, CropHelper.CropLabels cropLabels) {
         mTrial = trial;
         mExperimentId = experimentId;
-        mLabels = labels;
         mCropLabels = cropLabels;
     }
 
@@ -56,17 +55,11 @@ public class ExperimentRun {
     }
 
     public List<Label> getPinnedNotes() {
-        // TODO: Switch to List<filemetadata.Label when possible
-        return mLabels;
+        return mTrial.getLabels();
     }
 
-    public PictureLabel getCoverPictureLabel() {
-        for (Label label : mLabels) {
-            if (label instanceof PictureLabel) {
-                return (PictureLabel) label;
-            }
-        }
-        return null;
+    public PictureLabelValue getCoverPictureLabelValue() {
+        return mTrial.getCoverPictureLabelValue();
     }
 
     public String getExperimentId() {

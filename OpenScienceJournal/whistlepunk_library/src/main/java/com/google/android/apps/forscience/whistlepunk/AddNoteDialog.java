@@ -40,10 +40,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -217,16 +217,16 @@ public class AddNoteDialog extends DialogFragment {
                 try {
                     value = GoosciLabelValue.LabelValue.parseFrom(
                             getArguments().getByteArray(KEY_SAVED_VALUE));
-                    mPictureLabelPath = PictureLabel.getFilePath(value);
+                    mPictureLabelPath = PictureLabelValue.getFilePath(value);
                     if (TextUtils.isEmpty(mPictureLabelPath)) {
                         // If there is no picture path, then this was saved as a text label by
                         // default (see addLabel). See if any text is available to populate the
                         // text field.
-                        text = TextLabel.getText(value);
+                        text = TextLabelValue.getText(value);
                     } else {
                         // If there is a picture path, this was saved as a picture label, so get
                         // the caption if it is available to populate the text field.
-                        text = PictureLabel.getCaption(value);
+                        text = PictureLabelValue.getCaption(value);
                     }
                 } catch (InvalidProtocolBufferNanoException e) {
                     Log.wtf(TAG, "Unable to parse label value");
@@ -311,10 +311,10 @@ public class AddNoteDialog extends DialogFragment {
     private GoosciLabelValue.LabelValue getCurrentValue() {
         GoosciLabelValue.LabelValue result = new GoosciLabelValue.LabelValue();
         if (hasPicture()) {
-            PictureLabel.populateStorageValue(result, mPictureLabelPath,
+            PictureLabelValue.populateLabelValue(result, mPictureLabelPath,
                     mInput.getText().toString());
         } else {
-            TextLabel.populateStorageValue(result, mInput.getText().toString());
+            TextLabelValue.populateLabelValue(result, mInput.getText().toString());
         }
         return result;
     }
@@ -340,22 +340,22 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     private void addTextLabel() {
-        TextLabel label = new TextLabel(mInput.getText().toString(),
-                getDataController().generateNewLabelId(), mRunId, mTimestamp);
+        TextLabelValue labelValue = TextLabelValue.fromText(mInput.getText().toString());
+        Label label = Label.newLabelWithValue(mTimestamp, labelValue);
         addLabel(label);
     }
 
     private void addPictureLabel() {
-        PictureLabel label = new PictureLabel(mPictureLabelPath, mInput.getText().toString(),
-                getDataController().generateNewLabelId(), mRunId, mTimestamp);
+        PictureLabelValue labelValue = PictureLabelValue.fromPicture(mPictureLabelPath,
+                mInput.getText().toString());
+        Label label = Label.newLabelWithValue(mTimestamp, labelValue);
         addLabel(label);
         PictureUtils.scanFile(mPictureLabelPath, getParentFragment().getActivity());
         mPictureLabelPath = null;
     }
 
     private void addLabel(Label label) {
-        label.setExperimentId(mExperimentId);
-        getDataController().addLabel(label,
+        getDataController().addLabel(label, mExperimentId, mRunId,
                 ((AddNoteDialogListener) getParentFragment()).onLabelAdd(label));
     }
 

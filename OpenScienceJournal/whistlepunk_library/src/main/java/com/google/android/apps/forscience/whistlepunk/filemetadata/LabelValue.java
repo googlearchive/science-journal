@@ -34,7 +34,7 @@ public abstract class LabelValue {
         mValue = new GoosciLabelValue.LabelValue();
     }
 
-    protected GoosciLabelValue.LabelValue getValue() {
+    public GoosciLabelValue.LabelValue getValue() {
         return mValue;
     }
 

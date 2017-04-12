@@ -65,7 +65,7 @@ import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.RecordFragment;
+import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
@@ -75,16 +75,17 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.project.ProjectDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
@@ -482,22 +483,25 @@ public class ExperimentDetailsFragment extends Fragment
                 });
     }
 
-    private void launchPicturePreview(PictureLabel label) {
-        EditNoteDialog dialog = EditNoteDialog.newInstance(label, label.getValue(),
-                label.getTimeStamp());
+    private void launchPicturePreview(Label label) {
+        EditNoteDialog dialog = EditNoteDialog.newInstance(label,
+                label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE).getValue(),
+                label.getTimeStamp(), RecorderController.NOT_RECORDING_RUN_ID);
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
     private void launchLabelEdit(final Label label) {
-        EditNoteDialog dialog = EditNoteDialog.newInstance(label, label.getValue(),
-                label.getTimeStamp());
+        // Assuming one labelValue per label at the moment.
+        GoosciLabelValue.LabelValue value = label.getLabelValues().get(0).getValue();
+        EditNoteDialog dialog = EditNoteDialog.newInstance(label, value,
+                label.getTimeStamp(), RecorderController.NOT_RECORDING_RUN_ID);
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
     private void launchLabelAdd() {
         long now = AppSingleton.getInstance(getActivity()).getSensorEnvironment()
                 .getDefaultClock().getNow();
-        AddNoteDialog dialog = AddNoteDialog.newInstance(now, RecordFragment.NOT_RECORDING_RUN_ID,
+        AddNoteDialog dialog = AddNoteDialog.newInstance(now, RecorderController.NOT_RECORDING_RUN_ID,
                 mExperimentId, R.string.add_experiment_note_placeholder_text);
         dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
     }
@@ -532,7 +536,7 @@ public class ExperimentDetailsFragment extends Fragment
         return new LoggingConsumer<Success>(TAG, "edit label text") {
             @Override
             public void success(Success value) {
-                mAdapter.replaceLabelText(label);
+                mAdapter.updateLabel(label);
                 WhistlePunkApplication.getUsageTracker(getActivity())
                         .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                 TrackerConstants.ACTION_EDITED,
@@ -569,29 +573,12 @@ public class ExperimentDetailsFragment extends Fragment
                     return;
                 }
                 mUndone = true;
-                Label label;
-                if (item instanceof TextLabel) {
-                    String title = "";
-                    title = ((TextLabel) item).getText();
-                    label = new TextLabel(title, dc.generateNewLabelId(),
-                            item.getRunId(), item.getTimeStamp());
-                } else if (item instanceof PictureLabel) {
-                    label = new PictureLabel(((PictureLabel) item).getFilePath(),
-                            ((PictureLabel) item).getCaption(), dc.generateNewLabelId(),
-                            item.getRunId(), item.getTimeStamp());
-                } else if (item instanceof SensorTriggerLabel) {
-                    label = new SensorTriggerLabel(dc.generateNewLabelId(),
-                            item.getRunId(), item.getTimeStamp(), item.getValue());
-                } else {
-                    // This is not a label we know how to deal with.
-                    return;
-                }
-                label.setExperimentId(item.getExperimentId());
-                dc.addLabel(label, new LoggingConsumer<Label>(TAG, "re-add deleted label") {
+                Label label = Label.copyOf(item);
+                dc.addExperimentLabel(label, mExperimentId,
+                        new LoggingConsumer<Label>(TAG, "re-add deleted label") {
                     @Override
                     public void success(Label label) {
                         mAdapter.insertNote(label);
-
                         WhistlePunkApplication.getUsageTracker(getActivity())
                                 .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                         TrackerConstants.ACTION_DELETE_UNDO,
@@ -736,13 +723,13 @@ public class ExperimentDetailsFragment extends Fragment
             if (isPictureLabel || isTextLabel || isTriggerLabel) {
                 // TODO: Can this code be reused from PinnedNoteAdapter?
                 TextView textView = (TextView) holder.itemView.findViewById(R.id.note_text);
-                TextView autoTextView = (TextView) holder.itemView.findViewById(R.id.auto_note_text);
-                final Label label = isPictureLabel ? mItems.get(position).mPictureLabel :
-                        isTextLabel ? mItems.get(position).mTextLabel :
-                                mItems.get(position).mSensorTriggerLabel;
-                String text = isPictureLabel ? ((PictureLabel) label).getCaption() : isTextLabel ?
-                        ((TextLabel) label).getText() :
-                        ((SensorTriggerLabel) label).getCustomText();
+                TextView autoTextView = (TextView) holder.itemView.findViewById(
+                        R.id.auto_note_text);
+                final Label label = mItems.get(position).mLabel;
+                final LabelValue labelValue = mItems.get(position).mLabelValue;
+                String text = isPictureLabel ? ((PictureLabelValue) labelValue).getCaption() :
+                        isTextLabel ? ((TextLabelValue) labelValue).getText() :
+                        ((SensorTriggerLabelValue) labelValue).getCustomText();
                 if (!TextUtils.isEmpty(text)) {
                     textView.setText(text);
                     textView.setTextColor(textView.getResources().getColor(
@@ -763,13 +750,13 @@ public class ExperimentDetailsFragment extends Fragment
                 if (isPictureLabel) {
                     imageView.setVisibility(View.VISIBLE);
                     Glide.with(imageView.getContext())
-                            .load(((PictureLabel) label).getFilePath())
+                            .load(((PictureLabelValue) labelValue).getFilePath())
                             .into(imageView);
                     View.OnClickListener clickListener = new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             if (mParentReference.get() != null) {
-                                mParentReference.get().launchPicturePreview((PictureLabel) label);
+                                mParentReference.get().launchPicturePreview(label);
                             }
                         }
                     };
@@ -787,7 +774,7 @@ public class ExperimentDetailsFragment extends Fragment
                     imageView.setVisibility(View.GONE);
                     if (isTriggerLabel) {
                         autoTextView.setVisibility(View.VISIBLE);
-                        String autoText = ((SensorTriggerLabel) label).getAutogenText();
+                        String autoText = ((SensorTriggerLabelValue) labelValue).getAutogenText();
                         TriggerHelper.populateAutoTextViews(autoTextView, autoText,
                                 R.drawable.ic_label_black_18dp, autoTextView.getResources());
 
@@ -845,9 +832,10 @@ public class ExperimentDetailsFragment extends Fragment
             });
         }
 
-        public void replaceLabelText(Label label) {
-            if (!(label instanceof TextLabel || label instanceof PictureLabel ||
-                    label instanceof SensorTriggerLabel)) {
+        public void updateLabel(Label label) {
+            if (!(label.hasValueType(GoosciLabelValue.LabelValue.TEXT) ||
+                    label.hasValueType(GoosciLabelValue.LabelValue.PICTURE) ||
+                    label.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER))) {
                 if (Log.isLoggable(TAG, Log.WARN)) {
                     Log.w(TAG, "How did we try to replace text on a non-text label?");
                 }
@@ -857,14 +845,9 @@ public class ExperimentDetailsFragment extends Fragment
             if (position == -1) {
                 return;
             }
-            if (label instanceof TextLabel) {
-                mItems.get(position).mTextLabel.setText(((TextLabel) label).getText());
-            } else if (label instanceof PictureLabel) {
-                mItems.get(position).mPictureLabel.setCaption(((PictureLabel) label).getCaption());
-            } else if (label instanceof SensorTriggerLabel) {
-                mItems.get(position).mSensorTriggerLabel.setCustomText(
-                        ((SensorTriggerLabel) label).getCustomText());
-            }
+            mItems.get(position).mLabel = label;
+            List<LabelValue> values = label.getLabelValues();
+            mItems.get(position).mLabelValue = values.size() > 0 ? values.get(0) : null;
             notifyItemChanged(position);
         }
 
@@ -879,19 +862,16 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         private int findLabelIndex(Label label) {
-            int expectedViewType = label instanceof TextLabel ?
-                    VIEW_TYPE_EXPERIMENT_TEXT_LABEL : label instanceof PictureLabel ?
+            int expectedViewType = label.hasValueType(GoosciLabelValue.LabelValue.TEXT) ?
+                    VIEW_TYPE_EXPERIMENT_TEXT_LABEL :
+                    label.hasValueType(GoosciLabelValue.LabelValue.PICTURE) ?
                     VIEW_TYPE_EXPERIMENT_PICTURE_LABEL : VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
             int position = -1;
             int size = mItems.size();
             for (int i = 0; i < size; i++) {
                 ExperimentDetailItem item = mItems.get(i);
                 if (item.getViewType() == expectedViewType) {
-                    Label itemLabel =
-                            label instanceof TextLabel ? item.mTextLabel :
-                                    label instanceof PictureLabel ? item.mPictureLabel :
-                                            item.mSensorTriggerLabel;
-                    if (TextUtils.equals(label.getLabelId(), itemLabel.getLabelId())) {
+                    if (TextUtils.equals(label.getLabelId(), item.mLabel.getLabelId())) {
                         position = i;
                         break;
                     }
@@ -960,13 +940,8 @@ public class ExperimentDetailsFragment extends Fragment
                 mHasRunsOrLabels = true;
             }
             for (Label label : labels) {
-                if (TextUtils.equals(
-                        label.getRunId(), RecordFragment.NOT_RECORDING_RUN_ID)) {
-                    if (ExperimentDetailItem.canShowLabel(label)) {
-                        mItems.add(new ExperimentDetailItem(label));
-                        mHasRunsOrLabels = true;
-                    }
-                }
+                mItems.add(new ExperimentDetailItem(label));
+                mHasRunsOrLabels = true;
             }
             sortItems();
 
@@ -1387,9 +1362,8 @@ public class ExperimentDetailsFragment extends Fragment
             private final int mViewType;
             private ExperimentRun mRun;
             private int mSensorTagIndex = -1;
-            private TextLabel mTextLabel;
-            private PictureLabel mPictureLabel;
-            private SensorTriggerLabel mSensorTriggerLabel;
+            private Label mLabel;
+            private LabelValue mLabelValue;
             private long mTimestamp;
             private ChartController mChartController;
 
@@ -1403,20 +1377,16 @@ public class ExperimentDetailsFragment extends Fragment
                         scalarDisplayOptions);
             }
 
-            public static boolean canShowLabel(Label label) {
-                return label instanceof TextLabel || label instanceof PictureLabel ||
-                        label instanceof SensorTriggerLabel;
-            }
-
             ExperimentDetailItem(Label label) {
-                if (label instanceof TextLabel) {
-                    mTextLabel = (TextLabel) label;
+                mLabel = label;
+                if (label.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
+                    mLabelValue = label.getLabelValue(GoosciLabelValue.LabelValue.TEXT);
                     mViewType = VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
-                } else if (label instanceof PictureLabel) {
-                    mPictureLabel = (PictureLabel) label;
+                } else if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+                    mLabelValue = label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE);
                     mViewType = VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
                 } else {
-                    mSensorTriggerLabel = (SensorTriggerLabel) label;
+                    mLabelValue = label.getLabelValue(GoosciLabelValue.LabelValue.SENSOR_TRIGGER);
                     mViewType = VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
                 }
                 mTimestamp = label.getTimeStamp();

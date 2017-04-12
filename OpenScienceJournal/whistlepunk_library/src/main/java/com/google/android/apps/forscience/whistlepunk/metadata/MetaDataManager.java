@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 
@@ -80,16 +81,16 @@ public interface MetaDataManager {
     /**
      * Saves label to storage for the given experiment ID.
      */
-    void addLabel(String experimentId, Label label);
+    void addLabel(String experimentId, String trialId, Label label);
 
     void addApplicationLabel(String experimentId, ApplicationLabel label);
 
     /**
-     * @return the list of labels for a given experiment
+     * @return the labels that are part of this experiment but not tied to any specific trial.
      */
     List<Label> getLabelsForExperiment(Experiment experiment);
 
-    List<Label> getLabelsWithStartId(String startLabelId);
+    List<Label> getLabelsForTrial(String trialId);
 
     List<ApplicationLabel> getApplicationLabelsWithStartId(String startLabelId);
 
@@ -195,10 +196,13 @@ public interface MetaDataManager {
             List<GoosciSensorLayout.SensorLayout> sensorLayouts);
 
     /**
-     * @param trialId
+     * Gets the trial with a particular ID.
+     * @param trialId the label that marks the start of this trial
+     * @param applicationLabels list of application labels for this trial
+     * @param labels list of labels that belong to this trial, excluding application labels
      * @return the Trial stored with that id, or null if no such Trial exists.
      */
-    Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels);
+    Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels, List<Label> labels);
 
     /**
      * Set the sensor selection and layout for an experiment

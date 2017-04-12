@@ -16,11 +16,11 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 
 import org.junit.Test;
 
@@ -81,6 +81,6 @@ public class RunReviewExporterTest {
         trial.trialId ="runId";
         trial.title = runTitle;
         return ExperimentRun.fromLabels(Trial.fromTrial(trial), "experiment",
-                Collections.<ApplicationLabel>emptyList(), Collections.<Label>emptyList());
+                Collections.<ApplicationLabel>emptyList());
     }
 }

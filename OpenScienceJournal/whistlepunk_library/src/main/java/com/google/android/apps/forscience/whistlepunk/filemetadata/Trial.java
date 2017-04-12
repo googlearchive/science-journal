@@ -70,10 +70,10 @@ public class Trial extends LabelListHolder {
         mTrialStats = new HashMap<>();
     }
 
-    public Label getCoverPictureLabel() {
+    public PictureLabelValue getCoverPictureLabelValue() {
         for (Label label : mLabels) {
             if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-                return label;
+                return (PictureLabelValue) label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE);
             }
         }
         return null;

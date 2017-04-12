@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.scalarchart;
 
 import android.support.annotation.VisibleForTesting;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 
 import java.util.ArrayList;

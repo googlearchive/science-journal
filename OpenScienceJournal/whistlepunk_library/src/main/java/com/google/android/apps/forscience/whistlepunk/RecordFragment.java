@@ -54,16 +54,15 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesActivity;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
@@ -157,11 +156,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     private UICallbacks mUICallbacks = UICallbacks.NULL;
     private SensorRegistry mSensorRegistry;
     private Snackbar mVisibleSnackbar;
-
-    /**
-     * Used as the Run ID for labels that are created when no run is being recorded.
-     */
-    public static final String NOT_RECORDING_RUN_ID = "NOT_RECORDING";
 
     private ImageButton mAddButton;
     private ImageButton mRecordButton;
@@ -328,7 +322,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private String getCurrentRunId() {
-        return isRecording() ? mCurrentRecording.getRunId() : NOT_RECORDING_RUN_ID;
+        return isRecording() ? mCurrentRecording.getRunId() :
+                RecorderController.NOT_RECORDING_RUN_ID;
     }
 
     @Override
@@ -1074,9 +1069,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
 
     @Override
     public LoggingConsumer<Label> onLabelAdd(Label label) {
-        if (label instanceof PictureLabel) {
+        if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
             // We want to set the time stamp of this label to the time of the picture
-            PictureLabel pictureLabel = (PictureLabel) label;
+            PictureLabelValue pictureLabel =
+                    (PictureLabelValue) label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE);
             File file = new File(pictureLabel.getAbsoluteFilePath());
             // Check to make sure this value is not crazy: should be within 10 minutes of now and
             // not from the future.
@@ -1098,7 +1094,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
         ensureUnarchived(mSelectedExperiment, mSelectedProject, getDataController());
         playAddNoteAnimation();
         // Trigger labels are logged in RecorderControllerImpl.
-        if (!(label instanceof SensorTriggerLabel)) {
+        if (!(label.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER))) {
             String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
                     TrackerConstants.LABEL_OBSERVE;
             WhistlePunkApplication.getUsageTracker(getActivity())
@@ -1255,10 +1251,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.AddNoteDia
     }
 
     private void refreshLabels() {
-        if (mSensorCardAdapter == null || mSelectedExperiment == null || mExternalAxis == null) {
+        if (mSensorCardAdapter == null || !isRecording() || mExternalAxis == null) {
             return;
         }
-        getDataController().getLabelsForExperiment(mSelectedExperiment,
+        getDataController().getLabelsForTrial(mCurrentRecording.getRunId(),
                 new LoggingConsumer<List<Label>>(TAG, "retrieving labels") {
                     @Override
                     public void success(List<Label> labels) {

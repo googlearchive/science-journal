@@ -34,12 +34,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.PictureLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.SensorTriggerLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.TextLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
@@ -52,12 +51,13 @@ public class EditNoteDialog extends DialogFragment {
     private static final String KEY_SAVED_TIME_TEXT = "keySavedTimeText";
     private static final String KEY_SAVED_TIMESTAMP = "keySavedTimestamp";
     private static final String KEY_SELECTED_VALUE = "keySavedValue";
-    private static final java.lang.String KEY_SAVED_TIME_TEXT_DESCRIPTION =
-            "keySavedTimeTextDescription";
+    private static final String KEY_SAVED_TIME_TEXT_DESCRIPTION = "keySavedTimeTextDescription";
+    private static final String KEY_TRIAL_ID = "keyTrialId";
 
     private Label mLabel;
     private GoosciLabelValue.LabelValue mSelectedValue;
     private long mTimestamp;
+    private String mTrialId;
 
     public interface EditNoteDialogListener {
         /**
@@ -80,8 +80,8 @@ public class EditNoteDialog extends DialogFragment {
      * minute.
      */
     public static EditNoteDialog newInstance(Label label,
-            GoosciLabelValue.LabelValue selectedValue, long timestamp) {
-        return newInstance(label, selectedValue, null, timestamp, null);
+            GoosciLabelValue.LabelValue selectedValue, long timestamp, String trialId) {
+        return newInstance(label, selectedValue, null, timestamp, null, trialId);
     }
 
     /**
@@ -90,7 +90,7 @@ public class EditNoteDialog extends DialogFragment {
      */
     public static EditNoteDialog newInstance(Label label,
             GoosciLabelValue.LabelValue selectedValue, String timeText, long timestamp,
-            String timeTextDescription) {
+            String timeTextDescription, String trialId) {
         EditNoteDialog dialog = new EditNoteDialog();
         Bundle args = new Bundle();
         args.putParcelable(KEY_SAVED_LABEL, label);
@@ -98,6 +98,7 @@ public class EditNoteDialog extends DialogFragment {
         args.putString(KEY_SAVED_TIME_TEXT, timeText);
         args.putLong(KEY_SAVED_TIMESTAMP, timestamp);
         args.putString(KEY_SAVED_TIME_TEXT_DESCRIPTION, timeTextDescription);
+        args.putString(KEY_TRIAL_ID, trialId);
         dialog.setArguments(args);
         return dialog;
     }
@@ -112,6 +113,7 @@ public class EditNoteDialog extends DialogFragment {
         String timeTextContentDescription = getArguments().getString(
                 KEY_SAVED_TIME_TEXT_DESCRIPTION);
         mTimestamp = getArguments().getLong(KEY_SAVED_TIMESTAMP);
+        mTrialId = getArguments().getString(KEY_TRIAL_ID);
         try {
             mSelectedValue = GoosciLabelValue.LabelValue.parseFrom(
                     getArguments().getByteArray(KEY_SELECTED_VALUE));
@@ -131,26 +133,27 @@ public class EditNoteDialog extends DialogFragment {
         // Use mSelectedValue to load content, because the user may have changed the value since
         // it was stored in the label. Note that picture labels can't be edited at this time,
         // but in the future this will apply to picture labels as well.
-        if (mLabel instanceof PictureLabel) {
+        // TODO: Assuming one value type for now, but extend this to support multiple types later.
+        if (mLabel.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
             imageView.setVisibility(View.VISIBLE);
             autoTextView.setVisibility(View.GONE);
-            editText.setText(PictureLabel.getCaption(mSelectedValue));
+            editText.setText(PictureLabelValue.getCaption(mSelectedValue));
             editText.setHint(R.string.picture_note_caption_hint);
             Glide.with(getActivity())
-                    .load(PictureLabel.getFilePath(mSelectedValue))
+                    .load(PictureLabelValue.getFilePath(mSelectedValue))
                     .into(imageView);
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     PictureUtils.launchExternalViewer(getActivity(),
-                            (PictureLabel.getFilePath(mSelectedValue)));
+                            (PictureLabelValue.getFilePath(mSelectedValue)));
                 }
             });
-        } else if (mLabel instanceof TextLabel) {
+        } else if (mLabel.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
             imageView.setVisibility(View.GONE);
             autoTextView.setVisibility(View.GONE);
-            editText.setText(TextLabel.getText(mSelectedValue));
-        } else if (mLabel instanceof SensorTriggerLabel) {
+            editText.setText(TextLabelValue.getText(mSelectedValue));
+        } else if (mLabel.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
             imageView.setVisibility(View.GONE);
             autoTextView.setVisibility(View.VISIBLE);
             editText.setText(SensorTriggerLabelValue.getCustomText(mSelectedValue));
@@ -164,12 +167,17 @@ public class EditNoteDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         mLabel.setTimestamp(mTimestamp);
-                        if (mLabel instanceof  TextLabel) {
-                            ((TextLabel) mLabel).setText(editText.getText().toString());
-                        } else if (mLabel instanceof PictureLabel) {
-                            ((PictureLabel) mLabel).setCaption(editText.getText().toString());
-                        } else if (mLabel instanceof SensorTriggerLabel) {
-                            ((SensorTriggerLabel) mLabel).setCustomText(
+                        if (mLabel.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
+                            ((TextLabelValue) mLabel.getLabelValue(
+                                    GoosciLabelValue.LabelValue.TEXT)).setText(
+                                            editText.getText().toString());
+                        } else if (mLabel.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+                            ((PictureLabelValue) mLabel.getLabelValue(
+                                    GoosciLabelValue.LabelValue.PICTURE)).setCaption(
+                                            editText.getText().toString());
+                        } else if (mLabel.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
+                            ((SensorTriggerLabelValue) mLabel.getLabelValue(
+                                    GoosciLabelValue.LabelValue.SENSOR_TRIGGER)).setCustomText(
                                     editText.getText().toString());
                         }
                         getDataController().editLabel(mLabel,
@@ -200,16 +208,17 @@ public class EditNoteDialog extends DialogFragment {
                 @Override
                 public void onClick(View v) {
                     GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
-                    if (mLabel instanceof PictureLabel) {
+                    if (mLabel.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
                         // Captions can be edited, but the picture path cannot be edited at this
                         // time.
-                        PictureLabel.populateStorageValue(value,
-                                ((PictureLabel) mLabel).getFilePath(),
+                        PictureLabelValue.populateLabelValue(value,
+                                ((PictureLabelValue) mLabel.getLabelValue(
+                                        GoosciLabelValue.LabelValue.PICTURE)).getFilePath(),
                                 editText.getText().toString());
                         ((EditNoteDialogListener) getParentFragment()).onEditNoteTimestampClicked(
                                 mLabel, value, mTimestamp);
-                    } else if (mLabel instanceof TextLabel) {
-                        TextLabel.populateStorageValue(value, editText.getText().toString());
+                    } else if (mLabel.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
+                        TextLabelValue.populateLabelValue(value, editText.getText().toString());
                         ((EditNoteDialogListener) getParentFragment()).onEditNoteTimestampClicked(
                                 mLabel, value, mTimestamp);
                     }
@@ -226,7 +235,8 @@ public class EditNoteDialog extends DialogFragment {
         }
 
         AlertDialog dialog = alertDialog.create();
-        if (mLabel instanceof TextLabel || mLabel instanceof SensorTriggerLabel) {
+        if (mLabel.hasValueType(GoosciLabelValue.LabelValue.TEXT) ||
+                mLabel.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
             dialog.getWindow().setSoftInputMode(
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
@@ -238,6 +248,6 @@ public class EditNoteDialog extends DialogFragment {
     }
 
     private boolean labelBelongsToRun() {
-        return !TextUtils.equals(mLabel.getRunId(), RecordFragment.NOT_RECORDING_RUN_ID);
+        return !TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID);
     }
 }

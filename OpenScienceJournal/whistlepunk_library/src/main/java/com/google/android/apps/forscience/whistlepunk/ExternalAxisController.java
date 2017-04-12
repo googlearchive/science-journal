@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 

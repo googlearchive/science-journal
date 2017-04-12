@@ -23,11 +23,11 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MonotonicClock;
@@ -175,8 +175,8 @@ public class ChartControllerTest {
                         "startLabelId", startTimestamp),
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "endLabelId",
                         "startLabelId", endTimestamp));
-        return ExperimentRun.fromLabels(mmm.getTrial(runId, labels), experiment.getExperimentId(),
-                Collections.<ApplicationLabel>emptyList(), Collections.<Label>emptyList());
+        return ExperimentRun.fromLabels(mmm.getTrial(runId, labels, Collections.<Label>emptyList()),
+                experiment.getExperimentId(), Collections.<ApplicationLabel>emptyList());
     }
 
     private static class RecordingCallback implements ChartController.ChartDataLoadedCallback {

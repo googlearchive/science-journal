@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
@@ -113,7 +114,7 @@ public class CropHelperTest extends AndroidTestCase {
         Trial trial = Trial.fromTrial(trialProto);
 
         ExperimentRun run = ExperimentRun.fromLabels(trial, "experimentId",
-                Collections.<ApplicationLabel>emptyList(), Collections.<Label>emptyList());
+                Collections.<ApplicationLabel>emptyList());
         CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), mDataController);
         cropHelper.cropRun(null, run, -1, 10, mCropRunListener);
         assertTrue(mCropFailed);

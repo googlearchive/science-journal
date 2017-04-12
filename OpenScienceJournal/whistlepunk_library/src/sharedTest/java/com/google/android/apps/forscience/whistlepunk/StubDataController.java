@@ -19,6 +19,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
@@ -26,7 +27,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
@@ -47,7 +47,14 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void addLabel(Label label, MaybeConsumer<Label> onSuccess) {
+    public void addLabel(Label label, String experimentId, String trialId,
+            MaybeConsumer<Label> onSuccess) {
+
+    }
+
+    @Override
+    public void addExperimentLabel(Label label, String experimentId,
+            MaybeConsumer<Label> onSuccess) {
 
     }
 
@@ -201,6 +208,11 @@ public class StubDataController implements DataController {
     @Override
     public void getLabelsForExperiment(Experiment experiment,
             MaybeConsumer<List<Label>> onSuccess) {
+
+    }
+
+    @Override
+    public void getLabelsForTrial(String trialId, MaybeConsumer<List<Label>> onSuccess) {
 
     }
 

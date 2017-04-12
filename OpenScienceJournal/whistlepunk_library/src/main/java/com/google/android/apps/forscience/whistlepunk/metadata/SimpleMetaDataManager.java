@@ -34,10 +34,14 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.common.annotations.VisibleForTesting;
@@ -62,6 +66,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
     private static final int STABLE_EXPERIMENT_ID_LENGTH = 12;
     private static final int STABLE_PROJECT_ID_LENGTH = 6;
     private static final String TAG = "SimpleMetaDataManager";
+    private static final String TEXT_LABEL_TAG = "text";
+    private static final String PICTURE_LABEL_TAG = "picture";
+    private static final String SENSOR_TRIGGER_LABEL_TAG = "sensorTriggerLabel";
+    private static final String UNKNOWN_LABEL_TAG = "label";
 
     private DatabaseHelper mDbHelper;
     private Context mContext;
@@ -514,7 +522,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels) {
+    public Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels,
+            List<Label> labels) {
         List<GoosciSensorLayout.SensorLayout> sensorLayouts = new ArrayList<>();
         int runIndex = -1;
         boolean archived = false;
@@ -587,7 +596,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             trialProto.archived = archived;
             trialProto.creationTimeMs = creationTimeMs;
 
-            populateTrialProtoFromLabels(trialProto, applicationLabels);
+            populateTrialProtoFromLabels(trialProto, applicationLabels, labels);
 
             Trial result = Trial.fromTrial(trialProto);
             return result;
@@ -598,7 +607,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @VisibleForTesting
     public static void populateTrialProtoFromLabels(GoosciTrial.Trial trialProto,
-            List<ApplicationLabel> applicationLabels) {
+            List<ApplicationLabel> applicationLabels, List<Label> labels) {
         // Populate the recording and crop ranges from labels.
         trialProto.recordingRange = new GoosciTrial.Range();
         for (ApplicationLabel label : applicationLabels) {
@@ -617,6 +626,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 }
                 trialProto.cropRange.endMs = label.getTimeStamp();
             }
+        }
+        trialProto.labels = new GoosciLabel.Label[labels.size()];
+        for (int i = 0; i < labels.size(); i++) {
+            trialProto.labels[i] = labels.get(i).getLabelProto();
         }
     }
 
@@ -693,7 +706,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void deleteTrial(String runId) {
-        for (Label label : getLabelsWithStartId(runId)) {
+        for (Label label : getLabelsForTrial(runId)) {
             deleteLabel(label);
         }
         for (ApplicationLabel label : getApplicationLabelsWithStartId(runId)) {
@@ -767,18 +780,30 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public void addLabel(String experimentId, Label label) {
+    public void addLabel(String experimentId, String trialId, Label label) {
         ContentValues values = new ContentValues();
         values.put(LabelColumns.EXPERIMENT_ID, experimentId);
-        values.put(LabelColumns.TYPE, label.getTag());
+        values.put(LabelColumns.TYPE, getLabelTag(label));
         values.put(LabelColumns.TIMESTAMP, label.getTimeStamp());
         values.put(LabelColumns.LABEL_ID, label.getLabelId());
-        values.put(LabelColumns.START_LABEL_ID, label.getRunId());
-        values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(label.getValue()));
+        values.put(LabelColumns.START_LABEL_ID, trialId);
+        // The database will only ever have one label value per label, so this is OK here.
+        values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(label.getLabelProto().values[0]));
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             db.insert(Tables.LABELS, null, values);
         }
+    }
+
+    private static String getLabelTag(Label label) {
+        if (label.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
+            return TEXT_LABEL_TAG;
+        } else if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+            return PICTURE_LABEL_TAG;
+        } else if (label.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
+            return SENSOR_TRIGGER_LABEL_TAG;
+        }
+        return UNKNOWN_LABEL_TAG;
     }
 
     @Override
@@ -818,8 +843,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public List<Label> getLabelsForExperiment(Experiment experiment) {
-        final String selection = LabelColumns.EXPERIMENT_ID + "=?";
-        final String[] selectionArgs = new String[]{experiment.getExperimentId()};
+        final String selection = LabelColumns.EXPERIMENT_ID + "=? AND " +
+                LabelColumns.START_LABEL_ID + "=? and not " + LabelColumns.TYPE + "=?";;
+        final String[] selectionArgs = new String[]{experiment.getExperimentId(),
+                RecorderController.NOT_RECORDING_RUN_ID, ApplicationLabel.TAG};
         return getLabels(selection, selectionArgs);
     }
 
@@ -836,7 +863,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     if (ApplicationLabel.isTag(type)) {
                         continue;
                     }
-                    Label label;
                     // TODO: fix code smell: perhaps make a factory?
                     final String labelId = cursor.getString(LabelQuery.LABEL_ID_INDEX);
                     final String startLabelId = cursor.getString(LabelQuery.START_LABEL_ID_INDEX);
@@ -850,34 +876,31 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     } catch (InvalidProtocolBufferNanoException ex) {
                         Log.d(TAG, "Unable to parse label value");
                     }
+                    GoosciLabel.Label goosciLabel = new GoosciLabel.Label();
+                    goosciLabel.labelId = labelId;
+                    goosciLabel.timestampMs = timestamp;
+                    goosciLabel.creationTimeMs = timestamp;
                     if (value != null) {
                         // Add new types of labels to this list.
-                        if (TextLabel.isTag(type)) {
-                            label = new TextLabel(labelId, startLabelId, timestamp, value);
-                        } else if (PictureLabel.isTag(type)) {
-                            label = new PictureLabel(labelId, startLabelId, timestamp, value);
-                        } else if (SensorTriggerLabel.isTag(type)) {
-                            label = new SensorTriggerLabel(labelId, startLabelId, timestamp, value);
-                        } else {
-                            throw new IllegalStateException("Unknown label type: " + type);
-                        }
+                        goosciLabel.values = new GoosciLabelValue.LabelValue[1];
+                        goosciLabel.values[0] = value;
                     } else {
                         // Old text, picture and application labels were added when label data
                         // was stored as a string. New types of labels should not be added to this
                         // list.
                         final String data = cursor.getString(LabelQuery.DATA_INDEX);
-                        if (TextLabel.isTag(type)) {
-                            label = new TextLabel(data, labelId, startLabelId, timestamp);
-                        } else if (PictureLabel.isTag(type)) {
+                        if (TextUtils.equals(type, TEXT_LABEL_TAG)) {
+                            value = TextLabelValue.fromText(data).getValue();
+                        } else if (TextUtils.equals(type, PICTURE_LABEL_TAG)) {
                             // Early picture labels had no captions.
-                            label = new PictureLabel(data, "", labelId, startLabelId, timestamp);
+                            value = PictureLabelValue.fromPicture(data, "").getValue();
                         } else {
                             throw new IllegalStateException("Unknown label type: " + type);
                         }
+                        goosciLabel.values = new GoosciLabelValue.LabelValue[1];
+                        goosciLabel.values[0] = value;
                     }
-                    label.setTimestamp(timestamp);
-                    label.setExperimentId(cursor.getString(LabelQuery.EXPERIMENT_ID_INDEX));
-                    labels.add(label);
+                    labels.add(Label.fromLabel(goosciLabel));
                 }
             } finally {
                 if (cursor != null) {
@@ -889,9 +912,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public List<Label> getLabelsWithStartId(String startLabelId) {
-        final String selection = LabelColumns.START_LABEL_ID + "=?";
-        final String[] selectionArgs = new String[]{startLabelId};
+    public List<Label> getLabelsForTrial(String trialId) {
+        final String selection = LabelColumns.START_LABEL_ID + "=? and not " +
+                LabelColumns.TYPE + "=?";
+        final String[] selectionArgs = new String[]{trialId, ApplicationLabel.TAG};
         return getLabels(selection, selectionArgs);
     }
 
@@ -1037,7 +1061,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             final ContentValues values = new ContentValues();
-            values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(updatedLabel.getValue()));
+            values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(updatedLabel.getLabelProto()
+                    .values[0]));
             values.put(LabelColumns.TIMESTAMP, updatedLabel.getTimeStamp());
             db.update(Tables.LABELS, values, LabelColumns.LABEL_ID + "=?",
                     new String[]{updatedLabel.getLabelId()});
@@ -1058,8 +1083,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void deleteLabel(Label label) {
-        if (label instanceof PictureLabel) {
-            File file = new File(((PictureLabel) label).getAbsoluteFilePath());
+        if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+            File file = new File((
+                    (PictureLabelValue) label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE))
+                    .getAbsoluteFilePath());
             boolean deleted = file.delete();
             if (!deleted) {
                 Log.w(TAG, "Could not delete " + file.toString());
@@ -1531,7 +1558,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         String TIMESTAMP = "timestamp";
 
         /**
-         * Type of label, either {@link TextLabel#TAG} or {@link PictureLabel#TAG}
+         * Type of label, "text", "picture", "application", or "sensorTriggerLabel".
          */
         String TYPE = "type";
 
