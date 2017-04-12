@@ -268,7 +268,6 @@
     <string name="crop_run" msgid="6840335859520847482">"Crop"</string>
     <string name="add_run_note" msgid="7224091083430877994">"Add note"</string>
     <string name="add_experiment_note" msgid="3946438334341592982">"Add note"</string>
-    <string name="run_label" msgid="4240358186140342958">"Trial <xliff:g id="RUN_INDEX">%s</xliff:g>"</string>
     <string name="run_review_switch_sensor_btn_prev" msgid="193192887823025190">"previous sensor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="run_review_switch_sensor_btn_next" msgid="7804434037837088592">"next sensor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="edit_note_hint_text" msgid="1729007018652377076">"Edit trial note"</string>

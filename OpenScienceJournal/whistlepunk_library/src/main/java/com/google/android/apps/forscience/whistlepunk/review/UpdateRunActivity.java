@@ -33,7 +33,8 @@ public class UpdateRunActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             String runId = getIntent().getExtras().getString(
                     UpdateRunFragment.ARG_RUN_ID);
-            UpdateRunFragment fragment = UpdateRunFragment.newInstance(runId);
+            String experimentId = getIntent().getExtras().getString(UpdateRunFragment.ARG_EXP_ID);
+            UpdateRunFragment fragment = UpdateRunFragment.newInstance(runId, experimentId);
             fragment.setRetainInstance(true);
 
             getSupportFragmentManager().beginTransaction().add(R.id.container, fragment)

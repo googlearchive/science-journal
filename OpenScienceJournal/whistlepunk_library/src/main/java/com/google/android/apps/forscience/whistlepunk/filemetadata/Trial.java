@@ -2,7 +2,10 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 
+import com.google.android.apps.forscience.whistlepunk.ElapsedTimeAxisFormatter;
+import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
@@ -139,14 +142,13 @@ public class Trial extends LabelListHolder {
 
     public String getTitle(Context context) {
         if (TextUtils.isEmpty(mTrial.title)) {
-            // TODO: Naming depends on UX answer to b/36514241.
-            return context.getString(R.string.run_label, "");
-            /*if (mRun.getRunIndex() != -1) {
-                return context.getString(R.string.run_label,
-                        Integer.toString(mRun.getRunIndex() + 1));
-            } else {
-                return context.getString(R.string.run_label, "");
-            }*/
+            // Rounded interval, but formatted like the axis labels.
+            String elapsedTime = ElapsedTimeAxisFormatter.getInstance(context).format(
+                    elapsedSeconds() * 1000);
+            return context.getString(R.string.default_trial_title,
+                    DateUtils.formatDateTime(context, getOriginalFirstTimestamp(),
+                            DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME |
+                                    DateUtils.FORMAT_ABBREV_ALL), elapsedTime);
         } else {
             return mTrial.title;
         }
