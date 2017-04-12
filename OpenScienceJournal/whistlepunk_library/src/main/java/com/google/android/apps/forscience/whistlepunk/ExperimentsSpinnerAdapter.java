@@ -39,7 +39,7 @@ class ExperimentsSpinnerAdapter extends ArrayAdapter<Experiment> {
         if (isNewExperimentPlaceholder(position)) {
             textView.setText(R.string.new_experiment_spinner_item);
         } else {
-            textView.setText(experiment.getDisplayTitle(parent.getContext()));
+            textView.setText(experiment.getExperiment().getDisplayTitle(parent.getContext()));
         }
         return convertView;
     }

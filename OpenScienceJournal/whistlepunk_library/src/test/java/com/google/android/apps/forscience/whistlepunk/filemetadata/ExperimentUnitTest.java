@@ -47,7 +47,7 @@ public class ExperimentUnitTest {
         GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
 
         // No triggers on creation
-        Experiment experiment = new Experiment(proto, false);
+        Experiment experiment = Experiment.fromExperiment(proto, false);
         assertEquals(experiment.getSensorTriggers("sensorId"),
                 Collections.<SensorTrigger>emptyList());
 
@@ -65,7 +65,7 @@ public class ExperimentUnitTest {
         GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
 
         // No layouts on creation
-        Experiment experiment = new Experiment(proto, false);
+        Experiment experiment = Experiment.fromExperiment(proto, false);
         assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
 
         GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
@@ -81,7 +81,7 @@ public class ExperimentUnitTest {
         GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
 
         // No sensors on creation
-        Experiment experiment = new Experiment(proto, false);
+        Experiment experiment = Experiment.fromExperiment(proto, false);
         assertEquals(experiment.getExperimentSensors(), Collections.emptyList());
 
         GoosciExperiment.ExperimentSensor sensor = new GoosciExperiment.ExperimentSensor();
@@ -105,7 +105,7 @@ public class ExperimentUnitTest {
         expSensorProto.sensorId = "sensorId";
         proto.experimentSensors = new GoosciExperiment.ExperimentSensor[]{expSensorProto};
 
-        Experiment experiment = new Experiment(proto, false);
+        Experiment experiment = Experiment.fromExperiment(proto, false);
 
         // Try to get the proto *before* converting the objects into lists.
         GoosciExperiment.Experiment result = experiment.getExperimentProto();

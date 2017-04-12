@@ -474,7 +474,8 @@ public class RecorderControllerImpl implements RecorderController {
                             public void success(ApplicationLabel label) {
                                 mRecording = new RecordingMetadata(label.getTimeStamp(),
                                         label.getTrialId(),
-                                        mSelectedExperiment.getDisplayTitle(mContext));
+                                        mSelectedExperiment.getExperiment().getDisplayTitle(
+                                                mContext));
 
                                 ensureUnarchived(mSelectedExperiment, dataController);
                                 recorderService.beginServiceRecording(
@@ -552,7 +553,8 @@ public class RecorderControllerImpl implements RecorderController {
                                             recorderService.endServiceRecording(
                                                     !activityInForground, runId,
                                                     mSelectedExperiment.getExperimentId(),
-                                                    mSelectedExperiment.getDisplayTitle(mContext));
+                                                    mSelectedExperiment.getExperiment()
+                                                            .getDisplayTitle(mContext));
                                         }
                                     }
                                 };

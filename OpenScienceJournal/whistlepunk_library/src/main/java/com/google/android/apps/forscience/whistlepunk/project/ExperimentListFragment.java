@@ -252,17 +252,17 @@ public class ExperimentListFragment extends Fragment {
             holder.experimentId = experiment.getExperimentId();
 
             // Set the data we know about.
-            String experimentText = experiment.getDisplayTitle(holder.itemView.getContext());
+            String experimentText = experiment.getExperiment().getDisplayTitle(
+                    holder.itemView.getContext());
             holder.experimentTitle.setText(experimentText);
             holder.experimentImage.setImageDrawable(mPlaceHolderImage);
             // Set indeterminate states on the things we don't know.
             holder.experimentLastRun.setText("");
             holder.experimentRunTotals.setText("");
-            holder.archivedIndicator.setVisibility(experiment.isArchived() ? View.VISIBLE :
-                    View.GONE);
+            holder.archivedIndicator.setVisibility(experiment.getExperiment().isArchived() ?
+                    View.VISIBLE : View.GONE);
 
-
-            if (experiment.isArchived()) {
+            if (experiment.getExperiment().isArchived()) {
                 holder.experimentTitle.setContentDescription(res.getString(
                         R.string.archived_content_description, experimentText));
                 holder.itemView.findViewById(R.id.content).setAlpha(res.getFraction(

@@ -55,10 +55,18 @@ public class Experiment extends LabelListHolder {
         return new Experiment(proto, false);
     }
 
+    /**
+     * Populates the Experiment from an existing proto.
+     */
+    public static Experiment fromExperiment(GoosciExperiment.Experiment experiment,
+            boolean isArchived) {
+        return new Experiment(experiment, isArchived);
+    }
+
     // Archived state is set per account, so if you archive something on one device and share it
     // it will not show up as archived on another account. Therefore it is stored outside of the
     // experiment proto.
-    public Experiment(GoosciExperiment.Experiment experimentProto, boolean isArchived) {
+    private Experiment(GoosciExperiment.Experiment experimentProto, boolean isArchived) {
         mProto = experimentProto;
         mArchived = isArchived;
         mLabels = new ArrayList<>();
