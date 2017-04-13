@@ -808,8 +808,8 @@
     <!-- Experiment Details menu option to add a note to an experiment [CHAR_LIMIT=25] -->
     <string name="add_experiment_note">Add note</string>
 
-    <!-- Label for a run, which has the index inserted (i.e. "Trial 1", "Trial 2", etc) [CHAR_LIMIT=10]-->
-    <string name="run_label">Trial <xliff:g id="run_index">%s</xliff:g></string>
+    <!-- Title for a trial which doesn't have a user-set name, "Date (duration)" [CHAR_LIMIT=10]-->
+    <string name="default_trial_title"><xliff:g id="date">%1$s</xliff:g> (<xliff:g id="duration">%2$s</xliff:g>)</string>
 
     <!-- Content description for the arrow button to move to a previous sensor in RunReview [CHAR_LIMIT=none] -->
     <string name="run_review_switch_sensor_btn_prev">previous sensor: <xliff:g id="sensor_name">%s</xliff:g></string>

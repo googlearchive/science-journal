@@ -49,6 +49,8 @@ public class UpdateRunFragment extends Fragment {
      */
     public static final String ARG_RUN_ID = "run_id";
 
+    public static final String ARG_EXP_ID = "exp_id";
+
     private String mRunId;
     private ExperimentRun mExperimentRun;
     private EditText mRunTitle;
@@ -56,10 +58,11 @@ public class UpdateRunFragment extends Fragment {
     public UpdateRunFragment() {
     }
 
-    public static UpdateRunFragment newInstance(String runId) {
+    public static UpdateRunFragment newInstance(String runId, String experimentId) {
         UpdateRunFragment fragment = new UpdateRunFragment();
         Bundle args = new Bundle();
         args.putString(ARG_RUN_ID, runId);
+        args.putString(ARG_EXP_ID, experimentId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -68,8 +71,9 @@ public class UpdateRunFragment extends Fragment {
     public void onStart() {
         super.onStart();
         mRunId = getArguments().getString(ARG_RUN_ID);
+        String experimentId = getArguments().getString(ARG_EXP_ID);
 
-        getDataController().getExperimentRun(mExperimentRun.getExperimentId(), mRunId,
+        getDataController().getExperimentRun(experimentId, mRunId,
                 new LoggingConsumer<ExperimentRun>(TAG, "retrieve run") {
                     @Override
                     public void success(ExperimentRun run) {
