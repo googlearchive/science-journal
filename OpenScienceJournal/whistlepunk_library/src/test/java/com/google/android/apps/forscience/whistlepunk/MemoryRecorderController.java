@@ -69,7 +69,7 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public void startRecording(Intent resumeIntent, Project project) {
+    public void startRecording(Intent resumeIntent) {
 
     }
 

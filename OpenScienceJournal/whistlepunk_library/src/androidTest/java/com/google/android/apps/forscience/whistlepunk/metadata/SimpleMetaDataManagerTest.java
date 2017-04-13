@@ -85,67 +85,14 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         getContext().getDatabasePath("test.main.db").delete();
     }
 
-    public void testNewProject() {
-        Project project = mMetaDataManager.newProject();
-        assertNotNull(project);
-        assertFalse(TextUtils.isEmpty(project.getProjectId()));
-        assertNotSame(project.getId(), -1);
-
-        List<Project> projects = mMetaDataManager.getProjects(10, false);
-        boolean found = false;
-        for (Project retrievedProject : projects) {
-            if (retrievedProject.getProjectId().equals(project.getProjectId())) {
-                found = true;
-                break;
-            }
-        }
-        assertTrue("New project not found in list of retrieved projects", found);
-
-        // Delete to clean up the DB.
-        mMetaDataManager.deleteProject(project);
-
-        projects = mMetaDataManager.getProjects(10, false);
-        found = false;
-        for (Project retrievedProject : projects) {
-            if (retrievedProject.getProjectId().equals(project.getProjectId())) {
-                found = true;
-                break;
-            }
-        }
-        assertFalse("Project was not deleted", found);
-    }
-
-    public void testUpdateProject() {
-        Project project = mMetaDataManager.newProject();
-        project.setTitle("My title");
-        project.setDescription("My description");
-        project.setCoverPhoto("file://testcoverphoto");
-
-        mMetaDataManager.updateProject(project);
-
-        Project retrievedProject = mMetaDataManager.getProjectById(project.getProjectId());
-
-        assertNotNull(retrievedProject);
-        assertEquals("My title", retrievedProject.getTitle());
-        assertEquals("My description", retrievedProject.getDescription());
-        assertEquals("file://testcoverphoto", retrievedProject.getCoverPhoto());
-
-        retrievedProject.setArchived(true);
-        mMetaDataManager.updateProject(retrievedProject);
-        Project archivedProject = mMetaDataManager.getProjectById(project.getProjectId());
-
-        assertTrue(archivedProject.isArchived());
-    }
-
     public void testNewExperiment() {
-        Project project = mMetaDataManager.newProject();
-        Experiment experiment = mMetaDataManager.newExperiment(project);
+        Experiment experiment = mMetaDataManager.newExperiment();
         assertNotNull(experiment);
         assertFalse(TextUtils.isEmpty(experiment.getExperimentId()));
         assertNotSame(experiment.getId(), -1);
         assertTrue(experiment.getTimestamp() > 0);
 
-        List<Experiment> experiments = mMetaDataManager.getExperimentsForProject(project, false);
+        List<Experiment> experiments = mMetaDataManager.getExperiments(false);
         assertEquals(1, experiments.size());
         assertEquals(experiment.getExperimentId(), experiments.get(0).getExperimentId());
         assertTrue(experiments.get(0).getTimestamp() > 0);
@@ -154,22 +101,15 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         int count = 10;
         // Start at 1, we already added one.
         for (int index = 1; index < count; index++) {
-            mMetaDataManager.newExperiment(project);
+            mMetaDataManager.newExperiment();
         }
 
-        experiments = mMetaDataManager.getExperimentsForProject(project, false);
+        experiments = mMetaDataManager.getExperiments(false);
         assertEquals(count, experiments.size());
-
-        mMetaDataManager.deleteProject(project);
-
-        // Test that experiments were deleted.
-        experiments = mMetaDataManager.getExperimentsForProject(project, false);
-        assertEquals(0, experiments.size());
     }
 
     public void testUpdateExperiment() {
-        Project project = mMetaDataManager.newProject();
-        Experiment experiment = mMetaDataManager.newExperiment(project);
+        Experiment experiment = mMetaDataManager.newExperiment();
 
         experiment.setTitle("new title");
         experiment.setDescription("my description");
@@ -185,8 +125,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testArchiveExperiment() {
-        Project project = mMetaDataManager.newProject();
-        Experiment experiment = mMetaDataManager.newExperiment(project);
+        Experiment experiment = mMetaDataManager.newExperiment();
 
         experiment.setTitle("new title");
         experiment.setDescription("my description");
@@ -194,25 +133,24 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         experiment.setArchived(false);
         mMetaDataManager.updateExperiment(experiment);
 
-        List<Experiment> experiments = mMetaDataManager.getExperimentsForProject(project, false);
+        List<Experiment> experiments = mMetaDataManager.getExperiments(false);
         assertEquals(1, experiments.size());
         assertEquals(experiment.getExperimentId(), experiments.get(0).getExperimentId());
 
         // Now archive this.
         experiment.setArchived(true);
         mMetaDataManager.updateExperiment(experiment);
-        experiments = mMetaDataManager.getExperimentsForProject(project, false);
+        experiments = mMetaDataManager.getExperiments(false);
         assertEquals(0, experiments.size());
 
         // Now search include archived experiments
-        experiments = mMetaDataManager.getExperimentsForProject(project, true);
+        experiments = mMetaDataManager.getExperiments(true);
         assertEquals(1, experiments.size());
         assertEquals(experiment.getExperimentId(), experiments.get(0).getExperimentId());
     }
 
     public void testNewLabel() {
-        Project project = mMetaDataManager.newProject();
-        Experiment experiment = mMetaDataManager.newExperiment(project);
+        Experiment experiment = mMetaDataManager.newExperiment();
 
         String testLabelString = "test label";
         Label textLabel = Label.newLabelWithValue(1, TextLabelValue.fromText(testLabelString));
@@ -259,19 +197,10 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         }
         assertTrue("Text label was not saved.", foundText);
         assertTrue("Picture label was not saved.", foundPicture);
-
-        // Test that labels get deleted.
-        mMetaDataManager.deleteProject(project);
-        labels = mMetaDataManager.getLabelsForExperiment(experiment);
-        assertEquals(0, labels.size());
-
-        // Test that the picture file got deleted.
-        assertFalse(tmpFile.exists());
     }
 
     public void testLabelsWithStartId() {
-        Project project = mMetaDataManager.newProject();
-        Experiment experiment = mMetaDataManager.newExperiment(project);
+        Experiment experiment = mMetaDataManager.newExperiment();
         final Label before = Label.newLabel(1);
         final Label during1 = Label.newLabel(2);
         final Label during2 = Label.newLabel(3);
@@ -292,8 +221,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testExperimentStartIds() {
-        Project project = mMetaDataManager.newProject();
-        Experiment experiment = mMetaDataManager.newExperiment(project);
+        Experiment experiment = mMetaDataManager.newExperiment();
         ApplicationLabel startId1 = new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START,
                 "startId1", "startId1", 0);
         ApplicationLabel stopId1 = new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP,
@@ -449,8 +377,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         Map<String, ExternalSensorProvider> providerMap = getProviderMap();
         String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
-        Project project = mMetaDataManager.newProject();
-        Experiment experiment = mMetaDataManager.newExperiment(project);
+        Experiment experiment = mMetaDataManager.newExperiment();
 
         mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
@@ -475,8 +402,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         Map<String, ExternalSensorProvider> providerMap = getProviderMap();
         String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
-        Project project = mMetaDataManager.newProject();
-        Experiment experiment = mMetaDataManager.newExperiment(project);
+        Experiment experiment = mMetaDataManager.newExperiment();
 
         mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
@@ -487,33 +413,6 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(databaseTag, sensors.keySet().iterator().next());
 
         mMetaDataManager.removeExternalSensor(databaseTag);
-
-        // This should be gone now.
-        sensors = ConnectableSensor.makeMap(
-                mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
-                        providerMap));
-        assertEquals(0, sensors.size());
-    }
-
-    public void testRemoveExternalSensorWithProject() {
-        String testAddress = "11:22:33:44:55";
-        String testName = "testName";
-        BleSensorSpec sensor = new BleSensorSpec(testAddress, testName);
-        Map<String, ExternalSensorProvider> providerMap = getProviderMap();
-        String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
-
-        Project project = mMetaDataManager.newProject();
-        Experiment experiment = mMetaDataManager.newExperiment(project);
-
-        mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
-
-        Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
-                mMetaDataManager.getExperimentExternalSensors(
-                        experiment.getExperimentId(), providerMap));
-        assertEquals(1, sensors.size());
-        assertEquals(databaseTag, sensors.keySet().iterator().next());
-
-        mMetaDataManager.deleteProject(project);
 
         // This should be gone now.
         sensors = ConnectableSensor.makeMap(
@@ -540,8 +439,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testRunStorage() {
-        Project project = mMetaDataManager.newProject();
-        Experiment experiment = mMetaDataManager.newExperiment(project);
+        Experiment experiment = mMetaDataManager.newExperiment();
         final ApplicationLabel startLabel = newStartLabel("startId", 1);
         GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
         layout1.sensorId = "sensor1";
@@ -576,8 +474,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testExperimentDelete() {
-        Project project = mMetaDataManager.newProject();
-        Experiment experiment = mMetaDataManager.newExperiment(project);
+        Experiment experiment = mMetaDataManager.newExperiment();
         final ApplicationLabel startLabel = newStartLabel("startId", 1);
         GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
         layout1.sensorId = "sensor1";
@@ -599,31 +496,6 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         // Test that sensor layouts are gone.
         assertEquals(0, mMetaDataManager.getExperimentSensorLayouts(experiment.getExperimentId())
                 .size());
-    }
-
-    public void testProjectDelete() {
-        Project project = mMetaDataManager.newProject();
-        Experiment experiment = mMetaDataManager.newExperiment(project);
-        final ApplicationLabel startLabel = newStartLabel("startId", 1);
-        GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
-        layout1.sensorId = "sensor1";
-        GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
-        layout2.sensorId = "sensor2";
-        final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
-                Lists.newArrayList(layout1, layout2);
-        mMetaDataManager.addApplicationLabel(experiment.getExperimentId(), startLabel);
-        Trial saved = mMetaDataManager.newTrial(experiment, startLabel.getTrialId(),
-                startLabel.getTimeStamp(), sensorLayouts);
-
-        mMetaDataManager.deleteProject(project);
-
-        assertNull(mMetaDataManager.getProjectById(project.getProjectId()));
-
-        // Test that experiments and runs are deleted when deleting projects.
-        assertNull(mMetaDataManager.getExperimentById(experiment.getExperimentId()));
-        assertNull(mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel),
-                Collections.<Label>emptyList()));
-        assertEquals(0, mMetaDataManager.getLabelsForTrial(startLabel.getLabelId()).size());
     }
 
     public void testExperimentSensorLayout() {

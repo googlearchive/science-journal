@@ -41,12 +41,11 @@ import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
+import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.project.ProjectDetailsActivity;
-import com.google.android.apps.forscience.whistlepunk.project.ProjectDetailsFragment;
 
 /**
  * Fragment for saving/updating experiment detials (title, description...etc).
@@ -284,10 +283,12 @@ public class UpdateExperimentFragment extends Fragment {
                 if (mParentComponent != null) {
                     goToParent();
                 } else if (getActivity() != null) {
-                    // Go back to the project details page
-                    Intent intent = new Intent(getActivity(), ProjectDetailsActivity.class);
-                    intent.putExtra(ProjectDetailsFragment.ARG_PROJECT_ID,
-                            mExperiment.getProjectId());
+                    // Go back to the experiment list page
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                    intent.putExtra(MainActivity.ARG_SELECTED_NAV_ITEM_ID,
+                            R.id.navigation_item_experiments);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP |
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     NavUtils.navigateUpTo(getActivity(), intent);
                 } else {
                     Log.e(TAG, "Can't exit activity because it's no longer there.");

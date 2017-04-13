@@ -22,7 +22,6 @@ import android.support.annotation.IntDef;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
@@ -89,7 +88,7 @@ public interface RecorderController extends SensorRegistryListener {
      * @param resumeIntent this must be distinct from any other active Intent, as defined by
      *                     {@link Intent#filterEquals(Intent)}
      */
-    void startRecording(Intent resumeIntent, Project project);
+    void startRecording(Intent resumeIntent);
 
     void stopRecording();
 

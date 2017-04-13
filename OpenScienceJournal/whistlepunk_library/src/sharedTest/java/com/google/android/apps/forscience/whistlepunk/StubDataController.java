@@ -88,7 +88,7 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void createExperiment(Project project, MaybeConsumer<Experiment> onSuccess) {
+    public void createExperiment(MaybeConsumer<Experiment> onSuccess) {
 
     }
 
@@ -120,27 +120,6 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void createProject(MaybeConsumer<Project> onSuccess) {
-
-    }
-
-    @Override
-    public void updateProject(Project project, MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void deleteProject(Project project, MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void getProjects(int maxNumber, boolean includeArchived,
-            MaybeConsumer<List<Project>> onSuccess) {
-
-    }
-
-    @Override
     public void editLabel(Label updatedLabel, MaybeConsumer<Success> onSuccess) {
 
     }
@@ -162,18 +141,7 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void getLastUsedProject(MaybeConsumer<Project> onSuccess) {
-
-    }
-
-    @Override
-    public void getExperimentsForProject(Project project, boolean includeArchived,
-            MaybeConsumer<List<Experiment>> onSuccess) {
-
-    }
-
-    @Override
-    public void getProjectById(String projectId, MaybeConsumer<Project> onSuccess) {
+    public void getExperiments(boolean includeArchived, MaybeConsumer<List<Experiment>> onSuccess) {
 
     }
 

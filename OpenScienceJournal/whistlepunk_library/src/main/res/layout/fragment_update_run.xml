@@ -19,9 +19,9 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:paddingLeft="@dimen/update_project_horizontal_padding"
-              android:paddingRight="@dimen/update_project_horizontal_padding"
-              android:paddingTop="@dimen/update_project_vertical_padding"
+              android:paddingLeft="@dimen/update_metadata_horizontal_padding"
+              android:paddingRight="@dimen/update_metadata_horizontal_padding"
+              android:paddingTop="@dimen/update_metadata_vertical_padding"
               tools:context="com.google.android.apps.forscience.whistlepunk.review.UpdateRunActivity">
 
     <android.support.design.widget.TextInputLayout

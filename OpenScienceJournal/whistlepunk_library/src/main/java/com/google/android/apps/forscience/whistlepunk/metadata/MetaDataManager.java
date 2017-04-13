@@ -31,37 +31,12 @@ import java.util.Map;
  */
 public interface MetaDataManager {
 
-    /**
-     * @return the project with matching projectId
-     */
-    Project getProjectById(String projectId);
-
-    /**
-     * @return the list of saved projects
-     */
-    List<Project> getProjects(int maxNumber, boolean archived);
-
-    /**
-     * @return a new project with a random ID.
-     */
-    Project newProject();
-
-    /**
-     * Updates project data.
-     */
-    void updateProject(Project project);
-
-    /**
-     * Removes a project, all its associated experiments and labels.
-     */
-    void deleteProject(Project project);
-
     Experiment getExperimentById(String experimentId);
 
     /**
-     * Creates a new experiment for a given project.
+     * Creates a new experiment.
      */
-    Experiment newExperiment(Project project);
+    Experiment newExperiment();
 
     /**
      * Deletes the experiment and any associated runs and labels.
@@ -74,9 +49,9 @@ public interface MetaDataManager {
     void updateExperiment(Experiment experiment);
 
     /**
-     * @return the list of experiments for a given project.
+     * @return the list of all experiments.
      */
-    List<Experiment> getExperimentsForProject(Project project, boolean includeArchived);
+    List<Experiment> getExperiments(boolean includeArchived);
 
     /**
      * Saves label to storage for the given experiment ID.
@@ -176,13 +151,6 @@ public interface MetaDataManager {
      * @returns Last used experiment.
      */
     Experiment getLastUsedExperiment();
-
-    /**
-     * @returns Last used project.
-     */
-    Project getLastUsedProject();
-
-    void updateLastUsedProject(Project project);
 
     void updateLastUsedExperiment(Experiment experiment);
 

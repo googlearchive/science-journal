@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="@dimen/update_project_vertical_padding"
+        android:paddingTop="@dimen/update_metadata_vertical_padding"
         >
 
         <TextView

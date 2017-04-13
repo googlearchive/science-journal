@@ -31,7 +31,6 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
@@ -179,7 +178,6 @@ public class ProxyRecorderControllerTest {
         RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
         RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
-        Project project = new Project(14159);
         Experiment experiment = new Experiment(1618);
         experiment.setTitle("experimentName");
         rc.setSelectedExperiment(experiment);
@@ -194,7 +192,7 @@ public class ProxyRecorderControllerTest {
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
 
         assertFalse(stateListener.recentIsRecording);
-        rc.startRecording(null, project);
+        rc.startRecording(null);
         assertTrue(stateListener.recentIsRecording);
 
         rc.forceHasData("id1", true);
@@ -203,7 +201,7 @@ public class ProxyRecorderControllerTest {
         assertFalse(stateListener.recentIsRecording);
         prc.removeRecordingStateListener("listenerId");
         assertFalse(stateListener.recentIsRecording);
-        rc.startRecording(null, project);
+        rc.startRecording(null);
         // Still false, because we've stopped listening
         assertFalse(stateListener.recentIsRecording);
         rc.stopRecording();
@@ -219,7 +217,6 @@ public class ProxyRecorderControllerTest {
         RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
         RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
-        Project project = new Project(14159);
         Experiment experiment = new Experiment(1618);
         experiment.setTitle("experimentName");
         rc.setSelectedExperiment(experiment);
@@ -231,15 +228,15 @@ public class ProxyRecorderControllerTest {
 
         // Not connected - no data
         assertFalse(stateListener.recentIsRecording);
-        rc.startRecording(null, project);
+        rc.startRecording(null);
         assertFalse(stateListener.recentIsRecording);
 
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTING);
-        rc.startRecording(null, project);
+        rc.startRecording(null);
         assertFalse(stateListener.recentIsRecording);
 
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
-        rc.startRecording(null, project);
+        rc.startRecording(null);
         assertTrue(stateListener.recentIsRecording);
     }
 
@@ -248,7 +245,6 @@ public class ProxyRecorderControllerTest {
         RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
         RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
-        Project project = new Project(14159);
         Experiment experiment = new Experiment(1618);
         experiment.setTitle("experimentName");
         rc.setSelectedExperiment(experiment);
@@ -259,7 +255,7 @@ public class ProxyRecorderControllerTest {
                 BLANK_OPTIONS);
 
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
-        rc.startRecording(null, project);
+        rc.startRecording(null);
 
         // No data yet -- stop recording should not actually stop
         rc.stopRecording();
@@ -271,7 +267,7 @@ public class ProxyRecorderControllerTest {
 
         // This time we will disconnect during recording, and stopRecording should also fail.
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
-        rc.startRecording(null, project);
+        rc.startRecording(null);
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_DISCONNECTED);
         assertTrue(stateListener.recentIsRecording);
 
@@ -306,8 +302,7 @@ public class ProxyRecorderControllerTest {
         }
 
         @Override
-        void ensureUnarchived(Experiment experiment, Project project,
-                DataController dc) {
+        void ensureUnarchived(Experiment experiment, DataController dc) {
             // do nothing
         }
 

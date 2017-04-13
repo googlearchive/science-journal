@@ -70,6 +70,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     private static final String PICTURE_LABEL_TAG = "picture";
     private static final String SENSOR_TRIGGER_LABEL_TAG = "sensorTriggerLabel";
     private static final String UNKNOWN_LABEL_TAG = "label";
+    public static final String DEFAULT_PROJECT_ID = "defaultProjectId";
 
     private DatabaseHelper mDbHelper;
     private Context mContext;
@@ -82,7 +83,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     /**
      * List of table names. NOTE: when adding a new table, make sure to delete the metadata in the
-     * appropriate delete calls: {@link #deleteProject(Project)},
+     * appropriate delete calls:
      * {@link #deleteExperiment(Experiment)}, {@link #deleteLabel(Label)},
      * {@link #deleteTrial(String)}, {@link #deleteSensorTrigger(SensorTrigger)}, etc.
      */
@@ -110,8 +111,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         mClock = clock;
     }
 
-    @Override
-    public Project getProjectById(String projectId) {
+    // TODO: this function may be used when upgrading the database to delete projects.
+    private Project getProjectById(String projectId) {
         Project project;
 
         synchronized (mLock) {
@@ -148,8 +149,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return project;
     }
 
-    @Override
-    public List<Project> getProjects(int maxNumber, boolean includeArchived) {
+    // TODO: this function may be used when upgrading the database to delete projects.
+    private List<Project> getProjects(int maxNumber, boolean includeArchived) {
         List<Project> projects = new ArrayList<Project>();
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -181,61 +182,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public Project newProject() {
-        String projectId = newStableId(STABLE_PROJECT_ID_LENGTH);
-        ContentValues values = new ContentValues();
-        values.put(ProjectColumns.PROJECT_ID, projectId);
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            long id = db.insert(Tables.PROJECTS, null, values);
-            if (id != -1) {
-                Project project = new Project(id);
-                project.setProjectId(projectId);
-                return project;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void updateProject(Project project) {
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            final ContentValues values = new ContentValues();
-            values.put(ProjectColumns.TITLE, project.getTitle());
-            values.put(ProjectColumns.DESCRIPTION, project.getDescription());
-            values.put(ProjectColumns.COVER_PHOTO, project.getCoverPhoto());
-            values.put(ProjectColumns.ARCHIVED, project.isArchived());
-            values.put(ProjectColumns.LAST_USED_TIME, project.getLastUsedTime());
-            db.update(Tables.PROJECTS, values, ProjectColumns.PROJECT_ID + "=?",
-                    new String[]{project.getProjectId()});
-        }
-    }
-
-    @Override
-    public void deleteProject(Project project) {
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            List<Experiment> experiments = getExperimentsForProject(project, true);
-            db.beginTransaction();
-            try {
-                // Delete each experiment.
-                for (Experiment experiment : experiments) {
-                    deleteExperiment(experiment);
-                }
-
-                // Delete the project.
-                db.delete(Tables.PROJECTS, ProjectColumns.PROJECT_ID + "=?",
-                        new String[]{project.getProjectId()});
-
-                db.setTransactionSuccessful();
-            } finally {
-                db.endTransaction();
-            }
-        }
-    }
-
-    @Override
     public Experiment getExperimentById(String experimentId) {
         Experiment experiment;
 
@@ -262,11 +208,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public Experiment newExperiment(Project project) {
+    public Experiment newExperiment() {
         String experimentId = newStableId(STABLE_EXPERIMENT_ID_LENGTH);
         ContentValues values = new ContentValues();
         values.put(ExperimentColumns.EXPERIMENT_ID, experimentId);
-        values.put(ExperimentColumns.PROJECT_ID, project.getProjectId());
+        values.put(ExperimentColumns.PROJECT_ID, DEFAULT_PROJECT_ID);
         values.put(ExperimentColumns.TIMESTAMP, getCurrentTime());
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -274,7 +220,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             if (id != -1) {
                 Experiment experiment = new Experiment(id);
                 experiment.setExperimentId(experimentId);
-                experiment.setProjectId(project.getProjectId());
+                experiment.setProjectId(DEFAULT_PROJECT_ID);
                 experiment.setTimestamp(getCurrentTime());
                 return experiment;
             }
@@ -324,20 +270,19 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public List<Experiment> getExperimentsForProject(Project project, boolean includeArchived) {
-        List<Experiment> experiments = new ArrayList<Experiment>();
+    public List<Experiment> getExperiments(boolean includeArchived) {
+        List<Experiment> experiments = new ArrayList<>();
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
-            String selection = ExperimentColumns.PROJECT_ID + "=?";
+            String selection = "";
             if (!includeArchived) {
-                selection += " AND " + ExperimentColumns.ARCHIVED + "=0";
+                selection = ExperimentColumns.ARCHIVED + "=0";
             }
-            String[] selectionArgs = new String[]{project.getProjectId()};
             Cursor cursor = null;
             try {
                 cursor = db.query(Tables.EXPERIMENTS, ExperimentColumns.GET_COLUMNS, selection,
-                        selectionArgs, null, null,
+                        null, null, null,
                         ExperimentColumns.LAST_USED_TIME + " DESC, " + BaseColumns._ID + " DESC");
                 while (cursor.moveToNext()) {
                     experiments.add(createExperimentFromCursor(cursor));
@@ -394,13 +339,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
         updateExperiment(experiment);
         // Also update the project ID's last used time.
         updateLastUsedProject(experiment.getProjectId(), time);
-    }
-
-    @Override
-    public void updateLastUsedProject(Project project) {
-        long time = getCurrentTime();
-        updateLastUsedProject(project.getProjectId(), time);
-        project.setLastUsedTime(time);
     }
 
     private void updateLastUsedProject(String projectId, long time) {
@@ -753,30 +691,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
             db.insert(Tables.EXTERNAL_SENSORS, null, values);
         }
         return sensorId;
-    }
-
-    @Override
-    public Project getLastUsedProject() {
-        Project project = null;
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            Cursor cursor = null;
-            try {
-                cursor = db.query(
-                        Tables.PROJECTS, ProjectColumns.GET_COLUMNS, null, null, null, null,
-                        ProjectColumns.LAST_USED_TIME + " DESC, " + BaseColumns._ID + " DESC",
-                        "1");
-                if (cursor.moveToNext()) {
-                    project = createProjectFromCursor(cursor);
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }
-        }
-
-        return project;
     }
 
     @Override

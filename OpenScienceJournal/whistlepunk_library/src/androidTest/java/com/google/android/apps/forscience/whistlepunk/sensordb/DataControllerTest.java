@@ -27,21 +27,17 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
-import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
-import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.Project;
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -242,23 +238,5 @@ public class DataControllerTest extends AndroidTestCase {
         clock.increment();
         String fourthLabelId = dc.generateNewLabelId();
         assertNotSame(thirdLabelId, fourthLabelId);
-    }
-
-    public void testDeleteProjectDeletesExperiments() {
-        final DataController dc = makeSimpleController();
-
-        StoringConsumer<Project> cp = new StoringConsumer<>();
-        dc.createProject(cp);
-        Project p = cp.getValue();
-
-        StoringConsumer<Experiment> onSuccess = new StoringConsumer<>();
-        dc.createExperiment(p, onSuccess);
-
-        dc.deleteProject(p, TestConsumers.<Success>expectingSuccess());
-
-        // Shouldn't be any experiments left
-        StoringConsumer<List<Experiment>> cExperiments = new StoringConsumer<>();
-        dc.getExperimentsForProject(p, true, cExperiments);
-        assertEquals(0, cExperiments.getValue().size());
     }
 }

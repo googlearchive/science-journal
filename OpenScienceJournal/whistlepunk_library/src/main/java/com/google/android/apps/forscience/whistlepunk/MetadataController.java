@@ -26,23 +26,20 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Handles which project and experiment are currently loaded and selected.
+ * Handles which experiment is currently loaded and selected.
  */
 public class MetadataController {
     private static final String TAG = "MetadataController";
     private final DataController mDataController;
     private FailureListenerFactory mListenerFactory;
     private Experiment mSelectedExperiment = null;
-    private Project mSelectedProject = null;
     private Map<String, MetadataChangeListener> mExperimentChangeListeners = new ArrayMap<>();
 
     public MetadataController(DataController dataController,
@@ -63,10 +60,8 @@ public class MetadataController {
         if (!TextUtils.equals(Experiment.getExperimentId(experiment),
                 Experiment.getExperimentId(mSelectedExperiment))) {
             internalSetSelectedExperiment(experiment);
-            if (mSelectedProject != null) {
-                // Re-order experiments
-                loadExperiments(mSelectedProject);
-            }
+            // Re-order experiments
+            loadExperiments();
         }
     }
 
@@ -91,65 +86,41 @@ public class MetadataController {
     public void addExperimentChangeListener(String listenerKey, MetadataChangeListener listener) {
         mExperimentChangeListeners.put(listenerKey, listener);
         mSelectedExperiment = null;
-        getDataController().getLastUsedProject(
-                doOrReportFailure("Loading last used project", new Consumer<Project>() {
-                    @Override
-                    public void take(final Project project) {
-                        if (project == null) {
-                            createDefaultProjectAndExperiment();
-                        } else {
-                            // Now get the experiments.
-                            loadExperiments(project);
-                        }
-                    }
-                }));
+        loadExperiments();
     }
 
-    private void loadExperiments(final Project project) {
-        Preconditions.checkNotNull(project);
-        getDataController().getExperimentsForProject(project,
-                false /* no archived */,
+    private void loadExperiments() {
+        getDataController().getExperiments(false /* no archived */,
                 doOrReportFailure("get last used experiment", new Consumer<List<Experiment>>() {
                     @Override
                     public void take(final List<Experiment> experiments) {
                         if (experiments.size() == 0) {
-                            createExperimentInProject(project);
+                            createExperiment();
                         } else {
-                            setMetadata(experiments, project);
+                            setMetadata(experiments);
                         }
                     }
                 }));
     }
 
-    private void setMetadata(List<Experiment> experiments, Project project) {
-        mSelectedProject = project;
+    private void setMetadata(List<Experiment> experiments) {
         // We retrieve the experiments in last used order.
         internalSetSelectedExperiment(experiments.get(0));
         ArrayList<Experiment> experimentsCopy = new ArrayList<>(experiments);
         for (MetadataChangeListener listener : mExperimentChangeListeners.values()) {
-            listener.onMetadataChanged(project, experimentsCopy);
+            listener.onMetadataChanged(experimentsCopy);
         }
     }
 
-    private void createDefaultProjectAndExperiment() {
-        getDataController().createProject(
-                doOrReportFailure("Creating default project", new Consumer<Project>() {
-                    @Override
-                    public void take(Project project) {
-                        createExperimentInProject(project);
-                    }
-                }));
-    }
-
-    private void createExperimentInProject(final Project project) {
-        getDataController().createExperiment(project,
-                doOrReportFailure("Creating default experiment", new Consumer<Experiment>() {
+    private void createExperiment() {
+        getDataController().createExperiment(doOrReportFailure(
+                "Creating default experiment", new Consumer<Experiment>() {
                     @Override
                     public void take(Experiment value) {
                         internalSetSelectedExperiment(value);
                         List<Experiment> experiments = new ArrayList<Experiment>();
                         experiments.add(value);
-                        setMetadata(experiments, project);
+                        setMetadata(experiments);
                     }
                 }));
     }
@@ -183,11 +154,10 @@ public class MetadataController {
 
     interface MetadataChangeListener {
         /**
-         * @param newProject     The new selected project
          * @param newExperiments The experiments for this project.  The selected experiment is
          *                       the first in the list, which is guaranteed to be non-empty.
          */
-        public void onMetadataChanged(Project newProject, List<Experiment> newExperiments);
+        public void onMetadataChanged(List<Experiment> newExperiments);
     }
 
     /**

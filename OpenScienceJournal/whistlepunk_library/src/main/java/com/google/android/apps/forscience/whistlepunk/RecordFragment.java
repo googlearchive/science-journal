@@ -62,7 +62,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
@@ -112,7 +111,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         public UICallbacks NULL = new UICallbacks() {
             @Override
             public void onSelectedExperimentChanged(Experiment selectedExperiment,
-                    Project containingProject, List<Experiment> allExperimentsInProject) {
+                    List<Experiment> allExperiments) {
 
             }
 
@@ -141,12 +140,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
          * Called when an experiment is selected
          *
          * @param selectedExperiment the experiment that has been selected
-         * @param containingProject the project that contains that experiment
-         * @param allExperimentsInProject all of the experiments in the project, including the
+         * @param allExperiments all of the experiments, including the
          *                                selected one.
          */
-        void onSelectedExperimentChanged(Experiment selectedExperiment, Project containingProject,
-                List<Experiment> allExperimentsInProject);
+        void onSelectedExperimentChanged(Experiment selectedExperiment,
+                List<Experiment> allExperiments);
 
         /**
          * Called when recording starts
@@ -199,7 +197,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     // Stores the rect of the panel.
     private Rect mPanelRect = new Rect();
 
-    private Project mSelectedProject;
     private Experiment mSelectedExperiment;
     private boolean mSensorLayoutsLoaded;
 
@@ -475,15 +472,13 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 getMetadataController().addExperimentChangeListener(TAG,
                         new MetadataController.MetadataChangeListener() {
                             @Override
-                            public void onMetadataChanged(Project newProject,
-                                    List<Experiment> newExperiments) {
-                                mSelectedProject = newProject;
+                            public void onMetadataChanged(List<Experiment> newExperiments) {
                                 if (!readSensorsFromExtras(rc)) {
                                     // By spec, newExperiments should always be non-zero
                                     onSelectedExperimentChanged(newExperiments.get(0), rc);
                                 }
                                 mUICallbacks.onSelectedExperimentChanged(mSelectedExperiment,
-                                        newProject, newExperiments);
+                                        newExperiments);
 
                                 // The recording UI shows the current experiment in the toolbar,
                                 // so it cannot be set up until experiments are loaded.
@@ -1121,7 +1116,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private void processAddedLabel(Label label) {
         refreshLabels();
-        ensureUnarchived(mSelectedExperiment, mSelectedProject, getDataController());
+        ensureUnarchived(mSelectedExperiment, getDataController());
         playAddNoteAnimation();
         // Trigger labels are logged in RecorderControllerImpl.
         if (!(label.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER))) {
@@ -1297,7 +1292,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void tryStartRecording(final RecorderController rc) {
-        if (mSelectedExperiment == null || mSelectedProject == null) {
+        if (mSelectedExperiment == null) {
             return;
         }
 
@@ -1308,7 +1303,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         mLaunchIntent.setData(
                 Uri.fromParts("observe", "experiment=" + mSelectedExperiment.getExperimentId(),
                         null));
-        rc.startRecording(mLaunchIntent, mSelectedProject);
+        rc.startRecording(mLaunchIntent);
     }
 
     private void failedStartRecording(int stringId) {
@@ -1623,31 +1618,15 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     /**
-     * Ensures that the project and experiment are unarchived, in case we make a new run or label
-     * on them.
+     * Ensures that the experiment is unarchived, in case we make a new run or label.
+     * TODO: Find a different home than RecordFragment.
      */
-    public static void ensureUnarchived(Experiment experiment, Project project, DataController dc) {
+    public static void ensureUnarchived(Experiment experiment, DataController dc) {
         if (experiment != null) {
             if (experiment.isArchived()) {
                 experiment.setArchived(false);
                 dc.updateExperiment(experiment,
                         LoggingConsumer.<Success>expectSuccess(TAG, "Unarchiving experiment"));
-            }
-            if (project != null) {
-                if (experiment.getProjectId().equals(project.getProjectId())) {
-                    // Make sure we have the right project.
-                    if (project.isArchived()) {
-                        project.setArchived(false);
-                        dc.updateProject(project,
-                                LoggingConsumer.<Success>expectSuccess(TAG, "Unarchiving project"));
-                    }
-                } else {
-                    throw new IllegalStateException("Selected project "
-                            + project.getProjectId()
-                            + " is not the right parent of selected experiment "
-                            + experiment.getExperimentId()
-                            + " (should be " + experiment.getProjectId() + ")");
-                }
             }
         }
     }

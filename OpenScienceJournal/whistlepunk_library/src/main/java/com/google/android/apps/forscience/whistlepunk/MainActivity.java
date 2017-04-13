@@ -47,8 +47,7 @@ import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.intro.TutorialActivity;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
-import com.google.android.apps.forscience.whistlepunk.project.ProjectTabsFragment;
+import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
@@ -132,7 +131,7 @@ public class MainActivity extends AppCompatActivity
         mRecordingStateListener = new RecorderController.RecordingStateListener() {
             @Override
             public void onRecordingStateChanged(RecordingMetadata recording) {
-                mNavigationView.getMenu().findItem(R.id.navigation_item_projects).setEnabled(
+                mNavigationView.getMenu().findItem(R.id.navigation_item_experiments).setEnabled(
                         recording == null);
                 mIsRecording = recording != null;
                 exitMetadataIfNeeded();
@@ -156,7 +155,7 @@ public class MainActivity extends AppCompatActivity
 
     private void exitMetadataIfNeeded() {
         if (mIsRecording) {
-            if (mSelectedItemId == R.id.navigation_item_projects) {
+            if (mSelectedItemId == R.id.navigation_item_experiments) {
                 finish();
             }
         }
@@ -384,8 +383,8 @@ public class MainActivity extends AppCompatActivity
         if (itemId == R.id.navigation_item_observe) {
             mRecordFragment = RecordFragment.newInstance();
             return mRecordFragment;
-        } else if (itemId == R.id.navigation_item_projects) {
-            return ProjectTabsFragment.newInstance();
+        } else if (itemId == R.id.navigation_item_experiments) {
+            return ExperimentListFragment.newInstance();
         } else {
             throw new IllegalArgumentException("Unknown menu item " + itemId);
         }
@@ -487,11 +486,11 @@ public class MainActivity extends AppCompatActivity
         return new RecordFragment.UICallbacks() {
             @Override
             public void onSelectedExperimentChanged(Experiment selectedExperiment,
-                    final Project containingProject, List<Experiment> allExperimentsInProject) {
+                    List<Experiment> allExperiments) {
                 // Load the experiments into the spinner adapter.
                 final ExperimentsSpinnerAdapter adapter =
                         new ExperimentsSpinnerAdapter(MainActivity.this,
-                                (ArrayList<Experiment>) allExperimentsInProject);
+                                (ArrayList<Experiment>) allExperiments);
                 mSpinner.setAdapter(adapter);
 
                 // Set selection before item selected listener to avoid initial event being fired.
@@ -502,9 +501,8 @@ public class MainActivity extends AppCompatActivity
                     public void onItemSelected(AdapterView<?> parent, View view, int position,
                             long id) {
                         if (adapter.isNewExperimentPlaceholder(position)) {
-                            getDataController().createExperiment(containingProject,
-                                    new LoggingConsumer<Experiment>(TAG,
-                                            "Create a new experiment") {
+                            getDataController().createExperiment(new LoggingConsumer<Experiment>(
+                                    TAG, "Create a new experiment") {
                                         @Override
                                         public void success(final Experiment experiment) {
                                             UpdateExperimentActivity.launch(MainActivity.this,

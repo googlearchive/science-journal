@@ -31,10 +31,7 @@ public final class TrackerConstants {
     public static final String SCREEN_INTRO = "intro";
     public static final String SCREEN_INTRO_REPLAY = "intro_replay";
     public static final String SCREEN_OBSERVE_RECORD = "observe_record";
-    public static final String SCREEN_PROJECTS = "projects";
-    public static final String SCREEN_PROJECT_DETAIL = "project_detail";
-    public static final String SCREEN_NEW_PROJECT = "project_new";
-    public static final String SCREEN_UPDATE_PROJECT = "project_update";
+    public static final String SCREEN_EXPERIMENT_LIST = "experiment_list";
     public static final String SCREEN_NEW_EXPERIMENT = "experiment_new";
     public static final String SCREEN_UPDATE_EXPERIMENT = "experiment_update";
     public static final String SCREEN_EXPERIMENT_DETAIL = "experiment_detail";
@@ -53,7 +50,6 @@ public final class TrackerConstants {
     public static final int RELEASE_TYPE = 2;
 
     // Categories
-    public static final String CATEGORY_PROJECTS = "Projects";
     public static final String CATEGORY_EXPERIMENTS = "Experiments";
     public static final String CATEGORY_RUNS = "Runs";
     public static final String CATEGORY_NOTES = "Notes";
