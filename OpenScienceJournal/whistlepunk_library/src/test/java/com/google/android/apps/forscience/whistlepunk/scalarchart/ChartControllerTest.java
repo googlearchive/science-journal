@@ -166,7 +166,7 @@ public class ChartControllerTest {
 
     private ExperimentRun experimentRunBetween(MemoryMetadataManager mmm, int startTimestamp,
             int endTimestamp, String runId) {
-        Experiment experiment = mmm.newExperiment(mmm.newProject());
+        Experiment experiment = mmm.newExperiment();
         // Add the trial
         mmm.newTrial(experiment, runId, startTimestamp,
                 new ArrayList<GoosciSensorLayout.SensorLayout>());

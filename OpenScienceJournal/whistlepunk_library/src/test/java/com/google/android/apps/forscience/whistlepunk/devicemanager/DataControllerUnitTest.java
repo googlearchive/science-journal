@@ -24,7 +24,6 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
@@ -64,12 +63,8 @@ public class DataControllerUnitTest {
         MemoryMetadataManager manager = new MemoryMetadataManager();
         final DataController dc = db.makeSimpleController(manager);
 
-        final StoringConsumer<Project> cProject = new StoringConsumer<>();
-        dc.createProject(cProject);
-        Project project = cProject.getValue();
-
         final StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
-        dc.createExperiment(project, cExperiment);
+        dc.createExperiment(cExperiment);
         final Experiment experiment = cExperiment.getValue();
 
         ArrayList<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();

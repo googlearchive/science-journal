@@ -41,7 +41,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
@@ -249,13 +248,7 @@ public class RecorderControllerImpl implements RecorderController {
                 for (TriggerFiredListener listener : mTriggerListeners.values()) {
                     listener.onRequestStartRecording();
                 }
-                mDataController.getProjectById(mSelectedExperiment.getProjectId(),
-                        new LoggingConsumer<Project>(TAG, "get project to record into") {
-                            @Override
-                            public void success(Project project) {
-                                startRecording(new Intent(mContext, MainActivity.class), project);
-                            }
-                        });
+                startRecording(new Intent(mContext, MainActivity.class));
                 WhistlePunkApplication.getUsageTracker(mContext).trackEvent(
                         TrackerConstants.CATEGORY_RUNS,
                         TrackerConstants.ACTION_TRY_RECORDING_FROM_TRIGGER, null, 0);
@@ -450,7 +443,7 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @Override
-    public void startRecording(final Intent resumeIntent, final Project project) {
+    public void startRecording(final Intent resumeIntent) {
         if (mRecording != null || mRecordingStateChangeInProgress) {
             return;
         }
@@ -483,7 +476,7 @@ public class RecorderControllerImpl implements RecorderController {
                                         label.getTrialId(),
                                         mSelectedExperiment.getDisplayTitle(mContext));
 
-                                ensureUnarchived(mSelectedExperiment, project, dataController);
+                                ensureUnarchived(mSelectedExperiment, dataController);
                                 recorderService.beginServiceRecording(
                                         mRecording.getExperimentName(), resumeIntent);
 
@@ -742,8 +735,8 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @VisibleForTesting
-    void ensureUnarchived(Experiment experiment, Project project, DataController dc) {
-        RecordFragment.ensureUnarchived(experiment, project, dc);
+    void ensureUnarchived(Experiment experiment, DataController dc) {
+        RecordFragment.ensureUnarchived(experiment, dc);
     }
 
     @Override

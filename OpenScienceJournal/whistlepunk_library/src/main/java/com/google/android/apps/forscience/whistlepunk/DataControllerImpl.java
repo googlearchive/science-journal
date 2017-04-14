@@ -32,7 +32,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase;
@@ -257,16 +256,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         });
     }
 
-    @Override
-    public void getLastUsedProject(MaybeConsumer<Project> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Project>() {
-            @Override
-            public Project call() throws Exception {
-                return mMetaDataManager.getLastUsedProject();
-            }
-        });
-    }
-
     @Override public void startRun(
             final Experiment experiment, final List<GoosciSensorLayout.SensorLayout> sensorLayouts,
             final MaybeConsumer<ApplicationLabel> onSuccess) {
@@ -310,14 +299,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void createExperiment(final Project project,
-                                 final MaybeConsumer<Experiment> onSuccess) {
+    public void createExperiment(final MaybeConsumer<Experiment> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Experiment>() {
             @Override
             public Experiment call() throws Exception {
-                Experiment experiment = mMetaDataManager.newExperiment(project);
+                Experiment experiment = mMetaDataManager.newExperiment();
                 mMetaDataManager.updateLastUsedExperiment(experiment);
-                mMetaDataManager.updateLastUsedProject(project);
                 return experiment;
             }
         });
@@ -426,68 +413,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         return ExperimentRun.fromLabels(trial, experimentId, applicationLabels);
     }
 
-    @Override public void createProject(final MaybeConsumer<Project> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Project>() {
-            @Override
-            public Project call() throws Exception {
-                Project project = mMetaDataManager.newProject();
-                mMetaDataManager.updateLastUsedProject(project);
-                return project;
-            }
-        });
-    }
-
-    @Override
-    public void updateProject(final Project project, MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.updateProject(project);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
-    @Override
-    public void deleteProject(final Project project, MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                for (Experiment e : mMetaDataManager.getExperimentsForProject(project, true)) {
-                    deleteExperimentOnDataThread(e);
-                }
-                mMetaDataManager.deleteProject(project);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
-    @Override public void getProjects(final int maxNumber, final boolean includeArchived,
-                                      final MaybeConsumer<List<Project>> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<List<Project>>() {
-            @Override
-            public List<Project> call() throws Exception {
-                return mMetaDataManager.getProjects(maxNumber, includeArchived);
-            }
-        });
-    }
-
-    @Override public void getExperimentsForProject(final Project project,
-            final boolean includeArchived, final MaybeConsumer<List<Experiment>> onSuccess) {
+    @Override public void getExperiments(final boolean includeArchived,
+            final MaybeConsumer<List<Experiment>> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<List<Experiment>>() {
             @Override
             public List<Experiment> call() throws Exception {
-                return mMetaDataManager.getExperimentsForProject(project, includeArchived);
-            }
-        });
-    }
-
-    @Override
-    public void getProjectById(final String projectId, final MaybeConsumer<Project> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Project>() {
-            @Override
-            public Project call() throws Exception {
-                return mMetaDataManager.getProjectById(projectId);
+                return mMetaDataManager.getExperiments(includeArchived);
             }
         });
     }

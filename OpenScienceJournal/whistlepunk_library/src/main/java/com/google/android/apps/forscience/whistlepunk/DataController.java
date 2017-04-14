@@ -28,8 +28,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -64,7 +62,7 @@ public interface DataController {
 
     void deleteRun(ExperimentRun run, MaybeConsumer<Success> onSuccess);
 
-    void createExperiment(Project project, MaybeConsumer<Experiment> onSuccess);
+    void createExperiment(MaybeConsumer<Experiment> onSuccess);
 
     void deleteExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
@@ -79,15 +77,6 @@ public interface DataController {
     void getExperimentRuns(String experiment, boolean includeArchived,
             final boolean includeInvalid, MaybeConsumer<List<ExperimentRun>> onSuccess);
 
-    void createProject(MaybeConsumer<Project> onSuccess);
-
-    void updateProject(Project project, MaybeConsumer<Success> onSuccess);
-
-    void deleteProject(Project project, MaybeConsumer<Success> onSuccess);
-
-    void getProjects(int maxNumber, boolean includeArchived,
-                     MaybeConsumer<List<Project>> onSuccess);
-
     void editLabel(final Label updatedLabel, final MaybeConsumer<Success> onSuccess);
 
     void editApplicationLabel(ApplicationLabel updatedLabel, MaybeConsumer<Success> onSuccess);
@@ -96,12 +85,10 @@ public interface DataController {
 
     String generateNewLabelId();
 
-    void getLastUsedProject(MaybeConsumer<Project> onSuccess);
-
-    void getExperimentsForProject(Project project, boolean includeArchived,
-                                  MaybeConsumer<List<Experiment>> onSuccess);
-
-    void getProjectById(String projectId, MaybeConsumer<Project> onSuccess);
+    /**
+     * Gets the experiments for all projects.
+     */
+    void getExperiments(boolean includeArchived, MaybeConsumer<List<Experiment>> onSuccess);
 
     void getExternalSensors(MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess);
 

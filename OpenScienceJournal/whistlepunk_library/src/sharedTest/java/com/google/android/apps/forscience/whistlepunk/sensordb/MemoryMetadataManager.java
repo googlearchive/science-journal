@@ -33,11 +33,9 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.LinkedListMultimap;
@@ -58,8 +56,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MemoryMetadataManager implements MetaDataManager {
-    private Project mLastUsedProject = null;
-    private ListMultimap<String, Experiment> mExperimentsPerProject = ArrayListMultimap.create();
+    private List<Experiment> mExperiments = new ArrayList<>();
     private Multimap<String, String> mExperimentIncluded = HashMultimap.create();
     private Multimap<String, String> mExperimentExcluded = HashMultimap.create();
     private ListMultimap<String, Label> mLabels = LinkedListMultimap.create();
@@ -73,57 +70,31 @@ public class MemoryMetadataManager implements MetaDataManager {
     private Map<String, List<SensorTrigger>> mSensorTriggers = new HashMap<>();
 
     @Override
-    public Project getProjectById(String projectId) {
-        return null;
-    }
-
-    @Override
-    public List<Project> getProjects(int maxNumber, boolean archived) {
-        return null;
-    }
-
-    @Override
-    public Project newProject() {
-        Project project = new Project(System.currentTimeMillis());
-        mLastUsedProject = project;
-        return project;
-    }
-
-    @Override
-    public void updateProject(Project project) {
-    }
-
-    @Override
-    public void deleteProject(Project project) {
-
-    }
-
-    @Override
     public Experiment getExperimentById(String experimentId) {
         return null;
     }
 
     @Override
-    public Experiment newExperiment(Project project) {
+    public Experiment newExperiment() {
         long timestamp = System.currentTimeMillis();
         String experimentId = String.valueOf(timestamp);
-        return newExperiment(project, timestamp, experimentId);
+        return newExperiment(timestamp, experimentId);
     }
 
     @NonNull
-    public Experiment newExperiment(Project project, long timestamp, String experimentId) {
+    public Experiment newExperiment(long timestamp, String experimentId) {
         Experiment experiment = new Experiment(timestamp);
         experiment.setExperimentId(experimentId);
-        experiment.setProjectId(project.getProjectId());
+        experiment.setProjectId(SimpleMetaDataManager.DEFAULT_PROJECT_ID);
         experiment.setTimestamp(timestamp);
-        mExperimentsPerProject.get(project.getProjectId()).add(0, experiment);
+        mExperiments.add(0, experiment);
         return experiment;
     }
 
     @Override
     public void deleteExperiment(Experiment experiment) {
         // TODO: test directly
-        mExperimentsPerProject.values().remove(experiment);
+        mExperiments.remove(experiment);
     }
 
     @Override
@@ -132,8 +103,8 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public List<Experiment> getExperimentsForProject(Project project, boolean includeArchived) {
-        return Lists.newArrayList(mExperimentsPerProject.get(project.getProjectId()));
+    public List<Experiment> getExperiments(boolean includeArchived) {
+        return mExperiments;
     }
 
     @Override
@@ -294,27 +265,9 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public Project getLastUsedProject() {
-        return mLastUsedProject;
-    }
-
-    @Override
-    public void updateLastUsedProject(Project project) {
-
-    }
-
-    @Override
     public void updateLastUsedExperiment(Experiment experiment) {
-        String projectId = experiment.getProjectId();
-        Collection<Experiment> experiments = Lists.newArrayList(
-                mExperimentsPerProject.get(projectId));
-        mExperimentsPerProject.removeAll(projectId);
-        mExperimentsPerProject.put(projectId, experiment);
-        for (Experiment e : experiments) {
-            if (e.getExperimentId() != experiment.getExperimentId()) {
-                mExperimentsPerProject.put(projectId, e);
-            }
-        }
+        mExperiments.remove(experiment);
+        mExperiments.add(0, experiment);
     }
 
     @Override

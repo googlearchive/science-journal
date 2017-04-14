@@ -87,7 +87,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
-import com.google.android.apps.forscience.whistlepunk.project.ProjectDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
@@ -142,7 +141,7 @@ public class ExperimentDetailsFragment extends Fragment
      *
      * @param experimentId      Experiment ID to display
      * @param createTaskStack   If {@code true}, then navigating home requires building a task stack
-     *                          up to the project details. If {@code false}, use the default
+     *                          up to the experiment list. If {@code false}, use the default
      *                          navigation.
      */
     public static ExperimentDetailsFragment newInstance(String experimentId,
@@ -392,7 +391,7 @@ public class ExperimentDetailsFragment extends Fragment
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == android.R.id.home) {
-            goToProjectDetails();
+            goToExperimentList();
             return true;
         } else if (itemId == R.id.action_edit_experiment) {
             UpdateExperimentActivity.launch(getActivity(), mExperimentId, false /* not new */);
@@ -420,13 +419,15 @@ public class ExperimentDetailsFragment extends Fragment
         return super.onOptionsItemSelected(item);
     }
 
-    private void goToProjectDetails() {
+    private void goToExperimentList() {
         Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
-        upIntent.putExtra(ProjectDetailsFragment.ARG_PROJECT_ID, mExperiment.getProjectId());
         if (NavUtils.shouldUpRecreateTask(getActivity(), upIntent)
                 || getArguments().getBoolean(ARG_CREATE_TASK, false)) {
-            TaskStackBuilder.create(getActivity())
-                    .addNextIntentWithParentStack(upIntent)
+            upIntent.putExtra(MainActivity.ARG_SELECTED_NAV_ITEM_ID,
+                    R.id.navigation_item_experiments);
+            upIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            // TODO: Transition animation
+            TaskStackBuilder.create(getActivity()).addNextIntentWithParentStack(upIntent)
                     .startActivities();
         } else {
             NavUtils.navigateUpTo(getActivity(), upIntent);

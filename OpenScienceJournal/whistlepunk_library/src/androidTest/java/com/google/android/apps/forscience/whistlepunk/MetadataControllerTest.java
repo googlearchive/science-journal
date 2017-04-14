@@ -20,7 +20,6 @@ import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 
@@ -31,9 +30,8 @@ import java.util.List;
 public class MetadataControllerTest extends AndroidTestCase {
     public void testReorderExperiments() {
         MemoryMetadataManager mmm = new MemoryMetadataManager();
-        Project p = mmm.newProject();
-        Experiment e1 = mmm.newExperiment(p, 1, "e1");
-        Experiment e2 = mmm.newExperiment(p, 2, "e2");
+        Experiment e1 = mmm.newExperiment(1, "e1");
+        Experiment e2 = mmm.newExperiment(2, "e2");
         DataController dc = buildDataController(mmm);
         final ExplodingFactory explodingFactory = new ExplodingFactory();
         MetadataController mc = new MetadataController(dc, explodingFactory);
@@ -43,7 +41,6 @@ public class MetadataControllerTest extends AndroidTestCase {
 
         String listenerKey = "key";
 
-        listener.expectedProjectId = p.getProjectId();
         listener.expectedExperimentIds = Arrays.asList(e2id, e1id);
         mc.addExperimentChangeListener(listenerKey, listener);
         listener.assertListenerCalled(1);
@@ -55,7 +52,6 @@ public class MetadataControllerTest extends AndroidTestCase {
 
         mc.removeExperimentChangeListener(listenerKey);
 
-        listener.expectedProjectId = p.getProjectId();
         listener.expectedExperimentIds = Arrays.asList(e1id, e2id);
         mc.addExperimentChangeListener(listenerKey, listener);
         listener.assertListenerCalled(1);
@@ -63,10 +59,9 @@ public class MetadataControllerTest extends AndroidTestCase {
 
     public void testGetNameAfterSettingListener() {
         MemoryMetadataManager mmm = new MemoryMetadataManager();
-        Project p = mmm.newProject();
-        Experiment e1 = mmm.newExperiment(p, 1, "e1");
+        Experiment e1 = mmm.newExperiment(1, "e1");
         e1.setTitle("E1 title");
-        Experiment e2 = mmm.newExperiment(p, 2, "e2");
+        Experiment e2 = mmm.newExperiment(2, "e2");
         e2.setTitle("E2 title");
         DataController dc = buildDataController(mmm);
         final ExplodingFactory explodingFactory = new ExplodingFactory();
@@ -75,7 +70,6 @@ public class MetadataControllerTest extends AndroidTestCase {
         String e1id = e1.getExperimentId();
         String e2id = e2.getExperimentId();
 
-        listener.expectedProjectId = p.getProjectId();
         listener.expectedExperimentIds = Arrays.asList(e2id, e1id);
         mc.addExperimentChangeListener("listenerKey", listener);
         assertEquals(e2.getTitle(), mc.getExperimentName(getContext()));
@@ -88,13 +82,11 @@ public class MetadataControllerTest extends AndroidTestCase {
 
     private static class RecordingMetadataListener implements MetadataController
             .MetadataChangeListener {
-        public String expectedProjectId;
         public List<String> expectedExperimentIds;
         private int mListenerCalls = 0;
 
         @Override
-        public void onMetadataChanged(Project newProject, List<Experiment> newExperiments) {
-            assertEquals(expectedProjectId, newProject.getProjectId());
+        public void onMetadataChanged(List<Experiment> newExperiments) {
             List<String> ids = new ArrayList<>();
             for (Experiment currentExperiment : newExperiments) {
                 ids.add(currentExperiment.getExperimentId());
