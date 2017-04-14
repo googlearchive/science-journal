@@ -23,9 +23,13 @@ android {
     }
 
     lintOptions {
-        warning "MissingTranslation"
-        lintConfig file("lint.xml")
         abortOnError true
+
+        lintConfig file("lint.xml")
+        warning "MissingTranslation", "ExtraTranslation"
+
+        htmlOutput file("build/reports/whistlepunk-lint-results.html")
+        xmlOutput file("build/reports/whistlepunk-lint-results.xml")
     }
 
     sourceSets {
