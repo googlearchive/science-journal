@@ -28,6 +28,8 @@ android {
     }
 
     lintOptions {
+        absolutePaths false
+
         htmlOutput file("build/reports/sciencejournalapi-lint-results.html")
         xmlOutput file("build/reports/sciencejournalapi-lint-results.xml")
     }

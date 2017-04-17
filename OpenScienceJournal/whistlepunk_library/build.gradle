@@ -24,6 +24,7 @@ android {
 
     lintOptions {
         abortOnError true
+        absolutePaths false
 
         lintConfig file("lint.xml")
         warning "MissingTranslation", "ExtraTranslation"
