@@ -105,40 +105,98 @@ public class SimpleMetaDataManager implements MetaDataManager {
         this(context, null /* default filename */, new CurrentTimeClock());
     }
 
-    /* Visible for testing */ SimpleMetaDataManager(Context context, String filename, Clock clock) {
+    @VisibleForTesting
+    SimpleMetaDataManager(Context context, String filename, Clock clock) {
         mContext = context;
-        mDbHelper = new DatabaseHelper(context, filename);
+        mDbHelper = new DatabaseHelper(context, filename,
+                new DatabaseHelper.MetadataDatabaseUpgradeCallback() {
+                    @Override
+                    public void onMigrateProjectData(SQLiteDatabase db) {
+                        migrateProjectData(db);
+                    }
+                });
         mClock = clock;
     }
 
-    // TODO: this function may be used when upgrading the database to delete projects.
-    private Project getProjectById(String projectId) {
-        Project project;
-
+    @VisibleForTesting
+    void migrateProjectData() {
         synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            final String selection = ExperimentColumns.PROJECT_ID + "=?";
-            final String[] selectionArgs = new String[]{projectId};
-            Cursor cursor = null;
-            try {
-                cursor = db.query(
-                        Tables.PROJECTS, ProjectColumns.GET_COLUMNS, selection, selectionArgs,
-                        null, null, null, "1");
-                if (cursor == null || !cursor.moveToFirst()) {
-                    return null;
-                }
-                project = createProjectFromCursor(cursor);
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            migrateProjectData(db);
         }
-
-        return project;
     }
 
-    private Project createProjectFromCursor(Cursor cursor) {
+    private void migrateProjectData(SQLiteDatabase db) {
+        // Get every project and migrate its data to its experiments.
+        List<Project> projects = getProjects(db, true);
+        for (Project project : projects) {
+            List<Experiment> experiments = getAllExperimentsForProject(db, project);
+            for (Experiment experiment : experiments) {
+                if (!TextUtils.isEmpty(project.getDescription())) {
+                    // Create a label with the description at the start of the experiment.
+                    // Because projects do not track their creation time, use the experiment
+                    // creation time instead.
+                    addLabel(db, experiment.getExperimentId(),
+                            RecorderController.NOT_RECORDING_RUN_ID,
+                            Label.newLabelWithValue(experiment.getTimestamp() - 2000,
+                                    TextLabelValue.fromText(project.getDescription())));
+                }
+                if (!TextUtils.isEmpty(project.getCoverPhoto())) {
+                    // Create a label with the picture at the start of the experiment.
+                    addLabel(db, experiment.getExperimentId(),
+                            RecorderController.NOT_RECORDING_RUN_ID,
+                            Label.newLabelWithValue(experiment.getTimestamp() - 1000,
+                                    PictureLabelValue.fromPicture(project.getCoverPhoto(), "")));
+                }
+                boolean needsWrite = false;
+                if (project.isArchived()) {
+                    // If the project is archived, the experiment should be archived.
+                    experiment.setArchived(true);
+                    needsWrite = true;
+                }
+                if (!TextUtils.isEmpty(project.getTitle())) {
+                    // Experiment title prefixed with Project title, unless project title is not set
+                    experiment.setTitle(String.format(mContext.getResources().getString(
+                            R.string.project_experiment_title), project.getTitle(),
+                            experiment.getDisplayTitle(mContext)));
+                    needsWrite = true;
+                }
+                if (needsWrite) {
+                    updateExperiment(db, experiment);
+                }
+            }
+            deleteProjectFromDb(db, project);
+        }
+    }
+
+    private static List<Experiment> getAllExperimentsForProject(SQLiteDatabase db,
+            Project project) {
+        List<Experiment> experiments = new ArrayList<>();
+        String selection = ExperimentColumns.PROJECT_ID + "=?";
+        String[] selectionArgs = new String[]{project.getProjectId()};
+        Cursor cursor = null;
+        try {
+            cursor = db.query(Tables.EXPERIMENTS, ExperimentColumns.GET_COLUMNS, selection,
+                    selectionArgs, null, null,
+                    ExperimentColumns.LAST_USED_TIME + " DESC, " + BaseColumns._ID + " DESC");
+            while (cursor.moveToNext()) {
+                experiments.add(createExperimentFromCursor(cursor));
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return experiments;
+    }
+
+    // Deletes a project object without touching its experiments.
+    private static void deleteProjectFromDb(SQLiteDatabase db, Project project) {
+        db.delete(Tables.PROJECTS, ProjectColumns.PROJECT_ID + "=?",
+                new String[]{project.getProjectId()});
+    }
+
+    private static Project createProjectFromCursor(Cursor cursor) {
         Project project = new Project(cursor.getLong(0));
         project.setProjectId(cursor.getString(1));
         project.setTitle(cursor.getString(2));
@@ -149,36 +207,74 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return project;
     }
 
-    // TODO: this function may be used when upgrading the database to delete projects.
-    private List<Project> getProjects(int maxNumber, boolean includeArchived) {
-        List<Project> projects = new ArrayList<Project>();
+    @VisibleForTesting
+    @Deprecated
+    List<Project> getProjects(boolean includeArchived) {
         synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            return getProjects(db, includeArchived);
+        }
+    }
 
-            String selection = ProjectColumns.ARCHIVED + "=?";
-            String[] selectionArgs = new String[]{"0"};
-            if (includeArchived) {
-                selection = null;
-                selectionArgs = null;
+    // TODO: this function may be used when upgrading the database to delete projects.
+    private static List<Project> getProjects(SQLiteDatabase db, boolean includeArchived) {
+        List<Project> projects = new ArrayList<>();
+        String selection = ProjectColumns.ARCHIVED + "=?";
+        String[] selectionArgs = new String[]{"0"};
+        if (includeArchived) {
+            selection = null;
+            selectionArgs = null;
+        }
+
+        Cursor cursor = null;
+        try {
+            cursor = db.query(
+                    Tables.PROJECTS, ProjectColumns.GET_COLUMNS, selection, selectionArgs,
+                    null, null,
+                    ProjectColumns.LAST_USED_TIME + " DESC, " + BaseColumns._ID + " DESC");
+            while (cursor.moveToNext()) {
+                projects.add(createProjectFromCursor(cursor));
             }
-
-            Cursor cursor = null;
-            try {
-                cursor = db.query(
-                        Tables.PROJECTS, ProjectColumns.GET_COLUMNS, selection, selectionArgs,
-                        null, null,
-                        ProjectColumns.LAST_USED_TIME + " DESC, " + BaseColumns._ID + " DESC",
-                        String.valueOf(maxNumber));
-                while (cursor.moveToNext()) {
-                    projects.add(createProjectFromCursor(cursor));
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
             }
         }
         return projects;
+    }
+
+    @VisibleForTesting
+    @Deprecated
+    Project newProject() {
+        String projectId = newStableId(STABLE_PROJECT_ID_LENGTH);
+        ContentValues values = new ContentValues();
+        values.put(ProjectColumns.PROJECT_ID, projectId);
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            long id = db.insert(Tables.PROJECTS, null, values);
+            if (id != -1) {
+                Project project = new Project(id);
+                project.setProjectId(projectId);
+                return project;
+            }
+        }
+        return null;
+    }
+
+    @VisibleForTesting
+    @Deprecated
+    void updateProject(Project project) {
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            final ContentValues values = new ContentValues();
+            values.put(ProjectColumns.TITLE, project.getTitle());
+            values.put(ProjectColumns.DESCRIPTION, project.getDescription());
+            values.put(ProjectColumns.COVER_PHOTO, project.getCoverPhoto());
+            values.put(ProjectColumns.ARCHIVED, project.isArchived());
+            values.put(ProjectColumns.LAST_USED_TIME, project.getLastUsedTime());
+            db.update(Tables.PROJECTS, values, ProjectColumns.PROJECT_ID + "=?",
+                    new String[]{project.getProjectId()});
+        }
     }
 
     @Override
@@ -207,12 +303,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return experiment;
     }
 
-    @Override
-    public Experiment newExperiment() {
+    @VisibleForTesting
+    Experiment newExperiment(String projectId) {
         String experimentId = newStableId(STABLE_EXPERIMENT_ID_LENGTH);
         ContentValues values = new ContentValues();
         values.put(ExperimentColumns.EXPERIMENT_ID, experimentId);
-        values.put(ExperimentColumns.PROJECT_ID, DEFAULT_PROJECT_ID);
+        values.put(ExperimentColumns.PROJECT_ID, projectId);
         values.put(ExperimentColumns.TIMESTAMP, getCurrentTime());
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -220,12 +316,17 @@ public class SimpleMetaDataManager implements MetaDataManager {
             if (id != -1) {
                 Experiment experiment = new Experiment(id);
                 experiment.setExperimentId(experimentId);
-                experiment.setProjectId(DEFAULT_PROJECT_ID);
+                experiment.setProjectId(projectId);
                 experiment.setTimestamp(getCurrentTime());
                 return experiment;
             }
         }
         return null;
+    }
+
+    @Override
+    public Experiment newExperiment() {
+        return newExperiment(DEFAULT_PROJECT_ID);
     }
 
     @Override
@@ -258,15 +359,19 @@ public class SimpleMetaDataManager implements MetaDataManager {
     public void updateExperiment(Experiment experiment) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            final ContentValues values = new ContentValues();
-            values.put(ExperimentColumns.TITLE, experiment.getTitle());
-            values.put(ExperimentColumns.DESCRIPTION, experiment.getDescription());
-            values.put(ExperimentColumns.ARCHIVED, experiment.isArchived());
-            values.put(ExperimentColumns.PROJECT_ID, experiment.getProjectId());
-            values.put(ExperimentColumns.LAST_USED_TIME, experiment.getLastUsedTime());
-            db.update(Tables.EXPERIMENTS, values, ExperimentColumns.EXPERIMENT_ID + "=?",
-                    new String[]{experiment.getExperimentId()});
+            updateExperiment(db, experiment);
         }
+    }
+
+    private static void updateExperiment(SQLiteDatabase db, Experiment experiment) {
+        final ContentValues values = new ContentValues();
+        values.put(ExperimentColumns.TITLE, experiment.getTitle());
+        values.put(ExperimentColumns.DESCRIPTION, experiment.getDescription());
+        values.put(ExperimentColumns.ARCHIVED, experiment.isArchived());
+        values.put(ExperimentColumns.PROJECT_ID, experiment.getProjectId());
+        values.put(ExperimentColumns.LAST_USED_TIME, experiment.getLastUsedTime());
+        db.update(Tables.EXPERIMENTS, values, ExperimentColumns.EXPERIMENT_ID + "=?",
+                new String[]{experiment.getExperimentId()});
     }
 
     @Override
@@ -296,7 +401,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return experiments;
     }
 
-    private Experiment createExperimentFromCursor(Cursor cursor) {
+    private static Experiment createExperimentFromCursor(Cursor cursor) {
         Experiment experiment = new Experiment(cursor.getLong(0));
         experiment.setExperimentId(cursor.getString(1));
         experiment.setTimestamp(cursor.getLong(2));
@@ -337,18 +442,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
         long time = getCurrentTime();
         experiment.setLastUsedTime(time);
         updateExperiment(experiment);
-        // Also update the project ID's last used time.
-        updateLastUsedProject(experiment.getProjectId(), time);
-    }
-
-    private void updateLastUsedProject(String projectId, long time) {
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            final ContentValues values = new ContentValues();
-            values.put(ProjectColumns.LAST_USED_TIME, time);
-            db.update(Tables.PROJECTS, values, ProjectColumns.PROJECT_ID + "=?",
-                    new String[]{projectId});
-        }
     }
 
     @Override
@@ -695,6 +788,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void addLabel(String experimentId, String trialId, Label label) {
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            addLabel(db, experimentId, trialId, label);
+        }
+    }
+
+    private static void addLabel(SQLiteDatabase db, String experimentId, String trialId,
+            Label label) {
         ContentValues values = new ContentValues();
         values.put(LabelColumns.EXPERIMENT_ID, experimentId);
         values.put(LabelColumns.TYPE, getLabelTag(label));
@@ -703,10 +804,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         values.put(LabelColumns.START_LABEL_ID, trialId);
         // The database will only ever have one label value per label, so this is OK here.
         values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(label.getLabelProto().values[0]));
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            db.insert(Tables.LABELS, null, values);
-        }
+        db.insert(Tables.LABELS, null, values);
     }
 
     private static String getLabelTag(Label label) {
@@ -1146,7 +1244,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         db.delete(Tables.EXPERIMENT_SENSORS, selection, selectionArgs);
     }
 
-    private void addSensorExperimentInclusion(SQLiteDatabase db, String databaseTag,
+    private static void addSensorExperimentInclusion(SQLiteDatabase db, String databaseTag,
             String experimentId, boolean included) {
         ContentValues values = new ContentValues();
         values.put(ExperimentSensorColumns.SENSOR_TAG, databaseTag);
@@ -1675,11 +1773,20 @@ public class SimpleMetaDataManager implements MetaDataManager {
      * Manages the SQLite database backing the data for the entire app.
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        private static final int DB_VERSION = 20;
+        private static final int DB_VERSION = 21;
         private static final String DB_NAME = "main.db";
 
-        DatabaseHelper(Context context, String filename) {
+        // Callbacks for database upgrades.
+        interface MetadataDatabaseUpgradeCallback {
+            // Called when project data needs to be migrated.
+            void onMigrateProjectData(SQLiteDatabase db);
+        }
+        private MetadataDatabaseUpgradeCallback mUpgradeCallback;
+
+        DatabaseHelper(Context context, String filename,
+                MetadataDatabaseUpgradeCallback upgradeCallback) {
             super(context, filename != null ? filename : DB_NAME, null, DB_VERSION);
+            mUpgradeCallback = upgradeCallback;
         }
 
         @Override
@@ -1859,6 +1966,13 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 db.execSQL("ALTER TABLE " + Tables.EXPERIMENT_SENSORS + " ADD COLUMN " +
                         ExperimentSensorColumns.INCLUDED + " INTEGER DEFAULT 1");
                 version = 20;
+            }
+
+            if (version == 20 && version < newVersion) {
+                // Projects are no longer used; need to tell the metadata manager to integrate that
+                // data into the experiment.
+                mUpgradeCallback.onMigrateProjectData(db);
+                version = 21;
             }
         }
 

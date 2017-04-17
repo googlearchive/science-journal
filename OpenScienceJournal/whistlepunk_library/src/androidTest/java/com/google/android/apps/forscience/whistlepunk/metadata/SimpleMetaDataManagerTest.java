@@ -580,6 +580,62 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(0, mMetaDataManager.getMyDevices().size());
     }
 
+    public void testNewProject() {
+        Project project = ((SimpleMetaDataManager) mMetaDataManager).newProject();
+        assertNotNull(project);
+        assertFalse(TextUtils.isEmpty(project.getProjectId()));
+        assertNotSame(project.getId(), -1);
+
+        List<Project> projects = ((SimpleMetaDataManager) mMetaDataManager).getProjects(false);
+        boolean found = false;
+        for (Project retrievedProject : projects) {
+            if (retrievedProject.getProjectId().equals(project.getProjectId())) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue("New project not found in list of retrieved projects", found);
+    }
+
+    public void testUpgradeProjects() {
+        // Nothing in this project, so no updates should be made to firstExp.
+        Project first = ((SimpleMetaDataManager) mMetaDataManager).newProject();
+        Experiment firstExp = ((SimpleMetaDataManager) mMetaDataManager).newExperiment(
+                first.getProjectId());
+
+        // The title, cover photo and description should be translated into objects in the secondExp
+        Project second = ((SimpleMetaDataManager) mMetaDataManager).newProject();
+        second.setTitle("Title");
+        second.setCoverPhoto("path/to/photo");
+        second.setDescription("Description");
+        second.setArchived(true);
+        ((SimpleMetaDataManager) mMetaDataManager).updateProject(second);
+        Experiment secondExp = ((SimpleMetaDataManager) mMetaDataManager).newExperiment(
+                second.getProjectId());
+
+        assertEquals(2, ((SimpleMetaDataManager) mMetaDataManager).getProjects(true).size());
+
+        ((SimpleMetaDataManager) mMetaDataManager).migrateProjectData();
+        assertEquals(0, ((SimpleMetaDataManager) mMetaDataManager).getProjects(true).size());
+
+        Experiment firstExpResult = mMetaDataManager.getExperimentById(firstExp.getExperimentId());
+        assertEquals(0, mMetaDataManager.getLabelsForExperiment(firstExpResult).size());
+        assertTrue(TextUtils.isEmpty(firstExp.getTitle()));
+
+        Experiment secondExpResult = mMetaDataManager.getExperimentById(
+                secondExp.getExperimentId());
+        List<Label> labels = mMetaDataManager.getLabelsForExperiment(secondExpResult);
+        assertEquals(2, labels.size());
+        assertEquals("Description", ((TextLabelValue) labels.get(0).getLabelValue(
+                GoosciLabelValue.LabelValue.TEXT)).getText());
+        assertEquals("path/to/photo", ((PictureLabelValue) labels.get(1).getLabelValue(
+                GoosciLabelValue.LabelValue.PICTURE)).getFilePath());
+        assertTrue(labels.get(0).getTimeStamp() < secondExpResult.getTimestamp());
+        assertTrue(labels.get(1).getTimeStamp() < secondExpResult.getTimestamp());
+        assertTrue(secondExpResult.getDisplayTitle(getContext()).startsWith("Title"));
+        assertTrue(secondExpResult.isArchived());
+    }
+
     private List<String> getIds(List<GoosciSensorLayout.SensorLayout> layouts) {
         List<String> ids = new ArrayList<>();
         for (GoosciSensorLayout.SensorLayout layout : layouts) {

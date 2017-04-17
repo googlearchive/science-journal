@@ -1368,6 +1368,9 @@ Permissions notice:
     <!-- Summary of developer option to enable Android StrictMode [CHAR_LIMIT=none] -->
     <string name="dev_tools_strict_mode_summary" translatable="false">Changes to this setting only take effect after closing the application.</string>
 
+    <!-- Experiment title prefixed by project title, i.e. if the project is named "Airplanes" and the experiment is "Takeoff", this would be "Airplanes: Takeoff". CHAR_LIMIT=NONE]-->
+    <string name="project_experiment_title"><xliff:g id="project_name">%1s</xliff:g>: <xliff:g id="experiment_name">%1s</xliff:g></string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
