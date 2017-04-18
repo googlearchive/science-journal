@@ -112,6 +112,9 @@ public class RunStats {
     }
 
     private static int keyToType(String key) {
+        if (keyMap.size() == 0) {
+            initializeKeyMap();
+        }
         if (keyMap.containsKey(key)) {
             return keyMap.get(key);
         }
