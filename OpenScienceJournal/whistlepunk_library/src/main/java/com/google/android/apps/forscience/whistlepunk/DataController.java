@@ -122,16 +122,6 @@ public interface DataController {
     void removeSensorFromExperiment(final String experimentId, final String sensorId,
             MaybeConsumer<Success> onSuccess);
 
-    /**
-     * Gets the labels that are part of this experiment but not tied to any specific trial.
-     */
-    void getLabelsForExperiment(Experiment experiment, MaybeConsumer<List<Label>> onSuccess);
-
-    /**
-     * Gets the labels that are part of this trial.
-     */
-    void getLabelsForTrial(String trialId, MaybeConsumer<List<Label>> onSuccess);
-
     void updateLastUsedExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
     /**

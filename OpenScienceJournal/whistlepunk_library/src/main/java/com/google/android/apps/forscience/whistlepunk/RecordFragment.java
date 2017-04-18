@@ -58,6 +58,7 @@ import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDi
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
@@ -1274,18 +1275,19 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (mSensorCardAdapter == null || !isRecording() || mExternalAxis == null) {
             return;
         }
-        getDataController().getLabelsForTrial(mCurrentRecording.getRunId(),
-                new LoggingConsumer<List<Label>>(TAG, "retrieving labels") {
+        getDataController().getExperimentRun(mSelectedExperiment.getExperimentId(),
+                mCurrentRecording.getRunId(), new LoggingConsumer<ExperimentRun>(TAG,
+                        "Retrieving in-progress trial") {
                     @Override
-                    public void success(List<Label> labels) {
+                    public void success(ExperimentRun value) {
                         if (mSensorCardAdapter != null) {
                             for (SensorCardPresenter p :
                                     mSensorCardAdapter.getSensorCardPresenters()) {
-                                p.refreshLabels(labels);
+                                p.refreshLabels(value.getTrial().getLabels());
                             }
                         }
                         if (mExternalAxis != null) {
-                            mExternalAxis.onLabelsChanged(labels);
+                            mExternalAxis.onLabelsChanged(value.getTrial().getLabels());
                         }
                     }
                 });

@@ -174,17 +174,6 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void getLabelsForExperiment(Experiment experiment,
-            MaybeConsumer<List<Label>> onSuccess) {
-
-    }
-
-    @Override
-    public void getLabelsForTrial(String trialId, MaybeConsumer<List<Label>> onSuccess) {
-
-    }
-
-    @Override
     public void updateLastUsedExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
 
     }

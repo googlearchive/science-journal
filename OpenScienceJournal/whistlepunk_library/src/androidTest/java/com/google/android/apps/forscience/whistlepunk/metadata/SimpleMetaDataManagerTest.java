@@ -172,7 +172,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         mMetaDataManager.addLabel(experiment.getExperimentId(),
                 RecorderController.NOT_RECORDING_RUN_ID, pictureLabel);
 
-        List<Label> labels = mMetaDataManager.getLabelsForExperiment(experiment);
+        List<Label> labels = mMetaDataManager.getExperimentById(experiment.getExperimentId())
+                .getExperiment().getLabels();
         assertEquals(2, labels.size());
 
         boolean foundText = false;
@@ -618,12 +619,12 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(0, ((SimpleMetaDataManager) mMetaDataManager).getProjects(true).size());
 
         Experiment firstExpResult = mMetaDataManager.getExperimentById(firstExp.getExperimentId());
-        assertEquals(0, mMetaDataManager.getLabelsForExperiment(firstExpResult).size());
+        assertEquals(0, firstExpResult.getExperiment().getLabels().size());
         assertTrue(TextUtils.isEmpty(firstExp.getExperiment().getTitle()));
 
         Experiment secondExpResult = mMetaDataManager.getExperimentById(
                 secondExp.getExperimentId());
-        List<Label> labels = mMetaDataManager.getLabelsForExperiment(secondExpResult);
+        List<Label> labels = secondExpResult.getExperiment().getLabels();
         assertEquals(2, labels.size());
         assertEquals("Description", ((TextLabelValue) labels.get(0).getLabelValue(
                 GoosciLabelValue.LabelValue.TEXT)).getText());

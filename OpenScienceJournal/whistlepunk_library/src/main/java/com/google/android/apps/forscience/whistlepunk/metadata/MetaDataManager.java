@@ -60,11 +60,6 @@ public interface MetaDataManager {
 
     void addApplicationLabel(String experimentId, ApplicationLabel label);
 
-    /**
-     * @return the labels that are part of this experiment but not tied to any specific trial.
-     */
-    List<Label> getLabelsForExperiment(Experiment experiment);
-
     List<Label> getLabelsForTrial(String trialId);
 
     List<ApplicationLabel> getApplicationLabelsWithStartId(String startLabelId);

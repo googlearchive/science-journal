@@ -172,6 +172,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
+    /**
+     * This function is only used as part of the database upgrade which deletes projects, so these
+     * experiments returned do not contain their trials, labels, triggers, sensors, etc.
+     */
     private static List<Experiment> getAllExperimentsForProject(SQLiteDatabase db,
             Project project) {
         List<Experiment> experiments = new ArrayList<>();
@@ -283,7 +287,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
     @Override
     public Experiment getExperimentById(String experimentId) {
         Experiment experiment;
-
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
             final String selection = ExperimentColumns.EXPERIMENT_ID + "=?";
@@ -302,6 +305,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     cursor.close();
                 }
             }
+        }
+        if (experiment != null) {
+            List<Label> labels = getLabelsForExperiment(experiment);
+            experiment.getExperiment().populateLabels(labels);
         }
         return experiment;
     }
@@ -400,6 +407,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 }
             }
         }
+        for (Experiment experiment : experiments) {
+            List<Label> labels = getLabelsForExperiment(experiment);
+            experiment.getExperiment().populateLabels(labels);
+        }
         return experiments;
     }
 
@@ -437,6 +448,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     cursor.close();
                 }
             }
+        }
+        if (experiment != null) {
+            List<Label> labels = getLabelsForExperiment(experiment);
+            experiment.getExperiment().populateLabels(labels);
         }
         return experiment;
     }
@@ -857,8 +872,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
         public static int VALUE_INDEX = 6;
     }
 
-    @Override
-    public List<Label> getLabelsForExperiment(Experiment experiment) {
+    /**
+     * Gets the labels for a given experiment. This function is still used privately to populate
+     * an experiment with labels.
+     */
+    private List<Label> getLabelsForExperiment(Experiment experiment) {
         final String selection = LabelColumns.EXPERIMENT_ID + "=? AND " +
                 LabelColumns.START_LABEL_ID + "=? and not " + LabelColumns.TYPE + "=?";;
         final String[] selectionArgs = new String[]{experiment.getExperimentId(),
