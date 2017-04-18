@@ -1219,7 +1219,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private String getExperimentName() {
         if (mSelectedExperiment != null) {
-            return mSelectedExperiment.getDisplayTitle(getActivity());
+            return mSelectedExperiment.getExperiment().getDisplayTitle(getActivity());
         } else {
             return "";
         }
@@ -1623,8 +1623,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
      */
     public static void ensureUnarchived(Experiment experiment, DataController dc) {
         if (experiment != null) {
-            if (experiment.isArchived()) {
-                experiment.setArchived(false);
+            if (experiment.getExperiment().isArchived()) {
+                experiment.getExperiment().setArchived(false);
                 dc.updateExperiment(experiment,
                         LoggingConsumer.<Success>expectSuccess(TAG, "Unarchiving experiment"));
             }

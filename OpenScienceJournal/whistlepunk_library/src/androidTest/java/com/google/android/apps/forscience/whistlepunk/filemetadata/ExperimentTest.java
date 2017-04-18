@@ -46,7 +46,7 @@ public class ExperimentTest extends AndroidTestCase {
         GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
 
         // No labels on creation
-        Experiment experiment = new Experiment(proto, false);
+        Experiment experiment = Experiment.fromExperiment(proto, false);
         assertEquals(experiment.getLabelCount(), 0);
         assertEquals(experiment.getLabels(), Collections.emptyList());
 
@@ -65,7 +65,7 @@ public class ExperimentTest extends AndroidTestCase {
         assertTrue(MessageNano.messageNanoEquals(experiment.getExperimentProto(), proto));
 
         // Try constructing an experiment from a proto that already has these fields.
-        Experiment experiment2 = new Experiment(proto, false);
+        Experiment experiment2 = Experiment.fromExperiment(proto, false);
         assertTrue(MessageNano.messageNanoEquals(experiment2.getLabels().get(0)
                 .getLabelValue(GoosciLabelValue.LabelValue.PICTURE).getValue(), labelValueProto));
         assertEquals(experiment2.getLabelCount(), 1);
@@ -78,7 +78,7 @@ public class ExperimentTest extends AndroidTestCase {
 
     public void testGetLabelsForRange() {
         GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[]{99, 100, 125, 201});
-        Experiment experiment = new Experiment(proto, false);
+        Experiment experiment = Experiment.fromExperiment(proto, false);
 
         GoosciTrial.Range range = new GoosciTrial.Range();
         range.startMs = 0;
@@ -99,7 +99,7 @@ public class ExperimentTest extends AndroidTestCase {
         GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[]{});
 
         // No trials on creation
-        Experiment experiment = new Experiment(proto, false);
+        Experiment experiment = Experiment.fromExperiment(proto, false);
         assertEquals(experiment.getTrialCount(), 0);
         assertEquals(experiment.getTrials(), Collections.emptyList());
 
@@ -113,7 +113,7 @@ public class ExperimentTest extends AndroidTestCase {
         proto.trials = new GoosciTrial.Trial[1];
         proto.trials[0] = trialProto;
 
-        Experiment experiment1 = new Experiment(proto, false);
+        Experiment experiment1 = Experiment.fromExperiment(proto, false);
         assertEquals(experiment1.getTrialCount(), 1);
 
         // Adding a new trial should work as expected.
@@ -138,7 +138,7 @@ public class ExperimentTest extends AndroidTestCase {
         trialProto.title = "title";
         proto.trials = new GoosciTrial.Trial[]{trialProto};
 
-        Experiment experiment = new Experiment(proto, false);
+        Experiment experiment = Experiment.fromExperiment(proto, false);
 
         // Try to get the proto *before* converting the objects into lists.
         GoosciExperiment.Experiment result = experiment.getExperimentProto();

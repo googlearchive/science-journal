@@ -198,7 +198,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
                         TextView selectSensors = (TextView) view.findViewById(
                                 R.id.select_sensors);
                         selectSensors.setText(getString(R.string.select_sensors,
-                                exp.getDisplayTitle(getActivity())));
+                                exp.getExperiment().getDisplayTitle(getActivity())));
                     }
                 });
     }

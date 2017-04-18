@@ -50,7 +50,7 @@ public class MetadataController {
 
     public String getExperimentName(Context context) {
         if (mSelectedExperiment != null) {
-            return mSelectedExperiment.getDisplayTitle(context);
+            return mSelectedExperiment.getExperiment().getDisplayTitle(context);
         } else {
             return "";
         }

@@ -17,39 +17,30 @@
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.content.Context;
-import android.text.TextUtils;
 
-import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.common.annotations.VisibleForTesting;
+
+import java.util.List;
 
 /**
  * An Experiment is a grouping of data sources and labels.
  */
 public class Experiment {
-
-    // This ID is not the same as the experiment ID. It is an index or unique ID into the database.
-    private long mId;
-
-    // This is the experiment's unique ID.
+    private com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment mExperiment;
     private String mExperimentId;
 
-    private long mTimestamp;
-    private String mTitle;
-    private String mDescription;
-    private boolean mArchived;
-    private String mProjectId;
-    private long mLastUsedTime;
-
-    // TODO(justinkoh): add datasources when they get defined.
-
     @VisibleForTesting
-    public Experiment(long id) {
-        mId = id;
-        mTimestamp = System.currentTimeMillis();
+    public Experiment(long timestamp) {
+        mExperiment = com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment
+                .newExperiment(timestamp);
     }
 
-    /* package*/ long getId() {
-        return mId;
+    public Experiment(
+            com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment experiment,
+            String experimentId) {
+        mExperiment = experiment;
+        mExperimentId = experimentId;
     }
 
     @VisibleForTesting
@@ -57,71 +48,18 @@ public class Experiment {
         mExperimentId = experimentId;
     }
 
-    @VisibleForTesting
-    public void setTimestamp(long timestamp) {
-        mTimestamp = timestamp;
-    }
-
-    public void setArchived(boolean archived) {
-        this.mArchived = archived;
-    }
-
-    public void setTitle(String title) {
-        this.mTitle = title;
-    }
-
-    public void setDescription(String description) {
-        this.mDescription = description;
-    }
-
-    public void setProjectId(String projectId) {
-        this.mProjectId = projectId;
-    }
-
     public String getExperimentId() {
         return mExperimentId;
     }
 
-    public long getTimestamp() {
-        return mTimestamp;
-    }
-
-    public String getTitle() {
-        return mTitle;
-    }
-
-    public String getDisplayTitle(Context context) {
-        return !TextUtils.isEmpty(mTitle) ? mTitle : context.getString(
-                R.string.default_experiment_name);
-    }
-
-    public String getDescription() {
-        return mDescription;
-    }
-
-    public boolean isArchived() {
-        return mArchived;
-    }
-
-    public String getProjectId() {
-        return mProjectId;
-    }
-
-    public void setLastUsedTime(long lastUsedTime) {
-        mLastUsedTime = lastUsedTime;
-    }
-
-    public long getLastUsedTime() {
-        return mLastUsedTime;
+    public com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment getExperiment() {
+        return mExperiment;
     }
 
     // For testing purposes only
     @Override
     public String toString() {
-        return "Experiment{" +
-                "mId=" + mId +
-                ", mTitle='" + mTitle + '\'' +
-                '}';
+        return "Experiment{mTitle='" + mExperiment.getTitle() + '\'' + '}';
     }
 
     public static String getExperimentId(Experiment experiment) {

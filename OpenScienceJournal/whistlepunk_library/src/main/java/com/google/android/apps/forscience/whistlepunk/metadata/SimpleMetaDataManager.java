@@ -138,27 +138,30 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     // creation time instead.
                     addLabel(db, experiment.getExperimentId(),
                             RecorderController.NOT_RECORDING_RUN_ID,
-                            Label.newLabelWithValue(experiment.getTimestamp() - 2000,
+                            Label.newLabelWithValue(
+                                    experiment.getExperiment().getTimestamp() - 2000,
                                     TextLabelValue.fromText(project.getDescription())));
                 }
                 if (!TextUtils.isEmpty(project.getCoverPhoto())) {
                     // Create a label with the picture at the start of the experiment.
                     addLabel(db, experiment.getExperimentId(),
                             RecorderController.NOT_RECORDING_RUN_ID,
-                            Label.newLabelWithValue(experiment.getTimestamp() - 1000,
+                            Label.newLabelWithValue(
+                                    experiment.getExperiment().getTimestamp() - 1000,
                                     PictureLabelValue.fromPicture(project.getCoverPhoto(), "")));
                 }
                 boolean needsWrite = false;
                 if (project.isArchived()) {
                     // If the project is archived, the experiment should be archived.
-                    experiment.setArchived(true);
+                    experiment.getExperiment().setArchived(true);
                     needsWrite = true;
                 }
                 if (!TextUtils.isEmpty(project.getTitle())) {
                     // Experiment title prefixed with Project title, unless project title is not set
-                    experiment.setTitle(String.format(mContext.getResources().getString(
-                            R.string.project_experiment_title), project.getTitle(),
-                            experiment.getDisplayTitle(mContext)));
+                    experiment.getExperiment().setTitle(String.format(mContext.getResources()
+                                    .getString(R.string.project_experiment_title),
+                            project.getTitle(), experiment.getExperiment().getDisplayTitle(
+                                    mContext)));
                     needsWrite = true;
                 }
                 if (needsWrite) {
@@ -314,11 +317,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             long id = db.insert(Tables.EXPERIMENTS, null, values);
             if (id != -1) {
-                Experiment experiment = new Experiment(id);
-                experiment.setExperimentId(experimentId);
-                experiment.setProjectId(projectId);
-                experiment.setTimestamp(getCurrentTime());
-                return experiment;
+                com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment exp =
+                        com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment
+                                .newExperiment(getCurrentTime());
+                return new Experiment(exp, experimentId);
             }
         }
         return null;
@@ -360,16 +362,16 @@ public class SimpleMetaDataManager implements MetaDataManager {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             updateExperiment(db, experiment);
+            // TODO: Later this should also update all the trials and labels in this experiment?
         }
     }
 
     private static void updateExperiment(SQLiteDatabase db, Experiment experiment) {
         final ContentValues values = new ContentValues();
-        values.put(ExperimentColumns.TITLE, experiment.getTitle());
-        values.put(ExperimentColumns.DESCRIPTION, experiment.getDescription());
-        values.put(ExperimentColumns.ARCHIVED, experiment.isArchived());
-        values.put(ExperimentColumns.PROJECT_ID, experiment.getProjectId());
-        values.put(ExperimentColumns.LAST_USED_TIME, experiment.getLastUsedTime());
+        values.put(ExperimentColumns.TITLE, experiment.getExperiment().getTitle());
+        values.put(ExperimentColumns.DESCRIPTION, experiment.getExperiment().getDescription());
+        values.put(ExperimentColumns.ARCHIVED, experiment.getExperiment().isArchived());
+        values.put(ExperimentColumns.LAST_USED_TIME, experiment.getExperiment().getLastUsedTime());
         db.update(Tables.EXPERIMENTS, values, ExperimentColumns.EXPERIMENT_ID + "=?",
                 new String[]{experiment.getExperimentId()});
     }
@@ -402,14 +404,16 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     private static Experiment createExperimentFromCursor(Cursor cursor) {
-        Experiment experiment = new Experiment(cursor.getLong(0));
-        experiment.setExperimentId(cursor.getString(1));
-        experiment.setTimestamp(cursor.getLong(2));
-        experiment.setTitle(cursor.getString(3));
-        experiment.setDescription(cursor.getString(4));
-        experiment.setProjectId(cursor.getString(5));
-        experiment.setArchived(cursor.getInt(6) != 0);
-        experiment.setLastUsedTime(cursor.getLong(7));
+        GoosciExperiment.Experiment expProto = new GoosciExperiment.Experiment();
+        expProto.creationTimeMs = cursor.getLong(2);
+        expProto.lastUsedTimeMs = cursor.getLong(7);
+        expProto.description = cursor.getString(4);
+        expProto.title = cursor.getString(3);
+        boolean archived = cursor.getInt(6) != 0;
+        String experimentId = cursor.getString(1);
+        Experiment experiment = new Experiment(
+                com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment
+                        .fromExperiment(expProto, archived), experimentId);
         return experiment;
     }
 
@@ -440,7 +444,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     @Override
     public void updateLastUsedExperiment(Experiment experiment) {
         long time = getCurrentTime();
-        experiment.setLastUsedTime(time);
+        experiment.getExperiment().setLastUsedTime(time);
         updateExperiment(experiment);
     }
 

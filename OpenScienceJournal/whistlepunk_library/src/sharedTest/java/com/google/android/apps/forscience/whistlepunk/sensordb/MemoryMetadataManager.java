@@ -85,8 +85,6 @@ public class MemoryMetadataManager implements MetaDataManager {
     public Experiment newExperiment(long timestamp, String experimentId) {
         Experiment experiment = new Experiment(timestamp);
         experiment.setExperimentId(experimentId);
-        experiment.setProjectId(SimpleMetaDataManager.DEFAULT_PROJECT_ID);
-        experiment.setTimestamp(timestamp);
         mExperiments.add(0, experiment);
         return experiment;
     }

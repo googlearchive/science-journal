@@ -280,8 +280,8 @@ public class ExperimentDetailsFragment extends Fragment
                 if (mDetails.getChildAdapterPosition(view) != 0) {
                     return false;
                 }
-                if (mExperiment != null && (mExperiment.isArchived() || !TextUtils.isEmpty(
-                        mExperiment.getDescription()))) {
+                if (mExperiment != null && (mExperiment.getExperiment().isArchived() ||
+                        !TextUtils.isEmpty(mExperiment.getExperiment().getDescription()))) {
                     // Then it is the VIEW_TYPE_EXPERIMENT_DESCRIPTION
                     return true;
                 }
@@ -318,7 +318,7 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     private void loadExperimentData(final Experiment experiment) {
-        if (experiment.isArchived()) {
+        if (experiment.getExperiment().isArchived()) {
             mObserveButton.setVisibility(View.GONE);
             mObserveButton.setOnClickListener(null);
         } else {
@@ -358,10 +358,10 @@ public class ExperimentDetailsFragment extends Fragment
             return;
         }
 
-        getActivity().setTitle(experiment.getDisplayTitle(getActivity()));
+        getActivity().setTitle(experiment.getExperiment().getDisplayTitle(getActivity()));
 
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
-        toolbar.setTitle(experiment.getDisplayTitle(getActivity()));
+        toolbar.setTitle(experiment.getExperiment().getDisplayTitle(getActivity()));
     }
 
     private DataController getDataController() {
@@ -378,11 +378,11 @@ public class ExperimentDetailsFragment extends Fragment
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_archive_experiment).setVisible(mExperiment != null &&
-                !mExperiment.isArchived());
+                !mExperiment.getExperiment().isArchived());
         menu.findItem(R.id.action_unarchive_experiment).setVisible(mExperiment != null &&
-                mExperiment.isArchived());
+                mExperiment.getExperiment().isArchived());
         menu.findItem(R.id.action_delete_experiment).setEnabled(mExperiment != null
-                && mExperiment.isArchived());
+                && mExperiment.getExperiment().isArchived());
         menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
         menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
     }
@@ -435,7 +435,7 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     private void setExperimentArchived(final boolean archived) {
-        mExperiment.setArchived(archived);
+        mExperiment.getExperiment().setArchived(archived);
         getDataController().updateExperiment(mExperiment, new LoggingConsumer<Success>(
                 TAG, "Editing experiment") {
             @Override
@@ -795,12 +795,12 @@ public class ExperimentDetailsFragment extends Fragment
                                 .getColor(R.color.color_accent_dark));
                 holder.itemView.findViewById(R.id.description_overlap_spacer).setVisibility(
                         hasEmptyView() ? View.GONE : View.VISIBLE);
-                description.setText(mExperiment.getDescription());
-                description.setVisibility(TextUtils.isEmpty(mExperiment.getDescription()) ?
-                        View.GONE : View.VISIBLE);
+                description.setText(mExperiment.getExperiment().getDescription());
+                description.setVisibility(TextUtils.isEmpty(
+                        mExperiment.getExperiment().getDescription()) ? View.GONE : View.VISIBLE);
                 View archivedIndicator = holder.itemView.findViewById(R.id.archived_indicator);
-                archivedIndicator.setVisibility(mExperiment.isArchived() ? View.VISIBLE :
-                        View.GONE);
+                archivedIndicator.setVisibility(
+                        mExperiment.getExperiment().isArchived() ? View.VISIBLE : View.GONE);
             } else if (type == VIEW_TYPE_EMPTY) {
                 TextView view = (TextView) holder.itemView;
                 view.setText(R.string.empty_experiment);
@@ -951,7 +951,8 @@ public class ExperimentDetailsFragment extends Fragment
             }
             sortItems();
 
-            if (!TextUtils.isEmpty(experiment.getDescription()) || experiment.isArchived()) {
+            if (!TextUtils.isEmpty(experiment.getExperiment().getDescription()) ||
+                    experiment.getExperiment().isArchived()) {
                 mItems.add(0, new ExperimentDetailItem(VIEW_TYPE_EXPERIMENT_DESCRIPTION));
             }
 
@@ -1009,7 +1010,8 @@ public class ExperimentDetailsFragment extends Fragment
             mItems.add(new ExperimentDetailItem(VIEW_TYPE_EMPTY));
             if (notifyAdd) {
                 notifyItemInserted(mItems.size() - 1);
-                if (mExperiment.isArchived() || !TextUtils.isEmpty(mExperiment.getDescription())) {
+                if (mExperiment.getExperiment().isArchived() ||
+                        !TextUtils.isEmpty(mExperiment.getExperiment().getDescription())) {
                     notifyItemChanged(0);
                 }
             }
@@ -1022,7 +1024,8 @@ public class ExperimentDetailsFragment extends Fragment
             mItems.remove(location);
             if (notifyRemove) {
                 notifyItemRemoved(location);
-                if (mExperiment.isArchived() || !TextUtils.isEmpty(mExperiment.getDescription())) {
+                if (mExperiment.getExperiment().isArchived() ||
+                        !TextUtils.isEmpty(mExperiment.getExperiment().getDescription())) {
                     notifyItemChanged(0);
                 }
             }
