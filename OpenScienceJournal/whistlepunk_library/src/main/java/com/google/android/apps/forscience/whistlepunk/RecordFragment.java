@@ -843,6 +843,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             mSensorCardAdapter.onResume(ignoreDataBefore);
         }
 
+        refreshLabels();
+
         mSensorCardRecyclerView =
                 (RecyclerView) rootView.findViewById(R.id.sensor_card_recycler_view);
         mSensorCardRecyclerView.setLayoutManager(mSensorCardLayoutManager);
