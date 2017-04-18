@@ -20,6 +20,7 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.media.audiofx.NoiseSuppressor;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
@@ -74,8 +75,9 @@ public class DecibelSensor extends ScalarSensor {
                     return;
                 }
                 mRunning.set(true);
-                mRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE_IN_HZ,
-                        CHANNEL_CONFIG, AUDIO_FORMAT, mBytesInBuffer);
+                // Use VOICE_COMMUNICATION to filter out audio coming from the speakers
+                mRecord = new AudioRecord(MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+                        SAMPLE_RATE_IN_HZ, CHANNEL_CONFIG, AUDIO_FORMAT, mBytesInBuffer);
                 if (mRecord.getState() != AudioRecord.STATE_INITIALIZED) {
                     listener.onSourceError(getId(), SensorStatusListener.ERROR_FAILED_TO_CONNECT,
                             "Could not connect to microphone");
