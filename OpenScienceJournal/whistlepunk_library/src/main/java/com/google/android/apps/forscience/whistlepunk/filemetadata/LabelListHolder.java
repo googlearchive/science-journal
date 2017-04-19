@@ -21,7 +21,7 @@ public abstract class LabelListHolder {
     /**
      * Gets the current list of labels in this object, ordered by timestamp.
      * Objects in this list should not be modified and expect that state to be saved, instead
-     * editing of labels should happen using updateLabel, addLabel, removeLabel.
+     * editing of labels should happen using updateLabel, addTrialLabel, removeLabel.
      */
     public List<Label> getLabels() {
         return mLabels;

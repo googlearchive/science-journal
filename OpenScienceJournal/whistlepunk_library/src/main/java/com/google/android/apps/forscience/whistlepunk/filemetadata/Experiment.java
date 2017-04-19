@@ -133,7 +133,7 @@ public class Experiment extends LabelListHolder {
     /**
      * Gets the labels which fall during a certain time range.
      * Objects in this list should not be modified and expect that state to be saved, instead
-     * editing of labels should happen using updateLabel, addLabel, removeLabel.
+     * editing of labels should happen using updateLabel, addTrialLabel, removeLabel.
      * @param range The time range in which to search for labels
      * @return A list of labels in that range, or an empty list if none are found.
      */

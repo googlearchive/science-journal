@@ -44,7 +44,7 @@ public interface MetaDataManager {
     void deleteExperiment(Experiment experiment);
 
     /**
-     * Updates experiment details.
+     * Updates experiment details, including the experiment's labels.
      */
     void updateExperiment(Experiment experiment);
 

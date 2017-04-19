@@ -303,23 +303,41 @@ public class RecorderControllerImpl implements RecorderController {
         }
         SensorTriggerLabelValue labelValue = SensorTriggerLabelValue.fromTrigger(trigger,
                 context);
-        Label triggerLabel = Label.newLabelWithValue(timestamp, labelValue);
-        mDataController.addLabel(triggerLabel, mSelectedExperiment.getExperimentId(),
-                getCurrentRunId(), new LoggingConsumer<Label>(TAG, "add trigger label") {
-                    @Override
-                    public void success(Label label) {
-                        String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
-                                TrackerConstants.LABEL_OBSERVE;
-                        WhistlePunkApplication.getUsageTracker(mContext)
-                                .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                        TrackerConstants.ACTION_CREATE,
-                                        trackerLabel,
-                                        TrackerConstants.getLabelValueType(label));
-                        for (TriggerFiredListener listener : mTriggerListeners.values()) {
-                            listener.onLabelAdded(label);
+        final Label triggerLabel = Label.newLabelWithValue(timestamp, labelValue);
+        if (isRecording()) {
+            // TODO: Add the label to the run and update the run/experiment.
+            mDataController.addTrialLabel(triggerLabel, mSelectedExperiment.getExperimentId(),
+                    getCurrentRunId(), new LoggingConsumer<Label>(TAG, "add trigger label") {
+                        @Override
+                        public void success(Label label) {
+                            onLabelAdded(label);
                         }
-                    }
-                });
+                    });
+        } else {
+            // Adds the label to the experiment and saves the updated experiment.
+            mSelectedExperiment.getExperiment().addLabel(triggerLabel);
+            mDataController.updateExperiment(mSelectedExperiment,
+                    new LoggingConsumer<Success>(TAG, "add trigger label to experiment") {
+                        @Override
+                        public void success(Success value) {
+                            onLabelAdded(triggerLabel);
+                        }
+                    });
+        }
+
+    }
+
+    private void onLabelAdded(Label label) {
+        String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
+                TrackerConstants.LABEL_OBSERVE;
+        WhistlePunkApplication.getUsageTracker(mContext)
+                .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                        TrackerConstants.ACTION_CREATE,
+                        trackerLabel,
+                        TrackerConstants.getLabelValueType(label));
+        for (TriggerFiredListener listener : mTriggerListeners.values()) {
+            listener.onLabelAdded(label);
+        }
     }
 
     private String getCurrentRunId() {

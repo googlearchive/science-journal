@@ -192,7 +192,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         });
     }
 
-    public void addLabel(final Label label, final String experimentId, final String trialId,
+    public void addTrialLabel(final Label label, final String experimentId, final String trialId,
             final MaybeConsumer<Label> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Label>() {
             @Override
@@ -201,13 +201,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                 return label;
             }
         });
-    }
-
-    @Override
-    public void addExperimentLabel(Label label, String experimentId,
-            MaybeConsumer<Label> onSuccess) {
-        // An experiment label has a Trial ID of NOT_RECORDING_RUN_ID.
-        addLabel(label, experimentId, RecorderController.NOT_RECORDING_RUN_ID, onSuccess);
     }
 
     @Override
@@ -223,7 +216,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void editLabel(final Label updatedLabel, final MaybeConsumer<Success> onSuccess) {
+    public void editTrialLabel(final Label updatedLabel, final MaybeConsumer<Success> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {
@@ -246,7 +239,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void deleteLabel(final Label label, final MaybeConsumer<Success> onSuccess) {
+    public void deleteTrialLabel(final Label label, final MaybeConsumer<Success> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {

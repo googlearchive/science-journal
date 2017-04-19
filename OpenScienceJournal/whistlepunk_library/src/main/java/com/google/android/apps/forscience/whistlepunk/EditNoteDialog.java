@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,6 +39,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -52,12 +54,14 @@ public class EditNoteDialog extends DialogFragment {
     private static final String KEY_SAVED_TIMESTAMP = "keySavedTimestamp";
     private static final String KEY_SELECTED_VALUE = "keySavedValue";
     private static final String KEY_SAVED_TIME_TEXT_DESCRIPTION = "keySavedTimeTextDescription";
+    private static final String KEY_EXPERIMENT_ID = "keyExperimentId";
     private static final String KEY_TRIAL_ID = "keyTrialId";
 
     private Label mLabel;
     private GoosciLabelValue.LabelValue mSelectedValue;
     private long mTimestamp;
     private String mTrialId;
+    private Experiment mExperiment;
 
     public interface EditNoteDialogListener {
         /**
@@ -80,8 +84,9 @@ public class EditNoteDialog extends DialogFragment {
      * minute.
      */
     public static EditNoteDialog newInstance(Label label,
-            GoosciLabelValue.LabelValue selectedValue, long timestamp, String trialId) {
-        return newInstance(label, selectedValue, null, timestamp, null, trialId);
+            GoosciLabelValue.LabelValue selectedValue, long timestamp, String experimentId,
+            String trialId) {
+        return newInstance(label, selectedValue, null, timestamp, null, experimentId, trialId);
     }
 
     /**
@@ -90,7 +95,7 @@ public class EditNoteDialog extends DialogFragment {
      */
     public static EditNoteDialog newInstance(Label label,
             GoosciLabelValue.LabelValue selectedValue, String timeText, long timestamp,
-            String timeTextDescription, String trialId) {
+            String timeTextDescription, String experimentId, String trialId) {
         EditNoteDialog dialog = new EditNoteDialog();
         Bundle args = new Bundle();
         args.putParcelable(KEY_SAVED_LABEL, label);
@@ -98,6 +103,7 @@ public class EditNoteDialog extends DialogFragment {
         args.putString(KEY_SAVED_TIME_TEXT, timeText);
         args.putLong(KEY_SAVED_TIMESTAMP, timestamp);
         args.putString(KEY_SAVED_TIME_TEXT_DESCRIPTION, timeTextDescription);
+        args.putString(KEY_EXPERIMENT_ID, experimentId);
         args.putString(KEY_TRIAL_ID, trialId);
         dialog.setArguments(args);
         return dialog;
@@ -114,6 +120,15 @@ public class EditNoteDialog extends DialogFragment {
                 KEY_SAVED_TIME_TEXT_DESCRIPTION);
         mTimestamp = getArguments().getLong(KEY_SAVED_TIMESTAMP);
         mTrialId = getArguments().getString(KEY_TRIAL_ID);
+        String experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
+        getDataController().getExperimentById(experimentId,
+                new LoggingConsumer<Experiment>(TAG, "get experiment") {
+                    @Override
+                    public void success(Experiment value) {
+                        mExperiment = value;
+                        updatePositiveButtonEnabled((AlertDialog) getDialog());
+                    }
+                });
         try {
             mSelectedValue = GoosciLabelValue.LabelValue.parseFrom(
                     getArguments().getByteArray(KEY_SELECTED_VALUE));
@@ -180,9 +195,18 @@ public class EditNoteDialog extends DialogFragment {
                                     GoosciLabelValue.LabelValue.SENSOR_TRIGGER)).setCustomText(
                                     editText.getText().toString());
                         }
-                        getDataController().editLabel(mLabel,
-                                ((EditNoteDialogListener) getParentFragment()).onLabelEdit(
-                                        mLabel));
+                        if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
+                            mExperiment.getExperiment().updateLabel(mLabel);
+                            getDataController().updateExperiment(mExperiment,
+                                    ((EditNoteDialogListener) getParentFragment()).onLabelEdit(
+                                            mLabel));
+                        } else {
+                            // TODO: Do this by updating the trial with the label, the experiment
+                            // with the trial, and then updating the experiment.
+                            getDataController().editTrialLabel(mLabel,
+                                    ((EditNoteDialogListener) getParentFragment()).onLabelEdit(
+                                            mLabel));
+                        }
                     }
                 }
         );
@@ -235,6 +259,12 @@ public class EditNoteDialog extends DialogFragment {
         }
 
         AlertDialog dialog = alertDialog.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                updatePositiveButtonEnabled((AlertDialog) dialogInterface);
+            }
+        });
         if (mLabel.hasValueType(GoosciLabelValue.LabelValue.TEXT) ||
                 mLabel.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
             dialog.getWindow().setSoftInputMode(
@@ -249,5 +279,12 @@ public class EditNoteDialog extends DialogFragment {
 
     private boolean labelBelongsToRun() {
         return !TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID);
+    }
+
+    private void updatePositiveButtonEnabled(AlertDialog dialog) {
+        Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setEnabled(mExperiment != null);
+        }
     }
 }

@@ -82,9 +82,6 @@ import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackCont
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
@@ -818,7 +815,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                         mUndone = true;
                         Label label = Label.copyOf(item);
                         label.setTimestamp(item.getTimeStamp());
-                        dc.addLabel(label, mExperimentId, mExperimentRun.getTrialId(),
+                        dc.addTrialLabel(label, mExperimentId, mExperimentRun.getTrialId(),
                                 new LoggingConsumer<Label>(TAG, "re-add deleted label") {
                             @Override
                             public void success(Label label) {
@@ -835,7 +832,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 });
 
                 // Delete the item immediately, and remove it from the pinned note list.
-                dc.deleteLabel(item, new LoggingConsumer<Success>(TAG, "delete label") {
+                dc.deleteTrialLabel(item, new LoggingConsumer<Success>(TAG, "delete label") {
                     @Override
                     public void success(Success value) {
                         mPinnedNoteAdapter.deleteNote(item);
@@ -1519,7 +1516,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         EditNoteDialog dialog = EditNoteDialog.newInstance(label, newValue, labelTimeText,
                 selectedTimestamp, PinnedNoteAdapter.getNoteTimeContentDescription(
                         selectedTimestamp, run.getFirstTimestamp(), getActivity()),
-                mExperimentRun.getTrialId());
+                mExperimentId, mExperimentRun.getTrialId());
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 

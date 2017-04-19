@@ -366,10 +366,21 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void updateExperiment(Experiment experiment) {
+        // Delete and re-add all the labels, as if this was a file we were re-writing from scratch.
+        // This is not super efficient, but it is temporary in the file system migration process.
+        List<Label> labels = getLabelsForExperiment(experiment);
+        for (Label label : labels) {
+            deleteLabel(label);
+        }
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             updateExperiment(db, experiment);
-            // TODO: Later this should also update all the trials and labels in this experiment?
+            for (Label label : experiment.getExperiment().getLabels()) {
+                // how does this do on conflict? poorly.
+                addLabel(experiment.getExperimentId(),
+                        RecorderController.NOT_RECORDING_RUN_ID, label);
+            }
+            // TODO: Later this should also update all the trials in this experiment
         }
     }
 

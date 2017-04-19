@@ -44,9 +44,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
+import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
@@ -55,6 +57,7 @@ import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 /**
  * Dialog for adding new notes.
  */
+// TODO: Combine similar code with EditNoteDialog.
 public class AddNoteDialog extends DialogFragment {
     public static final String TAG = "add_note_dialog";
 
@@ -121,6 +124,7 @@ public class AddNoteDialog extends DialogFragment {
     private int mHintTextId = R.string.add_run_note_placeholder_text;
     private String mPictureLabelPath;
     private EditText mInput;
+    private Experiment mExperiment;
 
     /**
      * Create an AddNoteDialog that does not show the timestamp section, and where the note
@@ -243,7 +247,13 @@ public class AddNoteDialog extends DialogFragment {
                     }
                 });
         alertDialog.setCancelable(true);
-        final AlertDialog dialog = alertDialog.create();
+        AlertDialog dialog = alertDialog.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                updatePositiveButtonEnabled((AlertDialog) dialogInterface);
+            }
+        });
         if (!hasPicture()) {
             dialog.getWindow().setSoftInputMode(
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -288,11 +298,19 @@ public class AddNoteDialog extends DialogFragment {
             mTimestamp = getArguments().getLong(KEY_SAVED_TIMESTAMP, -1);
             mUseSavedTimestamp = getArguments().getBoolean(KEY_SHOULD_USE_SAVED_TIMESTAMP, true);
             mShowTimestampSection = getArguments().getBoolean(KEY_SHOW_TIMESTAMP_SECTION, false);
-            mRunId = getArguments().getString(KEY_SAVED_RUN_ID);
-            mExperimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
             mHintTextId = getArguments().getInt(KEY_HINT_TEXT_ID, mHintTextId);
             mLabelTimeText = getArguments().getString(KEY_LABEL_TIME_TEXT, "");
             mPictureLabelPath = getArguments().getString(KEY_SAVED_PICTURE_PATH, null);
+            mRunId = getArguments().getString(KEY_SAVED_RUN_ID);
+            mExperimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
+            getDataController().getExperimentById(mExperimentId,
+                    new LoggingConsumer<Experiment>(TAG, "get experiment") {
+                        @Override
+                        public void success(Experiment value) {
+                            mExperiment = value;
+                            updatePositiveButtonEnabled((AlertDialog) getDialog());
+                        }
+                    });
             if (getArguments().containsKey(KEY_SAVED_TIME_TEXT_DESCRIPTION)) {
                 mLabelTimeTextDescription =
                         getArguments().getString(KEY_SAVED_TIME_TEXT_DESCRIPTION);
@@ -304,7 +322,7 @@ public class AddNoteDialog extends DialogFragment {
                     mPictureLabelPath = PictureLabelValue.getFilePath(value);
                     if (TextUtils.isEmpty(mPictureLabelPath)) {
                         // If there is no picture path, then this was saved as a text label by
-                        // default (see addLabel). See if any text is available to populate the
+                        // default (see addTrialLabel). See if any text is available to populate the
                         // text field.
                         text = TextLabelValue.getText(value);
                     } else {
@@ -463,8 +481,25 @@ public class AddNoteDialog extends DialogFragment {
         mPictureLabelPath = null;
     }
 
-    private void addLabel(Label label) {
-        getDataController().addLabel(label, mExperimentId, mRunId, mListener.onLabelAdd(label));
+    private void addLabel(final Label label) {
+        if (TextUtils.equals(mRunId, RecorderController.NOT_RECORDING_RUN_ID)) {
+            mExperiment.getExperiment().addLabel(label);
+            // The listener may be cleared by onDetach() before the experiment is written,
+            // so save the MaybeConsumer here as a final var.
+            final MaybeConsumer<Label> onSuccess = mListener.onLabelAdd(label);
+            getDataController().updateExperiment(mExperiment,
+                    new LoggingConsumer<Success>(TAG, "update experiment add label") {
+                        @Override
+                        public void success(Success value) {
+                            onSuccess.success(label);
+                        }
+                    });
+        } else {
+            // TODO: Do this by updating the trial with the label, the experiment with the trial,
+            // and then updating the experiment.
+            getDataController().addTrialLabel(label, mExperimentId, mRunId,
+                    mListener.onLabelAdd(label));
+        }
     }
 
     private DataController getDataController() {
@@ -494,4 +529,12 @@ public class AddNoteDialog extends DialogFragment {
     private boolean hasPicture() {
         return !TextUtils.isEmpty(mPictureLabelPath);
     }
+
+    private void updatePositiveButtonEnabled(AlertDialog dialog) {
+        Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setEnabled(mExperiment != null);
+        }
+    }
+
 }

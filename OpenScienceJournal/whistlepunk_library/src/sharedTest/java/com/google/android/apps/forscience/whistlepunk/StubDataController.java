@@ -47,13 +47,7 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void addLabel(Label label, String experimentId, String trialId,
-            MaybeConsumer<Label> onSuccess) {
-
-    }
-
-    @Override
-    public void addExperimentLabel(Label label, String experimentId,
+    public void addTrialLabel(Label label, String experimentId, String trialId,
             MaybeConsumer<Label> onSuccess) {
 
     }
@@ -120,7 +114,7 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void editLabel(Label updatedLabel, MaybeConsumer<Success> onSuccess) {
+    public void editTrialLabel(Label updatedLabel, MaybeConsumer<Success> onSuccess) {
 
     }
 
@@ -131,7 +125,7 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void deleteLabel(Label label, MaybeConsumer<Success> onSuccess) {
+    public void deleteTrialLabel(Label label, MaybeConsumer<Success> onSuccess) {
 
     }
 

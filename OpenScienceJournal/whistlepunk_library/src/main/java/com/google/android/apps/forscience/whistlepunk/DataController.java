@@ -44,10 +44,8 @@ public interface DataController {
     void getScalarReadings(String databaseTag, final int resolutionTier, TimeRange timeRange,
             int maxRecords, MaybeConsumer<ScalarReadingList> onSuccess);
 
-    void addLabel(Label label, String experimentId, String trialId,
+    void addTrialLabel(Label label, String experimentId, String trialId,
             MaybeConsumer<Label> onSuccess);
-
-    void addExperimentLabel(Label label, String experimentId, MaybeConsumer<Label> onSuccess);
 
     void addApplicationLabel(ApplicationLabel label, MaybeConsumer<ApplicationLabel> onSuccess);
 
@@ -77,11 +75,11 @@ public interface DataController {
     void getExperimentRuns(String experiment, boolean includeArchived,
             final boolean includeInvalid, MaybeConsumer<List<ExperimentRun>> onSuccess);
 
-    void editLabel(final Label updatedLabel, final MaybeConsumer<Success> onSuccess);
+    void editTrialLabel(final Label updatedLabel, final MaybeConsumer<Success> onSuccess);
 
     void editApplicationLabel(ApplicationLabel updatedLabel, MaybeConsumer<Success> onSuccess);
 
-    void deleteLabel(Label label, MaybeConsumer<Success> onSuccess);
+    void deleteTrialLabel(Label label, MaybeConsumer<Success> onSuccess);
 
     String generateNewLabelId();
 

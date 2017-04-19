@@ -478,7 +478,7 @@ public class ExperimentDetailsFragment extends Fragment
     private void launchPicturePreview(Label label) {
         EditNoteDialog dialog = EditNoteDialog.newInstance(label,
                 label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE).getValue(),
-                label.getTimeStamp(), RecorderController.NOT_RECORDING_RUN_ID);
+                label.getTimeStamp(), mExperimentId, RecorderController.NOT_RECORDING_RUN_ID);
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
@@ -486,7 +486,7 @@ public class ExperimentDetailsFragment extends Fragment
         // Assuming one labelValue per label at the moment.
         GoosciLabelValue.LabelValue value = label.getLabelValues().get(0).getValue();
         EditNoteDialog dialog = EditNoteDialog.newInstance(label, value,
-                label.getTimeStamp(), RecorderController.NOT_RECORDING_RUN_ID);
+                label.getTimeStamp(), mExperimentId, RecorderController.NOT_RECORDING_RUN_ID);
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
@@ -571,11 +571,12 @@ public class ExperimentDetailsFragment extends Fragment
                     return;
                 }
                 mUndone = true;
-                Label label = Label.copyOf(item);
-                dc.addExperimentLabel(label, mExperimentId,
-                        new LoggingConsumer<Label>(TAG, "re-add deleted label") {
+                final Label label = Label.copyOf(item);
+                mExperiment.getExperiment().addLabel(label);
+                dc.updateExperiment(mExperiment, new LoggingConsumer<Success>(TAG,
+                        "re-add deleted label") {
                     @Override
-                    public void success(Label label) {
+                    public void success(Success value) {
                         mAdapter.insertNote(label);
                         WhistlePunkApplication.getUsageTracker(getActivity())
                                 .trackEvent(TrackerConstants.CATEGORY_NOTES,
@@ -588,7 +589,8 @@ public class ExperimentDetailsFragment extends Fragment
         });
 
         // Delete the item immediately, and remove it from the pinned note list.
-        dc.deleteLabel(item, new LoggingConsumer<Success>(TAG, "delete label") {
+        mExperiment.getExperiment().deleteLabel(item);
+        dc.updateExperiment(mExperiment, new LoggingConsumer<Success>(TAG, "delete label") {
             @Override
             public void success(Success value) {
                 mAdapter.deleteNote(item);
