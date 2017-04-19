@@ -337,16 +337,7 @@ public class ExperimentDetailsFragment extends Fragment
                 new LoggingConsumer<List<ExperimentRun>>(TAG, "loading runs") {
                     @Override
                     public void success(final List<ExperimentRun> runs) {
-                        dc.getLabelsForExperiment(experiment,
-                                new LoggingConsumer<List<Label>>(TAG,
-                                        "loading labels") {
-                                    @Override
-                                    public void success(List<Label> labels) {
-                                        mAdapter.setData(experiment, runs, labels,
-                                                mScalarDisplayOptions);
-                                    }
-                                });
-
+                        mAdapter.setData(experiment, runs, mScalarDisplayOptions);
                     }
                 });
     }
@@ -927,7 +918,7 @@ public class ExperimentDetailsFragment extends Fragment
             return mItems.get(position).getViewType();
         }
 
-        public void setData(Experiment experiment, List<ExperimentRun> runs, List<Label> labels,
+        public void setData(Experiment experiment, List<ExperimentRun> runs,
                 ScalarDisplayOptions scalarDisplayOptions) {
             mHasRunsOrLabels = false;
             mExperiment = experiment;
@@ -945,7 +936,7 @@ public class ExperimentDetailsFragment extends Fragment
                 mItems.add(item);
                 mHasRunsOrLabels = true;
             }
-            for (Label label : labels) {
+            for (Label label : experiment.getExperiment().getLabels()) {
                 mItems.add(new ExperimentDetailItem(label));
                 mHasRunsOrLabels = true;
             }

@@ -335,38 +335,22 @@ public class ExperimentListFragment extends Fragment {
                 if (expPhoto != null) {
                     loadPhoto(holder, expPhoto);
                 } else {
-                    loadPhotoFromExperimentLabels(holder, experiment, mDataController,
-                            experimentId);
+                    loadPhotoFromExperimentLabels(holder, experiment);
                 }
             } else {
                 holder.experimentLastRun.setText("");
-                loadPhotoFromExperimentLabels(holder, experiment, mDataController, experimentId);
+                loadPhotoFromExperimentLabels(holder, experiment);
             }
         }
 
-        private void loadPhotoFromExperimentLabels(final ViewHolder holder, Experiment experiment,
-                                                   DataController dc, final String experimentId) {
-            holder.labelLoadStatus = ViewHolder.LOAD_STATUS_IN_PROGRESS;
-            dc.getLabelsForExperiment(experiment, new LoggingConsumer<List<Label>>(TAG,
-                    "Loading labels") {
-                @Override
-                public void success(List<Label> labels) {
-                    if (!experimentId.equals(holder.experimentId) ||
-                            holder.labelLoadStatus != ViewHolder.LOAD_STATUS_IN_PROGRESS) {
-                        // Don't load data if the experiment ID of the holder has changed or
-                        // if we didn't think we were loading.
-                        return;
-                    }
-                    holder.labelLoadStatus = ViewHolder.LOAD_STATUS_IDLE;
-                    for (Label label : labels) {
-                        if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-                            loadPhoto(holder, (PictureLabelValue) label.getLabelValue(
-                                    GoosciLabelValue.LabelValue.PICTURE));
-                            break;
-                        }
-                    }
+        private void loadPhotoFromExperimentLabels(final ViewHolder holder, Experiment experiment) {
+            for (Label label : experiment.getExperiment().getLabels()) {
+                if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+                    loadPhoto(holder, (PictureLabelValue) label.getLabelValue(
+                            GoosciLabelValue.LabelValue.PICTURE));
+                    break;
                 }
-            });
+            }
         }
 
         private void loadPhoto(final ViewHolder holder, PictureLabelValue expPhoto) {
@@ -408,11 +392,6 @@ public class ExperimentListFragment extends Fragment {
          * Load status for the experiment overview.
          */
         int overviewLoadStatus;
-
-        /**
-         * Load status for labels.
-         */
-        int labelLoadStatus;
 
         TextView experimentTitle;
         RelativeTimeTextView experimentLastRun;

@@ -59,7 +59,6 @@ public class MemoryMetadataManager implements MetaDataManager {
     private List<Experiment> mExperiments = new ArrayList<>();
     private Multimap<String, String> mExperimentIncluded = HashMultimap.create();
     private Multimap<String, String> mExperimentExcluded = HashMultimap.create();
-    private ListMultimap<String, Label> mLabels = LinkedListMultimap.create();
     private ListMultimap<String, Label> mTrialLabels = LinkedListMultimap.create();
     private ListMultimap<String, ApplicationLabel> mApplicationLabels = LinkedListMultimap.create();
     private Table<String, String, TrialStats> mStats = HashBasedTable.create();
@@ -110,18 +109,13 @@ public class MemoryMetadataManager implements MetaDataManager {
         if (TextUtils.equals(trialId, RecorderController.NOT_RECORDING_RUN_ID)) {
             mTrialLabels.put(trialId, label);
         } else {
-            mLabels.put(experimentId, label);
+            getExperimentById(experimentId).getExperiment().addLabel(label);
         }
     }
 
     @Override
     public void addApplicationLabel(String experimentId, ApplicationLabel label) {
         mApplicationLabels.put(experimentId, label);
-    }
-
-    @Override
-    public List<Label> getLabelsForExperiment(Experiment experiment) {
-        return mLabels.get(experiment.getExperimentId());
     }
 
     @Override

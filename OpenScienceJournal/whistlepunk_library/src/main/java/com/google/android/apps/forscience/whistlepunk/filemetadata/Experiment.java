@@ -152,6 +152,16 @@ public class Experiment extends LabelListHolder {
     }
 
     /**
+     * Temporary method used to populate labels from the database.
+     * TODO: Deprecate this after moving to a file-based system where labels are stored as
+     * part of the proto and don't need a separate set.
+     * @param labels
+     */
+    public void populateLabels(List<Label> labels) {
+        setLabels(labels);
+    }
+
+    /**
      * Gets the current list of trials in this experiment.
      * Objects in this list should not be modified and expect that state to be saved, instead
      * editing of trials should happen using updateTrial, addTrial, removeTrial.

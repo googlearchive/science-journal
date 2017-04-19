@@ -482,28 +482,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void getLabelsForExperiment(final Experiment experiment,
-                                       MaybeConsumer<List<Label>> onSuccess) {
-        Preconditions.checkNotNull(experiment);
-        background(mMetaDataThread, onSuccess, new Callable<List<Label>>() {
-            @Override
-            public List<Label> call() throws Exception {
-                return mMetaDataManager.getLabelsForExperiment(experiment);
-            }
-        });
-    }
-
-    @Override
-    public void getLabelsForTrial(final String trialId, MaybeConsumer<List<Label>> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<List<Label>>() {
-            @Override
-            public List<Label> call() throws Exception {
-                return mMetaDataManager.getLabelsForTrial(trialId);
-            }
-        });
-    }
-
-    @Override
     public void updateLastUsedExperiment(
             final Experiment experiment, MaybeConsumer<Success> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
