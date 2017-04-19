@@ -42,9 +42,10 @@ public class UpdateRunActivity extends AppCompatActivity {
         }
     }
 
-    public static void launch(Context context, String runId) {
+    public static void launch(Context context, String runId, String experimentId) {
         final Intent intent = new Intent(context, UpdateRunActivity.class);
         intent.putExtra(UpdateRunFragment.ARG_RUN_ID, runId);
+        intent.putExtra(UpdateRunFragment.ARG_EXP_ID, experimentId);
         context.startActivity(intent);
     }
 }

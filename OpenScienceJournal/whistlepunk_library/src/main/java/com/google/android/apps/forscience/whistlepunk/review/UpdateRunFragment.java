@@ -52,6 +52,7 @@ public class UpdateRunFragment extends Fragment {
     public static final String ARG_EXP_ID = "exp_id";
 
     private String mRunId;
+    private String mExperimentId;
     private ExperimentRun mExperimentRun;
     private EditText mRunTitle;
 
@@ -71,9 +72,9 @@ public class UpdateRunFragment extends Fragment {
     public void onStart() {
         super.onStart();
         mRunId = getArguments().getString(ARG_RUN_ID);
-        String experimentId = getArguments().getString(ARG_EXP_ID);
+        mExperimentId = getArguments().getString(ARG_EXP_ID);
 
-        getDataController().getExperimentRun(experimentId, mRunId,
+        getDataController().getExperimentRun(mExperimentId, mRunId,
                 new LoggingConsumer<ExperimentRun>(TAG, "retrieve run") {
                     @Override
                     public void success(ExperimentRun run) {
@@ -141,6 +142,7 @@ public class UpdateRunFragment extends Fragment {
         Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
         upIntent.putExtra(RunReviewActivity.EXTRA_FROM_RECORD, false);
         upIntent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, mRunId);
+        upIntent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, mExperimentId);
         NavUtils.navigateUpTo(getActivity(), upIntent);
     }
 }

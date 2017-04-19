@@ -598,7 +598,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 setArchived(false);
             }
         } else if (id == R.id.action_run_review_edit) {
-            UpdateRunActivity.launch(getActivity(), mStartLabelId);
+            UpdateRunActivity.launch(getActivity(), mStartLabelId, mExperimentId);
         } else if (id == R.id.action_enable_auto_zoom) {
             if (mExperimentRun != null) {
                 setAutoZoomEnabled(true);
@@ -619,7 +619,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 new LoggingConsumer<ExperimentRun>(TAG, "load experiment run") {
                     @Override
                     public void success(final ExperimentRun run) {
-                        if (run == null || run.getExperimentId() == null) {
+                        if (run == null || TextUtils.isEmpty(run.getExperimentId())) {
                             // This run or experiment no longer exists, finish.
                             getActivity().finish();
                         }
