@@ -16,15 +16,18 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -207,9 +210,18 @@ public class Label implements Parcelable {
     /**
      * Deletes any assets associated with this label
      */
-    public void deleteAssets() {
+    public void deleteAssets(Context context) {
         // TODO: Delete any assets associated with this label, including pictures, etc.
         // May need a reference to the FileMetadataManager to do this.
+        if (hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+            File file = new File(((PictureLabelValue) getLabelValue(
+                    GoosciLabelValue.LabelValue.PICTURE)).getAbsoluteFilePath());
+            boolean deleted = file.delete();
+            if (!deleted) {
+                Log.w(TAG, "Could not delete " + file.toString());
+            }
+            PictureUtils.scanFile(file.getAbsolutePath(), context);
+        }
     }
 
     private void updateLabelProtoWithValues() {

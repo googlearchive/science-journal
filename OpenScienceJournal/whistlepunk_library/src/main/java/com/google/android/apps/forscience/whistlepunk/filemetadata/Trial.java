@@ -211,9 +211,9 @@ public class Trial extends LabelListHolder {
      * Deletes the trial and any assets associated with it, including labels and label pictures,
      * run data, etc.
      */
-    public void deleteContents() {
+    public void deleteContents(Context context) {
         for (Label label : mLabels) {
-            deleteLabel(label);
+            deleteLabel(label, context);
         }
         // TODO: Also delete any assets associated with this trial, inc. sensor data, icons, etc.
         // May need a reference to the FileMetadataManager to do this.

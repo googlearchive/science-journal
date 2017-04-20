@@ -170,12 +170,12 @@ public class ChartControllerTest {
         // Add the trial
         mmm.newTrial(experiment, runId, startTimestamp,
                 new ArrayList<GoosciSensorLayout.SensorLayout>());
-        List<ApplicationLabel> labels = Lists.<ApplicationLabel>newArrayList(
+        List<ApplicationLabel> applicationLabels = Lists.<ApplicationLabel>newArrayList(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "startLabelId",
                         "startLabelId", startTimestamp),
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "endLabelId",
                         "startLabelId", endTimestamp));
-        return ExperimentRun.fromLabels(mmm.getTrial(runId, labels, Collections.<Label>emptyList()),
+        return ExperimentRun.fromLabels(mmm.getTrial(runId, applicationLabels),
                 experiment.getExperimentId(), Collections.<ApplicationLabel>emptyList());
     }
 

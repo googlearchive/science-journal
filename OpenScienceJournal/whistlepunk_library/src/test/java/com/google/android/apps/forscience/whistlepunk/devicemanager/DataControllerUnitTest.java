@@ -21,6 +21,7 @@ import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
@@ -72,22 +73,21 @@ public class DataControllerUnitTest {
         layout.maximumYAxisValue = 5;
         layouts.add(layout);
 
-        final StoringConsumer<ApplicationLabel> cLabel = new StoringConsumer<>();
-        dc.startRun(experiment, layouts, cLabel);
-        final ApplicationLabel startLabel = cLabel.getValue();
+        final StoringConsumer<Trial> cTrial = new StoringConsumer<>();
+        dc.startTrial(experiment, layouts, cTrial);
+        final Trial trial = cTrial.getValue();
 
         final ExperimentRun runWhileStarted = getOnlyExperimentRun(dc, experiment);
-        assertEquals(startLabel.getTrialId(), runWhileStarted.getTrialId());
+        assertEquals(trial.getTrialId(), runWhileStarted.getTrialId());
         assertFalse(runWhileStarted.isValidRun());
         assertEquals(5, runWhileStarted.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
 
         layout.maximumYAxisValue = 15;
 
-        dc.stopRun(experiment, startLabel.getTrialId(), layouts,
-                TestConsumers.<ApplicationLabel>expectingSuccess());
+        dc.stopTrial(experiment, trial, layouts, TestConsumers.<Trial>expectingSuccess());
 
         final ExperimentRun runWhileStopped = getOnlyExperimentRun(dc, experiment);
-        assertEquals(startLabel.getTrialId(), runWhileStopped.getTrialId());
+        assertEquals(trial.getTrialId(), runWhileStopped.getTrialId());
         assertTrue(runWhileStopped.isValidRun());
         assertEquals(15, runWhileStarted.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
     }

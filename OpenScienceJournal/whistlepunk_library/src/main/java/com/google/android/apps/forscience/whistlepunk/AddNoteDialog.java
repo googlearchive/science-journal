@@ -49,6 +49,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
@@ -119,12 +120,13 @@ public class AddNoteDialog extends DialogFragment {
     private boolean mShowTimestampSection;
     private String mLabelTimeText;
     private String mLabelTimeTextDescription = "";
-    private String mRunId;
+    private String mTrialId;
     private String mExperimentId;
     private int mHintTextId = R.string.add_run_note_placeholder_text;
     private String mPictureLabelPath;
     private EditText mInput;
     private Experiment mExperiment;
+    private ExperimentRun mExperimentRun;
 
     /**
      * Create an AddNoteDialog that does not show the timestamp section, and where the note
@@ -301,16 +303,27 @@ public class AddNoteDialog extends DialogFragment {
             mHintTextId = getArguments().getInt(KEY_HINT_TEXT_ID, mHintTextId);
             mLabelTimeText = getArguments().getString(KEY_LABEL_TIME_TEXT, "");
             mPictureLabelPath = getArguments().getString(KEY_SAVED_PICTURE_PATH, null);
-            mRunId = getArguments().getString(KEY_SAVED_RUN_ID);
+            mTrialId = getArguments().getString(KEY_SAVED_RUN_ID);
             mExperimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
-            getDataController().getExperimentById(mExperimentId,
-                    new LoggingConsumer<Experiment>(TAG, "get experiment") {
-                        @Override
-                        public void success(Experiment value) {
-                            mExperiment = value;
-                            updatePositiveButtonEnabled((AlertDialog) getDialog());
-                        }
-                    });
+            if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
+                getDataController().getExperimentById(mExperimentId,
+                        new LoggingConsumer<Experiment>(TAG, "get experiment") {
+                            @Override
+                            public void success(Experiment value) {
+                                mExperiment = value;
+                                updatePositiveButtonEnabled((AlertDialog) getDialog());
+                            }
+                        });
+            } else {
+                getDataController().getExperimentRun(mExperimentId, mTrialId,
+                        new LoggingConsumer<ExperimentRun>(TAG, "get experiment run") {
+                            @Override
+                            public void success(ExperimentRun value) {
+                                mExperimentRun = value;
+                                updatePositiveButtonEnabled((AlertDialog) getDialog());
+                            }
+                        });
+            }
             if (getArguments().containsKey(KEY_SAVED_TIME_TEXT_DESCRIPTION)) {
                 mLabelTimeTextDescription =
                         getArguments().getString(KEY_SAVED_TIME_TEXT_DESCRIPTION);
@@ -482,11 +495,11 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     private void addLabel(final Label label) {
-        if (TextUtils.equals(mRunId, RecorderController.NOT_RECORDING_RUN_ID)) {
+        // The listener may be cleared by onDetach() before the experiment/trial is written,
+        // so save the MaybeConsumer here as a final var.
+        final MaybeConsumer<Label> onSuccess = mListener.onLabelAdd(label);
+        if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
             mExperiment.getExperiment().addLabel(label);
-            // The listener may be cleared by onDetach() before the experiment is written,
-            // so save the MaybeConsumer here as a final var.
-            final MaybeConsumer<Label> onSuccess = mListener.onLabelAdd(label);
             getDataController().updateExperiment(mExperiment,
                     new LoggingConsumer<Success>(TAG, "update experiment add label") {
                         @Override
@@ -495,10 +508,16 @@ public class AddNoteDialog extends DialogFragment {
                         }
                     });
         } else {
-            // TODO: Do this by updating the trial with the label, the experiment with the trial,
-            // and then updating the experiment.
-            getDataController().addTrialLabel(label, mExperimentId, mRunId,
-                    mListener.onLabelAdd(label));
+            // TODO: Do this by updating the trial with the label and then the experiment with the
+            // trial, and then updating the experiment.
+            mExperimentRun.getTrial().addLabel(label);
+            getDataController().updateTrial(mExperimentRun.getTrial(),
+                    new LoggingConsumer<Success>(TAG, "update trial add label") {
+                        @Override
+                        public void success(Success value) {
+                            onSuccess.success(label);
+                        }
+                    });
         }
     }
 
@@ -533,7 +552,7 @@ public class AddNoteDialog extends DialogFragment {
     private void updatePositiveButtonEnabled(AlertDialog dialog) {
         Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         if (positiveButton != null) {
-            positiveButton.setEnabled(mExperiment != null);
+            positiveButton.setEnabled(mExperiment != null || mExperimentRun != null);
         }
     }
 

@@ -28,7 +28,6 @@ import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
@@ -128,16 +127,16 @@ public class CropHelperTest extends AndroidTestCase {
 
     @Test
     public void testCropRun_alreadyCroppedRun() {
-        mDataController.addApplicationLabel(
+        mDataController.addCropApplicationLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "0", "0", 0),
                 mAddLabelConsumer);
-        mDataController.addApplicationLabel(
+        mDataController.addCropApplicationLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
                 mAddLabelConsumer);
-        mDataController.addApplicationLabel(
+        mDataController.addCropApplicationLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_CROP_START, "2", "0", 2),
                 mAddLabelConsumer);
-        mDataController.addApplicationLabel(
+        mDataController.addCropApplicationLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_CROP_END, "1008", "0", 1008),
                 mAddLabelConsumer);
         mDataController.addScalarReading("sensor", 0, 50, 50);
@@ -164,10 +163,10 @@ public class CropHelperTest extends AndroidTestCase {
 
     @Test
     public void testCropRun_onUncroppedRun() {
-        mDataController.addApplicationLabel(
+        mDataController.addCropApplicationLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "0", "0", 0),
                 mAddLabelConsumer);
-        mDataController.addApplicationLabel(
+        mDataController.addCropApplicationLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
                 mAddLabelConsumer);
         mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
@@ -202,10 +201,10 @@ public class CropHelperTest extends AndroidTestCase {
 
     @Test
     public void testCropRun_sensorWithNoDataStatsInvalid() {
-        mDataController.addApplicationLabel(
+        mDataController.addCropApplicationLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "0", "0", 0),
                 mAddLabelConsumer);
-        mDataController.addApplicationLabel(
+        mDataController.addCropApplicationLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
                 mAddLabelConsumer);
         mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);

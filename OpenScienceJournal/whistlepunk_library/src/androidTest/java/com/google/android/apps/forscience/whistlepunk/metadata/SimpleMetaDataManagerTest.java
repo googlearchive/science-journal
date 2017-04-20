@@ -153,8 +153,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
         String testLabelString = "test label";
         Label textLabel = Label.newLabelWithValue(1, TextLabelValue.fromText(testLabelString));
-        mMetaDataManager.addLabel(experiment.getExperimentId(),
-                RecorderController.NOT_RECORDING_RUN_ID, textLabel);
+        experiment.getExperiment().addLabel(textLabel);
         File tmpFile;
         try {
              tmpFile = File.createTempFile("testfile_" + experiment.getExperimentId(), "png");
@@ -169,8 +168,9 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         String testPictureCaption = "life, the universe, and everything";
         Label pictureLabel = Label.newLabelWithValue(2, PictureLabelValue.fromPicture(
                 testPicturePath, testPictureCaption));
-        mMetaDataManager.addLabel(experiment.getExperimentId(),
-                RecorderController.NOT_RECORDING_RUN_ID, pictureLabel);
+        experiment.getExperiment().addLabel(pictureLabel);
+
+        mMetaDataManager.updateExperiment(experiment);
 
         List<Label> labels = mMetaDataManager.getExperimentById(experiment.getExperimentId())
                 .getExperiment().getLabels();
@@ -199,8 +199,10 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertTrue("Picture label was not saved.", foundPicture);
     }
 
-    public void testLabelsWithStartId() {
+    public void testLabelsWithAndWithoutTrial() {
         Experiment experiment = mMetaDataManager.newExperiment();
+        Trial trial = mMetaDataManager.newTrial(experiment, "duringStartId", 2,
+                Collections.<GoosciSensorLayout.SensorLayout>emptyList());
         final Label before = Label.newLabel(1);
         final Label during1 = Label.newLabel(2);
         final Label during2 = Label.newLabel(3);
@@ -209,13 +211,14 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         during1.setLabelValue(TextLabelValue.fromText("during1"));
         during2.setLabelValue(TextLabelValue.fromText("during2"));
         after.setLabelValue(TextLabelValue.fromText("after"));
-        mMetaDataManager.addLabel(experiment.getExperimentId(),
-                RecorderController.NOT_RECORDING_RUN_ID, before);
-        mMetaDataManager.addLabel(experiment.getExperimentId(), "duringStartId", during1);
-        mMetaDataManager.addLabel(experiment.getExperimentId(), "duringStartId", during2);
-        mMetaDataManager.addLabel(experiment.getExperimentId(),
-                RecorderController.NOT_RECORDING_RUN_ID, after);
-        final List<Label> labels = mMetaDataManager.getLabelsForTrial("duringStartId");
+        experiment.getExperiment().addLabel(before);
+        experiment.getExperiment().addLabel(after);
+        trial.addLabel(during1);
+        trial.addLabel(during2);
+        mMetaDataManager.updateExperiment(experiment);
+        mMetaDataManager.updateTrial(trial);
+        final List<Label> labels = mMetaDataManager.getTrial("duringStartId",
+                Collections.<ApplicationLabel>emptyList()).getLabels();
         assertEqualLabels(during1, labels.get(0));
         assertEqualLabels(during2, labels.get(1));
     }
@@ -242,8 +245,6 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         mMetaDataManager.addApplicationLabel(experimentId, stopId1);
         mTestSystemClock.advanceClock();
         mMetaDataManager.addApplicationLabel(experimentId, startId2);
-        mTestSystemClock.advanceClock();
-        mMetaDataManager.addLabel(experimentId, RecorderController.NOT_RECORDING_RUN_ID, label);
         mTestSystemClock.advanceClock();
         mMetaDataManager.addApplicationLabel(experimentId, stopId2);
         mTestSystemClock.advanceClock();
@@ -451,8 +452,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         final ArrayList<String> sensorIds = Lists.newArrayList("sensor1", "sensor2");
         Trial saved = mMetaDataManager.newTrial(experiment, startLabel.getTrialId(),
                 startLabel.getTimeStamp(), sensorLayouts);
-        Trial loaded = mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel),
-                Collections.<Label>emptyList());
+        Trial loaded = mMetaDataManager.getTrial(startLabel.getLabelId(),
+                Arrays.asList(startLabel));
         assertEquals(startLabel.getLabelId(), saved.getTrialId());
         assertEquals(startLabel.getLabelId(), loaded.getTrialId());
         assertEquals(sensorIds, saved.getSensorIds());
@@ -463,13 +464,12 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         layout1.maximumYAxisValue = 15;
         mMetaDataManager.updateTrialLayouts(startLabel.getLabelId(), sensorLayouts);
         Trial updated = mMetaDataManager.getTrial(startLabel.getLabelId(),
-                Arrays.asList(startLabel), Collections.<Label>emptyList());
+                Arrays.asList(startLabel));
         assertEquals(15, updated.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
 
         // Test that runs are deleted.
         mMetaDataManager.deleteTrial(startLabel.getLabelId());
-        loaded = mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel),
-                Collections.<Label>emptyList());
+        loaded = mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel));
         assertNull(loaded);
     }
 
@@ -491,8 +491,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
         assertNull(mMetaDataManager.getExperimentById(experiment.getExperimentId()));
         // Test that runs are deleted when deleting experiments.
-        assertNull(mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel),
-                Collections.<Label>emptyList()));
+        assertNull(mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel)));
         // Test that sensor layouts are gone.
         assertEquals(0, mMetaDataManager.getExperimentSensorLayouts(experiment.getExperimentId())
                 .size());

@@ -37,6 +37,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
@@ -100,6 +101,7 @@ public class RecorderControllerImpl implements RecorderController {
     private int mPauseCount = 0;
     private final SensorEnvironment mSensorEnvironment;
     private Experiment mSelectedExperiment;
+    private Trial mCurrentTrial = null;
     private boolean mRecordingStateChangeInProgress;
     private TriggerHelper mTriggerHelper;
     private boolean mActivityInForeground = false;
@@ -233,7 +235,8 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     private List<GoosciSensorLayout.SensorLayout> buildSensorLayouts() {
-        return mLayoutSupplier == null ? null : mLayoutSupplier.get();
+        return mLayoutSupplier == null ?
+                Collections.<GoosciSensorLayout.SensorLayout>emptyList() : mLayoutSupplier.get();
     }
 
     private void fireSensorTrigger(SensorTrigger trigger, long timestamp) {
@@ -305,12 +308,13 @@ public class RecorderControllerImpl implements RecorderController {
                 context);
         final Label triggerLabel = Label.newLabelWithValue(timestamp, labelValue);
         if (isRecording()) {
-            // TODO: Add the label to the run and update the run/experiment.
-            mDataController.addTrialLabel(triggerLabel, mSelectedExperiment.getExperimentId(),
-                    getCurrentRunId(), new LoggingConsumer<Label>(TAG, "add trigger label") {
+            // TODO: Add the updated run to the experiment and update the experiment.
+            mCurrentTrial.addLabel(triggerLabel);
+            mDataController.updateTrial(mCurrentTrial,
+                    new LoggingConsumer<Success>(TAG, "add trigger label to trial") {
                         @Override
-                        public void success(Label label) {
-                            onLabelAdded(label);
+                        public void success(Success value) {
+                            onLabelAdded(triggerLabel);
                         }
                     });
         } else {
@@ -485,13 +489,14 @@ public class RecorderControllerImpl implements RecorderController {
             @Override
             public void take(final RecorderService recorderService) throws RemoteException {
                 final DataController dataController = mDataController;
-                dataController.startRun(mSelectedExperiment,
+                dataController.startTrial(mSelectedExperiment,
                         buildSensorLayouts(),
-                        new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
+                        new LoggingConsumer<Trial>(TAG, "start trial") {
                             @Override
-                            public void success(ApplicationLabel label) {
-                                mRecording = new RecordingMetadata(label.getTimeStamp(),
-                                        label.getTrialId(),
+                            public void success(Trial trial) {
+                                mCurrentTrial = trial;
+                                mRecording = new RecordingMetadata(trial.getCreationTimeMs(),
+                                        trial.getTrialId(),
                                         mSelectedExperiment.getExperiment().getDisplayTitle(
                                                 mContext));
 
@@ -547,35 +552,35 @@ public class RecorderControllerImpl implements RecorderController {
             public void take(final RecorderService recorderService) throws RemoteException {
                 final List<GoosciSensorLayout.SensorLayout> sensorLayoutsAtStop =
                         buildSensorLayouts();
-                mDataController
-                        .stopRun(mSelectedExperiment, mRecording.getRunId(), sensorLayoutsAtStop,
-                                new LoggingConsumer<ApplicationLabel>(TAG, "store label") {
-                                    @Override
-                                    public void success(ApplicationLabel value) {
-                                        trackStopRecording(recorderService.getApplicationContext(),
-                                                value, sensorLayoutsAtStop);
-                                        final String runId = mRecording.getRunId();
+                mDataController.stopTrial(mSelectedExperiment, mCurrentTrial, sensorLayoutsAtStop,
+                        new LoggingConsumer<Trial>(TAG, "stopTrial") {
+                            @Override
+                            public void success(Trial stoppedTrial) {
+                                trackStopRecording(recorderService.getApplicationContext(),
+                                        stoppedTrial, sensorLayoutsAtStop);
+                                final String runId = mRecording.getRunId();
 
                                 // Now actually stop the recording.
                                 mRecording = null;
+                                mCurrentTrial = null;
                                 mStatsSaved = 0;
                                 final int statsToSave = mRecorders.values().size();
                                 LoggingConsumer<Success> onSuccess =
                                         new LoggingConsumer<Success>(TAG, "save stats") {
-                                    @Override
-                                    public void success(Success value) {
-                                        if (++mStatsSaved == statsToSave) {
-                                            // Close the service. When the service is closed, if the
-                                            // app is in the background, all processes will stop --
-                                            // so this needs to be the last thing to happen!
-                                            recorderService.endServiceRecording(
-                                                    !activityInForground, runId,
-                                                    mSelectedExperiment.getExperimentId(),
-                                                    mSelectedExperiment.getExperiment()
-                                                            .getDisplayTitle(mContext));
-                                        }
-                                    }
-                                };
+                                            @Override
+                                            public void success(Success value) {
+                                                if (++mStatsSaved == statsToSave) {
+                                                    // Close the service. When the service is closed, if the
+                                                    // app is in the background, all processes will stop --
+                                                    // so this needs to be the last thing to happen!
+                                                    recorderService.endServiceRecording(
+                                                            !activityInForground, runId,
+                                                            mSelectedExperiment.getExperimentId(),
+                                                            mSelectedExperiment.getExperiment()
+                                                                    .getDisplayTitle(mContext));
+                                                }
+                                            }
+                                        };
                                 for (StatefulRecorder recorder : mRecorders.values()) {
                                     recorder.stopRecording(onSuccess);
                                 }
@@ -620,14 +625,13 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @VisibleForTesting
-    void trackStopRecording(Context context, ApplicationLabel stopRecordingLabel,
+    void trackStopRecording(Context context, Trial completeTrial,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
         SensorRegistry registry = AppSingleton.getInstance(context).getSensorRegistry();
         // Record how long this session was.
         WhistlePunkApplication.getUsageTracker(context)
-                .trackEvent(TrackerConstants.CATEGORY_RUNS,
-                        TrackerConstants.ACTION_CREATE, null,
-                        stopRecordingLabel.getTimeStamp() - mRecording.getStartTime());
+                .trackEvent(TrackerConstants.CATEGORY_RUNS, TrackerConstants.ACTION_CREATE, null,
+                        completeTrial.getOriginalLastTimestamp() - mRecording.getStartTime());
 
         // Record which sensors were recorded and information about their layouts.
         List<String> sensorLogs = new ArrayList<>();

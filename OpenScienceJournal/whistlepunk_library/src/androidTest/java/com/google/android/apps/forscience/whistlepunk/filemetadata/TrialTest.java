@@ -30,7 +30,7 @@ public class TrialTest extends AndroidTestCase {
         trial.addLabel(second);
         assertEquals(trial.getLabelCount(), 2);
 
-        trial.deleteLabel(label);
+        trial.deleteLabel(label, getContext());
         assertEquals(trial.getLabelCount(), 1);
     }
 

@@ -40,6 +40,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelV
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -62,6 +63,7 @@ public class EditNoteDialog extends DialogFragment {
     private long mTimestamp;
     private String mTrialId;
     private Experiment mExperiment;
+    private ExperimentRun mExperimentRun;
 
     public interface EditNoteDialogListener {
         /**
@@ -121,14 +123,25 @@ public class EditNoteDialog extends DialogFragment {
         mTimestamp = getArguments().getLong(KEY_SAVED_TIMESTAMP);
         mTrialId = getArguments().getString(KEY_TRIAL_ID);
         String experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
-        getDataController().getExperimentById(experimentId,
-                new LoggingConsumer<Experiment>(TAG, "get experiment") {
-                    @Override
-                    public void success(Experiment value) {
-                        mExperiment = value;
-                        updatePositiveButtonEnabled((AlertDialog) getDialog());
-                    }
-                });
+        if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
+            getDataController().getExperimentById(experimentId,
+                    new LoggingConsumer<Experiment>(TAG, "get experiment") {
+                        @Override
+                        public void success(Experiment value) {
+                            mExperiment = value;
+                            updatePositiveButtonEnabled((AlertDialog) getDialog());
+                        }
+                    });
+        } else {
+            getDataController().getExperimentRun(experimentId, mTrialId,
+                    new LoggingConsumer<ExperimentRun>(TAG, "get experiment run") {
+                        @Override
+                        public void success(ExperimentRun value) {
+                            mExperimentRun = value;
+                            updatePositiveButtonEnabled((AlertDialog) getDialog());
+                        }
+                    });
+        }
         try {
             mSelectedValue = GoosciLabelValue.LabelValue.parseFrom(
                     getArguments().getByteArray(KEY_SELECTED_VALUE));
@@ -201,9 +214,10 @@ public class EditNoteDialog extends DialogFragment {
                                     ((EditNoteDialogListener) getParentFragment()).onLabelEdit(
                                             mLabel));
                         } else {
-                            // TODO: Do this by updating the trial with the label, the experiment
-                            // with the trial, and then updating the experiment.
-                            getDataController().editTrialLabel(mLabel,
+                            // TODO: Do this by updating the trial with the label and then the
+                            // experiment with the trial, and then updating the experiment.
+                            mExperimentRun.getTrial().updateLabel(mLabel);
+                            getDataController().updateTrial(mExperimentRun.getTrial(),
                                     ((EditNoteDialogListener) getParentFragment()).onLabelEdit(
                                             mLabel));
                         }
@@ -284,7 +298,7 @@ public class EditNoteDialog extends DialogFragment {
     private void updatePositiveButtonEnabled(AlertDialog dialog) {
         Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         if (positiveButton != null) {
-            positiveButton.setEnabled(mExperiment != null);
+            positiveButton.setEnabled(mExperiment != null || mExperimentRun != null);
         }
     }
 }
