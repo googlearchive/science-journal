@@ -29,6 +29,7 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
@@ -52,19 +53,19 @@ public class ProxyRecorderControllerTest {
             new TransportableSensorOptions(Maps.<String, String>newHashMap());
     private static final StubDataController DATA_CONTROLLER = new StubDataController() {
         @Override
-        public void startRun(Experiment experiment,
+        public void startTrial(Experiment experiment,
                 List<GoosciSensorLayout.SensorLayout> sensorLayouts,
-                MaybeConsumer<ApplicationLabel> onSuccess) {
-            onSuccess.success(new ApplicationLabel(
-                    ApplicationLabel.TYPE_RECORDING_START, "start", "start", 0));
+                MaybeConsumer<Trial> onSuccess) {
+            onSuccess.success(Trial.newTrial(0, sensorLayouts.toArray(
+                    new GoosciSensorLayout.SensorLayout[sensorLayouts.size()])));
         }
 
         @Override
-        public void stopRun(Experiment experiment, String runId,
+        public void stopTrial(Experiment experiment, Trial trial,
                 List<GoosciSensorLayout.SensorLayout> layouts,
-                MaybeConsumer<ApplicationLabel> onSuccess) {
-            onSuccess.success(new ApplicationLabel(
-                    ApplicationLabel.TYPE_RECORDING_STOP, "stop", "start", 10));
+                MaybeConsumer<Trial> onSuccess) {
+            trial.setRecordingEndTime(10);
+            onSuccess.success(trial);
         }
     };
     private final AlwaysAllowedPolicy mPolicy = new AlwaysAllowedPolicy();
@@ -296,7 +297,7 @@ public class ProxyRecorderControllerTest {
         }
 
         @Override
-        void trackStopRecording(Context context, ApplicationLabel stopRecordingLabel,
+        void trackStopRecording(Context context, Trial completedTrial,
                 List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
             // Do nothing.
         }

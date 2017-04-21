@@ -39,7 +39,7 @@ public interface MetaDataManager {
     Experiment newExperiment();
 
     /**
-     * Deletes the experiment and any associated runs and labels.
+     * Deletes the experiment and any associated trials and labels and their assets.
      */
     void deleteExperiment(Experiment experiment);
 
@@ -53,14 +53,7 @@ public interface MetaDataManager {
      */
     List<Experiment> getExperiments(boolean includeArchived);
 
-    /**
-     * Saves label to storage for the given experiment ID.
-     */
-    void addLabel(String experimentId, String trialId, Label label);
-
     void addApplicationLabel(String experimentId, ApplicationLabel label);
-
-    List<Label> getLabelsForTrial(String trialId);
 
     List<ApplicationLabel> getApplicationLabelsWithStartId(String startLabelId);
 
@@ -70,15 +63,7 @@ public interface MetaDataManager {
 
     List<String> getExperimentRunIds(String experimentId, boolean includeArchived);
 
-    /**
-     * Updates the value and timestamp of a label in the database.
-     * @param updatedLabel
-     */
-    void editLabel(Label updatedLabel);
-
     void editApplicationLabel(ApplicationLabel updatedLabel);
-
-    void deleteLabel(Label label);
 
     /**
      * Gets all the external sensors previously saved.
@@ -162,10 +147,9 @@ public interface MetaDataManager {
      * Gets the trial with a particular ID.
      * @param trialId the label that marks the start of this trial
      * @param applicationLabels list of application labels for this trial
-     * @param labels list of labels that belong to this trial, excluding application labels
      * @return the Trial stored with that id, or null if no such Trial exists.
      */
-    Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels, List<Label> labels);
+    Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels);
 
     /**
      * Set the sensor selection and layout for an experiment
@@ -193,7 +177,7 @@ public interface MetaDataManager {
     void updateTrial(Trial trial);
 
     /**
-     * Deletes a trial and any of its associated labels.
+     * Deletes a trial and any of its associated labels and their assets.
      * @param trialId The ID of the trial to delete
      */
     void deleteTrial(String trialId);

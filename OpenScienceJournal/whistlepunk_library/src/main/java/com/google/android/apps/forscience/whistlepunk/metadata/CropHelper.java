@@ -169,11 +169,11 @@ public class CropHelper {
             run.setCropLabels(cropLabels);
 
             // Add new crop labels to the database.
-            mDataController.addApplicationLabel(cropStartLabel,
+            mDataController.addCropApplicationLabel(cropStartLabel,
                     new LoggingConsumer<ApplicationLabel>(TAG, "add crop start label") {
                         @Override
                         public void success(ApplicationLabel value) {
-                            mDataController.addApplicationLabel(cropEndLabel,
+                            mDataController.addCropApplicationLabel(cropEndLabel,
                                     new LoggingConsumer<ApplicationLabel>(TAG,
                                             "Add crop end label") {
                                         @Override

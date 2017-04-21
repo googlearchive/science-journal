@@ -577,6 +577,7 @@ public class ExperimentDetailsFragment extends Fragment
                         "re-add deleted label") {
                     @Override
                     public void success(Success value) {
+                        // TODO: Somehow re-add the deleted picture here.
                         mAdapter.insertNote(label);
                         WhistlePunkApplication.getUsageTracker(getActivity())
                                 .trackEvent(TrackerConstants.CATEGORY_NOTES,
@@ -589,7 +590,8 @@ public class ExperimentDetailsFragment extends Fragment
         });
 
         // Delete the item immediately, and remove it from the pinned note list.
-        mExperiment.getExperiment().deleteLabel(item);
+        // TODO: Deleting the assets makes undo not work on photo labels...
+        mExperiment.getExperiment().deleteLabel(item, getActivity());
         dc.updateExperiment(mExperiment, new LoggingConsumer<Success>(TAG, "delete label") {
             @Override
             public void success(Success value) {

@@ -1,5 +1,6 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -52,8 +53,8 @@ public abstract class LabelListHolder {
     /**
      * Deletes a label from this object and also deletes any assets associated with that label.
      */
-    public void deleteLabel(Label label) {
-        label.deleteAssets();
+    public void deleteLabel(Label label, Context context) {
+        label.deleteAssets(context);
         mLabels.remove(label);
     }
 

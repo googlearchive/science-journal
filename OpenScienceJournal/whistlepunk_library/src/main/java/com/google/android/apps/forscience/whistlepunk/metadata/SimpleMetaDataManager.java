@@ -223,7 +223,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
-    // TODO: this function may be used when upgrading the database to delete projects.
     private static List<Project> getProjects(SQLiteDatabase db, boolean includeArchived) {
         List<Project> projects = new ArrayList<>();
         String selection = ProjectColumns.ARCHIVED + "=?";
@@ -347,6 +346,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
         List<Label> labels = getLabelsForExperiment(experiment);
         for (Label label : labels) {
+            label.deleteAssets(mContext);
             deleteLabel(label);
         }
         synchronized (mLock) {
@@ -569,7 +569,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void updateTrial(Trial trial) {
-        // Only the layout, title, archived state, and autozoom selection can be edited.
+        // Only the labels, layout, title, archived state, and autozoom selection can be edited.
+        // TODO: Make this transactional?
+        for (Label label : getLabelsForTrial(trial.getTrialId())) {
+            // Don't delete the labels assets. If the label was deleted, that is done elsewhere.
+            deleteLabel(label);
+        }
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             final ContentValues values = new ContentValues();
@@ -579,12 +584,18 @@ public class SimpleMetaDataManager implements MetaDataManager {
             db.update(Tables.RUNS, values, RunsColumns.RUN_ID + "=?",
                     new String[]{trial.getTrialId()});
         }
+        for (Label label : trial.getLabels()) {
+            // TODO: Do we need to keep the experiment ID in the label? Can we ditch it?
+            // It is never used on trial labels.
+            // If we need to keep it, we can get it before doing the deletes above.
+            addLabel("UNUSED", trial.getTrialId(), label);
+        }
         updateTrialSensors(trial.getTrialId(), trial.getSensorLayouts());
     }
 
     @Override
-    public Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels,
-            List<Label> labels) {
+    public Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels) {
+        List<Label> labels = getLabelsForTrial(trialId);
         List<GoosciSensorLayout.SensorLayout> sensorLayouts = new ArrayList<>();
         int runIndex = -1;
         boolean archived = false;
@@ -768,6 +779,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     @Override
     public void deleteTrial(String runId) {
         for (Label label : getLabelsForTrial(runId)) {
+            label.deleteAssets(mContext);
             deleteLabel(label);
         }
         for (ApplicationLabel label : getApplicationLabelsWithStartId(runId)) {
@@ -816,8 +828,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return sensorId;
     }
 
-    @Override
-    public void addLabel(String experimentId, String trialId, Label label) {
+    private void addLabel(String experimentId, String trialId, Label label) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             addLabel(db, experimentId, trialId, label);
@@ -956,8 +967,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return labels;
     }
 
-    @Override
-    public List<Label> getLabelsForTrial(String trialId) {
+    private List<Label> getLabelsForTrial(String trialId) {
         final String selection = LabelColumns.START_LABEL_ID + "=? and not " +
                 LabelColumns.TYPE + "=?";
         final String[] selectionArgs = new String[]{trialId, ApplicationLabel.TAG};
@@ -1100,20 +1110,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return ids;
     }
 
-    // TODO(saff): test
-    @Override
-    public void editLabel(Label updatedLabel) {
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            final ContentValues values = new ContentValues();
-            values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(updatedLabel.getLabelProto()
-                    .values[0]));
-            values.put(LabelColumns.TIMESTAMP, updatedLabel.getTimeStamp());
-            db.update(Tables.LABELS, values, LabelColumns.LABEL_ID + "=?",
-                    new String[]{updatedLabel.getLabelId()});
-        }
-    }
-
     @Override
     public void editApplicationLabel(ApplicationLabel updatedLabel) {
         synchronized (mLock) {
@@ -1126,18 +1122,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
-    @Override
-    public void deleteLabel(Label label) {
-        if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-            File file = new File((
-                    (PictureLabelValue) label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE))
-                    .getAbsoluteFilePath());
-            boolean deleted = file.delete();
-            if (!deleted) {
-                Log.w(TAG, "Could not delete " + file.toString());
-            }
-            PictureUtils.scanFile(file.getAbsolutePath(), mContext);
-        }
+    // Deletes a label from the database, but does not touch its assets.
+    private void deleteLabel(Label label) {
         String selection = LabelColumns.LABEL_ID + "=?";
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();

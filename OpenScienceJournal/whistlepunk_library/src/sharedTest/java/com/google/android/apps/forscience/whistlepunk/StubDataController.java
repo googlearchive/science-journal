@@ -19,7 +19,6 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
@@ -27,7 +26,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -47,27 +45,21 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void addTrialLabel(Label label, String experimentId, String trialId,
-            MaybeConsumer<Label> onSuccess) {
-
-    }
-
-    @Override
-    public void addApplicationLabel(ApplicationLabel label,
+    public void addCropApplicationLabel(ApplicationLabel label,
             MaybeConsumer<ApplicationLabel> onSuccess) {
 
     }
 
     @Override
-    public void startRun(Experiment experiment, List<GoosciSensorLayout.SensorLayout> sensorLayouts,
-            MaybeConsumer<ApplicationLabel> onSuccess) {
+    public void startTrial(Experiment experiment, List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+            MaybeConsumer<Trial> onSuccess) {
 
     }
 
     @Override
-    public void stopRun(Experiment experiment, String runId,
+    public void stopTrial(Experiment experiment, Trial trial,
             List<GoosciSensorLayout.SensorLayout> layouts,
-            MaybeConsumer<ApplicationLabel> onSuccess) {
+            MaybeConsumer<Trial> onSuccess) {
 
     }
 
@@ -114,18 +106,8 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void editTrialLabel(Label updatedLabel, MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
     public void editApplicationLabel(ApplicationLabel updatedLabel,
             MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void deleteTrialLabel(Label label, MaybeConsumer<Success> onSuccess) {
 
     }
 

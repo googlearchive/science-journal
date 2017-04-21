@@ -20,7 +20,6 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
@@ -44,21 +43,21 @@ public interface DataController {
     void getScalarReadings(String databaseTag, final int resolutionTier, TimeRange timeRange,
             int maxRecords, MaybeConsumer<ScalarReadingList> onSuccess);
 
-    void addTrialLabel(Label label, String experimentId, String trialId,
-            MaybeConsumer<Label> onSuccess);
+    void addCropApplicationLabel(ApplicationLabel label, MaybeConsumer<ApplicationLabel> onSuccess);
 
-    void addApplicationLabel(ApplicationLabel label, MaybeConsumer<ApplicationLabel> onSuccess);
+    void startTrial(Experiment experiment, List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+            MaybeConsumer<Trial> onSuccess);
 
-    void startRun(Experiment experiment, List<GoosciSensorLayout.SensorLayout> sensorLayouts,
-            MaybeConsumer<ApplicationLabel> onSuccess);
-
-    void stopRun(Experiment experiment, String runId,
+    void stopTrial(Experiment experiment, Trial trial,
             List<GoosciSensorLayout.SensorLayout> layouts,
-            MaybeConsumer<ApplicationLabel> onSuccess);
+            MaybeConsumer<Trial> onSuccess);
 
+    /**
+     * Updates a trial and the labels within that trial.
+     */
     void updateTrial(final Trial trial, MaybeConsumer<Success> onSuccess);
 
-    void deleteRun(ExperimentRun run, MaybeConsumer<Success> onSuccess);
+    void deleteRun(ExperimentRun trial, MaybeConsumer<Success> onSuccess);
 
     void createExperiment(MaybeConsumer<Experiment> onSuccess);
 
@@ -75,11 +74,7 @@ public interface DataController {
     void getExperimentRuns(String experiment, boolean includeArchived,
             final boolean includeInvalid, MaybeConsumer<List<ExperimentRun>> onSuccess);
 
-    void editTrialLabel(final Label updatedLabel, final MaybeConsumer<Success> onSuccess);
-
     void editApplicationLabel(ApplicationLabel updatedLabel, MaybeConsumer<Success> onSuccess);
-
-    void deleteTrialLabel(Label label, MaybeConsumer<Success> onSuccess);
 
     String generateNewLabelId();
 
@@ -123,22 +118,22 @@ public interface DataController {
     void updateLastUsedExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
     /**
-     * Get the statistics for the given run and sensor
+     * Get the statistics for the given trial and sensor
      *
-     * @param runId (previously startLabelId) identifies the run
+     * @param trialId (previously startLabelId) identifies the trial
      */
-    void getStats(String runId, String sensorId, MaybeConsumer<TrialStats> onSuccess);
+    void getStats(String trialId, String sensorId, MaybeConsumer<TrialStats> onSuccess);
 
     /**
-     * Sets the stat status for a sensor and run.
+     * Sets the stat status for a sensor and trial.
      */
-    void setSensorStatsStatus(final String runId, final String sensorId,
+    void setSensorStatsStatus(final String trialId, final String sensorId,
             final int status, MaybeConsumer<Success> onSuccess);
 
     /**
-     * Recalculates the statistics for all the sensors in a run
+     * Recalculates the statistics for all the sensors in a trial
      */
-    void updateTrialStats(final String runId, final String sensorId, final TrialStats trialStats,
+    void updateTrialStats(final String trialId, final String sensorId, final TrialStats trialStats,
             MaybeConsumer<Success> onSuccess);
 
     /**

@@ -23,7 +23,6 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
@@ -94,19 +93,21 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         mMetaDataManager.setExperimentSensorLayouts(experimentId, layouts);
     }
 
-    public void stopRun(final Experiment experiment, final String runId,
+    public void stopTrial(final Experiment experiment, final Trial trial,
             final List<GoosciSensorLayout.SensorLayout> layouts,
-            final MaybeConsumer<ApplicationLabel> onSuccess) {
-        addApplicationLabel(experiment, ApplicationLabel.TYPE_RECORDING_STOP, runId,
+            final MaybeConsumer<Trial> onSuccess) {
+        addApplicationLabel(experiment, ApplicationLabel.TYPE_RECORDING_STOP, trial.getTrialId(),
                 MaybeConsumers.chainFailure(onSuccess, new Consumer<ApplicationLabel>() {
                     @Override
                     public void take(final ApplicationLabel label) {
+                        trial.setRecordingEndTime(label.getTimeStamp());
                         background(DataControllerImpl.this.mMetaDataThread, onSuccess,
-                                new Callable<ApplicationLabel>() {
+                                new Callable<Trial>() {
                                     @Override
-                                    public ApplicationLabel call() throws Exception {
-                                        mMetaDataManager.updateTrialLayouts(runId, layouts);
-                                        return label;
+                                    public Trial call() throws Exception {
+                                        mMetaDataManager.updateTrialLayouts(trial.getTrialId(),
+                                                layouts);
+                                        return trial;
                                     }
                                 });
                     }
@@ -192,36 +193,14 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         });
     }
 
-    public void addTrialLabel(final Label label, final String experimentId, final String trialId,
-            final MaybeConsumer<Label> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Label>() {
-            @Override
-            public Label call() throws Exception {
-                mMetaDataManager.addLabel(experimentId, trialId, label);
-                return label;
-            }
-        });
-    }
-
     @Override
-    public void addApplicationLabel(final ApplicationLabel label,
+    public void addCropApplicationLabel(final ApplicationLabel label,
             MaybeConsumer<ApplicationLabel> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<ApplicationLabel>() {
             @Override
             public ApplicationLabel call() throws Exception {
                 mMetaDataManager.addApplicationLabel(label.getExperimentId(), label);
                 return label;
-            }
-        });
-    }
-
-    @Override
-    public void editTrialLabel(final Label updatedLabel, final MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.editLabel(updatedLabel);
-                return Success.SUCCESS;
             }
         });
     }
@@ -239,31 +218,21 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void deleteTrialLabel(final Label label, final MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.deleteLabel(label);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
-    @Override public void startRun(
-            final Experiment experiment, final List<GoosciSensorLayout.SensorLayout> sensorLayouts,
-            final MaybeConsumer<ApplicationLabel> onSuccess) {
+    public void startTrial(final Experiment experiment,
+            final List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+            final MaybeConsumer<Trial> onSuccess) {
         String id = generateNewLabelId();
         addApplicationLabelWithId(experiment, ApplicationLabel.TYPE_RECORDING_START, id, id,
                 MaybeConsumers.chainFailure(onSuccess, new Consumer<ApplicationLabel>() {
                     @Override
                     public void take(final ApplicationLabel label) {
                         background(DataControllerImpl.this.mMetaDataThread, onSuccess,
-                                new Callable<ApplicationLabel>() {
+                                new Callable<Trial>() {
                                     @Override
-                                    public ApplicationLabel call() throws Exception {
-                                        mMetaDataManager.newTrial(experiment, label.getTrialId(),
-                                                label.getTimeStamp(), sensorLayouts);
-                                        return label;
+                                    public Trial call() throws Exception {
+                                        return mMetaDataManager.newTrial(experiment,
+                                                label.getTrialId(), label.getTimeStamp(),
+                                                sensorLayouts);
                                     }
                                 });
                     }
@@ -399,10 +368,9 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     private ExperimentRun buildExperimentRunOnDataThread(String experimentId, String startLabelId) {
-        final List<Label> labels = mMetaDataManager.getLabelsForTrial(startLabelId);
         final List<ApplicationLabel> applicationLabels =
                 mMetaDataManager.getApplicationLabelsWithStartId(startLabelId);
-        Trial trial = mMetaDataManager.getTrial(startLabelId, applicationLabels, labels);
+        Trial trial = mMetaDataManager.getTrial(startLabelId, applicationLabels);
         return ExperimentRun.fromLabels(trial, experimentId, applicationLabels);
     }
 

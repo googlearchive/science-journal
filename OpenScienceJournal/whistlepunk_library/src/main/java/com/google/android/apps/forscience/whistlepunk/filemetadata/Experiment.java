@@ -225,9 +225,21 @@ public class Experiment extends LabelListHolder {
     /**
      * Removes a trial from the experiment.
      */
-    public void deleteTrial(Trial trial) {
-        trial.deleteContents();
+    public void deleteTrial(Trial trial, Context context) {
+        trial.deleteContents(context);
         mTrials.remove(trial);
+    }
+
+    /**
+     * Removes the assets from this experiment.
+     */
+    public void deleteContents(Context context) {
+        for (Label label : getLabels()) {
+            deleteLabel(label, context);
+        }
+        for (Trial trial : getTrials()) {
+            deleteTrial(trial, context);
+        }
     }
 
     private void sortTrials() {

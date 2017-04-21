@@ -787,8 +787,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         pinnedNoteList.setLayoutManager(layoutManager);
 
-        sortPinnedNotes(run.getPinnedNotes());
-        mPinnedNoteAdapter = new PinnedNoteAdapter(run.getPinnedNotes(), run.getFirstTimestamp(),
+        mPinnedNoteAdapter = new PinnedNoteAdapter(run.getTrial().getLabels(), run.getFirstTimestamp(),
                 run.getLastTimestamp());
         mPinnedNoteAdapter.setListItemModifyListener(new PinnedNoteAdapter.ListItemEditListener() {
             @Override
@@ -813,14 +812,24 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                             return;
                         }
                         mUndone = true;
-                        Label label = Label.copyOf(item);
+                        final Label label = Label.copyOf(item);
                         label.setTimestamp(item.getTimeStamp());
-                        dc.addTrialLabel(label, mExperimentId, mExperimentRun.getTrialId(),
-                                new LoggingConsumer<Label>(TAG, "re-add deleted label") {
+                        mExperimentRun.getTrial().addLabel(label);
+                        dc.updateTrial(mExperimentRun.getTrial(), new MaybeConsumer<Success>() {
                             @Override
-                            public void success(Label label) {
-                                mPinnedNoteAdapter.insertNote(label);
-                                mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
+                            public void fail(Exception e) {
+                                if (Log.isLoggable(TAG, Log.ERROR)) {
+                                    Log.e(TAG, "Failed: re-add deleted label");
+                                }
+                                // It didn't work, so remove the label from the view again.
+                                mExperimentRun.getTrial().deleteLabel(label, getActivity());
+                            }
+
+                            @Override
+                            public void success(Success success) {
+                                // TODO: Somehow re-add the deleted picture here.
+                                mPinnedNoteAdapter.notifyDataSetChanged();
+                                mChartController.setLabels(mExperimentRun.getTrial().getLabels());
                                 WhistlePunkApplication.getUsageTracker(getActivity())
                                         .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                                 TrackerConstants.ACTION_DELETE_UNDO,
@@ -832,17 +841,29 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                 });
 
                 // Delete the item immediately, and remove it from the pinned note list.
-                dc.deleteTrialLabel(item, new LoggingConsumer<Success>(TAG, "delete label") {
-                    @Override
-                    public void success(Success value) {
-                        mPinnedNoteAdapter.deleteNote(item);
-                        mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
-                        WhistlePunkApplication.getUsageTracker(getActivity())
-                                .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                        TrackerConstants.ACTION_DELETED,
-                                        TrackerConstants.LABEL_RUN_REVIEW,
-                                        TrackerConstants.getLabelValueType(item));
-                    }
+                // TODO: Deleting the assets makes undo not work on photo labels...
+                mExperimentRun.getTrial().deleteLabel(item, getActivity());
+                dc.updateTrial(mExperimentRun.getTrial(),
+                        new MaybeConsumer<Success>() {
+                            @Override
+                            public void fail(Exception e) {
+                                if (Log.isLoggable(TAG, Log.ERROR)) {
+                                    Log.e(TAG, "Failed: delete label failed");
+                                }
+                                // It didn't work, so add the label back.
+                                mExperimentRun.getTrial().addLabel(item);
+                            }
+
+                            @Override
+                            public void success(Success value) {
+                                mPinnedNoteAdapter.notifyDataSetChanged();
+                                mChartController.setLabels(mExperimentRun.getTrial().getLabels());
+                                WhistlePunkApplication.getUsageTracker(getActivity())
+                                        .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                                TrackerConstants.ACTION_DELETED,
+                                                TrackerConstants.LABEL_RUN_REVIEW,
+                                                TrackerConstants.getLabelValueType(item));
+                            }
                 });
                 bar.show();
             }
@@ -1229,7 +1250,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             @Override
             public void success(Label newLabel) {
                 mPinnedNoteAdapter.insertNote(newLabel);
-                mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
+                mChartController.setLabels(mExperimentRun.getTrial().getLabels());
                 WhistlePunkApplication.getUsageTracker(getActivity())
                         .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                 TrackerConstants.ACTION_CREATE,
@@ -1261,7 +1282,7 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             public void success(Success value) {
                 mPinnedNoteAdapter.editLabel(label);
                 // The timestamp may have been edited, so also refresh the line graph presenter.
-                mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
+                mChartController.setLabels(mExperimentRun.getTrial().getLabels());
                 WhistlePunkApplication.getUsageTracker(getActivity())
                         .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                 TrackerConstants.ACTION_EDITED,

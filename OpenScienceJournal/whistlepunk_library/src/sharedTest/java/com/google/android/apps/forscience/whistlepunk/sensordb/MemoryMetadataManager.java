@@ -59,7 +59,6 @@ public class MemoryMetadataManager implements MetaDataManager {
     private List<Experiment> mExperiments = new ArrayList<>();
     private Multimap<String, String> mExperimentIncluded = HashMultimap.create();
     private Multimap<String, String> mExperimentExcluded = HashMultimap.create();
-    private ListMultimap<String, Label> mTrialLabels = LinkedListMultimap.create();
     private ListMultimap<String, ApplicationLabel> mApplicationLabels = LinkedListMultimap.create();
     private Table<String, String, TrialStats> mStats = HashBasedTable.create();
     private Map<String, List<GoosciSensorLayout.SensorLayout>> mLayouts = new HashMap<>();
@@ -105,22 +104,8 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public void addLabel(String experimentId, String trialId, Label label) {
-        if (TextUtils.equals(trialId, RecorderController.NOT_RECORDING_RUN_ID)) {
-            mTrialLabels.put(trialId, label);
-        } else {
-            getExperimentById(experimentId).getExperiment().addLabel(label);
-        }
-    }
-
-    @Override
     public void addApplicationLabel(String experimentId, ApplicationLabel label) {
         mApplicationLabels.put(experimentId, label);
-    }
-
-    @Override
-    public List<Label> getLabelsForTrial(String trialId) {
-        return mTrialLabels.get(trialId);
     }
 
     @Override
@@ -150,17 +135,7 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public void editLabel(Label updatedLabel) {
-
-    }
-
-    @Override
     public void editApplicationLabel(ApplicationLabel updatedLabel) {
-
-    }
-
-    @Override
-    public void deleteLabel(Label label) {
 
     }
 
@@ -299,11 +274,10 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels,
-            List<Label> labels) {
+    public Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels) {
         Trial trial = mTrials.get(trialId);
         SimpleMetaDataManager.populateTrialProtoFromLabels(trial.getTrialProto(),
-                applicationLabels, labels);
+                applicationLabels, trial.getLabels());
         return trial;
     }
 
