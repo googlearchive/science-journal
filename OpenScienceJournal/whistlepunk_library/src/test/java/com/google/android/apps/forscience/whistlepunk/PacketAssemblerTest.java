@@ -16,20 +16,20 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.test.AndroidTestCase;
-
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
-import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.StubStatusListener;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
-import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
+
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class PacketAssemblerTest extends AndroidTestCase {
+
+public class PacketAssemblerTest {
     final private int testValue = 314159;
     final private int smallTestValue = 1;
     final private int testTime = 42;
@@ -59,46 +59,58 @@ public class PacketAssemblerTest extends AndroidTestCase {
         }
     }
 
-    private static class TestStreamConsumer implements StreamConsumer {
-        private List<Point> mPoints = new ArrayList<>();;
+    private static class TestPacketAssemblerListener implements PacketAssembler.Listener {
+        private List<Point> mPoints = new ArrayList<>();
+        private List<String> mErrors = new ArrayList<>();
 
         @Override
-        public void addData(final long timestampMillis, final double value) {
-            mPoints.add(new Point(timestampMillis, value));
+        public void onError(@SensorStatusListener.Error int error, String errorMessage) {
+            mErrors.add(errorMessage);
         }
 
-        public List<Point> getPoints() { return mPoints; }
-    };
+        @Override
+        public void onDataParsed(long timeStampMs, double data) {
+            mPoints.add(new Point(timeStampMs, data));
+        }
+
+        public List<String> getErrors() {
+            return mErrors;
+        }
+
+        public List<Point> getData() {
+            return mPoints;
+        }
+    }
 
     private class GoosciSensorBuilder {
         private GoosciSensor.SensorData mSensorData;
         private GoosciSensor.Data mData;
 
-        public GoosciSensorBuilder() {
+        GoosciSensorBuilder() {
             mSensorData = new GoosciSensor.SensorData();
             mData = new GoosciSensor.Data();
             mData.pin = new GoosciSensor.Pin();
         }
 
-        public GoosciSensorBuilder setAnalogPin() {
+        GoosciSensorBuilder setAnalogPin() {
             GoosciSensor.AnalogPin pin = new GoosciSensor.AnalogPin();
             mData.pin.setAnalogPin(pin);
             return this;
         }
 
-        public GoosciSensorBuilder setDigitalPin() {
+        GoosciSensorBuilder setDigitalPin() {
             GoosciSensor.DigitalPin pin = new GoosciSensor.DigitalPin();
             mData.pin.setDigitalPin(pin);
             return this;
         }
 
-        public GoosciSensorBuilder setVirtualPin() {
+        GoosciSensorBuilder setVirtualPin() {
             GoosciSensor.VirtualPin pin = new GoosciSensor.VirtualPin();
             mData.pin.setVirtualPin(pin);
             return this;
         }
 
-        public GoosciSensorBuilder setAnalogValue(int value, int timestampMs) {
+        GoosciSensorBuilder setAnalogValue(int value, int timestampMs) {
             mSensorData.timestampKey = timestampMs;
             GoosciSensor.AnalogValue av = new GoosciSensor.AnalogValue();
             av.value = value;
@@ -106,7 +118,7 @@ public class PacketAssemblerTest extends AndroidTestCase {
             return this;
         }
 
-        public GoosciSensorBuilder setDigitalValue(boolean value, int timestampMs) {
+        GoosciSensorBuilder setDigitalValue(boolean value, int timestampMs) {
             mSensorData.timestampKey = timestampMs;
             GoosciSensor.DigitalValue dv = new GoosciSensor.DigitalValue();
             dv.value = value;
@@ -114,7 +126,7 @@ public class PacketAssemblerTest extends AndroidTestCase {
             return this;
         }
 
-        public GoosciSensorBuilder setIntValue(int value, int timestampMs) {
+        GoosciSensorBuilder setIntValue(int value, int timestampMs) {
             mSensorData.timestampKey = timestampMs;
             GoosciSensor.IntValue iv = new GoosciSensor.IntValue();
             iv.value = value;
@@ -122,7 +134,7 @@ public class PacketAssemblerTest extends AndroidTestCase {
             return this;
         }
 
-        public GoosciSensorBuilder setFloatValue(float value, int timestampMs) {
+        GoosciSensorBuilder setFloatValue(float value, int timestampMs) {
             mSensorData.timestampKey = timestampMs;
             GoosciSensor.FloatValue fv = new GoosciSensor.FloatValue();
             fv.value = value;
@@ -130,7 +142,7 @@ public class PacketAssemblerTest extends AndroidTestCase {
             return this;
         }
 
-        public GoosciSensorBuilder setStringValue(String value, int timestampMs) {
+        GoosciSensorBuilder setStringValue(String value, int timestampMs) {
             mSensorData.timestampKey = timestampMs;
             GoosciSensor.StringValue sv = new GoosciSensor.StringValue();
             sv.value = value;
@@ -138,8 +150,12 @@ public class PacketAssemblerTest extends AndroidTestCase {
             return this;
         }
 
-        public byte[] toByteArray() {
+        GoosciSensorBuilder commit() {
             mSensorData.setData(mData);
+            return this;
+        }
+
+        byte[] toByteArray() {
             return GoosciSensor.SensorData.toByteArray(mSensorData);
         }
     }
@@ -164,22 +180,20 @@ public class PacketAssemblerTest extends AndroidTestCase {
         assertEquals(value.length, start);
     }
 
-    private PacketAssembler createPacketAssembler(TestStreamConsumer tsc) {
-        final BleSensorSpec bs = new BleSensorSpec("F7:83:CE:FE:56:C2", "name");
-        final BluetoothSensor s = new BluetoothSensor("sensorId", bs,
-                BluetoothSensor.ANNING_SERVICE_SPEC);
+    private PacketAssembler createPacketAssembler(TestPacketAssemblerListener tpal) {
         final Clock cl = new TestSystemClock();
-        final StubStatusListener ssl = new StubStatusListener();
-        return new PacketAssembler(tsc, cl, s, ssl);
+        return new PacketAssembler(cl, tpal);
     }
 
+    @Test
     public void testSinglePacket() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         byte[] value = new GoosciSensorBuilder()
                 .setAnalogValue(smallTestValue, 0)
                 .setAnalogPin()
+                .commit()
                 .toByteArray();
 
         // Test should work for any value above 0; but we'll use the size that BLE enforces.
@@ -187,19 +201,21 @@ public class PacketAssemblerTest extends AndroidTestCase {
 
         fakeFramedSensorData(pa, value, chunksize, 1);
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(1, points.size());
         assertEquals(points.get(0).x, testTime);
-        assertEquals(points.get(0).y, (double)smallTestValue);
+        assertEquals(points.get(0).y, (double)smallTestValue, Double.MIN_VALUE);
     }
 
+    @Test
     public void testMultiPacket() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         byte[] value = new GoosciSensorBuilder()
                 .setAnalogValue(testValue, 0)
                 .setAnalogPin()
+                .commit()
                 .toByteArray();
 
         // Test should work for any value above 0; but we'll use the size that BLE enforces.
@@ -207,157 +223,182 @@ public class PacketAssemblerTest extends AndroidTestCase {
 
         fakeFramedSensorData(pa, value, chunksize, 2);
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(1, points.size());
         assertEquals(points.get(0).x, testTime);
-        assertEquals(points.get(0).y, (double) testValue);
+        assertEquals(points.get(0).y, (double) testValue, Double.MIN_VALUE);
     }
 
+    @Test
     public void testFloatValuePacket() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         byte[] value = new GoosciSensorBuilder()
                 .setFloatValue(floatTestValue, 0)
                 .setVirtualPin()
+                .commit()
                 .toByteArray();
 
         int chunksize = value.length + 1;
 
         fakeFramedSensorData(pa, value, chunksize, 1);
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(1, points.size());
         assertEquals(points.get(0).x, testTime);
-        assertEquals(points.get(0).y, (double)floatTestValue);
+        assertEquals(points.get(0).y, (double)floatTestValue, Double.MIN_VALUE);
     }
 
+    @Test
     public void testIntValuePacket() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         byte[] value = new GoosciSensorBuilder()
                 .setIntValue(intTestValue, 0)
                 .setVirtualPin()
+                .commit()
                 .toByteArray();
 
         int chunksize = value.length + 1;
 
         fakeFramedSensorData(pa, value, chunksize, 1);
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(1, points.size());
         assertEquals(points.get(0).x, testTime);
-        assertEquals(points.get(0).y, (double)intTestValue);
+        assertEquals(points.get(0).y, (double)intTestValue, Double.MIN_VALUE);
     }
 
+    @Test
     public void testAnalogValuePacket() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         byte[] value = new GoosciSensorBuilder()
                 .setAnalogValue(analogTestValue, 0)
                 .setAnalogPin()
+                .commit()
                 .toByteArray();
 
         int chunksize = value.length + 1;
 
         fakeFramedSensorData(pa, value, chunksize, 1);
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(1, points.size());
         assertEquals(points.get(0).x, testTime);
-        assertEquals(points.get(0).y, (double) analogTestValue);
+        assertEquals(points.get(0).y, (double) analogTestValue, Double.MIN_VALUE);
     }
 
+    @Test
     public void testDigitalValuePacket() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         byte[] value = new GoosciSensorBuilder()
                 .setDigitalValue(digitalTestValue, 0)
                 .setDigitalPin()
+                .commit()
                 .toByteArray();
 
         int chunksize = value.length + 1;
 
         fakeFramedSensorData(pa, value, chunksize, 1);
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(1, points.size());
         assertEquals(points.get(0).x, testTime);
-        assertEquals(points.get(0).y, pa.booleanToDigital(digitalTestValue));
+        assertEquals(points.get(0).y, pa.booleanToDigital(digitalTestValue), Double.MIN_VALUE);
     }
 
+    @Test
     public void testStringValuePacket() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         byte[] value = new GoosciSensorBuilder()
                 .setStringValue(stringTestValue, 0)
                 .setVirtualPin()
+                .commit()
                 .toByteArray();
 
         int chunksize = value.length + 1;
 
         fakeFramedSensorData(pa, value, chunksize, 1);
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(0, points.size());
+        List<String> errors = tpal.getErrors();
+        assertEquals(1, errors.size());
     }
 
+    @Test
     public void testMismatchValuePinPacket() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         byte[] value = new GoosciSensorBuilder()
                 .setFloatValue(floatTestValue, 0)
                 .setAnalogPin()
+                .commit()
                 .toByteArray();
 
         int chunksize = value.length + 1;
 
         fakeFramedSensorData(pa, value, chunksize, 1);
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(0, points.size());
+        List<String> errors = tpal.getErrors();
+        assertEquals(1, errors.size());
     }
 
+    @Test
     public void testMissingValuePacket() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         byte[] value = new GoosciSensorBuilder()
                 .setAnalogPin()
+                .commit()
                 .toByteArray();
 
         int chunksize = value.length + 1;
 
         fakeFramedSensorData(pa, value, chunksize, 1);
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(0, points.size());
+        List<String> errors = tpal.getErrors();
+        assertEquals(1, errors.size());
     }
 
+    @Test
     public void testMissingPinPacket() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         byte[] value = new GoosciSensorBuilder()
                 .setAnalogValue(smallTestValue, 0)
+                .commit()
                 .toByteArray();
 
         int chunksize = value.length + 1;
 
         fakeFramedSensorData(pa, value, chunksize, 1);
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(0, points.size());
+        List<String> errors = tpal.getErrors();
+        assertEquals(1, errors.size());
     }
 
+    @Test
     public void testEmptyPacket() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         byte[] value = new GoosciSensorBuilder()
                 .toByteArray();
@@ -366,18 +407,22 @@ public class PacketAssemblerTest extends AndroidTestCase {
 
         fakeFramedSensorData(pa, value, chunksize, 1);
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(0, points.size());
+        List<String> errors = tpal.getErrors();
+        assertEquals(1, errors.size());
     }
 
+    @Test
     public void testPacketStream() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         for (int dataValue : packetStream) {
             byte[] value = new GoosciSensorBuilder()
                     .setAnalogPin()
                     .setAnalogValue(dataValue, dataValue)
+                    .commit()
                     .toByteArray();
 
             int chunksize = value.length - 1;
@@ -387,23 +432,25 @@ public class PacketAssemblerTest extends AndroidTestCase {
 
         int timeSkew = 42 - packetStream[0];
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(packetStream.length, points.size());
 
         for (int ii = 0; ii < packetStream.length; ii++) {
             assertEquals(points.get(ii).x, packetStream[ii] + timeSkew);
-            assertEquals(points.get(ii).y, (double) packetStream[ii]);
+            assertEquals(points.get(ii).y, (double) packetStream[ii], Double.MIN_VALUE);
         }
     }
 
+    @Test
     public void testMultiPacketStream() {
-        final TestStreamConsumer tsc = new TestStreamConsumer();
-        final PacketAssembler pa = createPacketAssembler(tsc);
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
 
         for (int dataValue : packetStream) {
             byte[] value = new GoosciSensorBuilder()
                     .setAnalogPin()
                     .setAnalogValue(dataValue, dataValue)
+                    .commit()
                     .toByteArray();
 
             int chunksize = value.length - 1;
@@ -413,12 +460,29 @@ public class PacketAssemblerTest extends AndroidTestCase {
 
         int timeSkew = 42 - packetStream[0];
 
-        List<Point> points = tsc.getPoints();
+        List<Point> points = tpal.getData();
         assertEquals(packetStream.length, points.size());
 
         for (int ii = 0; ii < packetStream.length; ii++) {
             assertEquals(points.get(ii).x, packetStream[ii] + timeSkew);
-            assertEquals(points.get(ii).y, (double) packetStream[ii]);
+            assertEquals(points.get(ii).y, (double) packetStream[ii], Double.MIN_VALUE);
         }
+    }
+
+    @Test
+    public void testInvalidPacket() {
+        final TestPacketAssemblerListener tpal = new TestPacketAssemblerListener();
+        final PacketAssembler pa = createPacketAssembler(tpal);
+
+        byte[] value = {0};
+
+        int chunksize = value.length + 1;
+
+        fakeFramedSensorData(pa, value, chunksize, 1);
+
+        List<Point> points = tpal.getData();
+        assertEquals(0, points.size());
+        List<String> errors = tpal.getErrors();
+        assertEquals(1, errors.size());
     }
 }

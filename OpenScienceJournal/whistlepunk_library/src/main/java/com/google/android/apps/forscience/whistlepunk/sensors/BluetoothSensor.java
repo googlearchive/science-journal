@@ -68,12 +68,9 @@ public class BluetoothSensor extends ScalarSensor {
     private boolean mDeviceFrequencyEnabled;
     private boolean mNotificationSubscribed = false;
 
-    private long mTimeSkew = -1;
     private String mAddress;
     private GoosciSensorConfig.BleSensorConfig.ScaleTransform mDeviceScaleTransform;
 
-    public long getTimeSkew() { return mTimeSkew; }
-    public void setTimeSkew(long skew) { mTimeSkew = skew; }
     private BleFlow mFlow;
     private BleFlowListener mBleFlowListener;
 
@@ -94,8 +91,18 @@ public class BluetoothSensor extends ScalarSensor {
     private BleFlowListener createBleFlowListener(final StreamConsumer c, final Clock defaultClock,
             final SensorStatusListener listener) {
         return new BleFlowListener() {
-            final PacketAssembler mPa = new PacketAssembler(c, defaultClock, BluetoothSensor.this,
-                    listener);
+            final PacketAssembler mPa = new PacketAssembler(defaultClock,
+                    new PacketAssembler.Listener() {
+                        @Override
+                        public void onError(@SensorStatusListener.Error int error, String message) {
+                            listener.onSourceError(getId(), error, message);
+                        }
+
+                        @Override
+                        public void onDataParsed(long timeStampMs, double data) {
+                            c.addData(timeStampMs, data);
+                        }
+                    });
 
             @Override
             public void onSuccess() {
@@ -259,7 +266,6 @@ public class BluetoothSensor extends ScalarSensor {
                 listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTING);
                 mBleFlowListener =
                         createBleFlowListener(c, environment.getDefaultClock(), listener);
-                mTimeSkew = -1;
                 mFlow.resetAndAddListener(mBleFlowListener, true)
                         .connect()
                         .lookupService(mServiceSpec.getServiceId());
@@ -268,8 +274,6 @@ public class BluetoothSensor extends ScalarSensor {
 
             @Override
             public void stopObserving() {
-                mTimeSkew = -1;
-
                 // Don't reset service map: should still be valid from above, and it doesn't work
                 // on ChromeBooks
                 mFlow.resetAndAddListener(mBleFlowListener, false);
