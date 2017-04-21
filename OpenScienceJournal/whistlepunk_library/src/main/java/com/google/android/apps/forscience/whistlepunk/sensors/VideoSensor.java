@@ -34,6 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
@@ -216,7 +217,7 @@ public class VideoSensor extends SensorChoice {
             }
 
             @Override
-            public void stopRecording(MaybeConsumer<Success> onSuccess) {
+            public void stopRecording(Trial trialToUpdate) {
                 mMediaRecorder.stop();
                 releaseMediaRecorder();
             }

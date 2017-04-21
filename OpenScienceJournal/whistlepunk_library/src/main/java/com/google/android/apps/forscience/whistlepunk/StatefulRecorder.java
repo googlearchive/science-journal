@@ -21,6 +21,7 @@ import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 
@@ -89,8 +90,8 @@ public class StatefulRecorder {
     }
 
 
-    void stopRecording(MaybeConsumer<Success> onSuccess) {
-        mRecorder.stopRecording(onSuccess);
+    void stopRecording(Trial trialToUpdate) {
+        mRecorder.stopRecording(trialToUpdate);
         mRecording = false;
     }
 

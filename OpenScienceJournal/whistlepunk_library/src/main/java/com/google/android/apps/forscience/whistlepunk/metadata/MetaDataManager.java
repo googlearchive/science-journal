@@ -22,6 +22,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.util.List;
 import java.util.Map;
@@ -56,10 +57,6 @@ public interface MetaDataManager {
     void addApplicationLabel(String experimentId, ApplicationLabel label);
 
     List<ApplicationLabel> getApplicationLabelsWithStartId(String startLabelId);
-
-    void setStats(String startLabelId, String sensorId, TrialStats stats);
-
-    TrialStats getStats(String startLabelId, String sensorId);
 
     List<String> getExperimentRunIds(String experimentId, boolean includeArchived);
 

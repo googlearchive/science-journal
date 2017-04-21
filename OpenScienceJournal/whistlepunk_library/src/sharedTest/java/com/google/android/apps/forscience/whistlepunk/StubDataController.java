@@ -155,23 +155,6 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void getStats(String runId, String sensorId, MaybeConsumer<TrialStats> onSuccess) {
-
-    }
-
-    @Override
-    public void setSensorStatsStatus(String runId, String sensorId,
-            @StatsAccumulator.StatStatus int status, MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void updateTrialStats(String runId, String sensorId, TrialStats trialStats,
-            MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
     public void setSensorLayouts(String experimentId, List<GoosciSensorLayout.SensorLayout> layouts,
             MaybeConsumer<Success> onSuccess) {
 

@@ -1046,33 +1046,26 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
             final StatsList statsList) {
         final DataController dataController = getDataController();
         final ChartController.ChartLoadingStatus fragmentRef = this;
-        dataController.getStats(mExperimentRun.getTrialId(), sensorLayout.sensorId,
-                new LoggingConsumer<TrialStats>(TAG, "load stats") {
+        TrialStats stats = mExperimentRun.getTrial().getStatsForSensor(sensorLayout.sensorId);
+        populateStats(stats, statsList, sensorLayout.sensorId);
+
+        mChartController.loadRunData(mExperimentRun, sensorLayout, dataController, fragmentRef,
+                stats, new ChartController.ChartDataLoadedCallback() {
+
                     @Override
-                    public void success(final TrialStats trialStats) {
-                        populateStats(trialStats, statsList, sensorLayout.sensorId);
+                    public void onChartDataLoaded(long firstTimestamp, long lastTimestamp) {
+                        onDataLoaded();
+                    }
 
-                        mChartController.loadRunData(mExperimentRun, sensorLayout, dataController,
-                                fragmentRef, trialStats,
-                                new ChartController.ChartDataLoadedCallback() {
-
-                                    @Override
-                                    public void onChartDataLoaded(long firstTimestamp,
-                                            long lastTimestamp) {
-                                        onDataLoaded();
-                                    }
-
-                                    @Override
-                                    public void onLoadAttemptStarted(boolean chartHiddenForLoad) {
-                                        // Use getSensorLayout instead of the final sensorLayout
-                                        // because the underlying sensor being loaded may have
-                                        // changed since that final var was declared, in the case
-                                        // where the user switches sensors rapidly.
-                                        mRunReviewOverlay.updateColor(getSensorLayout().color);
-                                        mRunReviewPlaybackButton.setVisibility(View.INVISIBLE);
-                                        mRunReviewOverlay.setVisibility(View.INVISIBLE);
-                                    }
-                                });
+                    @Override
+                    public void onLoadAttemptStarted(boolean chartHiddenForLoad) {
+                        // Use getSensorLayout instead of the final sensorLayout
+                        // because the underlying sensor being loaded may have
+                        // changed since that final var was declared, in the case
+                        // where the user switches sensors rapidly.
+                        mRunReviewOverlay.updateColor(getSensorLayout().color);
+                        mRunReviewPlaybackButton.setVisibility(View.INVISIBLE);
+                        mRunReviewOverlay.setVisibility(View.INVISIBLE);
                     }
                 });
     }
@@ -1100,7 +1093,17 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         if (statsList == null) {
             return;
         }
-        loadStatsAndChart(sensorLayout, statsList);
+        // Reload the experiment run since the stats have changed.
+        // TODO: This is not strictly necessary since CropHelper has a reference to the
+        // ExperimentRun, but feels safer...
+        getDataController().getExperimentRun(mExperimentId, mStartLabelId,
+                new LoggingConsumer<ExperimentRun>(TAG, "load experiment run") {
+                    @Override
+                    public void success(final ExperimentRun run) {
+                        mExperimentRun = run;
+                        loadStatsAndChart(sensorLayout, statsList);
+                    }
+                });
     }
 
     private String getSonificationType(GoosciSensorLayout.SensorLayout sensorLayout) {

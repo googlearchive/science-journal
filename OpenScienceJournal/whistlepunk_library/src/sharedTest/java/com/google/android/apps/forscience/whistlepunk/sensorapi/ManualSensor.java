@@ -27,6 +27,9 @@ import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
@@ -86,7 +89,7 @@ public class ManualSensor extends ScalarSensor {
             }
 
             @Override
-            public void stopRecording(MaybeConsumer<Success> onSuccess) {
+            public void stopRecording(Trial trialToUpdate) {
 
             }
 
@@ -174,7 +177,7 @@ public class ManualSensor extends ScalarSensor {
         return mChartController;
     }
 
-    public void pushDataPoints(SensorRecorder recorder, int howMany) {
+    public void pushDataPoints(SensorRecorder recorder, int howMany, Trial trialToUpdate) {
         recorder.startRecording("runId");
         createPresenter().onRecordingStateChange(true, 0);
 
@@ -186,7 +189,7 @@ public class ManualSensor extends ScalarSensor {
             pushValue(i, i);
         }
 
-        recorder.stopRecording(TestConsumers.<Success>expectingSuccess());
+        recorder.stopRecording(trialToUpdate);
     }
 
     public boolean isObserving() {

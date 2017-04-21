@@ -21,7 +21,6 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
@@ -116,25 +115,6 @@ public interface DataController {
             MaybeConsumer<Success> onSuccess);
 
     void updateLastUsedExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
-
-    /**
-     * Get the statistics for the given trial and sensor
-     *
-     * @param trialId (previously startLabelId) identifies the trial
-     */
-    void getStats(String trialId, String sensorId, MaybeConsumer<TrialStats> onSuccess);
-
-    /**
-     * Sets the stat status for a sensor and trial.
-     */
-    void setSensorStatsStatus(final String trialId, final String sensorId,
-            final int status, MaybeConsumer<Success> onSuccess);
-
-    /**
-     * Recalculates the statistics for all the sensors in a trial
-     */
-    void updateTrialStats(final String trialId, final String sensorId, final TrialStats trialStats,
-            MaybeConsumer<Success> onSuccess);
 
     /**
      * Set the sensor selection and layout for an experiment

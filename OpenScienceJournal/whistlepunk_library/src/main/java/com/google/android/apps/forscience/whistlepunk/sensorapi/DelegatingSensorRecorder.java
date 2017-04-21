@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.common.base.Preconditions;
 
 public class DelegatingSensorRecorder implements SensorRecorder {
@@ -39,8 +40,8 @@ public class DelegatingSensorRecorder implements SensorRecorder {
         mDelegate.applyOptions(settings);
     }
 
-    public void stopRecording(MaybeConsumer<Success> onSuccess) {
-        mDelegate.stopRecording(onSuccess);
+    public void stopRecording(Trial trialToUpdate) {
+        mDelegate.stopRecording(trialToUpdate);
     }
 
     public void stopObserving() {

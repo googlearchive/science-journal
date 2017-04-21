@@ -455,55 +455,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void getStats(final String runId, final String sensorId,
-            MaybeConsumer<TrialStats> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<TrialStats>() {
-            @Override
-            public TrialStats call() throws Exception {
-                return mMetaDataManager.getStats(runId, sensorId);
-            }
-        });
-    }
-
-    @Override
-    public void setSensorStatsStatus(final String runId, final String sensorId, final int status,
-            MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                TrialStats trialStats = mMetaDataManager.getStats(runId, sensorId);
-                trialStats.setStatStatus(status);
-                mMetaDataManager.setStats(runId, sensorId, trialStats);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
-    @Override
-    public void updateTrialStats(final String runId, final String sensorId,
-            final TrialStats trialStats, MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.setStats(runId, sensorId, trialStats);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
-    @Override
-    public void setStats(final String runId, final String sensorId, final TrialStats trialStats,
-            final MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.setStats(runId, sensorId, trialStats);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
-    @Override
     public void setDataErrorListenerForSensor(String sensorId, FailureListener listener) {
         mSensorFailureListeners.put(sensorId, listener);
     }

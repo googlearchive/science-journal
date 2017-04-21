@@ -590,6 +590,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
             // If we need to keep it, we can get it before doing the deletes above.
             addLabel("UNUSED", trial.getTrialId(), label);
         }
+        for (TrialStats stats : trial.getStats()) {
+            setStats(trial.getTrialId(), stats.getSensorId(), stats);
+        }
         updateTrialSensors(trial.getTrialId(), trial.getSensorLayouts());
     }
 
@@ -671,6 +674,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
             populateTrialProtoFromLabels(trialProto, applicationLabels, labels);
 
             Trial result = Trial.fromTrial(trialProto);
+            for (String sensorId : result.getSensorIds()) {
+                result.setStats(getStats(trialId, sensorId));
+            }
             return result;
         } else {
             return null;
@@ -921,7 +927,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     }
                     // TODO: fix code smell: perhaps make a factory?
                     final String labelId = cursor.getString(LabelQuery.LABEL_ID_INDEX);
-                    final String startLabelId = cursor.getString(LabelQuery.START_LABEL_ID_INDEX);
                     long timestamp = cursor.getLong(LabelQuery.TIMESTAMP_INDEX);
                     GoosciLabelValue.LabelValue value = null;
                     try {
@@ -975,9 +980,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public List<ApplicationLabel> getApplicationLabelsWithStartId(String startLabelId) {
+    public List<ApplicationLabel> getApplicationLabelsWithStartId(String trialId) {
         final String selection = LabelColumns.START_LABEL_ID + "=? and " + LabelColumns.TYPE + "=?";
-        final String[] selectionArgs = new String[]{startLabelId, ApplicationLabel.TAG};
+        final String[] selectionArgs = new String[]{trialId, ApplicationLabel.TAG};
         return getApplicationLabels(selection, selectionArgs);
     }
 
@@ -994,7 +999,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     ApplicationLabel label;
                     // TODO: fix code smell: perhaps make a factory?
                     final String labelId = cursor.getString(LabelQuery.LABEL_ID_INDEX);
-                    final String startLabelId = cursor.getString(LabelQuery.START_LABEL_ID_INDEX);
+                    final String trialId = cursor.getString(LabelQuery.START_LABEL_ID_INDEX);
                     long timestamp = cursor.getLong(LabelQuery.TIMESTAMP_INDEX);
                     GoosciLabelValue.LabelValue value = null;
                     try {
@@ -1010,9 +1015,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
                         // was stored as a string. New types of labels should not be added to this
                         // list.
                         final String data = cursor.getString(LabelQuery.DATA_INDEX);
-                        label = new ApplicationLabel(data, labelId, startLabelId, timestamp);
+                        label = new ApplicationLabel(data, labelId, trialId, timestamp);
                     } else {
-                        label = new ApplicationLabel(labelId, startLabelId, timestamp, value);
+                        label = new ApplicationLabel(labelId, trialId, timestamp, value);
                     }
                     labels.add(label);
                 }
@@ -1025,10 +1030,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
-    @Override
-    public void setStats(String startLabelId, String sensorId, TrialStats stats) {
+    private void setStats(String trialId, String sensorId, TrialStats stats) {
         ContentValues values = new ContentValues();
-        values.put(RunStatsColumns.START_LABEL_ID, startLabelId);
+        values.put(RunStatsColumns.START_LABEL_ID, trialId);
         values.put(RunStatsColumns.SENSOR_TAG, sensorId);
         RunStats runStats = RunStats.fromTrialStats(stats);
         for (String key : runStats.getKeys()) {
@@ -1048,8 +1052,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
-    @Override
-    public TrialStats getStats(String startLabelId, String sensorId) {
+    private TrialStats getStats(String trialId, String sensorId) {
         final RunStats runStats = new RunStats(sensorId);
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -1059,7 +1062,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                         new String[]{RunStatsColumns.STAT_NAME, RunStatsColumns.STAT_VALUE},
                         RunStatsColumns.START_LABEL_ID + " =? AND " + RunStatsColumns.SENSOR_TAG
                                 + " =?",
-                        new String[]{startLabelId, sensorId}, null, null, null);
+                        new String[]{trialId, sensorId}, null, null, null);
                 while (cursor.moveToNext()) {
                     final String statName = cursor.getString(0);
                     final double statValue = cursor.getDouble(1);

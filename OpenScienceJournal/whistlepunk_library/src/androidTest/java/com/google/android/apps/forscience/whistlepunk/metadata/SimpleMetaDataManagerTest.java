@@ -422,17 +422,26 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(0, sensors.size());
     }
 
-    public void testStoreStats() {
-        final TrialStats stats = new TrialStats("sensorId");
+    public void testStoreTrialsWithStats() {
+        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
+        layout.sensorId = "sensorId";
+        List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+        layouts.add(layout);
+        Experiment experiment = mMetaDataManager.newExperiment();
+        Trial trial = mMetaDataManager.newTrial(experiment, "startLabelId", 10, layouts);
 
+        final TrialStats stats = new TrialStats("sensorId");
         stats.putStat(GoosciTrial.SensorStat.MINIMUM, 1);
         stats.putStat(GoosciTrial.SensorStat.AVERAGE, 2);
         stats.putStat(GoosciTrial.SensorStat.MAXIMUM, 3);
+        trial.setStats(stats);
 
-        mMetaDataManager.setStats("startLabelId", "sensorId", stats);
+        mMetaDataManager.updateTrial(trial);
         mMetaDataManager.close();
 
-        final TrialStats trialStats = makeMetaDataManager().getStats("startLabelId", "sensorId");
+        final TrialStats trialStats = makeMetaDataManager().getTrial("startLabelId",
+                Collections.<ApplicationLabel>emptyList())
+                .getStatsForSensor("sensorId");
 
         assertEquals(1.0, trialStats.getStatValue(GoosciTrial.SensorStat.MINIMUM, -1), 0.001);
         assertEquals(2.0, trialStats.getStatValue(GoosciTrial.SensorStat.AVERAGE, -1), 0.001);

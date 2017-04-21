@@ -32,7 +32,9 @@ import com.google.android.apps.forscience.whistlepunk.TestData;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ExplicitExecutor;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig
         .ScaleTransform;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
@@ -68,7 +70,7 @@ public class ScalarSensorTest {
         recorder.startRecording("runId");
         sensor.pushValue(1, 1);
         sensor.pushValue(2, 2);
-        recorder.stopRecording(TestConsumers.<Success>expectingSuccess());
+        recorder.stopRecording(null); // No need to save stats.
         sensor.pushValue(3, 3);
         sensor.pushValue(4, 4);
         sensor.pushValue(5, 5);
@@ -323,9 +325,13 @@ public class ScalarSensorTest {
 
     @Test
     public void testZoomUpTwoTiers() {
+        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
+        layout.sensorId = "test";
+        Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[]{layout});
+
         ManualSensor sensor = new ManualSensor("test", 1000, 5);
         SensorRecorder recorder = createRecorder(sensor);
-        recorder.startRecording("runId");
+        recorder.startRecording(trial.getTrialId());
         for (int i = 0; i < 100; i++) {
             sensor.pushValue(i, i);
         }
@@ -336,16 +342,19 @@ public class ScalarSensorTest {
                 new InMemorySensorDatabase.Reading("test", 50, 50),
                 new InMemorySensorDatabase.Reading("test", 99, 99));
         assertEquals(expected, mDb.getReadings(2));
-        recorder.stopRecording(TestConsumers.<Success>expectingSuccess());
-        TrialStats stats = mMetadata.getStats("runId", "test");
+
+        recorder.stopRecording(trial);
+        TrialStats stats = trial.getStatsForSensor("test");
         assertEquals(100.0, stats.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1), 0.001);
         assertEquals(3.0, stats.getStatValue(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, -1),
                 0.001);
 
-        recorder.startRecording("runId2");
+        Trial trial2 = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[]{layout});
+
+        recorder.startRecording(trial2.getTrialId());
         sensor.pushValue(200, 0);
-        recorder.stopRecording(TestConsumers.<Success>expectingSuccess());
-        TrialStats stats2 = mMetadata.getStats("runId2", "test");
+        recorder.stopRecording(trial2);
+        TrialStats stats2 = trial2.getStatsForSensor("test");
         assertEquals(1.0, stats2.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1), 0.001);
         assertEquals(1.0, stats2.getStatValue(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, -1),
                 0.001);

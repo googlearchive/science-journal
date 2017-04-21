@@ -32,14 +32,6 @@ public interface RecordingDataController {
             double value);
 
     /**
-     * Set the statistics for the given run and sensor
-     *
-     * @param runId (previously startLabelId) identifies the run
-     */
-    void setStats(String runId, String sensorId, TrialStats trialStats,
-            MaybeConsumer<Success> onSuccess);
-
-    /**
      * If an error is encountered storing data or stats for {@code sensorId}, notify {@code
      * listener}
      */

@@ -556,35 +556,32 @@ public class RecorderControllerImpl implements RecorderController {
                         new LoggingConsumer<Trial>(TAG, "stopTrial") {
                             @Override
                             public void success(Trial stoppedTrial) {
+                                for (StatefulRecorder recorder : mRecorders.values()) {
+                                    recorder.stopRecording(stoppedTrial);
+                                }
                                 trackStopRecording(recorderService.getApplicationContext(),
                                         stoppedTrial, sensorLayoutsAtStop);
-                                final String runId = mRecording.getRunId();
+
+                                final String trialId = stoppedTrial.getTrialId();
+                                mDataController.updateTrial(stoppedTrial,
+                                        new LoggingConsumer<Success>(TAG, "update stats") {
+                                            @Override
+                                            public void success(Success value) {
+                                                // Close the service. When the service is closed, if
+                                                // the app is in the background, all processes will
+                                                // stop -- so this needs to be the last thing to
+                                                // happen!
+                                                recorderService.endServiceRecording(
+                                                        !activityInForground, trialId,
+                                                        mSelectedExperiment.getExperimentId(),
+                                                        mSelectedExperiment.getExperiment()
+                                                                .getDisplayTitle(mContext));
+                                            }
+                                        });
 
                                 // Now actually stop the recording.
                                 mRecording = null;
                                 mCurrentTrial = null;
-                                mStatsSaved = 0;
-                                final int statsToSave = mRecorders.values().size();
-                                LoggingConsumer<Success> onSuccess =
-                                        new LoggingConsumer<Success>(TAG, "save stats") {
-                                            @Override
-                                            public void success(Success value) {
-                                                if (++mStatsSaved == statsToSave) {
-                                                    // Close the service. When the service is closed, if the
-                                                    // app is in the background, all processes will stop --
-                                                    // so this needs to be the last thing to happen!
-                                                    recorderService.endServiceRecording(
-                                                            !activityInForground, runId,
-                                                            mSelectedExperiment.getExperimentId(),
-                                                            mSelectedExperiment.getExperiment()
-                                                                    .getDisplayTitle(mContext));
-                                                }
-                                            }
-                                        };
-                                for (StatefulRecorder recorder : mRecorders.values()) {
-                                    recorder.stopRecording(onSuccess);
-                                }
-
                                 cleanUpUnusedRecorders();
                                 updateRecordingListeners();
                                 mRecordingStateChangeInProgress = false;
@@ -604,12 +601,15 @@ public class RecorderControllerImpl implements RecorderController {
 
     @Override
     public void stopRecordingWithoutSaving() {
+        // TODO: Delete partially recorded data and trial?
         if (mRecording == null || mRecordingStateChangeInProgress) {
             return;
         }
         mRecording = null;
+        mCurrentTrial = null;
         for (StatefulRecorder recorder : mRecorders.values()) {
-            recorder.stopRecording(LoggingConsumer.<Success>expectSuccess(TAG, "stop recording"));
+            // No trial to update, since we are not saving this.
+            recorder.stopRecording(null);
         }
         mRecordingStateChangeInProgress = true;
         withBoundRecorderService(new FallibleConsumer<RecorderService>() {

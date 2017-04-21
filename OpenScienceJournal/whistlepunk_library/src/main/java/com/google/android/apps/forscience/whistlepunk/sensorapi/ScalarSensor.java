@@ -41,6 +41,7 @@ import com.google.android.apps.forscience.whistlepunk.audiogen.AudioGenerator;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SimpleJsynAudioGenerator;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
@@ -389,16 +390,18 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             }
 
             @Override
-            public void stopRecording(MaybeConsumer<Success> onSuccess) {
-                super.stopRecording(onSuccess);
+            public void stopRecording(Trial trialToUpdate) {
+                super.stopRecording(trialToUpdate);
 
                 TrialStats trialStats = statsAccumulator.makeSaveableStats();
                 trialStats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT,
                         zoomRecorder.countTiers());
                 trialStats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS,
                         mZoomLevelBetweenTiers);
+                if (trialToUpdate != null) {
+                    trialToUpdate.setStats(trialStats);
+                }
                 consumer.stopRecording();
-                environment.getDataController().setStats(mRunId, getId(), trialStats, onSuccess);
                 statsAccumulator.clearStats();
             }
 

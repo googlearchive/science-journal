@@ -120,16 +120,6 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public void setStats(String startLabelId, String sensorId, TrialStats stats) {
-        mStats.put(startLabelId, sensorId, stats);
-    }
-
-    @Override
-    public TrialStats getStats(String startLabelId, String sensorId) {
-        return mStats.get(startLabelId, sensorId);
-    }
-
-    @Override
     public List<String> getExperimentRunIds(String experimentId, boolean includeArchived) {
         return mExperimentIdsToRunIds.get(experimentId);
     }

@@ -198,8 +198,10 @@ public class CropHelper {
         mStatsUpdated = 0;
         for (GoosciSensorLayout.SensorLayout layout : run.getSensorLayouts()) {
             final String sensorId = layout.sensorId;
-            mDataController.setSensorStatsStatus(run.getTrialId(), sensorId,
-                    GoosciTrial.SensorTrialStats.NEEDS_UPDATE,
+            TrialStats stats = run.getTrial().getStatsForSensor(sensorId);
+            stats.setStatStatus(GoosciTrial.SensorTrialStats.NEEDS_UPDATE);
+            run.getTrial().setStats(stats);
+            mDataController.updateTrial(run.getTrial(),
                     new LoggingConsumer<Success>(TAG, "update stats") {
                         @Override
                         public void success(Success success) {
@@ -275,13 +277,11 @@ public class CropHelper {
                                     return;
                                 }
                                 // Done! Save back to the database.
-                                // Note that we only need to save the stats we have changed, because
-                                // each stat is stored separately. We do not need to update stats
-                                // like zoom tiers and zoom levels.
-                                TrialStats trialStats = mStatsAccumulator.makeSaveableStats();
-                                trialStats.setStatStatus(GoosciTrial.SensorTrialStats.VALID);
-                                dc.updateTrialStats(mExperimentRun.getTrialId(), mSensorId,
-                                        trialStats,
+                                TrialStats fullStats = mExperimentRun.getTrial().getStatsForSensor(
+                                        mSensorId);
+                                mStatsAccumulator.populateTrialStats(fullStats);
+                                mExperimentRun.getTrial().setStats(fullStats);
+                                dc.updateTrial(mExperimentRun.getTrial(),
                                         new LoggingConsumer<Success>(TAG, "update stats") {
                                             @Override
                                             public void success(Success value) {

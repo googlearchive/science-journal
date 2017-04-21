@@ -187,13 +187,17 @@ public class StatsAccumulator {
     }
 
     public TrialStats makeSaveableStats() {
-        final TrialStats stats = new TrialStats(mSensorId);
+        TrialStats stats = new TrialStats(mSensorId);
+        populateTrialStats(stats);
+        return stats;
+    }
+
+    public void populateTrialStats(TrialStats stats) {
         stats.setStatStatus(GoosciTrial.SensorTrialStats.VALID);
         stats.putStat(GoosciTrial.SensorStat.MINIMUM, mMin);
         stats.putStat(GoosciTrial.SensorStat.MAXIMUM, mMax);
         stats.putStat(GoosciTrial.SensorStat.AVERAGE, getAverage());
         stats.putStat(GoosciTrial.SensorStat.NUM_DATA_POINTS, mStatSize);
         stats.putStat(GoosciTrial.SensorStat.TOTAL_DURATION, mLatestTimestamp - mStartTimestamp);
-        return stats;
     }
 }

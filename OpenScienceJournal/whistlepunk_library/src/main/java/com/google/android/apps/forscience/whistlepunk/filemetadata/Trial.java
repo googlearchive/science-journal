@@ -194,10 +194,24 @@ public class Trial extends LabelListHolder {
         mTrial.autoZoomEnabled = enableAutoZoom;
     }
 
+    /**
+     * Gets a list of the stats for all sensors.
+     */
+    public List<TrialStats> getStats() {
+        return new ArrayList<>(mTrialStats.values());
+    }
+
+    /**
+     * Gets the stats for a sensor.
+     */
     public TrialStats getStatsForSensor(String sensorId) {
         return mTrialStats.get(sensorId);
     }
 
+    /**
+     * Sets the stats for a sensor. This will overwrite existing stats.
+     * @param newTrialStats The new stats to save.
+     */
     public void setStats(TrialStats newTrialStats) {
         mTrialStats.put(newTrialStats.getSensorId(), newTrialStats);
     }

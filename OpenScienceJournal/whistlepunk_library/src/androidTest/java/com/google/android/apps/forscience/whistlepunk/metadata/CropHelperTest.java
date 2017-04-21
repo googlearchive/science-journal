@@ -97,9 +97,9 @@ public class CropHelperTest extends AndroidTestCase {
     // In a real trial, stats are set when recording stops, so any crop should have some sensor
     // stats already set and this kind of thing is unnecessary. But we don't need to set legit stats
     // because we aren't checking the "pre-crop" values, so empty stats are fine here.
-    private void setEmptyStats() {
-        mDataController.setStats("0", "sensor", new TrialStats("sensor"),
-                TestConsumers.<Success>expectingSuccess());
+    private void setEmptyStats(Trial trial) {
+        trial.setStats(new TrialStats("sensor"));
+        mMetadataManager.updateTrial(trial);
     }
 
     @Test
@@ -140,8 +140,8 @@ public class CropHelperTest extends AndroidTestCase {
                 new ApplicationLabel(ApplicationLabel.TYPE_CROP_END, "1008", "0", 1008),
                 mAddLabelConsumer);
         mDataController.addScalarReading("sensor", 0, 50, 50);
-        setEmptyStats();
-        mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
+        Trial trial = mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
+        setEmptyStats(trial);
         mDataController.getExperimentRun("experiment", "0",
                 new LoggingConsumer<ExperimentRun>("test", "test") {
                     @Override
@@ -155,7 +155,9 @@ public class CropHelperTest extends AndroidTestCase {
                         assertEquals(run.getOriginalFirstTimestamp(), 0);
                         assertEquals(run.getOriginalLastTimestamp(), 2000);
 
-                        assertTrue(mMetadataManager.getStats("0", "sensor").statsAreValid());
+                        assertTrue(mMetadataManager.getTrial("0",
+                                Collections.<ApplicationLabel>emptyList())
+                                .getStatsForSensor("sensor").statsAreValid());
                     }
                 });
 
@@ -169,12 +171,12 @@ public class CropHelperTest extends AndroidTestCase {
         mDataController.addCropApplicationLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
                 mAddLabelConsumer);
-        mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
+        Trial trial = mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
         mDataController.addScalarReading("sensor", 0, 1, 1); // This gets cropped out
         mDataController.addScalarReading("sensor", 0, 50, 50);
         mDataController.addScalarReading("sensor", 0, 60, 60);
         mDataController.addScalarReading("sensor", 0, 70, 70);
-        setEmptyStats();
+        setEmptyStats(trial);
         mDataController.getExperimentRun("experiment", "0",
                 new LoggingConsumer<ExperimentRun>("test", "test") {
                     @Override
@@ -188,7 +190,9 @@ public class CropHelperTest extends AndroidTestCase {
                         assertEquals(run.getOriginalFirstTimestamp(), 0);
                         assertEquals(run.getOriginalLastTimestamp(), 2000);
 
-                        TrialStats stats = mMetadataManager.getStats("0", "sensor");
+                        TrialStats stats = mMetadataManager.getTrial("0",
+                                Collections.<ApplicationLabel>emptyList())
+                                .getStatsForSensor("sensor");
                         assertTrue(stats.statsAreValid());
                         assertEquals(stats.getStatValue(GoosciTrial.SensorStat.MINIMUM, -1), 50.0);
                         assertEquals(stats.getStatValue(GoosciTrial.SensorStat.AVERAGE, -1), 60.0);
@@ -207,8 +211,8 @@ public class CropHelperTest extends AndroidTestCase {
         mDataController.addCropApplicationLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
                 mAddLabelConsumer);
-        mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
-        setEmptyStats();
+        Trial trial = mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
+        setEmptyStats(trial);
         mDataController.getExperimentRun("experiment", "0",
                 new LoggingConsumer<ExperimentRun>("test", "test") {
                     @Override
@@ -217,7 +221,9 @@ public class CropHelperTest extends AndroidTestCase {
                                 mDataController);
                         cropHelper.cropRun(null, run, 2, 1008, mCropRunListener);
                         assertTrue(mCropCompleted);
-                        assertFalse(mMetadataManager.getStats("0", "sensor").statsAreValid());
+                        assertFalse(mMetadataManager.getTrial("0",
+                                Collections.<ApplicationLabel>emptyList())
+                                .getStatsForSensor("sensor").statsAreValid());
                     }
                 });
     }

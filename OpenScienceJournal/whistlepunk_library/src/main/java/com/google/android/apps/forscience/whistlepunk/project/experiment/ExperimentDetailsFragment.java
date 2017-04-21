@@ -191,7 +191,7 @@ public class ExperimentDetailsFragment extends Fragment
             @Override
             public void onReceive(Context context, Intent intent) {
                 String statsRunId = intent.getStringExtra(CropHelper.EXTRA_RUN_ID);
-                mAdapter.onStatsBroadcastReceived(statsRunId);
+                mAdapter.onStatsBroadcastReceived(statsRunId, getDataController());
             }
         };
         CropHelper.registerStatsBroadcastReceiver(getActivity().getApplicationContext(),
@@ -1140,12 +1140,11 @@ public class ExperimentDetailsFragment extends Fragment
         private void loadSensorData(Context appContext, final ViewHolder holder,
                                     final ExperimentDetailItem item) {
             final ExperimentRun run = item.getRun();
-            final String sensorTag = run.getSensorIds().get(item.getSensorTagIndex());
-            final String runId = run.getTrialId();
+            final String sensorId = run.getSensorIds().get(item.getSensorTagIndex());
 
             final SensorAppearance appearance = AppSingleton.getInstance(appContext)
                     .getSensorAppearanceProvider()
-                    .getAppearance(sensorTag);
+                    .getAppearance(sensorId);
             final NumberFormat numberFormat = appearance.getNumberFormat();
             holder.sensorName.setText(Appearances.getSensorDisplayName(appearance, appContext));
             final GoosciSensorLayout.SensorLayout sensorLayout = item.getSelectedSensorLayout();
@@ -1167,60 +1166,36 @@ public class ExperimentDetailsFragment extends Fragment
                         appContext);
             }
 
-            setIndeterminateSensorData(holder);
-            final DataController dc = AppSingleton.getInstance(appContext).getDataController();
-            dc.getStats(
-                    run.getTrialId(), run.getSensorIds().get(item.getSensorTagIndex()),
-                    new LoggingConsumer<TrialStats>(TAG,
-                            "loading stats") {
+            final TrialStats stats = run.getTrial().getStatsForSensor(sensorId);
+            if (!stats.statsAreValid()) {
+                holder.statsList.clearStats();
+            } else {
+                List<StreamStat> streamStats = new StatsAccumulator.StatsDisplay(numberFormat)
+                        .updateStreamStats(stats);
+                holder.statsList.updateStats(streamStats);
+            }
+
+            // Load sensor readings into a chart.
+            final ChartController chartController = item.getChartController();
+            chartController.setChartView(holder.chartView);
+            chartController.setProgressView(holder.progressView);
+            holder.setSensorId(sensorLayout.sensorId);
+            DataController dc = AppSingleton.getInstance(appContext).getDataController();
+            chartController.loadRunData(run, sensorLayout, dc, holder, stats,
+                    new ChartController.ChartDataLoadedCallback() {
                         @Override
-                        public void success(TrialStats stats) {
-                            // Only load this if the holder run value is the same. Otherwise,
-                            // bail.
-                            if (!runId.equals(holder.getRunId())) {
-                                return;
-                            }
-                            holder.statsLoadStatus = ViewHolder.STATS_LOAD_STATUS_IDLE;
-                            if (!stats.statsAreValid()) {
-                                holder.statsList.clearStats();
-                            } else {
-                                List<StreamStat> streamStats =
-                                        new StatsAccumulator.StatsDisplay(numberFormat)
-                                                .updateStreamStats(stats);
-                                holder.statsList.updateStats(streamStats);
-                            }
-                            // Save the sensor stats so they can be used to set the Y axis on load.
-                            // If too many sensors are loaded in quick succession, having
-                            // RunStats be a final local variable may cause the Y axis to be set
-                            // inappropriately.
-                            holder.currentSensorStats = stats;
+                        public void onChartDataLoaded(long firstTimestamp,
+                                long lastTimestamp) {
+                            // Display the graph.
+                            chartController.setXAxisWithBuffer(firstTimestamp, lastTimestamp);
+                            chartController.setReviewYAxis(
+                                    stats.getStatValue(GoosciTrial.SensorStat.MINIMUM, 0),
+                                    stats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, 0), true);
+                        }
 
-                            // Load sensor readings into a chart.
-                            final ChartController chartController = item.getChartController();
-                            chartController.setChartView(holder.chartView);
-                            chartController.setProgressView(holder.progressView);
-                            holder.setSensorId(sensorLayout.sensorId);
-                            chartController.loadRunData(run, sensorLayout, dc, holder, stats,
-                                    new ChartController.ChartDataLoadedCallback() {
-                                        @Override
-                                        public void onChartDataLoaded(long firstTimestamp,
-                                                long lastTimestamp) {
-                                            // Display the graph.
-                                            chartController.setXAxisWithBuffer(firstTimestamp,
-                                                    lastTimestamp);
-                                            chartController.setReviewYAxis(
-                                                    holder.currentSensorStats.getStatValue(
-                                                            GoosciTrial.SensorStat.MINIMUM, 0),
-                                                    holder.currentSensorStats.getStatValue(
-                                                            GoosciTrial.SensorStat.MAXIMUM, 0),
-                                                    true);
-                                        }
+                        @Override
+                        public void onLoadAttemptStarted(boolean unused) {
 
-                                        @Override
-                                        public void onLoadAttemptStarted(boolean unused) {
-
-                                        }
-                                    });
                         }
                     });
         }
@@ -1245,7 +1220,7 @@ public class ExperimentDetailsFragment extends Fragment
             outState.putIntegerArrayList(KEY_SAVED_SENSOR_INDICES, selectedIndices);
         }
 
-        public void onStatsBroadcastReceived(String statsRunId) {
+        public void onStatsBroadcastReceived(String statsRunId, DataController dc) {
             // Update the stats when this is received.
             // TODO: Optimize: only update the full view if the sensor ID that changed was visible?
             for (int i = 0; i < mItems.size(); i++) {
@@ -1254,8 +1229,17 @@ public class ExperimentDetailsFragment extends Fragment
                     continue;
                 }
                 if (TextUtils.equals(statsRunId, run.getTrialId())) {
-                    // Rebind the View Holder to reload the stats and graphs.
-                    notifyItemChanged(i);
+                    // Reload the experiment run since the stats have changed.
+                    final int trialIndex = i;
+                    dc.getExperimentRun(run.getExperimentId(), run.getTrialId(),
+                            new LoggingConsumer<ExperimentRun>(TAG, "load experiment run") {
+                                @Override
+                                public void success(final ExperimentRun run) {
+                                    // Rebind the View Holder to reload the stats and graphs.
+                                    mItems.get(trialIndex).mRun = run;
+                                    notifyItemChanged(trialIndex);
+                                }
+                            });
                     return;
                 }
             }

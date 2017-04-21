@@ -26,11 +26,13 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -43,43 +45,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DataControllerTest extends AndroidTestCase {
     // TODO: continue moving tests (as possible) to DataControllerUnitTest
-
-    public void testStoreStats() {
-        final InMemorySensorDatabase db = new InMemorySensorDatabase();
-
-        final TrialStats stats = new TrialStats("sensorId");
-
-        stats.putStat(GoosciTrial.SensorStat.MINIMUM, 1);
-        stats.putStat(GoosciTrial.SensorStat.AVERAGE, 2);
-        stats.putStat(GoosciTrial.SensorStat.MAXIMUM, 3);
-
-        MemoryMetadataManager mmm = new MemoryMetadataManager();
-        db.makeSimpleRecordingController(mmm).setStats("startLabelId", "sensorId", stats,
-                TestConsumers.<Success>expectingSuccess());
-
-        final AtomicBoolean success = new AtomicBoolean(false);
-
-        db.makeSimpleController(mmm).getStats("startLabelId", "sensorId",
-                TestConsumers.expectingSuccess(new Consumer<TrialStats>() {
-                    @Override
-                    public void take(TrialStats trialStats) {
-                        assertEquals(1.0, trialStats.getStatValue(GoosciTrial.SensorStat.MINIMUM,
-                                -1), 0.001);
-                        assertEquals(2.0, trialStats.getStatValue(GoosciTrial.SensorStat.AVERAGE,
-                                -1), 0.001);
-                        assertEquals(3.0, trialStats.getStatValue(GoosciTrial.SensorStat.MAXIMUM,
-                                -1), 0.001);
-                        success.set(true);
-                    }
-                }));
-
-        assertTrue(success.get());
-    }
 
     public void testLayouts() {
         final DataController dc = makeSimpleController();
@@ -152,22 +123,29 @@ public class DataControllerTest extends AndroidTestCase {
         assertEquals("Could not add value 3.0", listener.exception.getMessage());
     }
 
-    public void testSetStatsError() {
+    public void testUpdateTrialError() {
         MemoryMetadataManager failingMetadata = new MemoryMetadataManager() {
             @Override
-            public void setStats(String startLabelId, String sensorId, TrialStats stats) {
-                throw new RuntimeException("Failed to store stats for " + sensorId);
+            public void updateTrial(Trial trial) {
+                throw new RuntimeException("Failed to store trial");
             }
         };
-        RecordingDataController rdc = new InMemorySensorDatabase().makeSimpleRecordingController(
+        final DataController dc = new InMemorySensorDatabase().makeSimpleController(
                 failingMetadata);
-        StoringFailureListener listener = new StoringFailureListener();
+        final StoringFailureListener listener = new StoringFailureListener();
         String sensorId = Arbitrary.string();
 
-        rdc.setStats("runId", sensorId, new TrialStats("sensorId"),
-                TestConsumers.<Success>expectingFailure(listener));
+        Experiment experiment = new Experiment(10);
+        dc.startTrial(experiment, Collections.<GoosciSensorLayout.SensorLayout>emptyList(),
+                new LoggingConsumer<Trial>("DataControllerTest", "new trial") {
+                    @Override
+                    public void success(Trial value) {
+                        value.setTitle("changed title");
+                        dc.updateTrial(value, TestConsumers.<Success>expectingFailure(listener));
+                    }
+                });
 
-        assertEquals("Failed to store stats for " + sensorId, listener.exception.getMessage());
+        assertEquals("Failed to store trial", listener.exception.getMessage());
     }
 
     public void testReplaceChangesLayout() {
