@@ -93,6 +93,7 @@ public class StatefulRecorder {
     void stopRecording(Trial trialToUpdate) {
         mRecorder.stopRecording(trialToUpdate);
         mRecording = false;
+        maybeStopObserving();
     }
 
     // The spec for SensorRecorder says that once you stopObserving, the recorder should
