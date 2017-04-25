@@ -45,7 +45,7 @@ public class Experiment extends LabelListHolder {
     private GoosciExperiment.Experiment mProto;
     private List<GoosciSensorLayout.SensorLayout> mSensorLayouts;
     private List<GoosciExperiment.ExperimentSensor> mExperimentSensors;
-    private ArrayListMultimap<String, SensorTrigger> mSensorTriggers;
+    private List<SensorTrigger> mSensorTriggers;
     private List<Trial> mTrials;
 
     public static Experiment newExperiment(long creationTime) {
@@ -76,6 +76,10 @@ public class Experiment extends LabelListHolder {
         mTrials = new ArrayList<>();
         for (GoosciTrial.Trial trial : mProto.trials) {
             mTrials.add(Trial.fromTrial(trial));
+        }
+        mSensorTriggers = new ArrayList<>();
+        for (GoosciSensorTrigger.SensorTrigger proto : mProto.sensorTriggers) {
+            mSensorTriggers.add(SensorTrigger.fromProto(proto));
         }
     }
 
@@ -164,7 +168,7 @@ public class Experiment extends LabelListHolder {
     /**
      * Gets the current list of trials in this experiment.
      * Objects in this list should not be modified and expect that state to be saved, instead
-     * editing of trials should happen using updateTrial, addTrial, removeTrial.
+     * editing of trials should happen using updateTrial, addTrial, deleteTrial.
      */
     public List<Trial> getTrials() {
         return mTrials;
@@ -198,7 +202,7 @@ public class Experiment extends LabelListHolder {
     }
 
     /**
-     * Updates a trial. If the trial is not yet in the experiment, it gets added.
+     * Updates a trial.
      * @param trial
      */
     public void updateTrial(Trial trial) {
@@ -269,34 +273,92 @@ public class Experiment extends LabelListHolder {
     }
 
     /**
+     * Gets the current list of sensor triggers in this experiment for all sensors.
+     * Objects in this list should not be modified and expect that state to be saved, instead
+     * editing of triggers should happen using update/add/remove functions.
+     */
+    public List<SensorTrigger> getSensorTriggers() {
+        return mSensorTriggers;
+    }
+
+    public List<SensorTrigger> getActiveSensorTriggers(GoosciSensorLayout.SensorLayout layout) {
+        List<SensorTrigger> result =
+                new ArrayList<>(layout.activeSensorTriggerIds.length);
+        for (String triggerId : layout.activeSensorTriggerIds) {
+            SensorTrigger trigger = getSensorTrigger(triggerId);
+            if (trigger != null) {
+                result.add(trigger);
+            }
+        }
+        return result;
+    }
+
+    /**
      * Gets the current list of sensor triggers in this experiment for a particular sensor.
      * Objects in this list should not be modified and expect that state to be saved, instead
      * editing of triggers should happen using update/add/remove functions.
      */
-    public List<SensorTrigger> getSensorTriggers(String sensorId) {
-        if (mSensorTriggers == null) {
-            mSensorTriggers = ArrayListMultimap.create();
-            for (GoosciSensorTrigger.SensorTrigger proto : mProto.sensorTriggers) {
-                mSensorTriggers.put(sensorId, SensorTrigger.fromProto(proto));
+    public List<SensorTrigger> getSensorTriggersForSensor(String sensorId) {
+        List<SensorTrigger> result = new ArrayList<>();
+        for (SensorTrigger trigger : mSensorTriggers) {
+            if (TextUtils.equals(trigger.getSensorId(), sensorId)) {
+                result.add(trigger);
             }
         }
-        return mSensorTriggers.get(sensorId);
+        return result;
     }
 
-    @VisibleForTesting
-    void setSensorTriggers(ArrayListMultimap<String, SensorTrigger> sensorTriggers) {
+    /**
+     * Gets a sensor trigger by trigger ID.
+     */
+    public SensorTrigger getSensorTrigger(String triggerId) {
+        for (SensorTrigger trigger : mSensorTriggers) {
+            if (TextUtils.equals(trigger.getTriggerId(), triggerId)) {
+                return trigger;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Sets the whole list of SensorTriggers on the experiment.
+     * @param sensorTriggers
+     */
+    public void setSensorTriggers(List<SensorTrigger> sensorTriggers) {
         mSensorTriggers = Preconditions.checkNotNull(sensorTriggers);
     }
 
     /**
-     * Updates the sensor triggers for a sensor.
-     * @param sensorId
-     * @param triggers
+     * Adds a sensor trigger.
      */
-    public void updateSensorTriggers(String sensorId, List<SensorTrigger> triggers) {
-        // TODO: Do this by index? Or update a whole list at once? We can't use a trigger to update
-        // a trigger because it has no ID!
-        mSensorTriggers.replaceValues(sensorId, triggers);
+    public void addSensorTrigger(SensorTrigger trigger) {
+        mSensorTriggers.add(trigger);
+    }
+
+    /**
+     * Updates a sensor trigger.
+     */
+    public void updateSensorTrigger(SensorTrigger triggerToUpdate) {
+        for (int i = 0; i < mSensorTriggers.size(); i++) {
+            SensorTrigger next = mSensorTriggers.get(i);
+            if (TextUtils.equals(triggerToUpdate.getTriggerId(), next.getTriggerId())) {
+                mSensorTriggers.set(i, triggerToUpdate);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Removes a sensor trigger using its ID to find the matching trigger.
+     * @param triggerToRemove
+     */
+    public void removeSensorTrigger(SensorTrigger triggerToRemove) {
+        for (SensorTrigger trigger : mSensorTriggers) {
+            if (TextUtils.equals(trigger.getTriggerId(), triggerToRemove.getTriggerId())) {
+                mSensorTriggers.remove(trigger);
+                return;
+            }
+        }
     }
 
     /**
@@ -319,10 +381,8 @@ public class Experiment extends LabelListHolder {
         if (mSensorTriggers != null) {
             mProto.sensorTriggers = new GoosciSensorTrigger.SensorTrigger[mSensorTriggers.size()];
             int index = 0;
-            for (String sensorId : mSensorTriggers.keySet()) {
-                for (SensorTrigger trigger : mSensorTriggers.get(sensorId)) {
-                    mProto.sensorTriggers[index++] = trigger.getTriggerProto();
-                }
+            for (SensorTrigger trigger : mSensorTriggers) {
+                mProto.sensorTriggers[index++] = trigger.getTriggerProto();
             }
         }
 

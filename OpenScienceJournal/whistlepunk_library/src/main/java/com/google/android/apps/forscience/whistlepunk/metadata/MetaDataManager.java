@@ -179,40 +179,6 @@ public interface MetaDataManager {
     void deleteTrial(String trialId);
 
     /**
-     * Adds a new trigger.
-     * @param trigger
-     * @param experimentId The experiment active when the trigger was first added. Note that this is
-     *                     currently not used for retrieval.
-     */
-    void addSensorTrigger(SensorTrigger trigger, String experimentId);
-
-    /**
-     * Updates an existing SensorTrigger. note that only the last used timestamp and
-     * TriggerInformation can be mutated.
-     * @param trigger
-     */
-    void updateSensorTrigger(SensorTrigger trigger);
-
-    /**
-     * Gets a list of SensorTrigger by their IDs.
-     * @param triggerIds
-     */
-    List<SensorTrigger> getSensorTriggers(String[] triggerIds);
-
-    /**
-     * Gets a list of sensor triggers that are applicable to a given Sensor ID.
-     * TODO: Experiment could be added to these params if we decide that is reasonable.
-     * @param sensorId
-     * @return A list of SensorTriggers that apply to that Sensor ID
-     */
-    List<SensorTrigger> getSensorTriggersForSensor(String sensorId);
-
-    /**
-     * Deletes the SensorTrigger from the database.
-     */
-    void deleteSensorTrigger(SensorTrigger trigger);
-
-    /**
      * Updates the layouts for a trial (usually to reflect any changes between starting to
      * record and stopping.
      */

@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static junit.framework.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
@@ -48,15 +47,14 @@ public class ExperimentUnitTest {
 
         // No triggers on creation
         Experiment experiment = Experiment.fromExperiment(proto, false);
-        assertEquals(experiment.getSensorTriggers("sensorId"),
+        assertEquals(experiment.getSensorTriggersForSensor("sensorId"),
                 Collections.<SensorTrigger>emptyList());
 
         GoosciSensorTrigger.SensorTrigger triggerProto = new GoosciSensorTrigger.SensorTrigger();
-        triggerProto.sensorId = "sensorid";
+        triggerProto.sensorId = "sensorId";
         SensorTrigger trigger = SensorTrigger.fromProto(triggerProto);
-        experiment.updateSensorTriggers("sensorId", Arrays.asList(trigger));
-
-        assertEquals(experiment.getSensorTriggers("sensorId").size(), 1);
+        experiment.addSensorTrigger(trigger);
+        assertEquals(experiment.getSensorTriggersForSensor("sensorId").size(), 1);
         assertEquals(experiment.getExperimentProto().sensorTriggers.length, 1);
     }
 

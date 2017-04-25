@@ -31,7 +31,6 @@ import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
-import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
@@ -49,9 +48,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -306,10 +303,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 }
             }
         }
-        if (experiment != null) {
-            List<Label> labels = getLabelsForExperiment(experiment);
-            experiment.getExperiment().populateLabels(labels);
-        }
+        populateExperiment(experiment);
         return experiment;
     }
 
@@ -345,11 +339,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         for (String runId : runIds) {
             deleteTrial(runId);
         }
-        List<Label> labels = getLabelsForExperiment(experiment);
-        for (Label label : labels) {
-            label.deleteAssets(mContext);
-            deleteLabel(label);
-        }
+        deleteObjectsInExperiment(experiment, /* delete assets */ true);
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             String[] experimentArgs = new String[]{experiment.getExperimentId()};
@@ -367,12 +357,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void updateExperiment(Experiment experiment) {
-        // Delete and re-add all the labels, as if this was a file we were re-writing from scratch.
+        // Delete and re-add all the objects, as if this was a file we were re-writing from scratch.
         // This is not super efficient, but it is temporary in the file system migration process.
-        List<Label> labels = getLabelsForExperiment(experiment);
-        for (Label label : labels) {
-            deleteLabel(label);
-        }
+        deleteObjectsInExperiment(experiment, /* don't delete assets */ false);
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             updateExperiment(db, experiment);
@@ -380,6 +367,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 // how does this do on conflict? poorly.
                 addLabel(experiment.getExperimentId(),
                         RecorderController.NOT_RECORDING_RUN_ID, label);
+            }
+            for (SensorTrigger trigger : experiment.getExperiment().getSensorTriggers()) {
+                addSensorTrigger(trigger, experiment.getExperimentId());
             }
             // TODO: Later this should also update all the trials in this experiment
         }
@@ -420,8 +410,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             }
         }
         for (Experiment experiment : experiments) {
-            List<Label> labels = getLabelsForExperiment(experiment);
-            experiment.getExperiment().populateLabels(labels);
+            populateExperiment(experiment);
         }
         return experiments;
     }
@@ -461,11 +450,32 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 }
             }
         }
-        if (experiment != null) {
-            List<Label> labels = getLabelsForExperiment(experiment);
-            experiment.getExperiment().populateLabels(labels);
-        }
+        populateExperiment(experiment);
         return experiment;
+    }
+
+    private void deleteObjectsInExperiment(Experiment experiment, boolean deleteAssets) {
+        List<Label> labels = getLabelsForExperiment(experiment);
+        for (Label label : labels) {
+            if (deleteAssets) {
+                label.deleteAssets(mContext);
+            }
+            deleteLabel(label);
+        }
+        List<SensorTrigger> triggers = getSensorTriggers(experiment.getExperimentId());
+        for (SensorTrigger trigger : triggers) {
+            deleteSensorTrigger(trigger);
+        }
+    }
+
+    private void populateExperiment(Experiment experiment) {
+        if (experiment == null) {
+            return;
+        }
+        List<Label> labels = getLabelsForExperiment(experiment);
+        experiment.getExperiment().populateLabels(labels);
+        List<SensorTrigger> triggers = getSensorTriggers(experiment.getExperimentId());
+        experiment.getExperiment().setSensorTriggers(triggers);
     }
 
     @Override
@@ -1372,8 +1382,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return myDevices;
     }
 
-    @Override
-    public void addSensorTrigger(SensorTrigger trigger, String experimentId) {
+    /**
+     * Adds a new trigger.
+     * @param trigger
+     * @param experimentId The experiment active when the trigger was first added.
+     */
+    private void addSensorTrigger(SensorTrigger trigger, String experimentId) {
         ContentValues values = new ContentValues();
         values.put(SensorTriggerColumns.EXPERIMENT_ID, experimentId);
         values.put(SensorTriggerColumns.TRIGGER_ID, trigger.getTriggerId());
@@ -1387,8 +1401,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
-    @Override
-    public void updateSensorTrigger(SensorTrigger trigger) {
+    /**
+     * Updates an existing SensorTrigger. note that only the last used timestamp and
+     * TriggerInformation can be mutated.
+     * @param trigger
+     */
+    private void updateSensorTrigger(SensorTrigger trigger) {
         // Only the LastUsedTimestamp and TriggerInformation can be updated.
         ContentValues values = new ContentValues();
         values.put(SensorTriggerColumns.LAST_USED_TIMESTAMP_MS, trigger.getLastUsed());
@@ -1401,27 +1419,27 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
-    @Override
-    public List<SensorTrigger> getSensorTriggers(String[] triggerIds) {
+    /**
+     * Gets a list of SensorTrigger by their experiment ID.
+     */
+    private List<SensorTrigger> getSensorTriggers(String experimentId) {
         List<SensorTrigger> triggers = new ArrayList<>();
-        if (triggerIds == null || triggerIds.length == 0) {
+        if (TextUtils.isEmpty(experimentId)) {
             return triggers;
         }
 
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            String[] whereArr = new String[triggerIds.length];
-            Arrays.fill(whereArr, "?");
-            final String where = TextUtils.join(",", whereArr);
-            final String selection = SensorTriggerColumns.TRIGGER_ID + " IN (" + where + ")";
+            final String selection = SensorTriggerColumns.EXPERIMENT_ID + "=?";
+            String[] selectionArgs = new String[]{experimentId};
             Cursor c = null;
             try {
-                c = db.query(
-                        Tables.SENSOR_TRIGGERS, new String[]{SensorTriggerColumns.TRIGGER_ID,
+                c = db.query(Tables.SENSOR_TRIGGERS, new String[]{SensorTriggerColumns.TRIGGER_ID,
                                 SensorTriggerColumns.SENSOR_ID,
                                 SensorTriggerColumns.LAST_USED_TIMESTAMP_MS,
-                                SensorTriggerColumns.TRIGGER_INFORMATION}, selection, triggerIds,
-                        null, null, null, null);
+                                SensorTriggerColumns.TRIGGER_INFORMATION},
+                        selection, selectionArgs, null, null,
+                        SensorTriggerColumns.LAST_USED_TIMESTAMP_MS + " DESC");
                 if (c == null || !c.moveToFirst()) {
                     return triggers;
                 }
@@ -1442,40 +1460,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return triggers;
     }
 
-    @Override
-    public List<SensorTrigger> getSensorTriggersForSensor(String sensorId) {
-        List<SensorTrigger> triggers = new ArrayList<>();
-
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            Cursor c = null;
-            String selection = SensorTriggerColumns.SENSOR_ID + "=?";
-            String[] selectionArgs = new String[]{sensorId};
-            try {
-                c = db.query(Tables.SENSOR_TRIGGERS, new String[]{
-                                SensorTriggerColumns.TRIGGER_ID,
-                                SensorTriggerColumns.LAST_USED_TIMESTAMP_MS,
-                                SensorTriggerColumns.TRIGGER_INFORMATION},
-                        selection, selectionArgs, null, null,
-                        SensorTriggerColumns.LAST_USED_TIMESTAMP_MS + " DESC");
-                while (c.moveToNext()) {
-                    triggers.add(SensorTrigger.fromTrigger(c.getString(0), sensorId, c.getLong(1),
-                            GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
-                                    c.getBlob(2))));
-                }
-            } catch (InvalidProtocolBufferNanoException e) {
-                e.printStackTrace();
-            } finally {
-                if (c != null) {
-                    c.close();
-                }
-            }
-        }
-        return triggers;
-    }
-
-    @Override
-    public void deleteSensorTrigger(SensorTrigger trigger) {
+    /**
+     * Deletes the SensorTrigger from the database.
+     */
+    private void deleteSensorTrigger(SensorTrigger trigger) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             db.delete(Tables.SENSOR_TRIGGERS, SensorTriggerColumns.TRIGGER_ID + "=?",

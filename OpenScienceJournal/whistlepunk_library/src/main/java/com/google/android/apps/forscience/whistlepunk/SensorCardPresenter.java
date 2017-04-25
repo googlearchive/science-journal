@@ -45,6 +45,7 @@ import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerListActivity;
@@ -375,27 +376,18 @@ public class SensorCardPresenter {
     }
 
     public void startObserving(SensorChoice sensorChoice, SensorPresenter sensorPresenter,
-            ReadableSensorOptions readOptions, DataController dataController) {
+            ReadableSensorOptions readOptions, Experiment experiment) {
         final ReadableSensorOptions nonNullOptions = BlankReadableSensorOptions.blankIfNull(
                 readOptions);
         mCurrentSource = sensorChoice;
         mSensorPresenter = sensorPresenter;
+        List<SensorTrigger> triggers;
         if (mLayout.activeSensorTriggerIds.length == 0) {
-            startObservingWithTriggers(nonNullOptions, Collections.<SensorTrigger>emptyList());
+            updateCardMenu();
+            triggers = Collections.emptyList();
         } else {
-            dataController.getSensorTriggers(mLayout.activeSensorTriggerIds,
-                    new LoggingConsumer<List<SensorTrigger>>(TAG, "get sensor triggers") {
-                        @Override
-                        public void success(List<SensorTrigger> triggers) {
-                            startObservingWithTriggers(nonNullOptions, triggers);
-                            updateCardMenu();
-                        }
-                    });
+            triggers = experiment.getActiveSensorTriggers(mLayout);
         }
-    }
-
-    private void startObservingWithTriggers(ReadableSensorOptions readOptions,
-            List<SensorTrigger> triggers) {
         mCardTriggerPresenter.setSensorTriggers(triggers);
         mObserverId = mRecorderController.startObserving(mCurrentSource.getId(), triggers,
                 new SensorObserver() {

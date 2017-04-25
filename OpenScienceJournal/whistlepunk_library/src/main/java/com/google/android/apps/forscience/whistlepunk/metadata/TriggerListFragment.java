@@ -75,6 +75,7 @@ public class TriggerListFragment extends Fragment {
     private TriggerListAdapter mTriggerAdapter;
     private int mLayoutPosition;
     private ArrayList<String> mTriggerOrder;
+    private Experiment mExperiment;
 
     public static TriggerListFragment newInstance(String sensorId, String experimentId,
             int position, ArrayList<String> triggerOrder) {
@@ -131,7 +132,7 @@ public class TriggerListFragment extends Fragment {
                         for (GoosciSensorLayout.SensorLayout layout : value) {
                             if (TextUtils.equals(layout.sensorId, mSensorId)) {
                                 mSensorLayout = layout;
-                                loadTriggers();
+                                loadExperiment();
                             }
                         }
                     }
@@ -176,11 +177,12 @@ public class TriggerListFragment extends Fragment {
         return view;
     }
 
-    private void loadTriggers() {
-        getDataController().getSensorTriggersForSensor(mSensorId,
-                new LoggingConsumer<List<SensorTrigger>>(TAG, "get triggers for sensor") {
+    private void loadExperiment() {
+        getDataController().getExperimentById(mExperimentId,
+                new LoggingConsumer<Experiment>(TAG, "get experiment") {
                     @Override
-                    public void success(List<SensorTrigger> triggers) {
+                    public void success(Experiment experiment) {
+                        mExperiment = experiment;
                         Comparator<SensorTrigger> cp;
                         if (mTriggerOrder != null) {
                             // If this is not the first load, use the saved order to define a new
@@ -216,6 +218,8 @@ public class TriggerListFragment extends Fragment {
                             };
                         }
                         // Sort sensor triggers
+                        List<SensorTrigger> triggers = experiment.getExperiment()
+                                .getSensorTriggers();
                         Collections.sort(triggers, cp);
                         mTriggerAdapter.setSensorTriggers(triggers);
                     }
@@ -226,8 +230,6 @@ public class TriggerListFragment extends Fragment {
         Intent intent = new Intent(getActivity(), EditTriggerActivity.class);
         if (trigger != null) {
             intent.putExtra(EditTriggerActivity.EXTRA_TRIGGER_ID, trigger.getTriggerId());
-            intent.putExtra(EditTriggerActivity.EXTRA_TRIGGER_INFO_BLOB,
-                    ProtoUtils.makeBlob(trigger.getTriggerProto().triggerInformation));
         }
         intent.putExtra(EditTriggerActivity.EXTRA_EXPERIMENT_ID, mExperimentId);
         intent.putExtra(EditTriggerActivity.EXTRA_SENSOR_ID, mSensorId);
@@ -267,8 +269,9 @@ public class TriggerListFragment extends Fragment {
                     return;
                 }
                 mUndone = true;
-                dc.addSensorTrigger(trigger, mExperimentId,
-                        new LoggingConsumer<Success>(TAG, "re-add deleted trigger") {
+                mExperiment.getExperiment().addSensorTrigger(trigger);
+                dc.updateExperiment(mExperiment,
+                        new LoggingConsumer<Success>(TAG, "update exp: re-add deleted trigger") {
                             @Override
                             public void success(Success value) {
                                 if (isActive) {
@@ -296,11 +299,12 @@ public class TriggerListFragment extends Fragment {
         // from the trigger database.
         TriggerHelper.removeTriggerFromLayoutActiveTriggers(mSensorLayout,
                 trigger.getTriggerId());
+        mExperiment.getExperiment().removeSensorTrigger(trigger);
         dc.updateSensorLayout(mExperimentId, mLayoutPosition, mSensorLayout,
                 new LoggingConsumer<Success>(TAG, "remove trigger from layout") {
                     @Override
                     public void success(Success value) {
-                        dc.deleteSensorTrigger(trigger, new LoggingConsumer<Success>(TAG,
+                        dc.updateExperiment(mExperiment, new LoggingConsumer<Success>(TAG,
                                 "delete trigger") {
                             @Override
                             public void success(Success value) {

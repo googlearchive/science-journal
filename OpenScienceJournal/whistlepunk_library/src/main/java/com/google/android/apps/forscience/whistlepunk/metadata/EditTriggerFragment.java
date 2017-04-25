@@ -78,13 +78,13 @@ public class EditTriggerFragment extends Fragment {
     private static final String ARG_SENSOR_ID = "sensor_id";
     private static final String ARG_EXPERIMENT_ID = "experiment_id";
     private static final String ARG_SENSOR_LAYOUT = "sensor_layout";
-    private static final String ARG_TRIGGER_INFO = "trigger_info";
     private static final String ARG_TRIGGER_ID = "trigger_id";
     private static final String ARG_LAYOUT_POSITION = "sensor_layout_position";
     private static final int PERMISSION_VIBRATE = 1;
 
     private String mSensorId;
     private String mExperimentId;
+    private Experiment mExperiment;
     private GoosciSensorLayout.SensorLayout mSensorLayout;
     private SensorTrigger mTriggerToEdit;
     private AppCompatSpinner mTypeSpinner;
@@ -104,15 +104,14 @@ public class EditTriggerFragment extends Fragment {
     private NumberFormat mNumberFormat;
 
     public static EditTriggerFragment newInstance(String sensorId, String experimentId,
-            String triggerId, byte[] triggerInfoBlob, byte[] sensorLayoutBlob,
-            int position, ArrayList<String> triggerOrder) {
+            String triggerId, byte[] sensorLayoutBlob, int position,
+            ArrayList<String> triggerOrder) {
         EditTriggerFragment result = new EditTriggerFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SENSOR_ID, sensorId);
         args.putString(ARG_EXPERIMENT_ID, experimentId);
         args.putString(ARG_TRIGGER_ID, triggerId);
         args.putByteArray(ARG_SENSOR_LAYOUT, sensorLayoutBlob);
-        args.putByteArray(ARG_TRIGGER_INFO, triggerInfoBlob);
         args.putInt(ARG_LAYOUT_POSITION, position);
         args.putStringArrayList(TriggerListFragment.ARG_TRIGGER_ORDER, triggerOrder);
         result.setArguments(args);
@@ -138,20 +137,16 @@ public class EditTriggerFragment extends Fragment {
             mSensorLayout = RecordFragment.defaultLayout();
         }
         mSensorLayoutPosition = getArguments().getInt(ARG_LAYOUT_POSITION);
-        String triggerId = getArguments().getString(ARG_TRIGGER_ID, "");
-        if (!TextUtils.isEmpty(triggerId)) {
-            try {
-                mTriggerToEdit = SensorTrigger.fromTrigger(triggerId, mSensorId, 0,
-                        GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
-                                getArguments().getByteArray(ARG_TRIGGER_INFO)));
-            } catch (InvalidProtocolBufferNanoException e) {
-                if (Log.isLoggable(TAG, Log.ERROR)) {
-                    Log.e(TAG, "Error parsing the SensorTrigger", e);
-                }
-                // We will make a new trigger, since we could not parse the one to edit.
-                mTriggerToEdit = null;
-            }
-        }
+        getDataController().getExperimentById(mExperimentId,
+                new LoggingConsumer<Experiment>(TAG, "get experiment") {
+                    @Override
+                    public void success(Experiment value) {
+                        mExperiment = value;
+                        String triggerId = getArguments().getString(ARG_TRIGGER_ID, "");
+                        mTriggerToEdit = mExperiment.getExperiment().getSensorTrigger(triggerId);
+                        populateView();
+                    }
+                });
     }
 
     @Override
@@ -174,6 +169,11 @@ public class EditTriggerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_trigger_edit, parent, false);
         setHasOptionsMenu(true);
+        return view;
+    }
+
+    private void populateView() {
+        View view = getView();
 
         mNoteGroup = (ViewGroup) view.findViewById(R.id.note_type_trigger_section);
         mAlertGroup = (ViewGroup) view.findViewById(R.id.alert_type_trigger_section);
@@ -364,7 +364,6 @@ public class EditTriggerFragment extends Fragment {
                 }
             }
         });
-        return view;
     }
 
     @NonNull
@@ -500,8 +499,9 @@ public class EditTriggerFragment extends Fragment {
         mTriggerWasEdited = isUpdated;
         TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout,
                 mTriggerToEdit.getTriggerId());
-        dc.updateSensorTrigger(mTriggerToEdit,
-                new LoggingConsumer<Success>(TAG, "update trigger") {
+        mExperiment.getExperiment().updateSensorTrigger(mTriggerToEdit);
+        dc.updateExperiment(mExperiment,
+                new LoggingConsumer<Success>(TAG, "update experiment's trigger") {
                     @Override
                     public void success(Success value) {
                         updateSensorLayoutAndGoToParent(returnToParent);
@@ -566,8 +566,8 @@ public class EditTriggerFragment extends Fragment {
             triggerToAdd.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
         }
         TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout, triggerToAdd.getTriggerId());
-        dc.addSensorTrigger(triggerToAdd, mExperimentId,
-                new MaybeConsumer<Success>() {
+        mExperiment.getExperiment().addSensorTrigger(triggerToAdd);
+        dc.updateExperiment(mExperiment, new MaybeConsumer<Success>() {
                     @Override
                     public void fail(Exception e) {
                         mIsSavingNewTrigger = false;

@@ -148,33 +148,6 @@ public interface DataController {
     void replaceSensorInExperiment(String experimentId, String oldSensorId, String newSensorId,
             final MaybeConsumer<Success> onSuccess);
 
-    /**
-     * Adds a new SensorTrigger to the database.
-     */
-    void addSensorTrigger(SensorTrigger trigger, String experimentId,
-            final MaybeConsumer<Success> onSuccess);
-
-    /**
-     * Updates a SensorTrigger in the database.
-     */
-    void updateSensorTrigger(SensorTrigger trigger, final MaybeConsumer<Success> onSuccess);
-
-    /**
-     * Gets a list of SensorTrigger by their IDs.
-     */
-    void getSensorTriggers(String[] triggerIds, final MaybeConsumer<List<SensorTrigger>> onSuccess);
-
-    /**
-     * Gets a list of SensorTriggers for a given sensor from the database.
-     */
-    void getSensorTriggersForSensor(String sensorId,
-            final MaybeConsumer<List<SensorTrigger>> onSuccess);
-
-    /**
-     * Deletes a SensorTrigger.
-     */
-    void deleteSensorTrigger(SensorTrigger trigger, final MaybeConsumer<Success> onSuccess);
-
     void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess);
 
     void forgetMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess);

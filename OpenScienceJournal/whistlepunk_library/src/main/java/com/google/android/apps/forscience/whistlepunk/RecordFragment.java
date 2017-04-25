@@ -1377,7 +1377,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 sensorPresenter.getOptionsPresenter().applyOptions(readOptions);
 
                 sensorCardPresenter.startObserving(sensorChoice, sensorPresenter, readOptions,
-                        getDataController());
+                        mSelectedExperiment.getExperiment());
                 refreshLabels();
             }
 

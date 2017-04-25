@@ -116,7 +116,9 @@ public class SensorTriggerLabelValue extends LabelValue {
     private static GoosciLabelValue.LabelValue createLabelValue(SensorTrigger trigger,
             Context context) {
         GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
-        String noteText = value.data[INDEX_AUTOGEN_STRING].value = generateAutoNoteText(trigger, context);
+        createDataFields(value);
+        String noteText = value.data[INDEX_AUTOGEN_STRING].value =
+                generateAutoNoteText(trigger, context);
         populateLabelValue(value, trigger, noteText);
         return value;
     }

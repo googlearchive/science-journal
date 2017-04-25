@@ -538,63 +538,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         });
     }
 
-
-    @Override
-    public void addSensorTrigger(final SensorTrigger trigger, final String experimentId,
-            MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.addSensorTrigger(trigger, experimentId);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
-    @Override
-    public void updateSensorTrigger(final SensorTrigger trigger, MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.updateSensorTrigger(trigger);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
-    @Override
-    public void getSensorTriggers(final String[] triggerIds,
-            MaybeConsumer<List<SensorTrigger>> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<List<SensorTrigger>>() {
-            @Override
-            public List<SensorTrigger> call() throws Exception {
-                return mMetaDataManager.getSensorTriggers(triggerIds);
-            }
-        });
-    }
-
-    @Override
-    public void getSensorTriggersForSensor(final String sensorId,
-            MaybeConsumer<List<SensorTrigger>> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<List<SensorTrigger>>() {
-            @Override
-            public List<SensorTrigger> call() throws Exception {
-                return mMetaDataManager.getSensorTriggersForSensor(sensorId);
-            }
-        });
-    }
-
-    @Override
-    public void deleteSensorTrigger(final SensorTrigger trigger, MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.deleteSensorTrigger(trigger);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
     @Override
     public void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<List<InputDeviceSpec>>() {

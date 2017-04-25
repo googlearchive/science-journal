@@ -185,34 +185,6 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void addSensorTrigger(SensorTrigger trigger, String experimentId,
-            MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void updateSensorTrigger(SensorTrigger trigger, MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void getSensorTriggers(String[] triggerIds,
-            MaybeConsumer<List<SensorTrigger>> onSuccess) {
-
-    }
-
-    @Override
-    public void getSensorTriggersForSensor(String sensorId,
-            MaybeConsumer<List<SensorTrigger>> onSuccess) {
-
-    }
-
-    @Override
-    public void deleteSensorTrigger(SensorTrigger trigger, MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
     public void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess) {
 
     }

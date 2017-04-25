@@ -25,6 +25,7 @@ import android.view.View;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
@@ -68,7 +69,8 @@ public class SensorCardPresenterUnitTest {
         InMemorySensorDatabase db = new InMemorySensorDatabase();
         MemoryMetadataManager manager = new MemoryMetadataManager();
         final DataController dc = db.makeSimpleController(manager);
-        scp.startObserving(ds, presenter, new BlankReadableSensorOptions(), dc);
+        scp.startObserving(ds, presenter, new BlankReadableSensorOptions(),
+                Experiment.newExperiment(10));
         scp.setAppearanceProvider(new FakeAppearanceProvider());
         scp.setUiForConnectingNewSensor(ds.getId(), "Display Name", "units", false);
         assertEquals(Arrays.asList(ds.getId()), rc.getCurrentObservedIds());

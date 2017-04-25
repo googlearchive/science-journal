@@ -22,6 +22,7 @@ import android.test.AndroidTestCase;
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
@@ -111,7 +112,8 @@ public class SensorCardPresenterTest extends AndroidTestCase {
         getSensorRegistry().addBuiltInSensor(sensor);
         SensorCardPresenter scp = createSCP();
         setSensorId(scp, "sensorId", "Sensor Name");
-        scp.startObserving(sensor, sensor.createPresenter(null, null, null), null, null);
+        scp.startObserving(sensor, sensor.createPresenter(null, null, null), null,
+                Experiment.newExperiment(10));
         sensor.simulateExternalEventPreventingObservation();
         assertFalse(sensor.isObserving());
         scp.retryConnection(getContext());
