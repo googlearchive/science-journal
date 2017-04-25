@@ -550,6 +550,9 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     private void updatePositiveButtonEnabled(AlertDialog dialog) {
+        if (dialog == null) {
+            return;
+        }
         Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         if (positiveButton != null) {
             positiveButton.setEnabled(mExperiment != null || mExperimentRun != null);
