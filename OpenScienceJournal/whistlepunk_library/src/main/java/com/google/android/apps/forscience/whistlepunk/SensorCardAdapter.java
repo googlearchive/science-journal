@@ -17,12 +17,15 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -328,5 +331,16 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             tags[index] = mSensorCardPresenters.get(index).getSelectedSensorId();
         }
         return tags;
+    }
+
+    @NonNull
+    public List<GoosciSensorLayout.SensorLayout> buildLayouts() {
+        List<SensorCardPresenter> presenters = getSensorCardPresenters();
+        int size = presenters.size();
+        List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            layouts.add(presenters.get(i).buildLayout());
+        }
+        return layouts;
     }
 }
