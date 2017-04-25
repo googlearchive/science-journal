@@ -56,6 +56,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 
@@ -140,7 +141,7 @@ public class EditTriggerFragment extends Fragment {
         String triggerId = getArguments().getString(ARG_TRIGGER_ID, "");
         if (!TextUtils.isEmpty(triggerId)) {
             try {
-                mTriggerToEdit = new SensorTrigger(triggerId, mSensorId, 0,
+                mTriggerToEdit = SensorTrigger.fromTrigger(triggerId, mSensorId, 0,
                         GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
                                 getArguments().getByteArray(ARG_TRIGGER_INFO)));
             } catch (InvalidProtocolBufferNanoException e) {
@@ -551,21 +552,20 @@ public class EditTriggerFragment extends Fragment {
         mIsSavingNewTrigger = true;
         getActivity().invalidateOptionsMenu();
         SensorTrigger triggerToAdd = null;
-        String triggerId = String.valueOf(System.currentTimeMillis());
         if (triggerType == TriggerInformation.TRIGGER_ACTION_START_RECORDING ||
                 triggerType == TriggerInformation.TRIGGER_ACTION_STOP_RECORDING) {
-            triggerToAdd = new SensorTrigger(triggerId, mSensorId, triggerWhen, triggerType,
+            triggerToAdd = SensorTrigger.newTrigger(mSensorId, triggerWhen, triggerType,
                     triggerValue);
         } else if (triggerType == TriggerInformation.TRIGGER_ACTION_NOTE) {
-            triggerToAdd = SensorTrigger.newNoteTypeTrigger(triggerId, mSensorId, triggerWhen,
+            triggerToAdd = SensorTrigger.newNoteTypeTrigger(mSensorId, triggerWhen,
                     String.valueOf(mNoteValue.getText()), triggerValue);
             triggerToAdd.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
         } else if (triggerType == TriggerInformation.TRIGGER_ACTION_ALERT) {
-            triggerToAdd = SensorTrigger.newAlertTypeTrigger(triggerId, mSensorId, triggerWhen,
+            triggerToAdd = SensorTrigger.newAlertTypeTrigger(mSensorId, triggerWhen,
                     getCurrentAlertTypes(), triggerValue);
             triggerToAdd.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
         }
-        TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout, triggerId);
+        TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout, triggerToAdd.getTriggerId());
         dc.addSensorTrigger(triggerToAdd, mExperimentId,
                 new MaybeConsumer<Success>() {
                     @Override

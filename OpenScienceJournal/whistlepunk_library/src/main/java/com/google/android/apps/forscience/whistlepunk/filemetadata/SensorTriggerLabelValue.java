@@ -22,7 +22,6 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
 import com.google.common.annotations.VisibleForTesting;
 
 /**

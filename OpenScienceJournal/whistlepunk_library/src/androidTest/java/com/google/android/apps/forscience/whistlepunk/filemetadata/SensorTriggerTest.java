@@ -25,9 +25,9 @@ import android.test.AndroidTestCase;
 public class SensorTriggerTest extends AndroidTestCase {
 
     public void testSetActionType_noChangeWhenEqual() {
-        SensorTrigger trigger = new SensorTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
+        SensorTrigger trigger = SensorTrigger.newTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
-        SensorTrigger same = new SensorTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
+        SensorTrigger same = SensorTrigger.newTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
         trigger.setTriggerActionType(TriggerInformation.TRIGGER_ACTION_START_RECORDING);
         assertTrue(trigger.userSettingsEquals(same));
@@ -66,14 +66,16 @@ public class SensorTriggerTest extends AndroidTestCase {
     }
 
     public void testIsTriggered_datapointAtUnequal() {
-        SensorTrigger trigger = new SensorTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
+        SensorTrigger trigger = SensorTrigger.newTrigger("sensorId",
+                TriggerInformation.TRIGGER_WHEN_AT,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
         assertFalse(trigger.isTriggered(9.));
         assertTrue(trigger.isTriggered(10.));
     }
 
     public void testIsTriggered_datapointAtEquals() {
-        SensorTrigger trigger = new SensorTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
+        SensorTrigger trigger = SensorTrigger.newTrigger("sensorId",
+                TriggerInformation.TRIGGER_WHEN_AT,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
         // Never trigger on the first point.
         assertFalse(trigger.isTriggered(10.));
@@ -95,7 +97,7 @@ public class SensorTriggerTest extends AndroidTestCase {
     }
 
     public void testIsTriggered_rising() {
-        SensorTrigger trigger = new SensorTrigger("sensorId",
+        SensorTrigger trigger = SensorTrigger.newTrigger("sensorId",
                 TriggerInformation.TRIGGER_WHEN_RISES_ABOVE,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
         // The first point should aways be false because we have no comparison.
@@ -108,7 +110,7 @@ public class SensorTriggerTest extends AndroidTestCase {
     }
 
     public void testIsTriggered_falling() {
-        SensorTrigger trigger = new SensorTrigger("sensorId",
+        SensorTrigger trigger = SensorTrigger.newTrigger("sensorId",
                 TriggerInformation.TRIGGER_WHEN_DROPS_BELOW,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
         // The first point should aways be false because we have no comparison.
@@ -121,29 +123,30 @@ public class SensorTriggerTest extends AndroidTestCase {
     }
 
     public void testEquals() {
-        SensorTrigger first = new SensorTrigger("sensorId",
+        SensorTrigger first = SensorTrigger.newTrigger("sensorId",
                 TriggerInformation.TRIGGER_WHEN_DROPS_BELOW,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
-        SensorTrigger second = new SensorTrigger("sensorId",
+        SensorTrigger second = SensorTrigger.newTrigger("sensorId",
                 TriggerInformation.TRIGGER_WHEN_DROPS_BELOW,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
         assertTrue(first.userSettingsEquals(second));
         first.setLastUsed(2L);
         assertTrue(first.userSettingsEquals(second));
 
-        second = new SensorTrigger("otherSensorId", TriggerInformation.TRIGGER_WHEN_DROPS_BELOW,
+        second = SensorTrigger.newTrigger("otherSensorId",
+                TriggerInformation.TRIGGER_WHEN_DROPS_BELOW,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
         assertFalse(first.userSettingsEquals(second));
 
-        second = new SensorTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_RISES_ABOVE,
+        second = SensorTrigger.newTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_RISES_ABOVE,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
         assertFalse(first.userSettingsEquals(second));
 
-        second = new SensorTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_DROPS_BELOW,
+        second = SensorTrigger.newTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_DROPS_BELOW,
                 TriggerInformation.TRIGGER_ACTION_STOP_RECORDING, 10.);
         assertFalse(first.userSettingsEquals(second));
 
-        second = new SensorTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_RISES_ABOVE,
+        second = SensorTrigger.newTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_RISES_ABOVE,
                 TriggerInformation.TRIGGER_ACTION_START_RECORDING, 11.);
         assertFalse(first.userSettingsEquals(second));
 

@@ -69,7 +69,22 @@ public class SensorTrigger {
 
     // Creates a SensorTrigger from scratch, assuming the time it was last used is just now,
     // when it is created.
-    public SensorTrigger(String sensorId, int triggerWhen, int actionType,
+    public static SensorTrigger newTrigger(String sensorId, int triggerWhen, int actionType,
+            double triggerValue) {
+        return new SensorTrigger(sensorId, triggerWhen, actionType, triggerValue);
+    }
+
+    public static SensorTrigger fromTrigger(String triggerId, String sensorId, long lastUsed,
+            TriggerInformation triggerInformation) {
+        return new SensorTrigger(triggerId, sensorId, lastUsed, triggerInformation);
+    }
+
+    public static SensorTrigger fromProto(GoosciSensorTrigger.SensorTrigger proto) {
+        return new SensorTrigger(proto);
+    }
+
+    @VisibleForTesting
+    protected SensorTrigger(String sensorId, int triggerWhen, int actionType,
             double triggerValue) {
         mTriggerProto = new GoosciSensorTrigger.SensorTrigger();
         mTriggerProto.triggerInformation = new TriggerInformation();
@@ -77,18 +92,25 @@ public class SensorTrigger {
         mTriggerProto.triggerInformation.triggerActionType = actionType;
         mTriggerProto.triggerInformation.valueToTrigger = triggerValue;
         mTriggerProto.sensorId = sensorId;
+        mTriggerProto.triggerId = java.util.UUID.randomUUID().toString();
         updateLastUsed();
     }
 
-    public SensorTrigger(String sensorId, long lastUsed, TriggerInformation triggerInformation) {
+    private SensorTrigger(String triggerId, String sensorId, long lastUsed,
+            TriggerInformation triggerInformation) {
         mTriggerProto = new GoosciSensorTrigger.SensorTrigger();
         mTriggerProto.triggerInformation = triggerInformation;
         mTriggerProto.sensorId = sensorId;
+        mTriggerProto.triggerId = triggerId;
         setLastUsed(lastUsed);
     }
 
-    public SensorTrigger(GoosciSensorTrigger.SensorTrigger triggerProto) {
+    private SensorTrigger(GoosciSensorTrigger.SensorTrigger triggerProto) {
         mTriggerProto = triggerProto;
+    }
+
+    public String getTriggerId() {
+        return mTriggerProto.triggerId;
     }
 
     public GoosciSensorTrigger.SensorTrigger getTriggerProto() {

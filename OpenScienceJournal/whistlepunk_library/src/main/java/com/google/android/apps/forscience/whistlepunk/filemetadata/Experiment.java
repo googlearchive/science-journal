@@ -277,7 +277,7 @@ public class Experiment extends LabelListHolder {
         if (mSensorTriggers == null) {
             mSensorTriggers = ArrayListMultimap.create();
             for (GoosciSensorTrigger.SensorTrigger proto : mProto.sensorTriggers) {
-                mSensorTriggers.put(sensorId, new SensorTrigger(proto));
+                mSensorTriggers.put(sensorId, SensorTrigger.fromProto(proto));
             }
         }
         return mSensorTriggers.get(sensorId);

@@ -49,6 +49,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -226,7 +227,7 @@ public class TriggerListFragment extends Fragment {
         if (trigger != null) {
             intent.putExtra(EditTriggerActivity.EXTRA_TRIGGER_ID, trigger.getTriggerId());
             intent.putExtra(EditTriggerActivity.EXTRA_TRIGGER_INFO_BLOB,
-                    ProtoUtils.makeBlob(trigger.getTriggerInformation()));
+                    ProtoUtils.makeBlob(trigger.getTriggerProto().triggerInformation));
         }
         intent.putExtra(EditTriggerActivity.EXTRA_EXPERIMENT_ID, mExperimentId);
         intent.putExtra(EditTriggerActivity.EXTRA_SENSOR_ID, mSensorId);

@@ -25,7 +25,7 @@ import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
@@ -167,7 +167,7 @@ public class RecorderControllerTest {
         int mTestCount = 0;
 
         public TestTrigger(String sensorId) {
-            super("triggerId", sensorId, 0, 0, 0);
+            super(sensorId, 0, 0, 0);
         }
 
         public void clearTestCount() {
