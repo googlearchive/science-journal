@@ -38,4 +38,7 @@ message SensorTrigger {
 
     // The Trigger Information describing this trigger.
     optional TriggerInformation triggerInformation = 3;
+
+    // The unique ID of this trigger.
+    optional string triggerId = 4;
 }

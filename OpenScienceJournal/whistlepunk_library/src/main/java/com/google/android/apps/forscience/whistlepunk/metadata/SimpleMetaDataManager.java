@@ -41,6 +41,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
@@ -1379,7 +1380,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         values.put(SensorTriggerColumns.LAST_USED_TIMESTAMP_MS, trigger.getLastUsed());
         values.put(SensorTriggerColumns.SENSOR_ID, trigger.getSensorId());
         values.put(SensorTriggerColumns.TRIGGER_INFORMATION,
-                ProtoUtils.makeBlob(trigger.getTriggerInformation()));
+                ProtoUtils.makeBlob(trigger.getTriggerProto().triggerInformation));
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             db.insert(Tables.SENSOR_TRIGGERS, null, values);
@@ -1392,7 +1393,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         ContentValues values = new ContentValues();
         values.put(SensorTriggerColumns.LAST_USED_TIMESTAMP_MS, trigger.getLastUsed());
         values.put(SensorTriggerColumns.TRIGGER_INFORMATION,
-                ProtoUtils.makeBlob(trigger.getTriggerInformation()));
+                ProtoUtils.makeBlob(trigger.getTriggerProto().triggerInformation));
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             db.update(Tables.SENSOR_TRIGGERS, values, SensorTriggerColumns.TRIGGER_ID + "=?",
@@ -1425,9 +1426,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     return triggers;
                 }
                 while (!c.isAfterLast()) {
-                    triggers.add(new SensorTrigger(c.getString(0), c.getString(1), c.getLong(2),
-                            GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
-                                    c.getBlob(3))));
+                    triggers.add(SensorTrigger.fromTrigger(c.getString(0), c.getString(1),
+                            c.getLong(2), GoosciSensorTriggerInformation.TriggerInformation
+                                    .parseFrom(c.getBlob(3))));
                     c.moveToNext();
                 }
             } catch (InvalidProtocolBufferNanoException e) {
@@ -1458,7 +1459,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                         selection, selectionArgs, null, null,
                         SensorTriggerColumns.LAST_USED_TIMESTAMP_MS + " DESC");
                 while (c.moveToNext()) {
-                    triggers.add(new SensorTrigger(c.getString(0), sensorId, c.getLong(1),
+                    triggers.add(SensorTrigger.fromTrigger(c.getString(0), sensorId, c.getLong(1),
                             GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
                                     c.getBlob(2))));
                 }

@@ -21,7 +21,7 @@ import android.app.Fragment;
 import android.os.Handler;
 import android.view.View;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 
 import java.util.ArrayList;

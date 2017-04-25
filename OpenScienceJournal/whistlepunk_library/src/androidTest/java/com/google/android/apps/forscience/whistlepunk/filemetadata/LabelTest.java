@@ -24,7 +24,7 @@ import android.test.AndroidTestCase;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.protobuf.nano.MessageNano;
 
 
@@ -86,7 +86,7 @@ public class LabelTest extends AndroidTestCase {
     public void testCanCreateTriggerLabel() {
         GoosciLabel.Label goosciLabel = makeGoosciLabel(GoosciLabelValue.LabelValue.SENSOR_TRIGGER,
                 10);
-        SensorTrigger trigger = SensorTrigger.newNoteTypeTrigger("id", "sensorId",
+        SensorTrigger trigger = SensorTrigger.newNoteTypeTrigger("sensorId",
                 GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_DROPS_BELOW, "note",
                 7.5);
         SensorTriggerLabelValue.populateLabelValue(goosciLabel.values[0], trigger, "note");
@@ -107,7 +107,7 @@ public class LabelTest extends AndroidTestCase {
         goosciLabel.timestampMs = 10;
 
         GoosciLabelValue.LabelValue value1 = new GoosciLabelValue.LabelValue();
-        SensorTrigger trigger = SensorTrigger.newNoteTypeTrigger("id", "sensorId",
+        SensorTrigger trigger = SensorTrigger.newNoteTypeTrigger("sensorId",
                 GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_DROPS_BELOW, "note",
                 7.5);
         SensorTriggerLabelValue.populateLabelValue(value1, trigger, "note");
@@ -150,7 +150,7 @@ public class LabelTest extends AndroidTestCase {
         GoosciLabel.Label goosciLabel = new GoosciLabel.Label();
         goosciLabel.timestampMs = 10;
         GoosciLabelValue.LabelValue labelValue = new GoosciLabelValue.LabelValue();
-        SensorTrigger trigger = SensorTrigger.newNoteTypeTrigger("id", "sensorId",
+        SensorTrigger trigger = SensorTrigger.newNoteTypeTrigger("sensorId",
                 GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_DROPS_BELOW, "note",
                 7.5);
         SensorTriggerLabelValue.populateLabelValue(labelValue, trigger, "note");

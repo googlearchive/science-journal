@@ -53,7 +53,7 @@ public class ExperimentUnitTest {
 
         GoosciSensorTrigger.SensorTrigger triggerProto = new GoosciSensorTrigger.SensorTrigger();
         triggerProto.sensorId = "sensorid";
-        SensorTrigger trigger = new SensorTrigger(triggerProto);
+        SensorTrigger trigger = SensorTrigger.fromProto(triggerProto);
         experiment.updateSensorTriggers("sensorId", Arrays.asList(trigger));
 
         assertEquals(experiment.getSensorTriggers("sensorId").size(), 1);
