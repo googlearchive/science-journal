@@ -219,7 +219,7 @@ public class TriggerListFragment extends Fragment {
                         }
                         // Sort sensor triggers
                         List<SensorTrigger> triggers = experiment.getExperiment()
-                                .getSensorTriggers();
+                                .getSensorTriggersForSensor(mSensorId);
                         Collections.sort(triggers, cp);
                         mTriggerAdapter.setSensorTriggers(triggers);
                     }
