@@ -78,6 +78,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
@@ -336,6 +337,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             }
         });
         AppSingleton.getInstance(getActivity()).removeListeners(TAG);
+        freezeLayouts();
         mSensorLayoutsLoaded = false;
     }
 
@@ -510,12 +512,20 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     public void onDestroyView() {
         // TODO: extract presenter with lifespan identical to the views.
         mRecordButton = null;
-        final List<GoosciSensorLayout.SensorLayout> layouts = saveCurrentLayouts();
         if (mSensorCardAdapter != null) {
             mSensorCardAdapter.onDestroy();
             mSensorCardAdapter = null;
         }
 
+        if (mExternalAxis != null) {
+            mExternalAxis.destroy();
+        }
+        super.onDestroyView();
+    }
+
+    private void freezeLayouts() {
+        final List<GoosciSensorLayout.SensorLayout> layouts =
+                Preconditions.checkNotNull(saveCurrentLayouts());
         // Freeze layouts to be saved if recording finishes
         withRecorderController(new Consumer<RecorderController>() {
             @Override
@@ -523,10 +533,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 recorderController.setLayoutSupplier(Suppliers.ofInstance(layouts));
             }
         });
-        if (mExternalAxis != null) {
-            mExternalAxis.destroy();
-        }
-        super.onDestroyView();
     }
 
     @Override
@@ -701,14 +707,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (mSensorCardAdapter == null) {
             return null;
         }
-        List<SensorCardPresenter> presenters = mSensorCardAdapter.getSensorCardPresenters();
-        int size = presenters.size();
-        List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            layouts.add(presenters.get(i).buildLayout());
-        }
 
-        return layouts;
+        return mSensorCardAdapter.buildLayouts();
     }
 
     private void setSensorPresenters(List<GoosciSensorLayout.SensorLayout> layouts,

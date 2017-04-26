@@ -38,7 +38,6 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableS
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
@@ -163,7 +162,7 @@ public class RecorderControllerImpl implements RecorderController {
                             @Override
                             public void fail(Exception e) {
                                 if (Log.isLoggable(TAG, Log.ERROR)) {
-                                    Log.e(TAG, "exception with remote service");
+                                    Log.e(TAG, "exception with remote service", e);
                                 }
                             }
                         });

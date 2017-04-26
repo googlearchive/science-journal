@@ -95,6 +95,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     public void stopTrial(final Experiment experiment, final Trial trial,
             final List<GoosciSensorLayout.SensorLayout> layouts,
             final MaybeConsumer<Trial> onSuccess) {
+        Preconditions.checkNotNull(layouts);
         addApplicationLabel(experiment, ApplicationLabel.TYPE_RECORDING_STOP, trial.getTrialId(),
                 MaybeConsumers.chainFailure(onSuccess, new Consumer<ApplicationLabel>() {
                     @Override
