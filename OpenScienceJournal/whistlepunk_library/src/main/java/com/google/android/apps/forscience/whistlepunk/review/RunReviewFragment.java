@@ -104,7 +104,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNoteDialogListener,
+public class RunReviewFragment extends Fragment implements
         AddNoteDialog.ListenerProvider,
         EditNoteDialog.EditNoteDialogListener, EditTimeDialogListener,
         DeleteMetadataItemDialog.DeleteDialogListener,
@@ -497,7 +497,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        boolean enableDevTools = DevOptionsFragment.isDevToolsEnabled(getActivity());
         menu.findItem(R.id.action_export).setVisible(AgeVerifier.isOver13(
                 AgeVerifier.getUserAge(getActivity())));
         menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
@@ -1248,17 +1247,44 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     }
 
     @Override
-    public LoggingConsumer<Label> onLabelAdd(Label label) {
-        return  new LoggingConsumer<Label>(TAG, "add label") {
+    public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
+        return new AddNoteDialog.AddNoteDialogListener() {
             @Override
-            public void success(Label newLabel) {
-                mPinnedNoteAdapter.insertNote(newLabel);
-                mChartController.setLabels(mExperimentRun.getTrial().getLabels());
-                WhistlePunkApplication.getUsageTracker(getActivity())
-                        .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                TrackerConstants.ACTION_CREATE,
-                                TrackerConstants.LABEL_RUN_REVIEW,
-                                TrackerConstants.getLabelValueType(newLabel));
+            public LoggingConsumer<Label> onLabelAdd() {
+                return new LoggingConsumer<Label>(TAG, "add label") {
+                    @Override
+                    public void success(Label newLabel) {
+                        mPinnedNoteAdapter.insertNote(newLabel);
+                        mChartController.setLabels(mExperimentRun.getTrial().getLabels());
+                        WhistlePunkApplication.getUsageTracker(getActivity())
+                                              .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                                      TrackerConstants.ACTION_CREATE,
+                                                      TrackerConstants.LABEL_RUN_REVIEW,
+                                                      TrackerConstants.getLabelValueType(newLabel));
+                    }
+                };
+            }
+
+            @Override
+            public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
+                    int labelType, long selectedTimestamp) {
+                AddNoteDialog addDialog = (AddNoteDialog) getChildFragmentManager()
+                        .findFragmentByTag(AddNoteDialog.TAG);
+                if (addDialog != null) {
+                    addDialog.dismiss();
+                }
+
+                // Show the timestamp edit window below the graph / over the notes
+                getView().findViewById(R.id.embedded).setVisibility(View.VISIBLE);
+                EditLabelTimeDialog timeDialog =
+                        EditLabelTimeDialog.newInstance(selectedValue, labelType, selectedTimestamp,
+                                mExperimentRun.getFirstTimestamp());
+                FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+                ft.add(R.id.embedded, timeDialog, EditLabelTimeDialog.TAG);
+                ft.commit();
+                mRunReviewOverlay.setActiveTimestamp(selectedTimestamp);
+                mRunReviewOverlay.setOnTimestampChangeListener(timeDialog);
+                setTimepickerUi(getView(), true);
             }
         };
     }
@@ -1293,27 +1319,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
                                 TrackerConstants.getLabelValueType(label));
             }
         };
-    }
-
-    @Override
-    public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue, int labelType,
-            long selectedTimestamp) {
-        AddNoteDialog addDialog = (AddNoteDialog) getChildFragmentManager()
-                .findFragmentByTag(AddNoteDialog.TAG);
-        if (addDialog != null) {
-            addDialog.dismiss();
-        }
-
-        // Show the timestamp edit window below the graph / over the notes
-        getView().findViewById(R.id.embedded).setVisibility(View.VISIBLE);
-        EditLabelTimeDialog timeDialog = EditLabelTimeDialog.newInstance(selectedValue, labelType,
-                selectedTimestamp, mExperimentRun.getFirstTimestamp());
-        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        ft.add(R.id.embedded, timeDialog, EditLabelTimeDialog.TAG);
-        ft.commit();
-        mRunReviewOverlay.setActiveTimestamp(selectedTimestamp);
-        mRunReviewOverlay.setOnTimestampChangeListener(timeDialog);
-        setTimepickerUi(getView(), true);
     }
 
     @Override
@@ -1717,16 +1722,6 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
         return AppSingleton.getInstance(getActivity()).getDataController();
     }
 
-    private void sortPinnedNotes(List<Label> notes) {
-        Collections.sort(notes, new Comparator<Label>() {
-            @Override
-            public int compare(Label lhs, Label rhs) {
-                return (int) (lhs.getTimeStamp() - rhs.getTimeStamp());
-            }
-        });
-    }
-
-
     private void exportRun(final ExperimentRun run) {
         // Until we have UI to override it, we never use relative timestamps.
         boolean startAtZero = false;
@@ -1791,11 +1786,5 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
 
     protected GoosciSensorLayout.SensorLayout getSensorLayout() {
         return mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
-    }
-
-    @Override
-    public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
-        // TODO: pull out separate object to return here?
-        return this;
     }
 }

@@ -109,68 +109,53 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
 
-    public interface UICallbacks {
-        public UICallbacks NULL = new UICallbacks() {
-            @Override
-            public void onSelectedExperimentChanged(Experiment selectedExperiment,
-                    List<Experiment> allExperiments) {
-
-            }
-
-            @Override
-            public void onRecordingStart(String experimentName) {
-
-            }
-
-            @Override
-            public void onRecordingStopped() {
-
-            }
-
-            @Override
-            public void onRecordingSaved(String runId, String experimentId) {
-
-            }
-
-            @Override
-            public void onRecordStopRequested() {
-
-            }
-        };
+    public static abstract class UICallbacks {
+        public static UICallbacks NULL = new UICallbacks() {};
 
         /**
          * Called when an experiment is selected
          *
          * @param selectedExperiment the experiment that has been selected
-         * @param allExperiments all of the experiments, including the
-         *                                selected one.
+         * @param allExperiments     all of the experiments, including the
+         *                           selected one.
          */
         void onSelectedExperimentChanged(Experiment selectedExperiment,
-                List<Experiment> allExperiments);
+                List<Experiment> allExperiments) {
+
+        }
 
         /**
          * Called when recording starts
+         *
          * @param experimentName the name of the experiment we're recording in.
          */
-        void onRecordingStart(String experimentName);
+        void onRecordingStart(String experimentName) {
+
+        }
 
         /**
          * Called when we first know that we're supposed to stop recording.  This allows us, for
          * example, to know not to allow additional recordings to start if we plan to display
          * a full-screen review once the recording is saved.
          */
-        void onRecordStopRequested();
+        void onRecordStopRequested() {
+
+        }
 
         /**
          * Called when recording actually stops.  Updates the UI to remove "recording" markers
          */
-        void onRecordingStopped();
+        void onRecordingStopped() {
+
+        }
 
         /**
          * Called when a trial is fully saved and assigned a runId, so that we can update the UI
          * accordingly
          */
-        void onRecordingSaved(String runId, String experimentId);
+        void onRecordingSaved(String runId, Experiment experiment) {
+
+        }
     }
 
     public interface CallbacksProvider {
@@ -400,7 +385,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                                     }
                                     if (!mRecordingWasCanceled) {
                                         mUICallbacks.onRecordingSaved(prevRecording.getRunId(),
-                                                mSelectedExperiment.getExperimentId());
+                                                mSelectedExperiment);
                                     }
                                 }
                                 mRecordingWasCanceled = false;
@@ -1075,20 +1060,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
         return new AddNoteDialog.AddNoteDialogListener() {
             @Override
-            public MaybeConsumer<Label> onLabelAdd(Label label) {
-                if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-                    // We want to set the time stamp of this label to the time of the picture
-                    PictureLabelValue pictureLabel =
-                            (PictureLabelValue) label.getLabelValue(
-                                    GoosciLabelValue.LabelValue.PICTURE);
-                    File file = new File(pictureLabel.getAbsoluteFilePath());
-                    // Check to make sure this value is not crazy: should be within 10 minutes of
-                    // now and not from the future.
-                    long delta = System.currentTimeMillis() - file.lastModified();
-                    if (delta < TimeUnit.MINUTES.toMillis(10) && delta > 0) {
-                        label.setTimestamp(file.lastModified());
-                    }
-                }
+            public void adjustLabelBeforeAdd(Label label) {
+                adjustLabelTimestamp(label);
+            }
+
+            @Override
+            public MaybeConsumer<Label> onLabelAdd() {
                 return new LoggingConsumer<Label>(TAG, "store label") {
                     @Override
                     public void success(Label value) {
@@ -1103,6 +1080,22 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 // Do nothing. Timestamp will not be shown and this is unused.
             }
         };
+    }
+
+    private static void adjustLabelTimestamp(Label label) {
+        if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+            // We want to set the time stamp of this label to the time of the picture
+            PictureLabelValue pictureLabel =
+                    (PictureLabelValue) label.getLabelValue(
+                            GoosciLabelValue.LabelValue.PICTURE);
+            File file = new File(pictureLabel.getAbsoluteFilePath());
+            // Check to make sure this value is not crazy: should be within 10 minutes of
+            // now and not from the future.
+            long delta = System.currentTimeMillis() - file.lastModified();
+            if (delta < TimeUnit.MINUTES.toMillis(10) && delta > 0) {
+                label.setTimestamp(file.lastModified());
+            }
+        }
     }
 
     private void processAddedLabel(Label label) {

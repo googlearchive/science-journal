@@ -113,6 +113,7 @@ public class ExperimentDetailsFragment extends Fragment
         Handler.Callback, DeleteMetadataItemDialog.DeleteDialogListener {
 
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
+    public static final String ARG_OLDEST_AT_TOP = "oldest_at_top";
     public static final String ARG_CREATE_TASK = "create_task";
     private static final String TAG = "ExperimentDetails";
     private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
@@ -121,6 +122,7 @@ public class ExperimentDetailsFragment extends Fragment
      * Boolen extra for savedInstanceState with the state of includeArchived experiments.
      */
     private static final String EXTRA_INCLUDE_ARCHIVED = "includeArchived";
+    private boolean mOldestAtTop = false;
 
     private RecyclerView mDetails;
     private DetailsAdapter mAdapter;
@@ -143,13 +145,16 @@ public class ExperimentDetailsFragment extends Fragment
      * @param createTaskStack   If {@code true}, then navigating home requires building a task stack
      *                          up to the experiment list. If {@code false}, use the default
      *                          navigation.
+     * @param oldestAtTop       If {@code true}, then the oldest cards should be at the _top_ of
+     *                          the list, otherwise the newest are at the top.
      */
     public static ExperimentDetailsFragment newInstance(String experimentId,
-                                                        boolean createTaskStack) {
+            boolean createTaskStack, boolean oldestAtTop) {
         ExperimentDetailsFragment fragment = new ExperimentDetailsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_EXPERIMENT_ID, experimentId);
         args.putBoolean(ARG_CREATE_TASK, createTaskStack);
+        args.putBoolean(ARG_OLDEST_AT_TOP, oldestAtTop);
         fragment.setArguments(args);
         return fragment;
     }
@@ -161,6 +166,7 @@ public class ExperimentDetailsFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
+        mOldestAtTop = getArguments().getBoolean(ARG_OLDEST_AT_TOP, false);
         mHandler = new Handler(this);
         setHasOptionsMenu(true);
     }
@@ -198,7 +204,7 @@ public class ExperimentDetailsFragment extends Fragment
                 mBroadcastReceiver);
     }
 
-    private void loadExperiment() {
+    public void loadExperiment() {
         getDataController().getExperimentById(mExperimentId,
                 new LoggingConsumer<Experiment>(TAG, "retrieve experiment") {
                     @Override
@@ -289,7 +295,7 @@ public class ExperimentDetailsFragment extends Fragment
             }
         });
         mDetails.setLayoutManager(new LinearLayoutManager(view.getContext(),
-                LinearLayoutManager.VERTICAL, false));
+                LinearLayoutManager.VERTICAL, mOldestAtTop));
         mAdapter = new DetailsAdapter(this, savedInstanceState);
         mDetails.setAdapter(mAdapter);
 
@@ -317,7 +323,7 @@ public class ExperimentDetailsFragment extends Fragment
         return view;
     }
 
-    private void loadExperimentData(final Experiment experiment) {
+    public void loadExperimentData(final Experiment experiment) {
         if (experiment.isArchived()) {
             mObserveButton.setVisibility(View.GONE);
             mObserveButton.setOnClickListener(null);
@@ -513,7 +519,7 @@ public class ExperimentDetailsFragment extends Fragment
     public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
         return new AddNoteDialog.AddNoteDialogListener() {
             @Override
-            public MaybeConsumer<Label> onLabelAdd(Label label) {
+            public MaybeConsumer<Label> onLabelAdd() {
                 return  new LoggingConsumer<Label>(TAG, "add label") {
                     @Override
                     public void success(Label value) {

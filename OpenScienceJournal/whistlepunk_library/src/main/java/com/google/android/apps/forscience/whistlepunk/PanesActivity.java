@@ -24,12 +24,15 @@ import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 
 import java.util.List;
 
-public class PanesActivity extends AppCompatActivity {
+public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
+        AddNoteDialog.ListenerProvider {
     private static final String TAG = "PanesActivity";
     private ExperimentDetailsFragment mExperimentFragment = null;
     private AddNoteDialog mAddNoteDialog = null;
@@ -71,9 +74,10 @@ public class PanesActivity extends AppCompatActivity {
                     private void setExperimentFragmentId(String experimentId) {
                         if (mExperimentFragment == null) {
                             boolean createTaskStack = false;
+                            boolean oldestAtTop = true;
                             mExperimentFragment =
                                     ExperimentDetailsFragment.newInstance(experimentId,
-                                            createTaskStack);
+                                            createTaskStack, oldestAtTop);
 
                             FragmentManager fragmentManager = getFragmentManager();
                             fragmentManager.beginTransaction()
@@ -109,5 +113,31 @@ public class PanesActivity extends AppCompatActivity {
     protected void onDestroy() {
         getMetadataController().removeExperimentChangeListener(TAG);
         super.onDestroy();
+    }
+
+    @Override
+    public RecordFragment.UICallbacks getRecordFragmentCallbacks() {
+        return new RecordFragment.UICallbacks() {
+            @Override
+            void onRecordingSaved(String runId, Experiment experiment) {
+                mExperimentFragment.loadExperimentData(experiment);
+            }
+        };
+    }
+
+    @Override
+    public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
+        return new AddNoteDialog.AddNoteDialogListener() {
+            @Override
+            public MaybeConsumer<Label> onLabelAdd() {
+                return new LoggingConsumer<Label>(TAG, "refresh with added label") {
+                    @Override
+                    public void success(Label value) {
+                        // TODO: avoid database round-trip?
+                        mExperimentFragment.loadExperiment();
+                    }
+                };
+            }
+        };
     }
 }

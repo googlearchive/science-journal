@@ -570,11 +570,11 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void onRecordingSaved(String runId, String experimentId) {
+            public void onRecordingSaved(String runId, Experiment experiment) {
                 boolean fromRecord = true;
                 boolean createTask = true;
-                RunReviewActivity.launch(MainActivity.this, runId, experimentId, 0, fromRecord,
-                        createTask, null);
+                RunReviewActivity.launch(MainActivity.this, runId, experiment.getExperimentId(), 0,
+                        fromRecord, createTask, null);
             }
 
             @Override

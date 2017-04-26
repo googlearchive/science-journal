@@ -55,6 +55,9 @@ import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
+import java.io.File;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Dialog for adding new notes.
  */
@@ -75,19 +78,8 @@ public class AddNoteDialog extends DialogFragment {
     private static final java.lang.String KEY_SAVED_TIME_TEXT_DESCRIPTION =
             "keySavedTimeTextDescription";
 
-    public interface AddNoteDialogListener {
+    public static abstract class AddNoteDialogListener {
         static AddNoteDialogListener NULL = new AddNoteDialogListener() {
-            @Override
-            public MaybeConsumer<Label> onLabelAdd(Label label) {
-                return MaybeConsumers.noop();
-            }
-
-            @Override
-            public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
-                    int labelType, long selectedTimestamp) {
-
-            }
-
             @Override
             public String toString() {
                 return "AddNoteDialogListener.NULL";
@@ -95,19 +87,31 @@ public class AddNoteDialog extends DialogFragment {
         };
 
         /**
+         * Called with a label that's about to be added.  Listener can adjust the label by, for
+         * example, changing the timestamp
+         */
+        public void adjustLabelBeforeAdd(Label label) {
+            // do nothing;
+        }
+
+        /**
          * Called when a label is being added to the database. Return value is passed to data
          * controller during the label add.
          * @param label    label about to be added. Can be edited here.
          * @return A MaybeConsumer of labels.
          */
-        MaybeConsumer<Label> onLabelAdd(Label label);
+        public MaybeConsumer<Label> onLabelAdd() {
+            return MaybeConsumers.noop();
+        }
 
         /**
          * Called when the timestamp section is clicked. Note that this is only used if
          * showTimestampSection is true when creating a newInstance of AddNoteDialog.
          */
-        void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
-                int labelType, long selectedTimestamp);
+        public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
+                int labelType, long selectedTimestamp) {
+
+        }
     }
 
     public interface ListenerProvider {
@@ -495,9 +499,11 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     private void addLabel(final Label label) {
+        mListener.adjustLabelBeforeAdd(label);
+
         // The listener may be cleared by onDetach() before the experiment/trial is written,
         // so save the MaybeConsumer here as a final var.
-        final MaybeConsumer<Label> onSuccess = mListener.onLabelAdd(label);
+        final MaybeConsumer<Label> onSuccess = mListener.onLabelAdd();
         if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
             mExperiment.addLabel(label);
             getDataController().updateExperiment(mExperiment,

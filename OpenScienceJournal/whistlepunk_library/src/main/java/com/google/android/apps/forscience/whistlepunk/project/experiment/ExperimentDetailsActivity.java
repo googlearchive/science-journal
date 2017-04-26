@@ -38,7 +38,7 @@ public class ExperimentDetailsActivity extends MetadataActivity {
         if (savedInstanceState == null && extras != null) {
             String experimentId = extras.getString(ExperimentDetailsFragment.ARG_EXPERIMENT_ID);
             ExperimentDetailsFragment fragment = ExperimentDetailsFragment.newInstance(experimentId,
-                    extras.getBoolean(ExperimentDetailsFragment.ARG_CREATE_TASK, false));
+                    extras.getBoolean(ExperimentDetailsFragment.ARG_CREATE_TASK, false), false);
             getFragmentManager().beginTransaction().add(R.id.container, fragment,
                     FRAGMENT_TAG).commit();
         } else if (savedInstanceState != null) {
