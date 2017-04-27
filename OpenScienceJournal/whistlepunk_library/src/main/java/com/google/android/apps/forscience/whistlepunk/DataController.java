@@ -118,7 +118,10 @@ public interface DataController {
     void removeSensorFromExperiment(final String experimentId, final String sensorId,
             MaybeConsumer<Success> onSuccess);
 
-    void updateLastUsedExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
+    /**
+     * Sets which experiment was last used. Does not save the experiment.
+     */
+    void setLastUsedExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
     /**
      * Makes sure there is an external sensor already registered in the database with the given

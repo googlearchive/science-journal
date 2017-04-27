@@ -472,7 +472,7 @@ public class ExperimentDetailsFragment extends Fragment
         if (mExperiment == null) {
             return;
         }
-        getDataController().updateLastUsedExperiment(mExperiment,
+        getDataController().setLastUsedExperiment(mExperiment,
                 new LoggingConsumer<Success>(TAG, "updating active experiment") {
                     @Override
                     public void success(Success value) {

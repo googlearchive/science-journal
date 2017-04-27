@@ -226,7 +226,7 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public void updateLastUsedExperiment(Experiment experiment) {
+    public void setLastUsedExperiment(Experiment experiment) {
         mExperiments.remove(experiment);
         mExperiments.add(0, experiment);
     }

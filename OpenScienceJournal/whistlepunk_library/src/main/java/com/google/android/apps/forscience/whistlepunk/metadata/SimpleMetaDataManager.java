@@ -487,10 +487,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public void updateLastUsedExperiment(Experiment experiment) {
+    public void setLastUsedExperiment(Experiment experiment) {
         long time = getCurrentTime();
         experiment.setLastUsedTime(time);
-        updateExperiment(experiment);
     }
 
     @Override

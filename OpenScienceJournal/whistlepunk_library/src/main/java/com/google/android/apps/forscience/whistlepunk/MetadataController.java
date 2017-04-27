@@ -120,7 +120,7 @@ public class MetadataController {
     }
 
     private void updateLastExperimentPreferences(final Experiment experiment) {
-        getDataController().updateLastUsedExperiment(experiment,
+        getDataController().setLastUsedExperiment(experiment,
                 LoggingConsumer.<Success>expectSuccess(TAG,
                         "Update last used experiment preference"));
     }
