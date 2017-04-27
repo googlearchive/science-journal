@@ -28,5 +28,33 @@ option optimize_for = LITE_RUNTIME;
  * Added in V2.
  */
 message SharedMetadata {
+    // Experiment state that is per-device, such as whether the experiment is archived.
+    repeated ExperimentOverview experiments = 1;
+
     // TODO: b/36397730
+    // repeated SensorSpec sensorSpecs = 2;
+}
+
+/*
+ * Data about an experiment that is specific to a device.
+ * Some data, like title and imagePath, is duplicated here in order to make the Experiment List
+ * load faster: this way we don't need to parse every available experiment.
+ */
+message ExperimentOverview {
+    // Our local lookup Id for this experiment.
+    optional string experimentId = 1;
+
+    // The user-entered title of this experiment.
+    optional string title = 2;
+
+    // The path to an image used for this experiment, if applicable.
+    optional string imagePath = 3;
+
+    // The time when this experiment was last used.
+    optional int64 lastUsedTimeMs = 4;
+
+    // The number of trials in this experiment.
+    optional int32 trialCount = 5;
+
+    // Information about DriveFileID and sync state can be added here as needed.
 }

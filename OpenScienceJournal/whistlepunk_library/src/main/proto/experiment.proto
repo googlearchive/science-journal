@@ -42,6 +42,7 @@ message Experiment {
     optional string description = 3;
 
     // The time when this experiment was last used.
+    // TODO: Start using the lastUsedTimeMs in ExperimentOverview when possible.
     optional int64 lastUsedTimeMs = 4;
 
     // SensorLayouts associated with this experiment.
