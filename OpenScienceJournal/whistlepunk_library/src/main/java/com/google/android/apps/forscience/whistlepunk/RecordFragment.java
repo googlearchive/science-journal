@@ -200,7 +200,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private Rect mPanelRect = new Rect();
 
     private Experiment mSelectedExperiment;
-    private boolean mSensorLayoutsLoaded;
 
     // A temporary variable to store a sensor card presenter that wants to use
     // the decibel sensor before the permission to use microphone is granted
@@ -298,7 +297,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     @Override
     public void onPause() {
-        saveCurrentLayouts();
+        saveCurrentExperiment();
         // TODO: can we safely use onStop to shut down observing on pre-Nougat?
         //       See discussion at b/34368790
         if (!isMultiWindowEnabled()) {
@@ -338,7 +337,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         });
         AppSingleton.getInstance(getActivity()).removeListeners(TAG);
         freezeLayouts();
-        mSensorLayoutsLoaded = false;
     }
 
     private boolean isRecording() {
@@ -525,7 +523,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private void freezeLayouts() {
         final List<GoosciSensorLayout.SensorLayout> layouts =
-                Preconditions.checkNotNull(saveCurrentLayouts());
+                Preconditions.checkNotNull(saveCurrentExperiment());
         // Freeze layouts to be saved if recording finishes
         withRecorderController(new Consumer<RecorderController>() {
             @Override
@@ -656,25 +654,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             final RecorderController rc) {
         if (!TextUtils.equals(Experiment.getExperimentId(selectedExperiment),
                 Experiment.getExperimentId(mSelectedExperiment))) {
-            saveCurrentLayouts();
-        } else if (mSensorLayoutsLoaded) {
-            // If it is the same experiment and we've already loaded the sensor layouts, we
-            // don't need to do it again.
-            setControlButtonsEnabled(true);
-            return;
+            saveCurrentExperiment();
         }
         stopObservingCurrentSensors();
         mSelectedExperiment = selectedExperiment;
-        mSensorLayoutsLoaded = false;
-        getDataController().getSensorLayouts(selectedExperiment.getExperimentId(),
-                new LoggingConsumer<List<GoosciSensorLayout.SensorLayout>>(TAG,
-                        "get sensor layout") {
-                    @Override
-                    public void success(List<GoosciSensorLayout.SensorLayout> layouts) {
-                        loadIncludedSensors(layouts, rc);
-                        mSensorLayoutsLoaded = true;
-                    }
-                });
+        loadIncludedSensors(mSelectedExperiment.getExperiment().getSensorLayouts(), rc);
         rc.setSelectedExperiment(mSelectedExperiment);
         setControlButtonsEnabled(true);
     }
@@ -687,18 +671,22 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (position < 0) {
             return;
         }
-        getDataController().updateSensorLayout(mSelectedExperiment.getExperimentId(), position,
-                sensorLayout, LoggingConsumer.<Success>expectSuccess(TAG, "saving layout"));
+        mSelectedExperiment.getExperiment().updateSensorLayout(position, sensorLayout);
+        // TODO: Is there a way to do this write less frequently?
+        getDataController().updateExperiment(mSelectedExperiment,
+                LoggingConsumer.<Success>expectSuccess(TAG, "saving layout"));
     }
 
-    private List<GoosciSensorLayout.SensorLayout> saveCurrentLayouts() {
-        if (mSelectedExperiment == null || !mSensorLayoutsLoaded) {
+    // TODO: Can we optimize this by calling it less frequently?
+    private List<GoosciSensorLayout.SensorLayout> saveCurrentExperiment() {
+        if (mSelectedExperiment == null) {
             return null;
         }
         final List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
         if (layouts != null) {
-            getDataController().setSensorLayouts(mSelectedExperiment.getExperimentId(),
-                    layouts, LoggingConsumer.<Success>expectSuccess(TAG, "saving layouts"));
+            mSelectedExperiment.getExperiment().setSensorLayouts(layouts);
+            getDataController().updateExperiment(mSelectedExperiment,
+                    LoggingConsumer.<Success>expectSuccess(TAG, "saving layouts"));
         }
         return layouts;
     }
@@ -812,7 +800,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                                         mSensorCardAdapter.getItemCount() - 1);
                             }
                             activateSensorCardPresenter(sensorCardPresenter, true);
-                            saveCurrentLayouts();
+                            saveCurrentExperiment();
                         }
                     }
                 }, new SensorCardAdapter.CardRemovedListener() {
@@ -1393,8 +1381,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (position < 0) {
             return;
         }
-        getDataController().updateSensorLayout(mSelectedExperiment.getExperimentId(), position,
-                layout, new LoggingConsumer<Success>(TAG, "disable sensor triggers") {
+        mSelectedExperiment.getExperiment().updateSensorLayout(position, layout);
+        getDataController().updateExperiment(mSelectedExperiment,
+                new LoggingConsumer<Success>(TAG, "disable sensor triggers") {
                     @Override
                     public void success(Success value) {
                         withRecorderController(new Consumer<RecorderController>() {

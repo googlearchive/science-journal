@@ -47,27 +47,34 @@ import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DataControllerTest extends AndroidTestCase {
+    public static String TAG = "DataControllerTest";
     // TODO: continue moving tests (as possible) to DataControllerUnitTest
 
     public void testLayouts() {
         final DataController dc = makeSimpleController();
 
-        String experimentId = Arbitrary.string();
-        List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
-        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
+        final List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+        final GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = Arbitrary.string();
         layouts.add(layout);
-        dc.setSensorLayouts(experimentId, layouts, TestConsumers.<Success>expectingSuccess());
 
-        StoringConsumer<List<GoosciSensorLayout.SensorLayout>> cLayouts = new StoringConsumer<>();
-        dc.getSensorLayouts(experimentId, cLayouts);
-        List<GoosciSensorLayout.SensorLayout> retrievedLayouts = cLayouts.getValue();
-
-        assertEquals(1, retrievedLayouts.size());
-        assertEquals(layout.sensorId, retrievedLayouts.get(0).sensorId);
+        StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
+        dc.createExperiment(cExperiment);
+        Experiment experiment = cExperiment.getValue();
+        experiment.getExperiment().setSensorLayouts(layouts);
+        dc.updateExperiment(experiment, TestConsumers.<Success>expectingSuccess());
+        dc.getExperimentById(experiment.getExperimentId(),
+                new LoggingConsumer<Experiment>(TAG, "test get experiment") {
+                    @Override
+                    public void success(Experiment updated) {
+                        List<GoosciSensorLayout.SensorLayout> retrievedLayouts =
+                                updated.getExperiment().getSensorLayouts();
+                        assertEquals(1, retrievedLayouts.size());
+                        assertEquals(layout.sensorId, retrievedLayouts.get(0).sensorId);
+                    }
+                });
     }
 
     private DataController makeSimpleController() {
@@ -133,7 +140,6 @@ public class DataControllerTest extends AndroidTestCase {
         final DataController dc = new InMemorySensorDatabase().makeSimpleController(
                 failingMetadata);
         final StoringFailureListener listener = new StoringFailureListener();
-        String sensorId = Arbitrary.string();
 
         Experiment experiment = new Experiment(10);
         dc.startTrial(experiment, Collections.<GoosciSensorLayout.SensorLayout>emptyList(),
@@ -150,11 +156,16 @@ public class DataControllerTest extends AndroidTestCase {
 
     public void testReplaceChangesLayout() {
         final DataController dc = makeSimpleController();
+        StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
+        dc.createExperiment(cExperiment);
+        Experiment experiment = cExperiment.getValue();
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = "oldSensorId";
+        List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>(1);
+        layouts.add(layout);
+        experiment.getExperiment().setSensorLayouts(layouts);
+        dc.updateExperiment(experiment, TestConsumers.<Success>expectingSuccess());
         dc.addSensorToExperiment("experimentId", "oldSensorId",
-                TestConsumers.<Success>expectingSuccess());
-        dc.setSensorLayouts("experimentId", Lists.newArrayList(layout),
                 TestConsumers.<Success>expectingSuccess());
 
         StoringConsumer<String> cid = new StoringConsumer<>();
@@ -170,35 +181,44 @@ public class DataControllerTest extends AndroidTestCase {
                                 ConnectableSensor.makeMap(sensors).keySet());
                     }
                 }));
-        dc.getSensorLayouts("experimentId", TestConsumers.expectingSuccess(
-                new Consumer<List<GoosciSensorLayout.SensorLayout>>() {
+        dc.getExperimentById(experiment.getExperimentId(),
+                new LoggingConsumer<Experiment>(TAG, "get updated experiment") {
                     @Override
-                    public void take(List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-                        assertEquals(1, sensorLayouts.size());
-                        assertEquals(newSensorId, sensorLayouts.get(0).sensorId);
+                    public void success(Experiment updated) {
+                        assertEquals(1, updated.getExperiment().getSensorLayouts().size());
+                        assertEquals(newSensorId,
+                                updated.getExperiment().getSensorLayouts().get(0).sensorId);
                     }
-                }));
+                });
     }
 
     public void testRemoveChangesLayout() {
         final DataController dc = makeSimpleController();
-        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-        layout.sensorId = "oldSensorId";
+        StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
+        dc.createExperiment(cExperiment);
+        Experiment experiment = cExperiment.getValue();
         dc.addSensorToExperiment("experimentId", "oldSensorId",
                 TestConsumers.<Success>expectingSuccess());
-        dc.setSensorLayouts("experimentId", Lists.newArrayList(layout),
-                TestConsumers.<Success>expectingSuccess());
+
+        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
+        layout.sensorId = "oldSensorId";
+        List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>(1);
+        layouts.add(layout);
+        experiment.getExperiment().setSensorLayouts(layouts);
+        dc.updateExperiment(experiment, TestConsumers.<Success>expectingSuccess());
+
+
         dc.removeSensorFromExperiment("experimentId", "oldSensorId",
                 TestConsumers.<Success>expectingSuccess());
-
-        dc.getSensorLayouts("experimentId", TestConsumers.expectingSuccess(
-                new Consumer<List<GoosciSensorLayout.SensorLayout>>() {
+        dc.getExperimentById(experiment.getExperimentId(),
+                new LoggingConsumer<Experiment>(TAG, "get updated experiment") {
                     @Override
-                    public void take(List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-                        assertEquals(1, sensorLayouts.size());
-                        assertEquals("", sensorLayouts.get(0).sensorId);
+                    public void success(Experiment updated) {
+                        assertEquals(1, updated.getExperiment().getSensorLayouts().size());
+                        assertEquals("",
+                                updated.getExperiment().getSensorLayouts().get(0).sensorId);
                     }
-                }));
+                });
     }
 
     public void testGenerateLabelId() {

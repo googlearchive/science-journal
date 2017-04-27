@@ -76,6 +76,7 @@ public class TriggerListFragment extends Fragment {
     private int mLayoutPosition;
     private ArrayList<String> mTriggerOrder;
     private Experiment mExperiment;
+    private boolean mNeedsSave = false;
 
     public static TriggerListFragment newInstance(String sensorId, String experimentId,
             int position, ArrayList<String> triggerOrder) {
@@ -125,18 +126,16 @@ public class TriggerListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        getDataController().getSensorLayouts(mExperimentId,
-                new LoggingConsumer<List<GoosciSensorLayout.SensorLayout>>(TAG, "get layout") {
-                    @Override
-                    public void success(List<GoosciSensorLayout.SensorLayout> value) {
-                        for (GoosciSensorLayout.SensorLayout layout : value) {
-                            if (TextUtils.equals(layout.sensorId, mSensorId)) {
-                                mSensorLayout = layout;
-                                loadExperiment();
-                            }
-                        }
-                    }
-                });
+        loadExperiment();
+    }
+
+    @Override
+    public void onPause() {
+        if (mNeedsSave) {
+            getDataController().updateExperiment(mExperiment,
+                    LoggingConsumer.<Success>expectSuccess(TAG, "updating sensor layout onPause"));
+        }
+        super.onPause();
     }
 
     @Override
@@ -183,6 +182,12 @@ public class TriggerListFragment extends Fragment {
                     @Override
                     public void success(Experiment experiment) {
                         mExperiment = experiment;
+                        for (GoosciSensorLayout.SensorLayout layout :
+                                experiment.getExperiment().getSensorLayouts()) {
+                            if (TextUtils.equals(layout.sensorId, mSensorId)) {
+                                mSensorLayout = layout;
+                            }
+                        }
                         Comparator<SensorTrigger> cp;
                         if (mTriggerOrder != null) {
                             // If this is not the first load, use the saved order to define a new
@@ -270,23 +275,19 @@ public class TriggerListFragment extends Fragment {
                 }
                 mUndone = true;
                 mExperiment.getExperiment().addSensorTrigger(trigger);
+                if (isActive) {
+                    TriggerHelper.addTriggerToLayoutActiveTriggers(
+                            mSensorLayout, trigger.getTriggerId());
+                    mExperiment.getExperiment().updateSensorLayout(mLayoutPosition, mSensorLayout);
+                }
                 dc.updateExperiment(mExperiment,
                         new LoggingConsumer<Success>(TAG, "update exp: re-add deleted trigger") {
                             @Override
                             public void success(Success value) {
                                 if (isActive) {
                                     // If it was active, re-add it to the Layout.
-                                    TriggerHelper.addTriggerToLayoutActiveTriggers(
-                                            mSensorLayout, trigger.getTriggerId());
-                                    dc.updateSensorLayout(mExperimentId, mLayoutPosition,
-                                            mSensorLayout, new LoggingConsumer<Success>(
-                                                    TAG, "add trigger to layout") {
-                                                @Override
-                                                public void success(Success value) {
-                                                    mTriggerAdapter.addTriggerAtIndex(trigger,
-                                                            index);
-                                                }
-                                            });
+                                    mTriggerAdapter.addTriggerAtIndex(trigger,
+                                            index);
                                 } else {
                                     mTriggerAdapter.addTriggerAtIndex(trigger, index);
                                 }
@@ -300,20 +301,14 @@ public class TriggerListFragment extends Fragment {
         TriggerHelper.removeTriggerFromLayoutActiveTriggers(mSensorLayout,
                 trigger.getTriggerId());
         mExperiment.getExperiment().removeSensorTrigger(trigger);
-        dc.updateSensorLayout(mExperimentId, mLayoutPosition, mSensorLayout,
-                new LoggingConsumer<Success>(TAG, "remove trigger from layout") {
-                    @Override
-                    public void success(Success value) {
-                        dc.updateExperiment(mExperiment, new LoggingConsumer<Success>(TAG,
-                                "delete trigger") {
-                            @Override
-                            public void success(Success value) {
-                                bar.show();
-                                mTriggerAdapter.removeTrigger(trigger);
-                            }
-                        });
-                    }
-                });
+        mExperiment.getExperiment().updateSensorLayout(mLayoutPosition, mSensorLayout);
+        dc.updateExperiment(mExperiment, new LoggingConsumer<Success>(TAG, "delete trigger") {
+            @Override
+            public void success(Success value) {
+                bar.show();
+                mTriggerAdapter.removeTrigger(trigger);
+            }
+        });
     }
 
     private boolean isTriggerActive(SensorTrigger trigger) {
@@ -330,6 +325,12 @@ public class TriggerListFragment extends Fragment {
         if (isTriggerActive(trigger) == isActive) {
             return;
         }
+        // Make a note that a trigger was changed and needs saving, but don't bother updating the
+        // experiment triggers at this time.
+        // Unlike delete (which is updated immediately), and edit (where saving is handled in
+        // another fragment), toggling the active state doesn't need to be written to the database
+        // until we exit the fragment.
+        mNeedsSave = true;
         if (isActive) {
             TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout,
                     trigger.getTriggerId());
@@ -337,8 +338,7 @@ public class TriggerListFragment extends Fragment {
             TriggerHelper.removeTriggerFromLayoutActiveTriggers(mSensorLayout,
                     trigger.getTriggerId());
         }
-        getDataController().updateSensorLayout(mExperimentId, mLayoutPosition, mSensorLayout,
-                LoggingConsumer.<Success>expectSuccess(TAG, "updating trigger active state"));
+        mExperiment.getExperiment().updateSensorLayout(mLayoutPosition, mSensorLayout);
         // Note: Last used time is not updated when the trigger is activated / deactivated, and the
         // list should not be resorted at this time.
     }

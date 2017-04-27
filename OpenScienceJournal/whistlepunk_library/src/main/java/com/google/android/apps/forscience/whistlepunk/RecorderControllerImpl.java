@@ -551,7 +551,10 @@ public class RecorderControllerImpl implements RecorderController {
             public void take(final RecorderService recorderService) throws RemoteException {
                 final List<GoosciSensorLayout.SensorLayout> sensorLayoutsAtStop =
                         buildSensorLayouts();
-                mDataController.stopTrial(mSelectedExperiment, mCurrentTrial, sensorLayoutsAtStop,
+                if (sensorLayoutsAtStop.size() > 0) {
+                    mCurrentTrial.setSensorLayouts(sensorLayoutsAtStop);
+                }
+                mDataController.stopTrial(mSelectedExperiment, mCurrentTrial,
                         new LoggingConsumer<Trial>(TAG, "stopTrial") {
                             @Override
                             public void success(Trial stoppedTrial) {

@@ -239,14 +239,6 @@ public class MemoryMetadataManager implements MetaDataManager {
         return trial;
     }
 
-    @Override
-    public void updateTrialLayouts(String trialId, List<GoosciSensorLayout.SensorLayout> layouts) {
-        List<GoosciSensorLayout.SensorLayout> sensorLayouts = mTrials.get(trialId).getSensorLayouts();
-        sensorLayouts.clear();
-        sensorLayouts.addAll(Arrays.asList(deepCopy(layouts)));
-        mTrials.get(trialId).setSensorLayouts(sensorLayouts);
-    }
-
     private GoosciSensorLayout.SensorLayout[] deepCopy(
             List<GoosciSensorLayout.SensorLayout> original) {
         GoosciSensorLayout.SensorLayout[] copy = new GoosciSensorLayout.SensorLayout[
@@ -284,16 +276,6 @@ public class MemoryMetadataManager implements MetaDataManager {
             return Collections.emptyList();
         } else {
             return layouts;
-        }
-    }
-
-    @Override
-    public void updateSensorLayout(String experimentId, int position,
-            GoosciSensorLayout.SensorLayout layout) {
-        List<GoosciSensorLayout.SensorLayout> layouts = mLayouts.get(experimentId);
-        if (layouts.size() > position) {
-            layouts.remove(position);
-            layouts.add(position, layout);
         }
     }
 

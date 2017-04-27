@@ -23,7 +23,6 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -81,6 +80,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         });
     }
 
+    // TODO: Do this by updating the experiment rather than directly with the Layouts.
     private void replaceIdInLayouts(String experimentId, String oldSensorId, String newSensorId) {
         List<GoosciSensorLayout.SensorLayout> layouts = mMetaDataManager.getExperimentSensorLayouts(
                 experimentId);
@@ -93,9 +93,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     public void stopTrial(final Experiment experiment, final Trial trial,
-            final List<GoosciSensorLayout.SensorLayout> layouts,
             final MaybeConsumer<Trial> onSuccess) {
-        Preconditions.checkNotNull(layouts);
         addApplicationLabel(experiment, ApplicationLabel.TYPE_RECORDING_STOP, trial.getTrialId(),
                 MaybeConsumers.chainFailure(onSuccess, new Consumer<ApplicationLabel>() {
                     @Override
@@ -105,8 +103,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                                 new Callable<Trial>() {
                                     @Override
                                     public Trial call() throws Exception {
-                                        mMetaDataManager.updateTrialLayouts(trial.getTrialId(),
-                                                layouts);
+                                        mMetaDataManager.updateTrial(trial);
                                         return trial;
                                     }
                                 });
@@ -462,44 +459,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     @Override
     public void clearDataErrorListenerForSensor(String sensorId) {
         mSensorFailureListeners.remove(sensorId);
-    }
-
-    @Override
-    public void setSensorLayouts(final String experimentId,
-            final List<GoosciSensorLayout.SensorLayout> layouts, MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.setExperimentSensorLayouts(experimentId, layouts);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
-    @Override
-    public void getSensorLayouts(final String experimentId,
-            MaybeConsumer<List<GoosciSensorLayout.SensorLayout>> onSuccess) {
-        background(mMetaDataThread, onSuccess,
-                new Callable<List<GoosciSensorLayout.SensorLayout>>() {
-            @Override
-            public List<GoosciSensorLayout.SensorLayout> call() throws Exception {
-                List<GoosciSensorLayout.SensorLayout> sensorLayout =
-                        mMetaDataManager.getExperimentSensorLayouts(experimentId);
-                return sensorLayout;
-            }
-        });
-    }
-
-    @Override
-    public void updateSensorLayout(final String experimentId, final int position,
-            final GoosciSensorLayout.SensorLayout layout, MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.updateSensorLayout(experimentId, position, layout);
-                return Success.SUCCESS;
-            }
-        });
     }
 
     @Override
