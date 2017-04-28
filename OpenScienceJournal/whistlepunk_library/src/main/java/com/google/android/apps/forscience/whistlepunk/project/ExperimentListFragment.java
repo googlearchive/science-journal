@@ -48,7 +48,7 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
@@ -252,17 +252,16 @@ public class ExperimentListFragment extends Fragment {
             holder.experimentId = experiment.getExperimentId();
 
             // Set the data we know about.
-            String experimentText = experiment.getExperiment().getDisplayTitle(
-                    holder.itemView.getContext());
+            String experimentText = experiment.getDisplayTitle(holder.itemView.getContext());
             holder.experimentTitle.setText(experimentText);
             holder.experimentImage.setImageDrawable(mPlaceHolderImage);
             // Set indeterminate states on the things we don't know.
             holder.experimentLastRun.setText("");
             holder.experimentRunTotals.setText("");
-            holder.archivedIndicator.setVisibility(experiment.getExperiment().isArchived() ?
+            holder.archivedIndicator.setVisibility(experiment.isArchived() ?
                     View.VISIBLE : View.GONE);
 
-            if (experiment.getExperiment().isArchived()) {
+            if (experiment.isArchived()) {
                 holder.experimentTitle.setContentDescription(res.getString(
                         R.string.archived_content_description, experimentText));
                 holder.itemView.findViewById(R.id.content).setAlpha(res.getFraction(
@@ -320,7 +319,6 @@ public class ExperimentListFragment extends Fragment {
             Context context = holder.itemView.getContext();
             holder.experimentRunTotals.setText(context.getResources()
                     .getQuantityString(R.plurals.experiment_run_count, runs.size(), runs.size()));
-            final String experimentId = holder.experimentId;
             if (runs.size() > 0) {
                 // Take the first run, which should be the last created run.
                 holder.experimentLastRun.setTime(runs.get(0).getFirstTimestamp());
@@ -344,7 +342,7 @@ public class ExperimentListFragment extends Fragment {
         }
 
         private void loadPhotoFromExperimentLabels(final ViewHolder holder, Experiment experiment) {
-            for (Label label : experiment.getExperiment().getLabels()) {
+            for (Label label : experiment.getLabels()) {
                 if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
                     loadPhoto(holder, (PictureLabelValue) label.getLabelValue(
                             GoosciLabelValue.LabelValue.PICTURE));

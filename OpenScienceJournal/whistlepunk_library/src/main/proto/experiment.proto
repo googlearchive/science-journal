@@ -41,24 +41,20 @@ message Experiment {
     // The user-entered description of this experiment.
     optional string description = 3;
 
-    // The time when this experiment was last used.
-    // TODO: Start using the lastUsedTimeMs in ExperimentOverview when possible.
-    optional int64 lastUsedTimeMs = 4;
-
     // SensorLayouts associated with this experiment.
-    repeated SensorLayout sensorLayouts = 5;
+    repeated SensorLayout sensorLayouts = 4;
 
     // Trials in this experiment.
-    repeated Trial trials = 6;
+    repeated Trial trials = 5;
 
     // Labels in this experiment.
-    repeated Label labels = 7;
+    repeated Label labels = 6;
 
     // Sensors included in or excluded from this experiment.
-    repeated ExperimentSensor experimentSensors = 8;
+    repeated ExperimentSensor experimentSensors = 7;
 
     // Sensor triggers associated with sensors in this experiment.
-    repeated SensorTrigger sensorTriggers = 9;
+    repeated SensorTrigger sensorTriggers = 8;
 };
 
 /*

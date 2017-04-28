@@ -21,6 +21,7 @@ import static junit.framework.Assert.assertEquals;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
 
 import org.junit.Test;
 
@@ -35,18 +36,16 @@ public class ExperimentUnitTest {
 
     @Test
     public void testNewExperiment() {
-        Experiment experiment = Experiment.newExperiment(10);
-        assertEquals(experiment.getTimestamp(), 10);
+        Experiment experiment = Experiment.newExperiment(10, "localId");
+        assertEquals(experiment.getCreationTimeMs(), 10);
         assertEquals(experiment.getLastUsedTime(), 10);
         assertEquals(experiment.isArchived(), false);
     }
 
     @Test
     public void testTriggers() {
-        GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-
         // No triggers on creation
-        Experiment experiment = Experiment.fromExperiment(proto, false);
+        Experiment experiment = Experiment.newExperiment(10, "localId");
         assertEquals(experiment.getSensorTriggersForSensor("sensorId"),
                 Collections.<SensorTrigger>emptyList());
 
@@ -60,10 +59,8 @@ public class ExperimentUnitTest {
 
     @Test
     public void testLayouts() {
-        GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-
         // No layouts on creation
-        Experiment experiment = Experiment.fromExperiment(proto, false);
+        Experiment experiment = Experiment.newExperiment(10, "localId");
         assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
 
         GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
@@ -76,10 +73,8 @@ public class ExperimentUnitTest {
 
     @Test
     public void testExperimentSensors() {
-        GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-
         // No sensors on creation
-        Experiment experiment = Experiment.fromExperiment(proto, false);
+        Experiment experiment = Experiment.newExperiment(10, "localId");
         assertEquals(experiment.getExperimentSensors(), Collections.emptyList());
 
         GoosciExperiment.ExperimentSensor sensor = new GoosciExperiment.ExperimentSensor();
@@ -103,7 +98,11 @@ public class ExperimentUnitTest {
         expSensorProto.sensorId = "sensorId";
         proto.experimentSensors = new GoosciExperiment.ExperimentSensor[]{expSensorProto};
 
-        Experiment experiment = Experiment.fromExperiment(proto, false);
+        GoosciSharedMetadata.ExperimentOverview overview = new GoosciSharedMetadata
+                .ExperimentOverview();
+        overview.experimentId = "cheese";
+
+        Experiment experiment = Experiment.fromExperiment(proto, overview);
 
         // Try to get the proto *before* converting the objects into lists.
         GoosciExperiment.Experiment result = experiment.getExperimentProto();

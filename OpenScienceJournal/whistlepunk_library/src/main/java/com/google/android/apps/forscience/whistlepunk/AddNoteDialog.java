@@ -45,10 +45,10 @@ import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
@@ -499,7 +499,7 @@ public class AddNoteDialog extends DialogFragment {
         // so save the MaybeConsumer here as a final var.
         final MaybeConsumer<Label> onSuccess = mListener.onLabelAdd(label);
         if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
-            mExperiment.getExperiment().addLabel(label);
+            mExperiment.addLabel(label);
             getDataController().updateExperiment(mExperiment,
                     new LoggingConsumer<Success>(TAG, "update experiment add label") {
                         @Override

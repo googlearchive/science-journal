@@ -70,7 +70,7 @@ public class SensorCardPresenterUnitTest {
         MemoryMetadataManager manager = new MemoryMetadataManager();
         final DataController dc = db.makeSimpleController(manager);
         scp.startObserving(ds, presenter, new BlankReadableSensorOptions(),
-                Experiment.newExperiment(10));
+                Experiment.newExperiment(10, "localId"));
         scp.setAppearanceProvider(new FakeAppearanceProvider());
         scp.setUiForConnectingNewSensor(ds.getId(), "Display Name", "units", false);
         assertEquals(Arrays.asList(ds.getId()), rc.getCurrentObservedIds());

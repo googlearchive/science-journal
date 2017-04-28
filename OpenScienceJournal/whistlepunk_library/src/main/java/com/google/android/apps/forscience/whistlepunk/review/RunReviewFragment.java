@@ -85,7 +85,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
@@ -1730,9 +1730,8 @@ public class RunReviewFragment extends Fragment implements AddNoteDialog.AddNote
     private void exportRun(final ExperimentRun run) {
         // Until we have UI to override it, we never use relative timestamps.
         boolean startAtZero = false;
-        mRunReviewExporter.startExport(getActivity(), mExperiment.getExperiment().getDisplayTitle(
-                getActivity()), run, run.getSensorLayouts().get(mSelectedSensorIndex).sensorId,
-                startAtZero);
+        mRunReviewExporter.startExport(getActivity(), mExperiment.getDisplayTitle(getActivity()),
+                run, run.getSensorLayouts().get(mSelectedSensorIndex).sensorId, startAtZero);
         // Disable the item.
         getActivity().invalidateOptionsMenu();
     }

@@ -20,15 +20,13 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
-import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
@@ -81,8 +79,7 @@ public class MemoryMetadataManager implements MetaDataManager {
 
     @NonNull
     public Experiment newExperiment(long timestamp, String experimentId) {
-        Experiment experiment = new Experiment(timestamp);
-        experiment.setExperimentId(experimentId);
+        Experiment experiment = Experiment.newExperiment(timestamp, experimentId);
         mExperiments.add(0, experiment);
         return experiment;
     }

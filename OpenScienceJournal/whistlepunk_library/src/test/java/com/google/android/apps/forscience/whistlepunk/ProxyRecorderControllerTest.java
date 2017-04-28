@@ -30,7 +30,7 @@ import com.google.android.apps.forscience.javalib.FallibleConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
@@ -176,8 +176,8 @@ public class ProxyRecorderControllerTest {
         RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
         RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
-        Experiment experiment = new Experiment(1618);
-        experiment.getExperiment().setTitle("experimentName");
+        Experiment experiment = Experiment.newExperiment(1618, "phi");
+        experiment.setTitle("experimentName");
         rc.setSelectedExperiment(experiment);
 
         RecordingStateListener stateListener = new RecordingStateListener();
@@ -215,8 +215,8 @@ public class ProxyRecorderControllerTest {
         RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
         RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
-        Experiment experiment = new Experiment(1618);
-        experiment.getExperiment().setTitle("experimentName");
+        Experiment experiment = Experiment.newExperiment(1618, "phi");
+        experiment.setTitle("experimentName");
         rc.setSelectedExperiment(experiment);
 
         RecordingStateListener stateListener = new RecordingStateListener();
@@ -243,8 +243,8 @@ public class ProxyRecorderControllerTest {
         RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
         RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
-        Experiment experiment = new Experiment(1618);
-        experiment.getExperiment().setTitle("experimentName");
+        Experiment experiment = Experiment.newExperiment(1618, "phi");
+        experiment.setTitle("experimentName");
         rc.setSelectedExperiment(experiment);
 
         RecordingStateListener stateListener = new RecordingStateListener();

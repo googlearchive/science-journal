@@ -56,5 +56,8 @@ message ExperimentOverview {
     // The number of trials in this experiment.
     optional int32 trialCount = 5;
 
+    // Whether this experiment is archived.
+    optional bool isArchived = 6;
+
     // Information about DriveFileID and sync state can be added here as needed.
 }

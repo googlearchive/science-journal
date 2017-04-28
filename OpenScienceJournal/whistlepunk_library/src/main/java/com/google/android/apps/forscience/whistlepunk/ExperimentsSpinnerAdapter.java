@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 
 import java.util.ArrayList;
 
@@ -39,7 +39,7 @@ class ExperimentsSpinnerAdapter extends ArrayAdapter<Experiment> {
         if (isNewExperimentPlaceholder(position)) {
             textView.setText(R.string.new_experiment_spinner_item);
         } else {
-            textView.setText(experiment.getExperiment().getDisplayTitle(parent.getContext()));
+            textView.setText(experiment.getDisplayTitle(parent.getContext()));
         }
         return convertView;
     }

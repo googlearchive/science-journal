@@ -18,8 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.sensordb;
 
 import android.test.AndroidTestCase;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.Project;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.common.collect.Lists;
 
 public class MemoryMetadataManagerTest extends AndroidTestCase {

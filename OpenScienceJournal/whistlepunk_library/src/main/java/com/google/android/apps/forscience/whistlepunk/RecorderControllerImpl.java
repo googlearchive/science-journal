@@ -38,7 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableS
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -318,7 +318,7 @@ public class RecorderControllerImpl implements RecorderController {
                     });
         } else {
             // Adds the label to the experiment and saves the updated experiment.
-            mSelectedExperiment.getExperiment().addLabel(triggerLabel);
+            mSelectedExperiment.addLabel(triggerLabel);
             mDataController.updateExperiment(mSelectedExperiment,
                     new LoggingConsumer<Success>(TAG, "add trigger label to experiment") {
                         @Override
@@ -496,8 +496,7 @@ public class RecorderControllerImpl implements RecorderController {
                                 mCurrentTrial = trial;
                                 mRecording = new RecordingMetadata(trial.getCreationTimeMs(),
                                         trial.getTrialId(),
-                                        mSelectedExperiment.getExperiment().getDisplayTitle(
-                                                mContext));
+                                        mSelectedExperiment.getDisplayTitle(mContext));
 
                                 ensureUnarchived(mSelectedExperiment, dataController);
                                 recorderService.beginServiceRecording(
@@ -576,8 +575,7 @@ public class RecorderControllerImpl implements RecorderController {
                                                 recorderService.endServiceRecording(
                                                         !activityInForground, trialId,
                                                         mSelectedExperiment.getExperimentId(),
-                                                        mSelectedExperiment.getExperiment()
-                                                                .getDisplayTitle(mContext));
+                                                        mSelectedExperiment.getDisplayTitle(mContext));
                                             }
                                         });
 

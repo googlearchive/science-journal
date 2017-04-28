@@ -49,6 +49,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 
 import java.lang.ref.WeakReference;
@@ -183,7 +184,7 @@ public class TriggerListFragment extends Fragment {
                     public void success(Experiment experiment) {
                         mExperiment = experiment;
                         for (GoosciSensorLayout.SensorLayout layout :
-                                experiment.getExperiment().getSensorLayouts()) {
+                                experiment.getSensorLayouts()) {
                             if (TextUtils.equals(layout.sensorId, mSensorId)) {
                                 mSensorLayout = layout;
                             }
@@ -223,8 +224,8 @@ public class TriggerListFragment extends Fragment {
                             };
                         }
                         // Sort sensor triggers
-                        List<SensorTrigger> triggers = experiment.getExperiment()
-                                .getSensorTriggersForSensor(mSensorId);
+                        List<SensorTrigger> triggers = experiment.getSensorTriggersForSensor(
+                                mSensorId);
                         Collections.sort(triggers, cp);
                         mTriggerAdapter.setSensorTriggers(triggers);
                     }
@@ -274,11 +275,11 @@ public class TriggerListFragment extends Fragment {
                     return;
                 }
                 mUndone = true;
-                mExperiment.getExperiment().addSensorTrigger(trigger);
+                mExperiment.addSensorTrigger(trigger);
                 if (isActive) {
                     TriggerHelper.addTriggerToLayoutActiveTriggers(
                             mSensorLayout, trigger.getTriggerId());
-                    mExperiment.getExperiment().updateSensorLayout(mLayoutPosition, mSensorLayout);
+                    mExperiment.updateSensorLayout(mLayoutPosition, mSensorLayout);
                 }
                 dc.updateExperiment(mExperiment,
                         new LoggingConsumer<Success>(TAG, "update exp: re-add deleted trigger") {
@@ -300,8 +301,8 @@ public class TriggerListFragment extends Fragment {
         // from the trigger database.
         TriggerHelper.removeTriggerFromLayoutActiveTriggers(mSensorLayout,
                 trigger.getTriggerId());
-        mExperiment.getExperiment().removeSensorTrigger(trigger);
-        mExperiment.getExperiment().updateSensorLayout(mLayoutPosition, mSensorLayout);
+        mExperiment.removeSensorTrigger(trigger);
+        mExperiment.updateSensorLayout(mLayoutPosition, mSensorLayout);
         dc.updateExperiment(mExperiment, new LoggingConsumer<Success>(TAG, "delete trigger") {
             @Override
             public void success(Success value) {
@@ -338,7 +339,7 @@ public class TriggerListFragment extends Fragment {
             TriggerHelper.removeTriggerFromLayoutActiveTriggers(mSensorLayout,
                     trigger.getTriggerId());
         }
-        mExperiment.getExperiment().updateSensorLayout(mLayoutPosition, mSensorLayout);
+        mExperiment.updateSensorLayout(mLayoutPosition, mSensorLayout);
         // Note: Last used time is not updated when the trigger is activated / deactivated, and the
         // list should not be resorted at this time.
     }

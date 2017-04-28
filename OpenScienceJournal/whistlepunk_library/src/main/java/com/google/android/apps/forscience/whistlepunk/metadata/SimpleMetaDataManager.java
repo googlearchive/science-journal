@@ -38,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -137,7 +138,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     addLabel(db, experiment.getExperimentId(),
                             RecorderController.NOT_RECORDING_RUN_ID,
                             Label.newLabelWithValue(
-                                    experiment.getExperiment().getTimestamp() - 2000,
+                                    experiment.getCreationTimeMs() - 2000,
                                     TextLabelValue.fromText(project.getDescription())));
                 }
                 if (!TextUtils.isEmpty(project.getCoverPhoto())) {
@@ -145,20 +146,20 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     addLabel(db, experiment.getExperimentId(),
                             RecorderController.NOT_RECORDING_RUN_ID,
                             Label.newLabelWithValue(
-                                    experiment.getExperiment().getTimestamp() - 1000,
+                                    experiment.getCreationTimeMs() - 1000,
                                     PictureLabelValue.fromPicture(project.getCoverPhoto(), "")));
                 }
                 boolean needsWrite = false;
                 if (project.isArchived()) {
                     // If the project is archived, the experiment should be archived.
-                    experiment.getExperiment().setArchived(true);
+                    experiment.setArchived(true);
                     needsWrite = true;
                 }
                 if (!TextUtils.isEmpty(project.getTitle())) {
                     // Experiment title prefixed with Project title, unless project title is not set
-                    experiment.getExperiment().setTitle(String.format(mContext.getResources()
+                    experiment.setTitle(String.format(mContext.getResources()
                                     .getString(R.string.project_experiment_title),
-                            project.getTitle(), experiment.getExperiment().getDisplayTitle(
+                            project.getTitle(), experiment.getDisplayTitle(
                                     mContext)));
                     needsWrite = true;
                 }
@@ -318,10 +319,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             long id = db.insert(Tables.EXPERIMENTS, null, values);
             if (id != -1) {
-                com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment exp =
-                        com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment
-                                .newExperiment(getCurrentTime());
-                return new Experiment(exp, experimentId);
+                return Experiment.newExperiment(getCurrentTime(), experimentId);
             }
         }
         return null;
@@ -363,26 +361,26 @@ public class SimpleMetaDataManager implements MetaDataManager {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             updateExperiment(db, experiment);
-            for (Label label : experiment.getExperiment().getLabels()) {
+            for (Label label : experiment.getLabels()) {
                 // how does this do on conflict? poorly.
                 addLabel(experiment.getExperimentId(),
                         RecorderController.NOT_RECORDING_RUN_ID, label);
             }
-            for (SensorTrigger trigger : experiment.getExperiment().getSensorTriggers()) {
+            for (SensorTrigger trigger : experiment.getSensorTriggers()) {
                 addSensorTrigger(trigger, experiment.getExperimentId());
             }
             setExperimentSensorLayouts(experiment.getExperimentId(),
-                    experiment.getExperiment().getSensorLayouts());
+                    experiment.getSensorLayouts());
             // TODO: Later this should also update all the trials in this experiment
         }
     }
 
     private static void updateExperiment(SQLiteDatabase db, Experiment experiment) {
         final ContentValues values = new ContentValues();
-        values.put(ExperimentColumns.TITLE, experiment.getExperiment().getTitle());
-        values.put(ExperimentColumns.DESCRIPTION, experiment.getExperiment().getDescription());
-        values.put(ExperimentColumns.ARCHIVED, experiment.getExperiment().isArchived());
-        values.put(ExperimentColumns.LAST_USED_TIME, experiment.getExperiment().getLastUsedTime());
+        values.put(ExperimentColumns.TITLE, experiment.getTitle());
+        values.put(ExperimentColumns.DESCRIPTION, experiment.getDescription());
+        values.put(ExperimentColumns.ARCHIVED, experiment.isArchived());
+        values.put(ExperimentColumns.LAST_USED_TIME, experiment.getLastUsedTime());
         db.update(Tables.EXPERIMENTS, values, ExperimentColumns.EXPERIMENT_ID + "=?",
                 new String[]{experiment.getExperimentId()});
     }
@@ -420,14 +418,17 @@ public class SimpleMetaDataManager implements MetaDataManager {
     private static Experiment createExperimentFromCursor(Cursor cursor) {
         GoosciExperiment.Experiment expProto = new GoosciExperiment.Experiment();
         expProto.creationTimeMs = cursor.getLong(2);
-        expProto.lastUsedTimeMs = cursor.getLong(7);
         expProto.description = cursor.getString(4);
         expProto.title = cursor.getString(3);
-        boolean archived = cursor.getInt(6) != 0;
-        String experimentId = cursor.getString(1);
-        Experiment experiment = new Experiment(
-                com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment
-                        .fromExperiment(expProto, archived), experimentId);
+
+        GoosciSharedMetadata.ExperimentOverview overviewProto = new GoosciSharedMetadata
+                .ExperimentOverview();
+        overviewProto.lastUsedTimeMs = cursor.getLong(7);
+        overviewProto.title = expProto.title;
+        overviewProto.isArchived = cursor.getInt(6) != 0;
+        overviewProto.experimentId = cursor.getString(1);
+
+        Experiment experiment = Experiment.fromExperiment(expProto, overviewProto);
         return experiment;
     }
 
@@ -475,17 +476,17 @@ public class SimpleMetaDataManager implements MetaDataManager {
             return;
         }
         List<Label> labels = getLabelsForExperiment(experiment);
-        experiment.getExperiment().populateLabels(labels);
+        experiment.populateLabels(labels);
         List<SensorTrigger> triggers = getSensorTriggers(experiment.getExperimentId());
-        experiment.getExperiment().setSensorTriggers(triggers);
-        experiment.getExperiment().setSensorLayouts(getExperimentSensorLayouts(
+        experiment.setSensorTriggers(triggers);
+        experiment.setSensorLayouts(getExperimentSensorLayouts(
                 experiment.getExperimentId()));
     }
 
     @Override
     public void updateLastUsedExperiment(Experiment experiment) {
         long time = getCurrentTime();
-        experiment.getExperiment().setLastUsedTime(time);
+        experiment.setLastUsedTime(time);
         updateExperiment(experiment);
     }
 

@@ -45,7 +45,7 @@ import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 
 /**
  * Fragment for saving/updating experiment detials (title, description...etc).
@@ -146,8 +146,8 @@ public class UpdateExperimentFragment extends Fragment {
                 if (mExperiment == null) {
                     return;
                 }
-                if (!s.toString().equals(mExperiment.getExperiment().getTitle())) {
-                    mExperiment.getExperiment().setTitle(s.toString().trim());
+                if (!s.toString().equals(mExperiment.getTitle())) {
+                    mExperiment.setTitle(s.toString().trim());
                     saveExperiment();
                     mWasEdited = true;
                 }
@@ -169,8 +169,8 @@ public class UpdateExperimentFragment extends Fragment {
                 if (mExperiment == null) {
                     return;
                 }
-                if (!s.toString().equals(mExperiment.getExperiment().getDescription())) {
-                    mExperiment.getExperiment().setDescription(s.toString().trim());
+                if (!s.toString().equals(mExperiment.getDescription())) {
+                    mExperiment.setDescription(s.toString().trim());
                     saveExperiment();
                     mWasEdited = true;
                 }
@@ -234,8 +234,8 @@ public class UpdateExperimentFragment extends Fragment {
 
     private void attachExperimentDetails(Experiment experiment) {
         mExperiment = experiment;
-        mExperimentTitle.setText(experiment.getExperiment().getTitle());
-        mExperimentDescription.setText(experiment.getExperiment().getDescription());
+        mExperimentTitle.setText(experiment.getTitle());
+        mExperimentDescription.setText(experiment.getDescription());
         mWasEdited = false;
     }
 

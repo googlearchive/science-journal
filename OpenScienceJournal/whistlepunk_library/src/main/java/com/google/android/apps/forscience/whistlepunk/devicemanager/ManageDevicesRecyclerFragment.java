@@ -41,7 +41,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -198,7 +198,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
                         TextView selectSensors = (TextView) view.findViewById(
                                 R.id.select_sensors);
                         selectSensors.setText(getString(R.string.select_sensors,
-                                exp.getExperiment().getDisplayTitle(getActivity())));
+                                exp.getDisplayTitle(getActivity())));
                     }
                 });
     }

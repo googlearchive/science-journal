@@ -56,6 +56,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
@@ -67,7 +68,6 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Fragment for adding or editing a trigger.
@@ -143,7 +143,7 @@ public class EditTriggerFragment extends Fragment {
                     public void success(Experiment value) {
                         mExperiment = value;
                         String triggerId = getArguments().getString(ARG_TRIGGER_ID, "");
-                        mTriggerToEdit = mExperiment.getExperiment().getSensorTrigger(triggerId);
+                        mTriggerToEdit = mExperiment.getSensorTrigger(triggerId);
                         populateView();
                     }
                 });
@@ -499,7 +499,7 @@ public class EditTriggerFragment extends Fragment {
         mTriggerWasEdited = isUpdated;
         TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout,
                 mTriggerToEdit.getTriggerId());
-        mExperiment.getExperiment().updateSensorTrigger(mTriggerToEdit);
+        mExperiment.updateSensorTrigger(mTriggerToEdit);
         dc.updateExperiment(mExperiment,
                 new LoggingConsumer<Success>(TAG, "update experiment's trigger") {
                     @Override
@@ -566,7 +566,7 @@ public class EditTriggerFragment extends Fragment {
             triggerToAdd.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
         }
         TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout, triggerToAdd.getTriggerId());
-        mExperiment.getExperiment().addSensorTrigger(triggerToAdd);
+        mExperiment.addSensorTrigger(triggerToAdd);
         dc.updateExperiment(mExperiment, new MaybeConsumer<Success>() {
                     @Override
                     public void fail(Exception e) {
@@ -616,7 +616,7 @@ public class EditTriggerFragment extends Fragment {
     // and added to the active triggers in the SensorLayout. Note that if no changes are made,
     // the trigger is not re-enabled in the SensorLayout.
     private void updateSensorLayoutAndGoToParent(final boolean goToParent) {
-        mExperiment.getExperiment().updateSensorLayout(mSensorLayoutPosition, mSensorLayout);
+        mExperiment.updateSensorLayout(mSensorLayoutPosition, mSensorLayout);
         getDataController().updateExperiment(mExperiment,
                 new LoggingConsumer<Success>(TAG, "update experiment with layout") {
                     @Override

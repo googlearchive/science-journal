@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 
@@ -60,9 +60,9 @@ public class MetadataControllerTest extends AndroidTestCase {
     public void testGetNameAfterSettingListener() {
         MemoryMetadataManager mmm = new MemoryMetadataManager();
         Experiment e1 = mmm.newExperiment(1, "e1");
-        e1.getExperiment().setTitle("E1 title");
+        e1.setTitle("E1 title");
         Experiment e2 = mmm.newExperiment(2, "e2");
-        e2.getExperiment().setTitle("E2 title");
+        e2.setTitle("E2 title");
         DataController dc = buildDataController(mmm);
         final ExplodingFactory explodingFactory = new ExplodingFactory();
         MetadataController mc = new MetadataController(dc, explodingFactory);
@@ -72,7 +72,7 @@ public class MetadataControllerTest extends AndroidTestCase {
 
         listener.expectedExperimentIds = Arrays.asList(e2id, e1id);
         mc.addExperimentChangeListener("listenerKey", listener);
-        assertEquals(e2.getExperiment().getTitle(), mc.getExperimentName(getContext()));
+        assertEquals(e2.getTitle(), mc.getExperimentName(getContext()));
     }
 
     @NonNull

@@ -23,7 +23,6 @@ import android.text.TextUtils;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
-import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -32,6 +31,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInpu
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
@@ -89,12 +89,12 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         Experiment experiment = mMetaDataManager.newExperiment();
         assertNotNull(experiment);
         assertFalse(TextUtils.isEmpty(experiment.getExperimentId()));
-        assertTrue(experiment.getExperiment().getTimestamp() > 0);
+        assertTrue(experiment.getCreationTimeMs() > 0);
 
         List<Experiment> experiments = mMetaDataManager.getExperiments(false);
         assertEquals(1, experiments.size());
         assertEquals(experiment.getExperimentId(), experiments.get(0).getExperimentId());
-        assertTrue(experiments.get(0).getExperiment().getTimestamp() > 0);
+        assertTrue(experiments.get(0).getCreationTimeMs() > 0);
 
         // Test adding a few experiments
         int count = 10;
@@ -110,26 +110,26 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     public void testUpdateExperiment() {
         Experiment experiment = mMetaDataManager.newExperiment();
 
-        experiment.getExperiment().setTitle("new title");
-        experiment.getExperiment().setDescription("my description");
-        experiment.getExperiment().setLastUsedTime(123);
+        experiment.setTitle("new title");
+        experiment.setDescription("my description");
+        experiment.setLastUsedTime(123);
 
         mMetaDataManager.updateExperiment(experiment);
 
         Experiment retrieve = mMetaDataManager.getExperimentById(experiment.getExperimentId());
-        assertEquals("new title", retrieve.getExperiment().getTitle());
-        assertEquals("my description", retrieve.getExperiment().getDescription());
-        assertEquals(123, retrieve.getExperiment().getLastUsedTime());
-        assertFalse(retrieve.getExperiment().isArchived());
+        assertEquals("new title", retrieve.getTitle());
+        assertEquals("my description", retrieve.getDescription());
+        assertEquals(123, retrieve.getLastUsedTime());
+        assertFalse(retrieve.isArchived());
     }
 
     public void testArchiveExperiment() {
         Experiment experiment = mMetaDataManager.newExperiment();
 
-        experiment.getExperiment().setTitle("new title");
-        experiment.getExperiment().setDescription("my description");
-        experiment.getExperiment().setLastUsedTime(123);
-        experiment.getExperiment().setArchived(false);
+        experiment.setTitle("new title");
+        experiment.setDescription("my description");
+        experiment.setLastUsedTime(123);
+        experiment.setArchived(false);
         mMetaDataManager.updateExperiment(experiment);
 
         List<Experiment> experiments = mMetaDataManager.getExperiments(false);
@@ -137,7 +137,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(experiment.getExperimentId(), experiments.get(0).getExperimentId());
 
         // Now archive this.
-        experiment.getExperiment().setArchived(true);
+        experiment.setArchived(true);
         mMetaDataManager.updateExperiment(experiment);
         experiments = mMetaDataManager.getExperiments(false);
         assertEquals(0, experiments.size());
@@ -153,7 +153,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
         String testLabelString = "test label";
         Label textLabel = Label.newLabelWithValue(1, TextLabelValue.fromText(testLabelString));
-        experiment.getExperiment().addLabel(textLabel);
+        experiment.addLabel(textLabel);
         File tmpFile;
         try {
              tmpFile = File.createTempFile("testfile_" + experiment.getExperimentId(), "png");
@@ -168,12 +168,12 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         String testPictureCaption = "life, the universe, and everything";
         Label pictureLabel = Label.newLabelWithValue(2, PictureLabelValue.fromPicture(
                 testPicturePath, testPictureCaption));
-        experiment.getExperiment().addLabel(pictureLabel);
+        experiment.addLabel(pictureLabel);
 
         mMetaDataManager.updateExperiment(experiment);
 
         List<Label> labels = mMetaDataManager.getExperimentById(experiment.getExperimentId())
-                .getExperiment().getLabels();
+                .getLabels();
         assertEquals(2, labels.size());
 
         boolean foundText = false;
@@ -211,8 +211,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         during1.setLabelValue(TextLabelValue.fromText("during1"));
         during2.setLabelValue(TextLabelValue.fromText("during2"));
         after.setLabelValue(TextLabelValue.fromText("after"));
-        experiment.getExperiment().addLabel(before);
-        experiment.getExperiment().addLabel(after);
+        experiment.addLabel(before);
+        experiment.addLabel(after);
         trial.addLabel(during1);
         trial.addLabel(during2);
         mMetaDataManager.updateExperiment(experiment);
@@ -630,22 +630,22 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(0, ((SimpleMetaDataManager) mMetaDataManager).getProjects(true).size());
 
         Experiment firstExpResult = mMetaDataManager.getExperimentById(firstExp.getExperimentId());
-        assertEquals(0, firstExpResult.getExperiment().getLabels().size());
-        assertTrue(TextUtils.isEmpty(firstExp.getExperiment().getTitle()));
+        assertEquals(0, firstExpResult.getLabels().size());
+        assertTrue(TextUtils.isEmpty(firstExp.getTitle()));
 
         Experiment secondExpResult = mMetaDataManager.getExperimentById(
                 secondExp.getExperimentId());
-        List<Label> labels = secondExpResult.getExperiment().getLabels();
+        List<Label> labels = secondExpResult.getLabels();
         assertEquals(2, labels.size());
         assertEquals("Description", ((TextLabelValue) labels.get(0).getLabelValue(
                 GoosciLabelValue.LabelValue.TEXT)).getText());
         assertEquals("path/to/photo", ((PictureLabelValue) labels.get(1).getLabelValue(
                 GoosciLabelValue.LabelValue.PICTURE)).getFilePath());
-        assertTrue(labels.get(0).getTimeStamp() < secondExpResult.getExperiment().getTimestamp());
-        assertTrue(labels.get(1).getTimeStamp() < secondExpResult.getExperiment().getTimestamp());
-        assertTrue(secondExpResult.getExperiment().getDisplayTitle(getContext()).startsWith(
+        assertTrue(labels.get(0).getTimeStamp() < secondExpResult.getCreationTimeMs());
+        assertTrue(labels.get(1).getTimeStamp() < secondExpResult.getCreationTimeMs());
+        assertTrue(secondExpResult.getDisplayTitle(getContext()).startsWith(
                 "Title"));
-        assertTrue(secondExpResult.getExperiment().isArchived());
+        assertTrue(secondExpResult.isArchived());
     }
 
     private List<String> getIds(List<GoosciSensorLayout.SensorLayout> layouts) {

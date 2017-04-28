@@ -16,18 +16,13 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-
 import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
-import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
@@ -140,7 +135,8 @@ public class CropHelperTest extends AndroidTestCase {
                 new ApplicationLabel(ApplicationLabel.TYPE_CROP_END, "1008", "0", 1008),
                 mAddLabelConsumer);
         mDataController.addScalarReading("sensor", 0, 50, 50);
-        Trial trial = mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
+        Trial trial = mMetadataManager.newTrial(Experiment.newExperiment(42L, "id"), "0", 0,
+                mSensorLayouts);
         setEmptyStats(trial);
         mDataController.getExperimentRun("experiment", "0",
                 new LoggingConsumer<ExperimentRun>("test", "test") {
@@ -171,7 +167,8 @@ public class CropHelperTest extends AndroidTestCase {
         mDataController.addCropApplicationLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
                 mAddLabelConsumer);
-        Trial trial = mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
+        Trial trial = mMetadataManager.newTrial(Experiment.newExperiment(42L, "id"), "0", 0,
+                mSensorLayouts);
         mDataController.addScalarReading("sensor", 0, 1, 1); // This gets cropped out
         mDataController.addScalarReading("sensor", 0, 50, 50);
         mDataController.addScalarReading("sensor", 0, 60, 60);
@@ -211,7 +208,8 @@ public class CropHelperTest extends AndroidTestCase {
         mDataController.addCropApplicationLabel(
                 new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
                 mAddLabelConsumer);
-        Trial trial = mMetadataManager.newTrial(new Experiment(42L), "0", 0, mSensorLayouts);
+        Trial trial = mMetadataManager.newTrial(Experiment.newExperiment(42L, "id"), "0", 0,
+                mSensorLayouts);
         setEmptyStats(trial);
         mDataController.getExperimentRun("experiment", "0",
                 new LoggingConsumer<ExperimentRun>("test", "test") {

@@ -35,11 +35,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
@@ -209,7 +209,7 @@ public class EditNoteDialog extends DialogFragment {
                                     editText.getText().toString());
                         }
                         if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
-                            mExperiment.getExperiment().updateLabel(mLabel);
+                            mExperiment.updateLabel(mLabel);
                             getDataController().updateExperiment(mExperiment,
                                     ((EditNoteDialogListener) getParentFragment()).onLabelEdit(
                                             mLabel));

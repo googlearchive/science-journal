@@ -55,9 +55,9 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesActivity;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
@@ -658,7 +658,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         }
         stopObservingCurrentSensors();
         mSelectedExperiment = selectedExperiment;
-        loadIncludedSensors(mSelectedExperiment.getExperiment().getSensorLayouts(), rc);
+        loadIncludedSensors(mSelectedExperiment.getSensorLayouts(), rc);
         rc.setSelectedExperiment(mSelectedExperiment);
         setControlButtonsEnabled(true);
     }
@@ -671,7 +671,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (position < 0) {
             return;
         }
-        mSelectedExperiment.getExperiment().updateSensorLayout(position, sensorLayout);
+        mSelectedExperiment.updateSensorLayout(position, sensorLayout);
         // TODO: Is there a way to do this write less frequently?
         getDataController().updateExperiment(mSelectedExperiment,
                 LoggingConsumer.<Success>expectSuccess(TAG, "saving layout"));
@@ -684,7 +684,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         }
         final List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
         if (layouts != null) {
-            mSelectedExperiment.getExperiment().setSensorLayouts(layouts);
+            mSelectedExperiment.setSensorLayouts(layouts);
             getDataController().updateExperiment(mSelectedExperiment,
                     LoggingConsumer.<Success>expectSuccess(TAG, "saving layouts"));
         }
@@ -1210,7 +1210,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private String getExperimentName() {
         if (mSelectedExperiment != null) {
-            return mSelectedExperiment.getExperiment().getDisplayTitle(getActivity());
+            return mSelectedExperiment.getDisplayTitle(getActivity());
         } else {
             return "";
         }
@@ -1365,7 +1365,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 sensorPresenter.getOptionsPresenter().applyOptions(readOptions);
 
                 sensorCardPresenter.startObserving(sensorChoice, sensorPresenter, readOptions,
-                        mSelectedExperiment.getExperiment());
+                        mSelectedExperiment);
                 refreshLabels();
             }
 
@@ -1381,7 +1381,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (position < 0) {
             return;
         }
-        mSelectedExperiment.getExperiment().updateSensorLayout(position, layout);
+        mSelectedExperiment.updateSensorLayout(position, layout);
         getDataController().updateExperiment(mSelectedExperiment,
                 new LoggingConsumer<Success>(TAG, "disable sensor triggers") {
                     @Override
@@ -1616,8 +1616,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
      */
     public static void ensureUnarchived(Experiment experiment, DataController dc) {
         if (experiment != null) {
-            if (experiment.getExperiment().isArchived()) {
-                experiment.getExperiment().setArchived(false);
+            if (experiment.isArchived()) {
+                experiment.setArchived(false);
                 dc.updateExperiment(experiment,
                         LoggingConsumer.<Success>expectSuccess(TAG, "Unarchiving experiment"));
             }

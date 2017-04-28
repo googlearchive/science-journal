@@ -24,10 +24,10 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,35 +40,41 @@ import java.util.List;
  * underlying protocol buffer and making changes to that directly. Changes to the underlying proto
  * outside this class may be overwritten and may not be saved.
  */
+// TODO: Get the ExperimentOverview photo path from labels and trials at load and change.
 public class Experiment extends LabelListHolder {
-    private boolean mArchived;
+    private GoosciSharedMetadata.ExperimentOverview mExperimentOverview;
     private GoosciExperiment.Experiment mProto;
     private List<GoosciSensorLayout.SensorLayout> mSensorLayouts;
     private List<GoosciExperiment.ExperimentSensor> mExperimentSensors;
     private List<SensorTrigger> mSensorTriggers;
     private List<Trial> mTrials;
 
-    public static Experiment newExperiment(long creationTime) {
+    public static Experiment newExperiment(long creationTime, String experimentId) {
         GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-        proto.lastUsedTimeMs = creationTime;
+        GoosciSharedMetadata.ExperimentOverview experimentOverview = new GoosciSharedMetadata
+                .ExperimentOverview();
+        experimentOverview.lastUsedTimeMs = creationTime;
+        experimentOverview.isArchived = false;
+        experimentOverview.experimentId = experimentId;
         proto.creationTimeMs = creationTime;
-        return new Experiment(proto, false);
+        return new Experiment(proto, experimentOverview);
     }
 
     /**
      * Populates the Experiment from an existing proto.
      */
     public static Experiment fromExperiment(GoosciExperiment.Experiment experiment,
-            boolean isArchived) {
-        return new Experiment(experiment, isArchived);
+            GoosciSharedMetadata.ExperimentOverview experimentOverview) {
+        return new Experiment(experiment, experimentOverview);
     }
 
     // Archived state is set per account, so if you archive something on one device and share it
     // it will not show up as archived on another account. Therefore it is stored outside of the
     // experiment proto.
-    private Experiment(GoosciExperiment.Experiment experimentProto, boolean isArchived) {
+    private Experiment(GoosciExperiment.Experiment experimentProto,
+            GoosciSharedMetadata.ExperimentOverview experimentOverview) {
         mProto = experimentProto;
-        mArchived = isArchived;
+        mExperimentOverview = experimentOverview;
         mLabels = new ArrayList<>();
         for (GoosciLabel.Label labelProto : mProto.labels) {
             mLabels.add(Label.fromLabel(labelProto));
@@ -93,16 +99,31 @@ public class Experiment extends LabelListHolder {
         return mProto;
     }
 
-    public long getTimestamp() {
+    public GoosciSharedMetadata.ExperimentOverview getExperimentOverview() {
+        return mExperimentOverview;
+    }
+
+    public String getExperimentId() {
+        return mExperimentOverview.experimentId;
+    }
+
+    public static String getExperimentId(Experiment experiment) {
+        if (experiment != null) {
+            return experiment.getExperimentOverview().experimentId;
+        }
+        return "";
+    }
+
+    public long getCreationTimeMs() {
         return mProto.creationTimeMs;
     }
 
     public boolean isArchived() {
-        return mArchived;
+        return mExperimentOverview.isArchived;
     }
 
     public void setArchived(boolean archived) {
-        mArchived = archived;
+        mExperimentOverview.isArchived = archived;
     }
 
     public String getTitle() {
@@ -111,6 +132,7 @@ public class Experiment extends LabelListHolder {
 
     public void setTitle(String title) {
         mProto.title = title;
+        mExperimentOverview.title = title;
     }
 
     public String getDisplayTitle(Context context) {
@@ -127,11 +149,11 @@ public class Experiment extends LabelListHolder {
     }
 
     public long getLastUsedTime() {
-        return mProto.lastUsedTimeMs;
+        return mExperimentOverview.lastUsedTimeMs;
     }
 
     public void setLastUsedTime(long lastUsedTime) {
-        mProto.lastUsedTimeMs = lastUsedTime;
+        mExperimentOverview.lastUsedTimeMs = lastUsedTime;
     }
 
     /**
@@ -177,6 +199,7 @@ public class Experiment extends LabelListHolder {
     @VisibleForTesting
     void setTrials(List<Trial> trials) {
         mTrials = Preconditions.checkNotNull(trials);
+        mExperimentOverview.trialCount = mTrials.size();
     }
 
     /**

@@ -25,7 +25,7 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
-import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class MetadataController {
 
     public String getExperimentName(Context context) {
         if (mSelectedExperiment != null) {
-            return mSelectedExperiment.getExperiment().getDisplayTitle(context);
+            return mSelectedExperiment.getDisplayTitle(context);
         } else {
             return "";
         }
