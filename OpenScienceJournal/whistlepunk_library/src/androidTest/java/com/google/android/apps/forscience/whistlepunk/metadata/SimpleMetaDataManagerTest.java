@@ -471,7 +471,10 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(5, loaded.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
 
         layout1.maximumYAxisValue = 15;
-        mMetaDataManager.updateTrialLayouts(startLabel.getLabelId(), sensorLayouts);
+        List<GoosciSensorLayout.SensorLayout> layouts = loaded.getSensorLayouts();
+        layouts.set(0, layout1);
+        loaded.setSensorLayouts(layouts);
+        mMetaDataManager.updateTrial(loaded);
         Trial updated = mMetaDataManager.getTrial(startLabel.getLabelId(),
                 Arrays.asList(startLabel));
         assertEquals(15, updated.getSensorLayouts().get(0).maximumYAxisValue, 0.1);

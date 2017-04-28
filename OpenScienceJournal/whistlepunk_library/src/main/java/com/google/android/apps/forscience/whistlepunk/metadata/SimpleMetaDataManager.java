@@ -371,6 +371,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
             for (SensorTrigger trigger : experiment.getExperiment().getSensorTriggers()) {
                 addSensorTrigger(trigger, experiment.getExperimentId());
             }
+            setExperimentSensorLayouts(experiment.getExperimentId(),
+                    experiment.getExperiment().getSensorLayouts());
             // TODO: Later this should also update all the trials in this experiment
         }
     }
@@ -476,6 +478,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         experiment.getExperiment().populateLabels(labels);
         List<SensorTrigger> triggers = getSensorTriggers(experiment.getExperimentId());
         experiment.getExperiment().setSensorTriggers(triggers);
+        experiment.getExperiment().setSensorLayouts(getExperimentSensorLayouts(
+                experiment.getExperimentId()));
     }
 
     @Override
@@ -540,30 +544,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
-    @Override
-    public void updateTrialLayouts(String trialId,
-            List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            final ContentValues values = new ContentValues();
-            String where =
-                    RunSensorsColumns.RUN_ID + "=? AND " + RunSensorsColumns.POSITION + "=?";
-            String[] whereArgs = new String[2];
-            whereArgs[0] = trialId;
-            for (int i = 0; i < sensorLayouts.size(); i++) {
-                fillLayoutValues(values, sensorLayouts.get(i));
-                whereArgs[1] = String.valueOf(i);
-                db.update(Tables.RUN_SENSORS, values, where, whereArgs);
-            }
-        }
-    }
-
     private void fillLayoutValues(ContentValues values, GoosciSensorLayout.SensorLayout layout) {
         values.put(RunSensorsColumns.SENSOR_ID, layout.sensorId);
         values.put(RunSensorsColumns.LAYOUT, ProtoUtils.makeBlob(layout));
     }
 
-    // TODO: How is this different from updateTrialLayouts above?
     private void updateTrialSensors(String runId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
         synchronized (mLock) {
@@ -722,6 +707,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
+    /**
+     * Set the sensor selection and layout for an experiment.
+     */
     @Override
     public void setExperimentSensorLayouts(String experimentId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
@@ -744,6 +732,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
+    /**
+     * Retrieve the sensor selection and layout for an experiment.
+     */
     @Override
     public List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayouts(String experimentId) {
         List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
@@ -775,22 +766,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 }
             }
         }
-
         return layouts;
-    }
-
-    @Override
-    public void updateSensorLayout(String experimentId, int position,
-            GoosciSensorLayout.SensorLayout layout) {
-        ContentValues values = new ContentValues();
-        values.put(ExperimentSensorLayoutColumns.LAYOUT, ProtoUtils.makeBlob(layout));
-        String where = ExperimentSensorLayoutColumns.EXPERIMENT_ID + "=? AND " +
-                ExperimentSensorLayoutColumns.POSITION + "=?";
-        String[] params = new String[]{experimentId, String.valueOf(position)};
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            db.update(Tables.EXPERIMENT_SENSOR_LAYOUT, values, where, params);
-        }
     }
 
     @Override

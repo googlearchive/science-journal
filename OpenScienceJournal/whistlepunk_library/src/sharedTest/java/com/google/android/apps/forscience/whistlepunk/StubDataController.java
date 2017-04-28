@@ -57,9 +57,7 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void stopTrial(Experiment experiment, Trial trial,
-            List<GoosciSensorLayout.SensorLayout> layouts,
-            MaybeConsumer<Trial> onSuccess) {
+    public void stopTrial(Experiment experiment, Trial trial, MaybeConsumer<Trial> onSuccess) {
 
     }
 
@@ -151,24 +149,6 @@ public class StubDataController implements DataController {
 
     @Override
     public void updateLastUsedExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void setSensorLayouts(String experimentId, List<GoosciSensorLayout.SensorLayout> layouts,
-            MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void getSensorLayouts(String experimentId,
-            MaybeConsumer<List<GoosciSensorLayout.SensorLayout>> onSuccess) {
-
-    }
-
-    @Override
-    public void updateSensorLayout(String experimentId, int position,
-            GoosciSensorLayout.SensorLayout layout, MaybeConsumer<Success> onSuccess) {
 
     }
 

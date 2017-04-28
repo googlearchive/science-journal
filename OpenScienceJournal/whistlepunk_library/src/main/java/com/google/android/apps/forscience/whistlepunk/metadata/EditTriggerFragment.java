@@ -616,8 +616,9 @@ public class EditTriggerFragment extends Fragment {
     // and added to the active triggers in the SensorLayout. Note that if no changes are made,
     // the trigger is not re-enabled in the SensorLayout.
     private void updateSensorLayoutAndGoToParent(final boolean goToParent) {
-        getDataController().updateSensorLayout(mExperimentId, mSensorLayoutPosition, mSensorLayout,
-                new LoggingConsumer<Success>(TAG, "update layout") {
+        mExperiment.getExperiment().updateSensorLayout(mSensorLayoutPosition, mSensorLayout);
+        getDataController().updateExperiment(mExperiment,
+                new LoggingConsumer<Success>(TAG, "update experiment with layout") {
                     @Override
                     public void success(Success value) {
                         if (goToParent) {

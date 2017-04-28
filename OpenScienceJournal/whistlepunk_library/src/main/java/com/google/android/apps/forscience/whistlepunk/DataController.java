@@ -20,7 +20,6 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.Experiment;
@@ -47,9 +46,7 @@ public interface DataController {
     void startTrial(Experiment experiment, List<GoosciSensorLayout.SensorLayout> sensorLayouts,
             MaybeConsumer<Trial> onSuccess);
 
-    void stopTrial(Experiment experiment, Trial trial,
-            List<GoosciSensorLayout.SensorLayout> layouts,
-            MaybeConsumer<Trial> onSuccess);
+    void stopTrial(Experiment experiment, Trial trial, MaybeConsumer<Trial> onSuccess);
 
     /**
      * Updates a trial and the labels within that trial.
@@ -115,24 +112,6 @@ public interface DataController {
             MaybeConsumer<Success> onSuccess);
 
     void updateLastUsedExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
-
-    /**
-     * Set the sensor selection and layout for an experiment
-     */
-    void setSensorLayouts(String experimentId, List<GoosciSensorLayout.SensorLayout> layouts,
-            MaybeConsumer<Success> onSuccess);
-
-    /**
-     * Retrieve the sensor selection and layout for an experiment
-     */
-    void getSensorLayouts(String experimentId,
-            MaybeConsumer<List<GoosciSensorLayout.SensorLayout>> onSuccess);
-
-    /**
-     * Updates a sensor layout in a given position for an experiment
-     */
-    void updateSensorLayout(String experimentId, int position,
-            GoosciSensorLayout.SensorLayout layout, MaybeConsumer<Success> onSuccess);
 
     /**
      * Makes sure there is an external sensor already registered in the database with the given

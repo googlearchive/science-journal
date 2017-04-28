@@ -83,8 +83,9 @@ public class DataControllerUnitTest {
         assertEquals(5, runWhileStarted.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
 
         layout.maximumYAxisValue = 15;
+        trial.setSensorLayouts(layouts);
 
-        dc.stopTrial(experiment, trial, layouts, TestConsumers.<Trial>expectingSuccess());
+        dc.stopTrial(experiment, trial, TestConsumers.<Trial>expectingSuccess());
 
         final ExperimentRun runWhileStopped = getOnlyExperimentRun(dc, experiment);
         assertEquals(trial.getTrialId(), runWhileStopped.getTrialId());

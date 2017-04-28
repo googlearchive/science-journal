@@ -261,6 +261,12 @@ public class Experiment extends LabelListHolder {
         mSensorLayouts = Preconditions.checkNotNull(layouts);
     }
 
+    public void updateSensorLayout(int layoutPosition, GoosciSensorLayout.SensorLayout layout) {
+        if (layoutPosition < mSensorLayouts.size()) {
+            mSensorLayouts.set(layoutPosition, layout);
+        }
+    }
+
     public List<GoosciExperiment.ExperimentSensor> getExperimentSensors() {
         if (mExperimentSensors == null) {
             mExperimentSensors = new ArrayList<>(Arrays.asList(mProto.experimentSensors));

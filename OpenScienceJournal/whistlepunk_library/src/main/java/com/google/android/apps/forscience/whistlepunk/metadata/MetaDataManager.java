@@ -19,7 +19,6 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -156,14 +155,8 @@ public interface MetaDataManager {
     /**
      * Retrieve the sensor selection and layout for an experiment
      */
+    @Deprecated
     List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayouts(String experimentId);
-
-    /**
-     * Updates a sensor layout in a given position for an experiment. If the experimentID is
-     * invalid or the position is too large for that experimentID, nothing happens.
-     */
-    void updateSensorLayout(String experimentId, int position,
-            GoosciSensorLayout.SensorLayout layout);
 
     void close();
 
@@ -177,10 +170,4 @@ public interface MetaDataManager {
      * @param trialId The ID of the trial to delete
      */
     void deleteTrial(String trialId);
-
-    /**
-     * Updates the layouts for a trial (usually to reflect any changes between starting to
-     * record and stopping.
-     */
-    void updateTrialLayouts(String trialId, List<GoosciSensorLayout.SensorLayout> layouts);
 }

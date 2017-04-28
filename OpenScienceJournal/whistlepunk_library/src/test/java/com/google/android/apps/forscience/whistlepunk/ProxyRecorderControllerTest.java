@@ -60,9 +60,7 @@ public class ProxyRecorderControllerTest {
         }
 
         @Override
-        public void stopTrial(Experiment experiment, Trial trial,
-                List<GoosciSensorLayout.SensorLayout> layouts,
-                MaybeConsumer<Trial> onSuccess) {
+        public void stopTrial(Experiment experiment, Trial trial, MaybeConsumer<Trial> onSuccess) {
             trial.setRecordingEndTime(10);
             onSuccess.success(trial);
         }

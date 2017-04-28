@@ -396,7 +396,7 @@ public class SensorCardPresenter {
                         SensorCardPresenter.this.onNewData(timestamp, value);
                     }
                 }, getSensorStatusListener(),
-                AbstractReadableSensorOptions.makeTransportable(readOptions));
+                AbstractReadableSensorOptions.makeTransportable(nonNullOptions));
         if (mCardStatus.isConnected() && mParentFragment != null) {
             updateAudio(mLayout.audioEnabled, getSonificationType(mParentFragment.getActivity()));
         }

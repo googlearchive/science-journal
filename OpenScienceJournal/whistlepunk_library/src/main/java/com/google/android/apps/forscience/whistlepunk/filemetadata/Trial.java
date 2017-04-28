@@ -12,6 +12,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -182,6 +183,7 @@ public class Trial extends LabelListHolder {
 
     @VisibleForTesting
     public void setSensorLayouts(List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+        Preconditions.checkNotNull(sensorLayouts);
         mTrial.sensorLayouts = sensorLayouts.toArray(new GoosciSensorLayout.SensorLayout[
                 sensorLayouts.size()]);
     }
