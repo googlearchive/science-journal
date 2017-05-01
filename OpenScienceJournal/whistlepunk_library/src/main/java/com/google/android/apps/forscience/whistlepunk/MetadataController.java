@@ -28,8 +28,6 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.common.annotations.VisibleForTesting;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -92,7 +90,7 @@ public class MetadataController {
         getDataController().getLastUsedUnarchivedExperiment(doOrReportFailure(
                 "get last used experiment", new Consumer<Experiment>() {
                     @Override
-                    public void take(final Experiment experiment) {
+                    public void take(Experiment experiment) {
                         if (experiment == null) {
                             createExperiment();
                         } else {

@@ -28,6 +28,7 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -51,6 +52,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelV
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
 
@@ -141,16 +143,17 @@ public class ExperimentListFragment extends Fragment {
     }
 
     private void loadExperiments() {
-        getDataController().getExperiments(mIncludeArchived,
-                new LoggingConsumer<List<Experiment>>(TAG, "Retrieve experiments") {
+        getDataController().getExperimentOverviews(mIncludeArchived,
+                new LoggingConsumer<List<GoosciSharedMetadata.ExperimentOverview>>(TAG,
+                        "Retrieve experiments") {
                     @Override
-                    public void success(List<Experiment> experiments) {
+                    public void success(List<GoosciSharedMetadata.ExperimentOverview> experiments) {
                         attachToExperiments(experiments);
                     }
                 });
     }
 
-    private void attachToExperiments(final List<Experiment> experiments) {
+    private void attachToExperiments(List<GoosciSharedMetadata.ExperimentOverview> experiments) {
         final View rootView = getView();
         if (rootView == null) {
             return;
@@ -197,7 +200,7 @@ public class ExperimentListFragment extends Fragment {
         private final Drawable mPlaceHolderImage;
         private DataController mDataController;
 
-        private List<Experiment> mExperiments;
+        private List<GoosciSharedMetadata.ExperimentOverview> mExperiments;
 
         public ExperimentListAdapter(Context context, DataController dc) {
             mExperiments = new ArrayList<>();
@@ -206,7 +209,7 @@ public class ExperimentListFragment extends Fragment {
             mDataController = dc;
         }
 
-        void setData(List<Experiment> experiments) {
+        void setData(List<GoosciSharedMetadata.ExperimentOverview> experiments) {
             mExperiments.clear();
             mExperiments.addAll(experiments);
             notifyDataSetChanged();
@@ -245,23 +248,25 @@ public class ExperimentListFragment extends Fragment {
             }
         }
 
-        private void bindExperiment(final ViewHolder holder, final Experiment experiment) {
+        private void bindExperiment(final ViewHolder holder,
+                final GoosciSharedMetadata.ExperimentOverview experiment) {
             Resources res = holder.itemView.getResources();
             // First on the UI thread, set what experiment we're trying to load.
             holder.overviewLoadStatus = ViewHolder.LOAD_STATUS_IN_PROGRESS;
-            holder.experimentId = experiment.getExperimentId();
+            holder.experimentId = experiment.experimentId;
 
             // Set the data we know about.
-            String experimentText = experiment.getDisplayTitle(holder.itemView.getContext());
+            String experimentText = Experiment.getDisplayTitle(holder.itemView.getContext(),
+                    experiment.title);
             holder.experimentTitle.setText(experimentText);
             holder.experimentImage.setImageDrawable(mPlaceHolderImage);
             // Set indeterminate states on the things we don't know.
             holder.experimentLastRun.setText("");
             holder.experimentRunTotals.setText("");
-            holder.archivedIndicator.setVisibility(experiment.isArchived() ?
+            holder.archivedIndicator.setVisibility(experiment.isArchived ?
                     View.VISIBLE : View.GONE);
 
-            if (experiment.isArchived()) {
+            if (experiment.isArchived) {
                 holder.experimentTitle.setContentDescription(res.getString(
                         R.string.archived_content_description, experimentText));
                 holder.itemView.findViewById(R.id.content).setAlpha(res.getFraction(
@@ -275,24 +280,24 @@ public class ExperimentListFragment extends Fragment {
                 setCardColor(holder, res.getColor(R.color.text_color_white));
             }
 
-            holder.itemView.setTag(R.id.experiment_title, experiment.getExperimentId());
+            holder.itemView.setTag(R.id.experiment_title, experiment.experimentId);
 
             holder.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ExperimentDetailsActivity.launch(v.getContext(), experiment.getExperimentId());
+                    ExperimentDetailsActivity.launch(v.getContext(), experiment.experimentId);
                 }
             });
 
             // Start loading data for runs.
             boolean includeInvalidRuns = false;
-            mDataController.getExperimentRuns(experiment.getExperimentId(),
+            mDataController.getExperimentRuns(experiment.experimentId,
                     /* don't include archived runs */ false, includeInvalidRuns,
                     new LoggingConsumer<List<ExperimentRun>>(TAG, "loading runs") {
 
                         @Override
                         public void success(List<ExperimentRun> runs) {
-                            if (!holder.experimentId.equals(experiment.getExperimentId())) {
+                            if (!holder.experimentId.equals(experiment.experimentId)) {
                                 // Only load the data if we are have retrieved data for the same
                                 // item. Otherwise, exit.
                                 return;
@@ -314,46 +319,29 @@ public class ExperimentListFragment extends Fragment {
             }
         }
 
-        private void loadRunData(final ViewHolder holder, final Experiment experiment,
-                                 List<ExperimentRun> runs) {
+        private void loadRunData(final ViewHolder holder,
+                final GoosciSharedMetadata.ExperimentOverview experiment,
+                List<ExperimentRun> runs) {
             Context context = holder.itemView.getContext();
             holder.experimentRunTotals.setText(context.getResources()
                     .getQuantityString(R.plurals.experiment_run_count, runs.size(), runs.size()));
             if (runs.size() > 0) {
                 // Take the first run, which should be the last created run.
                 holder.experimentLastRun.setTime(runs.get(0).getFirstTimestamp());
-
-                PictureLabelValue expPhoto = null;
-                for (ExperimentRun run : runs) {
-                    if (run.getCoverPictureLabelValue() != null) {
-                        expPhoto = run.getCoverPictureLabelValue();
-                        break;
-                    }
-                }
-                if (expPhoto != null) {
-                    loadPhoto(holder, expPhoto);
-                } else {
-                    loadPhotoFromExperimentLabels(holder, experiment);
-                }
             } else {
                 holder.experimentLastRun.setText("");
-                loadPhotoFromExperimentLabels(holder, experiment);
+            }
+            if (!TextUtils.isEmpty(experiment.imagePath)) {
+                // TODO: imagePath is always empty. Fix this as part of the file-system migration.
+                // Photo should be the most recent run photo or label photo? Or the first one
+                // ever added to this experiment? Discuss with UX.
+                loadPhoto(holder, experiment.imagePath);
             }
         }
 
-        private void loadPhotoFromExperimentLabels(final ViewHolder holder, Experiment experiment) {
-            for (Label label : experiment.getLabels()) {
-                if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-                    loadPhoto(holder, (PictureLabelValue) label.getLabelValue(
-                            GoosciLabelValue.LabelValue.PICTURE));
-                    break;
-                }
-            }
-        }
-
-        private void loadPhoto(final ViewHolder holder, PictureLabelValue expPhoto) {
+        private void loadPhoto(final ViewHolder holder, String pictureFilePath) {
             Glide.with(holder.experimentImage.getContext())
-                    .load(expPhoto.getFilePath())
+                    .load(pictureFilePath)
                     .asBitmap()
                     .centerCrop()
                     .into(new BitmapImageViewTarget(holder.experimentImage) {

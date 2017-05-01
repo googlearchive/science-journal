@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.sensordb;
 
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -29,7 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -46,11 +45,8 @@ import com.google.common.collect.Table;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -97,8 +93,13 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public List<Experiment> getExperiments(boolean includeArchived) {
-        return mExperiments;
+    public List<GoosciSharedMetadata.ExperimentOverview> getExperimentOverviews(
+            boolean includeArchived) {
+        List<GoosciSharedMetadata.ExperimentOverview> result = new ArrayList<>();
+        for (Experiment experiment : mExperiments) {
+            result.add(experiment.getExperimentOverview());
+        }
+        return result;
     }
 
     @Override

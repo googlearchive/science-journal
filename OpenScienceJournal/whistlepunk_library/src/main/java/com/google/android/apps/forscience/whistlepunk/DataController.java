@@ -26,6 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 
@@ -77,7 +78,8 @@ public interface DataController {
     /**
      * Gets the experiments for all projects.
      */
-    void getExperiments(boolean includeArchived, MaybeConsumer<List<Experiment>> onSuccess);
+    void getExperimentOverviews(boolean includeArchived,
+            MaybeConsumer<List<GoosciSharedMetadata.ExperimentOverview>> onSuccess);
 
     /**
      * Gets the most recently used, unarchived experiment.

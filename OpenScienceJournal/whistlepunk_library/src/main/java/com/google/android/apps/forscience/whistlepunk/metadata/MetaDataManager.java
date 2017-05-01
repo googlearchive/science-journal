@@ -51,7 +51,7 @@ public interface MetaDataManager {
     /**
      * @return the list of all experiments.
      */
-    List<Experiment> getExperiments(boolean includeArchived);
+    List<GoosciSharedMetadata.ExperimentOverview> getExperimentOverviews(boolean includeArchived);
 
     void addApplicationLabel(String experimentId, ApplicationLabel label);
 

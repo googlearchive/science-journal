@@ -27,8 +27,10 @@ public class MemoryMetadataManagerTest extends AndroidTestCase {
         Experiment e1 = mmm.newExperiment(1, "e1");
         Experiment e2 = mmm.newExperiment(2, "e2");
         Experiment e3 = mmm.newExperiment(3, "e3");
-        assertEquals(Lists.newArrayList(e3, e2, e1), mmm.getExperiments(false));
+        assertEquals(Lists.newArrayList(e3.getExperimentOverview(), e2.getExperimentOverview(),
+                e1.getExperimentOverview()), mmm.getExperimentOverviews(false));
         mmm.updateLastUsedExperiment(e2);
-        assertEquals(Lists.newArrayList(e2, e3, e1), mmm.getExperiments(false));
+        assertEquals(Lists.newArrayList(e2.getExperimentOverview(), e3.getExperimentOverview(),
+                e1.getExperimentOverview()), mmm.getExperimentOverviews(false));
     }
 }

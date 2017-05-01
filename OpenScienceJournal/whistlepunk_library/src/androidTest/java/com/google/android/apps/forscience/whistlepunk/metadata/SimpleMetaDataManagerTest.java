@@ -91,10 +91,11 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertFalse(TextUtils.isEmpty(experiment.getExperimentId()));
         assertTrue(experiment.getCreationTimeMs() > 0);
 
-        List<Experiment> experiments = mMetaDataManager.getExperiments(false);
+        List<GoosciSharedMetadata.ExperimentOverview> experiments =
+                mMetaDataManager.getExperimentOverviews(false);
         assertEquals(1, experiments.size());
-        assertEquals(experiment.getExperimentId(), experiments.get(0).getExperimentId());
-        assertTrue(experiments.get(0).getCreationTimeMs() > 0);
+        assertEquals(experiment.getExperimentId(), experiments.get(0).experimentId);
+        assertFalse(experiments.get(0).isArchived);
 
         // Test adding a few experiments
         int count = 10;
@@ -103,7 +104,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
             mMetaDataManager.newExperiment();
         }
 
-        experiments = mMetaDataManager.getExperiments(false);
+        experiments = mMetaDataManager.getExperimentOverviews(false);
         assertEquals(count, experiments.size());
     }
 
@@ -132,20 +133,21 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         experiment.setArchived(false);
         mMetaDataManager.updateExperiment(experiment);
 
-        List<Experiment> experiments = mMetaDataManager.getExperiments(false);
+        List<GoosciSharedMetadata.ExperimentOverview> experiments =
+                mMetaDataManager.getExperimentOverviews(false);
         assertEquals(1, experiments.size());
-        assertEquals(experiment.getExperimentId(), experiments.get(0).getExperimentId());
+        assertEquals(experiment.getExperimentId(), experiments.get(0).experimentId);
 
         // Now archive this.
         experiment.setArchived(true);
         mMetaDataManager.updateExperiment(experiment);
-        experiments = mMetaDataManager.getExperiments(false);
+        experiments = mMetaDataManager.getExperimentOverviews(false);
         assertEquals(0, experiments.size());
 
         // Now search include archived experiments
-        experiments = mMetaDataManager.getExperiments(true);
+        experiments = mMetaDataManager.getExperimentOverviews(true);
         assertEquals(1, experiments.size());
-        assertEquals(experiment.getExperimentId(), experiments.get(0).getExperimentId());
+        assertEquals(experiment.getExperimentId(), experiments.get(0).experimentId);
     }
 
     public void testNewLabel() {

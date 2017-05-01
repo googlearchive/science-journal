@@ -136,7 +136,11 @@ public class Experiment extends LabelListHolder {
     }
 
     public String getDisplayTitle(Context context) {
-        return !TextUtils.isEmpty(getTitle()) ? getTitle() : context.getString(
+        return getDisplayTitle(context, getTitle());
+    }
+
+    public static String getDisplayTitle(Context context, String title) {
+        return !TextUtils.isEmpty(title) ? title : context.getString(
                 R.string.default_experiment_name);
     }
 

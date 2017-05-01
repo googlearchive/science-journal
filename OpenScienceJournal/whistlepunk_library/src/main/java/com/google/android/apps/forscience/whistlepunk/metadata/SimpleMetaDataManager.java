@@ -311,15 +311,17 @@ public class SimpleMetaDataManager implements MetaDataManager {
     @VisibleForTesting
     Experiment newExperiment(String projectId) {
         String experimentId = newStableId(STABLE_EXPERIMENT_ID_LENGTH);
+        long timestamp = getCurrentTime();
+        Experiment result = Experiment.newExperiment(timestamp, experimentId);
         ContentValues values = new ContentValues();
         values.put(ExperimentColumns.EXPERIMENT_ID, experimentId);
         values.put(ExperimentColumns.PROJECT_ID, projectId);
-        values.put(ExperimentColumns.TIMESTAMP, getCurrentTime());
+        values.put(ExperimentColumns.TIMESTAMP, timestamp);
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             long id = db.insert(Tables.EXPERIMENTS, null, values);
             if (id != -1) {
-                return Experiment.newExperiment(getCurrentTime(), experimentId);
+                return result;
             }
         }
         return null;
@@ -386,8 +388,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public List<Experiment> getExperiments(boolean includeArchived) {
-        List<Experiment> experiments = new ArrayList<>();
+    public List<GoosciSharedMetadata.ExperimentOverview> getExperimentOverviews(
+            boolean includeArchived) {
+        List<GoosciSharedMetadata.ExperimentOverview> experiments = new ArrayList<>();
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
@@ -401,16 +404,13 @@ public class SimpleMetaDataManager implements MetaDataManager {
                         null, null, null,
                         ExperimentColumns.LAST_USED_TIME + " DESC, " + BaseColumns._ID + " DESC");
                 while (cursor.moveToNext()) {
-                    experiments.add(createExperimentFromCursor(cursor));
+                    experiments.add(createExperimentOverviewFromCursor(cursor));
                 }
             } finally {
                 if (cursor != null) {
                     cursor.close();
                 }
             }
-        }
-        for (Experiment experiment : experiments) {
-            populateExperiment(experiment);
         }
         return experiments;
     }
@@ -421,15 +421,18 @@ public class SimpleMetaDataManager implements MetaDataManager {
         expProto.description = cursor.getString(4);
         expProto.title = cursor.getString(3);
 
+        return Experiment.fromExperiment(expProto, createExperimentOverviewFromCursor(cursor));
+    }
+
+    private static GoosciSharedMetadata.ExperimentOverview createExperimentOverviewFromCursor(
+            Cursor cursor) {
         GoosciSharedMetadata.ExperimentOverview overviewProto = new GoosciSharedMetadata
                 .ExperimentOverview();
         overviewProto.lastUsedTimeMs = cursor.getLong(7);
-        overviewProto.title = expProto.title;
+        overviewProto.title = cursor.getString(3);
         overviewProto.isArchived = cursor.getInt(6) != 0;
         overviewProto.experimentId = cursor.getString(1);
-
-        Experiment experiment = Experiment.fromExperiment(expProto, overviewProto);
-        return experiment;
+        return overviewProto;
     }
 
     @Override
