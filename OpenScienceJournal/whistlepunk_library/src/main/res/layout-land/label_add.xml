@@ -83,4 +83,13 @@
 
     </LinearLayout>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:id="@+id/create_note"
+        android:text="@string/add_experiment_note"
+        android:visibility="gone"
+        />
+
 </LinearLayout>
