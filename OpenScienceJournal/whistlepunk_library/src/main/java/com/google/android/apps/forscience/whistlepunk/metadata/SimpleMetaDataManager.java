@@ -433,15 +433,15 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public Experiment getLastUsedExperiment() {
+    public Experiment getLastUsedUnarchivedExperiment() {
         Experiment experiment = null;
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
+            String selection = ExperimentColumns.ARCHIVED + "=0";
             Cursor cursor = null;
             try {
-                cursor = db.query(Tables.EXPERIMENTS, ExperimentColumns.GET_COLUMNS, null, null,
-                        null, null,
+                cursor = db.query(Tables.EXPERIMENTS, ExperimentColumns.GET_COLUMNS, selection,
+                        null, null, null,
                         ExperimentColumns.LAST_USED_TIME + " DESC, " + BaseColumns._ID + " DESC",
                         "1");
                 if (cursor.moveToNext()) {

@@ -126,7 +126,7 @@ public interface MetaDataManager {
     /**
      * @returns Last used experiment.
      */
-    Experiment getLastUsedExperiment();
+    Experiment getLastUsedUnarchivedExperiment();
 
     void updateLastUsedExperiment(Experiment experiment);
 

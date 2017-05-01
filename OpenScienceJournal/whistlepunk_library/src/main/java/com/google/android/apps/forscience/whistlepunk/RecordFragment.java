@@ -116,11 +116,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
          * Called when an experiment is selected
          *
          * @param selectedExperiment the experiment that has been selected
-         * @param allExperiments     all of the experiments, including the
-         *                           selected one.
          */
-        void onSelectedExperimentChanged(Experiment selectedExperiment,
-                List<Experiment> allExperiments) {
+        void onSelectedExperimentChanged(Experiment selectedExperiment) {
 
         }
 
@@ -458,13 +455,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 getMetadataController().addExperimentChangeListener(TAG,
                         new MetadataController.MetadataChangeListener() {
                             @Override
-                            public void onMetadataChanged(List<Experiment> newExperiments) {
+                            public void onMetadataChanged(Experiment selectedExperiment) {
                                 if (!readSensorsFromExtras(rc)) {
                                     // By spec, newExperiments should always be non-zero
-                                    onSelectedExperimentChanged(newExperiments.get(0), rc);
+                                    onSelectedExperimentChanged(selectedExperiment, rc);
                                 }
-                                mUICallbacks.onSelectedExperimentChanged(mSelectedExperiment,
-                                        newExperiments);
+                                mUICallbacks.onSelectedExperimentChanged(mSelectedExperiment);
 
                                 // The recording UI shows the current experiment in the toolbar,
                                 // so it cannot be set up until experiments are loaded.

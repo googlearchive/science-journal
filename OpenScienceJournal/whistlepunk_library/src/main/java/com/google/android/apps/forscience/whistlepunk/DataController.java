@@ -79,6 +79,11 @@ public interface DataController {
      */
     void getExperiments(boolean includeArchived, MaybeConsumer<List<Experiment>> onSuccess);
 
+    /**
+     * Gets the most recently used, unarchived experiment.
+     */
+    void getLastUsedUnarchivedExperiment(MaybeConsumer<Experiment> onSuccess);
+
     void getExternalSensors(MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess);
 
     // TODO: fix docs, rename?

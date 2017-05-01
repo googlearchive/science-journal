@@ -65,8 +65,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         getMetadataController().addExperimentChangeListener(TAG,
                 new MetadataController.MetadataChangeListener() {
                     @Override
-                    public void onMetadataChanged(List<Experiment> newExperiments) {
-                        String experimentId = newExperiments.get(0).getExperimentId();
+                    public void onMetadataChanged(Experiment activeExperiment) {
+                        String experimentId = activeExperiment.getExperimentId();
                         setExperimentFragmentId(experimentId);
                         setNoteFragmentId(experimentId);
                     }

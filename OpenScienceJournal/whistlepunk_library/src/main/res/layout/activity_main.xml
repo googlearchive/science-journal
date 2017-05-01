@@ -48,13 +48,6 @@
                 android:accessibilityLiveRegion="polite"
                 >
 
-                <Spinner
-                    android:id="@+id/spinner_nav"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/accessibility_touch_target_min_size"
-                    android:background="@android:color/transparent"
-                    />
-
             </android.support.v7.widget.Toolbar>
 
 

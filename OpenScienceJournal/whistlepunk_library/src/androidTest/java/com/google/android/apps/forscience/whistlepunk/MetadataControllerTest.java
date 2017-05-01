@@ -41,18 +41,18 @@ public class MetadataControllerTest extends AndroidTestCase {
 
         String listenerKey = "key";
 
-        listener.expectedExperimentIds = Arrays.asList(e2id, e1id);
+        listener.expectedExperimentId = e2id;
         mc.addExperimentChangeListener(listenerKey, listener);
         listener.assertListenerCalled(1);
 
         // e1 is now first in the list
-        listener.expectedExperimentIds = Arrays.asList(e1id, e2id);
+        listener.expectedExperimentId = e1id;
         mc.changeSelectedExperiment(e1);
         listener.assertListenerCalled(1);
 
         mc.removeExperimentChangeListener(listenerKey);
 
-        listener.expectedExperimentIds = Arrays.asList(e1id, e2id);
+        listener.expectedExperimentId = e1id;
         mc.addExperimentChangeListener(listenerKey, listener);
         listener.assertListenerCalled(1);
     }
@@ -70,7 +70,7 @@ public class MetadataControllerTest extends AndroidTestCase {
         String e1id = e1.getExperimentId();
         String e2id = e2.getExperimentId();
 
-        listener.expectedExperimentIds = Arrays.asList(e2id, e1id);
+        listener.expectedExperimentId = e2id;
         mc.addExperimentChangeListener("listenerKey", listener);
         assertEquals(e2.getTitle(), mc.getExperimentName(getContext()));
     }
@@ -82,16 +82,15 @@ public class MetadataControllerTest extends AndroidTestCase {
 
     private static class RecordingMetadataListener implements MetadataController
             .MetadataChangeListener {
-        public List<String> expectedExperimentIds;
+        public String expectedExperimentId;
         private int mListenerCalls = 0;
 
         @Override
-        public void onMetadataChanged(List<Experiment> newExperiments) {
-            List<String> ids = new ArrayList<>();
-            for (Experiment currentExperiment : newExperiments) {
-                ids.add(currentExperiment.getExperimentId());
+        public void onMetadataChanged(Experiment selectedExperiment) {
+            String id = selectedExperiment.getExperimentId();
+            if (expectedExperimentId != null) {
+                assertEquals(expectedExperimentId, id);
             }
-            assertEquals(expectedExperimentIds, ids);
             mListenerCalls++;
         }
 

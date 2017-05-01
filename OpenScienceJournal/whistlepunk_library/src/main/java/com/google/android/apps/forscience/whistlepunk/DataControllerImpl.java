@@ -382,6 +382,16 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
+    public void getLastUsedUnarchivedExperiment(MaybeConsumer<Experiment> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<Experiment>() {
+            @Override
+            public Experiment call() throws Exception {
+                return mMetaDataManager.getLastUsedUnarchivedExperiment();
+            }
+        });
+    }
+
+    @Override
     public void getExternalSensors(final MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Map<String, ExternalSensorSpec>>() {
             @Override

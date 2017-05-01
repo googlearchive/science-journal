@@ -29,6 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -214,7 +215,12 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public Experiment getLastUsedExperiment() {
+    public Experiment getLastUsedUnarchivedExperiment() {
+        for (Experiment experiment : mExperiments) {
+            if (!experiment.isArchived()) {
+                return experiment;
+            }
+        };
         return null;
     }
 

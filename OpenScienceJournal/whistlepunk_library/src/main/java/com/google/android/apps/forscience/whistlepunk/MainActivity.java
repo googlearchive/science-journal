@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity
     private FeedbackProvider mFeedbackProvider;
     private NavigationView mNavigationView;
     private MultiTouchDrawerLayout mDrawerLayout;
-    private Spinner mSpinner;
     private RecordFragment mRecordFragment;
     private int mSelectedItemId = NO_SELECTED_ITEM;
     private RecorderController.RecordingStateListener mRecordingStateListener;
@@ -94,9 +93,9 @@ public class MainActivity extends AppCompatActivity
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+            actionBar.setDisplayShowTitleEnabled(true);
         }
 
-        mSpinner = (Spinner) findViewById(R.id.spinner_nav);
         mDrawerLayout = (MultiTouchDrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(
                 R.color.color_primary_dark));
@@ -296,9 +295,7 @@ public class MainActivity extends AppCompatActivity
 
     public void restoreActionBar() {
         if (mTitleToRestore != null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
             getSupportActionBar().setTitle(mTitleToRestore);
-            mSpinner.setVisibility(View.GONE);
         }
     }
 
@@ -484,75 +481,20 @@ public class MainActivity extends AppCompatActivity
     @Override
     public RecordFragment.UICallbacks getRecordFragmentCallbacks() {
         return new RecordFragment.UICallbacks() {
+
             @Override
-            public void onSelectedExperimentChanged(Experiment selectedExperiment,
-                    List<Experiment> allExperiments) {
-                // Load the experiments into the spinner adapter.
-                final ExperimentsSpinnerAdapter adapter =
-                        new ExperimentsSpinnerAdapter(MainActivity.this,
-                                (ArrayList<Experiment>) allExperiments);
-                mSpinner.setAdapter(adapter);
-
-                // Set selection before item selected listener to avoid initial event being fired.
-                setSpinnerSelectedExperiment(selectedExperiment);
-
-                mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position,
-                            long id) {
-                        if (adapter.isNewExperimentPlaceholder(position)) {
-                            getDataController().createExperiment(new LoggingConsumer<Experiment>(
-                                    TAG, "Create a new experiment") {
-                                        @Override
-                                        public void success(final Experiment experiment) {
-                                            UpdateExperimentActivity.launch(MainActivity.this,
-                                                    experiment.getExperimentId(), true /* is new */,
-                                                    getComponentName());
-                                        }
-                                    });
-                        } else {
-                            userChangedSelectedExperiment(
-                                    (Experiment) mSpinner.getItemAtPosition(position));
-                        }
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        userChangedSelectedExperiment((Experiment) mSpinner.getItemAtPosition(0));
-                    }
-
-                    private void userChangedSelectedExperiment(Experiment experiment) {
-                        getMetadataController().changeSelectedExperiment(experiment);
-                    }
-                });
-            }
-
-            private void setSpinnerSelectedExperiment(Experiment experiment) {
-                int selectIndex = 0;
-                ExperimentsSpinnerAdapter adapter =
-                        (ExperimentsSpinnerAdapter) mSpinner.getAdapter();
-                final int count = adapter.getCount();
-                for (int i = 0; i < count; i++) {
-                    if (adapter.getItem(i) != null) {
-                        String adapterExperimentId = adapter.getItem(i).getExperimentId();
-                        if (adapterExperimentId.equals(experiment.getExperimentId())) {
-                            selectIndex = i;
-                        }
-                    }
-                }
-                mSpinner.setSelection(selectIndex);
+            public void onSelectedExperimentChanged(Experiment selectedExperiment) {
+                ActionBar actionBar = getSupportActionBar();
+                actionBar.setTitle(selectedExperiment.getDisplayTitle(
+                        getApplicationContext()));
             }
 
             @Override
             public void onRecordingStart(String experimentName) {
-                // Lock the toolbar spinner
                 ActionBar actionBar = getSupportActionBar();
                 supportInvalidateOptionsMenu();
                 int toolbarColorResource = R.color.recording_toolbar_color;
                 int statusBarColorResource = R.color.recording_status_bar_color;
-                mSpinner.setVisibility(View.GONE);
-                actionBar.setTitle(experimentName);
-                actionBar.setDisplayShowTitleEnabled(true);
                 actionBar.setSubtitle(R.string.recording_title_label);
                 updateToolbarColors(toolbarColorResource, statusBarColorResource);
             }
@@ -564,8 +506,6 @@ public class MainActivity extends AppCompatActivity
                 int toolbarColorResource = R.color.color_primary;
                 int statusBarColorResource = R.color.color_primary_dark;
                 updateToolbarColors(toolbarColorResource, statusBarColorResource);
-                mSpinner.setVisibility(View.VISIBLE);
-                actionBar.setDisplayShowTitleEnabled(false);
                 actionBar.setSubtitle(null);
             }
 

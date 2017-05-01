@@ -118,6 +118,11 @@ public class StubDataController implements DataController {
     }
 
     @Override
+    public void getLastUsedUnarchivedExperiment(MaybeConsumer<Experiment> onSuccess) {
+
+    }
+
+    @Override
     public void getExternalSensors(MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess) {
 
     }

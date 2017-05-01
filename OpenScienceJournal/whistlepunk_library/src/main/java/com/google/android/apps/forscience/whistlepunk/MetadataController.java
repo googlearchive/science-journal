@@ -60,8 +60,7 @@ public class MetadataController {
         if (!TextUtils.equals(Experiment.getExperimentId(experiment),
                 Experiment.getExperimentId(mSelectedExperiment))) {
             internalSetSelectedExperiment(experiment);
-            // Re-order experiments
-            loadExperiments();
+            loadLastUsedExperiment();
         }
     }
 
@@ -86,29 +85,28 @@ public class MetadataController {
     public void addExperimentChangeListener(String listenerKey, MetadataChangeListener listener) {
         mExperimentChangeListeners.put(listenerKey, listener);
         mSelectedExperiment = null;
-        loadExperiments();
+        loadLastUsedExperiment();
     }
 
-    private void loadExperiments() {
-        getDataController().getExperiments(false /* no archived */,
-                doOrReportFailure("get last used experiment", new Consumer<List<Experiment>>() {
+    private void loadLastUsedExperiment() {
+        getDataController().getLastUsedUnarchivedExperiment(doOrReportFailure(
+                "get last used experiment", new Consumer<Experiment>() {
                     @Override
-                    public void take(final List<Experiment> experiments) {
-                        if (experiments.size() == 0) {
+                    public void take(final Experiment experiment) {
+                        if (experiment == null) {
                             createExperiment();
                         } else {
-                            setMetadata(experiments);
+                            setMetadata(experiment);
                         }
                     }
                 }));
     }
 
-    private void setMetadata(List<Experiment> experiments) {
+    private void setMetadata(Experiment experiment) {
         // We retrieve the experiments in last used order.
-        internalSetSelectedExperiment(experiments.get(0));
-        ArrayList<Experiment> experimentsCopy = new ArrayList<>(experiments);
+        internalSetSelectedExperiment(experiment);
         for (MetadataChangeListener listener : mExperimentChangeListeners.values()) {
-            listener.onMetadataChanged(experimentsCopy);
+            listener.onMetadataChanged(experiment);
         }
     }
 
@@ -118,9 +116,7 @@ public class MetadataController {
                     @Override
                     public void take(Experiment value) {
                         internalSetSelectedExperiment(value);
-                        List<Experiment> experiments = new ArrayList<Experiment>();
-                        experiments.add(value);
-                        setMetadata(experiments);
+                        setMetadata(value);
                     }
                 }));
     }
@@ -154,10 +150,9 @@ public class MetadataController {
 
     interface MetadataChangeListener {
         /**
-         * @param newExperiments The experiments for this project.  The selected experiment is
-         *                       the first in the list, which is guaranteed to be non-empty.
+         * @param selectedExperiment The selected experiment is guaranteed to be non-empty.
          */
-        public void onMetadataChanged(List<Experiment> newExperiments);
+        public void onMetadataChanged(Experiment selectedExperiment);
     }
 
     /**
