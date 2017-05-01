@@ -25,9 +25,13 @@ option optimize_for = LITE_RUNTIME;
 import "basic_sensor_appearance.proto";
 
 message SensorSpec {
-    // Platform on which this sensor was instantiated.  Current possible values are "android" and
-    // "ios".
-    optional string platformId = 1;
+    enum Platform {
+        ANDROID = 0;
+        IOS = 1;
+    }
+
+    // Platform on which this sensor was instantiated.
+    optional Platform platform = 1;
 
     // Identifies a SensorDiscoverer implementation.  The result should be a key in the map
     // returned by WhistlePunkApplication#getExternalSensorDiscoverers.
