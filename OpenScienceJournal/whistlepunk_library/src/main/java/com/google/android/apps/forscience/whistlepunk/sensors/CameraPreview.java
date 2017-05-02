@@ -22,6 +22,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.support.annotation.IntDef;
 import android.support.design.widget.Snackbar;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -36,35 +37,28 @@ import java.lang.annotation.RetentionPolicy;
 
 
 public class CameraPreview extends SurfaceView {
-
     private static final String TAG = "CameraPreview";
-
-    @IntDef({ERROR_UNKNOWN, ERROR_INVALID_SURFACE_HOLDER})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface Error {
-    }
-
-    public static final int ERROR_UNKNOWN = 0;
-    public static final int ERROR_INVALID_SURFACE_HOLDER = 1;
-
 
     private SurfaceHolder mHolder;
     private Camera mCamera;
-    private SourceListener mSourceListener;
+
+    public CameraPreview(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
+    }
+
+    public CameraPreview(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
+    }
 
     public CameraPreview(Context context) {
         super(context);
+        init();
+    }
+
+    private void init() {
         mHolder = getHolder();
-        mSourceListener = new CameraPreview.SourceListener() {
-            @Override
-            public void onSourceError(int error, String errorMessage) {
-                AccessibilityUtils.makeSnackbar(CameraPreview.this, errorMessage,
-                        Snackbar.LENGTH_SHORT).show();
-                if (Log.isLoggable(TAG, Log.ERROR)) {
-                    Log.e(TAG, "Preview error: " + errorMessage);
-                }
-            }
-        };
 
         // Warning: this callback is only invoked on SurfaceHolder updates if the CameraPreview
         // is visible.
@@ -73,8 +67,8 @@ public class CameraPreview extends SurfaceView {
             public void surfaceCreated(SurfaceHolder holder) {
                 // The Surface has been created, now tell the camera where to draw the preview.
                 if (holder == null) {
-                    mSourceListener.onSourceError(ERROR_INVALID_SURFACE_HOLDER,
-                            "Creating camera preview failed; the surface holder was invalid.");
+
+                    displayError("Creating camera preview failed; the surface holder was invalid.");
                     return;
                 }
                 setupPreviewDisplay(holder);
@@ -108,8 +102,7 @@ public class CameraPreview extends SurfaceView {
                         setCameraDisplayOrientation(0, mCamera);
                     }
                 } catch (IOException e) {
-                    mSourceListener.onSourceError(ERROR_INVALID_SURFACE_HOLDER,
-                            "Creating camera preview failed; the surface holder was invalid.");
+                    displayError("Creating camera preview failed; the surface holder was invalid.");
                 }
             }
 
@@ -147,6 +140,13 @@ public class CameraPreview extends SurfaceView {
         });
     }
 
+    public void displayError(String errorMessage) {
+        AccessibilityUtils.makeSnackbar(this, errorMessage, Snackbar.LENGTH_SHORT).show();
+        if (Log.isLoggable(TAG, Log.ERROR)) {
+            Log.e(TAG, "Preview error: " + errorMessage);
+        }
+    }
+
     public void setCamera(Camera camera) {
         mCamera = camera;
     }
@@ -157,21 +157,4 @@ public class CameraPreview extends SurfaceView {
             mCamera = null;
         }
     }
-
-    /**
-     * An object listening for CameraPreview errors.
-     */
-    public interface SourceListener {
-
-
-        /**
-         * Called if there was an error in the CameraPreview .
-         *
-         * @param error        one of the {@link Error} values.
-         * @param errorMessage human readable error message which will be displayed to the user
-         */
-        void onSourceError(@Error int error, String errorMessage);
-    }
-
-
 }

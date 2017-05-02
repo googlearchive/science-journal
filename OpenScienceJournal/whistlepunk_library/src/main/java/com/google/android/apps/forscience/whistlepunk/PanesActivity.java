@@ -50,6 +50,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     case 0:
                         return RecordFragment.newInstance();
                     case 1:
+                        return CameraFragment.newInstance();
+                    case 2:
                         return mAddNoteDialog;
                 }
                 return null;
@@ -57,7 +59,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
             @Override
             public int getCount() {
-                return mAddNoteDialog == null ? 1 : 2;
+                return mAddNoteDialog == null ? 2 : 3;
             }
         };
         pager.setAdapter(adapter);
