@@ -659,7 +659,9 @@ public class RunReviewFragment extends Fragment implements
                             mChartController.clearReviewYAxis();
                             adjustYAxis();
                         }
-                        getActivity().invalidateOptionsMenu();
+                        if (getActivity() != null) {
+                            getActivity().invalidateOptionsMenu();
+                        }
                     }
         });
     }
@@ -1001,6 +1003,9 @@ public class RunReviewFragment extends Fragment implements
                 "Editing run") {
             @Override
             public void success(Success value) {
+                if (getActivity() == null) {
+                    return;
+                }
                 Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
                         getActivity().getResources().getString(archived ?
                                 R.string.archived_run_message : R.string.unarchived_run_message),
@@ -1432,10 +1437,16 @@ public class RunReviewFragment extends Fragment implements
                 new CropHelper.CropRunListener() {
                     @Override
                     public void onCropCompleted() {
+                        if (getActivity() == null || isDetached()) {
+                            // TODO: It's too late to save state that crop is completed, so it'll
+                            // be pulled up after rotation. That's better than a crash, but
+                            // after rotation there should be a way to check if the crop finished
+                            // from before if possible.
+                            return;
+                        }
                         AccessibilityUtils.makeSnackbar(getView(),
                                 getResources().getString(R.string.crop_completed_message),
                                 Snackbar.LENGTH_SHORT).show();
-                        // TODO: Show undo button? P3: They can undo by cropping wider again.
                         hookUpExperimentDetailsArea(mExperimentRun, getView());
                         mPinnedNoteAdapter.updateRunTimestamps(mExperimentRun.getFirstTimestamp(),
                                 mExperimentRun.getLastTimestamp());
@@ -1446,6 +1457,9 @@ public class RunReviewFragment extends Fragment implements
 
                     @Override
                     public void onCropFailed(int errorId) {
+                        if (getActivity() == null || isDetached()) {
+                            return;
+                        }
                         AccessibilityUtils.makeSnackbar(getView(), String.format(
                                 getResources().getString(R.string.crop_failed_message),
                                 getResources().getString(errorId)),
