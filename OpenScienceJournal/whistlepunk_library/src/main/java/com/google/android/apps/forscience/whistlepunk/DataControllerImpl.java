@@ -37,6 +37,7 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Range;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +55,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     private Map<String, FailureListener> mSensorFailureListeners = new HashMap<>();
     private final Map<String, ExternalSensorProvider> mProviderMap;
     private long mPrevLabelTimestamp = 0;
+    private Map<String, WeakReference<Experiment>> mCachedExperiments = new HashMap<>();
 
     public DataControllerImpl(SensorDatabase sensorDatabase, Executor uiThread,
             Executor metaDataThread,
@@ -70,19 +72,21 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     public void replaceSensorInExperiment(final String experimentId, final String oldSensorId,
             final String newSensorId, final MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.removeSensorFromExperiment(oldSensorId, experimentId);
-                mMetaDataManager.addSensorToExperiment(newSensorId, experimentId);
-                replaceIdInLayouts(experimentId, oldSensorId, newSensorId);
-                return Success.SUCCESS;
-            }
+        background(mMetaDataThread, sensorLayoutsSuccessWrapper(experimentId, onSuccess),
+                new Callable<List<GoosciSensorLayout.SensorLayout>>() {
+                    @Override
+                    public List<GoosciSensorLayout.SensorLayout> call() throws Exception {
+                        mMetaDataManager.removeSensorFromExperiment(oldSensorId, experimentId);
+                        mMetaDataManager.addSensorToExperiment(newSensorId, experimentId);
+                        return replaceIdInLayouts(experimentId, oldSensorId, newSensorId);
+                    }
         });
     }
 
     // TODO: Do this by updating the experiment rather than directly with the Layouts.
-    private void replaceIdInLayouts(String experimentId, String oldSensorId, String newSensorId) {
+    // This method needs to be run on the mMetaDataThread.
+    private List<GoosciSensorLayout.SensorLayout> replaceIdInLayouts(String experimentId,
+            String oldSensorId, String newSensorId) {
         List<GoosciSensorLayout.SensorLayout> layouts = mMetaDataManager.getExperimentSensorLayouts(
                 experimentId);
         for (GoosciSensorLayout.SensorLayout layout : layouts) {
@@ -91,6 +95,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             }
         }
         mMetaDataManager.setExperimentSensorLayouts(experimentId, layouts);
+        return layouts;
     }
 
     public void stopTrial(final Experiment experiment, final Trial trial,
@@ -260,7 +265,16 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     @Override
     public void createExperiment(final MaybeConsumer<Experiment> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Experiment>() {
+        MaybeConsumer<Experiment> onSuccessWrapper = MaybeConsumers.chainFailure(onSuccess,
+                new Consumer<Experiment>() {
+                    @Override
+                    public void take(Experiment experiment) {
+                        mCachedExperiments.put(experiment.getExperimentId(),
+                                new WeakReference<>(experiment));
+                        onSuccess.success(experiment);
+                    }
+                });
+        background(mMetaDataThread, onSuccessWrapper, new Callable<Experiment>() {
             @Override
             public Experiment call() throws Exception {
                 Experiment experiment = mMetaDataManager.newExperiment();
@@ -273,6 +287,9 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     @Override
     public void deleteExperiment(final Experiment experiment,
                                  final MaybeConsumer<Success> onSuccess) {
+        if (mCachedExperiments.containsKey(experiment.getExperimentId())) {
+            mCachedExperiments.remove(experiment.getExperimentId());
+        }
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
 
             @Override
@@ -295,17 +312,43 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     @Override
     public void getExperimentById(final String experimentId,
-                                  final MaybeConsumer<Experiment> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Experiment>() {
+            final MaybeConsumer<Experiment> onSuccess) {
+        if (mCachedExperiments.containsKey(experimentId)) {
+            Experiment experiment = mCachedExperiments.get(experimentId).get();
+            if (experiment != null) {
+                // We are already caching this one
+                onSuccess.success(experiment);
+                return;
+            }
+        }
+        MaybeConsumer<Experiment> onSuccessWrapper = MaybeConsumers.chainFailure(onSuccess,
+                new Consumer<Experiment>() {
+                    @Override
+                    public void take(Experiment experiment) {
+                        mCachedExperiments.put(experimentId, new WeakReference<>(experiment));
+                        onSuccess.success(experiment);
+                    }
+                });
+        background(mMetaDataThread, onSuccessWrapper, new Callable<Experiment>() {
             @Override
             public Experiment call() throws Exception {
-                return mMetaDataManager.getExperimentById(experimentId);
+                Experiment result = mMetaDataManager.getExperimentById(experimentId);
+                return result;
             }
         });
     }
 
     @Override
-    public void updateExperiment(final Experiment experiment, MaybeConsumer<Success> onSuccess) {
+    public void updateExperiment(final String experimentId, MaybeConsumer<Success> onSuccess) {
+        if (!mCachedExperiments.containsKey(experimentId)) {
+            onSuccess.fail(new Exception("Experiment not loaded"));
+            return;
+        }
+        final Experiment experiment = mCachedExperiments.get(experimentId).get();
+        if (experiment == null) {
+            onSuccess.fail(new Exception("Experiment not loaded"));
+            return;
+        }
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {
@@ -384,8 +427,28 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void getLastUsedUnarchivedExperiment(MaybeConsumer<Experiment> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Experiment>() {
+    public void getLastUsedUnarchivedExperiment(final MaybeConsumer<Experiment> onSuccess) {
+        MaybeConsumer<Experiment> onSuccessWrapper = new MaybeConsumer<Experiment>() {
+            @Override
+            public void success(Experiment lastUsed) {
+                if (mCachedExperiments.containsKey(lastUsed.getExperimentId())) {
+                    // Use the same object if it's already in the cache.
+                    Experiment cached = mCachedExperiments.get(lastUsed.getExperimentId()).get();
+                    if (cached != null) {
+                        onSuccess.success(cached);
+                        return;
+                    }
+                }
+                mCachedExperiments.put(lastUsed.getExperimentId(), new WeakReference<>(lastUsed));
+                onSuccess.success(lastUsed);
+            }
+
+            @Override
+            public void fail(Exception e) {
+                onSuccess.fail(e);
+            }
+        };
+        background(mMetaDataThread, onSuccessWrapper, new Callable<Experiment>() {
             @Override
             public Experiment call() throws Exception {
                 return mMetaDataManager.getLastUsedUnarchivedExperiment();
@@ -414,7 +477,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         });
     }
 
-
     @Override
     public void getExternalSensorById(final String id,
                                       final MaybeConsumer<ExternalSensorSpec> onSuccess) {
@@ -428,27 +490,44 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     @Override
     public void addSensorToExperiment(final String experimentId, final String sensorId,
-            MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
+            final MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, sensorLayoutsSuccessWrapper(experimentId, onSuccess),
+                new Callable<List<GoosciSensorLayout.SensorLayout>>() {
             @Override
-            public Success call() throws Exception {
+            public List<GoosciSensorLayout.SensorLayout> call() throws Exception {
                 mMetaDataManager.addSensorToExperiment(sensorId, experimentId);
-                return Success.SUCCESS;
+                return mMetaDataManager.getExperimentSensorLayouts(experimentId);
             }
         });
     }
 
     @Override
     public void removeSensorFromExperiment(final String experimentId, final String sensorId,
-            MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.removeSensorFromExperiment(sensorId, experimentId);
-                replaceIdInLayouts(experimentId, sensorId, "");
-                return Success.SUCCESS;
-            }
+            final MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, sensorLayoutsSuccessWrapper(experimentId, onSuccess),
+                new Callable<List<GoosciSensorLayout.SensorLayout>>() {
+                    @Override
+                    public List<GoosciSensorLayout.SensorLayout> call() throws Exception {
+                        mMetaDataManager.removeSensorFromExperiment(sensorId, experimentId);
+                        return replaceIdInLayouts(experimentId, sensorId, "");
+                    }
         });
+    }
+
+    private MaybeConsumer<List<GoosciSensorLayout.SensorLayout>> sensorLayoutsSuccessWrapper(
+            final String experimentId, final MaybeConsumer<Success> onSuccess) {
+        return MaybeConsumers.chainFailure(onSuccess,
+                new Consumer<List<GoosciSensorLayout.SensorLayout>>() {
+                    @Override
+                    public void take(List<GoosciSensorLayout.SensorLayout> layouts) {
+                        // Update the sensor layouts if this is a cached experiment.
+                        if (mCachedExperiments.containsKey(experimentId) &&
+                                mCachedExperiments.get(experimentId).get() != null) {
+                            mCachedExperiments.get(experimentId).get().setSensorLayouts(layouts);
+                        }
+                        onSuccess.success(Success.SUCCESS);
+                    }
+                });
     }
 
     @Override

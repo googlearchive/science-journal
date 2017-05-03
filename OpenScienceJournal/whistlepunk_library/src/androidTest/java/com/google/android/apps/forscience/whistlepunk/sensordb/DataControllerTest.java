@@ -60,7 +60,8 @@ public class DataControllerTest extends AndroidTestCase {
         dc.createExperiment(cExperiment);
         Experiment experiment = cExperiment.getValue();
         experiment.setSensorLayouts(layouts);
-        dc.updateExperiment(experiment, TestConsumers.<Success>expectingSuccess());
+        dc.updateExperiment(experiment.getExperimentId(),
+                TestConsumers.<Success>expectingSuccess());
         dc.getExperimentById(experiment.getExperimentId(),
                 new LoggingConsumer<Experiment>(TAG, "test get experiment") {
                     @Override
@@ -160,17 +161,18 @@ public class DataControllerTest extends AndroidTestCase {
         List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>(1);
         layouts.add(layout);
         experiment.setSensorLayouts(layouts);
-        dc.updateExperiment(experiment, TestConsumers.<Success>expectingSuccess());
-        dc.addSensorToExperiment("experimentId", "oldSensorId",
+        dc.updateExperiment(experiment.getExperimentId(),
+                TestConsumers.<Success>expectingSuccess());
+        dc.addSensorToExperiment(experiment.getExperimentId(), "oldSensorId",
                 TestConsumers.<Success>expectingSuccess());
 
         StoringConsumer<String> cid = new StoringConsumer<>();
         dc.addOrGetExternalSensor(new BleSensorSpec("address", "name"), cid);
         final String newSensorId = cid.getValue();
-        dc.replaceSensorInExperiment("experimentId", "oldSensorId", newSensorId,
+        dc.replaceSensorInExperiment(experiment.getExperimentId(), "oldSensorId", newSensorId,
                 TestConsumers.<Success>expectingSuccess());
-        dc.getExternalSensorsByExperiment("experimentId", TestConsumers.expectingSuccess(
-                new Consumer<ExperimentSensors>() {
+        dc.getExternalSensorsByExperiment(experiment.getExperimentId(),
+                TestConsumers.expectingSuccess(new Consumer<ExperimentSensors>() {
                     @Override
                     public void take(ExperimentSensors sensors) {
                         assertEquals(Sets.newHashSet(newSensorId),
@@ -193,7 +195,7 @@ public class DataControllerTest extends AndroidTestCase {
         StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
         dc.createExperiment(cExperiment);
         Experiment experiment = cExperiment.getValue();
-        dc.addSensorToExperiment("experimentId", "oldSensorId",
+        dc.addSensorToExperiment(experiment.getExperimentId(), "oldSensorId",
                 TestConsumers.<Success>expectingSuccess());
 
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
@@ -201,10 +203,10 @@ public class DataControllerTest extends AndroidTestCase {
         List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>(1);
         layouts.add(layout);
         experiment.setSensorLayouts(layouts);
-        dc.updateExperiment(experiment, TestConsumers.<Success>expectingSuccess());
+        dc.updateExperiment(experiment.getExperimentId(),
+                TestConsumers.<Success>expectingSuccess());
 
-
-        dc.removeSensorFromExperiment("experimentId", "oldSensorId",
+        dc.removeSensorFromExperiment(experiment.getExperimentId(), "oldSensorId",
                 TestConsumers.<Success>expectingSuccess());
         dc.getExperimentById(experiment.getExperimentId(),
                 new LoggingConsumer<Experiment>(TAG, "get updated experiment") {

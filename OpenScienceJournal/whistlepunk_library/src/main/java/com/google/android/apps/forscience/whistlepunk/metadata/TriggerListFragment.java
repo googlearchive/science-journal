@@ -133,7 +133,7 @@ public class TriggerListFragment extends Fragment {
     @Override
     public void onPause() {
         if (mNeedsSave) {
-            getDataController().updateExperiment(mExperiment,
+            getDataController().updateExperiment(mExperimentId,
                     LoggingConsumer.<Success>expectSuccess(TAG, "updating sensor layout onPause"));
         }
         super.onPause();
@@ -281,7 +281,7 @@ public class TriggerListFragment extends Fragment {
                             mSensorLayout, trigger.getTriggerId());
                     mExperiment.updateSensorLayout(mLayoutPosition, mSensorLayout);
                 }
-                dc.updateExperiment(mExperiment,
+                dc.updateExperiment(mExperimentId,
                         new LoggingConsumer<Success>(TAG, "update exp: re-add deleted trigger") {
                             @Override
                             public void success(Success value) {
@@ -303,7 +303,7 @@ public class TriggerListFragment extends Fragment {
                 trigger.getTriggerId());
         mExperiment.removeSensorTrigger(trigger);
         mExperiment.updateSensorLayout(mLayoutPosition, mSensorLayout);
-        dc.updateExperiment(mExperiment, new LoggingConsumer<Success>(TAG, "delete trigger") {
+        dc.updateExperiment(mExperimentId, new LoggingConsumer<Success>(TAG, "delete trigger") {
             @Override
             public void success(Success value) {
                 bar.show();

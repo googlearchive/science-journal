@@ -82,7 +82,7 @@ public class ManageDevicesActivity extends AppCompatActivity implements
         setupFragment();
         // Set up a broadcast receiver in case the adapter is disabled from the notification shade.
         registerBtReceiverIfNecessary();
-        final String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
+        String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
         mDataController.getExperimentById(experimentId,
                 new LoggingConsumer<Experiment>(TAG, "load experiment with ID = " + experimentId) {
                     @Override

@@ -255,7 +255,7 @@ public class UpdateExperimentFragment extends Fragment {
      * {@param goToParentWhenDone}.
      */
     private void saveExperiment(final boolean goToParentWhenDone) {
-        getDataController().updateExperiment(mExperiment,
+        getDataController().updateExperiment(mExperimentId,
                 new LoggingConsumer<Success>(TAG, "update experiment") {
                     @Override
                     public void fail(Exception e) {

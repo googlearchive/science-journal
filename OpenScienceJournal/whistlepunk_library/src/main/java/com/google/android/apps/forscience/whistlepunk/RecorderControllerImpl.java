@@ -319,7 +319,7 @@ public class RecorderControllerImpl implements RecorderController {
         } else {
             // Adds the label to the experiment and saves the updated experiment.
             mSelectedExperiment.addLabel(triggerLabel);
-            mDataController.updateExperiment(mSelectedExperiment,
+            mDataController.updateExperiment(mSelectedExperiment.getExperimentId(),
                     new LoggingConsumer<Success>(TAG, "add trigger label to experiment") {
                         @Override
                         public void success(Success value) {

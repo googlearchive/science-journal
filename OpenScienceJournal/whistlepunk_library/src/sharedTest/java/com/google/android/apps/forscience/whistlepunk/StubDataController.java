@@ -86,7 +86,7 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+    public void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess) {
 
     }
 

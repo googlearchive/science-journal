@@ -490,6 +490,13 @@ public class SimpleMetaDataManager implements MetaDataManager {
     public void setLastUsedExperiment(Experiment experiment) {
         long time = getCurrentTime();
         experiment.setLastUsedTime(time);
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            final ContentValues values = new ContentValues();
+            values.put(ExperimentColumns.LAST_USED_TIME, time);
+            db.update(Tables.EXPERIMENTS, values, ExperimentColumns.EXPERIMENT_ID + "=?",
+                    new String[]{experiment.getExperimentId()});
+        }
     }
 
     @Override

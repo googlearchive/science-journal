@@ -59,7 +59,6 @@ import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
@@ -101,7 +100,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 
 import java.text.NumberFormat;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class RunReviewFragment extends Fragment implements

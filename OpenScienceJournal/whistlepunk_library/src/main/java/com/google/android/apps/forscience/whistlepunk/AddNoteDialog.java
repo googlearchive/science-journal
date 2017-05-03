@@ -55,9 +55,6 @@ import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
-import java.io.File;
-import java.util.concurrent.TimeUnit;
-
 /**
  * Dialog for adding new notes.
  */
@@ -97,7 +94,6 @@ public class AddNoteDialog extends DialogFragment {
         /**
          * Called when a label is being added to the database. Return value is passed to data
          * controller during the label add.
-         * @param label    label about to be added. Can be edited here.
          * @return A MaybeConsumer of labels.
          */
         public MaybeConsumer<Label> onLabelAdd() {
@@ -506,7 +502,7 @@ public class AddNoteDialog extends DialogFragment {
         final MaybeConsumer<Label> onSuccess = mListener.onLabelAdd();
         if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
             mExperiment.addLabel(label);
-            getDataController().updateExperiment(mExperiment,
+            getDataController().updateExperiment(mExperimentId,
                     new LoggingConsumer<Success>(TAG, "update experiment add label") {
                         @Override
                         public void success(Success value) {

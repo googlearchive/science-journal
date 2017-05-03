@@ -433,7 +433,7 @@ public class ExperimentDetailsFragment extends Fragment
 
     private void setExperimentArchived(final boolean archived) {
         mExperiment.setArchived(archived);
-        getDataController().updateExperiment(mExperiment, new LoggingConsumer<Success>(
+        getDataController().updateExperiment(mExperimentId, new LoggingConsumer<Success>(
                 TAG, "Editing experiment") {
             @Override
             public void success(Success value) {
@@ -579,7 +579,7 @@ public class ExperimentDetailsFragment extends Fragment
                 mUndone = true;
                 final Label label = Label.copyOf(item);
                 mExperiment.addLabel(label);
-                dc.updateExperiment(mExperiment, new LoggingConsumer<Success>(TAG,
+                dc.updateExperiment(mExperimentId, new LoggingConsumer<Success>(TAG,
                         "re-add deleted label") {
                     @Override
                     public void success(Success value) {
@@ -598,7 +598,7 @@ public class ExperimentDetailsFragment extends Fragment
         // Delete the item immediately, and remove it from the pinned note list.
         // TODO: Deleting the assets makes undo not work on photo labels...
         mExperiment.deleteLabel(item, getActivity());
-        dc.updateExperiment(mExperiment, new LoggingConsumer<Success>(TAG, "delete label") {
+        dc.updateExperiment(mExperimentId, new LoggingConsumer<Success>(TAG, "delete label") {
             @Override
             public void success(Success value) {
                 mAdapter.deleteNote(item);

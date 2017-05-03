@@ -500,7 +500,7 @@ public class EditTriggerFragment extends Fragment {
         TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout,
                 mTriggerToEdit.getTriggerId());
         mExperiment.updateSensorTrigger(mTriggerToEdit);
-        dc.updateExperiment(mExperiment,
+        dc.updateExperiment(mExperimentId,
                 new LoggingConsumer<Success>(TAG, "update experiment's trigger") {
                     @Override
                     public void success(Success value) {
@@ -567,7 +567,7 @@ public class EditTriggerFragment extends Fragment {
         }
         TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout, triggerToAdd.getTriggerId());
         mExperiment.addSensorTrigger(triggerToAdd);
-        dc.updateExperiment(mExperiment, new MaybeConsumer<Success>() {
+        dc.updateExperiment(mExperimentId, new MaybeConsumer<Success>() {
                     @Override
                     public void fail(Exception e) {
                         mIsSavingNewTrigger = false;
@@ -617,7 +617,7 @@ public class EditTriggerFragment extends Fragment {
     // the trigger is not re-enabled in the SensorLayout.
     private void updateSensorLayoutAndGoToParent(final boolean goToParent) {
         mExperiment.updateSensorLayout(mSensorLayoutPosition, mSensorLayout);
-        getDataController().updateExperiment(mExperiment,
+        getDataController().updateExperiment(mExperimentId,
                 new LoggingConsumer<Success>(TAG, "update experiment with layout") {
                     @Override
                     public void success(Success value) {

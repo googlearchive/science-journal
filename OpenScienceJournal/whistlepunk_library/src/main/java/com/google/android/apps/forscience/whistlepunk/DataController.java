@@ -60,10 +60,9 @@ public interface DataController {
 
     void deleteExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
-    void getExperimentById(String experimentId,
-                           MaybeConsumer<Experiment> onSuccess);
+    void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess);
 
-    void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
+    void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess);
 
     void getExperimentRun(final String experimentId, final String startLabelId,
             final MaybeConsumer<ExperimentRun> onSuccess);

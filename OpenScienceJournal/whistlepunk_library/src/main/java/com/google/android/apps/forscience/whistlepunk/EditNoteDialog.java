@@ -62,6 +62,7 @@ public class EditNoteDialog extends DialogFragment {
     private GoosciLabelValue.LabelValue mSelectedValue;
     private long mTimestamp;
     private String mTrialId;
+    private String mExperimentId;
     private Experiment mExperiment;
     private ExperimentRun mExperimentRun;
 
@@ -122,9 +123,9 @@ public class EditNoteDialog extends DialogFragment {
                 KEY_SAVED_TIME_TEXT_DESCRIPTION);
         mTimestamp = getArguments().getLong(KEY_SAVED_TIMESTAMP);
         mTrialId = getArguments().getString(KEY_TRIAL_ID);
-        String experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
+        mExperimentId = getArguments().getString(KEY_EXPERIMENT_ID);
         if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
-            getDataController().getExperimentById(experimentId,
+            getDataController().getExperimentById(mExperimentId,
                     new LoggingConsumer<Experiment>(TAG, "get experiment") {
                         @Override
                         public void success(Experiment value) {
@@ -133,7 +134,7 @@ public class EditNoteDialog extends DialogFragment {
                         }
                     });
         } else {
-            getDataController().getExperimentRun(experimentId, mTrialId,
+            getDataController().getExperimentRun(mExperimentId, mTrialId,
                     new LoggingConsumer<ExperimentRun>(TAG, "get experiment run") {
                         @Override
                         public void success(ExperimentRun value) {
@@ -210,7 +211,7 @@ public class EditNoteDialog extends DialogFragment {
                         }
                         if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
                             mExperiment.updateLabel(mLabel);
-                            getDataController().updateExperiment(mExperiment,
+                            getDataController().updateExperiment(mExperimentId,
                                     ((EditNoteDialogListener) getParentFragment()).onLabelEdit(
                                             mLabel));
                         } else {
@@ -296,6 +297,9 @@ public class EditNoteDialog extends DialogFragment {
     }
 
     private void updatePositiveButtonEnabled(AlertDialog dialog) {
+        if (dialog == null) {
+            return;
+        }
         Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         if (positiveButton != null) {
             positiveButton.setEnabled(mExperiment != null || mExperimentRun != null);

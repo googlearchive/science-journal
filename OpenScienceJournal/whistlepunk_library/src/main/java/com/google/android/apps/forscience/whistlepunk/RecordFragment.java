@@ -654,7 +654,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         }
         mSelectedExperiment.updateSensorLayout(position, sensorLayout);
         // TODO: Is there a way to do this write less frequently?
-        getDataController().updateExperiment(mSelectedExperiment,
+        getDataController().updateExperiment(mSelectedExperiment.getExperimentId(),
                 LoggingConsumer.<Success>expectSuccess(TAG, "saving layout"));
     }
 
@@ -666,7 +666,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         final List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
         if (layouts != null) {
             mSelectedExperiment.setSensorLayouts(layouts);
-            getDataController().updateExperiment(mSelectedExperiment,
+            getDataController().updateExperiment(mSelectedExperiment.getExperimentId(),
                     LoggingConsumer.<Success>expectSuccess(TAG, "saving layouts"));
         }
         return layouts;
@@ -1371,7 +1371,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             return;
         }
         mSelectedExperiment.updateSensorLayout(position, layout);
-        getDataController().updateExperiment(mSelectedExperiment,
+        getDataController().updateExperiment(mSelectedExperiment.getExperimentId(),
                 new LoggingConsumer<Success>(TAG, "disable sensor triggers") {
                     @Override
                     public void success(Success value) {
@@ -1607,7 +1607,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (experiment != null) {
             if (experiment.isArchived()) {
                 experiment.setArchived(false);
-                dc.updateExperiment(experiment,
+                dc.updateExperiment(experiment.getExperimentId(),
                         LoggingConsumer.<Success>expectSuccess(TAG, "Unarchiving experiment"));
             }
         }
