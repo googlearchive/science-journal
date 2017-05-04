@@ -128,7 +128,10 @@ public interface MetaDataManager {
      */
     Experiment getLastUsedUnarchivedExperiment();
 
-    void updateLastUsedExperiment(Experiment experiment);
+    /**
+     * Updates which experiment was last used. Does not save other parts of this experiment.
+     */
+    void setLastUsedExperiment(Experiment experiment);
 
     /**
      * @param experiment which experiment this trial is attached to

@@ -264,7 +264,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             @Override
             public Experiment call() throws Exception {
                 Experiment experiment = mMetaDataManager.newExperiment();
-                mMetaDataManager.updateLastUsedExperiment(experiment);
+                mMetaDataManager.setLastUsedExperiment(experiment);
                 return experiment;
             }
         });
@@ -452,12 +452,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void updateLastUsedExperiment(
+    public void setLastUsedExperiment(
             final Experiment experiment, MaybeConsumer<Success> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {
-                mMetaDataManager.updateLastUsedExperiment(experiment);
+                mMetaDataManager.setLastUsedExperiment(experiment);
                 return Success.SUCCESS;
             }
         });

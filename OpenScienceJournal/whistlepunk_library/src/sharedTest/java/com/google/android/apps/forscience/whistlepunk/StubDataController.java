@@ -153,7 +153,7 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void updateLastUsedExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+    public void setLastUsedExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
 
     }
 
