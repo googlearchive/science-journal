@@ -500,15 +500,9 @@ public class AddNoteDialog extends DialogFragment {
         // The listener may be cleared by onDetach() before the experiment/trial is written,
         // so save the MaybeConsumer here as a final var.
         final MaybeConsumer<Label> onSuccess = mListener.onLabelAdd();
-        if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
-            mExperiment.addLabel(label);
-            getDataController().updateExperiment(mExperimentId,
-                    new LoggingConsumer<Success>(TAG, "update experiment add label") {
-                        @Override
-                        public void success(Success value) {
-                            onSuccess.success(label);
-                        }
-                    });
+        if (TextUtils.equals(mExperimentRun.getTrial().getTrialId(),
+                RecorderController.NOT_RECORDING_RUN_ID)) {
+            addLabelToExperiment(this.getDataController(), mExperiment, label, onSuccess);
         } else {
             // TODO: Do this by updating the trial with the label and then the experiment with the
             // trial, and then updating the experiment.
@@ -521,6 +515,18 @@ public class AddNoteDialog extends DialogFragment {
                         }
                     });
         }
+    }
+
+    public static void addLabelToExperiment(DataController dataController, Experiment experiment,
+            final Label label, final MaybeConsumer<Label> onSuccess) {
+        experiment.addLabel(label);
+        dataController.updateExperiment(experiment.getExperimentId(),
+                new LoggingConsumer<Success>(TAG, "update experiment add label") {
+                    @Override
+                    public void success(Success value) {
+                        onSuccess.success(label);
+                    }
+                });
     }
 
     private DataController getDataController() {

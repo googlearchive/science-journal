@@ -15,7 +15,9 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -23,13 +25,66 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensors.CameraPreview;
 
+import java.io.File;
+
+import static android.content.ContentValues.TAG;
+
 public class CameraFragment extends Fragment {
+    public static abstract class CameraFragmentListener {
+        static CameraFragmentListener NULL = new CameraFragmentListener() {
+            @Override
+            public String toString() {
+                return "CameraFragmentListener.NULL";
+            }
+        };
+
+        public void onPictureLabelTaken(Label label) {
+        }
+    }
+
+    public interface ListenerProvider {
+        CameraFragmentListener getCameraFragmentListener();
+    }
+
+    private CameraFragmentListener mListener = CameraFragmentListener.NULL;
+
     private CameraPreview mPreview = null;
 
     public static CameraFragment newInstance() {
         return new CameraFragment();
+    }
+
+    // TODO: extract this pattern of fragment listeners
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        internalOnAttach(context);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        internalOnAttach(activity);
+    }
+
+    @Override
+    public void onDetach() {
+        mListener = CameraFragmentListener.NULL;
+        super.onDetach();
+    }
+
+    private void internalOnAttach(Context context) {
+        if (context instanceof ListenerProvider) {
+            mListener = ((ListenerProvider) context).getCameraFragmentListener();
+        }
+        Fragment parentFragment = getParentFragment();
+        if (parentFragment instanceof ListenerProvider) {
+            mListener = ((ListenerProvider) parentFragment).getCameraFragmentListener();
+        }
     }
 
     @Nullable
@@ -38,8 +93,37 @@ public class CameraFragment extends Fragment {
             Bundle savedInstanceState) {
         View inflated = inflater.inflate(R.layout.fragment_camera_tool, null);
         mPreview = (CameraPreview) inflated.findViewById(R.id.preview);
+        mPreview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final long timestamp = getTimestamp(v.getContext());
+                mPreview.takePicture(timestamp, new LoggingConsumer<File>(TAG, "taking picture") {
+                    @Override
+                    public void success(File picturePath) {
+                        String absolutePath = picturePath.getAbsolutePath();
+                        PictureLabelValue labelValue =
+                                PictureLabelValue.fromPicture(absolutePath, "");
+                        Label label = Label.newLabelWithValue(timestamp, labelValue);
+                        mListener.onPictureLabelTaken(label);
+                        PictureUtils.scanFile(absolutePath, getActivity());
+                    }
+                });
+            }
+        });
         return inflated;
     }
+
+    private long getTimestamp(Context context) {
+        return getClock(context).getNow();
+    }
+
+    private Clock getClock(Context context) {
+        // TODO: Don't depend here on AppSingleton
+        return AppSingleton.getInstance(context)
+                           .getSensorEnvironment()
+                           .getDefaultClock();
+    }
+
 
     @Override
     public void onStart() {

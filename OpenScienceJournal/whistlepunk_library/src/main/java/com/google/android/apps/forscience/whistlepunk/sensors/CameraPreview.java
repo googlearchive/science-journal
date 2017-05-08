@@ -20,7 +20,6 @@ package com.google.android.apps.forscience.whistlepunk.sensors;
 import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
-import android.support.annotation.IntDef;
 import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -29,11 +28,13 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
 
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 
 public class CameraPreview extends SurfaceView {
@@ -155,6 +156,32 @@ public class CameraPreview extends SurfaceView {
         if (mCamera != null) {
             mCamera.release();
             mCamera = null;
+        }
+    }
+
+    public void takePicture(long now, final MaybeConsumer<File> onSuccess) {
+        // TODO: better strategy (RxJava?) to avoid these null checks
+        if (mCamera == null) {
+            onSuccess.fail(new IllegalStateException("No camera loaded in CameraPreview"));
+        }
+        try {
+            final File photoFile = PictureUtils.createImageFile(now);
+            final FileOutputStream out = new FileOutputStream(photoFile);
+
+            mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
+                @Override
+                public void onPictureTaken(byte[] data, Camera camera) {
+                    try {
+                        out.write(data);
+                        out.close();
+                        onSuccess.success(photoFile);
+                    } catch (IOException e) {
+                        onSuccess.fail(e);
+                    }
+                }
+            });
+        } catch (IOException e) {
+            onSuccess.fail(e);
         }
     }
 }

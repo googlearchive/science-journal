@@ -14,6 +14,7 @@ android {
         targetSdkVersion 25
         versionCode buildVersionCode()
         versionName buildVersionName()
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -86,6 +87,7 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.google.guava:guava:20.0'
     compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-3.1'
+    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.0'
     compile 'joda-time:joda-time:2.9.4'
     compile 'org.joda:joda-convert:1.8'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'

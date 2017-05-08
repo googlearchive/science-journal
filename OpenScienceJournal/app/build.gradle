@@ -12,6 +12,7 @@ android {
         targetSdkVersion 25
         versionCode buildVersionCode()
         versionName buildVersionName()
+        multiDexEnabled true
     }
     buildTypes {
         debug {

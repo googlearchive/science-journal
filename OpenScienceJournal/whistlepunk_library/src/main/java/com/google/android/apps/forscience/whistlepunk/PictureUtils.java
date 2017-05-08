@@ -90,15 +90,6 @@ public class PictureUtils {
         });
     }
 
-    public static String capturePictureLabel(final android.support.v4.app.Fragment fragment) {
-        return capturePictureLabel(fragment.getActivity(), new IStartable() {
-            @Override
-            public void startActivityForResult(Intent intent, int requestCode) {
-                fragment.startActivityForResult(intent, requestCode);
-            }
-        });
-    }
-
     // From http://developer.android.com/training/camera/photobasics.html.
     private static String capturePictureLabel(Context context, IStartable startable) {
         // Starts a picture intent.
@@ -135,7 +126,7 @@ public class PictureUtils {
     }
 
     // Assumes that the Camera permission always requires external storage.
-    public static void cameraPermissionGranted(Activity activity, boolean granted) {
+    private static void cameraPermissionGranted(Activity activity, boolean granted) {
         // Try to get the storage permission granted if it is not yet, so that all the
         // camera-related permissions requests happen at once.
         if (granted) {

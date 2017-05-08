@@ -25,17 +25,29 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 
-import java.util.List;
+import io.reactivex.functions.Consumer;
+import io.reactivex.subjects.BehaviorSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
-        AddNoteDialog.ListenerProvider {
+        AddNoteDialog.ListenerProvider, CameraFragment.ListenerProvider {
     private static final String TAG = "PanesActivity";
     private ExperimentDetailsFragment mExperimentFragment = null;
     private AddNoteDialog mAddNoteDialog = null;
+
+    /**
+     * BehaviorSubject remembers the last loaded value (if any) and delivers it, and all subsequent
+     * values, to any observers.
+     *
+     * TODO: use mActiveExperiment for other places that need an experiment in this class and
+     *       fragments.
+     *
+     * (First use of RxJava.)
+     */
+    private BehaviorSubject<Experiment> mActiveExperiment = BehaviorSubject.create();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,6 +80,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 new MetadataController.MetadataChangeListener() {
                     @Override
                     public void onMetadataChanged(Experiment activeExperiment) {
+                        mActiveExperiment.onNext(activeExperiment);
                         String experimentId = activeExperiment.getExperimentId();
                         setExperimentFragmentId(experimentId);
                         setNoteFragmentId(experimentId);
@@ -141,5 +154,27 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 };
             }
         };
+    }
+
+    @Override
+    public CameraFragment.CameraFragmentListener getCameraFragmentListener() {
+        return new CameraFragment.CameraFragmentListener() {
+            @Override
+            public void onPictureLabelTaken(final Label label) {
+                // Get the most recent experiment, or wait if none has been loaded yet.
+                mActiveExperiment.firstElement().subscribe(new Consumer<Experiment>() {
+                    @Override
+                    public void accept(Experiment e) throws Exception {
+                        // TODO: change this to lambda once we can use Java 8.
+                        AddNoteDialog.addLabelToExperiment(getDataController(), e, label,
+                                getAddNoteDialogListener().onLabelAdd());
+                    }
+                });
+            }
+        };
+    }
+
+    private DataController getDataController() {
+        return AppSingleton.getInstance(PanesActivity.this).getDataController();
     }
 }
