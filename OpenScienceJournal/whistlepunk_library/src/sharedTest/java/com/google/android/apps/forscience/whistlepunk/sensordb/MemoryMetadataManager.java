@@ -213,22 +213,6 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public void setExperimentSensorLayouts(String experimentId,
-            List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-        mLayouts.put(experimentId, sensorLayouts);
-    }
-
-    @Override
-    public List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayouts(String experimentId) {
-        List<GoosciSensorLayout.SensorLayout> layouts = mLayouts.get(experimentId);
-        if (layouts == null) {
-            return Collections.emptyList();
-        } else {
-            return layouts;
-        }
-    }
-
-    @Override
     public void close() {
 
     }

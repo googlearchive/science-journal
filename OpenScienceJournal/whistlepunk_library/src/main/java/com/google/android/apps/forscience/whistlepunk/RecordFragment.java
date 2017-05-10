@@ -530,8 +530,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void freezeLayouts() {
-        final List<GoosciSensorLayout.SensorLayout> layouts =
-                Preconditions.checkNotNull(saveCurrentExperiment());
+        if (mSelectedExperiment == null) {
+            return;
+        }
+        final List<GoosciSensorLayout.SensorLayout> layouts = saveCurrentExperiment();
+        Preconditions.checkNotNull(saveCurrentExperiment());
         // Freeze layouts to be saved if recording finishes
         withRecorderController(new Consumer<RecorderController>() {
             @Override

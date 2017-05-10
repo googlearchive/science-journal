@@ -55,8 +55,8 @@ public class SharedMetadataManagerTest extends InstrumentationTestCase {
     }
 
     private void cleanUp() {
-        File sharedMetadataFile = new File(getInstrumentation().getContext().getFilesDir(),
-                FileMetadataManager.SHARED_METADATA_FILE);
+        File sharedMetadataFile = FileMetadataManager.getSharedMetadataFile(
+                getInstrumentation().getContext());
         sharedMetadataFile.delete();
     }
 
@@ -111,7 +111,7 @@ public class SharedMetadataManagerTest extends InstrumentationTestCase {
         assertEquals(smm.getExperimentOverviews(false).size(), 2);
 
         // Check delete works properly
-        smm.deleteExperimentOverview(second);
+        smm.deleteExperimentOverview(second.experimentId);
         assertEquals(smm.getExperimentOverviews(true).size(), 2);
 
     }

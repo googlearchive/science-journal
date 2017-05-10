@@ -176,8 +176,9 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     public void accept(Experiment e) throws Exception {
                         // TODO: change this to lambda once we can use Java 8.
                         e.addLabel(label);
-                        AddNoteDialog.saveExperiment(getDataController(), e, label,
-                                getAddNoteDialogListener().onLabelAdd());
+                        AddNoteDialog.saveExperiment(getDataController(), e, label)
+                                     .subscribe(MaybeConsumers.toSingleObserver(
+                                             getAddNoteDialogListener().onLabelAdd()));
                     }
                 });
             }
