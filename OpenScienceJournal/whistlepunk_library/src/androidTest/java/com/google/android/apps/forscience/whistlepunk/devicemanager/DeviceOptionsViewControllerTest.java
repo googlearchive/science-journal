@@ -21,6 +21,7 @@ import android.test.AndroidTestCase;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -41,14 +42,19 @@ public class DeviceOptionsViewControllerTest extends AndroidTestCase {
         dc.addOrGetExternalSensor(oldSpec, cOldSensorId);
         String oldSensorId = cOldSensorId.getValue();
         assertEquals(ExternalSensorSpec.getSensorId(oldSpec, 0), oldSensorId);
-        String experimentId = "experimentId";
-        dc.addSensorToExperiment(experimentId, ExternalSensorSpec.getSensorId(oldSpec, 0),
-                TestConsumers.<Success>expectingSuccess());
+
+        StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
+        dc.createExperiment(cExperiment);
+        Experiment experiment = cExperiment.getValue();
+
+        dc.addSensorToExperiment(experiment.getExperimentId(),
+                ExternalSensorSpec.getSensorId(oldSpec, 0), TestConsumers.<Success>expectingSuccess());
 
         final BleSensorSpec newSpec = new BleSensorSpec("address", "name");
         newSpec.setSensorType(SensorTypeProvider.TYPE_ROTATION);
 
-        DeviceOptionsViewController c = new TestController(dc, newSpec, experimentId);
+        DeviceOptionsViewController c = new TestController(dc, newSpec,
+                experiment.getExperimentId());
         c.setSensor(ExternalSensorSpec.getSensorId(oldSpec, 0), oldSpec, null);
 
         RecordingDeviceOptionsListener listener = new RecordingDeviceOptionsListener();
@@ -57,7 +63,7 @@ public class DeviceOptionsViewControllerTest extends AndroidTestCase {
         assertEquals(ExternalSensorSpec.getSensorId(oldSpec, 0), listener.mostRecentOldSensorId);
         assertEquals(ExternalSensorSpec.getSensorId(oldSpec, 1), listener.mostRecentNewSensorId);
 
-        dc.getExternalSensorsByExperiment(experimentId,
+        dc.getExternalSensorsByExperiment(experiment.getExperimentId(),
                 TestConsumers.<ExperimentSensors>expecting(new ExperimentSensors(Lists.newArrayList(
                         ConnectableSensor.connected(newSpec,
                                 ExternalSensorSpec.getSensorId(oldSpec, 1))),

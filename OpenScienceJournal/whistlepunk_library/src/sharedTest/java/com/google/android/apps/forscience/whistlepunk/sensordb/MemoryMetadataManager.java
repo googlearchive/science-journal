@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.sensordb;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -64,6 +65,11 @@ public class MemoryMetadataManager implements MetaDataManager {
 
     @Override
     public Experiment getExperimentById(String experimentId) {
+        for (Experiment experiment : mExperiments) {
+            if (TextUtils.equals(experiment.getExperimentId(), experimentId)) {
+                return experiment;
+            }
+        }
         return null;
     }
 

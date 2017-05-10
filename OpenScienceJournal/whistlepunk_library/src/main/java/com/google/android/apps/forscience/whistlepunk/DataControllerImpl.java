@@ -72,30 +72,34 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     public void replaceSensorInExperiment(final String experimentId, final String oldSensorId,
             final String newSensorId, final MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, sensorLayoutsSuccessWrapper(experimentId, onSuccess),
-                new Callable<List<GoosciSensorLayout.SensorLayout>>() {
+        getExperimentById(experimentId, MaybeConsumers.chainFailure(onSuccess,
+                new Consumer<Experiment>() {
                     @Override
-                    public List<GoosciSensorLayout.SensorLayout> call() throws Exception {
-                        mMetaDataManager.removeSensorFromExperiment(oldSensorId, experimentId);
-                        mMetaDataManager.addSensorToExperiment(newSensorId, experimentId);
-                        return replaceIdInLayouts(experimentId, oldSensorId, newSensorId);
+                    public void take(final Experiment experiment) {
+                        replaceIdInLayouts(experiment, oldSensorId, newSensorId);
+                        background(mMetaDataThread, onSuccess,
+                                new Callable<Success>() {
+                                    @Override
+                                    public Success call() throws Exception {
+                                        mMetaDataManager.removeSensorFromExperiment(oldSensorId,
+                                                experimentId);
+                                        mMetaDataManager.addSensorToExperiment(newSensorId,
+                                                experimentId);
+                                        mMetaDataManager.updateExperiment(experiment);
+                                        return Success.SUCCESS;
+                                    }
+                                });
                     }
-        });
+                }));
     }
 
-    // TODO: Do this by updating the experiment rather than directly with the Layouts.
-    // This method needs to be run on the mMetaDataThread.
-    private List<GoosciSensorLayout.SensorLayout> replaceIdInLayouts(String experimentId,
+    private void replaceIdInLayouts(Experiment experiment,
             String oldSensorId, String newSensorId) {
-        List<GoosciSensorLayout.SensorLayout> layouts = mMetaDataManager.getExperimentSensorLayouts(
-                experimentId);
-        for (GoosciSensorLayout.SensorLayout layout : layouts) {
+        for (GoosciSensorLayout.SensorLayout layout : experiment.getSensorLayouts()) {
             if (layout.sensorId.equals(oldSensorId)) {
                 layout.sensorId = newSensorId;
             }
         }
-        mMetaDataManager.setExperimentSensorLayouts(experimentId, layouts);
-        return layouts;
     }
 
     public void stopTrial(final Experiment experiment, final Trial trial,
@@ -491,12 +495,11 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     @Override
     public void addSensorToExperiment(final String experimentId, final String sensorId,
             final MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, sensorLayoutsSuccessWrapper(experimentId, onSuccess),
-                new Callable<List<GoosciSensorLayout.SensorLayout>>() {
+        background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
-            public List<GoosciSensorLayout.SensorLayout> call() throws Exception {
+            public Success call() throws Exception {
                 mMetaDataManager.addSensorToExperiment(sensorId, experimentId);
-                return mMetaDataManager.getExperimentSensorLayouts(experimentId);
+                return Success.SUCCESS;
             }
         });
     }
@@ -504,30 +507,23 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     @Override
     public void removeSensorFromExperiment(final String experimentId, final String sensorId,
             final MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, sensorLayoutsSuccessWrapper(experimentId, onSuccess),
-                new Callable<List<GoosciSensorLayout.SensorLayout>>() {
+        getExperimentById(experimentId, MaybeConsumers.chainFailure(onSuccess,
+                new Consumer<Experiment>() {
                     @Override
-                    public List<GoosciSensorLayout.SensorLayout> call() throws Exception {
-                        mMetaDataManager.removeSensorFromExperiment(sensorId, experimentId);
-                        return replaceIdInLayouts(experimentId, sensorId, "");
+                    public void take(final Experiment experiment) {
+                        replaceIdInLayouts(experiment, sensorId, "");
+                        background(mMetaDataThread, onSuccess,
+                                new Callable<Success>() {
+                                    @Override
+                                    public Success call() throws Exception {
+                                        mMetaDataManager.removeSensorFromExperiment(sensorId,
+                                                experimentId);
+                                        mMetaDataManager.updateExperiment(experiment);
+                                        return Success.SUCCESS;
+                                    }
+                                });
                     }
-        });
-    }
-
-    private MaybeConsumer<List<GoosciSensorLayout.SensorLayout>> sensorLayoutsSuccessWrapper(
-            final String experimentId, final MaybeConsumer<Success> onSuccess) {
-        return MaybeConsumers.chainFailure(onSuccess,
-                new Consumer<List<GoosciSensorLayout.SensorLayout>>() {
-                    @Override
-                    public void take(List<GoosciSensorLayout.SensorLayout> layouts) {
-                        // Update the sensor layouts if this is a cached experiment.
-                        if (mCachedExperiments.containsKey(experimentId) &&
-                                mCachedExperiments.get(experimentId).get() != null) {
-                            mCachedExperiments.get(experimentId).get().setSensorLayouts(layouts);
-                        }
-                        onSuccess.success(Success.SUCCESS);
-                    }
-                });
+                }));
     }
 
     @Override

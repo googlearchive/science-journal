@@ -36,6 +36,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInpu
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.SensorAppearanceResources;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TestSensor;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TestSensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
@@ -386,17 +387,22 @@ public class ConnectableSensorRegistryTest {
         s.appearance.units = "oldUnits";
         mProviderMap.putAll(s.makeScalarInputProviders());
         DataController dc = makeDataController();
+
+        StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
+        dc.createExperiment(cExperiment);
+        Experiment experiment = cExperiment.getValue();
+
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
                 mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB);
-        registry.setExperimentId("experimentId", mSensorRegistry);
+        registry.setExperimentId(experiment.getExperimentId(), mSensorRegistry);
         registry.pair(mAvailableDevices.getKey(0));
         s.appearance.units = "newUnits";
         registry.refresh(false, mSensorRegistry);
 
         Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
                 mMetadataManager.getExperimentExternalSensors(
-                        "experimentId", mProviderMap).getIncludedSensors());
+                        experiment.getExperimentId(), mProviderMap).getIncludedSensors());
         ScalarInputSpec retrievedSpec = (ScalarInputSpec) sensors.values().iterator().next();
         SensorAppearance appearance = retrievedSpec.getSensorAppearance();
         assertEquals("newUnits", appearance.getUnits(null));

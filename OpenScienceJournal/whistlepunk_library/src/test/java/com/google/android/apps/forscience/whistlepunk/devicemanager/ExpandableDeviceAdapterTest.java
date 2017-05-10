@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
@@ -245,7 +246,7 @@ public class ExpandableDeviceAdapterTest {
 
     @Test
     public void checkBuiltInWhenForgettingLastSensor() {
-        String experimentId = "experimentId";
+        Experiment experiment = mMetadataManager.newExperiment();
         TestDevicesPresenter presenter = new TestDevicesPresenter(mAvailableDevices,
                 null);
         ConnectableSensorRegistry sensorRegistry = new ConnectableSensorRegistry(
@@ -254,7 +255,7 @@ public class ExpandableDeviceAdapterTest {
         ExpandableDeviceAdapter adapter = ExpandableDeviceAdapter.createEmpty(sensorRegistry,
                 mDeviceRegistry, null, mSensors, 0);
         presenter.setPairedDevices(adapter);
-        sensorRegistry.setExperimentId(experimentId, mSensors);
+        sensorRegistry.setExperimentId(experiment.getExperimentId(), mSensors);
 
         final ConnectableSensor sensor = mScenario.makeConnectedSensorNewDevice();
         String key = mScenario.newSensorKey();
@@ -262,7 +263,7 @@ public class ExpandableDeviceAdapterTest {
         // Add built-in device
         String builtInId = "builtInId";
         mSensors.addManualBuiltInSensor(builtInId);
-        mMetadataManager.removeSensorFromExperiment(builtInId, experimentId);
+        mMetadataManager.removeSensorFromExperiment(builtInId, experiment.getExperimentId());
 
         InputDeviceSpec device = mDeviceRegistry.getDevice(sensor.getSpec());
         adapter.setMyDevices(Lists.newArrayList(device));
@@ -274,7 +275,8 @@ public class ExpandableDeviceAdapterTest {
         adapter.getMenuCallbacks().forgetDevice(device);
 
         // Make sure the built-in sensor is added to the experiment
-        ExperimentSensors sensors = mMetadataManager.getExperimentExternalSensors(experimentId,
+        ExperimentSensors sensors = mMetadataManager.getExperimentExternalSensors(
+                experiment.getExperimentId(),
                 Maps.<String, ExternalSensorProvider>newHashMap());
         List<ConnectableSensor> included = sensors.getIncludedSensors();
         assertEquals(1, included.size());
