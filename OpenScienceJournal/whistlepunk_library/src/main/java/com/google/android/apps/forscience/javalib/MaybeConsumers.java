@@ -16,6 +16,11 @@
 
 package com.google.android.apps.forscience.javalib;
 
+import io.reactivex.CompletableObserver;
+import io.reactivex.SingleObserver;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+
 /**
  * Utilities for interfaces that use {@link MaybeConsumer}
  */
@@ -23,7 +28,7 @@ public class MaybeConsumers {
     /**
      * A MaybeConsumer that does nothing
      */
-    public static final MaybeConsumer<Object> NOOP = new MaybeConsumer<Object>() {
+    private static final MaybeConsumer<Object> NOOP = new MaybeConsumer<Object>() {
         @Override
         public void success(Object value) {
         }
@@ -90,5 +95,108 @@ public class MaybeConsumers {
                 // do nothing, expected
             }
         });
+    }
+
+    /**
+     * MaybeConsumer<Success> is very similar to {@link CompletableObserver} in JavaRX.  Both are
+     * looking for either a signal that a process has succeeded, or that it has failed with some
+     * exception.  For the time period where we are still using both interfaces, we will find it
+     * useful to be able to switch between them.
+     *
+     * @return a {@link MaybeConsumer<Success>} that pipes {@link MaybeConsumer#success(Object)}
+     *         to {@link CompletableObserver#onComplete()}, and
+     *         {@link MaybeConsumer#fail(Exception)} to
+     *         {@link CompletableObserver#onError(Throwable)}
+     */
+    public static MaybeConsumer<Success> fromCompletableObserver(final CompletableObserver o) {
+        return new MaybeConsumer<Success>() {
+            @Override
+            public void success(Success value) {
+                o.onComplete();
+            }
+
+            @Override
+            public void fail(Exception e) {
+                o.onError(e);
+            }
+        };
+    }
+
+    /**
+     * Performs the opposite translation from
+     * {@link MaybeConsumers#fromCompletableObserver(CompletableObserver)}
+     */
+    public static CompletableObserver toCompletableObserver(final MaybeConsumer<Success> c) {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+                // do nothing
+            }
+
+            @Override
+            public void onComplete() {
+                c.success(Success.SUCCESS);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                c.fail(throwableToException(e));
+            }
+        };
+    }
+
+    private static Exception throwableToException(Throwable e) {
+        if (e instanceof Exception) {
+            return (Exception) e;
+        } else {
+            return new Exception(e);
+        }
+    }
+
+    /**
+     * MaybeConsumer<T> is very similar to {@link SingleObserver<T>} in JavaRX.  Both are
+     * looking for either a signal that a computation has succeeded and returned a value of type
+     * T, or that it has failed with some exception. For the time period where we are still using
+     * both interfaces, we will find it useful to be able to switch between them.
+     *
+     * @return a {@link MaybeConsumer<T>} that pipes {@link MaybeConsumer#success(Object)}
+     * to {@link SingleObserver#onSuccess(Object)}, and {@link MaybeConsumer#fail(Exception)} to
+     * {@link SingleObserver#onError(Throwable)}
+     */
+    public static <T> MaybeConsumer<T> fromSingleObserver(final SingleObserver<T> o) {
+        return new MaybeConsumer<T>() {
+            @Override
+            public void success(T value) {
+                o.onSuccess(value);
+            }
+
+            @Override
+            public void fail(Exception e) {
+                o.onError(e);
+            }
+        };
+    }
+
+    /**
+     * Performs the opposite translation from
+     * {@link MaybeConsumers#fromSingleObserver(SingleObserver)}
+     */
+    public static <T> SingleObserver<T> toSingleObserver(final MaybeConsumer<T> c) {
+        return new SingleObserver<T>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+                // do nothing
+            }
+
+            @Override
+            public void onSuccess(@NonNull T t) {
+                c.success(t);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                c.fail(new RuntimeException(e));
+            }
+        };
     }
 }

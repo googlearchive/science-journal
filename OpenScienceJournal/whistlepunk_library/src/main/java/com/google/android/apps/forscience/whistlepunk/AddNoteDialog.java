@@ -55,6 +55,9 @@ import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
+import io.reactivex.Single;
+import io.reactivex.subjects.CompletableSubject;
+
 /**
  * Dialog for adding new notes.
  */
@@ -94,6 +97,7 @@ public class AddNoteDialog extends DialogFragment {
         /**
          * Called when a label is being added to the database. Return value is passed to data
          * controller during the label add.
+         *
          * @return A MaybeConsumer of labels.
          */
         public MaybeConsumer<Label> onLabelAdd() {
@@ -408,8 +412,8 @@ public class AddNoteDialog extends DialogFragment {
         if (mPictureLabelPath != null) {
             Glide.clear(imageView);
             Glide.with(getActivity())
-                    .load(mPictureLabelPath)
-                    .into(imageView);
+                 .load(mPictureLabelPath)
+                 .into(imageView);
         }
 
         takePictureBtn.setOnClickListener(new View.OnClickListener() {
@@ -454,7 +458,8 @@ public class AddNoteDialog extends DialogFragment {
         // Show the picture note button if the camera is available and the user
         // hasn't already taken a picture.
         imageButton.setVisibility(textSideVisible &&
-                VideoSensor.isCameraAvailable(getActivity().getApplicationContext()) ?
+                                  VideoSensor.isCameraAvailable(
+                                          getActivity().getApplicationContext()) ?
                 View.VISIBLE : View.GONE);
     }
 
@@ -502,7 +507,8 @@ public class AddNoteDialog extends DialogFragment {
         final MaybeConsumer<Label> onSuccess = mListener.onLabelAdd();
         if (TextUtils.equals(mExperimentRun.getTrial().getTrialId(),
                 RecorderController.NOT_RECORDING_RUN_ID)) {
-            addLabelToExperiment(this.getDataController(), mExperiment, label, onSuccess);
+            addLabelToExperiment(getDataController(), mExperiment, label).subscribe(
+                    MaybeConsumers.toSingleObserver(onSuccess));
         } else {
             // TODO: Do this by updating the trial with the label and then the experiment with the
             // trial, and then updating the experiment.
@@ -517,16 +523,17 @@ public class AddNoteDialog extends DialogFragment {
         }
     }
 
-    public static void addLabelToExperiment(DataController dataController, Experiment experiment,
-            final Label label, final MaybeConsumer<Label> onSuccess) {
+    /**
+     * @return a single that only calls onSuccess if the Label is successfully added.
+     */
+    public static Single<Label> addLabelToExperiment(DataController dataController,
+            Experiment experiment, final Label label) {
         experiment.addLabel(label);
+
+        CompletableSubject completableSubject = CompletableSubject.create();
         dataController.updateExperiment(experiment.getExperimentId(),
-                new LoggingConsumer<Success>(TAG, "update experiment add label") {
-                    @Override
-                    public void success(Success value) {
-                        onSuccess.success(label);
-                    }
-                });
+                MaybeConsumers.fromCompletableObserver(completableSubject));
+        return completableSubject.andThen(Single.just(label));
     }
 
     private DataController getDataController() {
@@ -541,8 +548,8 @@ public class AddNoteDialog extends DialogFragment {
             if (resultCode == Activity.RESULT_OK) {
                 Glide.clear(imageView);
                 Glide.with(getActivity())
-                        .load(mPictureLabelPath)
-                        .into(imageView);
+                     .load(mPictureLabelPath)
+                     .into(imageView);
             } else {
                 mPictureLabelPath = null;
             }

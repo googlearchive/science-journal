@@ -98,7 +98,17 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             >
-
+            <Button
+                android:id="@+id/snapshot_button"
+                android:layout_width="wrap_content"
+                android:minWidth="@dimen/accessibility_touch_target_min_size"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/accessibility_touch_target_min_size"
+                android:text="@string/snapshot_button_text"
+                android:textAllCaps="true"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                />
         </FrameLayout>
 
         <FrameLayout

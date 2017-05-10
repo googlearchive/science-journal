@@ -1253,7 +1253,7 @@ public class RunReviewFragment extends Fragment implements
     public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
         return new AddNoteDialog.AddNoteDialogListener() {
             @Override
-            public LoggingConsumer<Label> onLabelAdd() {
+            public MaybeConsumer<Label> onLabelAdd() {
                 return new LoggingConsumer<Label>(TAG, "add label") {
                     @Override
                     public void success(Label newLabel) {

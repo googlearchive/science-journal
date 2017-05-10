@@ -62,7 +62,7 @@ public class SensorRegistry {
     public static final String WP_NATIVE_BLE_PROVIDER_ID =
             "com.google.android.apps.forscience.whistlepunk.ble";
 
-    public static final String WP_HARDWARE_PROVIDER_ID =
+    protected static final String WP_HARDWARE_PROVIDER_ID =
             "com.google.android.apps.forscience.whistlepunk.hardware";
 
     private static final String TAG = "SensorRegistry";
@@ -147,6 +147,7 @@ public class SensorRegistry {
      * May run callbacks already registered if the user already requested observation on the given
      * sensorId.
      */
+    @VisibleForTesting
     private void addSource(SensorRegistryItem item) {
         // TODO: enable per-sensor defaults (b/28036680)
         String id = item.choice.getId();

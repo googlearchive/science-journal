@@ -58,12 +58,13 @@ import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDi
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
@@ -93,6 +94,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Function;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.MaybeSubject;
+
 public class RecordFragment extends Fragment implements AddNoteDialog.ListenerProvider,
         Handler.Callback, StopRecordingNoDataDialog.StopRecordingDialogListener,
         AudioSettingsDialog.AudioSettingsDialogListener {
@@ -100,14 +108,18 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private static final String KEY_SAVED_ACTIVE_SENSOR_CARD = "savedActiveCardIndex";
     private static final String KEY_SAVED_RECYCLER_LAYOUT = "savedRecyclerLayout";
+    private static final String KEY_SHOW_SNAPSHOT = "showSnapshot";
 
     private static final int DEFAULT_CARD_VIEW = GoosciSensorLayout.SensorLayout.METER;
     private static final boolean DEFAULT_AUDIO_ENABLED = false;
     private static final boolean DEFAULT_SHOW_STATS_OVERLAY = false;
 
+    // TODO: this is never written.  Remove this logic
     private static final String EXTRA_SENSOR_IDS = "sensorIds";
 
     private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
+
+
 
     public static abstract class UICallbacks {
         public static UICallbacks NULL = new UICallbacks() {};
@@ -153,6 +165,14 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         void onRecordingSaved(String runId, Experiment experiment) {
 
         }
+
+        /**
+         * Called when a label is added from the RecordFragment (for example, a snapshot)
+         * @param label
+         */
+        public void onLabelAdded(Label label) {
+
+        }
     }
 
     public interface CallbacksProvider {
@@ -182,6 +202,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private Rect mPanelRect = new Rect();
 
     private Experiment mSelectedExperiment;
+    private BehaviorSubject<Experiment> mSelectedExperimentSubject = BehaviorSubject.create();
 
     // A temporary variable to store a sensor card presenter that wants to use
     // the decibel sensor before the permission to use microphone is granted
@@ -202,8 +223,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private int mRecorderStateListenerId = RecorderController.NO_LISTENER_ID;
     private int mTriggerFiredListenerId = RecorderController.NO_LISTENER_ID;
 
-    public static RecordFragment newInstance() {
-        return new RecordFragment();
+    public static RecordFragment newInstance(boolean showSnapshot) {
+        RecordFragment fragment = new RecordFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(KEY_SHOW_SNAPSHOT, showSnapshot);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -450,6 +475,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 if (!rc.resumeObservingAll(mRecorderPauseId)) {
                     // Force a reload of the current experiment's ob
                     mSelectedExperiment = null;
+                    if (mSelectedExperimentSubject.hasValue()) {
+                        mSelectedExperimentSubject.onComplete();
+                        mSelectedExperimentSubject = BehaviorSubject.create();
+                    }
                 }
 
                 getMetadataController().addExperimentChangeListener(TAG,
@@ -602,6 +631,15 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             }
         });
 
+        View snapshotButton = rootView.findViewById(R.id.snapshot_button);
+        snapshotButton.setVisibility(getShowSnapshot() ? View.VISIBLE : View.GONE);
+        snapshotButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                takeSnapshot();
+            }
+        });
+
         mBottomPanel = rootView.findViewById(R.id.bottom_panel);
 
         mGraphOptionsController.loadIntoScalarDisplayOptions(mScalarDisplayOptions, getView());
@@ -613,6 +651,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         }
 
         return rootView;
+    }
+
+    private boolean getShowSnapshot() {
+        return getArguments().getBoolean(KEY_SHOW_SNAPSHOT, false);
     }
 
     private void activateSensorCardPresenter(SensorCardPresenter sensorCardPresenter,
@@ -639,6 +681,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         }
         stopObservingCurrentSensors();
         mSelectedExperiment = selectedExperiment;
+        mSelectedExperimentSubject.onNext(selectedExperiment);
         loadIncludedSensors(mSelectedExperiment.getSensorLayouts(), rc);
         rc.setSelectedExperiment(mSelectedExperiment);
         setControlButtonsEnabled(true);
@@ -1272,6 +1315,21 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 });
     }
 
+    private void takeSnapshot() {
+        // TODO: what to do?
+    }
+
+    @NonNull
+    private Function<String, String> getIdToName() {
+        return new Function<String, String>() {
+            @Override
+            public String apply(String sensorId) throws Exception {
+                return getSensorAppearanceProvider().getAppearance(sensorId).getName(getActivity());
+            }
+        };
+    }
+
+
     private void tryStartRecording(final RecorderController rc) {
         if (mSelectedExperiment == null) {
             return;
@@ -1595,7 +1653,19 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         return RecordingMetadata.getStartTime(mCurrentRecording);
     }
 
+    private Maybe<RecorderController> getRecorderController() {
+        final MaybeSubject s = MaybeSubject.create();
+        withRecorderController(new Consumer<RecorderController>() {
+            @Override
+            public void take(RecorderController recorderController) {
+                s.onSuccess(recorderController);
+            }
+        });
+        return s;
+    }
+
     private void withRecorderController(Consumer<RecorderController> c) {
+        // TODO: use getRecorderController everywhere?
         AppSingleton.getInstance(getActivity()).withRecorderController(TAG, c);
     }
 
