@@ -200,6 +200,29 @@ public class Experiment extends LabelListHolder {
         return mTrials;
     }
 
+
+    /**
+     * Gets the current list of trials in this experiment.
+     * Objects in this list should not be modified and expect that state to be saved, instead
+     * editing of trials should happen using updateTrial, addTrial, deleteTrial.
+     */
+    public List<Trial> getTrials(boolean includeArchived, boolean includeInvalid) {
+        if (includeArchived && includeInvalid) {
+            return getTrials();
+        }
+        List<Trial> result = new ArrayList<>();
+        for (Trial trial : mTrials) {
+            if (!includeInvalid && !trial.isValid()) {
+                // Invalid trial, don't add it.
+            } else if (!includeArchived && trial.isArchived()) {
+                // Don't add it.
+            } else {
+                result.add(trial);
+            }
+        }
+        return result;
+    }
+
     @VisibleForTesting
     void setTrials(List<Trial> trials) {
         mTrials = Preconditions.checkNotNull(trials);
@@ -217,7 +240,7 @@ public class Experiment extends LabelListHolder {
 
     /**
      * Gets a trial by its unique ID.
-     * Note that Trial IDs are only guarenteed to be unqiue in an experiment.
+     * Note that Trial IDs are only guaranteed to be unique in an experiment.
      */
     public Trial getTrial(String trialId) {
         for (Trial trial : mTrials) {
@@ -250,6 +273,7 @@ public class Experiment extends LabelListHolder {
      */
     public void addTrial(Trial trial) {
         mTrials.add(trial);
+        mExperimentOverview.trialCount = mTrials.size();
         sortTrials();
     }
 
@@ -259,6 +283,7 @@ public class Experiment extends LabelListHolder {
     public void deleteTrial(Trial trial, Context context) {
         trial.deleteContents(context);
         mTrials.remove(trial);
+        mExperimentOverview.trialCount = mTrials.size();
     }
 
     /**

@@ -138,6 +138,50 @@ public class ExperimentTest extends AndroidTestCase {
         assertEquals(experiment1.getExperimentProto().trials.length, 2);
     }
 
+    public void testGetTrialsWithFilters() {
+        GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[]{});
+        Experiment experiment = Experiment.fromExperiment(proto,
+                new GoosciSharedMetadata.ExperimentOverview());
+
+        // New trials are invalid -- no end time.
+        experiment.addTrial(Trial.newTrial(10, null));
+        experiment.addTrial(Trial.newTrial(20, null));
+
+        assertEquals(experiment.getTrials().size(), 2);
+        assertEquals(experiment.getTrials(true,  /* include invalid */ true).size(), 2);
+        assertEquals(experiment.getTrials(false, true).size(), 2);
+        assertEquals(experiment.getTrials(true, false).size(), 0);
+
+        GoosciTrial.Trial validProto = new GoosciTrial.Trial();
+        GoosciTrial.Range range = new GoosciTrial.Range();
+        range.startMs = 100;
+        range.endMs = 200;
+        validProto.recordingRange = range;
+        validProto.trialId = "valid";
+        Trial valid = Trial.fromTrial(validProto);
+        experiment.addTrial(valid);
+
+        assertEquals(experiment.getTrials(false, true).size(), 3);
+        assertEquals(experiment.getTrials(true, false).size(), 1);
+        assertEquals(experiment.getTrials(false, false).size(), 1);
+
+        GoosciTrial.Trial archivedProto = new GoosciTrial.Trial();
+        GoosciTrial.Range archivedRange = new GoosciTrial.Range();
+        archivedRange.startMs = 300;
+        archivedRange.endMs = 400;
+        archivedProto.recordingRange = archivedRange;
+        archivedProto.archived = true;
+        archivedProto.trialId = "archived";
+        Trial archived = Trial.fromTrial(archivedProto);
+        experiment.addTrial(archived);
+
+        assertEquals(experiment.getTrials(true, true).size(), 4);
+        assertEquals(experiment.getTrials(/* include archived */ false, true).size(), 3);
+        assertEquals(experiment.getTrials(true, false).size(), 2);
+        assertEquals(experiment.getTrials(false, false).size(), 1);
+
+    }
+
     public void testUpdatesProtoOnlyWhenNeeded() {
         GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[]{99, 100, 125, 201});
         GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
