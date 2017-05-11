@@ -435,6 +435,10 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         MaybeConsumer<Experiment> onSuccessWrapper = new MaybeConsumer<Experiment>() {
             @Override
             public void success(Experiment lastUsed) {
+                if (lastUsed == null) {
+                    onSuccess.success(null);
+                    return;
+                }
                 if (mCachedExperiments.containsKey(lastUsed.getExperimentId())) {
                     // Use the same object if it's already in the cache.
                     Experiment cached = mCachedExperiments.get(lastUsed.getExperimentId()).get();
