@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
@@ -56,7 +57,6 @@ public class DataControllerUnitTest {
         assertEquals(12.34, reading.getValue(), 0.001);
     }
 
-
     @Test
     public void testStopRun() {
         InMemorySensorDatabase db = new InMemorySensorDatabase();
@@ -72,32 +72,34 @@ public class DataControllerUnitTest {
         layout.maximumYAxisValue = 5;
         layouts.add(layout);
 
-        final StoringConsumer<Trial> cTrial = new StoringConsumer<>();
-        dc.startTrial(experiment, layouts, cTrial);
-        final Trial trial = cTrial.getValue();
+        Trial trial = Trial.newTrial(10, layouts.toArray(new GoosciSensorLayout.SensorLayout[1]));
+        experiment.addTrial(trial);
+        dc.updateExperiment(experiment.getExperimentId(),
+                TestConsumers.<Success>expectingSuccess());
 
-        final ExperimentRun runWhileStarted = getOnlyExperimentRun(dc, experiment);
+        final Trial runWhileStarted = getOnlyExperimentRun(dc, experiment.getExperimentId());
         assertEquals(trial.getTrialId(), runWhileStarted.getTrialId());
-        assertFalse(runWhileStarted.isValidRun());
+        assertFalse(runWhileStarted.isValid());
         assertEquals(5, runWhileStarted.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
 
         layout.maximumYAxisValue = 15;
         trial.setSensorLayouts(layouts);
+        trial.setRecordingEndTime(40);
+        experiment.updateTrial(trial);
 
-        dc.stopTrial(experiment, trial, TestConsumers.<Trial>expectingSuccess());
+        dc.updateExperiment(experiment.getExperimentId(),
+                TestConsumers.<Success>expectingSuccess());
 
-        final ExperimentRun runWhileStopped = getOnlyExperimentRun(dc, experiment);
+        final Trial runWhileStopped = getOnlyExperimentRun(dc, experiment.getExperimentId());
         assertEquals(trial.getTrialId(), runWhileStopped.getTrialId());
-        assertTrue(runWhileStopped.isValidRun());
+        assertTrue(runWhileStopped.isValid());
         assertEquals(15, runWhileStarted.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
     }
 
-    private ExperimentRun getOnlyExperimentRun(DataController dc, Experiment experiment) {
-        final StoringConsumer<List<ExperimentRun>> cRuns = new StoringConsumer<>();
-        dc.getExperimentRuns(experiment.getExperimentId(), false, true, cRuns);
-        final List<ExperimentRun> runs = cRuns.getValue();
-
-        assertEquals("Failed.  experiment id: " + experiment.getExperimentId(), 1, runs.size());
-        return runs.get(0);
+    private Trial getOnlyExperimentRun(DataController dc, String experimentId) {
+        final StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
+        dc.getExperimentById(experimentId, cExperiment);
+        Trial result = cExperiment.getValue().getTrials().get(0);
+        return result;
     }
 }

@@ -25,7 +25,6 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDevic
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -38,7 +37,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Range;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,56 +100,14 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         }
     }
 
-    public void stopTrial(final Experiment experiment, final Trial trial,
-            final MaybeConsumer<Trial> onSuccess) {
-        addApplicationLabel(experiment, ApplicationLabel.TYPE_RECORDING_STOP, trial.getTrialId(),
-                MaybeConsumers.chainFailure(onSuccess, new Consumer<ApplicationLabel>() {
-                    @Override
-                    public void take(final ApplicationLabel label) {
-                        trial.setRecordingEndTime(label.getTimeStamp());
-                        background(DataControllerImpl.this.mMetaDataThread, onSuccess,
-                                new Callable<Trial>() {
-                                    @Override
-                                    public Trial call() throws Exception {
-                                        mMetaDataManager.updateTrial(trial);
-                                        return trial;
-                                    }
-                                });
-                    }
-                }));
-    }
-
-    @Override
-    public void updateTrial(final Trial trial, MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.updateTrial(trial);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
-    @Override
-    public void deleteRun(final ExperimentRun run, MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.deleteTrial(run.getTrialId());
-                removeRunSensorData(run);
-                return Success.SUCCESS;
-            }
-        });
-    }
-
-    private void removeRunSensorData(final ExperimentRun run) {
+    private void removeTrialSensorData(final Trial trial) {
         mSensorDataThread.execute(new Runnable() {
 
             @Override
             public void run() {
-                TimeRange times = TimeRange.oldest(Range.closed(run.getFirstTimestamp(),
-                        run.getLastTimestamp()));
-                for (String tag : run.getSensorIds()) {
+                TimeRange times = TimeRange.oldest(Range.closed(trial.getFirstTimestamp(),
+                        trial.getLastTimestamp()));
+                for (String tag : trial.getSensorIds()) {
                     mSensorDatabase.deleteScalarReadings(tag, times);
                 }
             }
@@ -201,68 +157,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void addCropApplicationLabel(final ApplicationLabel label,
-            MaybeConsumer<ApplicationLabel> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<ApplicationLabel>() {
-            @Override
-            public ApplicationLabel call() throws Exception {
-                mMetaDataManager.addApplicationLabel(label.getExperimentId(), label);
-                return label;
-            }
-        });
-    }
-
-    @Override
-    public void editApplicationLabel(final ApplicationLabel updatedLabel,
-            MaybeConsumer<Success> onSuccess) {
+    public void deleteTrialData(final Trial trial, MaybeConsumer<Success> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<Success>() {
             @Override
             public Success call() throws Exception {
-                mMetaDataManager.editApplicationLabel(updatedLabel);
+                removeTrialSensorData(trial);
                 return Success.SUCCESS;
-            }
-        });
-    }
-
-    @Override
-    public void startTrial(final Experiment experiment,
-            final List<GoosciSensorLayout.SensorLayout> sensorLayouts,
-            final MaybeConsumer<Trial> onSuccess) {
-        String id = generateNewLabelId();
-        addApplicationLabelWithId(experiment, ApplicationLabel.TYPE_RECORDING_START, id, id,
-                MaybeConsumers.chainFailure(onSuccess, new Consumer<ApplicationLabel>() {
-                    @Override
-                    public void take(final ApplicationLabel label) {
-                        background(DataControllerImpl.this.mMetaDataThread, onSuccess,
-                                new Callable<Trial>() {
-                                    @Override
-                                    public Trial call() throws Exception {
-                                        return mMetaDataManager.newTrial(experiment,
-                                                label.getTrialId(), label.getTimeStamp(),
-                                                sensorLayouts);
-                                    }
-                                });
-                    }
-                }));
-    }
-
-    private void addApplicationLabel(
-            final Experiment experiment, final @ApplicationLabel.Type int type,
-            final String startLabelId, final MaybeConsumer<ApplicationLabel> onSuccess) {
-        addApplicationLabelWithId(experiment, type, generateNewLabelId(), startLabelId, onSuccess);
-    }
-
-    private void addApplicationLabelWithId(
-            final Experiment experiment, final @ApplicationLabel.Type int type, final String id,
-            final String startLabelId, final MaybeConsumer<ApplicationLabel> onSuccess) {
-        // Adds an application label with the given ID and startLabelId.
-        background(mMetaDataThread, onSuccess, new Callable<ApplicationLabel>() {
-            @Override
-            public ApplicationLabel call() throws Exception {
-                final ApplicationLabel label = new ApplicationLabel(type, id, startLabelId,
-                        mClock.getNow());
-                mMetaDataManager.addApplicationLabel(experiment.getExperimentId(), label);
-                return label;
             }
         });
     }
@@ -306,12 +206,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     private void deleteExperimentOnDataThread(Experiment experiment) {
         // TODO: delete invalid run data, as well (b/35794788)
-        List<ExperimentRun> runsToDelete = getExperimentRunsOnDataThread(
-                experiment.getExperimentId(), true, false);
         mMetaDataManager.deleteExperiment(experiment);
-        for (ExperimentRun run : runsToDelete) {
-            removeRunSensorData(run);
-        }
     }
 
     @Override
@@ -374,52 +269,8 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         return "label_" + nextLabelTimestamp;
     }
 
-    // TODO(saff): test
     @Override
-    public void getExperimentRun(final String experimentId, final String startLabelId,
-            final MaybeConsumer<ExperimentRun> onSuccess) {
-        Preconditions.checkNotNull(startLabelId);
-        background(mMetaDataThread, onSuccess, new Callable<ExperimentRun>() {
-            @Override
-            public ExperimentRun call() throws Exception {
-                return buildExperimentRunOnDataThread(experimentId, startLabelId);
-            }
-        });
-    }
-
-    @Override
-    public void getExperimentRuns(final String experimentId, final boolean includeArchived,
-            final boolean includeInvalid, final MaybeConsumer<List<ExperimentRun>> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<List<ExperimentRun>>() {
-            @Override
-            public List<ExperimentRun> call() throws Exception {
-                return getExperimentRunsOnDataThread(experimentId, includeArchived, includeInvalid);
-            }
-        });
-    }
-
-    private List<ExperimentRun> getExperimentRunsOnDataThread(final String experimentId,
-            final boolean includeArchived, boolean includeInvalid) {
-        final List<ExperimentRun> runs = new ArrayList<>();
-        List<String> startLabelIds = mMetaDataManager.getExperimentRunIds(experimentId,
-                includeArchived);
-        for (String startLabelId : startLabelIds) {
-            ExperimentRun run = buildExperimentRunOnDataThread(experimentId, startLabelId);
-            if (run.isValidRun() || includeInvalid) {
-                runs.add(run);
-            }
-        }
-        return runs;
-    }
-
-    private ExperimentRun buildExperimentRunOnDataThread(String experimentId, String startLabelId) {
-        final List<ApplicationLabel> applicationLabels =
-                mMetaDataManager.getApplicationLabelsWithStartId(startLabelId);
-        Trial trial = mMetaDataManager.getTrial(startLabelId, applicationLabels);
-        return ExperimentRun.fromLabels(trial, experimentId, applicationLabels);
-    }
-
-    @Override public void getExperimentOverviews(final boolean includeArchived,
+    public void getExperimentOverviews(final boolean includeArchived,
             final MaybeConsumer<List<GoosciSharedMetadata.ExperimentOverview>> onSuccess) {
         background(mMetaDataThread, onSuccess,
                 new Callable<List<GoosciSharedMetadata.ExperimentOverview>>() {

@@ -291,21 +291,8 @@ public class ExperimentListFragment extends Fragment {
 
             // Start loading data for runs.
             boolean includeInvalidRuns = false;
-            mDataController.getExperimentRuns(experiment.experimentId,
-                    /* don't include archived runs */ false, includeInvalidRuns,
-                    new LoggingConsumer<List<ExperimentRun>>(TAG, "loading runs") {
-
-                        @Override
-                        public void success(List<ExperimentRun> runs) {
-                            if (!holder.experimentId.equals(experiment.experimentId)) {
-                                // Only load the data if we are have retrieved data for the same
-                                // item. Otherwise, exit.
-                                return;
-                            }
-                            holder.overviewLoadStatus = ViewHolder.LOAD_STATUS_IDLE;
-                            loadRunData(holder, experiment, runs);
-                        }
-                    });
+            holder.overviewLoadStatus = ViewHolder.LOAD_STATUS_IDLE;
+            loadRunData(holder, experiment);
         }
 
         private void setCardColor(ViewHolder holder, int color) {
@@ -320,17 +307,15 @@ public class ExperimentListFragment extends Fragment {
         }
 
         private void loadRunData(final ViewHolder holder,
-                final GoosciSharedMetadata.ExperimentOverview experiment,
-                List<ExperimentRun> runs) {
+                final GoosciSharedMetadata.ExperimentOverview experiment) {
             Context context = holder.itemView.getContext();
             holder.experimentRunTotals.setText(context.getResources()
-                    .getQuantityString(R.plurals.experiment_run_count, runs.size(), runs.size()));
-            if (runs.size() > 0) {
-                // Take the first run, which should be the last created run.
-                holder.experimentLastRun.setTime(runs.get(0).getFirstTimestamp());
-            } else {
-                holder.experimentLastRun.setText("");
-            }
+                    .getQuantityString(R.plurals.experiment_run_count, experiment.trialCount,
+                            experiment.trialCount));
+
+            // TODO: This is no longer relevant in D. Remove this field.
+            holder.experimentLastRun.setText("");
+
             if (!TextUtils.isEmpty(experiment.imagePath)) {
                 // TODO: imagePath is always empty. Fix this as part of the file-system migration.
                 // Photo should be the most recent run photo or label photo? Or the first one

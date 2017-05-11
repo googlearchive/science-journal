@@ -81,11 +81,11 @@ import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackCont
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
@@ -141,7 +141,7 @@ public class RunReviewFragment extends Fragment implements
     private boolean mWasPlayingBeforeTouch = false;
     private boolean mAudioWasPlayingBeforePause = false;
 
-    private String mStartLabelId;
+    private String mTrialId;
     private String mExperimentId;
     private int mSelectedSensorIndex = 0;
     private GraphOptionsController mGraphOptionsController;
@@ -150,7 +150,6 @@ public class RunReviewFragment extends Fragment implements
     private ExternalAxisController mExternalAxis;
     private RunReviewOverlay mRunReviewOverlay;
     private PinnedNoteAdapter mPinnedNoteAdapter;
-    private ExperimentRun mExperimentRun;
     private Experiment mExperiment;
     private ActionMode mActionMode;
     private ProgressBar mExportProgress;
@@ -231,7 +230,7 @@ public class RunReviewFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mStartLabelId = getArguments().getString(ARG_START_LABEL_ID);
+            mTrialId = getArguments().getString(ARG_START_LABEL_ID);
             mSelectedSensorIndex = getArguments().getInt(ARG_SENSOR_INDEX);
             mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
         }
@@ -353,7 +352,7 @@ public class RunReviewFragment extends Fragment implements
         final View rootView = inflater.inflate(R.layout.fragment_run_review, container, false);
         mExportProgress = (ProgressBar) rootView.findViewById(R.id.export_progress);
         AppBarLayout appBarLayout = (AppBarLayout) rootView.findViewById(R.id.app_bar_layout);
-        ViewCompat.setTransitionName(appBarLayout, mStartLabelId);
+        ViewCompat.setTransitionName(appBarLayout, mTrialId);
         ExternalAxisView externalAxisView =
                 (ExternalAxisView) rootView.findViewById(R.id.external_x_axis);
         mExternalAxis = new ExternalAxisController(externalAxisView,
@@ -388,8 +387,8 @@ public class RunReviewFragment extends Fragment implements
                             }
                             mWasPlayingBeforeTouch = false;
                             mAudioPlaybackController.startPlayback(getDataController(),
-                                    mExperimentRun.getFirstTimestamp(),
-                                    mExperimentRun.getLastTimestamp(),
+                                    getTrial().getFirstTimestamp(),
+                                    getTrial().getLastTimestamp(),
                                     mRunReviewOverlay.getTimestamp(),
                                     getSensorId());
                         }
@@ -443,9 +442,8 @@ public class RunReviewFragment extends Fragment implements
                     mAudioPlaybackController.stopPlayback();
                 } else if (mAudioPlaybackController.isNotPlaying()){
                     mAudioPlaybackController.startPlayback(getDataController(),
-                            mExperimentRun.getFirstTimestamp(), mExperimentRun.getLastTimestamp(),
-                            mRunReviewOverlay.getTimestamp(),
-                            getSensorId());
+                            getTrial().getFirstTimestamp(), getTrial().getLastTimestamp(),
+                            mRunReviewOverlay.getTimestamp(), getSensorId());
                 }
             }
         });
@@ -500,20 +498,20 @@ public class RunReviewFragment extends Fragment implements
         menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
 
         // Hide some menu buttons if the run isn't loaded yet.
-        if (mExperimentRun != null) {
-            menu.findItem(R.id.action_run_review_archive).setVisible(!mExperimentRun.isArchived());
-            menu.findItem(R.id.action_run_review_unarchive).setVisible(mExperimentRun.isArchived());
-            menu.findItem(R.id.action_run_review_delete).setEnabled(mExperimentRun.isArchived()
+        if (mExperiment != null) {
+            menu.findItem(R.id.action_run_review_archive).setVisible(!getTrial().isArchived());
+            menu.findItem(R.id.action_run_review_unarchive).setVisible(getTrial().isArchived());
+            menu.findItem(R.id.action_run_review_delete).setEnabled(getTrial().isArchived()
                     && !mRunReviewExporter.isExporting());
 
             menu.findItem(R.id.action_disable_auto_zoom).setVisible(
-                    mExperimentRun.getAutoZoomEnabled());
+                    getTrial().getAutoZoomEnabled());
             menu.findItem(R.id.action_enable_auto_zoom).setVisible(
-                    !mExperimentRun.getAutoZoomEnabled());
+                    !getTrial().getAutoZoomEnabled());
 
             // You can only do a crop if the run length is long enough.
             menu.findItem(R.id.action_run_review_crop).setEnabled(
-                    CropHelper.experimentIsLongEnoughForCrop(mExperimentRun));
+                    CropHelper.experimentIsLongEnoughForCrop(getTrial()));
         } else {
             menu.findItem(R.id.action_run_review_archive).setVisible(false);
             menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
@@ -542,14 +540,14 @@ public class RunReviewFragment extends Fragment implements
         //noinspection SimplifiableIfStatement
         if (id == android.R.id.home) {
             Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
-            if (mExperimentRun != null) {
+            if (mExperiment != null) {
                 upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, mExperimentId);
                 upIntent.putExtra(ExperimentDetailsFragment.ARG_CREATE_TASK,
                         getArguments().getBoolean(ARG_CREATE_TASK, false));
                 upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         getActivity(), getView().getRootView().findViewById(R.id.app_bar_layout),
-                        mStartLabelId);
+                        mTrialId);
                 getActivity().startActivity(upIntent, options.toBundle());
             } else if (getActivity() != null) {
                 // This is a weird error situation: we didn't load the experiment run at all.
@@ -562,43 +560,42 @@ public class RunReviewFragment extends Fragment implements
             mGraphOptionsController.launchOptionsDialog(mScalarDisplayOptions,
                     new NewOptionsStorage.SnackbarFailureListener(getView()));
         } else if (id == R.id.action_export) {
-            getDataController().getExperimentRun(mExperimentId, mStartLabelId,
-                new LoggingConsumer<ExperimentRun>(TAG, "retrieve argument") {
+            getDataController().getExperimentById(mExperimentId,
+                new LoggingConsumer<Experiment>(TAG, "retrieve argument") {
                     @Override
-                    public void success(final ExperimentRun run) {
-                        exportRun(run);
+                    public void success(final Experiment experiment) {
+                        exportRun(experiment.getTrial(mTrialId));
                     }
                 });
         } else if (id == R.id.action_run_review_crop) {
-            if (mExperimentRun != null) {
+            if (mExperiment != null) {
                 launchCrop(getView());
             }
         } else if (id == R.id.action_run_review_add_note) {
-            if (mExperimentRun != null && !mRunReviewOverlay.getIsCropping()) {
+            if (mExperiment != null && !mRunReviewOverlay.getIsCropping()) {
                 launchLabelAdd(new GoosciLabelValue.LabelValue(), LABEL_TYPE_UNDECIDED,
-                        Math.max(mRunReviewOverlay.getTimestamp(),
-                                mExperimentRun.getFirstTimestamp()));
+                        Math.max(mRunReviewOverlay.getTimestamp(), getTrial().getFirstTimestamp()));
             }
         } else if (id == R.id.action_run_review_delete) {
-            if (mExperimentRun != null) {
+            if (mExperiment != null) {
                 deleteThisRun();
             }
         } else if (id == R.id.action_run_review_archive) {
-            if (mExperimentRun != null) {
+            if (mExperiment != null) {
                 setArchived(true);
             }
         } else if (id == R.id.action_run_review_unarchive) {
-            if (mExperimentRun != null) {
+            if (mExperiment != null) {
                 setArchived(false);
             }
         } else if (id == R.id.action_run_review_edit) {
-            UpdateRunActivity.launch(getActivity(), mStartLabelId, mExperimentId);
+            UpdateRunActivity.launch(getActivity(), mTrialId, mExperimentId);
         } else if (id == R.id.action_enable_auto_zoom) {
-            if (mExperimentRun != null) {
+            if (mExperiment != null) {
                 setAutoZoomEnabled(true);
             }
         } else if (id == R.id.action_disable_auto_zoom) {
-            if (mExperimentRun != null) {
+            if (mExperiment != null) {
                 setAutoZoomEnabled(false);
             }
         } else if (id == R.id.action_run_review_audio_settings) {
@@ -609,26 +606,16 @@ public class RunReviewFragment extends Fragment implements
 
     private void initializeData() {
         final DataController dc = getDataController();
-        dc.getExperimentRun(mExperimentId, mStartLabelId,
-                new LoggingConsumer<ExperimentRun>(TAG, "load experiment run") {
+        dc.getExperimentById(mExperimentId,
+                new LoggingConsumer<Experiment>(TAG, "load experiment") {
                     @Override
-                    public void success(final ExperimentRun run) {
-                        if (run == null || TextUtils.isEmpty(run.getExperimentId())) {
-                            // This run or experiment no longer exists, finish.
+                    public void success(Experiment experiment) {
+                        if (experiment == null) {
+                            // This experiment no longer exists, finish.
                             getActivity().finish();
                         }
-                        dc.getExperimentById(run.getExperimentId(),
-                                new LoggingConsumer<Experiment>(TAG, "load experiment") {
-                                    @Override
-                                    public void success(Experiment experiment) {
-                                        if (experiment == null) {
-                                            // This experiment no longer exists, finish.
-                                            getActivity().finish();
-                                        }
-                                        mExperiment = experiment;
-                                        attachToRun(run);
-                                    }
-                                });
+                        mExperiment = experiment;
+                        attachToRun(experiment.getTrial(mTrialId));
                     }
                 });
     }
@@ -644,8 +631,8 @@ public class RunReviewFragment extends Fragment implements
     }
 
     private void setAutoZoomEnabled(boolean enableAutoZoom) {
-        mExperimentRun.setAutoZoomEnabled(enableAutoZoom);
-        getDataController().updateTrial(mExperimentRun.getTrial(),
+        getTrial().setAutoZoomEnabled(enableAutoZoom);
+        getDataController().updateExperiment(mExperimentId,
                 new LoggingConsumer<Success>(TAG, "update auto zoom") {
                     @Override
                     public void success(Success value) {
@@ -665,13 +652,13 @@ public class RunReviewFragment extends Fragment implements
     }
 
     private void adjustYAxis() {
-        if (mExperimentRun == null || mCurrentSensorStats == null ||
+        if (mExperiment == null || mCurrentSensorStats == null ||
                 mAudioPlaybackController == null) {
             return;
         }
         double yMin = mCurrentSensorStats.getStatValue(GoosciTrial.SensorStat.MINIMUM, 0);
         double yMax = mCurrentSensorStats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, 0);
-        if (mExperimentRun.getAutoZoomEnabled()) {
+        if (getTrial().getAutoZoomEnabled()) {
             mChartController.setReviewYAxis(yMin, yMax, /* has buffer */ true);
         } else {
             GoosciSensorLayout.SensorLayout layout = getSensorLayout();
@@ -752,18 +739,17 @@ public class RunReviewFragment extends Fragment implements
         }
     }
 
-    private void attachToRun(final ExperimentRun run) {
+    private void attachToRun(final Trial trial) {
         if (getActivity() == null) {
             return;
         }
-        mExperimentRun = run;
 
         // Create a BroadcastReceiver for when the stats get updated.
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String statsRunId = intent.getStringExtra(CropHelper.EXTRA_RUN_ID);
-                if (TextUtils.equals(statsRunId, mExperimentRun.getTrialId())) {
+                String statsRunId = intent.getStringExtra(CropHelper.EXTRA_TRIAL_ID);
+                if (TextUtils.equals(statsRunId, getTrial().getTrialId())) {
                     String statsSensorId = intent.getStringExtra(CropHelper.EXTRA_SENSOR_ID);
                     GoosciSensorLayout.SensorLayout sensorLayout = getSensorLayout();
                     if (TextUtils.equals(statsSensorId, sensorLayout.sensorId)) {
@@ -786,13 +772,13 @@ public class RunReviewFragment extends Fragment implements
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         pinnedNoteList.setLayoutManager(layoutManager);
 
-        mPinnedNoteAdapter = new PinnedNoteAdapter(run.getTrial().getLabels(), run.getFirstTimestamp(),
-                run.getLastTimestamp());
+        mPinnedNoteAdapter = new PinnedNoteAdapter(trial.getLabels(), trial.getFirstTimestamp(),
+                trial.getLastTimestamp());
         mPinnedNoteAdapter.setListItemModifyListener(new PinnedNoteAdapter.ListItemEditListener() {
             @Override
             public void onListItemEdit(final Label item) {
                 // This assumes one value per label. Update when it is possible to have more.
-                launchLabelEdit(item, run, item.getLabelProto().values[0], item.getTimeStamp());
+                launchLabelEdit(item, item.getLabelProto().values[0], item.getTimeStamp());
             }
 
             @Override
@@ -813,22 +799,23 @@ public class RunReviewFragment extends Fragment implements
                         mUndone = true;
                         final Label label = Label.copyOf(item);
                         label.setTimestamp(item.getTimeStamp());
-                        mExperimentRun.getTrial().addLabel(label);
-                        dc.updateTrial(mExperimentRun.getTrial(), new MaybeConsumer<Success>() {
+                        getTrial().addLabel(label);
+                        dc.updateExperiment(mExperimentId, new MaybeConsumer<Success>() {
                             @Override
                             public void fail(Exception e) {
                                 if (Log.isLoggable(TAG, Log.ERROR)) {
                                     Log.e(TAG, "Failed: re-add deleted label");
                                 }
                                 // It didn't work, so remove the label from the view again.
-                                mExperimentRun.getTrial().deleteLabel(label, getActivity());
+                                getTrial().deleteLabel(label, getActivity());
                             }
 
                             @Override
                             public void success(Success success) {
                                 // TODO: Somehow re-add the deleted picture here.
                                 mPinnedNoteAdapter.notifyDataSetChanged();
-                                mChartController.setLabels(mExperimentRun.getTrial().getLabels());
+                                mChartController.setLabels(getTrial()
+                                        .getLabels());
                                 WhistlePunkApplication.getUsageTracker(getActivity())
                                         .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                                 TrackerConstants.ACTION_DELETE_UNDO,
@@ -841,28 +828,27 @@ public class RunReviewFragment extends Fragment implements
 
                 // Delete the item immediately, and remove it from the pinned note list.
                 // TODO: Deleting the assets makes undo not work on photo labels...
-                mExperimentRun.getTrial().deleteLabel(item, getActivity());
-                dc.updateTrial(mExperimentRun.getTrial(),
-                        new MaybeConsumer<Success>() {
-                            @Override
-                            public void fail(Exception e) {
-                                if (Log.isLoggable(TAG, Log.ERROR)) {
-                                    Log.e(TAG, "Failed: delete label failed");
-                                }
-                                // It didn't work, so add the label back.
-                                mExperimentRun.getTrial().addLabel(item);
-                            }
+                getTrial().deleteLabel(item, getActivity());
+                dc.updateExperiment(mExperimentId, new MaybeConsumer<Success>() {
+                    @Override
+                    public void fail(Exception e) {
+                        if (Log.isLoggable(TAG, Log.ERROR)) {
+                            Log.e(TAG, "Failed: delete label failed");
+                        }
+                        // It didn't work, so add the label back.
+                        getTrial().addLabel(item);
+                    }
 
-                            @Override
-                            public void success(Success value) {
-                                mPinnedNoteAdapter.notifyDataSetChanged();
-                                mChartController.setLabels(mExperimentRun.getTrial().getLabels());
-                                WhistlePunkApplication.getUsageTracker(getActivity())
-                                        .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                                TrackerConstants.ACTION_DELETED,
-                                                TrackerConstants.LABEL_RUN_REVIEW,
-                                                TrackerConstants.getLabelValueType(item));
-                            }
+                    @Override
+                    public void success(Success value) {
+                        mPinnedNoteAdapter.notifyDataSetChanged();
+                        mChartController.setLabels(getTrial().getLabels());
+                        WhistlePunkApplication.getUsageTracker(getActivity())
+                                .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                        TrackerConstants.ACTION_DELETED,
+                                        TrackerConstants.LABEL_RUN_REVIEW,
+                                        TrackerConstants.getLabelValueType(item));
+                    }
                 });
                 bar.show();
             }
@@ -884,7 +870,7 @@ public class RunReviewFragment extends Fragment implements
         // Re-enable appropriate menu options.
         getActivity().invalidateOptionsMenu();
 
-        hookUpExperimentDetailsArea(run, rootView);
+        hookUpExperimentDetailsArea(trial, rootView);
 
         // Load the data for the first sensor only.
         if (mSavedInstanceStateForLoad != null) {
@@ -893,7 +879,8 @@ public class RunReviewFragment extends Fragment implements
                         mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM),
                         mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MAXIMUM));
                 mAudioPlaybackController.startPlayback(getDataController(),
-                        mExperimentRun.getFirstTimestamp(), mExperimentRun.getLastTimestamp(),
+                        getTrial().getFirstTimestamp(),
+                        getTrial().getLastTimestamp(),
                         mSavedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP),
                         getSensorId());
             }
@@ -923,8 +910,8 @@ public class RunReviewFragment extends Fragment implements
 
     private void setUpAxis(Bundle savedInstanceStateForLoad, View rootView) {
         // The first and last timestamps of the run.
-        long runFirstTimestamp = mExperimentRun.getFirstTimestamp();
-        long runLastTimestamp = mExperimentRun.getLastTimestamp();
+        long runFirstTimestamp = getTrial().getFirstTimestamp();
+        long runLastTimestamp = getTrial().getLastTimestamp();
 
         // Buffer the endpoints a bit so they look nice, creating the edges of where the axis can
         // be panned / zoomed.
@@ -996,9 +983,9 @@ public class RunReviewFragment extends Fragment implements
     }
 
     private void setArchived(final boolean archived) {
-        mExperimentRun.setArchived(archived);
-        getDataController().updateTrial(mExperimentRun.getTrial(), new LoggingConsumer<Success>(TAG,
-                "Editing run") {
+        getTrial().setArchived(archived);
+        getDataController().updateExperiment(mExperimentId, new LoggingConsumer<Success>(TAG,
+                "Editing run archived state") {
             @Override
             public void success(Success value) {
                 if (getActivity() == null) {
@@ -1035,7 +1022,8 @@ public class RunReviewFragment extends Fragment implements
         mAudioPlaybackController.stopPlayback();
         final GoosciSensorLayout.SensorLayout sensorLayout = getSensorLayout();
         populateSensorViews(rootView, sensorLayout);
-        updateSwitchSensorArrows(rootView, mExperimentRun.getSensorIds(), sensorLayout.sensorId);
+        updateSwitchSensorArrows(rootView, getTrial().getSensorIds(),
+                sensorLayout.sensorId);
 
         String sonificationType = getSonificationType(sensorLayout);
         mAudioPlaybackController.setSonificationType(sonificationType);
@@ -1048,10 +1036,11 @@ public class RunReviewFragment extends Fragment implements
             final StatsList statsList) {
         final DataController dataController = getDataController();
         final ChartController.ChartLoadingStatus fragmentRef = this;
-        TrialStats stats = mExperimentRun.getTrial().getStatsForSensor(sensorLayout.sensorId);
+        TrialStats stats = getTrial().getStatsForSensor(sensorLayout.sensorId);
         populateStats(stats, statsList, sensorLayout.sensorId);
 
-        mChartController.loadRunData(mExperimentRun, sensorLayout, dataController, fragmentRef,
+        mChartController.loadRunData(getTrial(), sensorLayout, dataController,
+                fragmentRef,
                 stats, new ChartController.ChartDataLoadedCallback() {
 
                     @Override
@@ -1096,16 +1085,7 @@ public class RunReviewFragment extends Fragment implements
             return;
         }
         // Reload the experiment run since the stats have changed.
-        // TODO: This is not strictly necessary since CropHelper has a reference to the
-        // ExperimentRun, but feels safer...
-        getDataController().getExperimentRun(mExperimentId, mStartLabelId,
-                new LoggingConsumer<ExperimentRun>(TAG, "load experiment run") {
-                    @Override
-                    public void success(final ExperimentRun run) {
-                        mExperimentRun = run;
-                        loadStatsAndChart(sensorLayout, statsList);
-                    }
-                });
+        loadStatsAndChart(sensorLayout, statsList);
     }
 
     private String getSonificationType(GoosciSensorLayout.SensorLayout sensorLayout) {
@@ -1116,8 +1096,9 @@ public class RunReviewFragment extends Fragment implements
 
     @Override
     public void requestDelete(Bundle extras) {
-        getDataController().deleteRun(mExperimentRun,
-                new LoggingConsumer<Success>(TAG, "Deleting new experiment") {
+        mExperiment.deleteTrial(getTrial(), getActivity());
+        getDataController().updateExperiment(mExperimentId,
+                new LoggingConsumer<Success>(TAG, "Deleting new trial") {
                     @Override
                     public void success(Success value) {
                         // Go back to the observe & record.
@@ -1143,23 +1124,23 @@ public class RunReviewFragment extends Fragment implements
         }
     }
 
-    // TODO(saff): probably extract ExperimentRunPresenter
-    private void hookUpExperimentDetailsArea(ExperimentRun run, View rootView) {
-        setArchivedUi(rootView, run.isArchived());
+    // TODO(saff): probably extract TrialPresenter
+    private void hookUpExperimentDetailsArea(Trial trial, View rootView) {
+        setArchivedUi(rootView, trial.isArchived());
 
         final TextView runTitle = (TextView) rootView.findViewById(R.id.run_title_text);
-        runTitle.setText(run.getRunTitle(rootView.getContext()));
+        runTitle.setText(trial.getTitle(rootView.getContext()));
 
         final RelativeTimeTextView runDetailsText = (RelativeTimeTextView) rootView.findViewById(
                 R.id.run_details_text);
-        runDetailsText.setTime(run.getFirstTimestamp());
+        runDetailsText.setTime(trial.getFirstTimestamp());
 
         final TextView durationText = (TextView) rootView.findViewById(R.id.run_review_duration);
         ElapsedTimeFormatter formatter = ElapsedTimeFormatter.getInstance(
                 durationText.getContext());
         durationText.setText(formatter.format(
-                run.elapsedSeconds()));
-        durationText.setContentDescription(formatter.formatForAccessibility(run.elapsedSeconds()));
+                trial.elapsedSeconds()));
+        durationText.setContentDescription(formatter.formatForAccessibility(trial.elapsedSeconds()));
     }
 
     private void setArchivedUi(View rootView, boolean isArchived) {
@@ -1239,13 +1220,13 @@ public class RunReviewFragment extends Fragment implements
 
     private void launchLabelAdd(GoosciLabelValue.LabelValue selectedValue, int labelType,
             long timestamp) {
-        String labelTimeText =
-                PinnedNoteAdapter.getNoteTimeText(timestamp, mExperimentRun.getFirstTimestamp());
-        AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, mExperimentRun.getTrialId(),
-                mExperimentRun.getExperimentId(), R.string.add_note_hint_text,
+        String labelTimeText = PinnedNoteAdapter.getNoteTimeText(timestamp,
+                getTrial().getFirstTimestamp());
+        AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, getTrial().getTrialId(),
+                mExperiment.getExperimentId(), R.string.add_note_hint_text,
                 /* show timestamp section */ true, labelTimeText, selectedValue, labelType,
                 PinnedNoteAdapter.getNoteTimeContentDescription(timestamp,
-                        mExperimentRun.getFirstTimestamp(), getActivity()), true);
+                        getTrial().getFirstTimestamp(), getActivity()), true);
         dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
     }
 
@@ -1258,7 +1239,7 @@ public class RunReviewFragment extends Fragment implements
                     @Override
                     public void success(Label newLabel) {
                         mPinnedNoteAdapter.insertNote(newLabel);
-                        mChartController.setLabels(mExperimentRun.getTrial().getLabels());
+                        mChartController.setLabels(getTrial().getLabels());
                         WhistlePunkApplication.getUsageTracker(getActivity())
                                               .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                                       TrackerConstants.ACTION_CREATE,
@@ -1281,7 +1262,7 @@ public class RunReviewFragment extends Fragment implements
                 getView().findViewById(R.id.embedded).setVisibility(View.VISIBLE);
                 EditLabelTimeDialog timeDialog =
                         EditLabelTimeDialog.newInstance(selectedValue, labelType, selectedTimestamp,
-                                mExperimentRun.getFirstTimestamp());
+                                getTrial().getFirstTimestamp());
                 FragmentTransaction ft = getChildFragmentManager().beginTransaction();
                 ft.add(R.id.embedded, timeDialog, EditLabelTimeDialog.TAG);
                 ft.commit();
@@ -1290,6 +1271,10 @@ public class RunReviewFragment extends Fragment implements
                 setTimepickerUi(getView(), true);
             }
         };
+    }
+
+    private Trial getTrial() {
+        return mExperiment.getTrial(mTrialId);
     }
 
     @Override
@@ -1314,7 +1299,7 @@ public class RunReviewFragment extends Fragment implements
             public void success(Success value) {
                 mPinnedNoteAdapter.editLabel(label);
                 // The timestamp may have been edited, so also refresh the line graph presenter.
-                mChartController.setLabels(mExperimentRun.getTrial().getLabels());
+                mChartController.setLabels(getTrial().getLabels());
                 WhistlePunkApplication.getUsageTracker(getActivity())
                         .trackEvent(TrackerConstants.CATEGORY_NOTES,
                                 TrackerConstants.ACTION_EDITED,
@@ -1337,7 +1322,7 @@ public class RunReviewFragment extends Fragment implements
         // Show the timestamp edit window below the graph / over the notes
         getView().findViewById(R.id.embedded).setVisibility(View.VISIBLE);
         EditLabelTimeDialog timeDialog = EditLabelTimeDialog.newInstance(label, selectedValue,
-                labelTimestamp, mExperimentRun.getFirstTimestamp());
+                labelTimestamp, getTrial().getFirstTimestamp());
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         ft.add(R.id.embedded, timeDialog, EditLabelTimeDialog.TAG);
         ft.commit();
@@ -1430,9 +1415,9 @@ public class RunReviewFragment extends Fragment implements
 
     private void saveCrop(final ActionMode mode) {
         CropHelper helper = new CropHelper(getDataController());
-        helper.cropRun(getActivity().getApplicationContext(), mExperimentRun,
+        helper.cropTrial(getActivity().getApplicationContext(), mExperiment, mTrialId,
                 mRunReviewOverlay.getCropStartTimestamp(), mRunReviewOverlay.getCropEndTimestamp(),
-                new CropHelper.CropRunListener() {
+                new CropHelper.CropTrialListener() {
                     @Override
                     public void onCropCompleted() {
                         if (getActivity() == null || isDetached()) {
@@ -1445,9 +1430,9 @@ public class RunReviewFragment extends Fragment implements
                         AccessibilityUtils.makeSnackbar(getView(),
                                 getResources().getString(R.string.crop_completed_message),
                                 Snackbar.LENGTH_SHORT).show();
-                        hookUpExperimentDetailsArea(mExperimentRun, getView());
-                        mPinnedNoteAdapter.updateRunTimestamps(mExperimentRun.getFirstTimestamp(),
-                                mExperimentRun.getLastTimestamp());
+                        hookUpExperimentDetailsArea(getTrial(), getView());
+                        mPinnedNoteAdapter.updateRunTimestamps(getTrial().getFirstTimestamp(),
+                                getTrial().getLastTimestamp());
                         if (mode != null) {
                             mode.finish();
                         }
@@ -1540,7 +1525,7 @@ public class RunReviewFragment extends Fragment implements
     public void onEditTimeDialogDismissedEdit(Label label,
             GoosciLabelValue.LabelValue selectedValue, long selectedTimestamp) {
         setTimepickerUi(getView(), false);
-        launchLabelEdit(label, mExperimentRun, selectedValue, selectedTimestamp);
+        launchLabelEdit(label, selectedValue, selectedTimestamp);
     }
 
     @Override
@@ -1550,21 +1535,22 @@ public class RunReviewFragment extends Fragment implements
         launchLabelAdd(selectedValue, labelType, selectedTimestamp);
     }
 
-    private void launchLabelEdit(Label label, ExperimentRun run,
-            GoosciLabelValue.LabelValue newValue, long selectedTimestamp) {
+    private void launchLabelEdit(Label label, GoosciLabelValue.LabelValue newValue,
+            long selectedTimestamp) {
         String labelTimeText =
-                PinnedNoteAdapter.getNoteTimeText(selectedTimestamp, run.getFirstTimestamp());
+                PinnedNoteAdapter.getNoteTimeText(selectedTimestamp,
+                        getTrial().getFirstTimestamp());
         EditNoteDialog dialog = EditNoteDialog.newInstance(label, newValue, labelTimeText,
                 selectedTimestamp, PinnedNoteAdapter.getNoteTimeContentDescription(
-                        selectedTimestamp, run.getFirstTimestamp(), getActivity()),
-                mExperimentId, mExperimentRun.getTrialId());
+                        selectedTimestamp, getTrial().getFirstTimestamp(), getActivity()),
+                mExperimentId, getTrial().getTrialId());
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
     private void launchAudioSettings() {
         mAudioPlaybackController.stopPlayback();
 
-        List<GoosciSensorLayout.SensorLayout> sensorLayouts = mExperimentRun.getSensorLayouts();
+        List<GoosciSensorLayout.SensorLayout> sensorLayouts = getTrial().getSensorLayouts();
         int size = sensorLayouts.size();
         String[] sensorIds = new String[size];
         String[] sonificationTypes = new String[size];
@@ -1582,8 +1568,8 @@ public class RunReviewFragment extends Fragment implements
         rootView.findViewById(R.id.run_review_playback_button_holder).setVisibility(View.GONE);
         mAudioPlaybackController.stopPlayback();
 
-        long originalFirstTimestamp = mExperimentRun.getOriginalFirstTimestamp();
-        long lastTimestamp = mExperimentRun.getOriginalLastTimestamp();
+        long originalFirstTimestamp = getTrial().getOriginalFirstTimestamp();
+        long lastTimestamp = getTrial().getOriginalLastTimestamp();
         // Load data even if it was previously cropped out of the graph
         mChartController.setShowOriginalRun(true);
 
@@ -1591,7 +1577,7 @@ public class RunReviewFragment extends Fragment implements
         mRunReviewOverlay.setCropModeOn(true);
 
         long buffer = ExternalAxisController.getReviewBuffer(originalFirstTimestamp, lastTimestamp);
-        mExternalAxis.setReviewData(originalFirstTimestamp, mExperimentRun.getFirstTimestamp(),
+        mExternalAxis.setReviewData(originalFirstTimestamp, getTrial().getFirstTimestamp(),
                 originalFirstTimestamp - buffer, lastTimestamp + buffer);
         mExternalAxis.updateAxis();
 
@@ -1609,8 +1595,8 @@ public class RunReviewFragment extends Fragment implements
 
         // When we started cropping we may have changed the external axis review data. Reset that
         // now that the crop is not happening any more.
-        long runFirstTimestamp = mExperimentRun.getFirstTimestamp();
-        long runLastTimestamp = mExperimentRun.getLastTimestamp();
+        long runFirstTimestamp = getTrial().getFirstTimestamp();
+        long runLastTimestamp = getTrial().getLastTimestamp();
         long buffer = ExternalAxisController.getReviewBuffer(runFirstTimestamp, runLastTimestamp);
         long idealRenderedXMin = runFirstTimestamp - buffer;
         long idealRenderedXMax = runLastTimestamp + buffer;
@@ -1651,8 +1637,8 @@ public class RunReviewFragment extends Fragment implements
 
     public void openManualCropEditor(boolean isStartCrop) {
         EditTimestampDialog timestampDialog = EditTimestampDialog.newInstance(isStartCrop,
-                mExperimentRun.getOriginalFirstTimestamp(),
-                mExperimentRun.getOriginalLastTimestamp(), mExperimentRun.getFirstTimestamp(),
+                getTrial().getOriginalFirstTimestamp(), getTrial().getOriginalLastTimestamp(),
+                getTrial().getFirstTimestamp(),
                 isStartCrop ? mRunReviewOverlay.getCropStartTimestamp() :
                         mRunReviewOverlay.getCropEndTimestamp());
         setTimestampDialogListener(timestampDialog);
@@ -1709,7 +1695,7 @@ public class RunReviewFragment extends Fragment implements
         // Save the new sonification types into their respective sensorLayouts.
         // Note that this uses the knowledge that the sensor ordering has not changed since
         // launchAudioSettings.
-        List<GoosciSensorLayout.SensorLayout> layouts = mExperimentRun.getSensorLayouts();
+        List<GoosciSensorLayout.SensorLayout> layouts = getTrial().getSensorLayouts();
         int size = layouts.size();
         for (int i = 0; i < size; i++) {
             // Update the sonification setting in the extras for this layout.
@@ -1721,7 +1707,7 @@ public class RunReviewFragment extends Fragment implements
         }
 
         // Save the updated layouts to the DB.
-        getDataController().updateTrial(mExperimentRun.getTrial(),
+        getDataController().updateExperiment(mExperimentId,
                 LoggingConsumer.<Success>expectSuccess(TAG, "updating audio settings"));
     }
 
@@ -1734,11 +1720,11 @@ public class RunReviewFragment extends Fragment implements
         return AppSingleton.getInstance(getActivity()).getDataController();
     }
 
-    private void exportRun(final ExperimentRun run) {
+    private void exportRun(final Trial trial) {
         // Until we have UI to override it, we never use relative timestamps.
         boolean startAtZero = false;
         mRunReviewExporter.startExport(getActivity(), mExperiment.getDisplayTitle(getActivity()),
-                run, run.getSensorLayouts().get(mSelectedSensorIndex).sensorId, startAtZero);
+                trial, trial.getSensorLayouts().get(mSelectedSensorIndex).sensorId, startAtZero);
         // Disable the item.
         getActivity().invalidateOptionsMenu();
     }
@@ -1788,7 +1774,7 @@ public class RunReviewFragment extends Fragment implements
 
     @Override
     public String getRunId() {
-        return mExperimentRun.getTrialId();
+        return mTrialId;
     }
 
     @Override
@@ -1797,6 +1783,6 @@ public class RunReviewFragment extends Fragment implements
     }
 
     protected GoosciSensorLayout.SensorLayout getSensorLayout() {
-        return mExperimentRun.getSensorLayouts().get(mSelectedSensorIndex);
+        return getTrial().getSensorLayouts().get(mSelectedSensorIndex);
     }
 }

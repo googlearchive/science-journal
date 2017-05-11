@@ -26,6 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 
 import java.util.List;
 
+@Deprecated
 public class ExperimentRun {
     private Trial mTrial;
     private String mExperimentId;

@@ -19,9 +19,15 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import android.content.Context;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.util.Log;
 
+import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.javalib.MaybeConsumers;
+import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeAxisFormatter;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
+import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
@@ -43,6 +49,8 @@ import java.util.Map;
  * underlying protocol buffer and making changes to that directly.
  */
 public class Trial extends LabelListHolder {
+    private static final String TAG = "Trial";
+
     public static final Comparator<Trial> COMPARATOR_BY_TIMESTAMP = new Comparator<Trial>() {
         @Override
         public int compare(Trial first, Trial second) {
@@ -247,8 +255,16 @@ public class Trial extends LabelListHolder {
         for (Label label : mLabels) {
             deleteLabel(label, context);
         }
-        // TODO: Also delete any assets associated with this trial, inc. sensor data, icons, etc.
-        // May need a reference to the FileMetadataManager to do this.
+        AppSingleton.getInstance(context).getDataController().deleteTrialData(this,
+                MaybeConsumers.expectSuccess(new FailureListener() {
+                    @Override
+                    public void fail(Exception e) {
+                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, "Error deleting trial data");
+                        }
+                    }
+                }));
+        // TODO: Also delete any assets associated with this trial, including icons, etc.
     }
 
     private void updateTrialProtoWithStats() {

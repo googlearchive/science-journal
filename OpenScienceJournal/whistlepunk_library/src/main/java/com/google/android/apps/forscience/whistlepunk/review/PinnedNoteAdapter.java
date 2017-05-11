@@ -47,6 +47,9 @@ import java.util.List;
 /**
  * Adapter for a recycler view of pinned notes.
  */
+// TODO: This points directly at the Trial object's notes. Inserts and deletes now cause the trial
+// notes to be changed. Need to update so that we never add/remove items directly from the notes
+// list. Perhaps this points to the trial instead.
 class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = "PinnedNoteAdapter";

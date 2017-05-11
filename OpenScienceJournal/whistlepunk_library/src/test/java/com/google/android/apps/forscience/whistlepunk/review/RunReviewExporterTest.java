@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
@@ -24,7 +23,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
@@ -58,29 +56,28 @@ public class RunReviewExporterTest {
     }
 
     @Test public void makeFilenameWhenShort() {
-        ExperimentRun erun = makeExperimentRun("runTitle");
-        String filename = RunReviewExporter.makeExportFilename("experiment", erun, null);
+        Trial trial = makeTrial("runTitle");
+        String filename = RunReviewExporter.makeExportFilename("experiment", trial, null);
         assertEquals("experiment runTitle.csv", filename);
     }
 
     @Test
     public void makeFilenameWhenTooLong() {
         String veryLongString = "012345678901234567890123456789012345678901234567890123456789";
-        ExperimentRun erun = makeExperimentRun("runTitle" + veryLongString);
+        Trial trial = makeTrial("runTitle" + veryLongString);
 
         String filename =
-                RunReviewExporter.makeExportFilename("experiment" + veryLongString, erun, null);
+                RunReviewExporter.makeExportFilename("experiment" + veryLongString, trial, null);
         assertEquals(80, filename.length());
         assertEquals(
                 "experiment01234567890123456789018953cd53 runTitle0123456789012345678a7c9ddcd.csv",
                 filename);
     }
 
-    private ExperimentRun makeExperimentRun(String runTitle) {
+    private Trial makeTrial(String runTitle) {
         GoosciTrial.Trial trial = new GoosciTrial.Trial();
         trial.trialId ="runId";
         trial.title = runTitle;
-        return ExperimentRun.fromLabels(Trial.fromTrial(trial), "experiment",
-                Collections.<ApplicationLabel>emptyList());
+        return Trial.fromTrial(trial);
     }
 }

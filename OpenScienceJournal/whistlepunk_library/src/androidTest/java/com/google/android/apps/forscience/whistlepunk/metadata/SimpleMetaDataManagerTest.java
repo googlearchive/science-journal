@@ -54,7 +54,7 @@ import java.util.Map;
  */
 public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
-    private MetaDataManager mMetaDataManager;
+    private SimpleMetaDataManager mMetaDataManager;
     private TestSystemClock mTestSystemClock;
 
     public class TestSystemClock implements Clock {

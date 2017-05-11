@@ -200,7 +200,6 @@ public class Experiment extends LabelListHolder {
         return mTrials;
     }
 
-
     /**
      * Gets the current list of trials in this experiment.
      * Objects in this list should not be modified and expect that state to be saved, instead

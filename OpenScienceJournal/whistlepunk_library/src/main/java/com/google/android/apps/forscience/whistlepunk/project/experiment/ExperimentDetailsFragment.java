@@ -81,9 +81,9 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
@@ -196,7 +196,7 @@ public class ExperimentDetailsFragment extends Fragment
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String statsRunId = intent.getStringExtra(CropHelper.EXTRA_RUN_ID);
+                String statsRunId = intent.getStringExtra(CropHelper.EXTRA_TRIAL_ID);
                 mAdapter.onStatsBroadcastReceived(statsRunId, getDataController());
             }
         };
@@ -339,13 +339,8 @@ public class ExperimentDetailsFragment extends Fragment
         }
         final DataController dc = getDataController();
         boolean includeInvalidRuns = false;
-        dc.getExperimentRuns(experiment.getExperimentId(), mIncludeArchived, includeInvalidRuns,
-                new LoggingConsumer<List<ExperimentRun>>(TAG, "loading runs") {
-                    @Override
-                    public void success(final List<ExperimentRun> runs) {
-                        mAdapter.setData(experiment, runs, mScalarDisplayOptions);
-                    }
-                });
+        mAdapter.setData(experiment, experiment.getTrials(mIncludeArchived, includeInvalidRuns),
+                mScalarDisplayOptions);
     }
 
     private void attachExperimentDetails(Experiment experiment) {
@@ -928,7 +923,7 @@ public class ExperimentDetailsFragment extends Fragment
             return mItems.get(position).getViewType();
         }
 
-        public void setData(Experiment experiment, List<ExperimentRun> runs,
+        public void setData(Experiment experiment, List<Trial> trials,
                 ScalarDisplayOptions scalarDisplayOptions) {
             mHasRunsOrLabels = false;
             mExperiment = experiment;
@@ -936,12 +931,12 @@ public class ExperimentDetailsFragment extends Fragment
             mItems.clear();
             // As a safety check, if mSensorIndices is not the same size as the run list,
             // just ignore it.
-            if (mSensorIndices != null && mSensorIndices.size() != runs.size()) {
+            if (mSensorIndices != null && mSensorIndices.size() != trials.size()) {
                 mSensorIndices = null;
             }
             int i = 0;
-            for (ExperimentRun run : runs) {
-                ExperimentDetailItem item = new ExperimentDetailItem(run, scalarDisplayOptions);
+            for (Trial trial : trials) {
+                ExperimentDetailItem item = new ExperimentDetailItem(trial, scalarDisplayOptions);
                 item.setSensorTagIndex(mSensorIndices != null ? mSensorIndices.get(i++) : 0);
                 mItems.add(item);
                 mHasRunsOrLabels = true;
@@ -1040,50 +1035,50 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         void bindRun(final ViewHolder holder, final ExperimentDetailItem item) {
-            final ExperimentRun run = item.getRun();
+            final Trial trial = item.getTrial();
             final Context applicationContext = holder.itemView.getContext().getApplicationContext();
-            holder.setRunId(run.getTrialId());
-            String title = run.getRunTitle(applicationContext);
+            holder.setRunId(trial.getTrialId());
+            String title = trial.getTitle(applicationContext);
             holder.runTitle.setText(title);
-            holder.date.setTime(run.getFirstTimestamp());
+            holder.date.setTime(trial.getFirstTimestamp());
             ElapsedTimeFormatter formatter = ElapsedTimeFormatter.getInstance(applicationContext);
-            holder.duration.setText(formatter.format(run.elapsedSeconds()));
+            holder.duration.setText(formatter.format(trial.elapsedSeconds()));
             holder.duration.setContentDescription(
-                    formatter.formatForAccessibility(run.elapsedSeconds()));
-            if (run.getNoteCount() > 0) {
+                    formatter.formatForAccessibility(trial.elapsedSeconds()));
+            if (trial.getLabelCount() > 0) {
                 holder.noteCount.setVisibility(View.VISIBLE);
                 holder.noteCount.setText(applicationContext.getResources().getQuantityString(
-                        R.plurals.notes_count, run.getNoteCount(), run.getNoteCount()));
+                        R.plurals.notes_count, trial.getLabelCount(), trial.getLabelCount()));
             } else {
                 holder.noteCount.setVisibility(View.GONE);
             }
             holder.cardView.setOnClickListener(createRunClickListener(item.getSensorTagIndex()));
-            holder.cardView.setTag(R.id.run_title_text, run.getTrialId());
+            holder.cardView.setTag(R.id.run_title_text, trial.getTrialId());
 
             holder.itemView.findViewById(R.id.content).setAlpha(
-                    applicationContext.getResources().getFraction(run.isArchived() ?
+                    applicationContext.getResources().getFraction(trial.isArchived() ?
                         R.fraction.metadata_card_archived_alpha :
                         R.fraction.metadata_card_alpha, 1, 1));
             View archivedIndicator = holder.itemView.findViewById(R.id.archived_indicator);
-            archivedIndicator.setVisibility(run.isArchived() ? View.VISIBLE :
+            archivedIndicator.setVisibility(trial.isArchived() ? View.VISIBLE :
                     View.GONE);
-            if (run.isArchived()) {
+            if (trial.isArchived()) {
                 holder.runTitle.setContentDescription(applicationContext.getResources().getString(
                         R.string.archived_content_description, title));
             }
 
-            ViewCompat.setTransitionName(holder.itemView, run.getTrialId());
-            if (!run.isValidRun()) {
+            ViewCompat.setTransitionName(holder.itemView, trial.getTrialId());
+            if (!trial.isValid()) {
                 removeSensorData(holder);
 
-            } else if (run.getSensorIds().size() > 0) {
+            } else if (trial.getSensorIds().size() > 0) {
                 loadSensorData(applicationContext, holder, item);
                 holder.sensorNext.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         //Sometimes we tap the button before it can disable so return if the button
                         //should be disabled.
-                        if (item.getSensorTagIndex() >= item.getRun().getSensorIds().size() - 1)
+                        if (item.getSensorTagIndex() >= item.getTrial().getSensorIds().size() - 1)
                             return;
                         item.setSensorTagIndex(item.getSensorTagIndex() + 1);
                         loadSensorData(applicationContext, holder, item);
@@ -1145,8 +1140,8 @@ public class ExperimentDetailsFragment extends Fragment
 
         private void loadSensorData(Context appContext, final ViewHolder holder,
                                     final ExperimentDetailItem item) {
-            final ExperimentRun run = item.getRun();
-            final String sensorId = run.getSensorIds().get(item.getSensorTagIndex());
+            final Trial trial = item.getTrial();
+            final String sensorId = trial.getSensorIds().get(item.getSensorTagIndex());
 
             final SensorAppearance appearance = AppSingleton.getInstance(appContext)
                     .getSensorAppearanceProvider()
@@ -1157,7 +1152,7 @@ public class ExperimentDetailsFragment extends Fragment
             Appearances.applyDrawableToImageView(appearance.getIconDrawable(appContext),
                     holder.sensorImage, sensorLayout.color);
 
-            boolean hasNextButton = item.getSensorTagIndex() < run.getSensorIds().size() - 1;
+            boolean hasNextButton = item.getSensorTagIndex() < trial.getSensorIds().size() - 1;
             boolean hasPrevButton = item.getSensorTagIndex() > 0;
             holder.sensorPrev.setVisibility(hasPrevButton ? View.VISIBLE : View.INVISIBLE);
             holder.sensorNext.setVisibility(hasNextButton ? View.VISIBLE : View.INVISIBLE);
@@ -1172,7 +1167,7 @@ public class ExperimentDetailsFragment extends Fragment
                         appContext);
             }
 
-            final TrialStats stats = run.getTrial().getStatsForSensor(sensorId);
+            final TrialStats stats = trial.getStatsForSensor(sensorId);
             if (!stats.statsAreValid()) {
                 holder.statsList.clearStats();
             } else {
@@ -1187,7 +1182,7 @@ public class ExperimentDetailsFragment extends Fragment
             chartController.setProgressView(holder.progressView);
             holder.setSensorId(sensorLayout.sensorId);
             DataController dc = AppSingleton.getInstance(appContext).getDataController();
-            chartController.loadRunData(run, sensorLayout, dc, holder, stats,
+            chartController.loadRunData(trial, sensorLayout, dc, holder, stats,
                     new ChartController.ChartDataLoadedCallback() {
                         @Override
                         public void onChartDataLoaded(long firstTimestamp,
@@ -1230,20 +1225,23 @@ public class ExperimentDetailsFragment extends Fragment
             // Update the stats when this is received.
             // TODO: Optimize: only update the full view if the sensor ID that changed was visible?
             for (int i = 0; i < mItems.size(); i++) {
-                ExperimentRun run = mItems.get(i).getRun();
-                if (run == null) {
+                Trial trial = mItems.get(i).getTrial();
+                if (trial == null) {
                     continue;
                 }
-                if (TextUtils.equals(statsRunId, run.getTrialId())) {
+                final String trialId = trial.getTrialId();
+                if (TextUtils.equals(statsRunId, trialId)) {
                     // Reload the experiment run since the stats have changed.
+                    // TODO: Do we need a full experiment reload if the same objects are being used
+                    // everywhere?
                     final int trialIndex = i;
-                    dc.getExperimentRun(run.getExperimentId(), run.getTrialId(),
-                            new LoggingConsumer<ExperimentRun>(TAG, "load experiment run") {
+                    dc.getExperimentById(mExperiment.getExperimentId(),
+                            new LoggingConsumer<Experiment>(TAG, "load experiment") {
                                 @Override
-                                public void success(final ExperimentRun run) {
+                                public void success(final Experiment experiment) {
                                     // Rebind the View Holder to reload the stats and graphs.
-                                    mItems.get(trialIndex).mRun = run;
-                                    notifyItemChanged(trialIndex);
+                                    mExperiment = experiment;
+                                    mItems.get(trialIndex).mTrial = experiment.getTrial(trialId);
                                 }
                             });
                     return;
@@ -1354,18 +1352,18 @@ public class ExperimentDetailsFragment extends Fragment
          */
         public static class ExperimentDetailItem {
             private final int mViewType;
-            private ExperimentRun mRun;
+            private Trial mTrial;
             private int mSensorTagIndex = -1;
             private Label mLabel;
             private LabelValue mLabelValue;
             private long mTimestamp;
             private ChartController mChartController;
 
-            ExperimentDetailItem(ExperimentRun run, ScalarDisplayOptions scalarDisplayOptions) {
-                mRun = run;
-                mTimestamp = mRun.getFirstTimestamp();
+            ExperimentDetailItem(Trial trial, ScalarDisplayOptions scalarDisplayOptions) {
+                mTrial = trial;
+                mTimestamp = mTrial.getFirstTimestamp();
                 mViewType = VIEW_TYPE_RUN_CARD;
-                mSensorTagIndex = run.getSensorIds().size() > 0 ? 0 : -1;
+                mSensorTagIndex = mTrial.getSensorIds().size() > 0 ? 0 : -1;
                 mChartController = new ChartController(
                         ChartOptions.ChartPlacementType.TYPE_PREVIEW_REVIEW,
                         scalarDisplayOptions);
@@ -1398,8 +1396,8 @@ public class ExperimentDetailsFragment extends Fragment
                 return mTimestamp;
             }
 
-            ExperimentRun getRun() {
-                return mRun;
+            Trial getTrial() {
+                return mTrial;
             }
 
             int getSensorTagIndex() {
@@ -1407,15 +1405,15 @@ public class ExperimentDetailsFragment extends Fragment
             }
 
             GoosciSensorLayout.SensorLayout getSelectedSensorLayout() {
-                return mRun.getSensorLayouts().get(mSensorTagIndex);
+                return mTrial.getSensorLayouts().get(mSensorTagIndex);
             }
 
             String getNextSensorId() {
-                return mRun.getSensorIds().get(mSensorTagIndex + 1);
+                return mTrial.getSensorIds().get(mSensorTagIndex + 1);
             }
 
             String getPrevSensorId() {
-                return mRun.getSensorIds().get(mSensorTagIndex - 1);
+                return mTrial.getSensorIds().get(mSensorTagIndex - 1);
             }
 
             void setSensorTagIndex(int index) {

@@ -127,28 +127,19 @@ public class DataControllerTest extends AndroidTestCase {
         assertEquals("Could not add value 3.0", listener.exception.getMessage());
     }
 
-    public void testUpdateTrialError() {
+    public void testNewExperimentError() {
         MemoryMetadataManager failingMetadata = new MemoryMetadataManager() {
             @Override
-            public void updateTrial(Trial trial) {
-                throw new RuntimeException("Failed to store trial");
+            public Experiment newExperiment() {
+                throw new RuntimeException("Failed to make experiment");
             }
         };
         final DataController dc = new InMemorySensorDatabase().makeSimpleController(
                 failingMetadata);
         final StoringFailureListener listener = new StoringFailureListener();
 
-        Experiment experiment = Experiment.newExperiment(10, "localId");
-        dc.startTrial(experiment, Collections.<GoosciSensorLayout.SensorLayout>emptyList(),
-                new LoggingConsumer<Trial>("DataControllerTest", "new trial") {
-                    @Override
-                    public void success(Trial value) {
-                        value.setTitle("changed title");
-                        dc.updateTrial(value, TestConsumers.<Success>expectingFailure(listener));
-                    }
-                });
-
-        assertEquals("Failed to store trial", listener.exception.getMessage());
+        dc.createExperiment(TestConsumers.<Experiment>expectingFailure(listener));
+        assertEquals("Failed to make experiment", listener.exception.getMessage());
     }
 
     public void testReplaceChangesLayout() {

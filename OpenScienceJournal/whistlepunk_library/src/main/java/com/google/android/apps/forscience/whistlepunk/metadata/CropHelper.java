@@ -32,7 +32,8 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
@@ -57,7 +58,7 @@ public class CropHelper {
 
     private static final String ACTION_CROP_STATS_RECALCULATED = "action_crop_stats_recalculated";
     public static final String EXTRA_SENSOR_ID = "extra_sensor_id";
-    public static final String EXTRA_RUN_ID = "extra_run_id";
+    public static final String EXTRA_TRIAL_ID = "extra_trial_id";
 
     private static final IntentFilter STATS_INTENT_FILTER = new IntentFilter(
             ACTION_CROP_STATS_RECALCULATED);
@@ -87,7 +88,7 @@ public class CropHelper {
         }
     }
 
-    public interface CropRunListener {
+    public interface CropTrialListener {
         /**
          * Called when a crop is completed, i.e. the metadata for the experiment is updated.
          * The min, max and average may not yet be recalculated.
@@ -116,12 +117,14 @@ public class CropHelper {
         mDataController = dataController;
     }
 
-    public void cropRun(final Context context, final ExperimentRun run, long startTimestamp,
-            long endTimestamp, final CropRunListener listener) {
+    public void cropTrial(final Context context, final Experiment experiment, final String trialId,
+            long startTimestamp, long endTimestamp, final CropTrialListener listener) {
+
+        final Trial trial = experiment.getTrial(trialId);
 
         // Are we trying to crop too wide? Too narrow? Are the timestamps valid?
-        if (startTimestamp < run.getOriginalFirstTimestamp() ||
-                run.getOriginalLastTimestamp() < endTimestamp) {
+        if (startTimestamp < trial.getOriginalFirstTimestamp() ||
+                trial.getOriginalLastTimestamp() < endTimestamp) {
             logEvent(context, TrackerConstants.ACTION_CROP_FAILED);
             listener.onCropFailed(R.string.crop_failed_range_too_large);
             return;
@@ -132,88 +135,31 @@ public class CropHelper {
             return;
         }
 
-        final CropLabels cropLabels = run.getCropLabels();
-        if (cropLabels.cropStartLabel != null && cropLabels.cropEndLabel != null) {
-            // It is already cropped, so we can edit the old crop labels.
-            cropLabels.cropStartLabel.setTimestamp(startTimestamp);
-            cropLabels.cropEndLabel.setTimestamp(endTimestamp);
-            run.setCropLabels(cropLabels);
-            mDataController.editApplicationLabel(cropLabels.cropStartLabel,
-                    new LoggingConsumer<Success>(TAG, "edit crop start label") {
-                        @Override
-                        public void success(Success value) {
-                            mDataController.editApplicationLabel(cropLabels.cropEndLabel,
-                                    new LoggingConsumer<Success>(TAG,
-                                            "edit crop end label") {
-                                        @Override
-                                        public void success(Success value) {
-                                            markRunStatsForAdjustment(context, run, listener);
-                                        }
-                                    });
-                        }
-                    });
-        } else if (cropLabels.cropStartLabel == null && cropLabels.cropEndLabel == null) {
-            // Otherwise we make new crop labels.
-            ApplicationLabel cropStartLabel = new ApplicationLabel(
-                    ApplicationLabel.TYPE_CROP_START, mDataController.generateNewLabelId(),
-                    run.getTrialId(), startTimestamp);
-            final ApplicationLabel cropEndLabel = new ApplicationLabel(
-                    ApplicationLabel.TYPE_CROP_END, mDataController.generateNewLabelId(),
-                    run.getTrialId(), endTimestamp);
-            cropStartLabel.setExperimentId(run.getExperimentId());
-            cropEndLabel.setExperimentId(run.getExperimentId());
-
-            // Update the run.
-            cropLabels.cropStartLabel = cropStartLabel;
-            cropLabels.cropEndLabel = cropEndLabel;
-            run.setCropLabels(cropLabels);
-
-            // Add new crop labels to the database.
-            mDataController.addCropApplicationLabel(cropStartLabel,
-                    new LoggingConsumer<ApplicationLabel>(TAG, "add crop start label") {
-                        @Override
-                        public void success(ApplicationLabel value) {
-                            mDataController.addCropApplicationLabel(cropEndLabel,
-                                    new LoggingConsumer<ApplicationLabel>(TAG,
-                                            "Add crop end label") {
-                                        @Override
-                                        public void success(ApplicationLabel value) {
-                                            markRunStatsForAdjustment(context, run, listener);
-                                        }
-                                    });
-                        }
-                    });
-        } else {
-            // One crop label is set and the other is not. This is an error!
-            logEvent(context, TrackerConstants.ACTION_CROP_FAILED);
-            listener.onCropFailed(R.string.crop_failed_invalid_state);
+        GoosciTrial.Range cropRange = trial.getCropRange();
+        if (cropRange == null) {
+            cropRange = new GoosciTrial.Range();
         }
-    }
-
-    private void markRunStatsForAdjustment(final Context context, final ExperimentRun run,
-            final CropRunListener listener) {
-        // First delete the min/max/avg stats, but leave the rest available, because they are used
-        // in loading data by ZoomPresenter. At this point, we can go back to RunReview.
-        final int statsToUpdate = run.getSensorLayouts().size();
-        mStatsUpdated = 0;
-        for (GoosciSensorLayout.SensorLayout layout : run.getSensorLayouts()) {
-            final String sensorId = layout.sensorId;
-            TrialStats stats = run.getTrial().getStatsForSensor(sensorId);
+        cropRange.startMs = startTimestamp;
+        cropRange.endMs = endTimestamp;
+        trial.setCropRange(cropRange);
+        for (String sensorId : trial.getSensorIds()) {
+            // First delete the min/max/avg stats, but leave the rest available, because they are
+            // used in loading data by ZoomPresenter.
+            TrialStats stats = trial.getStatsForSensor(sensorId);
             stats.setStatStatus(GoosciTrial.SensorTrialStats.NEEDS_UPDATE);
-            run.getTrial().setStats(stats);
-            mDataController.updateTrial(run.getTrial(),
-                    new LoggingConsumer<Success>(TAG, "update stats") {
-                        @Override
-                        public void success(Success success) {
-                            mStatsUpdated++;
-                            if (mStatsUpdated == statsToUpdate) {
-                                logEvent(context, TrackerConstants.ACTION_CROP_COMPLETED);
-                                listener.onCropCompleted();
-                            }
-                            adjustRunStats(context, run, sensorId);
-                        }
-                    });
+            trial.setStats(stats);
         }
+        mDataController.updateExperiment(experiment.getExperimentId(),
+                new LoggingConsumer<Success>(TAG, "edit crop times in trial") {
+                    public void success(Success value) {
+                        logEvent(context, TrackerConstants.ACTION_CROP_COMPLETED);
+                        // At this point, we can go back to RunReview.
+                        listener.onCropCompleted();
+                        for (String sensorId : trial.getSensorIds()) {
+                            adjustTrialStats(context, experiment, trialId, sensorId);
+                        }
+                    }
+                });
     }
 
     private void logEvent(Context context, String event) {
@@ -221,13 +167,13 @@ public class CropHelper {
                 event, "", 1);
     }
 
-    private void adjustRunStats(final Context context, final ExperimentRun run,
-            final String sensorId) {
+    private void adjustTrialStats(final Context context, final Experiment experiment,
+            final String trialId, final String sensorId) {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 // Moves the current Thread into the background
-                StatsAdjuster adjuster = new StatsAdjuster(sensorId, run, context);
+                StatsAdjuster adjuster = new StatsAdjuster(sensorId, experiment, trialId, context);
                 adjuster.recalculateStats(mDataController);
             }
         };
@@ -235,18 +181,20 @@ public class CropHelper {
         mCropStatsExecutor.execute(runnable);
     }
 
-    // A class that recalculates and resaves the stats in a run.
+    // A class that recalculates and resaves the stats in a trial.
     private class StatsAdjuster {
         private final String mSensorId;
-        private final ExperimentRun mExperimentRun;
+        private final Experiment mExperiment;
+        private final String mTrialId;
         private StatsAccumulator mStatsAccumulator;
         StreamConsumer mStreamConsumer;
         private Context mContext;
 
-        StatsAdjuster(String sensorId, ExperimentRun run, Context context) {
+        StatsAdjuster(String sensorId, Experiment experiment, String trialId, Context context) {
             mStatsAccumulator = new StatsAccumulator(sensorId);
             mSensorId = sensorId;
-            mExperimentRun = run;
+            mExperiment = experiment;
+            mTrialId = trialId;
             mStreamConsumer = new StreamConsumer() {
                 @Override
                 public boolean addData(long timestampMillis, double value) {
@@ -258,8 +206,9 @@ public class CropHelper {
         }
 
         void recalculateStats(DataController dc) {
-            TimeRange range = TimeRange.oldest(Range.closed(mExperimentRun.getFirstTimestamp(),
-                    mExperimentRun.getLastTimestamp()));
+            TimeRange range = TimeRange.oldest(Range.closed(
+                    mExperiment.getTrial(mTrialId).getFirstTimestamp(),
+                    mExperiment.getTrial(mTrialId).getLastTimestamp()));
             addReadingsToStats(dc, range);
         }
 
@@ -269,31 +218,31 @@ public class CropHelper {
                         @Override
                         public void success(ScalarReadingList list) {
                             list.deliver(mStreamConsumer);
+                            Trial trial = mExperiment.getTrial(mTrialId);
                             if (list.size() == 0 || list.size() < DATAPOINTS_PER_LOAD ||
                                     mStatsAccumulator.getLatestTimestamp() >=
-                                            mExperimentRun.getLastTimestamp()) {
+                                            trial.getLastTimestamp()) {
                                 if (!mStatsAccumulator.isInitialized()) {
                                     // There was no data in this region, so the stats are still
                                     // not valid.
                                     return;
                                 }
                                 // Done! Save back to the database.
-                                TrialStats fullStats = mExperimentRun.getTrial().getStatsForSensor(
-                                        mSensorId);
+                                TrialStats fullStats = trial.getStatsForSensor(mSensorId);
                                 mStatsAccumulator.populateTrialStats(fullStats);
-                                mExperimentRun.getTrial().setStats(fullStats);
-                                dc.updateTrial(mExperimentRun.getTrial(),
+                                trial.setStats(fullStats);
+                                dc.updateExperiment(mExperiment.getExperimentId(),
                                         new LoggingConsumer<Success>(TAG, "update stats") {
                                             @Override
                                             public void success(Success value) {
                                                 sendStatsUpdatedBroadcast(mContext, mSensorId,
-                                                        mExperimentRun.getTrialId());
+                                                        mTrialId);
                                             }
                                         });
                             } else {
                                 TimeRange nextRange = TimeRange.oldest(
                                         Range.openClosed(mStatsAccumulator.getLatestTimestamp(),
-                                                mExperimentRun.getLastTimestamp()));
+                                                trial.getLastTimestamp()));
                                 addReadingsToStats(dc, nextRange);
                             }
                         }
@@ -308,7 +257,7 @@ public class CropHelper {
 
     // Use a Broadcast to tell RunReviewFragment or ExperimentDetailsFragment or anyone who uses
     // stats that the stats are updated for this sensor on this run.
-    private static void sendStatsUpdatedBroadcast(Context context, String sensorId, String runId) {
+    private static void sendStatsUpdatedBroadcast(Context context, String sensorId, String trialId) {
         if (context == null) {
             return;
         }
@@ -317,7 +266,7 @@ public class CropHelper {
         Intent intent = new Intent();
         intent.setAction(ACTION_CROP_STATS_RECALCULATED);
         intent.putExtra(EXTRA_SENSOR_ID, sensorId);
-        intent.putExtra(EXTRA_RUN_ID, runId);
+        intent.putExtra(EXTRA_TRIAL_ID, trialId);
         lbm.sendBroadcast(intent);
     }
 
@@ -334,12 +283,12 @@ public class CropHelper {
         getBroadcastManager(context).unregisterReceiver(receiver);
     }
 
-    public static boolean experimentIsLongEnoughForCrop(ExperimentRun experimentRun) {
-        return experimentRun.getOriginalLastTimestamp() -
-                experimentRun.getOriginalFirstTimestamp() > CropHelper.MINIMUM_CROP_MILLIS;
+    public static boolean experimentIsLongEnoughForCrop(Trial trial) {
+        return trial.getOriginalLastTimestamp() - trial.getOriginalFirstTimestamp() >
+                CropHelper.MINIMUM_CROP_MILLIS;
     }
 
-    public void throwAwayDataOutsideCroppedRegion(DataController dc, ExperimentRun run) {
+    public void throwAwayDataOutsideCroppedRegion(DataController dc, Trial trial) {
         // TODO
     }
 }

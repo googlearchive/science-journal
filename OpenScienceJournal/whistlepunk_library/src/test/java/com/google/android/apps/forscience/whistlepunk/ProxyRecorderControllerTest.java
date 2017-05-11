@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -52,17 +53,8 @@ public class ProxyRecorderControllerTest {
             new TransportableSensorOptions(Maps.<String, String>newHashMap());
     private static final StubDataController DATA_CONTROLLER = new StubDataController() {
         @Override
-        public void startTrial(Experiment experiment,
-                List<GoosciSensorLayout.SensorLayout> sensorLayouts,
-                MaybeConsumer<Trial> onSuccess) {
-            onSuccess.success(Trial.newTrial(0, sensorLayouts.toArray(
-                    new GoosciSensorLayout.SensorLayout[sensorLayouts.size()])));
-        }
-
-        @Override
-        public void stopTrial(Experiment experiment, Trial trial, MaybeConsumer<Trial> onSuccess) {
-            trial.setRecordingEndTime(10);
-            onSuccess.success(trial);
+        public void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess) {
+            onSuccess.success(Success.SUCCESS);
         }
     };
     private final AlwaysAllowedPolicy mPolicy = new AlwaysAllowedPolicy();
@@ -254,6 +246,7 @@ public class ProxyRecorderControllerTest {
 
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
         rc.startRecording(null);
+        assertTrue(stateListener.recentIsRecording);
 
         // No data yet -- stop recording should not actually stop
         rc.stopRecording();

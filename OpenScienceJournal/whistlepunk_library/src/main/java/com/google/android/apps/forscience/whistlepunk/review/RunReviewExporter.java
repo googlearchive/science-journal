@@ -28,7 +28,7 @@ import android.util.Log;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.collect.Range;
@@ -52,7 +52,7 @@ public class RunReviewExporter implements Handler.Callback {
     private OutputStreamWriter mOutputStreamWriter;
     private ExportStreamConsumer mStreamConsumer;
     private String mFileName;
-    private ExperimentRun mRun;
+    private Trial mTrial;
     private boolean mStop;
 
     private HandlerThread mHandlerThread;
@@ -91,14 +91,14 @@ public class RunReviewExporter implements Handler.Callback {
     }
 
     /**
+     * @param trial
      * @param startAtZero if true, adjusts all timestamps so that the first timestamp is reported
-     *                    as 0.
      */
-    public void startExport(Context context, final String experimentName, final ExperimentRun run,
+    public void startExport(Context context, final String experimentName, final Trial trial,
             String sensorTag, final boolean startAtZero) {
         // TODO: can some of these be constructor parameters?
         mStop = false;
-        mRun = run;
+        mTrial = trial;
         mSensorTag = sensorTag;
         mContext = context.getApplicationContext();
         mHandlerThread = new HandlerThread("export", Thread.MIN_PRIORITY);
@@ -127,7 +127,7 @@ public class RunReviewExporter implements Handler.Callback {
                 }
 
                 File file = new File(storageDir.getPath(),
-                        makeExportFilename(experimentName, run, mContext));
+                        makeExportFilename(experimentName, trial, mContext));
                 mFileName = file.getName();
                 FileOutputStream fs;
                 try {
@@ -152,18 +152,18 @@ public class RunReviewExporter implements Handler.Callback {
 
         mListener.onExportStarted();
 
-        Range<Long> times = Range.closed(mRun.getFirstTimestamp(), mRun.getLastTimestamp());
+        Range<Long> times = Range.closed(mTrial.getFirstTimestamp(), mTrial.getLastTimestamp());
         getReadings(TimeRange.oldest(times));
     }
 
     @NonNull
     @VisibleForTesting
-    public static String makeExportFilename(String experimentName, ExperimentRun run,
+    public static String makeExportFilename(String experimentName, Trial trial,
             Context context) {
         // 40 chars of experimentname + 35 chars of run title + " " + ".csv" = 80 chars
         return sanitizeFilename(truncate(experimentName, 40)
                                 + " "
-                                + truncate(run.getRunTitle(context), 35)
+                                + truncate(trial.getTitle(context), 35)
                                 + ".csv");
     }
 
@@ -274,8 +274,8 @@ public class RunReviewExporter implements Handler.Callback {
             if (mStop) {
                 return false;
             }
-            final long start = mRun.getFirstTimestamp();
-            final long end = mRun.getLastTimestamp();
+            final long start = mTrial.getFirstTimestamp();
+            final long end = mTrial.getLastTimestamp();
             int progress = (int) (((lastTimeStampWritten - start) / (double) (end - start)) * 100);
             mListener.onExportProgress(progress);
             if (list.size() == 0 || list.size() < MAX_RECORDS || lastTimeStampWritten >= end) {

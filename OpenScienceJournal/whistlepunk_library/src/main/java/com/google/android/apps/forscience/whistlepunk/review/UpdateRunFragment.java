@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 
 /**
@@ -53,7 +54,7 @@ public class UpdateRunFragment extends Fragment {
 
     private String mRunId;
     private String mExperimentId;
-    private ExperimentRun mExperimentRun;
+    private Experiment mExperiment;
     private EditText mRunTitle;
 
     public UpdateRunFragment() {
@@ -74,12 +75,12 @@ public class UpdateRunFragment extends Fragment {
         mRunId = getArguments().getString(ARG_RUN_ID);
         mExperimentId = getArguments().getString(ARG_EXP_ID);
 
-        getDataController().getExperimentRun(mExperimentId, mRunId,
-                new LoggingConsumer<ExperimentRun>(TAG, "retrieve run") {
+        getDataController().getExperimentById(mExperimentId,
+                new LoggingConsumer<Experiment>(TAG, "retrieve run") {
                     @Override
-                    public void success(ExperimentRun run) {
-                        mExperimentRun = run;
-                        mRunTitle.setText(mExperimentRun.getRunTitle(getActivity()));
+                    public void success(Experiment experiment) {
+                        mExperiment = experiment;
+                        mRunTitle.setText(mExperiment.getTrial(mRunId).getTitle(getActivity()));
                         mRunTitle.selectAll();
                     }
                 });
@@ -128,8 +129,8 @@ public class UpdateRunFragment extends Fragment {
     }
 
     private void saveAndReturn() {
-        mExperimentRun.setRunTitle(mRunTitle.getText().toString().trim());
-        getDataController().updateTrial(mExperimentRun.getTrial(), new LoggingConsumer<Success>(TAG,
+        mExperiment.getTrial(mRunId).setTitle(mRunTitle.getText().toString().trim());
+        getDataController().updateExperiment(mExperimentId, new LoggingConsumer<Success>(TAG,
                 "updating run") {
             @Override
             public void success(Success value) {

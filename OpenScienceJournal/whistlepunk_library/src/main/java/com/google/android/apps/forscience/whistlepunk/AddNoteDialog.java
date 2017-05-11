@@ -130,7 +130,6 @@ public class AddNoteDialog extends DialogFragment {
     private String mPictureLabelPath;
     private EditText mInput;
     private Experiment mExperiment;
-    private ExperimentRun mExperimentRun;
 
     /**
      * Create an AddNoteDialog that does not show the timestamp section, and where the note
@@ -309,25 +308,14 @@ public class AddNoteDialog extends DialogFragment {
             mPictureLabelPath = getArguments().getString(KEY_SAVED_PICTURE_PATH, null);
             mTrialId = getArguments().getString(KEY_SAVED_RUN_ID);
             mExperimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
-            if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
-                getDataController().getExperimentById(mExperimentId,
-                        new LoggingConsumer<Experiment>(TAG, "get experiment") {
-                            @Override
-                            public void success(Experiment value) {
-                                mExperiment = value;
-                                updatePositiveButtonEnabled((AlertDialog) getDialog());
-                            }
-                        });
-            } else {
-                getDataController().getExperimentRun(mExperimentId, mTrialId,
-                        new LoggingConsumer<ExperimentRun>(TAG, "get experiment run") {
-                            @Override
-                            public void success(ExperimentRun value) {
-                                mExperimentRun = value;
-                                updatePositiveButtonEnabled((AlertDialog) getDialog());
-                            }
-                        });
-            }
+            getDataController().getExperimentById(mExperimentId,
+                    new LoggingConsumer<Experiment>(TAG, "get experiment") {
+                        @Override
+                        public void success(Experiment value) {
+                            mExperiment = value;
+                            updatePositiveButtonEnabled((AlertDialog) getDialog());
+                        }
+                    });
             if (getArguments().containsKey(KEY_SAVED_TIME_TEXT_DESCRIPTION)) {
                 mLabelTimeTextDescription =
                         getArguments().getString(KEY_SAVED_TIME_TEXT_DESCRIPTION);
@@ -505,35 +493,21 @@ public class AddNoteDialog extends DialogFragment {
         // The listener may be cleared by onDetach() before the experiment/trial is written,
         // so save the MaybeConsumer here as a final var.
         final MaybeConsumer<Label> onSuccess = mListener.onLabelAdd();
-        if (TextUtils.equals(mExperimentRun.getTrial().getTrialId(),
-                RecorderController.NOT_RECORDING_RUN_ID)) {
-            addLabelToExperiment(getDataController(), mExperiment, label).subscribe(
-                    MaybeConsumers.toSingleObserver(onSuccess));
+        if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
+            mExperiment.addLabel(label);
         } else {
-            // TODO: Do this by updating the trial with the label and then the experiment with the
-            // trial, and then updating the experiment.
-            mExperimentRun.getTrial().addLabel(label);
-            getDataController().updateTrial(mExperimentRun.getTrial(),
-                    new LoggingConsumer<Success>(TAG, "update trial add label") {
-                        @Override
-                        public void success(Success value) {
-                            onSuccess.success(label);
-                        }
-                    });
+            mExperiment.getTrial(mTrialId).addLabel(label);
         }
+        saveExperiment(this.getDataController(), mExperiment, label, onSuccess);
     }
 
-    /**
-     * @return a single that only calls onSuccess if the Label is successfully added.
-     */
-    public static Single<Label> addLabelToExperiment(DataController dataController,
-            Experiment experiment, final Label label) {
-        experiment.addLabel(label);
+    public static void saveExperiment(DataController dataController, Experiment experiment,
+            final Label label, final MaybeConsumer<Label> onSuccess) {
 
         CompletableSubject completableSubject = CompletableSubject.create();
         dataController.updateExperiment(experiment.getExperimentId(),
                 MaybeConsumers.fromCompletableObserver(completableSubject));
-        return completableSubject.andThen(Single.just(label));
+        completableSubject.andThen(Single.just(label));
     }
 
     private DataController getDataController() {
@@ -570,7 +544,7 @@ public class AddNoteDialog extends DialogFragment {
         }
         Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         if (positiveButton != null) {
-            positiveButton.setEnabled(mExperiment != null || mExperimentRun != null);
+            positiveButton.setEnabled(mExperiment != null);
         }
     }
 

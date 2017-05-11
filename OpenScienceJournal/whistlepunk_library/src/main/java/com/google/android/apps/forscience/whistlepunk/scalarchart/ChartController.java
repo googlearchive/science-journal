@@ -34,6 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.review.ZoomPresenter;
@@ -519,18 +520,18 @@ public class ChartController {
      */
     // TODO: Seems like this loads the whole run data even if we are really zoomed in, so
     // this should be revisited to get a range for the original load.
-    public void loadRunData(ExperimentRun run, GoosciSensorLayout.SensorLayout sensorLayout,
+    public void loadRunData(Trial trial, GoosciSensorLayout.SensorLayout sensorLayout,
             DataController dc, ChartLoadingStatus status, TrialStats stats,
             ChartDataLoadedCallback fullChartLoadDataCallback) {
         updateColor(sensorLayout.color);
         setShowProgress(true);
         clearData();
-        final long firstTimestamp = run.getFirstTimestamp();
-        final long lastTimestamp = run.getLastTimestamp();
+        final long firstTimestamp = trial.getFirstTimestamp();
+        final long lastTimestamp = trial.getLastTimestamp();
         mChartOptions.setRecordingTimes(firstTimestamp, lastTimestamp,
-                run.getOriginalFirstTimestamp(), run.getOriginalLastTimestamp());
+                trial.getOriginalFirstTimestamp(), trial.getOriginalLastTimestamp());
         mSensorId = sensorLayout.sensorId;
-        tryLoadingChartData(run.getTrialId(), sensorLayout, dc,
+        tryLoadingChartData(trial.getTrialId(), sensorLayout, dc,
                 mChartOptions.getRecordingStartTime(), mChartOptions.getRecordingEndTime(), status,
                 stats, fullChartLoadDataCallback);
     }

@@ -97,6 +97,7 @@ public class RecorderControllerImpl implements RecorderController {
 
     private DataController mDataController;
     private final Scheduler mScheduler;
+    private final Clock mClock;
     private final Delay mStopDelay;
     private Map<String, StatefulRecorder> mRecorders = new LinkedHashMap<>();
     private final Context mContext;
@@ -107,7 +108,7 @@ public class RecorderControllerImpl implements RecorderController {
     private int mPauseCount = 0;
     private final SensorEnvironment mSensorEnvironment;
     private BehaviorSubject<Experiment> mSelectedExperiment = BehaviorSubject.create();
-    private Trial mCurrentTrial = null;
+    private String mCurrentTrialId = "";
     private boolean mRecordingStateChangeInProgress;
     private TriggerHelper mTriggerHelper;
     private boolean mActivityInForeground = false;
@@ -161,6 +162,7 @@ public class RecorderControllerImpl implements RecorderController {
         mDataController = dataController;
         mScheduler = scheduler;
         mStopDelay = stopDelay;
+        mClock = new CurrentTimeClock();
     }
 
     @NonNull
@@ -329,26 +331,19 @@ public class RecorderControllerImpl implements RecorderController {
                 context);
         final Label triggerLabel = Label.newLabelWithValue(timestamp, labelValue);
         if (isRecording()) {
-            // TODO: Add the updated run to the experiment and update the experiment.
-            mCurrentTrial.addLabel(triggerLabel);
-            mDataController.updateTrial(mCurrentTrial,
-                    new LoggingConsumer<Success>(TAG, "add trigger label to trial") {
-                        @Override
-                        public void success(Success value) {
-                            onLabelAdded(triggerLabel);
-                        }
-                    });
+            // Adds the label to the trial and saves the updated experiment.
+            getSelectedExperiment().getTrial(mCurrentTrialId).addLabel(triggerLabel);
         } else {
             // Adds the label to the experiment and saves the updated experiment.
             getSelectedExperiment().addLabel(triggerLabel);
-            mDataController.updateExperiment(getSelectedExperiment().getExperimentId(),
-                    new LoggingConsumer<Success>(TAG, "add trigger label to experiment") {
-                        @Override
-                        public void success(Success value) {
-                            onLabelAdded(triggerLabel);
-                        }
-                    });
         }
+        mDataController.updateExperiment(getSelectedExperiment().getExperimentId(),
+                new LoggingConsumer<Success>(TAG, "add trigger label") {
+                    @Override
+                    public void success(Success value) {
+                        onLabelAdded(triggerLabel);
+                    }
+                });
 
     }
 
@@ -517,14 +512,17 @@ public class RecorderControllerImpl implements RecorderController {
             @Override
             public void take(final RecorderService recorderService) throws RemoteException {
                 final DataController dataController = mDataController;
-                dataController.startTrial(getSelectedExperiment(),
-                        buildSensorLayouts(),
-                        new LoggingConsumer<Trial>(TAG, "start trial") {
+                final long creationTimeMs = mClock.getNow();
+                List<GoosciSensorLayout.SensorLayout> layouts = buildSensorLayouts();
+                Trial trial = Trial.newTrial(creationTimeMs, layouts.toArray(
+                        new GoosciSensorLayout.SensorLayout[layouts.size()]));
+                mCurrentTrialId = trial.getTrialId();
+                getSelectedExperiment().addTrial(trial);
+                dataController.updateExperiment(getSelectedExperiment().getExperimentId(),
+                        new LoggingConsumer<Success>(TAG, "start trial") {
                             @Override
-                            public void success(Trial trial) {
-                                mCurrentTrial = trial;
-                                mRecording = new RecordingMetadata(trial.getCreationTimeMs(),
-                                        trial.getTrialId(),
+                            public void success(Success success) {
+                                mRecording = new RecordingMetadata(creationTimeMs, mCurrentTrialId,
                                         getSelectedExperiment().getDisplayTitle(mContext));
 
                                 ensureUnarchived(getSelectedExperiment(), dataController);
@@ -544,6 +542,7 @@ public class RecorderControllerImpl implements RecorderController {
                                 callRecordingStartFailedListeners(
                                         RecorderController.ERROR_START_FAILED, e);
                                 mRecordingStateChangeInProgress = false;
+                                mCurrentTrialId = "";
                             }
                         });
             }
@@ -579,23 +578,24 @@ public class RecorderControllerImpl implements RecorderController {
         withBoundRecorderService(new FallibleConsumer<RecorderService>() {
             @Override
             public void take(final RecorderService recorderService) throws RemoteException {
+                final Trial trial = getSelectedExperiment().getTrial(mCurrentTrialId);
                 final List<GoosciSensorLayout.SensorLayout> sensorLayoutsAtStop =
                         buildSensorLayouts();
                 if (sensorLayoutsAtStop.size() > 0) {
-                    mCurrentTrial.setSensorLayouts(sensorLayoutsAtStop);
+                    trial.setSensorLayouts(sensorLayoutsAtStop);
                 }
-                mDataController.stopTrial(getSelectedExperiment(), mCurrentTrial,
-                        new LoggingConsumer<Trial>(TAG, "stopTrial") {
+                trial.setRecordingEndTime(mClock.getNow());
+                mDataController.updateExperiment(getSelectedExperiment().getExperimentId(),
+                        new LoggingConsumer<Success>(TAG, "stopTrial") {
                             @Override
-                            public void success(Trial stoppedTrial) {
+                            public void success(Success value) {
                                 for (StatefulRecorder recorder : mRecorders.values()) {
-                                    recorder.stopRecording(stoppedTrial);
+                                    recorder.stopRecording(trial);
                                 }
                                 trackStopRecording(recorderService.getApplicationContext(),
-                                        stoppedTrial, sensorLayoutsAtStop);
-
-                                final String trialId = stoppedTrial.getTrialId();
-                                mDataController.updateTrial(stoppedTrial,
+                                        trial, sensorLayoutsAtStop);
+                                mDataController.updateExperiment(
+                                        getSelectedExperiment().getExperimentId(),
                                         new LoggingConsumer<Success>(TAG, "update stats") {
                                             @Override
                                             public void success(Success value) {
@@ -605,7 +605,7 @@ public class RecorderControllerImpl implements RecorderController {
                                                 // happen!
                                                 Experiment exp = getSelectedExperiment();
                                                 recorderService.endServiceRecording(
-                                                        !activityInForground, trialId,
+                                                        !activityInForground, mCurrentTrialId,
                                                         exp.getExperimentId(),
                                                         exp.getDisplayTitle(mContext));
                                             }
@@ -613,7 +613,7 @@ public class RecorderControllerImpl implements RecorderController {
 
                                 // Now actually stop the recording.
                                 mRecording = null;
-                                mCurrentTrial = null;
+                                mCurrentTrialId = "";
                                 cleanUpUnusedRecorders();
                                 updateRecordingListeners();
                                 mRecordingStateChangeInProgress = false;
@@ -671,7 +671,7 @@ public class RecorderControllerImpl implements RecorderController {
             return;
         }
         mRecording = null;
-        mCurrentTrial = null;
+        mCurrentTrialId = "";
         for (StatefulRecorder recorder : mRecorders.values()) {
             // No trial to update, since we are not saving this.
             recorder.stopRecording(null);

@@ -53,17 +53,8 @@ public interface MetaDataManager {
      */
     List<GoosciSharedMetadata.ExperimentOverview> getExperimentOverviews(boolean includeArchived);
 
-    void addApplicationLabel(String experimentId, ApplicationLabel label);
-
-    List<ApplicationLabel> getApplicationLabelsWithStartId(String startLabelId);
-
-    List<String> getExperimentRunIds(String experimentId, boolean includeArchived);
-
-    void editApplicationLabel(ApplicationLabel updatedLabel);
-
     /**
      * Gets all the external sensors previously saved.
-     * @param providerMap
      */
     Map<String, ExternalSensorSpec> getExternalSensors(
             Map<String, ExternalSensorProvider> providerMap);
@@ -134,23 +125,6 @@ public interface MetaDataManager {
     void setLastUsedExperiment(Experiment experiment);
 
     /**
-     * @param experiment which experiment this trial is attached to
-     * @param trialId the label that marks the start of this trial
-     * @param sensorLayouts sensor layouts of sensors recording during the trial
-     * @return a new Trial object, which has been stored in the database
-     */
-    Trial newTrial(Experiment experiment, String trialId, long startTimestamp,
-            List<GoosciSensorLayout.SensorLayout> sensorLayouts);
-
-    /**
-     * Gets the trial with a particular ID.
-     * @param trialId the label that marks the start of this trial
-     * @param applicationLabels list of application labels for this trial
-     * @return the Trial stored with that id, or null if no such Trial exists.
-     */
-    Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels);
-
-    /**
      * Set the sensor selection and layout for an experiment
      */
     void setExperimentSensorLayouts(String experimentId,
@@ -163,15 +137,4 @@ public interface MetaDataManager {
     List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayouts(String experimentId);
 
     void close();
-
-    /**
-     * Updates a trial.
-     */
-    void updateTrial(Trial trial);
-
-    /**
-     * Deletes a trial and any of its associated labels and their assets.
-     * @param trialId The ID of the trial to delete
-     */
-    void deleteTrial(String trialId);
 }

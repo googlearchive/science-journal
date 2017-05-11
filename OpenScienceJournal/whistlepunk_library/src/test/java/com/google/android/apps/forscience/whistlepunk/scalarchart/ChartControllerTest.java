@@ -23,11 +23,12 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MonotonicClock;
@@ -65,10 +66,10 @@ public class ChartControllerTest {
         MemoryMetadataManager mmm = new MemoryMetadataManager();
         DataController dc = new InMemorySensorDatabase().makeSimpleController(mmm);
         final String runId = "runId";
-        ExperimentRun erun = experimentRunBetween(mmm, 0, 50, runId);
+        Trial trial = trialBetween(mmm, 0, 50, runId);
         final GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = "foo";
-        chartController.loadRunData(erun, layout, dc, makeStatus(runId, layout),
+        chartController.loadRunData(trial, layout, dc, makeStatus(runId, layout),
                 new TrialStats("foo"), null);
 
         // If loadRunData fails to clean out the pending loads (as was happening in a previous
@@ -164,19 +165,15 @@ public class ChartControllerTest {
                 new MonotonicClock(), new ExplodingFactory().makeListenerForOperation("load"));
     }
 
-    private ExperimentRun experimentRunBetween(MemoryMetadataManager mmm, int startTimestamp,
-            int endTimestamp, String runId) {
-        Experiment experiment = mmm.newExperiment();
-        // Add the trial
-        mmm.newTrial(experiment, runId, startTimestamp,
-                new ArrayList<GoosciSensorLayout.SensorLayout>());
-        List<ApplicationLabel> applicationLabels = Lists.<ApplicationLabel>newArrayList(
-                new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "startLabelId",
-                        "startLabelId", startTimestamp),
-                new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "endLabelId",
-                        "startLabelId", endTimestamp));
-        return ExperimentRun.fromLabels(mmm.getTrial(runId, applicationLabels),
-                experiment.getExperimentId(), Collections.<ApplicationLabel>emptyList());
+    private Trial trialBetween(MemoryMetadataManager mmm, int startTimestamp, int endTimestamp,
+            String trialId) {
+        GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
+        trialProto.trialId = trialId;
+        GoosciTrial.Range range = new GoosciTrial.Range();
+        range.startMs = startTimestamp;
+        range.endMs = endTimestamp;
+        trialProto.recordingRange = range;
+        return Trial.fromTrial(trialProto);
     }
 
     private static class RecordingCallback implements ChartController.ChartDataLoadedCallback {

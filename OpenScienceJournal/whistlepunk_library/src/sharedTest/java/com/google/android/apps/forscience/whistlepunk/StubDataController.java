@@ -44,29 +44,7 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void addCropApplicationLabel(ApplicationLabel label,
-            MaybeConsumer<ApplicationLabel> onSuccess) {
-
-    }
-
-    @Override
-    public void startTrial(Experiment experiment, List<GoosciSensorLayout.SensorLayout> sensorLayouts,
-            MaybeConsumer<Trial> onSuccess) {
-
-    }
-
-    @Override
-    public void stopTrial(Experiment experiment, Trial trial, MaybeConsumer<Trial> onSuccess) {
-
-    }
-
-    @Override
-    public void updateTrial(Trial trial, MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void deleteRun(ExperimentRun run, MaybeConsumer<Success> onSuccess) {
+    public void deleteTrialData(Trial trial, MaybeConsumer<Success> onSuccess) {
 
     }
 
@@ -87,24 +65,6 @@ public class StubDataController implements DataController {
 
     @Override
     public void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void getExperimentRun(String experimentId, String startLabelId,
-            MaybeConsumer<ExperimentRun> onSuccess) {
-
-    }
-
-    @Override
-    public void getExperimentRuns(String experiment, boolean includeArchived,
-            final boolean includeInvalid, MaybeConsumer<List<ExperimentRun>> onSuccess) {
-
-    }
-
-    @Override
-    public void editApplicationLabel(ApplicationLabel updatedLabel,
-            MaybeConsumer<Success> onSuccess) {
 
     }
 

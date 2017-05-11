@@ -18,23 +18,25 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.test.AndroidTestCase;
 
+import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumers;
+import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
-import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
+import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Tests for {@link CropHelper}
@@ -42,38 +44,26 @@ import java.util.List;
 public class CropHelperTest extends AndroidTestCase {
     private DataControllerImpl mDataController;
     private MemoryMetadataManager mMetadataManager;
-    private CropHelper.CropRunListener mCropRunListener;
+    private CropHelper.CropTrialListener mCropTrialListener;
     private boolean mCropCompleted = false;
     private boolean mCropFailed = false;
-    private List<GoosciSensorLayout.SensorLayout> mSensorLayouts;
-    private MaybeConsumer<ApplicationLabel> mAddLabelConsumer =
-            new MaybeConsumer<ApplicationLabel>() {
-                @Override
-                public void success(ApplicationLabel value) {
-
-                }
-
-                @Override
-                public void fail(Exception e) {
-
-                }
-            };
+    private GoosciSensorLayout.SensorLayout[] mSensorLayouts;
 
     @Before
     public void setUp() {
         mMetadataManager = new MemoryMetadataManager();
         mDataController = new InMemorySensorDatabase().makeSimpleController(mMetadataManager);
-        mSensorLayouts = new ArrayList<>();
+        mSensorLayouts = new GoosciSensorLayout.SensorLayout[1];
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = "sensor";
-        mSensorLayouts.add(layout);
+        mSensorLayouts[0] = layout;
         resetCropRunListener();
     }
 
     private void resetCropRunListener() {
         mCropCompleted = false;
         mCropFailed = false;
-        mCropRunListener = new CropHelper.CropRunListener() {
+        mCropTrialListener = new CropHelper.CropTrialListener() {
 
             @Override
             public void onCropCompleted() {
@@ -92,9 +82,20 @@ public class CropHelperTest extends AndroidTestCase {
     // In a real trial, stats are set when recording stops, so any crop should have some sensor
     // stats already set and this kind of thing is unnecessary. But we don't need to set legit stats
     // because we aren't checking the "pre-crop" values, so empty stats are fine here.
-    private void setEmptyStats(Trial trial) {
-        trial.setStats(new TrialStats("sensor"));
-        mMetadataManager.updateTrial(trial);
+    private void setEmptyStats(Experiment experiment, String trialId) {
+        experiment.getTrial(trialId).setStats(new TrialStats("sensor"));
+        mMetadataManager.updateExperiment(experiment);
+    }
+
+    private Trial makeCommonTrial() {
+        GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
+        trialProto.trialId = "0";
+        trialProto.sensorLayouts = mSensorLayouts;
+        GoosciTrial.Range recRange = new GoosciTrial.Range();
+        recRange.startMs = 0;
+        recRange.endMs = 2000;
+        trialProto.recordingRange = recRange;
+        return Trial.fromTrial(trialProto);
     }
 
     @Test
@@ -107,122 +108,94 @@ public class CropHelperTest extends AndroidTestCase {
         trialProto.recordingRange.endMs = 10;
         Trial trial = Trial.fromTrial(trialProto);
 
-        ExperimentRun run = ExperimentRun.fromLabels(trial, "experimentId",
-                Collections.<ApplicationLabel>emptyList());
+        Experiment experiment = Experiment.newExperiment(10, "experimentId");
+        experiment.addTrial(trial);
+
         CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), mDataController);
-        cropHelper.cropRun(null, run, -1, 10, mCropRunListener);
+        cropHelper.cropTrial(null, experiment, "runId", -1, 10, mCropTrialListener);
         assertTrue(mCropFailed);
         assertFalse(mCropCompleted);
 
         resetCropRunListener();
-        cropHelper.cropRun(null, run, 1, 20, mCropRunListener);
+        cropHelper.cropTrial(null, experiment, "runId", 1, 20, mCropTrialListener);
         assertTrue(mCropFailed);
         assertFalse(mCropCompleted);
     }
 
     @Test
     public void testCropRun_alreadyCroppedRun() {
-        mDataController.addCropApplicationLabel(
-                new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "0", "0", 0),
-                mAddLabelConsumer);
-        mDataController.addCropApplicationLabel(
-                new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
-                mAddLabelConsumer);
-        mDataController.addCropApplicationLabel(
-                new ApplicationLabel(ApplicationLabel.TYPE_CROP_START, "2", "0", 2),
-                mAddLabelConsumer);
-        mDataController.addCropApplicationLabel(
-                new ApplicationLabel(ApplicationLabel.TYPE_CROP_END, "1008", "0", 1008),
-                mAddLabelConsumer);
+        StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
+        mDataController.createExperiment(cExperiment);
+        Experiment experiment = cExperiment.getValue();
+        Trial trial = makeCommonTrial();
+        GoosciTrial.Range cropRange = new GoosciTrial.Range();
+        cropRange.startMs = 2;
+        cropRange.endMs = 1008;
+        trial.setCropRange(cropRange);
+        experiment.addTrial(trial);
+        mDataController.updateExperiment(experiment.getExperimentId(),
+                TestConsumers.<Success>expectingSuccess());
+
         mDataController.addScalarReading("sensor", 0, 50, 50);
-        Trial trial = mMetadataManager.newTrial(Experiment.newExperiment(42L, "id"), "0", 0,
-                mSensorLayouts);
-        setEmptyStats(trial);
-        mDataController.getExperimentRun("experiment", "0",
-                new LoggingConsumer<ExperimentRun>("test", "test") {
-                    @Override
-                    public void success(ExperimentRun run) {
-                        CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(),
-                                mDataController);
-                        cropHelper.cropRun(null, run, 4, 1006, mCropRunListener);
-                        assertTrue(mCropCompleted);
-                        assertEquals(run.getFirstTimestamp(), 4);
-                        assertEquals(run.getLastTimestamp(), 1006);
-                        assertEquals(run.getOriginalFirstTimestamp(), 0);
-                        assertEquals(run.getOriginalLastTimestamp(), 2000);
+        setEmptyStats(experiment, trial.getTrialId());
 
-                        assertTrue(mMetadataManager.getTrial("0",
-                                Collections.<ApplicationLabel>emptyList())
-                                .getStatsForSensor("sensor").statsAreValid());
-                    }
-                });
-
+        CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), mDataController);
+        cropHelper.cropTrial(null, experiment, trial.getTrialId(), 4, 1006, mCropTrialListener);
+        assertTrue(mCropCompleted);
+        assertEquals(trial.getFirstTimestamp(), 4);
+        assertEquals(trial.getLastTimestamp(), 1006);
+        assertEquals(trial.getOriginalFirstTimestamp(), 0);
+        assertEquals(trial.getOriginalLastTimestamp(), 2000);
+        assertTrue(mMetadataManager.getExperimentById(experiment.getExperimentId())
+                .getTrial(trial.getTrialId()).getStatsForSensor("sensor").statsAreValid());
     }
 
     @Test
     public void testCropRun_onUncroppedRun() {
-        mDataController.addCropApplicationLabel(
-                new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "0", "0", 0),
-                mAddLabelConsumer);
-        mDataController.addCropApplicationLabel(
-                new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
-                mAddLabelConsumer);
-        Trial trial = mMetadataManager.newTrial(Experiment.newExperiment(42L, "id"), "0", 0,
-                mSensorLayouts);
+        StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
+        mDataController.createExperiment(cExperiment);
+        Experiment experiment = cExperiment.getValue();
+        Trial trial = makeCommonTrial();
+        experiment.addTrial(trial);
+        mDataController.updateExperiment(experiment.getExperimentId(),
+                TestConsumers.<Success>expectingSuccess());
+
         mDataController.addScalarReading("sensor", 0, 1, 1); // This gets cropped out
         mDataController.addScalarReading("sensor", 0, 50, 50);
         mDataController.addScalarReading("sensor", 0, 60, 60);
         mDataController.addScalarReading("sensor", 0, 70, 70);
-        setEmptyStats(trial);
-        mDataController.getExperimentRun("experiment", "0",
-                new LoggingConsumer<ExperimentRun>("test", "test") {
-                    @Override
-                    public void success(ExperimentRun run) {
-                        CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(),
-                                mDataController);
-                        cropHelper.cropRun(null, run, 2, 1008, mCropRunListener);
-                        assertTrue(mCropCompleted);
-                        assertEquals(run.getFirstTimestamp(), 2);
-                        assertEquals(run.getLastTimestamp(), 1008);
-                        assertEquals(run.getOriginalFirstTimestamp(), 0);
-                        assertEquals(run.getOriginalLastTimestamp(), 2000);
+        setEmptyStats(experiment, trial.getTrialId());
+        CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), mDataController);
+        cropHelper.cropTrial(null, experiment, trial.getTrialId(), 2, 1008, mCropTrialListener);
+        assertTrue(mCropCompleted);
+        assertEquals(trial.getFirstTimestamp(), 2);
+        assertEquals(trial.getLastTimestamp(), 1008);
+        assertEquals(trial.getOriginalFirstTimestamp(), 0);
+        assertEquals(trial.getOriginalLastTimestamp(), 2000);
 
-                        TrialStats stats = mMetadataManager.getTrial("0",
-                                Collections.<ApplicationLabel>emptyList())
-                                .getStatsForSensor("sensor");
-                        assertTrue(stats.statsAreValid());
-                        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.MINIMUM, -1), 50.0);
-                        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.AVERAGE, -1), 60.0);
-                        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, -1), 70.0);
-                        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1),
-                                3.0);
-                    }
-                });
+        TrialStats stats = mMetadataManager.getExperimentById(experiment.getExperimentId())
+                .getTrial(trial.getTrialId()).getStatsForSensor("sensor");
+        assertTrue(stats.statsAreValid());
+        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.MINIMUM, -1), 50.0);
+        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.AVERAGE, -1), 60.0);
+        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, -1), 70.0);
+        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1), 3.0);
     }
 
     @Test
     public void testCropRun_sensorWithNoDataStatsInvalid() {
-        mDataController.addCropApplicationLabel(
-                new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "0", "0", 0),
-                mAddLabelConsumer);
-        mDataController.addCropApplicationLabel(
-                new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "2000", "0", 2000),
-                mAddLabelConsumer);
-        Trial trial = mMetadataManager.newTrial(Experiment.newExperiment(42L, "id"), "0", 0,
-                mSensorLayouts);
-        setEmptyStats(trial);
-        mDataController.getExperimentRun("experiment", "0",
-                new LoggingConsumer<ExperimentRun>("test", "test") {
-                    @Override
-                    public void success(ExperimentRun run) {
-                        CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(),
-                                mDataController);
-                        cropHelper.cropRun(null, run, 2, 1008, mCropRunListener);
-                        assertTrue(mCropCompleted);
-                        assertFalse(mMetadataManager.getTrial("0",
-                                Collections.<ApplicationLabel>emptyList())
-                                .getStatsForSensor("sensor").statsAreValid());
-                    }
-                });
+        StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
+        mDataController.createExperiment(cExperiment);
+        Experiment experiment = cExperiment.getValue();
+        final Trial trial = makeCommonTrial();
+        experiment.addTrial(trial);
+        mDataController.updateExperiment(experiment.getExperimentId(),
+                TestConsumers.<Success>expectingSuccess());
+        setEmptyStats(experiment, trial.getTrialId());
+        CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), mDataController);
+        cropHelper.cropTrial(null, experiment, trial.getTrialId(), 2, 1008, mCropTrialListener);
+        assertTrue(mCropCompleted);
+        assertFalse(mMetadataManager.getExperimentById(experiment.getExperimentId())
+                .getTrial(trial.getTrialId()).getStatsForSensor("sensor").statsAreValid());
     }
 }

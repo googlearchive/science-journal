@@ -59,6 +59,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
@@ -1294,22 +1295,19 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (mSensorCardAdapter == null || !isRecording() || mExternalAxis == null) {
             return;
         }
-        getDataController().getExperimentRun(mSelectedExperiment.getExperimentId(),
-                mCurrentRecording.getRunId(), new LoggingConsumer<ExperimentRun>(TAG,
-                        "Retrieving in-progress trial") {
-                    @Override
-                    public void success(ExperimentRun value) {
-                        if (mSensorCardAdapter != null) {
-                            for (SensorCardPresenter p :
-                                    mSensorCardAdapter.getSensorCardPresenters()) {
-                                p.refreshLabels(value.getTrial().getLabels());
-                            }
-                        }
-                        if (mExternalAxis != null) {
-                            mExternalAxis.onLabelsChanged(value.getTrial().getLabels());
-                        }
-                    }
-                });
+        Trial trial = mSelectedExperiment.getTrial(mCurrentRecording.getRunId());
+        if (trial == null) {
+            return;
+        }
+        if (mSensorCardAdapter != null) {
+            for (SensorCardPresenter p :
+                    mSensorCardAdapter.getSensorCardPresenters()) {
+                p.refreshLabels(trial.getLabels());
+            }
+        }
+        if (mExternalAxis != null) {
+            mExternalAxis.onLabelsChanged(trial.getLabels());
+        }
     }
 
     private void takeSnapshot() {

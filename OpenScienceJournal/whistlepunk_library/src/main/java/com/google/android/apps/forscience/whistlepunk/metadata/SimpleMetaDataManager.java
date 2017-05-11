@@ -484,6 +484,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
         experiment.setSensorTriggers(triggers);
         experiment.setSensorLayouts(getExperimentSensorLayouts(
                 experiment.getExperimentId()));
+        List<String> trialIds = getExperimentRunIds(experiment.getExperimentId(), true);
+        for (String trialId : trialIds) {
+            List<ApplicationLabel> applicationLabels = getApplicationLabelsWithStartId(trialId);
+            experiment.addTrial(getTrial(trialId, applicationLabels));
+        }
     }
 
     @Override
@@ -499,8 +504,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
-    @Override
-    public Trial newTrial(Experiment experiment, String trialId, long startTimestamp,
+    @VisibleForTesting
+    Trial newTrial(Experiment experiment, String trialId, long startTimestamp,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
         // How many runs already exist?
         List<String> runIds = getExperimentRunIds(experiment.getExperimentId(),
@@ -573,8 +578,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
-    @Override
-    public void updateTrial(Trial trial) {
+    @VisibleForTesting
+    void updateTrial(Trial trial) {
         // Only the labels, layout, title, archived state, and autozoom selection can be edited.
         // TODO: Make this transactional?
         for (Label label : getLabelsForTrial(trial.getTrialId())) {
@@ -602,8 +607,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         updateTrialSensors(trial.getTrialId(), trial.getSensorLayouts());
     }
 
-    @Override
-    public Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels) {
+    @VisibleForTesting
+    Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels) {
         List<Label> labels = getLabelsForTrial(trialId);
         List<GoosciSensorLayout.SensorLayout> sensorLayouts = new ArrayList<>();
         int runIndex = -1;
@@ -779,8 +784,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return layouts;
     }
 
-    @Override
-    public void deleteTrial(String runId) {
+    @VisibleForTesting
+    void deleteTrial(String runId) {
         for (Label label : getLabelsForTrial(runId)) {
             label.deleteAssets(mContext);
             deleteLabel(label);
@@ -862,8 +867,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return UNKNOWN_LABEL_TAG;
     }
 
-    @Override
-    public void addApplicationLabel(String experimentId, ApplicationLabel label) {
+    @VisibleForTesting
+    void addApplicationLabel(String experimentId, ApplicationLabel label) {
         ContentValues values = new ContentValues();
         values.put(LabelColumns.EXPERIMENT_ID, experimentId);
         values.put(LabelColumns.TYPE, label.getTag());
@@ -976,8 +981,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return getLabels(selection, selectionArgs);
     }
 
-    @Override
-    public List<ApplicationLabel> getApplicationLabelsWithStartId(String trialId) {
+    @VisibleForTesting
+    List<ApplicationLabel> getApplicationLabelsWithStartId(String trialId) {
         final String selection = LabelColumns.START_LABEL_ID + "=? and " + LabelColumns.TYPE + "=?";
         final String[] selectionArgs = new String[]{trialId, ApplicationLabel.TAG};
         return getApplicationLabels(selection, selectionArgs);
@@ -1079,8 +1084,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return runStats.getTrialStats();
     }
 
-    @Override
-    public List<String> getExperimentRunIds(String experimentId, boolean includeArchived) {
+    @VisibleForTesting
+    List<String> getExperimentRunIds(String experimentId, boolean includeArchived) {
         // TODO: use start index as offset.
         List<String> ids = new ArrayList<>();
         synchronized (mLock) {
@@ -1110,8 +1115,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return ids;
     }
 
-    @Override
-    public void editApplicationLabel(ApplicationLabel updatedLabel) {
+    @VisibleForTesting
+    void editApplicationLabel(ApplicationLabel updatedLabel) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
             final ContentValues values = new ContentValues();

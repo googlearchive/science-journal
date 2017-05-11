@@ -64,7 +64,6 @@ public class EditNoteDialog extends DialogFragment {
     private String mTrialId;
     private String mExperimentId;
     private Experiment mExperiment;
-    private ExperimentRun mExperimentRun;
 
     public interface EditNoteDialogListener {
         /**
@@ -124,25 +123,14 @@ public class EditNoteDialog extends DialogFragment {
         mTimestamp = getArguments().getLong(KEY_SAVED_TIMESTAMP);
         mTrialId = getArguments().getString(KEY_TRIAL_ID);
         mExperimentId = getArguments().getString(KEY_EXPERIMENT_ID);
-        if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
-            getDataController().getExperimentById(mExperimentId,
-                    new LoggingConsumer<Experiment>(TAG, "get experiment") {
-                        @Override
-                        public void success(Experiment value) {
-                            mExperiment = value;
-                            updatePositiveButtonEnabled((AlertDialog) getDialog());
-                        }
-                    });
-        } else {
-            getDataController().getExperimentRun(mExperimentId, mTrialId,
-                    new LoggingConsumer<ExperimentRun>(TAG, "get experiment run") {
-                        @Override
-                        public void success(ExperimentRun value) {
-                            mExperimentRun = value;
-                            updatePositiveButtonEnabled((AlertDialog) getDialog());
-                        }
-                    });
-        }
+        getDataController().getExperimentById(mExperimentId,
+                new LoggingConsumer<Experiment>(TAG, "get experiment") {
+                    @Override
+                    public void success(Experiment value) {
+                        mExperiment = value;
+                        updatePositiveButtonEnabled((AlertDialog) getDialog());
+                    }
+                });
         try {
             mSelectedValue = GoosciLabelValue.LabelValue.parseFrom(
                     getArguments().getByteArray(KEY_SELECTED_VALUE));
@@ -211,17 +199,12 @@ public class EditNoteDialog extends DialogFragment {
                         }
                         if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
                             mExperiment.updateLabel(mLabel);
-                            getDataController().updateExperiment(mExperimentId,
-                                    ((EditNoteDialogListener) getParentFragment()).onLabelEdit(
-                                            mLabel));
                         } else {
-                            // TODO: Do this by updating the trial with the label and then the
-                            // experiment with the trial, and then updating the experiment.
-                            mExperimentRun.getTrial().updateLabel(mLabel);
-                            getDataController().updateTrial(mExperimentRun.getTrial(),
-                                    ((EditNoteDialogListener) getParentFragment()).onLabelEdit(
-                                            mLabel));
+                            mExperiment.getTrial(mTrialId).updateLabel(mLabel);
                         }
+                        getDataController().updateExperiment(mExperimentId,
+                                ((EditNoteDialogListener) getParentFragment()).onLabelEdit(
+                                        mLabel));
                     }
                 }
         );
@@ -302,7 +285,7 @@ public class EditNoteDialog extends DialogFragment {
         }
         Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         if (positiveButton != null) {
-            positiveButton.setEnabled(mExperiment != null || mExperimentRun != null);
+            positiveButton.setEnabled(mExperiment != null);
         }
     }
 }

@@ -19,11 +19,8 @@ package com.google.android.apps.forscience.whistlepunk;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
@@ -42,19 +39,7 @@ public interface DataController {
     void getScalarReadings(String databaseTag, final int resolutionTier, TimeRange timeRange,
             int maxRecords, MaybeConsumer<ScalarReadingList> onSuccess);
 
-    void addCropApplicationLabel(ApplicationLabel label, MaybeConsumer<ApplicationLabel> onSuccess);
-
-    void startTrial(Experiment experiment, List<GoosciSensorLayout.SensorLayout> sensorLayouts,
-            MaybeConsumer<Trial> onSuccess);
-
-    void stopTrial(Experiment experiment, Trial trial, MaybeConsumer<Trial> onSuccess);
-
-    /**
-     * Updates a trial and the labels within that trial.
-     */
-    void updateTrial(final Trial trial, MaybeConsumer<Success> onSuccess);
-
-    void deleteRun(ExperimentRun trial, MaybeConsumer<Success> onSuccess);
+    void deleteTrialData(Trial trial, MaybeConsumer<Success> onSuccess);
 
     void createExperiment(MaybeConsumer<Experiment> onSuccess);
 
@@ -63,14 +48,6 @@ public interface DataController {
     void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess);
 
     void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess);
-
-    void getExperimentRun(final String experimentId, final String startLabelId,
-            final MaybeConsumer<ExperimentRun> onSuccess);
-
-    void getExperimentRuns(String experiment, boolean includeArchived,
-            final boolean includeInvalid, MaybeConsumer<List<ExperimentRun>> onSuccess);
-
-    void editApplicationLabel(ApplicationLabel updatedLabel, MaybeConsumer<Success> onSuccess);
 
     String generateNewLabelId();
 
