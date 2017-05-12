@@ -25,10 +25,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 
+import io.reactivex.Maybe;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -60,7 +62,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
-                        return RecordFragment.newInstance();
+                        return RecordFragment.newInstance(true);
                     case 1:
                         return CameraFragment.newInstance();
                     case 2:
@@ -137,6 +139,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             void onRecordingSaved(String runId, Experiment experiment) {
                 mExperimentFragment.loadExperimentData(experiment);
             }
+
+            @Override
+            public void onLabelAdded(Label label) {
+                // TODO: is this expensive?  Should we trigger a more incremental update?
+                mExperimentFragment.loadExperiment();
+            }
         };
     }
 
@@ -162,12 +170,14 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             @Override
             public void onPictureLabelTaken(final Label label) {
                 // Get the most recent experiment, or wait if none has been loaded yet.
-                mActiveExperiment.firstElement().subscribe(new Consumer<Experiment>() {
+                Maybe<Experiment> experimentMaybe = mActiveExperiment.firstElement();
+                experimentMaybe.subscribe(new Consumer<Experiment>() {
                     @Override
                     public void accept(Experiment e) throws Exception {
                         // TODO: change this to lambda once we can use Java 8.
-                        AddNoteDialog.addLabelToExperiment(getDataController(), e, label,
-                                getAddNoteDialogListener().onLabelAdd());
+                        AddNoteDialog.addLabelToExperiment(getDataController(), e, label)
+                                     .subscribe(MaybeConsumers.toSingleObserver(
+                                             getAddNoteDialogListener().onLabelAdd()));
                     }
                 });
             }

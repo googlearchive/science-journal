@@ -371,7 +371,7 @@ public class MainActivity extends AppCompatActivity
 
     private Fragment createNewFragment(int itemId) {
         if (itemId == R.id.navigation_item_observe) {
-            mRecordFragment = RecordFragment.newInstance();
+            mRecordFragment = RecordFragment.newInstance(false);
             return mRecordFragment;
         } else if (itemId == R.id.navigation_item_experiments) {
             return ExperimentListFragment.newInstance();
