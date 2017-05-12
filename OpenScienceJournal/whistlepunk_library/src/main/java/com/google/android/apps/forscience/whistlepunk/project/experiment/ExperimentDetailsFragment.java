@@ -257,9 +257,12 @@ public class ExperimentDetailsFragment extends Fragment
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
 
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         if (mDisappearingActionBar) {
-            mControlledToolbar = (Toolbar) view.findViewById(R.id.toolbar);
+            mControlledToolbar = toolbar;
             activity.setSupportActionBar(mControlledToolbar);
+        } else {
+            toolbar.setVisibility(View.GONE);
         }
 
         ActionBar actionBar = activity.getSupportActionBar();
@@ -333,20 +336,21 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void loadExperimentData(final Experiment experiment) {
-        if (experiment.isArchived()) {
+
+        // If we don't have the disappearing action bar, we're in V2 UI, and shouldn't have a FAB,
+        // either.
+        if (experiment.isArchived() || !mDisappearingActionBar) {
             mObserveButton.setVisibility(View.GONE);
             mObserveButton.setOnClickListener(null);
         } else {
             mObserveButton.setVisibility(View.VISIBLE);
             mObserveButton.setOnClickListener(new View.OnClickListener() {
-
                 @Override
                 public void onClick(View v) {
                     launchObserve();
                 }
             });
         }
-        final DataController dc = getDataController();
         boolean includeInvalidRuns = false;
         mAdapter.setData(experiment, experiment.getTrials(mIncludeArchived, includeInvalidRuns),
                 mScalarDisplayOptions);
@@ -373,19 +377,23 @@ public class ExperimentDetailsFragment extends Fragment
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        inflater.inflate(R.menu.menu_experiment_details, menu);
+        if (mDisappearingActionBar) {
+            inflater.inflate(R.menu.menu_experiment_details, menu);
+        }
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_archive_experiment).setVisible(mExperiment != null &&
-                !mExperiment.isArchived());
-        menu.findItem(R.id.action_unarchive_experiment).setVisible(mExperiment != null &&
-                mExperiment.isArchived());
-        menu.findItem(R.id.action_delete_experiment).setEnabled(mExperiment != null
-                && mExperiment.isArchived());
-        menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
-        menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
+        if (mDisappearingActionBar) {
+            menu.findItem(R.id.action_archive_experiment).setVisible(mExperiment != null &&
+                                                                     !mExperiment.isArchived());
+            menu.findItem(R.id.action_unarchive_experiment).setVisible(mExperiment != null &&
+                                                                       mExperiment.isArchived());
+            menu.findItem(R.id.action_delete_experiment).setEnabled(mExperiment != null
+                                                                    && mExperiment.isArchived());
+            menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
+            menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
+        }
     }
 
     @Override
