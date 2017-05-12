@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity
         RecordFragment.CallbacksProvider {
     private static final String TAG = "MainActivity";
     public static final String ARG_SELECTED_NAV_ITEM_ID = "selected_nav_item_id";
+    public static final String ARG_USE_PANES = "use_panes";
     public static final int PERMISSIONS_AUDIO_RECORD_REQUEST = 1;
     protected static final int NO_SELECTED_ITEM = -1;
 
@@ -374,10 +375,14 @@ public class MainActivity extends AppCompatActivity
             mRecordFragment = RecordFragment.newInstance(false);
             return mRecordFragment;
         } else if (itemId == R.id.navigation_item_experiments) {
-            return ExperimentListFragment.newInstance();
+            return ExperimentListFragment.newInstance(shouldUsePanes());
         } else {
             throw new IllegalArgumentException("Unknown menu item " + itemId);
         }
+    }
+
+    private boolean shouldUsePanes() {
+        return getIntent().getBooleanExtra(ARG_USE_PANES, false);
     }
 
     private void adjustActivityForSelectedItem(int itemId) {
@@ -448,18 +453,15 @@ public class MainActivity extends AppCompatActivity
      * Launches the main activity to the selected navigation item.
      *
      * @param id One of the navigation_item constants.
+     * @param usePanes should we use panes (the drawer) when observing?
      */
-    public static void launch(Context context, int id) {
-        context.startActivity(launchIntent(context, id));
-    }
-
     @NonNull
-    public static Intent launchIntent(Context context, int id) {
+    public static Intent launchIntent(Context context, int id, boolean usePanes) {
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(ARG_SELECTED_NAV_ITEM_ID, id);
+        intent.putExtra(ARG_USE_PANES, usePanes);
         return intent;
     }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

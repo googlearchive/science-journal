@@ -66,6 +66,10 @@
         <item name="actionModeBackground">@color/color_primary</item>
     </style>
 
+    <style name="AppTheme.Panes">
+        <item name="android:windowActionBar">false</item>
+    </style>
+
     <!-- Subtitle style -->
     <style name="NoBarTheme.ActionBar.SubtitleTextStyle"
         parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Subtitle">

@@ -1365,8 +1365,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             return;
         }
 
-        Intent mLaunchIntent;
-        mLaunchIntent = MainActivity.launchIntent(getActivity(), R.id.navigation_item_observe);
+        boolean usePanes = false;
+        Intent mLaunchIntent =
+                MainActivity.launchIntent(getActivity(), R.id.navigation_item_observe, usePanes);
+
         // This isn't currently used, but does ensure this intent doesn't match any other intent.
         // See b/31616891
         mLaunchIntent.setData(
