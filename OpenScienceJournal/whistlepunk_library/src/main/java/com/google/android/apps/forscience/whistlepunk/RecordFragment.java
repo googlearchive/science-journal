@@ -59,7 +59,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
@@ -95,8 +94,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Maybe;
-import io.reactivex.Single;
-import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.MaybeSubject;
@@ -1321,12 +1318,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     @NonNull
     private Function<String, String> getIdToName() {
-        return new Function<String, String>() {
-            @Override
-            public String apply(String sensorId) throws Exception {
-                return getSensorAppearanceProvider().getAppearance(sensorId).getName(getActivity());
-            }
-        };
+        // Right now, this is unused, but demonstrates that we are correctly compiling Java 8
+        // syntax.
+        return s -> getSensorAppearanceProvider().getAppearance(s).getName(getActivity());
     }
 
 
