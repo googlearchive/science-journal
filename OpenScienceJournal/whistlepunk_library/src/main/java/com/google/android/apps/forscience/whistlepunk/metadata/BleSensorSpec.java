@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
+import android.annotation.SuppressLint;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -189,6 +190,7 @@ public class BleSensorSpec extends ExternalSensorSpec {
         return transform;
     }
 
+    @SuppressLint("WrongConstant")
     private void complainSensorType() {
         if (Log.isLoggable(TAG, Log.ERROR)) {
             Log.e(TAG, "Invalid sensor type: " + getSensorType());
