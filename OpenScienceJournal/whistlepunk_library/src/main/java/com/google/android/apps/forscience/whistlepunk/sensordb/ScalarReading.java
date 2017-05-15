@@ -42,8 +42,9 @@ public class ScalarReading implements TimedEvent, Comparable<ScalarReading> {
         final List<ScalarReading> readings = new ArrayList<>();
         list.deliver(new StreamConsumer() {
             @Override
-            public void addData(long timestampMillis, double value) {
+            public boolean addData(long timestampMillis, double value) {
                 readings.add(new ScalarReading(timestampMillis, value));
+                return true;
             }
         });
         return readings;

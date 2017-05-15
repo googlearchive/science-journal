@@ -232,4 +232,17 @@ public class Label implements Parcelable {
         }
         mLabel.values = result;
     }
+
+    @Override
+    public String toString() {
+        return mLabel.timestampMs + ": " + getValuesString();
+    }
+
+    private String getValuesString() {
+        if (mLabelValues.size() == 1) {
+            return mLabelValues.values().iterator().next().toString();
+        } else {
+            return mLabelValues.values().toString();
+        }
+    }
 }

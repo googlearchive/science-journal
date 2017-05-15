@@ -19,17 +19,12 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
 import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
-import com.google.android.apps.forscience.whistlepunk.TestConsumers;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
@@ -40,6 +35,8 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
+import static org.junit.Assert.fail;
 
 public class ManualSensor extends ScalarSensor {
     private StreamConsumer mConsumer;
@@ -140,7 +137,9 @@ public class ManualSensor extends ScalarSensor {
 
     public void pushValue(long timestampMillis, double value) {
         if (mConsumer != null) {
-            mConsumer.addData(timestampMillis, value);
+            if (! mConsumer.addData(timestampMillis, value)) {
+                fail("Did not add data: " + timestampMillis + ", " + value);
+            }
         }
     }
 

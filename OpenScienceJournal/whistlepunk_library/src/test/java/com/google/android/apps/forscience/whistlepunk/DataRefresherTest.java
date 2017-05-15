@@ -29,16 +29,17 @@ import org.junit.Test;
  */
 public class DataRefresherTest {
     // A stream consumer that can return the most recent data and timestamp it received.
-    public class MockStreamConsumer implements StreamConsumer {
+    private class MockStreamConsumer implements StreamConsumer {
         private long mTimestamp;
         private double mValue;
         private boolean mDataAdded = false;
 
         @Override
-        public void addData(long timestampMillis, double value) {
+        public boolean addData(long timestampMillis, double value) {
             mTimestamp = timestampMillis;
             mValue = value;
             mDataAdded = true;
+            return true;
         }
 
         public long getLastTimestamp() {

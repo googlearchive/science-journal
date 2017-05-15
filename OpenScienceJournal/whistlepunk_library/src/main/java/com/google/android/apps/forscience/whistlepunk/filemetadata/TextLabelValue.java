@@ -76,4 +76,9 @@ public class TextLabelValue extends LabelValue {
         populateLabelValue(value, text);
         return value;
     }
+
+    @Override
+    public String toString() {
+        return getText();
+    }
 }

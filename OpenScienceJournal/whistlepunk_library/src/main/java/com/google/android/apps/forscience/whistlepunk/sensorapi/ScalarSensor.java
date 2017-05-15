@@ -491,15 +491,16 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         }
 
         @Override
-        public void addData(final long timestampMillis, double value) {
+        public boolean addData(final long timestampMillis, double value) {
             // TODO: would inlining here gain performance?
             if (!maintainsTimeSeries(timestampMillis)) {
-                return;
+                return false;
             }
             value = maybeFilter(timestampMillis, value);
             observeData(timestampMillis, value);
             recordData(timestampMillis, value);
             mLastDataTimestampMillis = timestampMillis;
+            return true;
         }
 
         public void observeData(final long timestampMillis, double value) {

@@ -35,13 +35,13 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
@@ -65,6 +65,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
+import io.reactivex.Observable;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Function;
+import io.reactivex.subjects.BehaviorSubject;
 
 /**
  * Keeps track of:
@@ -99,12 +106,11 @@ public class RecorderControllerImpl implements RecorderController {
     private RecorderServiceConnection mServiceConnection = null;
     private int mPauseCount = 0;
     private final SensorEnvironment mSensorEnvironment;
-    private Experiment mSelectedExperiment;
+    private BehaviorSubject<Experiment> mSelectedExperiment = BehaviorSubject.create();
     private Trial mCurrentTrial = null;
     private boolean mRecordingStateChangeInProgress;
     private TriggerHelper mTriggerHelper;
     private boolean mActivityInForeground = false;
-    private int mStatsSaved = 0;
     private final Supplier<RecorderServiceConnection> mConnectionSupplier;
 
     private int mNextRecorderStateListenerId = 0;
@@ -121,6 +127,11 @@ public class RecorderControllerImpl implements RecorderController {
     private RecordingMetadata mRecording = null;
     private Supplier<List<GoosciSensorLayout.SensorLayout>> mLayoutSupplier;
 
+    /**
+     * The latest recorded value for each sensor
+     */
+    private Map<String, BehaviorSubject<Double>> mLatestValues = new HashMap<>();
+
     public RecorderControllerImpl(Context context) {
         this(context, AppSingleton.getInstance(context).getDataController());
     }
@@ -132,6 +143,7 @@ public class RecorderControllerImpl implements RecorderController {
                 dataController, new SystemScheduler(), DEFAULT_STOP_DELAY);
     }
 
+    // TODO: use builder?
     /**
      * @param scheduler for scheduling delayed stops if desired (to prevent sensor stop/start churn)
      * @param stopDelay how long to wait before stopping sensors.
@@ -170,6 +182,8 @@ public class RecorderControllerImpl implements RecorderController {
         };
     }
 
+    // TODO: Can RecorderControllerImpl eventually own / look up the triggers so they don't
+    //       need to be passed in here?
     @Override
     public String startObserving(final String sensorId, final List<SensorTrigger> activeTriggers,
             SensorObserver observer, SensorStatusListener listener,
@@ -207,8 +221,12 @@ public class RecorderControllerImpl implements RecorderController {
         }
     }
 
-    private void addServiceObserverIfNeeded(String sensorId,
+    private void addServiceObserverIfNeeded(final String sensorId,
             final List<SensorTrigger> activeTriggers) {
+        if (!mLatestValues.containsKey(sensorId)) {
+            mLatestValues.put(sensorId, BehaviorSubject.<Double>create());
+        }
+
         if (!mServiceObservers.containsKey(sensorId)) {
             String serviceObserverId = mRegistry.putListeners(sensorId,
                     new SensorObserver() {
@@ -218,6 +236,10 @@ public class RecorderControllerImpl implements RecorderController {
                                 return;
                             }
                             double value = ScalarSensor.getValue(data);
+
+                            // Remember latest value
+                            mLatestValues.get(sensorId).onNext(value);
+
                             // Fire triggers.
                             for (SensorTrigger trigger : activeTriggers) {
                                 if (!isRecording() && trigger.shouldTriggerOnlyWhenRecording()) {
@@ -300,7 +322,7 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     private void addTriggerLabel(long timestamp, SensorTrigger trigger, Context context) {
-        if (mSelectedExperiment == null) {
+        if (getSelectedExperiment() == null) {
             return;
         }
         SensorTriggerLabelValue labelValue = SensorTriggerLabelValue.fromTrigger(trigger,
@@ -318,8 +340,8 @@ public class RecorderControllerImpl implements RecorderController {
                     });
         } else {
             // Adds the label to the experiment and saves the updated experiment.
-            mSelectedExperiment.addLabel(triggerLabel);
-            mDataController.updateExperiment(mSelectedExperiment.getExperimentId(),
+            getSelectedExperiment().addLabel(triggerLabel);
+            mDataController.updateExperiment(getSelectedExperiment().getExperimentId(),
                     new LoggingConsumer<Success>(TAG, "add trigger label to experiment") {
                         @Override
                         public void success(Success value) {
@@ -330,21 +352,22 @@ public class RecorderControllerImpl implements RecorderController {
 
     }
 
+    private Experiment getSelectedExperiment() {
+        // TODO: consider using as subject more places
+        return mSelectedExperiment.getValue();
+    }
+
     private void onLabelAdded(Label label) {
         String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
                 TrackerConstants.LABEL_OBSERVE;
         WhistlePunkApplication.getUsageTracker(mContext)
-                .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                        TrackerConstants.ACTION_CREATE,
-                        trackerLabel,
-                        TrackerConstants.getLabelValueType(label));
+                              .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                      TrackerConstants.ACTION_CREATE,
+                                      trackerLabel,
+                                      TrackerConstants.getLabelValueType(label));
         for (TriggerFiredListener listener : mTriggerListeners.values()) {
             listener.onLabelAdded(label);
         }
-    }
-
-    private String getCurrentRunId() {
-        return mRecording == null? RecorderController.NOT_RECORDING_RUN_ID : mRecording.getRunId();
     }
 
     private void startObserving(StatefulRecorder sr) {
@@ -366,6 +389,11 @@ public class RecorderControllerImpl implements RecorderController {
     @Override
     public void setLayoutSupplier(Supplier<List<GoosciSensorLayout.SensorLayout>> supplier) {
         mLayoutSupplier = supplier;
+    }
+
+    @Override
+    public long getNow() {
+        return mSensorEnvironment.getDefaultClock().getNow();
     }
 
     @Override
@@ -393,6 +421,7 @@ public class RecorderControllerImpl implements RecorderController {
                     String serviceObserverId = mServiceObservers.get(sensorId);
                     mRegistry.remove(sensorId, serviceObserverId);
                     mServiceObservers.remove(sensorId);
+                    mLatestValues.remove(sensorId);
                 }
             }
         }
@@ -488,7 +517,7 @@ public class RecorderControllerImpl implements RecorderController {
             @Override
             public void take(final RecorderService recorderService) throws RemoteException {
                 final DataController dataController = mDataController;
-                dataController.startTrial(mSelectedExperiment,
+                dataController.startTrial(getSelectedExperiment(),
                         buildSensorLayouts(),
                         new LoggingConsumer<Trial>(TAG, "start trial") {
                             @Override
@@ -496,9 +525,9 @@ public class RecorderControllerImpl implements RecorderController {
                                 mCurrentTrial = trial;
                                 mRecording = new RecordingMetadata(trial.getCreationTimeMs(),
                                         trial.getTrialId(),
-                                        mSelectedExperiment.getDisplayTitle(mContext));
+                                        getSelectedExperiment().getDisplayTitle(mContext));
 
-                                ensureUnarchived(mSelectedExperiment, dataController);
+                                ensureUnarchived(getSelectedExperiment(), dataController);
                                 recorderService.beginServiceRecording(
                                         mRecording.getExperimentName(), resumeIntent);
 
@@ -523,7 +552,9 @@ public class RecorderControllerImpl implements RecorderController {
 
     @Override
     public void stopRecording() {
-        if (mRecording == null || mSelectedExperiment == null || mRecordingStateChangeInProgress) {
+        if (mRecording == null
+            || getSelectedExperiment() == null
+            || mRecordingStateChangeInProgress) {
             return;
         }
 
@@ -553,7 +584,7 @@ public class RecorderControllerImpl implements RecorderController {
                 if (sensorLayoutsAtStop.size() > 0) {
                     mCurrentTrial.setSensorLayouts(sensorLayoutsAtStop);
                 }
-                mDataController.stopTrial(mSelectedExperiment, mCurrentTrial,
+                mDataController.stopTrial(getSelectedExperiment(), mCurrentTrial,
                         new LoggingConsumer<Trial>(TAG, "stopTrial") {
                             @Override
                             public void success(Trial stoppedTrial) {
@@ -572,10 +603,11 @@ public class RecorderControllerImpl implements RecorderController {
                                                 // the app is in the background, all processes will
                                                 // stop -- so this needs to be the last thing to
                                                 // happen!
+                                                Experiment exp = getSelectedExperiment();
                                                 recorderService.endServiceRecording(
                                                         !activityInForground, trialId,
-                                                        mSelectedExperiment.getExperimentId(),
-                                                        mSelectedExperiment.getDisplayTitle(mContext));
+                                                        exp.getExperimentId(),
+                                                        exp.getDisplayTitle(mContext));
                                             }
                                         });
 
@@ -600,6 +632,39 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @Override
+    public Maybe<String> generateSnapshotText(List<String> sensorIds,
+            final Function<String, String> idToName) {
+        // TODO: we probably want to do something more structured eventually;
+        // this is a placeholder, so we're not doing internationalization, etc.
+
+        // for each sensorId
+        return Observable.fromIterable(sensorIds)
+
+                         // make a string from the latest value*
+                         .flatMapMaybe(sensorId -> getSnapshotText(sensorId, idToName))
+
+                         // join them with commas
+                         .reduce((a, b) -> a + ", " + b)
+
+                         // or return a default if there are none
+                         .defaultIfEmpty("No sensors observed");
+
+        // * The "flat" in flatMapMaybe meands that we're taking a stream of Maybes (one for each
+        //   sensorId), and "flattening" them into a stream of Strings (that is, we're waiting for
+        //   each Maybe to be resolved to its actual snapshotText).
+    }
+
+    private MaybeSource<String> getSnapshotText(String sensorId,
+            Function<String, String> idToName) throws Exception {
+        BehaviorSubject<Double> subject = mLatestValues.get(sensorId);
+        if (subject == null) {
+            return Maybe.empty();
+        }
+        final String name = idToName.apply(sensorId);
+        return subject.firstElement().map(value -> name + " has value " + value);
+    }
+
+    @Override
     public void stopRecordingWithoutSaving() {
         // TODO: Delete partially recorded data and trial?
         if (mRecording == null || mRecordingStateChangeInProgress) {
@@ -616,7 +681,7 @@ public class RecorderControllerImpl implements RecorderController {
             @Override
             public void take(RecorderService recorderService) throws RemoteException {
                 recorderService.endServiceRecording(false, "",
-                        mSelectedExperiment.getExperimentId(), "");
+                        getSelectedExperiment().getExperimentId(), "");
                 mRecordingStateChangeInProgress = false;
             }
         });
@@ -627,7 +692,6 @@ public class RecorderControllerImpl implements RecorderController {
     @VisibleForTesting
     void trackStopRecording(Context context, Trial completeTrial,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-        SensorRegistry registry = AppSingleton.getInstance(context).getSensorRegistry();
         // Record how long this session was.
         WhistlePunkApplication.getUsageTracker(context)
                 .trackEvent(TrackerConstants.CATEGORY_RUNS, TrackerConstants.ACTION_CREATE, null,
@@ -735,7 +799,8 @@ public class RecorderControllerImpl implements RecorderController {
 
     @Override
     public void setSelectedExperiment(Experiment experiment) {
-        mSelectedExperiment = experiment;
+        // TODO: pass in observable instead?
+        mSelectedExperiment.onNext(experiment);
     }
 
     private boolean isRecording() {

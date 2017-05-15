@@ -249,8 +249,9 @@ public class CropHelper {
             mExperimentRun = run;
             mStreamConsumer = new StreamConsumer() {
                 @Override
-                public void addData(long timestampMillis, double value) {
+                public boolean addData(long timestampMillis, double value) {
                     mStatsAccumulator.updateRecordingStreamStats(timestampMillis, value);
+                    return true;
                 }
             };
             mContext = context;

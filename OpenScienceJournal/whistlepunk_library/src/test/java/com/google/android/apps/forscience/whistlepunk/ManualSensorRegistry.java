@@ -1,5 +1,5 @@
 /*
- *  Copyright 2016 Google Inc. All Rights Reserved.
+ *  Copyright 2017 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,17 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package com.google.android.apps.forscience.whistlepunk;
 
-package com.google.android.apps.forscience.whistlepunk.sensorapi;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 
-/**
- * Consumes new single-value time-series data points as they are generated.
- */
-public interface StreamConsumer {
-    /**
-     * A new value has been seen.  Caveat implementor: this may be called from any thread.
-     *
-     * @return true if data was successfully accepted by the consumer
-     */
-    boolean addData(long timestampMillis, double value);
+class ManualSensorRegistry extends SensorRegistry {
+    public ManualSensor addSensor(String id) {
+        ManualSensor sensor = new ManualSensor(id, 100, 100);
+        addBuiltInSensor(sensor);
+        return sensor;
+    }
 }

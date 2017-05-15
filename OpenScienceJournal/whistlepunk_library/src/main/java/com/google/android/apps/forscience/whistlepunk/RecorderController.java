@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Intent;
 import android.support.annotation.IntDef;
+import android.support.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -32,6 +33,9 @@ import com.google.common.base.Supplier;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+
+import io.reactivex.Maybe;
+import io.reactivex.functions.Function;
 
 public interface RecorderController extends SensorRegistryListener {
     /**
@@ -91,6 +95,14 @@ public interface RecorderController extends SensorRegistryListener {
     void startRecording(Intent resumeIntent);
 
     void stopRecording();
+
+    /**
+     * @return a maybe of a string that will contain (a) for any sensor that has already had an
+     * observed value, the most recent value, and (b) for any sensor that has not yet had an
+     * observed value, the first value observed.
+     */
+    Maybe<String> generateSnapshotText(List<String> sensorIds,
+            Function<String, String> idToName);
 
     /**
      * Retry connecting to the given sensor, which is currently in an error state.
@@ -179,4 +191,6 @@ public interface RecorderController extends SensorRegistryListener {
      *                 saving or storing with a trial.
      */
     void setLayoutSupplier(Supplier<List<GoosciSensorLayout.SensorLayout>> supplier);
+
+    long getNow();
 }

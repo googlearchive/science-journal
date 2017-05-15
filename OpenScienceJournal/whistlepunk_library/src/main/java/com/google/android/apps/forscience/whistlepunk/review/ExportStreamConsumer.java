@@ -41,14 +41,14 @@ public class ExportStreamConsumer implements StreamConsumer {
     }
 
     @Override
-    public void addData(final long timestampMillis, final double value) {
+    public boolean addData(final long timestampMillis, final double value) {
         if (mFirstTimeStampWritten < 0) {
             mFirstTimeStampWritten = timestampMillis;
         }
         try {
             if (mOutputStreamWriter == null) {
                 mFailureListener.fail(new IllegalStateException("Output stream closed."));
-                return;
+                return false;
             }
             mOutputStreamWriter.write(getTimestampString(timestampMillis));
             mOutputStreamWriter.write(",");
@@ -58,8 +58,9 @@ public class ExportStreamConsumer implements StreamConsumer {
 
         } catch (IOException e) {
             mFailureListener.fail(e);
-            return;
+            return false;
         }
+        return true;
     }
 
     private String getTimestampString(long time) {

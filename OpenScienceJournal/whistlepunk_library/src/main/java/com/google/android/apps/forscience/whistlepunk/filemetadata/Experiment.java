@@ -460,4 +460,12 @@ public class Experiment extends LabelListHolder {
             }
         }
     }
+
+    public List<String> getSensorIds() {
+        List<String> sensorIds = new ArrayList<>();
+        for (GoosciSensorLayout.SensorLayout layout : mSensorLayouts) {
+            sensorIds.add(layout.sensorId);
+        }
+        return sensorIds;
+    }
 }

@@ -21,6 +21,7 @@ import android.content.Intent;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
@@ -31,6 +32,9 @@ import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.reactivex.Maybe;
+import io.reactivex.functions.Function;
 
 class MemoryRecorderController implements RecorderController {
     private Map<String, String> mCurrentObserverIds = new HashMap<>();
@@ -75,6 +79,12 @@ class MemoryRecorderController implements RecorderController {
     @Override
     public void stopRecording() {
 
+    }
+
+    @Override
+    public Maybe<String> generateSnapshotText(List<String> sensorIds,
+            Function<String, String> idToName) {
+        return Maybe.empty();
     }
 
     @Override
@@ -129,6 +139,11 @@ class MemoryRecorderController implements RecorderController {
     @Override
     public void setLayoutSupplier(Supplier<List<GoosciSensorLayout.SensorLayout>> supplier) {
 
+    }
+
+    @Override
+    public long getNow() {
+        return 0;
     }
 
     @Override
