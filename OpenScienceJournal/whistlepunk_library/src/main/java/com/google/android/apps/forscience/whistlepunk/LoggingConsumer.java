@@ -20,6 +20,8 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 
+import io.reactivex.functions.Consumer;
+
 /**
  * MaybeConsumer that logs an stacktrace on failure, which is sufficient for many situations
  * in which failure is not expected.
@@ -46,9 +48,21 @@ public abstract class LoggingConsumer<T> implements MaybeConsumer<T> {
 
     @Override
     public void fail(Exception e) {
+        complain(e, mTag, mOperation);
+
+    }
+
+    private static void complain(Throwable e, String tag, String operation) {
         // TODO: allow non-ERROR log levels
-        if (Log.isLoggable(mTag, Log.ERROR)) {
-            Log.e(mTag, "Failed: " + mOperation, e);
+        if (Log.isLoggable(tag, Log.ERROR)) {
+            Log.e(tag, "Failed: " + operation, e);
         }
+    }
+
+    /**
+     * Returns a Consumer that logs a failure, if any, the way that LoggingConsumer does.
+     */
+    public static Consumer<? super Throwable> complain(String tag, String operation) {
+        return e -> complain(e, tag, operation);
     }
 }

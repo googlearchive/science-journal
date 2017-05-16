@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -59,8 +60,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
@@ -95,6 +96,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.MaybeSubject;
@@ -1311,14 +1313,47 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void takeSnapshot() {
-        // TODO: what to do?
+        // Load recorder controller
+        getRecorderController()
+
+                // Then add new snapshot label
+                .flatMapSingle(rc -> addSnapshotLabelToExperiment(rc))
+
+                // Then process the added label, or complain.
+                .subscribe(label -> {
+                    processAddedLabel(label);
+                    mUICallbacks.onLabelAdded(label);
+                }, LoggingConsumer.complain(TAG, "take snapshot"));
     }
 
-    @NonNull
-    private Function<String, String> getIdToName() {
-        // Right now, this is unused, but demonstrates that we are correctly compiling Java 8
-        // syntax.
-        return s -> getSensorAppearanceProvider().getAppearance(s).getName(getActivity());
+    private Single<Label> addSnapshotLabelToExperiment(RecorderController rc) {
+        Maybe<Experiment> experimentMaybe = mSelectedExperimentSubject.firstElement();
+
+        // When experiment is loaded, add label
+        return experimentMaybe.flatMapSingle(
+                e -> addSnapshotLabelToExperiment(e, rc, getDataController(), this::getNameForId));
+    }
+
+    private String getNameForId(String sensorId) {
+        return getSensorAppearanceProvider().getAppearance(sensorId).getName(getActivity());
+    }
+
+    @VisibleForTesting
+    public static Single<Label> addSnapshotLabelToExperiment(final Experiment selectedExperiment,
+            final RecorderController rc, final DataController dc,
+            Function<String, String> idToName) {
+        // get text
+        return rc.generateSnapshotText(selectedExperiment.getSensorIds(), idToName)
+
+                 // Make it into a label
+                 .map(text -> Label.newLabelWithValue(rc.getNow(), TextLabelValue.fromText(text)))
+
+                 // Make sure it's successfully added
+                 .flatMapSingle(label -> {
+                     selectedExperiment.addLabel(label);
+                     return RxDataController.updateExperiment(dc, selectedExperiment)
+                                            .andThen(Single.just(label));
+                 });
     }
 
 
