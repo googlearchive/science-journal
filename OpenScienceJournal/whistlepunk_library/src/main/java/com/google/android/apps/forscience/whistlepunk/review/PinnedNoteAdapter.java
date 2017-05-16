@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
@@ -47,9 +48,6 @@ import java.util.List;
 /**
  * Adapter for a recycler view of pinned notes.
  */
-// TODO: This points directly at the Trial object's notes. Inserts and deletes now cause the trial
-// notes to be changed. Need to update so that we never add/remove items directly from the notes
-// list. Perhaps this points to the trial instead.
 class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = "PinnedNoteAdapter";
@@ -101,14 +99,15 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    private List<Label> mPinnedNotes = new ArrayList<>();
+    private LabelListHolder mLabelListHolder;
     private long mStartTimestamp;
     private long mEndTimestamp;
     private ListItemEditListener mEditListener;
     private ListItemClickListener mClickListener;
 
-    public PinnedNoteAdapter(List<Label> pinnedNotes, long startTimestamp, long endTimestamp) {
-        mPinnedNotes = pinnedNotes;
+    public PinnedNoteAdapter(LabelListHolder labelListHolder, long startTimestamp,
+            long endTimestamp) {
+        mLabelListHolder = labelListHolder;
         mStartTimestamp = startTimestamp;
         mEndTimestamp = endTimestamp;
     }
@@ -125,10 +124,6 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void setListItemClickListener(ListItemClickListener clickListener) {
         mClickListener = clickListener;
-    }
-
-    public List<Label> getPinnedNotes() {
-        return mPinnedNotes;
     }
 
     @Override
@@ -151,12 +146,12 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (mPinnedNotes.size() == 0) {
+        if (mLabelListHolder.getLabelCount() == 0) {
             return;
         }
 
         final NoteHolder noteHolder = (NoteHolder) holder;
-        final Label label = mPinnedNotes.get(position);
+        final Label label = mLabelListHolder.getLabels().get(position);
         noteHolder.mDurationText.setText(getNoteTimeText(label, mStartTimestamp));
         noteHolder.mDurationText.setContentDescription(getNoteTimeContentDescription(
                 label.getTimeStamp(), mStartTimestamp, noteHolder.mDurationText.getContext()));
@@ -257,73 +252,51 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public int getItemCount() {
         // If there are no notes, we show a "no notes" view, so the
         // size is always at least 1.
-        return Math.max(1, mPinnedNotes.size());
+        return Math.max(1, mLabelListHolder.getLabelCount());
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (mPinnedNotes.size() == 0 && position == 0) {
+        if (mLabelListHolder.getLabelCount() == 0 && position == 0) {
             return TYPE_NO_NOTES;
         }
-        if (mPinnedNotes.get(position).hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
+        if (mLabelListHolder.getLabels().get(position).hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
             return TYPE_TEXT_NOTE;
         }
-        if (mPinnedNotes.get(position).hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+        if (mLabelListHolder.getLabels().get(position).hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
             return TYPE_PICTURE_NOTE;
         }
-        if (mPinnedNotes.get(position).hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
+        if (mLabelListHolder.getLabels().get(position).hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
             return TYPE_TRIGGER_NOTE;
         }
         return TYPE_UNKNOWN;
     }
 
-    public void editLabel(Label label) {
-        int position = findLabelIndexById(label.getLabelId());
-        if (position != -1) {
-            mPinnedNotes.remove(position);
-            notifyItemRemoved(position);
+    public void onLabelUpdated(Label label) {
+        // If the timestamp has changed, updating only the changed position is not enough because
+        // the labels have been rearranged.
+        // TODO: Is there a more efficient way to update only the labels which have moved?
+        notifyDataSetChanged();
+    }
+
+    public void onLabelAdded(Label label) {
+        if (mLabelListHolder.getLabelCount() == 1) {
+            notifyItemChanged(0);
+        } else {
+            int position = findLabelIndexById(label.getLabelId());
+            if (position != -1) {
+                notifyItemInserted(position);
+            }
         }
-        insertNote(label);
     }
 
     private int findLabelIndexById(String id) {
-        for (int i = 0; i < mPinnedNotes.size(); i++) {
-            if (TextUtils.equals(mPinnedNotes.get(i).getLabelId(), id)) {
+        for (int i = 0; i < mLabelListHolder.getLabelCount(); i++) {
+            if (TextUtils.equals(mLabelListHolder.getLabels().get(i).getLabelId(), id)) {
                 return i;
             }
         }
         return -1;
-    }
-
-    public void insertNote(Label label) {
-        int size = mPinnedNotes.size();
-        long timestamp = label.getTimeStamp();
-        for (int i = 0; i < size; i++) {
-            if (timestamp < mPinnedNotes.get(i).getTimeStamp()) {
-                mPinnedNotes.add(i, label);
-                notifyItemInserted(i);
-                return;
-            }
-        }
-        mPinnedNotes.add(size, label);
-        if (size == 0) {
-            notifyItemChanged(size);
-        } else {
-            notifyItemInserted(size);
-        }
-    }
-
-    public void deleteNote(Label label) {
-        int position = mPinnedNotes.indexOf(label);
-        if (position == -1) {
-            return;
-        }
-        mPinnedNotes.remove(position);
-        if (mPinnedNotes.size() != 0) {
-            notifyItemRemoved(position);
-        } else {
-            notifyItemChanged(position);
-        }
     }
 
     public static String getNoteTimeText(Label label, long startTimestamp) {

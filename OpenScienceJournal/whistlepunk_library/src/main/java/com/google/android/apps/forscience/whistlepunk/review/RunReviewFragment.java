@@ -772,7 +772,7 @@ public class RunReviewFragment extends Fragment implements
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         pinnedNoteList.setLayoutManager(layoutManager);
 
-        mPinnedNoteAdapter = new PinnedNoteAdapter(trial.getLabels(), trial.getFirstTimestamp(),
+        mPinnedNoteAdapter = new PinnedNoteAdapter(trial, trial.getFirstTimestamp(),
                 trial.getLastTimestamp());
         mPinnedNoteAdapter.setListItemModifyListener(new PinnedNoteAdapter.ListItemEditListener() {
             @Override
@@ -813,7 +813,7 @@ public class RunReviewFragment extends Fragment implements
                             @Override
                             public void success(Success success) {
                                 // TODO: Somehow re-add the deleted picture here.
-                                mPinnedNoteAdapter.notifyDataSetChanged();
+                                mPinnedNoteAdapter.onLabelAdded(label);
                                 mChartController.setLabels(getTrial()
                                         .getLabels());
                                 WhistlePunkApplication.getUsageTracker(getActivity())
@@ -1111,7 +1111,7 @@ public class RunReviewFragment extends Fragment implements
     private void onDataLoaded() {
         // Add the labels after all the data is loaded
         // so that they are interpolated correctly.
-        mChartController.setLabels(mPinnedNoteAdapter.getPinnedNotes());
+        mChartController.setLabels(getTrial().getLabels());
         mChartController.setShowProgress(false);
 
         mExternalAxis.updateAxis();
@@ -1238,7 +1238,7 @@ public class RunReviewFragment extends Fragment implements
                 return new LoggingConsumer<Label>(TAG, "add label") {
                     @Override
                     public void success(Label newLabel) {
-                        mPinnedNoteAdapter.insertNote(newLabel);
+                        mPinnedNoteAdapter.onLabelAdded(newLabel);
                         mChartController.setLabels(getTrial().getLabels());
                         WhistlePunkApplication.getUsageTracker(getActivity())
                                               .trackEvent(TrackerConstants.CATEGORY_NOTES,
@@ -1297,7 +1297,7 @@ public class RunReviewFragment extends Fragment implements
         return new LoggingConsumer<Success>(TAG, "edit label") {
             @Override
             public void success(Success value) {
-                mPinnedNoteAdapter.editLabel(label);
+                mPinnedNoteAdapter.onLabelUpdated(label);
                 // The timestamp may have been edited, so also refresh the line graph presenter.
                 mChartController.setLabels(getTrial().getLabels());
                 WhistlePunkApplication.getUsageTracker(getActivity())
