@@ -37,13 +37,21 @@ message LabelValue {
     // GUID and placed in the assets directory within the experiment.
     map<string, string> data = 1;
 
+    // TODO: document how data and proto_data are written and read for each type
     enum ValueType {
         TEXT = 1;  // A text label.
         PICTURE = 2;  // A label that has a picture and may also have a text caption.
         SENSOR_TRIGGER = 3;  // A label created from a sensor trigger.
         APPLICATION = 4;  // A label created automatically by Science Journal.
+        SNAPSHOT = 5;  // A label with value snapshot(s) for one or more sensors.
+                       // data: unwritten
+                       // proto_data: a message to be parsed as snapshot_value.proto
     };
 
     // The type this LabelValue represents.
     optional ValueType type = 2;
+
+    // For data that is more structured than what goes in the "data" field, a proto can be
+    // written to this field
+    optional bytes proto_data = 3;
 };
