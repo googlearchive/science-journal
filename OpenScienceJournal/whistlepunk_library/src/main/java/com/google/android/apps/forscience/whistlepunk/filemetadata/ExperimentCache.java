@@ -242,6 +242,16 @@ class ExperimentCache {
     }
 
     /**
+     * Writes the active experiment to a file immediately, if needed.
+     */
+    void saveImmediately() {
+        if (mActiveExperimentNeedsWrite) {
+            cancelWriteTimer();
+            writeActiveExperimentFile();
+        }
+    }
+
+    /**
      * Writes the active experiment to a file.
      */
     @VisibleForTesting

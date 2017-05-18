@@ -143,8 +143,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
         for (String experimentId : experimentIds) {
             Experiment experiment = getDatabaseExperimentById(db, experimentId, mContext, true);
-            // TODO: Immediate add. b/38415843.
-            mFileMetadataManager.addExperiment(experiment);
+            mFileMetadataManager.addExperimentImmediately(experiment);
             deleteDatabaseExperiment(db, experiment, mContext, /* don't delete assets */ false);
         }
         // TODO: Migrate assets!

@@ -111,11 +111,17 @@ public class FileMetadataManager {
         return experiment;
     }
 
-    // Adds an existing experiment to the file system.
+    // Adds an existing experiment to the file system (rather than creating a new one).
     public void addExperiment(Experiment experiment) {
         // Write the experiment to a file
         mActiveExperimentCache.createNewExperiment(experiment);
         mSharedMetadataManager.addExperimentOverview(experiment.getExperimentOverview());
+    }
+
+    // Adds an experiment to the file system and saves it immediately.
+    public void addExperimentImmediately(Experiment experiment) {
+        addExperiment(experiment);
+        mActiveExperimentCache.saveImmediately();
     }
 
     public void deleteExperiment(Experiment experiment) {
