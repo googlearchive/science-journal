@@ -16,8 +16,14 @@
 
 package com.google.android.apps.forscience.javalib;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
 import io.reactivex.SingleObserver;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 
@@ -93,6 +99,69 @@ public class MaybeConsumers {
             @Override
             public void take(Success success) {
                 // do nothing, expected
+            }
+        });
+    }
+
+    /**
+     * Given an operation that takes a {@link MaybeConsumer<Success>}, create a JavaRX
+     * {@link Completable} that succeeds iff the operation does.
+     *
+     * Example:
+     * <pre>
+     *     // update the experiment, and then log that it was successful
+     *     DataController dc = getDataController();
+     *     MaybeConsumers.buildCompleteable(mc -> dc.updateExperiment(e.getExperimentId(), mc))
+     *                   .subscribe(() -> log("successfully updated!"));
+     * </pre>
+     */
+    public static Completable buildCompleteable(
+            io.reactivex.functions.Consumer<MaybeConsumer<Success>> c) {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter emitter) throws Exception {
+                c.accept(new MaybeConsumer<Success>() {
+                    @Override
+                    public void success(Success value) {
+                        emitter.onComplete();
+                    }
+
+                    @Override
+                    public void fail(Exception e) {
+                        emitter.onError(e);
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Given an operation that takes a {@link MaybeConsumer<T>}, create a JavaRX
+     * {@link Single<T>} that produces the value passed to the MaybeConsumer.
+     *
+     * Example:
+     * <pre>
+     *     // log the name of the experiment with a given id
+     *     DataController dc = getDataController();
+     *     MaybeConsumers.buildSingle(mc -> dc.getExperimentById(id, mc))
+     *                   .subscribe(experiment -> log("Name: " + experiment.getName()));
+     * </pre>
+     */
+    public static <T> Single<T> buildSingle(io.reactivex.functions.Consumer<MaybeConsumer<T>> c) {
+        return Single.create(new SingleOnSubscribe<T>() {
+            @Override
+            public void subscribe(SingleEmitter<T> emitter) throws Exception {
+                c.accept(new MaybeConsumer<T>() {
+                    @Override
+                    public void success(T value) {
+                        emitter.onSuccess(value);
+                    }
+
+                    @Override
+                    public void fail(Exception e) {
+                        emitter.onError(e);
+                    }
+                });
             }
         });
     }

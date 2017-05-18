@@ -268,7 +268,7 @@ public class RecorderControllerImpl implements RecorderController {
         // depending on timing of callbacks and order of triggers. b/
         boolean triggerWasFired = false;
         if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_START_RECORDING &&
-                !isRecording() && mSelectedExperiment != null) {
+            !isRecording() && getSelectedExperiment() != null) {
             if (!mRecordingStateChangeInProgress) {
                 triggerWasFired = true;
                 for (TriggerFiredListener listener : mTriggerListeners.values()) {
