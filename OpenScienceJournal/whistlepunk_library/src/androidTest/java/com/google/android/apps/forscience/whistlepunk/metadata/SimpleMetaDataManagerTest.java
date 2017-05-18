@@ -32,6 +32,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
@@ -83,16 +84,18 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
     public void tearDown() {
         getContext().getDatabasePath("test.main.db").delete();
+        File sharedMetadataFile = FileMetadataManager.getSharedMetadataFile(getContext());
+        sharedMetadataFile.delete();
     }
 
     public void testNewExperiment() {
-        Experiment experiment = mMetaDataManager.newExperiment();
+        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
         assertNotNull(experiment);
         assertFalse(TextUtils.isEmpty(experiment.getExperimentId()));
         assertTrue(experiment.getCreationTimeMs() > 0);
 
         List<GoosciSharedMetadata.ExperimentOverview> experiments =
-                mMetaDataManager.getExperimentOverviews(false);
+                mMetaDataManager.getDatabaseExperimentOverviews(false);
         assertEquals(1, experiments.size());
         assertEquals(experiment.getExperimentId(), experiments.get(0).experimentId);
         assertFalse(experiments.get(0).isArchived);
@@ -101,23 +104,24 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         int count = 10;
         // Start at 1, we already added one.
         for (int index = 1; index < count; index++) {
-            mMetaDataManager.newExperiment();
+            mMetaDataManager.newDatabaseExperiment();
         }
 
-        experiments = mMetaDataManager.getExperimentOverviews(false);
+        experiments = mMetaDataManager.getDatabaseExperimentOverviews(false);
         assertEquals(count, experiments.size());
     }
 
-    public void testUpdateExperiment() {
-        Experiment experiment = mMetaDataManager.newExperiment();
+    public void testUpdateDatabaseExperiment() {
+        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
 
         experiment.setTitle("new title");
         experiment.setDescription("my description");
         experiment.setLastUsedTime(123);
 
-        mMetaDataManager.updateExperiment(experiment);
+        mMetaDataManager.updateDatabaseExperiment(experiment);
 
-        Experiment retrieve = mMetaDataManager.getExperimentById(experiment.getExperimentId());
+        Experiment retrieve = mMetaDataManager.getDatabaseExperimentById(
+                experiment.getExperimentId());
         assertEquals("new title", retrieve.getTitle());
         assertEquals("my description", retrieve.getDescription());
         assertEquals(123, retrieve.getLastUsedTime());
@@ -125,27 +129,27 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testArchiveExperiment() {
-        Experiment experiment = mMetaDataManager.newExperiment();
+        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
 
         experiment.setTitle("new title");
         experiment.setDescription("my description");
         experiment.setLastUsedTime(123);
         experiment.setArchived(false);
-        mMetaDataManager.updateExperiment(experiment);
+        mMetaDataManager.updateDatabaseExperiment(experiment);
 
         List<GoosciSharedMetadata.ExperimentOverview> experiments =
-                mMetaDataManager.getExperimentOverviews(false);
+                mMetaDataManager.getDatabaseExperimentOverviews(false);
         assertEquals(1, experiments.size());
         assertEquals(experiment.getExperimentId(), experiments.get(0).experimentId);
 
         // Now archive this.
         experiment.setArchived(true);
-        mMetaDataManager.updateExperiment(experiment);
-        experiments = mMetaDataManager.getExperimentOverviews(false);
+        mMetaDataManager.updateDatabaseExperiment(experiment);
+        experiments = mMetaDataManager.getDatabaseExperimentOverviews(false);
         assertEquals(0, experiments.size());
 
         // Now search include archived experiments
-        experiments = mMetaDataManager.getExperimentOverviews(true);
+        experiments = mMetaDataManager.getDatabaseExperimentOverviews(true);
         assertEquals(1, experiments.size());
         assertEquals(experiment.getExperimentId(), experiments.get(0).experimentId);
     }
@@ -172,7 +176,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
                 testPicturePath, testPictureCaption));
         experiment.addLabel(pictureLabel);
 
-        mMetaDataManager.updateExperiment(experiment);
+        mMetaDataManager.updateDatabaseExperiment(experiment);
 
         List<Label> labels = mMetaDataManager.getExperimentById(experiment.getExperimentId())
                 .getLabels();
@@ -202,7 +206,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testLabelsWithAndWithoutTrial() {
-        Experiment experiment = mMetaDataManager.newExperiment();
+        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
         Trial trial = mMetaDataManager.newTrial(experiment, "duringStartId", 2,
                 Collections.<GoosciSensorLayout.SensorLayout>emptyList());
         final Label before = Label.newLabel(1);
@@ -217,16 +221,16 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         experiment.addLabel(after);
         trial.addLabel(during1);
         trial.addLabel(during2);
-        mMetaDataManager.updateExperiment(experiment);
+        mMetaDataManager.updateDatabaseExperiment(experiment);
         mMetaDataManager.updateTrial(trial);
-        final List<Label> labels = mMetaDataManager.getTrial("duringStartId",
+        final List<Label> labels = mMetaDataManager.getDatabaseTrial("duringStartId",
                 Collections.<ApplicationLabel>emptyList()).getLabels();
         assertEqualLabels(during1, labels.get(0));
         assertEqualLabels(during2, labels.get(1));
     }
 
     public void testExperimentStartIds() {
-        Experiment experiment = mMetaDataManager.newExperiment();
+        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
         ApplicationLabel startId1 = new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START,
                 "startId1", "startId1", 0);
         ApplicationLabel stopId1 = new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP,
@@ -242,19 +246,19 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         final ApplicationLabel stopId3 = new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP,
                 "stopId3", "startId3", 6);
         String experimentId = experiment.getExperimentId();
-        mMetaDataManager.addApplicationLabel(experimentId, startId1);
+        mMetaDataManager.addDatabaseApplicationLabel(experimentId, startId1);
         mTestSystemClock.advanceClock();
-        mMetaDataManager.addApplicationLabel(experimentId, stopId1);
+        mMetaDataManager.addDatabaseApplicationLabel(experimentId, stopId1);
         mTestSystemClock.advanceClock();
-        mMetaDataManager.addApplicationLabel(experimentId, startId2);
+        mMetaDataManager.addDatabaseApplicationLabel(experimentId, startId2);
         mTestSystemClock.advanceClock();
-        mMetaDataManager.addApplicationLabel(experimentId, stopId2);
+        mMetaDataManager.addDatabaseApplicationLabel(experimentId, stopId2);
         mTestSystemClock.advanceClock();
-        mMetaDataManager.addApplicationLabel(experimentId, startId3);
+        mMetaDataManager.addDatabaseApplicationLabel(experimentId, startId3);
         mTestSystemClock.advanceClock();
-        mMetaDataManager.addApplicationLabel(experimentId, stopId3);
+        mMetaDataManager.addDatabaseApplicationLabel(experimentId, stopId3);
         mTestSystemClock.advanceClock();
-        final List<String> experimentRunIds = mMetaDataManager.getExperimentRunIds(
+        final List<String> experimentRunIds = mMetaDataManager.getDatabaseExperimentRunIds(
                 experiment.getExperimentId(), true);
         assertEquals(Lists.newArrayList(), experimentRunIds);
         mMetaDataManager.newTrial(experiment, startId1.getTrialId(), 0,
@@ -266,7 +270,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         mMetaDataManager.newTrial(experiment, startId3.getTrialId(), 5,
                 new ArrayList<GoosciSensorLayout.SensorLayout>());
         mTestSystemClock.advanceClock();
-        final List<String> experimentRunIds2 = mMetaDataManager.getExperimentRunIds(
+        final List<String> experimentRunIds2 = mMetaDataManager.getDatabaseExperimentRunIds(
                 experiment.getExperimentId(), true);
         assertEquals(Lists.newArrayList("startId3", "startId2", "startId1"), experimentRunIds2);
     }
@@ -380,7 +384,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         Map<String, ExternalSensorProvider> providerMap = getProviderMap();
         String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
-        Experiment experiment = mMetaDataManager.newExperiment();
+        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
 
         mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
@@ -405,7 +409,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         Map<String, ExternalSensorProvider> providerMap = getProviderMap();
         String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
-        Experiment experiment = mMetaDataManager.newExperiment();
+        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
 
         mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
@@ -429,7 +433,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         layout.sensorId = "sensorId";
         List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
         layouts.add(layout);
-        Experiment experiment = mMetaDataManager.newExperiment();
+        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
         Trial trial = mMetaDataManager.newTrial(experiment, "startLabelId", 10, layouts);
 
         final TrialStats stats = new TrialStats("sensorId");
@@ -441,7 +445,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         mMetaDataManager.updateTrial(trial);
         mMetaDataManager.close();
 
-        final TrialStats trialStats = makeMetaDataManager().getTrial("startLabelId",
+        final TrialStats trialStats = makeMetaDataManager().getDatabaseTrial("startLabelId",
                 Collections.<ApplicationLabel>emptyList())
                 .getStatsForSensor("sensorId");
 
@@ -451,7 +455,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testRunStorage() {
-        Experiment experiment = mMetaDataManager.newExperiment();
+        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
         final ApplicationLabel startLabel = newStartLabel("startId", 1);
         GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
         layout1.sensorId = "sensor1";
@@ -463,7 +467,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         final ArrayList<String> sensorIds = Lists.newArrayList("sensor1", "sensor2");
         Trial saved = mMetaDataManager.newTrial(experiment, startLabel.getTrialId(),
                 startLabel.getTimeStamp(), sensorLayouts);
-        Trial loaded = mMetaDataManager.getTrial(startLabel.getLabelId(),
+        Trial loaded = mMetaDataManager.getDatabaseTrial(startLabel.getLabelId(),
                 Arrays.asList(startLabel));
         assertEquals(startLabel.getLabelId(), saved.getTrialId());
         assertEquals(startLabel.getLabelId(), loaded.getTrialId());
@@ -477,18 +481,19 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         layouts.set(0, layout1);
         loaded.setSensorLayouts(layouts);
         mMetaDataManager.updateTrial(loaded);
-        Trial updated = mMetaDataManager.getTrial(startLabel.getLabelId(),
+        Trial updated = mMetaDataManager.getDatabaseTrial(startLabel.getLabelId(),
                 Arrays.asList(startLabel));
         assertEquals(15, updated.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
 
         // Test that runs are deleted.
-        mMetaDataManager.deleteTrial(startLabel.getLabelId());
-        loaded = mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel));
+        mMetaDataManager.deleteDatabaseTrial(startLabel.getLabelId());
+        loaded = mMetaDataManager.getDatabaseTrial(startLabel.getLabelId(),
+                Arrays.asList(startLabel));
         assertNull(loaded);
     }
 
-    public void testExperimentDelete() {
-        Experiment experiment = mMetaDataManager.newExperiment();
+    public void testDatabaseExperimentDelete() {
+        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
         final ApplicationLabel startLabel = newStartLabel("startId", 1);
         GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
         layout1.sensorId = "sensor1";
@@ -496,19 +501,20 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         layout2.sensorId = "sensor2";
         final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
                 Lists.newArrayList(layout1, layout2);
-        mMetaDataManager.addApplicationLabel(experiment.getExperimentId(), startLabel);
+        mMetaDataManager.addDatabaseApplicationLabel(experiment.getExperimentId(), startLabel);
         mMetaDataManager.newTrial(experiment, startLabel.getTrialId(), startLabel.getTimeStamp(),
                 sensorLayouts);
         mMetaDataManager.setExperimentSensorLayouts(experiment.getExperimentId(), sensorLayouts);
 
-        mMetaDataManager.deleteExperiment(experiment);
+        mMetaDataManager.deleteDatabaseExperiment(experiment);
 
-        assertNull(mMetaDataManager.getExperimentById(experiment.getExperimentId()));
+        assertNull(mMetaDataManager.getDatabaseExperimentById(experiment.getExperimentId()));
         // Test that runs are deleted when deleting experiments.
-        assertNull(mMetaDataManager.getTrial(startLabel.getLabelId(), Arrays.asList(startLabel)));
+        assertNull(mMetaDataManager.getDatabaseTrial(startLabel.getLabelId(),
+                Arrays.asList(startLabel)));
         // Test that sensor layouts are gone.
-        assertEquals(0, mMetaDataManager.getExperimentSensorLayouts(experiment.getExperimentId())
-                .size());
+        assertEquals(0, mMetaDataManager.getDatabaseExperimentSensorLayouts(
+                experiment.getExperimentId()).size());
     }
 
     public void testExperimentSensorLayout() {
@@ -521,21 +527,21 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
                 layout2));
 
         assertEquals(Lists.newArrayList(layout1.sensorId, layout2.sensorId),
-                getIds(mMetaDataManager.getExperimentSensorLayouts(experimentId)));
+                getIds(mMetaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
 
         GoosciSensorLayout.SensorLayout layout3 = new GoosciSensorLayout.SensorLayout();
         layout3.sensorId = "sensorId3";
         mMetaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout3));
 
         assertEquals(Lists.newArrayList(layout3.sensorId),
-                getIds(mMetaDataManager.getExperimentSensorLayouts(experimentId)));
+                getIds(mMetaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
 
         // Try storing duplicate
         mMetaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout3,
                 layout3));
         // duplicates are removed
         assertEquals(Lists.newArrayList(layout3.sensorId),
-                getIds(mMetaDataManager.getExperimentSensorLayouts(experimentId)));
+                getIds(mMetaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
     }
 
     public void testExternalSensorOrder() {
@@ -594,12 +600,12 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testNewProject() {
-        Project project = ((SimpleMetaDataManager) mMetaDataManager).newProject();
+        Project project = mMetaDataManager.newProject();
         assertNotNull(project);
         assertFalse(TextUtils.isEmpty(project.getProjectId()));
         assertNotSame(project.getId(), -1);
 
-        List<Project> projects = ((SimpleMetaDataManager) mMetaDataManager).getProjects(false);
+        List<Project> projects = mMetaDataManager.getDatabaseProjects(false);
         boolean found = false;
         for (Project retrievedProject : projects) {
             if (retrievedProject.getProjectId().equals(project.getProjectId())) {
@@ -612,30 +618,29 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
     public void testUpgradeProjects() {
         // Nothing in this project, so no updates should be made to firstExp.
-        Project first = ((SimpleMetaDataManager) mMetaDataManager).newProject();
-        Experiment firstExp = ((SimpleMetaDataManager) mMetaDataManager).newExperiment(
-                first.getProjectId());
+        Project first = mMetaDataManager.newProject();
+        Experiment firstExp = mMetaDataManager.newDatabaseExperiment(first.getProjectId());
 
         // The title, cover photo and description should be translated into objects in the secondExp
-        Project second = ((SimpleMetaDataManager) mMetaDataManager).newProject();
+        Project second = mMetaDataManager.newProject();
         second.setTitle("Title");
         second.setCoverPhoto("path/to/photo");
         second.setDescription("Description");
         second.setArchived(true);
-        ((SimpleMetaDataManager) mMetaDataManager).updateProject(second);
-        Experiment secondExp = ((SimpleMetaDataManager) mMetaDataManager).newExperiment(
-                second.getProjectId());
+        mMetaDataManager.updateProject(second);
+        Experiment secondExp = mMetaDataManager.newDatabaseExperiment(second.getProjectId());
 
-        assertEquals(2, ((SimpleMetaDataManager) mMetaDataManager).getProjects(true).size());
+        assertEquals(2, mMetaDataManager.getDatabaseProjects(true).size());
 
-        ((SimpleMetaDataManager) mMetaDataManager).migrateProjectData();
-        assertEquals(0, ((SimpleMetaDataManager) mMetaDataManager).getProjects(true).size());
+        mMetaDataManager.migrateProjectData();
+        assertEquals(0, mMetaDataManager.getDatabaseProjects(true).size());
 
-        Experiment firstExpResult = mMetaDataManager.getExperimentById(firstExp.getExperimentId());
+        Experiment firstExpResult = mMetaDataManager.getDatabaseExperimentById(
+                firstExp.getExperimentId());
         assertEquals(0, firstExpResult.getLabels().size());
         assertTrue(TextUtils.isEmpty(firstExp.getTitle()));
 
-        Experiment secondExpResult = mMetaDataManager.getExperimentById(
+        Experiment secondExpResult = mMetaDataManager.getDatabaseExperimentById(
                 secondExp.getExperimentId());
         List<Label> labels = secondExpResult.getLabels();
         assertEquals(2, labels.size());

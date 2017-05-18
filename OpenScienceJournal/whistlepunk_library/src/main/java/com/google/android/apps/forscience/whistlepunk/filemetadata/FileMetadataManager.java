@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.content.Context;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
@@ -26,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +39,7 @@ public class FileMetadataManager {
     private static final String TAG = "FileMetadataManager";
     static final String ASSETS_DIRECTORY = "assets";
     static final String EXPERIMENT_FILE = "experiment.proto";
-    static final String SHARED_METADATA_FILE = "shared_metadata.proto";
+    private static final String SHARED_METADATA_FILE = "shared_metadata.proto";
 
     private Clock mClock;
 
@@ -82,6 +84,15 @@ public class FileMetadataManager {
                 sharedMetadataListener);
     }
 
+    /**
+     * Deletes all experiments in the list of experiment IDs.
+     */
+    public void deleteAll(List<String> experimentIds) {
+        for (String experimentId : experimentIds) {
+            deleteExperiment(experimentId);
+        }
+    }
+
     public Experiment getExperimentById(String experimentId) {
         GoosciSharedMetadata.ExperimentOverview overview =
                 mSharedMetadataManager.getExperimentOverview(experimentId);
@@ -96,15 +107,24 @@ public class FileMetadataManager {
         String localExperimentId = "experiment_" + timestamp;
         Experiment experiment = Experiment.newExperiment(timestamp, localExperimentId);
 
-        // Write the experiment to a file
-        mActiveExperimentCache.createNewExperiment(experiment);
-        mSharedMetadataManager.addExperimentOverview(experiment.getExperimentOverview());
+        addExperiment(experiment);
         return experiment;
     }
 
+    // Adds an existing experiment to the file system.
+    public void addExperiment(Experiment experiment) {
+        // Write the experiment to a file
+        mActiveExperimentCache.createNewExperiment(experiment);
+        mSharedMetadataManager.addExperimentOverview(experiment.getExperimentOverview());
+    }
+
     public void deleteExperiment(Experiment experiment) {
-        mActiveExperimentCache.deleteExperiment(experiment.getExperimentId());
-        mSharedMetadataManager.deleteExperimentOverview(experiment.getExperimentOverview());
+        deleteExperiment(experiment.getExperimentId());
+    }
+
+    private void deleteExperiment(String experimentId) {
+        mActiveExperimentCache.deleteExperiment(experimentId);
+        mSharedMetadataManager.deleteExperimentOverview(experimentId);
     }
 
     public void updateExperiment(Experiment experiment) {
@@ -182,5 +202,10 @@ public class FileMetadataManager {
     public List<InputDeviceSpec> getMyDevices() {
         // TODO
         return null;
+    }
+
+    @VisibleForTesting
+    public static File getSharedMetadataFile(Context context) {
+        return new File(context.getFilesDir(), SHARED_METADATA_FILE);
     }
 }

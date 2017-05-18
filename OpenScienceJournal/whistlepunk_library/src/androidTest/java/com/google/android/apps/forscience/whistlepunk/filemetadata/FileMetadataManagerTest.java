@@ -39,8 +39,8 @@ public class FileMetadataManagerTest extends InstrumentationTestCase {
     }
 
     private void cleanUp() {
-        File sharedMetadataFile = new File(getInstrumentation().getContext().getFilesDir(),
-                FileMetadataManager.SHARED_METADATA_FILE);
+        File sharedMetadataFile = FileMetadataManager.getSharedMetadataFile(
+                getInstrumentation().getContext());
         sharedMetadataFile.delete();
     }
 

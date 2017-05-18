@@ -100,6 +100,7 @@ public class Experiment extends LabelListHolder {
     }
 
     public GoosciSharedMetadata.ExperimentOverview getExperimentOverview() {
+        mExperimentOverview.trialCount = mTrials.size();
         return mExperimentOverview;
     }
 
@@ -131,8 +132,8 @@ public class Experiment extends LabelListHolder {
     }
 
     public void setTitle(String title) {
-        mProto.title = title;
         mExperimentOverview.title = title;
+        mProto.title = title;
     }
 
     public String getDisplayTitle(Context context) {
@@ -458,6 +459,9 @@ public class Experiment extends LabelListHolder {
                 mProto.labels[index++] = label.getLabelProto();
             }
         }
+
+        // Copy necessary ExperimentOverview fields.
+        mProto.title = mExperimentOverview.title;
     }
 
     public List<String> getSensorIds() {

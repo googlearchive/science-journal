@@ -124,17 +124,5 @@ public interface MetaDataManager {
      */
     void setLastUsedExperiment(Experiment experiment);
 
-    /**
-     * Set the sensor selection and layout for an experiment
-     */
-    void setExperimentSensorLayouts(String experimentId,
-            List<GoosciSensorLayout.SensorLayout> sensorLayouts);
-
-    /**
-     * Retrieve the sensor selection and layout for an experiment
-     */
-    @Deprecated
-    List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayouts(String experimentId);
-
     void close();
 }

@@ -24,12 +24,14 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
+import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -44,6 +46,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 
 public class DataControllerImpl implements DataController, RecordingDataController {
+    private static final String TAG = "DataControllerImpl";
     private final SensorDatabase mSensorDatabase;
     private final Executor mUiThread;
     private final Executor mMetaDataThread;

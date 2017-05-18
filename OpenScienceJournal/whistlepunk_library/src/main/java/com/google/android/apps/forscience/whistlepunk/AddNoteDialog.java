@@ -498,16 +498,19 @@ public class AddNoteDialog extends DialogFragment {
         } else {
             mExperiment.getTrial(mTrialId).addLabel(label);
         }
-        saveExperiment(this.getDataController(), mExperiment, label, onSuccess);
+        saveExperiment(this.getDataController(), mExperiment, label).subscribe(
+                MaybeConsumers.toSingleObserver(onSuccess));
     }
 
-    public static void saveExperiment(DataController dataController, Experiment experiment,
-            final Label label, final MaybeConsumer<Label> onSuccess) {
-
+    /**
+     * @return a single that only calls onSuccess if the Label is successfully added.
+     */
+    public static Single<Label> saveExperiment(DataController dataController, Experiment experiment,
+            final Label label) {
         CompletableSubject completableSubject = CompletableSubject.create();
         dataController.updateExperiment(experiment.getExperimentId(),
                 MaybeConsumers.fromCompletableObserver(completableSubject));
-        completableSubject.andThen(Single.just(label));
+        return completableSubject.andThen(Single.just(label));
     }
 
     private DataController getDataController() {

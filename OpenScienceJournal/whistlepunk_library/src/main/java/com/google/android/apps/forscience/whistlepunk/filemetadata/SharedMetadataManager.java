@@ -47,8 +47,7 @@ public class SharedMetadataManager {
     public SharedMetadataManager(Context context, FailureListener failureListener) {
         mFailureListener = failureListener;
         mOverviewProtoFileHelper = new ProtoFileHelper<>();
-        mSharedMetadataFile = new File(context.getFilesDir(),
-                FileMetadataManager.SHARED_METADATA_FILE);
+        mSharedMetadataFile = FileMetadataManager.getSharedMetadataFile(context);
     }
 
     /**
@@ -106,11 +105,11 @@ public class SharedMetadataManager {
 
     /**
      * Deletes an experiment overview from disk.
-     * @param overviewToDelete the overview to be deleted (matched by experiment ID).
+     * @param experimentIdToDelete the ID of the overview to be deleted.
      */
-    void deleteExperimentOverview(GoosciSharedMetadata.ExperimentOverview overviewToDelete) {
+    void deleteExperimentOverview(String experimentIdToDelete) {
         GoosciSharedMetadata.SharedMetadata sharedMetadata = readSharedMetadata();
-        if (sharedMetadata == null) {
+        if (sharedMetadata == null || sharedMetadata.experiments.length == 0) {
             return;
         }
         boolean updated = false;
@@ -119,7 +118,7 @@ public class SharedMetadataManager {
         int newIndex = 0;
         for (int oldIndex = 0; oldIndex < sharedMetadata.experiments.length; oldIndex++) {
             // If it's not the one we want to delete, add it to the new list.
-            if (!TextUtils.equals(overviewToDelete.experimentId,
+            if (!TextUtils.equals(experimentIdToDelete,
                     sharedMetadata.experiments[oldIndex].experimentId)) {
                 newList[newIndex] = sharedMetadata.experiments[oldIndex];
                 newIndex++;

@@ -39,6 +39,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDevic
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -75,6 +76,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     private Context mContext;
     private Clock mClock;
     private Object mLock = new Object();
+    private FileMetadataManager mFileMetadataManager;
 
     public void close() {
         mDbHelper.close();
@@ -83,8 +85,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
     /**
      * List of table names. NOTE: when adding a new table, make sure to delete the metadata in the
      * appropriate delete calls:
-     * {@link #deleteExperiment(Experiment)}, {@link #deleteLabel(Label)},
-     * {@link #deleteTrial(String)}, {@link #deleteSensorTrigger(SensorTrigger)}, etc.
+     * {@link #deleteExperiment(Experiment)}, {@link #deleteDatabaseLabel(SQLiteDatabase, Label)},
+     * {@link #deleteDatabaseTrial(String)}, {@link #deleteDatabaseSensorTrigger(SQLiteDatabase,
+     * SensorTrigger)}, etc.
      */
     interface Tables {
         String PROJECTS = "projects";
@@ -107,14 +110,61 @@ public class SimpleMetaDataManager implements MetaDataManager {
     @VisibleForTesting
     SimpleMetaDataManager(Context context, String filename, Clock clock) {
         mContext = context;
+        mClock = clock;
+        mFileMetadataManager = new FileMetadataManager(mContext, mClock);
         mDbHelper = new DatabaseHelper(context, filename,
                 new DatabaseHelper.MetadataDatabaseUpgradeCallback() {
                     @Override
                     public void onMigrateProjectData(SQLiteDatabase db) {
                         migrateProjectData(db);
                     }
+
+                    @Override
+                    public void onMigrateExperimentsToFiles(SQLiteDatabase db) {
+                        migrateExperimentsToFiles(db);
+                    }
                 });
-        mClock = clock;
+    }
+
+    private FileMetadataManager getFileMetadataManager() {
+        synchronized (mLock) {
+            // Force upgrade if needed
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            return mFileMetadataManager;
+        }
+    }
+
+    private void migrateExperimentsToFiles(SQLiteDatabase db) {
+        // For each experiment, migrate it over and delete it from the database.
+        List<String> experimentIds = getAllExperimentIds(db);
+
+        // Clean up if a previous migration was not successful / complete.
+        mFileMetadataManager.deleteAll(experimentIds);
+
+        for (String experimentId : experimentIds) {
+            Experiment experiment = getDatabaseExperimentById(db, experimentId, mContext, true);
+            // TODO: Immediate add. b/38415843.
+            mFileMetadataManager.addExperiment(experiment);
+            deleteDatabaseExperiment(db, experiment, mContext, /* don't delete assets */ false);
+        }
+        // TODO: Migrate assets!
+    }
+
+    private List<String> getAllExperimentIds(SQLiteDatabase db) {
+        List<String> experimentIds = new ArrayList<>();
+        Cursor cursor = null;
+        try {
+            cursor = db.query(Tables.EXPERIMENTS, new String[] {ExperimentColumns.EXPERIMENT_ID},
+                    null, null, null, null, null);
+            while (cursor.moveToNext()) {
+                experimentIds.add(cursor.getString(0));
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return experimentIds;
     }
 
     @VisibleForTesting
@@ -127,15 +177,15 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     private void migrateProjectData(SQLiteDatabase db) {
         // Get every project and migrate its data to its experiments.
-        List<Project> projects = getProjects(db, true);
+        List<Project> projects = getDatabaseProjects(db, true);
         for (Project project : projects) {
-            List<Experiment> experiments = getAllExperimentsForProject(db, project);
+            List<Experiment> experiments = getAllDatabaseExperimentsForProject(db, project);
             for (Experiment experiment : experiments) {
                 if (!TextUtils.isEmpty(project.getDescription())) {
                     // Create a label with the description at the start of the experiment.
                     // Because projects do not track their creation time, use the experiment
                     // creation time instead.
-                    addLabel(db, experiment.getExperimentId(),
+                    addDatabaseLabel(db, experiment.getExperimentId(),
                             RecorderController.NOT_RECORDING_RUN_ID,
                             Label.newLabelWithValue(
                                     experiment.getCreationTimeMs() - 2000,
@@ -143,7 +193,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 }
                 if (!TextUtils.isEmpty(project.getCoverPhoto())) {
                     // Create a label with the picture at the start of the experiment.
-                    addLabel(db, experiment.getExperimentId(),
+                    addDatabaseLabel(db, experiment.getExperimentId(),
                             RecorderController.NOT_RECORDING_RUN_ID,
                             Label.newLabelWithValue(
                                     experiment.getCreationTimeMs() - 1000,
@@ -164,7 +214,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     needsWrite = true;
                 }
                 if (needsWrite) {
-                    updateExperiment(db, experiment);
+                    updateDatabaseExperiment(db, experiment);
                 }
             }
             deleteProjectFromDb(db, project);
@@ -175,7 +225,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
      * This function is only used as part of the database upgrade which deletes projects, so these
      * experiments returned do not contain their trials, labels, triggers, sensors, etc.
      */
-    private static List<Experiment> getAllExperimentsForProject(SQLiteDatabase db,
+    private static List<Experiment> getAllDatabaseExperimentsForProject(SQLiteDatabase db,
             Project project) {
         List<Experiment> experiments = new ArrayList<>();
         String selection = ExperimentColumns.PROJECT_ID + "=?";
@@ -215,14 +265,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @VisibleForTesting
     @Deprecated
-    List<Project> getProjects(boolean includeArchived) {
+    List<Project> getDatabaseProjects(boolean includeArchived) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            return getProjects(db, includeArchived);
+            return getDatabaseProjects(db, includeArchived);
         }
     }
 
-    private static List<Project> getProjects(SQLiteDatabase db, boolean includeArchived) {
+    private static List<Project> getDatabaseProjects(SQLiteDatabase db, boolean includeArchived) {
         List<Project> projects = new ArrayList<>();
         String selection = ProjectColumns.ARCHIVED + "=?";
         String[] selectionArgs = new String[]{"0"};
@@ -284,32 +334,45 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public Experiment getExperimentById(String experimentId) {
-        Experiment experiment;
+        return getFileMetadataManager().getExperimentById(experimentId);
+    }
+
+    @VisibleForTesting
+    Experiment getDatabaseExperimentById(String experimentId) {
+        Experiment experiment = null;
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            final String selection = ExperimentColumns.EXPERIMENT_ID + "=?";
-            final String[] selectionArgs = new String[]{experimentId};
-            Cursor cursor = null;
-            try {
-                cursor = db.query(
-                        Tables.EXPERIMENTS, ExperimentColumns.GET_COLUMNS, selection, selectionArgs,
-                        null, null, null, "1");
-                if (cursor == null || !cursor.moveToFirst()) {
-                    return null;
-                }
-                experiment = createExperimentFromCursor(cursor);
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
+            experiment = getDatabaseExperimentById(db, experimentId, mContext, false);
+        }
+        return experiment;
+    }
+
+    // Gets the experiment from the database.
+    private static Experiment getDatabaseExperimentById(SQLiteDatabase db, String experimentId,
+            Context context, boolean includeTrials) {
+        Experiment experiment;
+        final String selection = ExperimentColumns.EXPERIMENT_ID + "=?";
+        final String[] selectionArgs = new String[]{experimentId};
+        Cursor cursor = null;
+        try {
+            cursor = db.query(
+                    Tables.EXPERIMENTS, ExperimentColumns.GET_COLUMNS, selection, selectionArgs,
+                    null, null, null, "1");
+            if (cursor == null || !cursor.moveToFirst()) {
+                return null;
+            }
+            experiment = createExperimentFromCursor(cursor);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
             }
         }
-        populateExperiment(experiment);
+        populateDatabaseExperiment(db, experiment, context, includeTrials);
         return experiment;
     }
 
     @VisibleForTesting
-    Experiment newExperiment(String projectId) {
+    Experiment newDatabaseExperiment(String projectId) {
         String experimentId = newStableId(STABLE_EXPERIMENT_ID_LENGTH);
         long timestamp = getCurrentTime();
         Experiment result = Experiment.newExperiment(timestamp, experimentId);
@@ -329,26 +392,41 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public Experiment newExperiment() {
-        return newExperiment(DEFAULT_PROJECT_ID);
+        return getFileMetadataManager().newExperiment();
+    }
+
+    @VisibleForTesting
+    Experiment newDatabaseExperiment() {
+        return newDatabaseExperiment(DEFAULT_PROJECT_ID);
     }
 
     @Override
     public void deleteExperiment(Experiment experiment) {
-        List<String> runIds = getExperimentRunIds(experiment.getExperimentId(),
-                /* include archived runs */ true);
-        for (String runId : runIds) {
-            deleteTrial(runId);
-        }
-        deleteObjectsInExperiment(experiment, /* delete assets */ true);
+        getFileMetadataManager().deleteExperiment(experiment);
+    }
+
+    @VisibleForTesting
+    void deleteDatabaseExperiment(Experiment experiment) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            String[] experimentArgs = new String[]{experiment.getExperimentId()};
-            db.delete(Tables.EXPERIMENTS, ExperimentColumns.EXPERIMENT_ID + "=?", experimentArgs);
-            db.delete(Tables.EXPERIMENT_SENSORS, ExperimentSensorColumns.EXPERIMENT_ID + "=?",
-                    experimentArgs);
-            db.delete(Tables.EXPERIMENT_SENSOR_LAYOUT, ExperimentSensorLayoutColumns.EXPERIMENT_ID
-                    + "=?", experimentArgs);
+            deleteDatabaseExperiment(db, experiment, mContext, /* delete assets */ true);
         }
+    }
+
+    private static void deleteDatabaseExperiment(SQLiteDatabase db, Experiment experiment,
+            Context context, boolean deleteAssets) {
+        List<String> runIds = getDatabaseExperimentRunIds(db, experiment.getExperimentId(),
+                /* include archived runs */ true);
+        for (String runId : runIds) {
+            deleteDatabaseTrial(db, runId, context, deleteAssets);
+        }
+        deleteDatabaseObjectsInExperiment(db, experiment, deleteAssets, context);
+        String[] experimentArgs = new String[]{experiment.getExperimentId()};
+        db.delete(Tables.EXPERIMENTS, ExperimentColumns.EXPERIMENT_ID + "=?", experimentArgs);
+        db.delete(Tables.EXPERIMENT_SENSORS, ExperimentSensorColumns.EXPERIMENT_ID + "=?",
+                experimentArgs);
+        db.delete(Tables.EXPERIMENT_SENSOR_LAYOUT, ExperimentSensorLayoutColumns.EXPERIMENT_ID
+                + "=?", experimentArgs);
     }
 
     private long getCurrentTime() {
@@ -357,15 +435,21 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void updateExperiment(Experiment experiment) {
+        getFileMetadataManager().updateExperiment(experiment);
+    }
+
+    @VisibleForTesting
+    void updateDatabaseExperiment(Experiment experiment) {
         // Delete and re-add all the objects, as if this was a file we were re-writing from scratch.
         // This is not super efficient, but it is temporary in the file system migration process.
-        deleteObjectsInExperiment(experiment, /* don't delete assets */ false);
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            updateExperiment(db, experiment);
+            deleteDatabaseObjectsInExperiment(db, experiment, /* don't delete assets */ false,
+                    mContext);
+            updateDatabaseExperiment(db, experiment);
             for (Label label : experiment.getLabels()) {
                 // how does this do on conflict? poorly.
-                addLabel(experiment.getExperimentId(),
+                addDatabaseLabel(experiment.getExperimentId(),
                         RecorderController.NOT_RECORDING_RUN_ID, label);
             }
             for (SensorTrigger trigger : experiment.getSensorTriggers()) {
@@ -373,11 +457,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
             }
             setExperimentSensorLayouts(experiment.getExperimentId(),
                     experiment.getSensorLayouts());
-            // TODO: Later this should also update all the trials in this experiment
         }
     }
 
-    private static void updateExperiment(SQLiteDatabase db, Experiment experiment) {
+    private static void updateDatabaseExperiment(SQLiteDatabase db, Experiment experiment) {
         final ContentValues values = new ContentValues();
         values.put(ExperimentColumns.TITLE, experiment.getTitle());
         values.put(ExperimentColumns.DESCRIPTION, experiment.getDescription());
@@ -389,6 +472,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public List<GoosciSharedMetadata.ExperimentOverview> getExperimentOverviews(
+            boolean includeArchived) {
+        return getFileMetadataManager().getExperimentOverviews(includeArchived);
+    }
+
+    @VisibleForTesting
+    List<GoosciSharedMetadata.ExperimentOverview> getDatabaseExperimentOverviews(
             boolean includeArchived) {
         List<GoosciSharedMetadata.ExperimentOverview> experiments = new ArrayList<>();
         synchronized (mLock) {
@@ -421,6 +510,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
         expProto.description = cursor.getString(4);
         expProto.title = cursor.getString(3);
 
+        if (expProto.description == null) {
+            expProto.description = "";
+        }
+
         return Experiment.fromExperiment(expProto, createExperimentOverviewFromCursor(cursor));
     }
 
@@ -432,11 +525,20 @@ public class SimpleMetaDataManager implements MetaDataManager {
         overviewProto.title = cursor.getString(3);
         overviewProto.isArchived = cursor.getInt(6) != 0;
         overviewProto.experimentId = cursor.getString(1);
+
+        if (overviewProto.title == null) {
+            overviewProto.title = "";
+        }
         return overviewProto;
     }
 
     @Override
     public Experiment getLastUsedUnarchivedExperiment() {
+        return getFileMetadataManager().getLastUsedUnarchivedExperiment();
+    }
+
+    @VisibleForTesting
+    Experiment getLastUsedUnarchivedDatabaseExperiment() {
         Experiment experiment = null;
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -455,44 +557,54 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     cursor.close();
                 }
             }
+            populateDatabaseExperiment(db, experiment, mContext, false);
         }
-        populateExperiment(experiment);
         return experiment;
     }
 
-    private void deleteObjectsInExperiment(Experiment experiment, boolean deleteAssets) {
-        List<Label> labels = getLabelsForExperiment(experiment);
+    private static void deleteDatabaseObjectsInExperiment(SQLiteDatabase db, Experiment experiment,
+            boolean deleteAssets, Context context) {
+        List<Label> labels = getDatabaseLabelsForExperiment(db, experiment);
         for (Label label : labels) {
             if (deleteAssets) {
-                label.deleteAssets(mContext);
+                label.deleteAssets(context);
             }
-            deleteLabel(label);
+            deleteDatabaseLabel(db, label);
         }
-        List<SensorTrigger> triggers = getSensorTriggers(experiment.getExperimentId());
+        List<SensorTrigger> triggers = getDatabaseSensorTriggers(db, experiment.getExperimentId());
         for (SensorTrigger trigger : triggers) {
-            deleteSensorTrigger(trigger);
+            deleteDatabaseSensorTrigger(db, trigger);
         }
     }
 
-    private void populateExperiment(Experiment experiment) {
+    private static void populateDatabaseExperiment(SQLiteDatabase db, Experiment experiment,
+            Context context, boolean includeTrials) {
         if (experiment == null) {
             return;
         }
-        List<Label> labels = getLabelsForExperiment(experiment);
+        List<Label> labels = getDatabaseLabelsForExperiment(db, experiment);
         experiment.populateLabels(labels);
-        List<SensorTrigger> triggers = getSensorTriggers(experiment.getExperimentId());
+        List<SensorTrigger> triggers = getDatabaseSensorTriggers(db, experiment.getExperimentId());
         experiment.setSensorTriggers(triggers);
-        experiment.setSensorLayouts(getExperimentSensorLayouts(
+        experiment.setSensorLayouts(getDatabaseExperimentSensorLayouts(db,
                 experiment.getExperimentId()));
-        List<String> trialIds = getExperimentRunIds(experiment.getExperimentId(), true);
-        for (String trialId : trialIds) {
-            List<ApplicationLabel> applicationLabels = getApplicationLabelsWithStartId(trialId);
-            experiment.addTrial(getTrial(trialId, applicationLabels));
+        if (includeTrials) {
+            List<String> trialIds = getDatabaseExperimentRunIds(db, experiment.getExperimentId(),
+                    true);
+            for (String trialId : trialIds) {
+                List<ApplicationLabel> applicationLabels =
+                        getDatabaseApplicationLabelsWithStartId(db, trialId);
+                experiment.addTrial(getDatabaseTrial(db, trialId, applicationLabels, context));
+            }
         }
     }
 
     @Override
     public void setLastUsedExperiment(Experiment experiment) {
+        getFileMetadataManager().setLastUsedExperiment(experiment);
+    }
+
+    void setLastUsedDatabaseExperiment(Experiment experiment) {
         long time = getCurrentTime();
         experiment.setLastUsedTime(time);
         synchronized (mLock) {
@@ -508,7 +620,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     Trial newTrial(Experiment experiment, String trialId, long startTimestamp,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
         // How many runs already exist?
-        List<String> runIds = getExperimentRunIds(experiment.getExperimentId(),
+        List<String> runIds = getDatabaseExperimentRunIds(experiment.getExperimentId(),
                 /* include archived runs for indexing */ true);
         int runIndex = runIds.size();
         synchronized (mLock) {
@@ -582,12 +694,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
     void updateTrial(Trial trial) {
         // Only the labels, layout, title, archived state, and autozoom selection can be edited.
         // TODO: Make this transactional?
-        for (Label label : getLabelsForTrial(trial.getTrialId())) {
-            // Don't delete the labels assets. If the label was deleted, that is done elsewhere.
-            deleteLabel(label);
-        }
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            for (Label label : getDatabaseLabelsForTrial(db, trial.getTrialId())) {
+                // Don't delete the labels assets. If the label was deleted, that is done elsewhere.
+                deleteDatabaseLabel(db, label);
+            }
             final ContentValues values = new ContentValues();
             values.put(RunsColumns.TITLE, trial.getRawTitle());
             values.put(RunsColumns.ARCHIVED, trial.isArchived());
@@ -599,7 +711,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             // TODO: Do we need to keep the experiment ID in the label? Can we ditch it?
             // It is never used on trial labels.
             // If we need to keep it, we can get it before doing the deletes above.
-            addLabel("UNUSED", trial.getTrialId(), label);
+            addDatabaseLabel("UNUSED", trial.getTrialId(), label);
         }
         for (TrialStats stats : trial.getStats()) {
             setStats(trial.getTrialId(), stats.getSensorId(), stats);
@@ -608,8 +720,19 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @VisibleForTesting
-    Trial getTrial(String trialId, List<ApplicationLabel> applicationLabels) {
-        List<Label> labels = getLabelsForTrial(trialId);
+    Trial getDatabaseTrial(String trialId, List<ApplicationLabel> applicationLabels) {
+        Trial trial;
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+            trial = getDatabaseTrial(db, trialId, applicationLabels, mContext);
+        }
+        return trial;
+    }
+
+    private static Trial getDatabaseTrial(SQLiteDatabase db, String trialId,
+            List<ApplicationLabel> applicationLabels, Context context) {
+        List<Label> labels = getDatabaseLabelsForTrial(db, trialId);
+
         List<GoosciSensorLayout.SensorLayout> sensorLayouts = new ArrayList<>();
         int runIndex = -1;
         boolean archived = false;
@@ -617,61 +740,56 @@ public class SimpleMetaDataManager implements MetaDataManager {
         boolean autoZoomEnabled = true;
         long creationTimeMs = -1;
 
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-            final String selection = RunSensorsColumns.RUN_ID + "=?";
-            final String[] selectionArgs = new String[]{trialId};
-
-            Cursor cursor = null;
-            try {
-                cursor = db.query(Tables.RUNS, new String[]{RunsColumns.RUN_INDEX,
-                                RunsColumns.TITLE, RunsColumns.ARCHIVED,
-                                RunsColumns.AUTO_ZOOM_ENABLED, RunsColumns.TIMESTAMP},
-                        selection, selectionArgs, null, null, null);
-                if (cursor != null & cursor.moveToFirst()) {
-                    runIndex = cursor.getInt(0);
-                    title = cursor.getString(1);
-                    archived = cursor.getInt(2) != 0;
-                    autoZoomEnabled = cursor.getInt(3) != 0;
-                    creationTimeMs = cursor.getLong(4);
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
+        final String selection = RunSensorsColumns.RUN_ID + "=?";
+        final String[] selectionArgs = new String[]{trialId};
+        Cursor cursor = null;
+        try {
+            cursor = db.query(Tables.RUNS, new String[]{RunsColumns.RUN_INDEX, RunsColumns.TITLE,
+                            RunsColumns.ARCHIVED, RunsColumns.AUTO_ZOOM_ENABLED,
+                            RunsColumns.TIMESTAMP},
+                    selection, selectionArgs, null, null, null);
+            if (cursor != null & cursor.moveToFirst()) {
+                runIndex = cursor.getInt(0);
+                title = cursor.getString(1);
+                archived = cursor.getInt(2) != 0;
+                autoZoomEnabled = cursor.getInt(3) != 0;
+                creationTimeMs = cursor.getLong(4);
             }
-
-            // Now get sensor layouts.
-            GoosciSensorLayout.SensorLayout layout;
-            int defaultColor = mContext.getResources().getColor(R.color.graph_line_color_blue);
-            try {
-                cursor = db.query(Tables.RUN_SENSORS, new String[]{RunSensorsColumns.LAYOUT,
-                                RunSensorsColumns.SENSOR_ID}, selection, selectionArgs, null, null,
-                        RunSensorsColumns.POSITION + " ASC");
-                while (cursor.moveToNext()) {
-                    try {
-                        byte[] blob = cursor.getBlob(0);
-                        if (blob != null) {
-                            layout = GoosciSensorLayout.SensorLayout.parseFrom(blob);
-                        } else {
-                            // In this case, create a fake sensorLayout since none exists.
-                            layout = new GoosciSensorLayout.SensorLayout();
-                            layout.sensorId = cursor.getString(1);
-                            layout.color = defaultColor;
-                        }
-                        sensorLayouts.add(layout);
-                    } catch (InvalidProtocolBufferNanoException e) {
-                        Log.d(TAG, "Couldn't parse layout", e);
-                    }
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
             }
-
         }
+
+        // Now get sensor layouts.
+        GoosciSensorLayout.SensorLayout layout;
+        int defaultColor = context.getResources().getColor(R.color.graph_line_color_blue);
+        try {
+            cursor = db.query(Tables.RUN_SENSORS, new String[]{RunSensorsColumns.LAYOUT,
+                            RunSensorsColumns.SENSOR_ID}, selection, selectionArgs, null, null,
+                    RunSensorsColumns.POSITION + " ASC");
+            while (cursor.moveToNext()) {
+                try {
+                    byte[] blob = cursor.getBlob(0);
+                    if (blob != null) {
+                        layout = GoosciSensorLayout.SensorLayout.parseFrom(blob);
+                    } else {
+                        // In this case, create a fake sensorLayout since none exists.
+                        layout = new GoosciSensorLayout.SensorLayout();
+                        layout.sensorId = cursor.getString(1);
+                        layout.color = defaultColor;
+                    }
+                    sensorLayouts.add(layout);
+                } catch (InvalidProtocolBufferNanoException e) {
+                    Log.d(TAG, "Couldn't parse layout", e);
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
         if (runIndex != -1) {
             GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
             trialProto.trialId = trialId;
@@ -686,7 +804,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
             Trial result = Trial.fromTrial(trialProto);
             for (String sensorId : result.getSensorIds()) {
-                result.setStats(getStats(trialId, sensorId));
+                result.setStats(getDatabaseStats(db, trialId, sensorId));
             }
             return result;
         } else {
@@ -725,8 +843,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     /**
      * Set the sensor selection and layout for an experiment.
      */
-    @Override
-    public void setExperimentSensorLayouts(String experimentId,
+    @VisibleForTesting
+    void setExperimentSensorLayouts(String experimentId,
             List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -750,57 +868,71 @@ public class SimpleMetaDataManager implements MetaDataManager {
     /**
      * Retrieve the sensor selection and layout for an experiment.
      */
-    @Override
-    public List<GoosciSensorLayout.SensorLayout> getExperimentSensorLayouts(String experimentId) {
+    @VisibleForTesting
+    List<GoosciSensorLayout.SensorLayout> getDatabaseExperimentSensorLayouts(String experimentId) {
         List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            Cursor cursor = null;
-            try {
-                cursor = db.query(Tables.EXPERIMENT_SENSOR_LAYOUT,
-                        new String[]{ExperimentSensorLayoutColumns.LAYOUT},
-                        ExperimentSensorLayoutColumns.EXPERIMENT_ID + "=?",
-                        new String[]{experimentId}, null, null,
-                        ExperimentSensorLayoutColumns.POSITION + " ASC");
-                Set<String> sensorIdsAdded = new HashSet<>();
-                while (cursor.moveToNext()) {
-                    try {
-                        GoosciSensorLayout.SensorLayout layout =
-                                GoosciSensorLayout.SensorLayout.parseFrom(cursor.getBlob(0));
-                        if (!sensorIdsAdded.contains(layout.sensorId)) {
-                            layouts.add(layout);
-                        }
-                        sensorIdsAdded.add(layout.sensorId);
-                    } catch (InvalidProtocolBufferNanoException e) {
-                        Log.e(TAG, "Couldn't parse layout", e);
+            layouts = getDatabaseExperimentSensorLayouts(db, experimentId);
+        }
+        return layouts;
+    }
+
+    private static List<GoosciSensorLayout.SensorLayout> getDatabaseExperimentSensorLayouts(
+            SQLiteDatabase db, String experimentId) {
+        List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+        Cursor cursor = null;
+        try {
+            cursor = db.query(Tables.EXPERIMENT_SENSOR_LAYOUT,
+                    new String[]{ExperimentSensorLayoutColumns.LAYOUT},
+                    ExperimentSensorLayoutColumns.EXPERIMENT_ID + "=?",
+                    new String[]{experimentId}, null, null,
+                    ExperimentSensorLayoutColumns.POSITION + " ASC");
+            Set<String> sensorIdsAdded = new HashSet<>();
+            while (cursor.moveToNext()) {
+                try {
+                    GoosciSensorLayout.SensorLayout layout =
+                            GoosciSensorLayout.SensorLayout.parseFrom(cursor.getBlob(0));
+                    if (!sensorIdsAdded.contains(layout.sensorId)) {
+                        layouts.add(layout);
                     }
+                    sensorIdsAdded.add(layout.sensorId);
+                } catch (InvalidProtocolBufferNanoException e) {
+                    Log.e(TAG, "Couldn't parse layout", e);
                 }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
             }
         }
         return layouts;
     }
 
     @VisibleForTesting
-    void deleteTrial(String runId) {
-        for (Label label : getLabelsForTrial(runId)) {
-            label.deleteAssets(mContext);
-            deleteLabel(label);
-        }
-        for (ApplicationLabel label : getApplicationLabelsWithStartId(runId)) {
-            deleteApplicationLabel(label);
-        }
+    void deleteDatabaseTrial(String runId) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            String selectionRunId = RunsColumns.RUN_ID + "=?";
-            String[] runIdArgs = new String[]{runId};
-            db.delete(Tables.RUN_SENSORS, selectionRunId, runIdArgs);
-            db.delete(Tables.RUN_STATS, RunStatsColumns.START_LABEL_ID + "=?", runIdArgs);
-            db.delete(Tables.RUNS, selectionRunId, runIdArgs);
+            deleteDatabaseTrial(db, runId, mContext, /*delete assets*/ true);
         }
+    }
+
+    private static void deleteDatabaseTrial(SQLiteDatabase db, String runId, Context context,
+            boolean deleteAssets) {
+        for (Label label : getDatabaseLabelsForTrial(db, runId)) {
+            if (deleteAssets) {
+                label.deleteAssets(context);
+            }
+            deleteDatabaseLabel(db, label);
+        }
+        for (ApplicationLabel label : getDatabaseApplicationLabelsWithStartId(db, runId)) {
+            deleteDatabaseApplicationLabel(db, label);
+        }
+        String selectionRunId = RunsColumns.RUN_ID + "=?";
+        String[] runIdArgs = new String[]{runId};
+        db.delete(Tables.RUN_SENSORS, selectionRunId, runIdArgs);
+        db.delete(Tables.RUN_STATS, RunStatsColumns.START_LABEL_ID + "=?", runIdArgs);
+        db.delete(Tables.RUNS, selectionRunId, runIdArgs);
     }
 
     @Override
@@ -836,14 +968,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return sensorId;
     }
 
-    private void addLabel(String experimentId, String trialId, Label label) {
+    private void addDatabaseLabel(String experimentId, String trialId, Label label) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            addLabel(db, experimentId, trialId, label);
+            addDatabaseLabel(db, experimentId, trialId, label);
         }
     }
 
-    private static void addLabel(SQLiteDatabase db, String experimentId, String trialId,
+    private static void addDatabaseLabel(SQLiteDatabase db, String experimentId, String trialId,
             Label label) {
         ContentValues values = new ContentValues();
         values.put(LabelColumns.EXPERIMENT_ID, experimentId);
@@ -868,7 +1000,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @VisibleForTesting
-    void addApplicationLabel(String experimentId, ApplicationLabel label) {
+    void addDatabaseApplicationLabel(String experimentId, ApplicationLabel label) {
         ContentValues values = new ContentValues();
         values.put(LabelColumns.EXPERIMENT_ID, experimentId);
         values.put(LabelColumns.TYPE, label.getTag());
@@ -906,130 +1038,137 @@ public class SimpleMetaDataManager implements MetaDataManager {
      * Gets the labels for a given experiment. This function is still used privately to populate
      * an experiment with labels.
      */
-    private List<Label> getLabelsForExperiment(Experiment experiment) {
+    private static List<Label> getDatabaseLabelsForExperiment(SQLiteDatabase db,
+            Experiment experiment) {
         final String selection = LabelColumns.EXPERIMENT_ID + "=? AND " +
                 LabelColumns.START_LABEL_ID + "=? and not " + LabelColumns.TYPE + "=?";;
         final String[] selectionArgs = new String[]{experiment.getExperimentId(),
                 RecorderController.NOT_RECORDING_RUN_ID, ApplicationLabel.TAG};
-        return getLabels(selection, selectionArgs);
+        return getDatabaseLabels(db, selection, selectionArgs);
     }
 
-    private List<Label> getLabels(String selection, String[] selectionArgs) {
+    private static List<Label> getDatabaseLabels(SQLiteDatabase db, String selection,
+            String[] selectionArgs) {
         List<Label> labels = new ArrayList<>();
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            Cursor cursor = null;
-            try {
-                cursor = db.query(Tables.LABELS, LabelQuery.PROJECTION, selection, selectionArgs,
-                        null, null, null);
-                while (cursor.moveToNext()) {
-                    String type = cursor.getString(LabelQuery.TYPE_INDEX);
-                    if (ApplicationLabel.isTag(type)) {
-                        continue;
+        Cursor cursor = null;
+        try {
+            cursor = db.query(Tables.LABELS, LabelQuery.PROJECTION, selection, selectionArgs,
+                    null, null, null);
+            while (cursor.moveToNext()) {
+                String type = cursor.getString(LabelQuery.TYPE_INDEX);
+                if (ApplicationLabel.isTag(type)) {
+                    continue;
+                }
+                // TODO: fix code smell: perhaps make a factory?
+                final String labelId = cursor.getString(LabelQuery.LABEL_ID_INDEX);
+                long timestamp = cursor.getLong(LabelQuery.TIMESTAMP_INDEX);
+                GoosciLabelValue.LabelValue value = null;
+                try {
+                    byte[] blob = cursor.getBlob(LabelQuery.VALUE_INDEX);
+                    if (blob != null) {
+                        value = GoosciLabelValue.LabelValue.parseFrom(blob);
                     }
-                    // TODO: fix code smell: perhaps make a factory?
-                    final String labelId = cursor.getString(LabelQuery.LABEL_ID_INDEX);
-                    long timestamp = cursor.getLong(LabelQuery.TIMESTAMP_INDEX);
-                    GoosciLabelValue.LabelValue value = null;
-                    try {
-                        byte[] blob = cursor.getBlob(LabelQuery.VALUE_INDEX);
-                        if (blob != null) {
-                            value = GoosciLabelValue.LabelValue.parseFrom(blob);
-                        }
-                    } catch (InvalidProtocolBufferNanoException ex) {
-                        Log.d(TAG, "Unable to parse label value");
-                    }
-                    GoosciLabel.Label goosciLabel = new GoosciLabel.Label();
-                    goosciLabel.labelId = labelId;
-                    goosciLabel.timestampMs = timestamp;
-                    goosciLabel.creationTimeMs = timestamp;
-                    if (value != null) {
-                        // Add new types of labels to this list.
-                        goosciLabel.values = new GoosciLabelValue.LabelValue[1];
-                        goosciLabel.values[0] = value;
+                } catch (InvalidProtocolBufferNanoException ex) {
+                    Log.d(TAG, "Unable to parse label value");
+                }
+                GoosciLabel.Label goosciLabel = new GoosciLabel.Label();
+                goosciLabel.labelId = labelId;
+                goosciLabel.timestampMs = timestamp;
+                goosciLabel.creationTimeMs = timestamp;
+                if (value != null) {
+                    // Add new types of labels to this list.
+                    goosciLabel.values = new GoosciLabelValue.LabelValue[1];
+                    goosciLabel.values[0] = value;
+                } else {
+                    // Old text, picture and application labels were added when label data
+                    // was stored as a string. New types of labels should not be added to this
+                    // list.
+                    final String data = cursor.getString(LabelQuery.DATA_INDEX);
+                    if (TextUtils.equals(type, TEXT_LABEL_TAG)) {
+                        value = TextLabelValue.fromText(data).getValue();
+                    } else if (TextUtils.equals(type, PICTURE_LABEL_TAG)) {
+                        // Early picture labels had no captions.
+                        value = PictureLabelValue.fromPicture(data, "").getValue();
                     } else {
-                        // Old text, picture and application labels were added when label data
-                        // was stored as a string. New types of labels should not be added to this
-                        // list.
-                        final String data = cursor.getString(LabelQuery.DATA_INDEX);
-                        if (TextUtils.equals(type, TEXT_LABEL_TAG)) {
-                            value = TextLabelValue.fromText(data).getValue();
-                        } else if (TextUtils.equals(type, PICTURE_LABEL_TAG)) {
-                            // Early picture labels had no captions.
-                            value = PictureLabelValue.fromPicture(data, "").getValue();
-                        } else {
-                            throw new IllegalStateException("Unknown label type: " + type);
-                        }
-                        goosciLabel.values = new GoosciLabelValue.LabelValue[1];
-                        goosciLabel.values[0] = value;
+                        throw new IllegalStateException("Unknown label type: " + type);
                     }
-                    labels.add(Label.fromLabel(goosciLabel));
+                    goosciLabel.values = new GoosciLabelValue.LabelValue[1];
+                    goosciLabel.values[0] = value;
                 }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
+                labels.add(Label.fromLabel(goosciLabel));
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
             }
         }
         return labels;
     }
 
-    private List<Label> getLabelsForTrial(String trialId) {
+    private static List<Label> getDatabaseLabelsForTrial(SQLiteDatabase db, String trialId) {
         final String selection = LabelColumns.START_LABEL_ID + "=? and not " +
                 LabelColumns.TYPE + "=?";
         final String[] selectionArgs = new String[]{trialId, ApplicationLabel.TAG};
-        return getLabels(selection, selectionArgs);
+        return getDatabaseLabels(db, selection, selectionArgs);
     }
 
     @VisibleForTesting
-    List<ApplicationLabel> getApplicationLabelsWithStartId(String trialId) {
-        final String selection = LabelColumns.START_LABEL_ID + "=? and " + LabelColumns.TYPE + "=?";
-        final String[] selectionArgs = new String[]{trialId, ApplicationLabel.TAG};
-        return getApplicationLabels(selection, selectionArgs);
-    }
-
-    private List<ApplicationLabel> getApplicationLabels(String selection, String[] selectionArgs) {
-        List<ApplicationLabel> labels = new ArrayList<>();
+    List<ApplicationLabel> getDatabaseApplicationLabelsWithStartId(String trialId) {
+        List<ApplicationLabel> result;
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            Cursor cursor = null;
-            try {
-                cursor = db.query(Tables.LABELS, LabelQuery.PROJECTION, selection, selectionArgs,
-                        null, null, null);
-                while (cursor.moveToNext()) {
-                    String type = cursor.getString(LabelQuery.TYPE_INDEX);
-                    ApplicationLabel label;
-                    // TODO: fix code smell: perhaps make a factory?
-                    final String labelId = cursor.getString(LabelQuery.LABEL_ID_INDEX);
-                    final String trialId = cursor.getString(LabelQuery.START_LABEL_ID_INDEX);
-                    long timestamp = cursor.getLong(LabelQuery.TIMESTAMP_INDEX);
-                    GoosciLabelValue.LabelValue value = null;
-                    try {
-                        byte[] blob = cursor.getBlob(LabelQuery.VALUE_INDEX);
-                        if (blob != null) {
-                            value = GoosciLabelValue.LabelValue.parseFrom(blob);
-                        }
-                    } catch (InvalidProtocolBufferNanoException ex) {
-                        Log.d(TAG, "Unable to parse label value");
-                    }
-                    if (value == null) {
-                        // Old text, picture and application labels were added when label data
-                        // was stored as a string. New types of labels should not be added to this
-                        // list.
-                        final String data = cursor.getString(LabelQuery.DATA_INDEX);
-                        label = new ApplicationLabel(data, labelId, trialId, timestamp);
-                    } else {
-                        label = new ApplicationLabel(labelId, trialId, timestamp, value);
-                    }
-                    labels.add(label);
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }
-            return labels;
+            result = getDatabaseApplicationLabelsWithStartId(db, trialId);
         }
+        return result;
+    }
+
+    private static List<ApplicationLabel> getDatabaseApplicationLabelsWithStartId(SQLiteDatabase db,
+            String trialId) {
+        final String selection = LabelColumns.START_LABEL_ID + "=? and " + LabelColumns.TYPE + "=?";
+        final String[] selectionArgs = new String[]{trialId, ApplicationLabel.TAG};
+        return getDatabaseApplicationLabels(db, selection, selectionArgs);
+    }
+
+    private static List<ApplicationLabel> getDatabaseApplicationLabels(SQLiteDatabase db,
+            String selection, String[] selectionArgs) {
+        List<ApplicationLabel> labels = new ArrayList<>();
+        Cursor cursor = null;
+        try {
+            cursor = db.query(Tables.LABELS, LabelQuery.PROJECTION, selection, selectionArgs,
+                    null, null, null);
+            while (cursor.moveToNext()) {
+                String type = cursor.getString(LabelQuery.TYPE_INDEX);
+                ApplicationLabel label;
+                // TODO: fix code smell: perhaps make a factory?
+                final String labelId = cursor.getString(LabelQuery.LABEL_ID_INDEX);
+                final String trialId = cursor.getString(LabelQuery.START_LABEL_ID_INDEX);
+                long timestamp = cursor.getLong(LabelQuery.TIMESTAMP_INDEX);
+                GoosciLabelValue.LabelValue value = null;
+                try {
+                    byte[] blob = cursor.getBlob(LabelQuery.VALUE_INDEX);
+                    if (blob != null) {
+                        value = GoosciLabelValue.LabelValue.parseFrom(blob);
+                    }
+                } catch (InvalidProtocolBufferNanoException ex) {
+                    Log.d(TAG, "Unable to parse label value");
+                }
+                if (value == null) {
+                    // Old text, picture and application labels were added when label data
+                    // was stored as a string. New types of labels should not be added to this
+                    // list.
+                    final String data = cursor.getString(LabelQuery.DATA_INDEX);
+                    label = new ApplicationLabel(data, labelId, trialId, timestamp);
+                } else {
+                    label = new ApplicationLabel(labelId, trialId, timestamp, value);
+                }
+                labels.add(label);
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return labels;
     }
 
     private void setStats(String trialId, String sensorId, TrialStats stats) {
@@ -1054,62 +1193,65 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
-    private TrialStats getStats(String trialId, String sensorId) {
-        final RunStats runStats = new RunStats(sensorId);
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            Cursor cursor = null;
-            try {
-                cursor = db.query(Tables.RUN_STATS,
-                        new String[]{RunStatsColumns.STAT_NAME, RunStatsColumns.STAT_VALUE},
-                        RunStatsColumns.START_LABEL_ID + " =? AND " + RunStatsColumns.SENSOR_TAG
-                                + " =?",
-                        new String[]{trialId, sensorId}, null, null, null);
-                while (cursor.moveToNext()) {
-                    final String statName = cursor.getString(0);
-                    final double statValue = cursor.getDouble(1);
-                    if (TextUtils.equals(statName, StatsAccumulator.KEY_STATUS)) {
-                        runStats.setStatus((int) statValue);
-                    } else {
-                        runStats.putStat(statName, statValue);
-                    }
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
+    private static TrialStats getDatabaseStats(SQLiteDatabase db, String trialId, String sensorId) {
+        RunStats runStats = new RunStats(sensorId);
+        Cursor cursor = null;
+        try {
+            cursor = db.query(Tables.RUN_STATS,
+                    new String[]{RunStatsColumns.STAT_NAME, RunStatsColumns.STAT_VALUE},
+                    RunStatsColumns.START_LABEL_ID + " =? AND " + RunStatsColumns.SENSOR_TAG
+                            + " =?",
+                    new String[]{trialId, sensorId}, null, null, null);
+            while (cursor.moveToNext()) {
+                final String statName = cursor.getString(0);
+                final double statValue = cursor.getDouble(1);
+                if (TextUtils.equals(statName, StatsAccumulator.KEY_STATUS)) {
+                    runStats.setStatus((int) statValue);
+                } else {
+                    runStats.putStat(statName, statValue);
                 }
             }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-
         return runStats.getTrialStats();
     }
 
     @VisibleForTesting
-    List<String> getExperimentRunIds(String experimentId, boolean includeArchived) {
+    List<String> getDatabaseExperimentRunIds(String experimentId, boolean includeArchived) {
         // TODO: use start index as offset.
-        List<String> ids = new ArrayList<>();
+        List<String> ids;
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            Cursor cursor = null;
-            try {
-                String selection = LabelColumns.LABEL_ID + "=" + LabelColumns.START_LABEL_ID +
-                        " AND " + LabelColumns.EXPERIMENT_ID + "=?";
-                if (!includeArchived) {
-                    selection += " AND (" + RunsColumns.ARCHIVED + "=0 OR " +
-                            RunsColumns.ARCHIVED + " IS NULL)";
-                }
-                cursor = db.query(
-                        Tables.RUNS + " AS r JOIN " + Tables.LABELS + " AS l ON "
-                                + RunsColumns.RUN_ID + "=" + LabelColumns.START_LABEL_ID,
-                        new String[]{RunsColumns.RUN_ID}, selection, new String[]{experimentId},
-                        null, null, "r." + RunsColumns.TIMESTAMP + " DESC", null);
-                while (cursor.moveToNext()) {
-                    ids.add(cursor.getString(0));
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
+            ids = getDatabaseExperimentRunIds(db, experimentId, includeArchived);
+        }
+        return ids;
+    }
+
+    private static List<String> getDatabaseExperimentRunIds(SQLiteDatabase db, String experimentId,
+            boolean includeArchived) {
+        List<String> ids = new ArrayList<>();
+        Cursor cursor = null;
+        try {
+            String selection = LabelColumns.LABEL_ID + "=" + LabelColumns.START_LABEL_ID +
+                    " AND " + LabelColumns.EXPERIMENT_ID + "=?";
+            if (!includeArchived) {
+                selection += " AND (" + RunsColumns.ARCHIVED + "=0 OR " +
+                        RunsColumns.ARCHIVED + " IS NULL)";
+            }
+            cursor = db.query(
+                    Tables.RUNS + " AS r JOIN " + Tables.LABELS + " AS l ON "
+                            + RunsColumns.RUN_ID + "=" + LabelColumns.START_LABEL_ID,
+                    new String[]{RunsColumns.RUN_ID}, selection, new String[]{experimentId},
+                    null, null, "r." + RunsColumns.TIMESTAMP + " DESC", null);
+            while (cursor.moveToNext()) {
+                ids.add(cursor.getString(0));
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
             }
         }
         return ids;
@@ -1128,20 +1270,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     // Deletes a label from the database, but does not touch its assets.
-    private void deleteLabel(Label label) {
+    private static void deleteDatabaseLabel(SQLiteDatabase db, Label label) {
         String selection = LabelColumns.LABEL_ID + "=?";
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            db.delete(Tables.LABELS, selection, new String[]{label.getLabelId()});
-        }
+        db.delete(Tables.LABELS, selection, new String[]{label.getLabelId()});
     }
 
-    private void deleteApplicationLabel(ApplicationLabel label) {
+    private static void deleteDatabaseApplicationLabel(SQLiteDatabase db, ApplicationLabel label) {
         String selection = LabelColumns.LABEL_ID + "=?";
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            db.delete(Tables.LABELS, selection, new String[]{label.getLabelId()});
-        }
+        db.delete(Tables.LABELS, selection, new String[]{label.getLabelId()});
     }
 
     @NonNull
@@ -1413,39 +1549,36 @@ public class SimpleMetaDataManager implements MetaDataManager {
     /**
      * Gets a list of SensorTrigger by their experiment ID.
      */
-    private List<SensorTrigger> getSensorTriggers(String experimentId) {
+    private static List<SensorTrigger> getDatabaseSensorTriggers(SQLiteDatabase db,
+            String experimentId) {
         List<SensorTrigger> triggers = new ArrayList<>();
         if (TextUtils.isEmpty(experimentId)) {
             return triggers;
         }
 
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            final String selection = SensorTriggerColumns.EXPERIMENT_ID + "=?";
-            String[] selectionArgs = new String[]{experimentId};
-            Cursor c = null;
-            try {
-                c = db.query(Tables.SENSOR_TRIGGERS, new String[]{SensorTriggerColumns.TRIGGER_ID,
-                                SensorTriggerColumns.SENSOR_ID,
-                                SensorTriggerColumns.LAST_USED_TIMESTAMP_MS,
-                                SensorTriggerColumns.TRIGGER_INFORMATION},
-                        selection, selectionArgs, null, null,
-                        SensorTriggerColumns.LAST_USED_TIMESTAMP_MS + " DESC");
-                if (c == null || !c.moveToFirst()) {
-                    return triggers;
-                }
-                while (!c.isAfterLast()) {
-                    triggers.add(SensorTrigger.fromTrigger(c.getString(0), c.getString(1),
-                            c.getLong(2), GoosciSensorTriggerInformation.TriggerInformation
-                                    .parseFrom(c.getBlob(3))));
-                    c.moveToNext();
-                }
-            } catch (InvalidProtocolBufferNanoException e) {
-                e.printStackTrace();
-            } finally {
-                if (c != null) {
-                    c.close();
-                }
+        final String selection = SensorTriggerColumns.EXPERIMENT_ID + "=?";
+        String[] selectionArgs = new String[]{experimentId};
+        Cursor c = null;
+        try {
+            c = db.query(Tables.SENSOR_TRIGGERS, new String[]{SensorTriggerColumns.TRIGGER_ID,
+                            SensorTriggerColumns.SENSOR_ID,
+                            SensorTriggerColumns.LAST_USED_TIMESTAMP_MS,
+                            SensorTriggerColumns.TRIGGER_INFORMATION},
+                    selection, selectionArgs, null, null,
+                    SensorTriggerColumns.LAST_USED_TIMESTAMP_MS + " DESC");
+            if (c == null || !c.moveToFirst()) {
+                return triggers;
+            }
+            while (!c.isAfterLast()) {
+                triggers.add(SensorTrigger.fromTrigger(c.getString(0), c.getString(1), c.getLong(2),
+                        GoosciSensorTriggerInformation.TriggerInformation.parseFrom(c.getBlob(3))));
+                c.moveToNext();
+            }
+        } catch (InvalidProtocolBufferNanoException e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null) {
+                c.close();
             }
         }
         return triggers;
@@ -1454,12 +1587,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
     /**
      * Deletes the SensorTrigger from the database.
      */
-    private void deleteSensorTrigger(SensorTrigger trigger) {
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            db.delete(Tables.SENSOR_TRIGGERS, SensorTriggerColumns.TRIGGER_ID + "=?",
-                    new String[]{trigger.getTriggerId()});
-        }
+    private static void deleteDatabaseSensorTrigger(SQLiteDatabase db, SensorTrigger trigger) {
+        db.delete(Tables.SENSOR_TRIGGERS, SensorTriggerColumns.TRIGGER_ID + "=?",
+                new String[]{trigger.getTriggerId()});
     }
 
     public interface ProjectColumns {
@@ -1775,13 +1905,16 @@ public class SimpleMetaDataManager implements MetaDataManager {
      * Manages the SQLite database backing the data for the entire app.
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        private static final int DB_VERSION = 21;
+        private static final int DB_VERSION = 22;
         private static final String DB_NAME = "main.db";
 
         // Callbacks for database upgrades.
         interface MetadataDatabaseUpgradeCallback {
             // Called when project data needs to be migrated.
             void onMigrateProjectData(SQLiteDatabase db);
+
+            // Called when experiment data needs to be migrated.
+            void onMigrateExperimentsToFiles(SQLiteDatabase db);
         }
         private MetadataDatabaseUpgradeCallback mUpgradeCallback;
 
@@ -1975,6 +2108,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 // data into the experiment.
                 mUpgradeCallback.onMigrateProjectData(db);
                 version = 21;
+            }
+
+            if (version == 21 && version < newVersion) {
+                // Migrate experiment data into file-based system.
+                mUpgradeCallback.onMigrateExperimentsToFiles(db);
+                version = 22;
             }
         }
 
