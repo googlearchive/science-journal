@@ -16,23 +16,17 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import static junit.framework.Assert.assertEquals;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StubStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import org.junit.Test;
@@ -40,18 +34,21 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import io.reactivex.Maybe;
+
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 public class RecorderControllerTest {
+    private final MockScheduler mScheduler = new MockScheduler();
     private String mSensorId = "sensorId";
-    private final ManualSensor mSensor = new ManualSensor(mSensorId, 100, 100);
-    private final SensorRegistry mSensorRegistry = new SensorRegistry() {
-        @Override
-        public void withSensorChoice(String tag, String id, Consumer<SensorChoice> consumer) {
-            assertEquals(mSensorId, id);
-            consumer.take(mSensor);
-        }
-    };
+    private final ManualSensorRegistry mSensorRegistry = new ManualSensorRegistry();
+    private final ManualSensor mSensor = mSensorRegistry.addSensor(mSensorId);
+    private final InMemorySensorDatabase mDatabase = new InMemorySensorDatabase();
+    private final DataControllerImpl mDataController = mDatabase.makeSimpleController();
     private final MemorySensorEnvironment mEnvironment = new MemorySensorEnvironment(
-            new InMemorySensorDatabase().makeSimpleRecordingController(), new FakeBleClient(null),
+            mDatabase.makeSimpleRecordingController(), new FakeBleClient(null),
             new MemorySensorHistoryStorage(), null);
 
     @Test
@@ -105,16 +102,15 @@ public class RecorderControllerTest {
     public void delayStopObserving() {
         TestTrigger trigger = new TestTrigger(mSensorId);
         ArrayList<SensorTrigger> triggerList = Lists.<SensorTrigger>newArrayList(trigger);
-        MockScheduler scheduler = new MockScheduler();
         RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
-                new RecorderListenerRegistry(), null, null, scheduler, Delay.seconds(15));
+                new RecorderListenerRegistry(), null, null, mScheduler, Delay.seconds(15));
         String observeId1 = rc.startObserving(mSensorId, Lists.<SensorTrigger>newArrayList(),
                 new RecordingSensorObserver(), new RecordingStatusListener(), null);
         rc.stopObserving(mSensorId, observeId1);
 
         // Redundant call should have no effect.
         rc.stopObserving(mSensorId, observeId1);
-        scheduler.incrementTime(1000);
+        mScheduler.incrementTime(1000);
 
         // Should still be observing 1s later.
         assertTrue(mSensor.isObserving());
@@ -124,7 +120,7 @@ public class RecorderControllerTest {
                 new RecordingStatusListener(), null);
 
         // Make sure there's no delayed stop commands waiting to strike
-        scheduler.incrementTime(30000);
+        mScheduler.incrementTime(30000);
         assertTrue(mSensor.isObserving());
 
         // And we have correctly picked up the new trigger list.
@@ -135,32 +131,118 @@ public class RecorderControllerTest {
         // Finally, after appropriate delay, sensor stops.
         rc.stopObserving(mSensorId, observeId2);
         assertTrue(mSensor.isObserving());
-        scheduler.incrementTime(16000);
+        mScheduler.incrementTime(16000);
         assertFalse(mSensor.isObserving());
     }
 
     @Test
     public void dontScheduleIfDelayIs0() {
-        MockScheduler scheduler = new MockScheduler();
         RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
-                new RecorderListenerRegistry(), null, null, scheduler, Delay.ZERO);
+                new RecorderListenerRegistry(), null, null, mScheduler, Delay.ZERO);
         String observeId1 = rc.startObserving(mSensorId, null, new RecordingSensorObserver(),
                 new RecordingStatusListener(), null);
         rc.stopObserving(mSensorId, observeId1);
-        assertEquals(0, scheduler.getScheduleCount());
+        assertEquals(0, mScheduler.getScheduleCount());
     }
 
     @Test
     public void reboot() {
-        MockScheduler scheduler = new MockScheduler();
         RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
-                new RecorderListenerRegistry(), null, null, scheduler, Delay.ZERO);
+                new RecorderListenerRegistry(), null, null, mScheduler, Delay.ZERO);
         rc.startObserving(mSensorId, null, new RecordingSensorObserver(),
                 new RecordingStatusListener(), null);
         mSensor.simulateExternalEventPreventingObservation();
         assertFalse(mSensor.isObserving());
         rc.reboot(mSensorId);
         assertTrue(mSensor.isObserving());
+    }
+
+    @Test
+    public void takeSnapshot() {
+        final RecorderControllerImpl rc =
+                new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+                        new RecorderListenerRegistry(), null, mDataController, mScheduler,
+                        Delay.ZERO);
+
+        rc.startObserving(mSensorId, new ArrayList<SensorTrigger>(), new RecordingSensorObserver(),
+                new RecordingStatusListener(), null);
+
+        Maybe<String> snapshot =
+                rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId),
+                        s -> "sensor");
+        mSensor.pushValue(10, 50);
+        assertEquals("[sensor has value 50.0]",
+                snapshot.test().assertNoErrors().values().toString());
+    }
+
+    @Test
+    public void snapshotWithNoSensors() {
+        final RecorderControllerImpl rc =
+                new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+                        new RecorderListenerRegistry(), null, mDataController, mScheduler,
+                        Delay.ZERO);
+
+        Maybe<String> snapshot =
+                rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId), null);
+        assertEquals("[No sensors observed]", snapshot.test().values().toString());
+    }
+
+    @Test
+    public void snapshotWithThreeSensors() {
+        ManualSensor s2 = mSensorRegistry.addSensor("s2");
+        ManualSensor s3 = mSensorRegistry.addSensor("s3");
+
+        final RecorderControllerImpl rc =
+                new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+                        new RecorderListenerRegistry(), null, mDataController, mScheduler,
+                        Delay.ZERO);
+
+        ArrayList<SensorTrigger> triggers = new ArrayList<>();
+        rc.startObserving(mSensorId, triggers, new RecordingSensorObserver(),
+                new RecordingStatusListener(), null);
+        rc.startObserving(s2.getId(), triggers, new RecordingSensorObserver(),
+                new RecordingStatusListener(), null);
+        rc.startObserving(s3.getId(), triggers, new RecordingSensorObserver(),
+                new RecordingStatusListener(), null);
+
+        // Some sensors may publish earlier
+        s2.pushValue(12, 52);
+        s3.pushValue(13, 53);
+        final ImmutableMap<String, String> names =
+                ImmutableMap.of(mSensorId, "A1", s2.getId(), "B2", s3.getId(), "C3");
+        Maybe<String> snapshot =
+                rc.generateSnapshotText(Lists.newArrayList(mSensorId, s2.getId(), s3.getId()),
+                        s -> names.get(s));
+        // Some may publish later
+        mSensor.pushValue(11, 51);
+        assertEquals("[A1 has value 51.0, B2 has value 52.0, C3 has value 53.0]",
+                snapshot.test().assertNoErrors().values().toString());
+    }
+
+    @Test
+    public void dontCacheSensorValuesBetweenObservation() {
+        final RecorderControllerImpl rc =
+                new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+                        new RecorderListenerRegistry(), null, mDataController, mScheduler,
+                        Delay.ZERO);
+
+        String observerId = rc.startObserving(mSensorId, new ArrayList<SensorTrigger>(),
+                new RecordingSensorObserver(), new RecordingStatusListener(), null);
+        mSensor.pushValue(10, 50);
+
+        // This should clear the latest value
+        rc.stopObserving(mSensorId, observerId);
+
+        // Restart observing
+        rc.startObserving(mSensorId, new ArrayList<SensorTrigger>(), new RecordingSensorObserver(),
+                new RecordingStatusListener(), null);
+
+        Maybe<String> snapshot = rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId),
+                s -> "sensor");
+        snapshot.test().assertNotComplete();
+        mSensor.pushValue(20, 60);
+        assertEquals("[sensor has value 60.0]",
+                snapshot.test().assertNoErrors().values().toString());
     }
 
     private class TestTrigger extends SensorTrigger {
