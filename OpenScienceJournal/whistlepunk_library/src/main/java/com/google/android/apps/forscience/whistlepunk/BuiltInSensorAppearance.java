@@ -19,11 +19,11 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
+import com.google.android.apps.forscience.javalib.Consumer;
+
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
-
-import com.google.android.apps.forscience.javalib.Consumer;
 
 public class BuiltInSensorAppearance implements SensorAppearance {
     public static final int DEFAULT_POINTS_AFTER_DECIMAL = -1;
@@ -72,32 +72,27 @@ public class BuiltInSensorAppearance implements SensorAppearance {
     private int mSecondParagraphStringId;
     private int mLearnMoreDrawableId;
 
+    public static BuiltInSensorAppearance create(int nameStringId, int drawableId,
+            int unitsStringId,
+            int shortDescriptionId, int firstParagraphStringId, int secondParagraphStringId,
+            int infoDrawableId, SensorAnimationBehavior sensorAnimationBehavior,
+            int pointsAfterDecimalInNumberFormat) {
+        return new BuiltInSensorAppearance(nameStringId, drawableId, unitsStringId,
+                shortDescriptionId, firstParagraphStringId, secondParagraphStringId, infoDrawableId,
+                sensorAnimationBehavior, pointsAfterDecimalInNumberFormat);
+    }
+
     public BuiltInSensorAppearance(int nameStringId, int drawableId) {
-        mNameStringId = nameStringId;
-        mDrawableId = drawableId;
-        mUnitsStringId = 0;
-        mShortDescriptionStringId = 0;
-        mFirstParagraphStringId = 0;
-        mSecondParagraphStringId = 0;
-        mLearnMoreDrawableId = 0;
-        mSensorAnimationBehavior = SensorAnimationBehavior.createDefault();
-        mNumberFormat = new AxisNumberFormat();
+        this(nameStringId, drawableId, 0, SensorAnimationBehavior.createDefault());
     }
 
     public BuiltInSensorAppearance(int nameStringId, int drawableId, int shortDescriptionId,
             SensorAnimationBehavior sensorAnimationBehavior) {
-        mNameStringId = nameStringId;
-        mDrawableId = drawableId;
-        mUnitsStringId = 0;
-        mShortDescriptionStringId = shortDescriptionId;
-        mFirstParagraphStringId = 0;
-        mSecondParagraphStringId = 0;
-        mLearnMoreDrawableId = 0;
-        mSensorAnimationBehavior = sensorAnimationBehavior;
-        mNumberFormat = new AxisNumberFormat();
+        this(nameStringId, drawableId, 0, shortDescriptionId, 0, 0, 0, sensorAnimationBehavior,
+                DEFAULT_POINTS_AFTER_DECIMAL);
     }
 
-    public BuiltInSensorAppearance(int nameStringId, int drawableId, int unitsStringId,
+    BuiltInSensorAppearance(int nameStringId, int drawableId, int unitsStringId,
             int shortDescriptionId, int firstParagraphStringId, int secondParagraphStringId,
             int infoDrawableId, SensorAnimationBehavior sensorAnimationBehavior,
             int pointsAfterDecimalInNumberFormat) {
