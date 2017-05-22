@@ -30,6 +30,9 @@ import com.google.common.annotations.VisibleForTesting;
 
 import java.util.Map;
 
+import io.reactivex.Observable;
+import io.reactivex.android.MainThreadDisposable;
+
 /**
  * Handles which experiment is currently loaded and selected.
  */
@@ -84,6 +87,19 @@ public class MetadataController {
         mExperimentChangeListeners.put(listenerKey, listener);
         mSelectedExperiment = null;
         loadLastUsedExperiment();
+    }
+
+    public Observable<Experiment> activeExperimentStream(String listenerKey) {
+        return Observable.create(emitter -> {
+            addExperimentChangeListener(listenerKey, exp -> emitter.onNext(exp));
+
+            emitter.setDisposable(new MainThreadDisposable() {
+                @Override
+                protected void onDispose() {
+                    removeExperimentChangeListener(listenerKey);
+                }
+            });
+        });
     }
 
     private void loadLastUsedExperiment() {

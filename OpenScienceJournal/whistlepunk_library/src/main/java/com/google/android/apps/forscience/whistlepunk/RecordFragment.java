@@ -908,7 +908,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                         headerHeight - marginHeight * 3 - externalAxisHeight;
                 int minHeight = getResources().getDimensionPixelSize(
                         R.dimen.sensor_card_content_height_min);
-                mSensorCardAdapter.setSingleCardPresenterHeight(Math.max(optimalHeight, minHeight));
+
+                // TODO: one time, I saw a crash here.  Can we prevent it more gracefully?
+                if (mSensorCardAdapter != null) {
+                    mSensorCardAdapter.setSingleCardPresenterHeight(
+                            Math.max(optimalHeight, minHeight));
+                }
                 mSensorCardRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(
                         mRecyclerViewGlobalLayoutListener);
             }

@@ -45,12 +45,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
@@ -59,8 +57,8 @@ import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import java.io.File;
 import java.util.UUID;
 
+import io.reactivex.Maybe;
 import io.reactivex.Single;
-import io.reactivex.subjects.CompletableSubject;
 
 /**
  * Dialog for adding new notes.
@@ -82,6 +80,7 @@ public class AddNoteDialog extends DialogFragment {
     private static final java.lang.String KEY_SAVED_TIME_TEXT_DESCRIPTION =
             "keySavedTimeTextDescription";
     private String mUuid;
+    private DataService.FragmentBinder mDataBinder = new DataService.FragmentBinder();
 
     public static abstract class AddNoteDialogListener {
         static AddNoteDialogListener NULL = new AddNoteDialogListener() {
@@ -218,6 +217,7 @@ public class AddNoteDialog extends DialogFragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putString(KEY_SAVED_PICTURE_PATH, mPictureLabelPath);
         outState.putString(KEY_SAVED_INPUT_TEXT,
                 mInput == null ? null : mInput.getText().toString());
@@ -242,12 +242,7 @@ public class AddNoteDialog extends DialogFragment {
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
         alertDialog.setView(rootView);
-        alertDialog.setPositiveButton(R.string.action_save, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog1, int which) {
-                addLabel();
-            }
-        });
+        alertDialog.setPositiveButton(R.string.action_save, (dialog1, which) -> addLabel());
         alertDialog.setNegativeButton(android.R.string.cancel,
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -257,12 +252,8 @@ public class AddNoteDialog extends DialogFragment {
                 });
         alertDialog.setCancelable(true);
         AlertDialog dialog = alertDialog.create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                updatePositiveButtonEnabled((AlertDialog) dialogInterface);
-            }
-        });
+        dialog.setOnShowListener(
+                dialogInterface -> updatePositiveButtonEnabled((AlertDialog) dialogInterface));
         if (!hasPicture()) {
             dialog.getWindow().setSoftInputMode(
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -289,6 +280,7 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     private void internalOnAttach(Context context) {
+        mDataBinder.onAttach(context);
         if (context instanceof ListenerProvider) {
             mListener = ((ListenerProvider) context).getAddNoteDialogListener();
         }
@@ -312,14 +304,13 @@ public class AddNoteDialog extends DialogFragment {
             mPictureLabelPath = getArguments().getString(KEY_SAVED_PICTURE_PATH, null);
             mTrialId = getArguments().getString(KEY_SAVED_RUN_ID);
             mExperimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
-            getDataController().getExperimentById(mExperimentId,
-                    new LoggingConsumer<Experiment>(TAG, "get experiment") {
-                        @Override
-                        public void success(Experiment value) {
-                            mExperiment = value;
-                            updatePositiveButtonEnabled((AlertDialog) getDialog());
-                        }
-                    });
+
+            getDataController()
+                    .flatMapSingle(dc -> RxDataController.getExperimentById(dc, mExperimentId))
+                    .subscribe(exp -> {
+                        mExperiment = exp;
+                        updatePositiveButtonEnabled((AlertDialog) getDialog());
+                    }, LoggingConsumer.complain(TAG, "get experiment"));
             if (getArguments().containsKey(KEY_SAVED_TIME_TEXT_DESCRIPTION)) {
                 mLabelTimeTextDescription =
                         getArguments().getString(KEY_SAVED_TIME_TEXT_DESCRIPTION);
@@ -355,12 +346,9 @@ public class AddNoteDialog extends DialogFragment {
         if (nativeSaveButton) {
             Button button = (Button) addNoteView.findViewById(R.id.create_note);
             button.setVisibility(View.VISIBLE);
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    addLabel();
-                    hideKeyboard(v);
-                }
+            button.setOnClickListener(v -> {
+                addLabel();
+                hideKeyboard(v);
             });
         }
 
@@ -394,14 +382,10 @@ public class AddNoteDialog extends DialogFragment {
             if (!TextUtils.isEmpty(mLabelTimeTextDescription)) {
                 timestampSection.setContentDescription(mLabelTimeTextDescription);
             }
-            timestampSection.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mListener.onAddNoteTimestampClicked(
-                            getCurrentValue(), hasPicture() ? RunReviewFragment.LABEL_TYPE_PICTURE :
-                                    RunReviewFragment.LABEL_TYPE_TEXT,
-                            getTimestamp());
-                }
+            timestampSection.setOnClickListener(v -> {
+                int labelType = getLabelType();
+                getTimestamp().subscribe(
+                        t -> mListener.onAddNoteTimestampClicked(getCurrentValue(), labelType, t));
             });
         } else {
             rootView.findViewById(R.id.label_dialog_timestamp_section).setVisibility(View.GONE);
@@ -442,6 +426,14 @@ public class AddNoteDialog extends DialogFragment {
         return rootView;
     }
 
+    private int getLabelType() {
+        if (hasPicture()) {
+            return RunReviewFragment.LABEL_TYPE_PICTURE;
+        } else {
+            return RunReviewFragment.LABEL_TYPE_TEXT;
+        }
+    }
+
     private GoosciLabelValue.LabelValue getCurrentValue() {
         GoosciLabelValue.LabelValue result = new GoosciLabelValue.LabelValue();
         if (hasPicture()) {
@@ -467,35 +459,35 @@ public class AddNoteDialog extends DialogFragment {
     private void addLabel() {
         // Save this as a picture label if it has a picture, otherwise just save it as a text
         // label.
-        if (hasPicture()) {
-            addPictureLabel();
-        } else {
-            addTextLabel();
-        }
+        getTimestamp().subscribe(t -> {
+            if (hasPicture()) {
+                addPictureLabel(t);
+            } else {
+                addTextLabel(t);
+            }
+        });
     }
 
-    private void addTextLabel() {
+    private void addTextLabel(long timestamp) {
         TextLabelValue labelValue = TextLabelValue.fromText(mInput.getText().toString());
         mInput.setText("");
-        Label label = Label.newLabelWithValue(getTimestamp(), labelValue);
+        Label label = Label.newLabelWithValue(timestamp, labelValue);
         addLabel(label);
     }
 
-    private long getTimestamp() {
+    private Maybe<Long> getTimestamp() {
         if (mUseSavedTimestamp) {
-            return mTimestamp;
+            return Maybe.just(mTimestamp);
         } else {
-            return AppSingleton.getInstance(getActivity())
-                               .getSensorEnvironment()
-                               .getDefaultClock()
-                               .getNow();
+            Maybe<AppSingleton> data = mDataBinder.bind();
+            return data.map(s -> s.getSensorEnvironment().getDefaultClock().getNow());
         }
     }
 
-    private void addPictureLabel() {
+    private void addPictureLabel(long timestamp) {
         PictureLabelValue labelValue = PictureLabelValue.fromPicture(mPictureLabelPath,
                 mInput.getText().toString());
-        Label label = Label.fromUuidAndValue(getTimestamp(), mUuid, labelValue);
+        Label label = Label.fromUuidAndValue(timestamp, mUuid, labelValue);
         addLabel(label);
         PictureUtils.scanFile(mPictureLabelPath, getActivity());
         mPictureLabelPath = null;
@@ -506,14 +498,13 @@ public class AddNoteDialog extends DialogFragment {
 
         // The listener may be cleared by onDetach() before the experiment/trial is written,
         // so save the MaybeConsumer here as a final var.
-        final MaybeConsumer<Label> onSuccess = mListener.onLabelAdd();
         if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
             mExperiment.addLabel(label);
         } else {
             mExperiment.getTrial(mTrialId).addLabel(label);
         }
-        saveExperiment(this.getDataController(), mExperiment, label).subscribe(
-                MaybeConsumers.toSingleObserver(onSuccess));
+        getDataController().flatMapSingle(dc -> saveExperiment(dc, mExperiment, label))
+                           .subscribe(MaybeConsumers.toSingleObserver(mListener.onLabelAdd()));
     }
 
     /**
@@ -521,14 +512,12 @@ public class AddNoteDialog extends DialogFragment {
      */
     public static Single<Label> saveExperiment(DataController dataController, Experiment experiment,
             final Label label) {
-        CompletableSubject completableSubject = CompletableSubject.create();
-        dataController.updateExperiment(experiment.getExperimentId(),
-                MaybeConsumers.fromCompletableObserver(completableSubject));
-        return completableSubject.andThen(Single.just(label));
+        return RxDataController.updateExperiment(dataController, experiment)
+                               .andThen(Single.just(label));
     }
 
-    private DataController getDataController() {
-        return AppSingleton.getInstance(getActivity()).getDataController();
+    private Maybe<DataController> getDataController() {
+        return mDataBinder.bind().map(s -> s.getDataController());
     }
 
     @Override

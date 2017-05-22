@@ -38,6 +38,8 @@ import com.jakewharton.rxbinding2.view.RxView;
 
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -54,6 +56,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     private ExperimentDetailsFragment mExperimentFragment = null;
     private AddNoteDialog mAddNoteDialog = null;
+    private CompositeDisposable mUntilDestroyed = new CompositeDisposable();
 
     /**
      * BehaviorSubject remembers the last loaded value (if any) and delivers it, and all subsequent
@@ -104,27 +107,22 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                             findViewById(R.id.tool_picker)));
         });
 
-        mActiveExperiment.subscribe(experiment -> {
+        // By adding the subscription to mUntilDestroyed, we make sure that we can disconnect from
+        // the experiment stream when this activity is destroyed.
+        mUntilDestroyed.add(mActiveExperiment.subscribe(experiment -> {
             String experimentId = experiment.getExperimentId();
             setExperimentFragmentId(experimentId);
             setNoteFragmentId(adapter, experimentId);
-        });
+        }));
 
+        // TODO: can I do this without a behavior subject?
         String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
 
 
         if (experimentId == null) {
-            getMetadataController().addExperimentChangeListener(TAG,
-                    new MetadataController.MetadataChangeListener() {
-                        @Override
-                        public void onMetadataChanged(Experiment activeExperiment) {
-                            if (Log.isLoggable(TAG, Log.INFO)) {
-                                Log.i(TAG, "Launching most recent experiment id: "
-                                           + activeExperiment.getExperimentId());
-                            }
-                            mActiveExperiment.onNext(activeExperiment);
-                        }
-                    });
+            // Load currently-active experiment
+            getMetadataController().flatMapObservable(mc -> mc.activeExperimentStream(TAG))
+                                   .subscribe(mActiveExperiment);
         } else {
             if (Log.isLoggable(TAG, Log.INFO)) {
                 Log.i(TAG, "Launching specified experiment id: " + experimentId);
@@ -167,13 +165,13 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     @NonNull
-    private MetadataController getMetadataController() {
-        return AppSingleton.getInstance(this).getMetadataController();
+    private Single<MetadataController> getMetadataController() {
+        return DataService.bind(this).map(data -> data.getMetadataController());
     }
 
     @Override
     protected void onDestroy() {
-        getMetadataController().removeExperimentChangeListener(TAG);
+        mUntilDestroyed.dispose();
         super.onDestroy();
     }
 

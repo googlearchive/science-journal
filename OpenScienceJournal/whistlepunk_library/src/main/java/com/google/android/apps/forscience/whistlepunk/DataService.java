@@ -84,7 +84,7 @@ public class DataService extends Service {
         private Observable<AppSingleton> mBound =
                 mApplicationContext.flatMapSingle(ac -> DataService.bind(ac));
 
-        // SAFF: can we use RxLifecycle for this?
+        // TODO: can we use RxLifecycle for this?
         public void onAttach(Context context) {
             if (! mApplicationContext.hasValue()) {
                 mApplicationContext.onNext(context.getApplicationContext());

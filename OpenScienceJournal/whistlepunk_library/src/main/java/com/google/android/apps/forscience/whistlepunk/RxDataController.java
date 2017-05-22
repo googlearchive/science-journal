@@ -19,6 +19,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 
 import io.reactivex.Completable;
+import io.reactivex.Single;
 
 /**
  * Utility methods for bridging DataController calls with code that uses Rx
@@ -29,5 +30,9 @@ public class RxDataController {
      */
     public static Completable updateExperiment(DataController dc, Experiment e) {
         return MaybeConsumers.buildCompleteable(mc -> dc.updateExperiment(e.getExperimentId(), mc));
+    }
+
+    public static Single<Experiment> getExperimentById(DataController dc, String experimentId) {
+        return MaybeConsumers.buildSingle(mc -> dc.getExperimentById(experimentId, mc));
     }
 }
