@@ -22,6 +22,7 @@ option java_outer_classname = "GoosciTrial";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
+import "caption.proto";
 import "label.proto";
 import "sensor_layout.proto";
 
@@ -66,7 +67,8 @@ message Trial {
     // TODO: Add a repeated SensorAppearance field that allows each run to store
     // data independently, enabling sharing for devices that don't have particular sensors.
 
-    // Any new fields must be added to filemetadata.Trial.copy if needed.
+    // An optional user-added caption.
+    optional Caption caption = 11;
 };
 
 /*
