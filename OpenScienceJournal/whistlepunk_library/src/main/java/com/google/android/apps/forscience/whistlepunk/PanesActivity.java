@@ -74,7 +74,9 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     case 0:
                         return RecordFragment.newInstance(true);
                     case 1:
-                        return CameraFragment.newInstance();
+                        // TODO: b/62022245
+                        return CameraFragment.newInstance(mActiveExperiment.getValue()
+                                .getExperimentId());
                     case 2:
                         return mAddNoteDialog;
                 }

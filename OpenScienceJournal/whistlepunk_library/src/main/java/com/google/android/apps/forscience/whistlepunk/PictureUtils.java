@@ -33,6 +33,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -49,19 +51,14 @@ public class PictureUtils {
     public static final int PERMISSIONS_WRITE_EXTERNAL_STORAGE = 2;
     public static final int PERMISSIONS_CAMERA = 3;
 
-    private static final String PICTURES_DIR_NAME = "ScienceJournal";
-    private static final String PICTURE_NAME_TEMPLATE = "Picture_%s.jpg";
+    private static final String PICTURE_NAME_TEMPLATE = "%s.jpg";
 
     // From http://developer.android.com/training/camera/photobasics.html.
-    public static File createImageFile(long timestamp) throws IOException {
-        // Create an image file name
-        String imageDate = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date(timestamp));
-        String imageFileName = String.format(PICTURE_NAME_TEMPLATE, imageDate);
-        File storageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), PICTURES_DIR_NAME);
-        if (!storageDir.exists()) {
-            storageDir.mkdirs();
-        }
+    public static File createImageFile(Context context, String experimentId, String uuid)
+            throws IOException {
+        // Create an image file name using the uuid of the item it is attached to.
+        String imageFileName = String.format(PICTURE_NAME_TEMPLATE, uuid);
+        File storageDir = FileMetadataManager.getAssetsDirectory(context, experimentId);
         File imageFile = new File(storageDir, imageFileName);
         return imageFile;
     }
@@ -81,8 +78,9 @@ public class PictureUtils {
                 });
     }
 
-    public static String capturePictureLabel(final Activity activity) {
-        return capturePictureLabel(activity, new IStartable() {
+    public static String capturePictureLabel(final Activity activity, String experimentId,
+            String uuid) {
+        return capturePictureLabel(activity, experimentId, uuid, new IStartable() {
             @Override
             public void startActivityForResult(Intent intent, int requestCode) {
                 activity.startActivityForResult(intent, requestCode);
@@ -91,26 +89,26 @@ public class PictureUtils {
     }
 
     // From http://developer.android.com/training/camera/photobasics.html.
-    private static String capturePictureLabel(Context context, IStartable startable) {
+    private static String capturePictureLabel(Context context, String experimentId, String uuid,
+            IStartable startable) {
         // Starts a picture intent.
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
             File photoFile = null;
             try {
-                photoFile = PictureUtils.createImageFile(AppSingleton.getInstance(context)
-                        .getSensorEnvironment().getDefaultClock().getNow());
+                photoFile = PictureUtils.createImageFile(context, experimentId, uuid);
             } catch (IOException ex) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, ex.getMessage());
                 }
             }
             if (photoFile != null) {
-                Uri photoUri = FileProvider.getUriForFile(context, context.getPackageName(),
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                Uri contentUri = FileProvider.getUriForFile(context,
+                        "com.google.android.apps.forscience.whistlepunk", photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri);
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                     // Needed to avoid security exception on KitKat.
-                    takePictureIntent.setClipData(ClipData.newRawUri(null, photoUri));
+                    takePictureIntent.setClipData(ClipData.newRawUri(null, contentUri));
                 }
                 takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 String pictureLabelPath = "file:" + photoFile.getAbsoluteFile();

@@ -28,12 +28,16 @@ import android.view.ViewGroup;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensors.CameraPreview;
+import com.google.common.base.Preconditions;
 
 import java.io.File;
+import java.util.UUID;
 
 import static android.content.ContentValues.TAG;
 
 public class CameraFragment extends Fragment {
+    public static final String ARG_EXPERIMENT_ID = "experimentId";
+
     public static abstract class CameraFragmentListener {
         static CameraFragmentListener NULL = new CameraFragmentListener() {
             @Override
@@ -54,8 +58,12 @@ public class CameraFragment extends Fragment {
 
     private CameraPreview mPreview = null;
 
-    public static CameraFragment newInstance() {
-        return new CameraFragment();
+    public static CameraFragment newInstance(String experimentId) {
+        Bundle args = new Bundle();
+        args.putString(ARG_EXPERIMENT_ID, experimentId);
+        CameraFragment result = new CameraFragment();
+        result.setArguments(args);
+        return result;
     }
 
     // TODO: extract this pattern of fragment listeners
@@ -92,22 +100,26 @@ public class CameraFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             Bundle savedInstanceState) {
         View inflated = inflater.inflate(R.layout.fragment_camera_tool, null);
+        String experimentId = Preconditions.checkNotNull(
+                getArguments().getString(ARG_EXPERIMENT_ID));
         mPreview = (CameraPreview) inflated.findViewById(R.id.preview);
         mPreview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final long timestamp = getTimestamp(v.getContext());
-                mPreview.takePicture(timestamp, new LoggingConsumer<File>(TAG, "taking picture") {
-                    @Override
-                    public void success(File picturePath) {
-                        String absolutePath = picturePath.getAbsolutePath();
-                        PictureLabelValue labelValue =
-                                PictureLabelValue.fromPicture(absolutePath, "");
-                        Label label = Label.newLabelWithValue(timestamp, labelValue);
-                        mListener.onPictureLabelTaken(label);
-                        PictureUtils.scanFile(absolutePath, getActivity());
-                    }
-                });
+                final String uuid = UUID.randomUUID().toString();
+                mPreview.takePicture(experimentId, uuid,
+                        new LoggingConsumer<File>(TAG, "taking picture") {
+                            @Override
+                            public void success(File picturePath) {
+                                String absolutePath = picturePath.getAbsolutePath();
+                                PictureLabelValue labelValue =
+                                        PictureLabelValue.fromPicture(absolutePath, "");
+                                Label label = Label.fromUuidAndValue(timestamp, uuid, labelValue);
+                                mListener.onPictureLabelTaken(label);
+                                PictureUtils.scanFile(absolutePath, getActivity());
+                            }
+                        });
             }
         });
         return inflated;

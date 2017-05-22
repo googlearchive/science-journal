@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 
 public class CameraPreview extends SurfaceView {
@@ -159,13 +160,13 @@ public class CameraPreview extends SurfaceView {
         }
     }
 
-    public void takePicture(long now, final MaybeConsumer<File> onSuccess) {
+    public void takePicture(String experimentId, String uuid, final MaybeConsumer<File> onSuccess) {
         // TODO: better strategy (RxJava?) to avoid these null checks
         if (mCamera == null) {
             onSuccess.fail(new IllegalStateException("No camera loaded in CameraPreview"));
         }
         try {
-            final File photoFile = PictureUtils.createImageFile(now);
+            final File photoFile = PictureUtils.createImageFile(getContext(), uuid, experimentId);
             final FileOutputStream out = new FileOutputStream(photoFile);
 
             mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
