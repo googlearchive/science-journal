@@ -114,6 +114,7 @@ public class ExperimentDetailsFragment extends Fragment
 
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
     public static final String ARG_OLDEST_AT_TOP = "oldest_at_top";
+    public static final String ARG_DISAPPEARING_ACTION_BAR = "disappearing_action_bar";
     public static final String ARG_CREATE_TASK = "create_task";
     private static final String TAG = "ExperimentDetails";
     private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
@@ -135,8 +136,9 @@ public class ExperimentDetailsFragment extends Fragment
     private ScalarDisplayOptions mScalarDisplayOptions;
     private GraphOptionsController mGraphOptionsController;
     private boolean mIncludeArchived;
-    private Toolbar mToolbar;
+    private Toolbar mControlledToolbar;
     private BroadcastReceiver mBroadcastReceiver;
+    private boolean mDisappearingActionBar;
 
     /**
      * Creates a new instance of this fragment.
@@ -147,14 +149,17 @@ public class ExperimentDetailsFragment extends Fragment
      *                          navigation.
      * @param oldestAtTop       If {@code true}, then the oldest cards should be at the _top_ of
      *                          the list, otherwise the newest are at the top.
+     * @param disappearingActionBar If {@code true}, then this fragment contains and controls the
+     *                              action bar, which should disappear when the items scroll up.
      */
     public static ExperimentDetailsFragment newInstance(String experimentId,
-            boolean createTaskStack, boolean oldestAtTop) {
+            boolean createTaskStack, boolean oldestAtTop, boolean disappearingActionBar) {
         ExperimentDetailsFragment fragment = new ExperimentDetailsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_EXPERIMENT_ID, experimentId);
         args.putBoolean(ARG_CREATE_TASK, createTaskStack);
         args.putBoolean(ARG_OLDEST_AT_TOP, oldestAtTop);
+        args.putBoolean(ARG_DISAPPEARING_ACTION_BAR, disappearingActionBar);
         fragment.setArguments(args);
         return fragment;
     }
@@ -167,6 +172,7 @@ public class ExperimentDetailsFragment extends Fragment
         super.onCreate(savedInstanceState);
         mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
         mOldestAtTop = getArguments().getBoolean(ARG_OLDEST_AT_TOP, false);
+        mDisappearingActionBar = getArguments().getBoolean(ARG_DISAPPEARING_ACTION_BAR, true);
         mHandler = new Handler(this);
         setHasOptionsMenu(true);
     }
@@ -250,8 +256,11 @@ public class ExperimentDetailsFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_experiment_details, container, false);
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
-        mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        activity.setSupportActionBar(mToolbar);
+
+        if (mDisappearingActionBar) {
+            mControlledToolbar = (Toolbar) view.findViewById(R.id.toolbar);
+            activity.setSupportActionBar(mControlledToolbar);
+        }
 
         ActionBar actionBar = activity.getSupportActionBar();
         if (actionBar != null) {
@@ -413,8 +422,18 @@ public class ExperimentDetailsFragment extends Fragment
 
     private void goToExperimentList() {
         Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
-        if (NavUtils.shouldUpRecreateTask(getActivity(), upIntent)
-                || getArguments().getBoolean(ARG_CREATE_TASK, false)) {
+        if (upIntent == null) {
+            // This is cheating a bit.  Currently, upIntent has only been observed to be null
+            // when we're using panes mode, so here we just assume usePanes==true.
+            Intent intent =
+                    MainActivity.launchIntent(getActivity(), R.id.navigation_item_experiments,
+                            true);
+            getActivity().startActivity(intent);
+            getActivity().finish();
+            return;
+        }
+        if (NavUtils.shouldUpRecreateTask(getActivity(), upIntent) || getArguments().getBoolean(
+                ARG_CREATE_TASK, false)) {
             upIntent.putExtra(MainActivity.ARG_SELECTED_NAV_ITEM_ID,
                     R.id.navigation_item_experiments);
             upIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -471,7 +490,11 @@ public class ExperimentDetailsFragment extends Fragment
                 new LoggingConsumer<Success>(TAG, "updating active experiment") {
                     @Override
                     public void success(Success value) {
-                        MainActivity.launch(getActivity(), R.id.navigation_item_observe);
+                        Context context = getActivity();
+                        boolean usePanes = false;
+                        context.startActivity(
+                                MainActivity.launchIntent(context, R.id.navigation_item_observe,
+                                        usePanes));
                     }
                 });
     }
@@ -654,7 +677,11 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     private void setToolbarScrollFlags(boolean emptyView) {
-        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+        if (mControlledToolbar == null) {
+            return;
+        }
+        AppBarLayout.LayoutParams params =
+                (AppBarLayout.LayoutParams) mControlledToolbar.getLayoutParams();
         if (emptyView) {
             // Don't scroll the toolbar if empty view is showing.
             params.setScrollFlags(0);
@@ -662,7 +689,7 @@ public class ExperimentDetailsFragment extends Fragment
             params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
                     | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
         }
-        mToolbar.setLayoutParams(params);
+        mControlledToolbar.setLayoutParams(params);
     }
 
     public String getExperimentId() {

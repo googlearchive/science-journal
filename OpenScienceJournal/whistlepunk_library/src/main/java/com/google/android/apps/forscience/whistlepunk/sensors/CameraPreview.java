@@ -175,6 +175,7 @@ public class CameraPreview extends SurfaceView {
                         out.write(data);
                         out.close();
                         onSuccess.success(photoFile);
+                        mCamera.startPreview();
                     } catch (IOException e) {
                         onSuccess.fail(e);
                     }

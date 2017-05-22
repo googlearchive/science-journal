@@ -43,15 +43,13 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
+import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
@@ -70,12 +68,16 @@ public class ExperimentListFragment extends Fragment {
      * Boolen extra for savedInstanceState with the state of includeArchived experiments.
      */
     private static final String EXTRA_INCLUDE_ARCHIVED = "includeArchived";
+    private static final String ARG_USE_PANES = "usePanes";
 
     private ExperimentListAdapter mExperimentListAdapter;
     private boolean mIncludeArchived;
 
-    public static ExperimentListFragment newInstance() {
+    public static ExperimentListFragment newInstance(boolean usePanes) {
         ExperimentListFragment fragment = new ExperimentListFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(ARG_USE_PANES, usePanes);
+        fragment.setArguments(args);
         return fragment;
     }
 
@@ -117,7 +119,8 @@ public class ExperimentListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_experiment_list, container, false);
         final RecyclerView detailList = (RecyclerView) view.findViewById(R.id.details);
 
-        mExperimentListAdapter = new ExperimentListAdapter(getActivity(), getDataController());
+        mExperimentListAdapter = new ExperimentListAdapter(getActivity(), getDataController(),
+                shouldUsePanes());
         detailList.setLayoutManager(new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false));
         detailList.setAdapter(mExperimentListAdapter);
@@ -140,6 +143,10 @@ public class ExperimentListFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private boolean shouldUsePanes() {
+        return getArguments().getBoolean(ARG_USE_PANES, false);
     }
 
     private void loadExperiments() {
@@ -201,12 +208,14 @@ public class ExperimentListFragment extends Fragment {
         private DataController mDataController;
 
         private List<GoosciSharedMetadata.ExperimentOverview> mExperiments;
+        private boolean mShouldUsePanes;
 
-        public ExperimentListAdapter(Context context, DataController dc) {
+        public ExperimentListAdapter(Context context, DataController dc, boolean shouldUsePanes) {
             mExperiments = new ArrayList<>();
             mPlaceHolderImage = context.getResources().getDrawable(
                     R.drawable.placeholder_experiment);
             mDataController = dc;
+            mShouldUsePanes = shouldUsePanes;
         }
 
         void setData(List<GoosciSharedMetadata.ExperimentOverview> experiments) {
@@ -285,7 +294,11 @@ public class ExperimentListFragment extends Fragment {
             holder.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ExperimentDetailsActivity.launch(v.getContext(), experiment.experimentId);
+                    if (mShouldUsePanes) {
+                        PanesActivity.launch(v.getContext(), experiment.experimentId);
+                    } else {
+                        ExperimentDetailsActivity.launch(v.getContext(), experiment.experimentId);
+                    }
                 }
             });
 

@@ -17,6 +17,8 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -37,6 +39,14 @@ import io.reactivex.subjects.BehaviorSubject;
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
         AddNoteDialog.ListenerProvider, CameraFragment.ListenerProvider {
     private static final String TAG = "PanesActivity";
+    private static final String EXTRA_EXPERIMENT_ID = "experimentId";
+
+    public static void launch(Context context, String experimentId) {
+        Intent intent = new Intent(context, PanesActivity.class);
+        intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
+        context.startActivity(intent);
+    }
+
     private ExperimentDetailsFragment mExperimentFragment = null;
     private AddNoteDialog mAddNoteDialog = null;
 
@@ -78,42 +88,52 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         };
         pager.setAdapter(adapter);
 
-        getMetadataController().addExperimentChangeListener(TAG,
-                new MetadataController.MetadataChangeListener() {
-                    @Override
-                    public void onMetadataChanged(Experiment activeExperiment) {
-                        mActiveExperiment.onNext(activeExperiment);
-                        String experimentId = activeExperiment.getExperimentId();
-                        setExperimentFragmentId(experimentId);
-                        setNoteFragmentId(experimentId);
-                    }
+        mActiveExperiment.subscribe(experiment -> {
+            String experimentId = experiment.getExperimentId();
+            setExperimentFragmentId(experimentId);
+            setNoteFragmentId(adapter, experimentId);
+        });
 
-                    private void setExperimentFragmentId(String experimentId) {
-                        if (mExperimentFragment == null) {
-                            boolean createTaskStack = false;
-                            boolean oldestAtTop = true;
-                            mExperimentFragment =
-                                    ExperimentDetailsFragment.newInstance(experimentId,
-                                            createTaskStack, oldestAtTop);
-
-                            FragmentManager fragmentManager = getFragmentManager();
-                            fragmentManager.beginTransaction()
-                                           .replace(R.id.experiment_pane, mExperimentFragment)
-                                           .commit();
-                        } else {
-                            mExperimentFragment.setExperimentId(experimentId);
+        String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
+        if (experimentId == null) {
+            getMetadataController().addExperimentChangeListener(TAG,
+                    new MetadataController.MetadataChangeListener() {
+                        @Override
+                        public void onMetadataChanged(Experiment activeExperiment) {
+                            mActiveExperiment.onNext(activeExperiment);
                         }
-                    }
+                    });
+        } else {
+            getDataController().getExperimentById(experimentId,
+                    MaybeConsumers.fromObserver(mActiveExperiment));
+        }
+    }
 
-                    private void setNoteFragmentId(String experimentId) {
-                        if (mAddNoteDialog == null) {
-                            mAddNoteDialog = makeNoteFragment(experimentId);
-                            adapter.notifyDataSetChanged();
-                        } else {
-                            mAddNoteDialog.setExperimentId(experimentId);
-                        }
-                    }
-                });
+    private void setExperimentFragmentId(String experimentId) {
+        if (mExperimentFragment == null) {
+            boolean createTaskStack = false;
+            boolean oldestAtTop = true;
+            boolean disappearingActionBar = false;
+            mExperimentFragment =
+                    ExperimentDetailsFragment.newInstance(experimentId,
+                            createTaskStack, oldestAtTop, disappearingActionBar);
+
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                           .replace(R.id.experiment_pane, mExperimentFragment)
+                           .commit();
+        } else {
+            mExperimentFragment.setExperimentId(experimentId);
+        }
+    }
+
+    private void setNoteFragmentId(FragmentPagerAdapter adapter, String experimentId) {
+        if (mAddNoteDialog == null) {
+            mAddNoteDialog = makeNoteFragment(experimentId);
+            adapter.notifyDataSetChanged();
+        } else {
+            mAddNoteDialog.setExperimentId(experimentId);
+        }
     }
 
     private AddNoteDialog makeNoteFragment(String experimentId) {

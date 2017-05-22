@@ -20,6 +20,7 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleObserver;
@@ -265,6 +266,29 @@ public class MaybeConsumers {
             @Override
             public void onError(@NonNull Throwable e) {
                 c.fail(new RuntimeException(e));
+            }
+        };
+    }
+
+    /**
+     * Allows a function that takes a MaybeConsumer to pipe a single success value to the given
+     * Observer (which may also be accepting values from other places)
+     *
+     * @return a {@link MaybeConsumer<T>} that pipes {@link MaybeConsumer#success(Object)}
+     * to {@link Observer#onNext(Object)}, and {@link MaybeConsumer#fail(Exception)} to
+     * {@link Observer#onError(Throwable)}
+     */
+    public static <T> MaybeConsumer<T> fromObserver(Observer<T> o) {
+        return new MaybeConsumer<T>() {
+            @Override
+            public void success(T value) {
+                o.onNext(value);
+                o.onComplete();
+            }
+
+            @Override
+            public void fail(Exception e) {
+                o.onError(e);
             }
         };
     }

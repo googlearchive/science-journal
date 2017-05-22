@@ -47,6 +47,8 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 
+import io.reactivex.subjects.BehaviorSubject;
+
 /**
  * Fragment for saving/updating experiment detials (title, description...etc).
  */
@@ -71,9 +73,7 @@ public class UpdateExperimentFragment extends Fragment {
     public static final String ARG_PARENT_COMPONENT = "parent_component";
 
     private String mExperimentId;
-    private Experiment mExperiment;
-    private TextView mExperimentTitle;
-    private TextView mExperimentDescription;
+    private BehaviorSubject<Experiment> mExperiment = BehaviorSubject.create();
     private ComponentName mParentComponent;
     private boolean mWasEdited;
 
@@ -133,53 +133,53 @@ public class UpdateExperimentFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_update_experiment, container, false);
-        mExperimentTitle = (EditText) view.findViewById(R.id.experiment_title);
-        mExperimentDescription = (EditText) view.findViewById(R.id.experiment_description);
-        mExperimentTitle.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        EditText title = (EditText) view.findViewById(R.id.experiment_title);
+        EditText description = (EditText) view.findViewById(R.id.experiment_description);
 
-            }
+        mExperiment.subscribe(experiment -> {
+            title.setText(experiment.getTitle());
+            description.setText(experiment.getDescription());
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (mExperiment == null) {
-                    return;
+            title.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
                 }
-                if (!s.toString().equals(mExperiment.getTitle())) {
-                    mExperiment.setTitle(s.toString().trim());
-                    saveExperiment();
-                    mWasEdited = true;
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (!s.toString().equals(experiment.getTitle())) {
+                        experiment.setTitle(s.toString().trim());
+                        saveExperiment();
+                        mWasEdited = true;
+                    }
                 }
-            }
 
-            @Override
-            public void afterTextChanged(Editable s) {
+                @Override
+                public void afterTextChanged(Editable s) {
 
-            }
-        });
-        mExperimentDescription.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (mExperiment == null) {
-                    return;
                 }
-                if (!s.toString().equals(mExperiment.getDescription())) {
-                    mExperiment.setDescription(s.toString().trim());
-                    saveExperiment();
-                    mWasEdited = true;
+            });
+            description.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
                 }
-            }
 
-            @Override
-            public void afterTextChanged(Editable s) {
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (!s.toString().equals(experiment.getDescription())) {
+                        experiment.setDescription(s.toString().trim());
+                        saveExperiment();
+                        mWasEdited = true;
+                    }
+                }
 
-            }
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
         });
         return view;
     }
@@ -211,7 +211,7 @@ public class UpdateExperimentFragment extends Fragment {
             if (isNewExperiment()) {
                 // We should delete the experiment: user killed it without saving.
                 // TODO: warn the user if they edited anything.
-                deleteExperiment();
+                mExperiment.firstElement().subscribe(e -> deleteExperiment(e));
             } else {
                 goToParent();
             }
@@ -232,10 +232,8 @@ public class UpdateExperimentFragment extends Fragment {
         return getArguments().getBoolean(ARG_NEW, false);
     }
 
-    private void attachExperimentDetails(Experiment experiment) {
-        mExperiment = experiment;
-        mExperimentTitle.setText(experiment.getTitle());
-        mExperimentDescription.setText(experiment.getDescription());
+    private void attachExperimentDetails(final Experiment experiment) {
+        mExperiment.onNext(experiment);
         mWasEdited = false;
     }
 
@@ -275,8 +273,8 @@ public class UpdateExperimentFragment extends Fragment {
                 });
     }
 
-    private void deleteExperiment() {
-        getDataController().deleteExperiment(mExperiment, new LoggingConsumer<Success>(TAG,
+    private void deleteExperiment(Experiment experiment) {
+        getDataController().deleteExperiment(experiment, new LoggingConsumer<Success>(TAG,
                 "Deleting new experiment") {
             @Override
             public void success(Success value) {
