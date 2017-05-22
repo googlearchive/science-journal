@@ -61,7 +61,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
         // If we add new on-device sensors/icons, they need to be added here.
 
         // TODO: add these when the sensors are added to the adapter?
-        putAppearance(AccelerometerSensor.Axis.X.getSensorId(), new BuiltInSensorAppearance(
+        putAppearance(AccelerometerSensor.Axis.X.getSensorId(), BuiltInSensorAppearance.create(
                 R.string.acc_x, R.drawable.ic_sensor_acc_x_white_24dp, R.string.acc_units,
                 R.string.sensor_desc_short_acc_x, R.string.sensor_desc_first_paragraph_acc,
                 R.string.sensor_desc_second_paragraph_acc, R.drawable.learnmore_acc,
@@ -69,7 +69,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                         SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
-        putAppearance(AccelerometerSensor.Axis.Y.getSensorId(), new BuiltInSensorAppearance(
+        putAppearance(AccelerometerSensor.Axis.Y.getSensorId(), BuiltInSensorAppearance.create(
                 R.string.acc_y, R.drawable.ic_sensor_acc_y_white_24dp, R.string.acc_units,
                 R.string.sensor_desc_short_acc_y, R.string.sensor_desc_first_paragraph_acc,
                 R.string.sensor_desc_second_paragraph_acc, R.drawable.learnmore_acc,
@@ -77,7 +77,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                         SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
-        putAppearance(AccelerometerSensor.Axis.Z.getSensorId(), new BuiltInSensorAppearance(
+        putAppearance(AccelerometerSensor.Axis.Z.getSensorId(), BuiltInSensorAppearance.create(
                 R.string.acc_z, R.drawable.ic_sensor_acc_z_white_24dp, R.string.acc_units,
                 R.string.sensor_desc_short_acc_z, R.string.sensor_desc_first_paragraph_acc,
                 R.string.sensor_desc_second_paragraph_acc, R.drawable.learnmore_acc,
@@ -85,7 +85,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                     SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
-        putAppearance(AmbientLightSensor.ID, new BuiltInSensorAppearance(R.string.ambient_light,
+        putAppearance(AmbientLightSensor.ID, BuiltInSensorAppearance.create(R.string.ambient_light,
                 R.drawable.ic_sensor_light_white_24dp, R.string.ambient_light_units,
                 R.string.sensor_desc_short_light, R.string.sensor_desc_first_paragraph_light,
                 R.string.sensor_desc_second_paragraph_light, R.drawable.learnmore_light,
@@ -93,7 +93,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                     SensorAnimationBehavior.TYPE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
-        putAppearance(MagneticRotationSensor.ID, new BuiltInSensorAppearance(R.string.magnetic_rotation,
+        putAppearance(MagneticRotationSensor.ID, BuiltInSensorAppearance.create(R.string.magnetic_rotation,
                 R.drawable.ic_sensor_magnetometer_white_24dp, R.string.magnetic_rotation_units,
                 R.string.sensor_desc_short_magnetic_rotation,
                 R.string.sensor_desc_first_paragraph_magnetic_rotation,
@@ -103,7 +103,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                         SensorAnimationBehavior.TYPE_ROTATION),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
-        putAppearance(DecibelSensor.ID, new BuiltInSensorAppearance(R.string.decibel,
+        putAppearance(DecibelSensor.ID, BuiltInSensorAppearance.create(R.string.decibel,
                 R.drawable.ic_sensor_decibels_white_24dp, R.string.decibel_units,
                 R.string.sensor_desc_short_decibel, R.string.sensor_desc_first_paragraph_decibel,
                 R.string.sensor_desc_second_paragraph_decibel, R.drawable.learnmore_sound,
@@ -111,7 +111,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                     SensorAnimationBehavior.TYPE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
-        putAppearance(BarometerSensor.ID, new BuiltInSensorAppearance(R.string.barometer,
+        putAppearance(BarometerSensor.ID, BuiltInSensorAppearance.create(R.string.barometer,
                 R.drawable.ic_sensor_barometer_white_24dp, R.string.barometer_units,
                 R.string.sensor_desc_short_barometer,
                 R.string.sensor_desc_first_paragraph_barometer,
