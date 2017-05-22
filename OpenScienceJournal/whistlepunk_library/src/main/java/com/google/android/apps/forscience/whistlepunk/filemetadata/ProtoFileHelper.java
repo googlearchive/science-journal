@@ -33,9 +33,7 @@ public class ProtoFileHelper<T extends MessageNano> {
     private static final String TAG = "ProtoFileHelper";
 
     public boolean readFromFile(File file, T protoToPopulate) {
-        FileInputStream inputStream;
-        try {
-            inputStream = new FileInputStream(file);
+        try (FileInputStream inputStream = new FileInputStream(file)) {
             byte[] bytes = new byte[(int) file.length()];
             inputStream.read(bytes);
             MessageNano.mergeFrom(protoToPopulate, bytes);
@@ -49,11 +47,8 @@ public class ProtoFileHelper<T extends MessageNano> {
     }
 
     public boolean writeToFile(File file, T protoToWrite) {
-        FileOutputStream outputStream;
-        try {
-            outputStream = new FileOutputStream(file);
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
             outputStream.write(MessageNano.toByteArray(protoToWrite));
-            outputStream.close();
             return true;
         } catch (IOException ex) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
