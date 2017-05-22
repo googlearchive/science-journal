@@ -72,10 +72,15 @@ public class PictureLabelValue extends LabelValue {
         return "";
     }
 
+    // The caption within the PictureLabelValue is no longer used.
+    @Deprecated
     public void setCaption(String caption) {
         populateLabelValue(getValue(), getFilePath(), caption);
     }
 
+    // The caption within the PictureLabelValue is no longer used.
+    @Deprecated
+    @VisibleForTesting
     public String getCaption() {
         return getCaption(getValue());
     }
@@ -86,6 +91,13 @@ public class PictureLabelValue extends LabelValue {
             return value.data[INDEX_CAPTION].value;
         }
         return "";
+    }
+
+    public static void clearCaption(GoosciLabelValue.LabelValue value) {
+        if (value.data.length > INDEX_CAPTION &&
+                TextUtils.equals(value.data[INDEX_CAPTION].key, KEY_CAPTION)) {
+            value.data[INDEX_CAPTION].value = "";
+        }
     }
 
     public static void populateLabelValue(GoosciLabelValue.LabelValue value, String path,

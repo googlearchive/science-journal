@@ -53,18 +53,30 @@ public class SensorTriggerLabelValue extends LabelValue {
         return false;
     }
 
+    // The custom text within the SensorTriggerLabelValue is no longer used.
+    @Deprecated
     public void setCustomText(String text) {
         GoosciLabelValue.LabelValue value = getValue();
         if (value == null || value.data.length == 0) {
-            createDataFields(value);
+            setValue(new GoosciLabelValue.LabelValue());
+            createDataFields(getValue());
         }
         value.data[INDEX_CUSTOM_STRING].key = KEY_CUSTOM_STRING;
         value.data[INDEX_CUSTOM_STRING].value = text;
         setValue(value);
     }
 
+    // The custom text within the SensorTriggerLabelValue is no longer used.
+    @Deprecated
     public String getCustomText() {
         return getCustomText(getValue());
+    }
+
+    public static void clearCustomText(GoosciLabelValue.LabelValue value) {
+        if (value.data.length > INDEX_CUSTOM_STRING &&
+                TextUtils.equals(value.data[INDEX_CUSTOM_STRING].key, KEY_CUSTOM_STRING)) {
+            value.data[INDEX_CUSTOM_STRING].value = "";
+        }
     }
 
     public static String getCustomText(GoosciLabelValue.LabelValue value) {
@@ -117,8 +129,7 @@ public class SensorTriggerLabelValue extends LabelValue {
             Context context) {
         GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
         createDataFields(value);
-        String noteText = value.data[INDEX_AUTOGEN_STRING].value =
-                generateAutoNoteText(trigger, context);
+        String noteText = generateAutoNoteText(trigger, context);
         populateLabelValue(value, trigger, noteText);
         return value;
     }

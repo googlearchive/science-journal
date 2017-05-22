@@ -23,6 +23,7 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -91,6 +92,9 @@ public class Label implements Parcelable {
         Label result = Label.CREATOR.createFromParcel(parcel);
         result.getLabelProto().creationTimeMs = System.currentTimeMillis();
         result.getLabelProto().labelId = java.util.UUID.randomUUID().toString();
+        if (result.getLabelProto().caption != null) {
+            result.getLabelProto().caption.lastEditedTimestamp = System.currentTimeMillis();
+        }
         return result;
     }
 
@@ -171,6 +175,17 @@ public class Label implements Parcelable {
             result |= mLabelValues.get(type).canEditTimestamp();
         }
         return result;
+    }
+
+    public String getCaptionText() {
+        if (mLabel.caption == null) {
+            return "";
+        }
+        return mLabel.caption.text;
+    }
+
+    public void setCaption(GoosciCaption.Caption caption) {
+        mLabel.caption = caption;
     }
 
     /**

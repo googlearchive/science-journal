@@ -757,9 +757,8 @@ public class ExperimentDetailsFragment extends Fragment
                         R.id.auto_note_text);
                 final Label label = mItems.get(position).mLabel;
                 final LabelValue labelValue = mItems.get(position).mLabelValue;
-                String text = isPictureLabel ? ((PictureLabelValue) labelValue).getCaption() :
-                        isTextLabel ? ((TextLabelValue) labelValue).getText() :
-                        ((SensorTriggerLabelValue) labelValue).getCustomText();
+                String text = isPictureLabel || isTriggerLabel ? label.getCaptionText() :
+                        ((TextLabelValue) labelValue).getText();
                 if (!TextUtils.isEmpty(text)) {
                     textView.setText(text);
                     textView.setTextColor(textView.getResources().getColor(

@@ -43,6 +43,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataM
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
@@ -1075,7 +1076,24 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 goosciLabel.timestampMs = timestamp;
                 goosciLabel.creationTimeMs = timestamp;
                 if (value != null) {
-                    // Add new types of labels to this list.
+                    // Add new types of labels to this list, upgrading to Captions where appropriate
+                    if (TextUtils.equals(type, PICTURE_LABEL_TAG) ||
+                            TextUtils.equals(type, SENSOR_TRIGGER_LABEL_TAG)) {
+                        GoosciCaption.Caption caption = new GoosciCaption.Caption();
+                        caption.lastEditedTimestamp = timestamp;
+                        if (TextUtils.equals(type, PICTURE_LABEL_TAG)) {
+                            caption.text = PictureLabelValue.getCaption(value);
+                            // No need to save this in the label value now that it is a caption.
+                            PictureLabelValue.clearCaption(value);
+                            value.type = GoosciLabelValue.LabelValue.PICTURE;
+                        } else if (TextUtils.equals(type, SENSOR_TRIGGER_LABEL_TAG)) {
+                            caption.text = SensorTriggerLabelValue.getCustomText(value);
+                            // No need to save this in the label value now that it is a caption.
+                            SensorTriggerLabelValue.clearCustomText(value);
+                            value.type = GoosciLabelValue.LabelValue.SENSOR_TRIGGER;
+                        }
+                        goosciLabel.caption = caption;
+                    }
                     goosciLabel.values = new GoosciLabelValue.LabelValue[1];
                     goosciLabel.values[0] = value;
                 } else {

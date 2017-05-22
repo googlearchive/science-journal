@@ -40,7 +40,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -154,7 +154,7 @@ public class EditNoteDialog extends DialogFragment {
         if (mLabel.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
             imageView.setVisibility(View.VISIBLE);
             autoTextView.setVisibility(View.GONE);
-            editText.setText(PictureLabelValue.getCaption(mSelectedValue));
+            editText.setText(mLabel.getCaptionText());
             editText.setHint(R.string.picture_note_caption_hint);
             Glide.with(getActivity())
                     .load(PictureLabelValue.getFilePath(mSelectedValue))
@@ -173,7 +173,7 @@ public class EditNoteDialog extends DialogFragment {
         } else if (mLabel.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
             imageView.setVisibility(View.GONE);
             autoTextView.setVisibility(View.VISIBLE);
-            editText.setText(SensorTriggerLabelValue.getCustomText(mSelectedValue));
+            editText.setText(mLabel.getCaptionText());
             String autoText = SensorTriggerLabelValue.getAutogenText(mSelectedValue);
             TriggerHelper.populateAutoTextViews(autoTextView, autoText,
                     R.drawable.ic_label_black_24dp, getResources());
@@ -188,14 +188,12 @@ public class EditNoteDialog extends DialogFragment {
                             ((TextLabelValue) mLabel.getLabelValue(
                                     GoosciLabelValue.LabelValue.TEXT)).setText(
                                             editText.getText().toString());
-                        } else if (mLabel.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-                            ((PictureLabelValue) mLabel.getLabelValue(
-                                    GoosciLabelValue.LabelValue.PICTURE)).setCaption(
-                                            editText.getText().toString());
-                        } else if (mLabel.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
-                            ((SensorTriggerLabelValue) mLabel.getLabelValue(
-                                    GoosciLabelValue.LabelValue.SENSOR_TRIGGER)).setCustomText(
-                                    editText.getText().toString());
+                        } else if (mLabel.hasValueType(GoosciLabelValue.LabelValue.PICTURE) ||
+                                mLabel.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
+                            GoosciCaption.Caption caption = new GoosciCaption.Caption();
+                            caption.text = editText.getText().toString();
+                            caption.lastEditedTimestamp = mTimestamp;
+                            mLabel.setCaption(caption);
                         }
                         if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
                             mExperiment.updateLabel(mLabel);
