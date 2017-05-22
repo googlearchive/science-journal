@@ -144,7 +144,7 @@ public class EditTriggerFragment extends Fragment {
                         mExperiment = value;
                         String triggerId = getArguments().getString(ARG_TRIGGER_ID, "");
                         mTriggerToEdit = mExperiment.getSensorTrigger(triggerId);
-                        populateView();
+                        populateView(getView());
                     }
                 });
     }
@@ -169,11 +169,14 @@ public class EditTriggerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_trigger_edit, parent, false);
         setHasOptionsMenu(true);
+        populateView(view);
         return view;
     }
 
-    private void populateView() {
-        View view = getView();
+    private void populateView(View view) {
+        if (view == null) {
+            return;
+        }
 
         mNoteGroup = (ViewGroup) view.findViewById(R.id.note_type_trigger_section);
         mAlertGroup = (ViewGroup) view.findViewById(R.id.alert_type_trigger_section);
