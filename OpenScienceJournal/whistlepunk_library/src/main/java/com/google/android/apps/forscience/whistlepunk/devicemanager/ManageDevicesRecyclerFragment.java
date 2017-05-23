@@ -75,8 +75,8 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
 
         UsageTracker tracker = WhistlePunkApplication.getUsageTracker(getActivity());
         mRegistry = new ConnectableSensorRegistry(dc, discoverers, this, new SystemScheduler(),
-                new CurrentTimeClock(), ManageDevicesActivity.getOptionsListener(this
-                .getActivity()), deviceRegistry, appearanceProvider, tracker);
+                new CurrentTimeClock(), ManageDevicesActivity.getOptionsListener(getActivity()),
+                deviceRegistry, appearanceProvider, tracker, appSingleton.getSensorConnector());
         mSensorRegistry = appSingleton.getSensorRegistry();
 
         mMyDevices = ExpandableDeviceAdapter.createEmpty(mRegistry, deviceRegistry,

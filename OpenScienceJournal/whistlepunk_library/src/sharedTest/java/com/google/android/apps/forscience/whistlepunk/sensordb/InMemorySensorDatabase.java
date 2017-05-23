@@ -18,10 +18,10 @@ package com.google.android.apps.forscience.whistlepunk.sensordb;
 
 import android.support.annotation.NonNull;
 
-import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.common.annotations.VisibleForTesting;
@@ -59,7 +59,7 @@ public class InMemorySensorDatabase implements SensorDatabase {
             Map<String, ExternalSensorProvider> providerMap) {
         return new DataControllerImpl(this, MoreExecutors.directExecutor(),
                 MoreExecutors.directExecutor(), MoreExecutors.directExecutor(), manager,
-                new MonotonicClock(), providerMap);
+                new MonotonicClock(), providerMap, new ConnectableSensor.Connector());
     }
 
     @Override

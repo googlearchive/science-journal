@@ -56,9 +56,11 @@ public class ExpandableDeviceAdapterTest {
     private final MemorySensorGroup mPairedDevices = new MemorySensorGroup(mDeviceRegistry);
     private final TestDevicesPresenter mPresenter = new TestDevicesPresenter(mAvailableDevices,
             mPairedDevices);
+
+    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector();
     private ConnectableSensorRegistry mSensorRegistry = new ConnectableSensorRegistry(
             mDataController, mDiscoverers, mPresenter, null, null, null,
-            mDeviceRegistry, null, UsageTracker.STUB);
+            mDeviceRegistry, null, UsageTracker.STUB, mConnector);
     private Scenario mScenario = new Scenario();
 
     private class Scenario {
@@ -100,7 +102,7 @@ public class ExpandableDeviceAdapterTest {
 
         @NonNull
         private ConnectableSensor makeConnectedSensorNewDevice() {
-            return ConnectableSensor.connected(makeSensorNewDevice(), newConnectedSensorId());
+            return mConnector.connected(makeSensorNewDevice(), newConnectedSensorId());
         }
 
 
@@ -142,7 +144,7 @@ public class ExpandableDeviceAdapterTest {
         ConnectableSensor sensor = mScenario.makeConnectedSensorNewDevice();
         adapter.addSensor(mScenario.newSensorKey(), sensor);
 
-        ConnectableSensor builtInSensor = ConnectableSensor.builtIn("builtInId", true);
+        ConnectableSensor builtInSensor = mConnector.builtIn("builtInId", true);
         adapter.addSensor(mScenario.newSensorKey(), builtInSensor);
 
         assertEquals(2, adapter.getParentItemList().size());
@@ -167,7 +169,7 @@ public class ExpandableDeviceAdapterTest {
         // Same device, new sensor
         ScalarInputSpec sis2 = mScenario.makeSensorSameDevice(sensor1.getSpec());
         String id2 = Arbitrary.string(sensor1.getConnectedSensorId());
-        adapter.addSensor(mScenario.newSensorKey(), ConnectableSensor.connected(sis2, id2));
+        adapter.addSensor(mScenario.newSensorKey(), mConnector.connected(sis2, id2));
 
         assertEquals(1, adapter.getParentItemList().size());
         assertEquals(2, adapter.getParentItemList().get(0).getChildItemList().size());
@@ -198,7 +200,7 @@ public class ExpandableDeviceAdapterTest {
         ScalarInputSpec replacement = mScenario.makeSensorSameDevice(sensor1.getSpec());
 
         adapter.addSensor(key,
-                ConnectableSensor.connected(replacement, sensor1.getConnectedSensorId()));
+                mConnector.connected(replacement, sensor1.getConnectedSensorId()));
 
         ConnectableSensor sensor = adapter.getSensor(0, 0);
 
@@ -215,16 +217,16 @@ public class ExpandableDeviceAdapterTest {
         // Replace only sensor of second device
         ScalarInputSpec newReplace = mScenario.makeSensorSameDevice(newSensor.getSpec());
         adapter.addSensor(newKey,
-                ConnectableSensor.connected(newReplace, newSensor.getConnectedSensorId()));
+                mConnector.connected(newReplace, newSensor.getConnectedSensorId()));
         observer.assertMostRecentNotification("Changed 2 at 2 [null]");
 
         ScalarInputSpec sensor3 = mScenario.makeSensorSameDevice(newReplace);
         String key3 = mScenario.newSensorKey();
-        adapter.addSensor(key3, ConnectableSensor.connected(sensor3, "connectedId3"));
+        adapter.addSensor(key3, mConnector.connected(sensor3, "connectedId3"));
 
         // Replace second sensor of second device
         ScalarInputSpec replace3 = mScenario.makeSensorSameDevice(sensor3);
-        adapter.addSensor(key3, ConnectableSensor.connected(replace3, "connectedId3"));
+        adapter.addSensor(key3, mConnector.connected(replace3, "connectedId3"));
         observer.assertMostRecentNotification("Changed 3 at 2 [null]");
     }
 
@@ -251,7 +253,7 @@ public class ExpandableDeviceAdapterTest {
                 null);
         ConnectableSensorRegistry sensorRegistry = new ConnectableSensorRegistry(
                 mDataController, mDiscoverers, presenter, null, null, null,
-                mDeviceRegistry, null, UsageTracker.STUB);
+                mDeviceRegistry, null, UsageTracker.STUB, mConnector);
         ExpandableDeviceAdapter adapter = ExpandableDeviceAdapter.createEmpty(sensorRegistry,
                 mDeviceRegistry, null, mSensors, 0);
         presenter.setPairedDevices(adapter);
@@ -275,9 +277,9 @@ public class ExpandableDeviceAdapterTest {
         adapter.getMenuCallbacks().forgetDevice(device);
 
         // Make sure the built-in sensor is added to the experiment
-        ExperimentSensors sensors = mMetadataManager.getExperimentExternalSensors(
-                experiment.getExperimentId(),
-                Maps.<String, ExternalSensorProvider>newHashMap());
+        ExperimentSensors sensors =
+                mMetadataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                        Maps.<String, ExternalSensorProvider>newHashMap(), mConnector);
         List<ConnectableSensor> included = sensors.getIncludedSensors();
         assertEquals(1, included.size());
         assertEquals("builtInId", included.get(0).getConnectedSensorId());

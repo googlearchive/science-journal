@@ -15,13 +15,10 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import static org.junit.Assert.assertEquals;
-
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.RecordingUsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -31,13 +28,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+
 public class SensorRegistryUnitTest {
     @Test
     public void addApiSensorsOnlyOnce() {
         SensorRegistry registry = new SensorRegistry();
 
-        List<ConnectableSensor> sensors = Lists.newArrayList(ConnectableSensor.connected(
-                new ScalarInputSpec("name", "serviceId", "address", null, null, "devId"), "id"));
+        List<ConnectableSensor> sensors = Lists.newArrayList(
+                new ConnectableSensor.Connector().connected(
+                        new ScalarInputSpec("name", "serviceId", "address", null, null, "devId"),
+                        "id"));
 
         assertEquals(Lists.newArrayList("id"),
                 registry.updateExternalSensors(sensors, getProviders()));

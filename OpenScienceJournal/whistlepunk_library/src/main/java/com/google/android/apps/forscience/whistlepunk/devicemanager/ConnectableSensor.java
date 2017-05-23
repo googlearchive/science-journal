@@ -32,25 +32,42 @@ public class ConnectableSensor {
     private boolean mIncluded;
 
     /**
-     * Create an entry for an external sensor we've connected to in the past
+     * Manages creating representations of connected and disconnected sensors from stored
+     * configurations.
      */
-    public static ConnectableSensor connected(ExternalSensorSpec spec, String connectedSensorId) {
-        return new ConnectableSensor(spec, connectedSensorId, connectedSensorId != null);
-    }
+    public static class Connector {
+        /**
+         * Create an entry for an external sensor we've connected to in the past
+         */
+        public ConnectableSensor connected(ExternalSensorSpec spec, String connectedSensorId) {
+            return new ConnectableSensor(spec, connectedSensorId, connectedSensorId != null);
+        }
 
-    /**
-     * Create an entry for an external sensor we've never connected to
-     */
-    public static ConnectableSensor disconnected(ExternalSensorSpec spec) {
-        return new ConnectableSensor(spec, null, false);
-    }
+        /**
+         * Create an entry for an external sensor we've never connected to
+         */
+        public ConnectableSensor disconnected(ExternalSensorSpec spec) {
+            return new ConnectableSensor(spec, null, false);
+        }
 
-    /**
-     * Create an entry for an internal built-in sensor that we know how to retrieve from {@link
-     * com.google.android.apps.forscience.whistlepunk.SensorRegistry}
-     */
-    public static ConnectableSensor builtIn(String sensorId, boolean included) {
-        return new ConnectableSensor(null, sensorId, included);
+        /**
+         * Create an entry for an internal built-in sensor that we know how to retrieve from {@link
+         * com.google.android.apps.forscience.whistlepunk.SensorRegistry}
+         */
+        public ConnectableSensor builtIn(String sensorId, boolean included) {
+            return new ConnectableSensor(null, sensorId, included);
+        }
+
+        /**
+         * @return a new ConnectableSensor that's like this one, but in a disconnected state.
+         */
+        public ConnectableSensor asDisconnected(ConnectableSensor sensor) {
+            if (sensor.isBuiltIn()) {
+                return builtIn(sensor.mConnectedSensorId, false);
+            } else {
+                return disconnected(sensor.mSpec);
+            }
+        }
     }
 
     /**
@@ -170,16 +187,4 @@ public class ConnectableSensor {
     public boolean isBuiltIn() {
         return mSpec == null;
     }
-
-    /**
-     * @return a new ConnectableSensor that's like this one, but in a disconnected state.
-     */
-    public ConnectableSensor asDisconnected() {
-        if (isBuiltIn()) {
-            return ConnectableSensor.builtIn(mConnectedSensorId, false);
-        } else {
-            return ConnectableSensor.disconnected(mSpec);
-        }
-    }
-
 }

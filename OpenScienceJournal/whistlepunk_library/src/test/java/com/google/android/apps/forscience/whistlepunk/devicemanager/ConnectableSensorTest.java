@@ -15,8 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import static org.junit.Assert.assertEquals;
-
 import android.content.Context;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
@@ -33,7 +31,11 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+
 public class ConnectableSensorTest {
+    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector();
+
     public static class MemoryAppearanceProvider implements SensorAppearanceProvider {
         private Map<String, SensorAppearance> mAppearances = new HashMap<>();
 
@@ -55,7 +57,7 @@ public class ConnectableSensorTest {
     @Test
     public void getNameExternal() {
         InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "address", "name");
-        SensorAppearance appearance = ConnectableSensor.disconnected(spec).getAppearance(null);
+        SensorAppearance appearance = mConnector.disconnected(spec).getAppearance(null);
         assertEquals("name", appearance.getName(null));
     }
 
@@ -70,7 +72,6 @@ public class ConnectableSensorTest {
             }
         });
 
-        assertEquals(sensorName, ConnectableSensor.builtIn("sid", false).getAppearance(map).getName(
-                null));
+        assertEquals(sensorName, mConnector.builtIn("sid", false).getAppearance(map).getName(null));
     }
 }

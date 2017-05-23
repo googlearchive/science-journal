@@ -57,6 +57,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
     private SimpleMetaDataManager mMetaDataManager;
     private TestSystemClock mTestSystemClock;
+    private ConnectableSensor.Connector
+            mConnector = new ConnectableSensor.Connector();
 
     public class TestSystemClock implements Clock {
 
@@ -390,7 +392,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
         Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
                 mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
-                        providerMap));
+                        providerMap, mConnector));
         assertEquals(1, sensors.size());
         assertEquals(databaseTag, sensors.keySet().iterator().next());
 
@@ -398,7 +400,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
         sensors = ConnectableSensor.makeMap(
                 mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
-                        providerMap));
+                        providerMap, mConnector));
         assertEquals(0, sensors.size());
     }
 
@@ -415,7 +417,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
         Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
                 mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
-                        providerMap));
+                        providerMap, mConnector));
         assertEquals(1, sensors.size());
         assertEquals(databaseTag, sensors.keySet().iterator().next());
 
@@ -424,7 +426,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         // This should be gone now.
         sensors = ConnectableSensor.makeMap(
                 mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
-                        providerMap));
+                        providerMap, mConnector));
         assertEquals(0, sensors.size());
     }
 
@@ -556,7 +558,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         mMetaDataManager.addSensorToExperiment(id2, "experimentId");
         mMetaDataManager.addSensorToExperiment(id3, "experimentId");
         List<ConnectableSensor> sensors = mMetaDataManager.getExperimentExternalSensors(
-                "experimentId", providerMap).getIncludedSensors();
+                "experimentId", providerMap, mConnector).getIncludedSensors();
         assertEquals(id1, sensors.get(0).getConnectedSensorId());
         assertEquals(id2, sensors.get(1).getConnectedSensorId());
         assertEquals(id3, sensors.get(2).getConnectedSensorId());
@@ -569,7 +571,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         mMetaDataManager.addSensorToExperiment(id1, "experimentId");
         mMetaDataManager.addSensorToExperiment(id1, "experimentId");
         List<ConnectableSensor> sensors = mMetaDataManager.getExperimentExternalSensors(
-                "experimentId", providerMap).getIncludedSensors();
+                "experimentId", providerMap, mConnector).getIncludedSensors();
         assertEquals(1, sensors.size());
     }
 

@@ -23,15 +23,13 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
-import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -57,11 +55,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     private final Map<String, ExternalSensorProvider> mProviderMap;
     private long mPrevLabelTimestamp = 0;
     private Map<String, WeakReference<Experiment>> mCachedExperiments = new HashMap<>();
+    private ConnectableSensor.Connector mConnector;
 
     public DataControllerImpl(SensorDatabase sensorDatabase, Executor uiThread,
-            Executor metaDataThread,
-            Executor sensorDataThread, MetaDataManager metaDataManager, Clock clock,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Executor metaDataThread, Executor sensorDataThread, MetaDataManager metaDataManager,
+            Clock clock, Map<String, ExternalSensorProvider> providerMap,
+            ConnectableSensor.Connector connector) {
         mSensorDatabase = sensorDatabase;
         mUiThread = uiThread;
         mMetaDataThread = metaDataThread;
@@ -69,6 +68,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         mMetaDataManager = metaDataManager;
         mClock = clock;
         mProviderMap = providerMap;
+        mConnector = connector;
     }
 
     public void replaceSensorInExperiment(final String experimentId, final String oldSensorId,
@@ -334,7 +334,8 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         background(mMetaDataThread, onSuccess, new Callable<ExperimentSensors>() {
             @Override
             public ExperimentSensors call() throws Exception {
-                return mMetaDataManager.getExperimentExternalSensors(experimentId, mProviderMap);
+                return mMetaDataManager.getExperimentExternalSensors(experimentId, mProviderMap,
+                        mConnector);
             }
         });
     }
