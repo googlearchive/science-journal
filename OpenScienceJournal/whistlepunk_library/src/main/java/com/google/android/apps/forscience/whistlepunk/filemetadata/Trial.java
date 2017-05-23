@@ -264,7 +264,8 @@ public class Trial extends LabelListHolder {
                         }
                     }
                 }));
-        // TODO: Also delete any assets associated with this trial, including icons, etc.
+        // TODO: Also delete any other assets associated with this trial, including icons, etc
+        // from the sensor appearance.
     }
 
     private void updateTrialProtoWithStats() {

@@ -112,7 +112,7 @@ public class FileMetadataManager {
     }
 
     // Adds an existing experiment to the file system (rather than creating a new one).
-    public void addExperiment(Experiment experiment) {
+    private void addExperiment(Experiment experiment) {
         // Write the experiment to a file
         mActiveExperimentCache.createNewExperiment(experiment);
         mSharedMetadataManager.addExperimentOverview(experiment.getExperimentOverview());
@@ -213,5 +213,10 @@ public class FileMetadataManager {
     @VisibleForTesting
     public static File getSharedMetadataFile(Context context) {
         return new File(context.getFilesDir(), SHARED_METADATA_FILE);
+    }
+
+    public static File getAssetsDirectory(Context context, String experimentId) {
+        return new File(context.getFilesDir() + "/experiments/" + experimentId + "/" +
+                ASSETS_DIRECTORY);
     }
 }

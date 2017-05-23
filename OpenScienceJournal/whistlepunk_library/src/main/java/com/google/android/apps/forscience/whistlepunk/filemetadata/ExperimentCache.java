@@ -184,12 +184,9 @@ class ExperimentCache {
         if (!expDirectory.exists() && !expDirectory.mkdirs()) {
             return false;
         };
-        // TODO: Store run data in assets or somewhere else?
-        // If somewhere else, need to make the directory for that.
         File assetsDirectory = getAssetsDirectory(expDirectory);
         if (!assetsDirectory.exists() && !assetsDirectory.mkdir()) {
             return false;
-
         }
         // Create the experimentFile
         try {
@@ -285,12 +282,12 @@ class ExperimentCache {
     }
 
     private File getExperimentFile(String localExperimentId) {
-        return new File(mContext.getFilesDir() + "/" + localExperimentId,
+        return new File(mContext.getFilesDir() + "/experiments/" + localExperimentId,
                 FileMetadataManager.EXPERIMENT_FILE);
     }
 
     private File getExperimentDirectory(String localExperimentId) {
-        return new File(mContext.getFilesDir() + "/" + localExperimentId);
+        return new File(mContext.getFilesDir() + "/experiments/" + localExperimentId);
     }
 
     private File getAssetsDirectory(File experimentDirectory) {

@@ -75,6 +75,12 @@ public class Label implements Parcelable {
         return result;
     }
 
+    public static Label fromUuidAndValue(long creationTimeMs, String uuid, LabelValue labelValue) {
+        Label result = new Label(creationTimeMs, uuid);
+        result.setLabelValue(labelValue);
+        return result;
+    }
+
     /**
      * Creates a deep copy of an existing label. The creation time and label ID will be different.
      */
@@ -211,8 +217,6 @@ public class Label implements Parcelable {
      * Deletes any assets associated with this label
      */
     public void deleteAssets(Context context) {
-        // TODO: Delete any assets associated with this label, including pictures, etc.
-        // May need a reference to the FileMetadataManager to do this.
         if (hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
             File file = new File(((PictureLabelValue) getLabelValue(
                     GoosciLabelValue.LabelValue.PICTURE)).getAbsoluteFilePath());

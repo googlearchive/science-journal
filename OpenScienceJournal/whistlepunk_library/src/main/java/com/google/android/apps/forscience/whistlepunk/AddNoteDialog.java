@@ -55,6 +55,8 @@ import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
+import java.util.UUID;
+
 import io.reactivex.Single;
 import io.reactivex.subjects.CompletableSubject;
 
@@ -77,6 +79,7 @@ public class AddNoteDialog extends DialogFragment {
     private static final String KEY_SAVED_VALUE = "savedLabelValue";
     private static final java.lang.String KEY_SAVED_TIME_TEXT_DESCRIPTION =
             "keySavedTimeTextDescription";
+    private String mUuid;
 
     public static abstract class AddNoteDialogListener {
         static AddNoteDialogListener NULL = new AddNoteDialogListener() {
@@ -420,7 +423,9 @@ public class AddNoteDialog extends DialogFragment {
                                 /* force retry */ true);
                     if (grantedStorage) {
                         // TODO: Error states if these are not granted (b/24303452)
-                        mPictureLabelPath = PictureUtils.capturePictureLabel(getActivity());
+                        mUuid = UUID.randomUUID().toString();
+                        mPictureLabelPath = PictureUtils.capturePictureLabel(getActivity(),
+                                mExperimentId, mUuid);
                     }
                 }
             }
@@ -481,7 +486,7 @@ public class AddNoteDialog extends DialogFragment {
     private void addPictureLabel() {
         PictureLabelValue labelValue = PictureLabelValue.fromPicture(mPictureLabelPath,
                 mInput.getText().toString());
-        Label label = Label.newLabelWithValue(getTimestamp(), labelValue);
+        Label label = Label.fromUuidAndValue(getTimestamp(), mUuid, labelValue);
         addLabel(label);
         PictureUtils.scanFile(mPictureLabelPath, getActivity());
         mPictureLabelPath = null;
