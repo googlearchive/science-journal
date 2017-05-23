@@ -26,5 +26,5 @@ option optimize_for = LITE_RUNTIME;
 message Caption {
     optional string text = 1;
 
-    optional string lastEditedTimestamp = 2;
+    optional int64 lastEditedTimestamp = 2;
 }
