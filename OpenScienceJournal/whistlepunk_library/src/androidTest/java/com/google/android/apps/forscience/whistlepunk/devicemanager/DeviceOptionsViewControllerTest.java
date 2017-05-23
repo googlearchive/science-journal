@@ -20,6 +20,7 @@ import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -29,15 +30,17 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.DataControllerTes
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public class DeviceOptionsViewControllerTest extends AndroidTestCase {
-    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector(null);
-
     public void testCommit() {
+        ImmutableMap<String, ExternalSensorProvider> providerMap =
+                DataControllerTest.bleProviderMap(getContext());
+        ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providerMap);
         DataController dc = new InMemorySensorDatabase().makeSimpleController(
-                new MemoryMetadataManager(), DataControllerTest.bleProviderMap(getContext()));
+                new MemoryMetadataManager(), providerMap);
 
         BleSensorSpec oldSpec = new BleSensorSpec("address", "name");
         StoringConsumer<String> cOldSensorId = new StoringConsumer<>();
@@ -67,7 +70,7 @@ public class DeviceOptionsViewControllerTest extends AndroidTestCase {
 
         dc.getExternalSensorsByExperiment(experiment.getExperimentId(),
                 TestConsumers.<ExperimentSensors>expecting(new ExperimentSensors(Lists.newArrayList(
-                        mConnector.connected(newSpec,
+                        connector.connected(newSpec,
                                 ExternalSensorSpec.getSensorId(oldSpec, 1))),
                         Sets.<String>newHashSet(oldSensorId))));
 

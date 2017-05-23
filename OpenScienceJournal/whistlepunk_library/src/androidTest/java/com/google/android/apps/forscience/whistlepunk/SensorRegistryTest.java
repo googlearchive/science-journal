@@ -31,10 +31,6 @@ import java.util.List;
 
 // TODO: make this a java-only unit test
 public class SensorRegistryTest extends DevOptionsTestCase {
-    // TODO: never pass in null once we actually use the providers
-    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector(null);
-
-
     public void testImmediatelyReset() {
         SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(getContext());
 
@@ -57,10 +53,12 @@ public class SensorRegistryTest extends DevOptionsTestCase {
 
         List<ConnectableSensor> sensors = new ArrayList<>();
         String bleSensorId = "bleSensor1";
-        sensors.add(mConnector.connected(new BleSensorSpec("address", "name"), bleSensorId));
 
         HashMap<String, ExternalSensorProvider> providers = new HashMap<>();
         providers.put(BleSensorSpec.TYPE, bleProvider());
+        ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providers);
+
+        sensors.add(connector.connected(new BleSensorSpec("address", "name"), bleSensorId));
 
         reg.updateExternalSensors(sensors, providers);
         assertEquals(true, reg.getAllSources().contains(bleSensorId));
@@ -80,12 +78,13 @@ public class SensorRegistryTest extends DevOptionsTestCase {
     public void testLoggingId() {
         SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(getContext());
 
-        List<ConnectableSensor> sensors = new ArrayList<>();
-        String bleSensorId = "aa:bb:cc:dd";
-        sensors.add(mConnector.connected(new BleSensorSpec(bleSensorId, "name"), bleSensorId));
-
         HashMap<String, ExternalSensorProvider> providers = new HashMap<>();
         providers.put(BleSensorSpec.TYPE, bleProvider());
+        ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providers);
+
+        List<ConnectableSensor> sensors = new ArrayList<>();
+        String bleSensorId = "aa:bb:cc:dd";
+        sensors.add(connector.connected(new BleSensorSpec(bleSensorId, "name"), bleSensorId));
 
         reg.updateExternalSensors(sensors, providers);
         assertEquals(true, reg.getAllSources().contains(bleSensorId));
@@ -106,9 +105,11 @@ public class SensorRegistryTest extends DevOptionsTestCase {
         reg.withSensorChoice(tagno, newSensorId, cno);
         reg.removePendingOperations(tagno);
         ExternalSensorSpec spec = new BleSensorSpec("address", "name");
-        reg.updateExternalSensors(
-                Lists.newArrayList(mConnector.connected(spec, newSensorId)),
-                ImmutableMap.<String, ExternalSensorProvider>of(BleSensorSpec.TYPE, bleProvider()));
+        ImmutableMap<String, ExternalSensorProvider> providers =
+                ImmutableMap.<String, ExternalSensorProvider>of(BleSensorSpec.TYPE, bleProvider());
+        ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providers);
+        reg.updateExternalSensors(Lists.newArrayList(connector.connected(spec, newSensorId)),
+                providers);
         assertNull(cno.latestChoice);
         assertNotNull(cyes.latestChoice);
     }
@@ -117,13 +118,15 @@ public class SensorRegistryTest extends DevOptionsTestCase {
         SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(getContext());
 
         List<ConnectableSensor> sensors = new ArrayList<>();
-        sensors.add(mConnector.connected(new BleSensorSpec("aa:bb:cc:aa", "name4"), "id4"));
-        sensors.add(mConnector.connected(new BleSensorSpec("aa:bb:cc:bb", "name3"), "id3"));
-        sensors.add(mConnector.connected(new BleSensorSpec("aa:bb:cc:cc", "name2"), "id2"));
-        sensors.add(mConnector.connected(new BleSensorSpec("aa:bb:cc:dd", "name1"), "id1"));
-
         HashMap<String, ExternalSensorProvider> providers = new HashMap<>();
         providers.put(BleSensorSpec.TYPE, bleProvider());
+        ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providers);
+
+        sensors.add(connector.connected(new BleSensorSpec("aa:bb:cc:aa", "name4"), "id4"));
+        sensors.add(connector.connected(new BleSensorSpec("aa:bb:cc:bb", "name3"), "id3"));
+        sensors.add(connector.connected(new BleSensorSpec("aa:bb:cc:cc", "name2"), "id2"));
+        sensors.add(connector.connected(new BleSensorSpec("aa:bb:cc:dd", "name1"), "id1"));
+
         reg.updateExternalSensors(sensors, providers);
 
         List<String> allSources = reg.getAllSources();

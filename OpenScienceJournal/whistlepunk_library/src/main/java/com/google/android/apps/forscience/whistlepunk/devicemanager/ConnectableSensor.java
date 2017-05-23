@@ -19,8 +19,10 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.common.base.Preconditions;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,36 +30,40 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ConnectableSensor {
-    private ExternalSensorSpec mSpec;
+    private GoosciSensorSpec.SensorSpec mSpec;
 
     private String mConnectedSensorId;
     private boolean mIncluded;
+    private final Map<String, ExternalSensorProvider> mProviderMap;
 
     /**
      * Manages creating representations of connected and disconnected sensors from stored
      * configurations.
      */
     public static class Connector {
+        private final Map<String, ExternalSensorProvider> mProviders;
+
         public static Connector fromDiscoverers(Map<String, ExternalSensorDiscoverer> discoverers) {
             return new Connector(AppSingleton.buildProviderMap(discoverers));
         }
 
         public Connector(Map<String, ExternalSensorProvider> providers) {
-            // TODO: actually use providers to build specs
+            mProviders = providers;
         }
 
         /**
          * Create an entry for an external sensor we've connected to in the past
          */
         public ConnectableSensor connected(ExternalSensorSpec spec, String connectedSensorId) {
-            return new ConnectableSensor(spec, connectedSensorId, connectedSensorId != null);
+            return new ConnectableSensor(spec, connectedSensorId, connectedSensorId != null,
+                    mProviders);
         }
 
         /**
          * Create an entry for an external sensor we've never connected to
          */
         public ConnectableSensor disconnected(ExternalSensorSpec spec) {
-            return new ConnectableSensor(spec, null, false);
+            return new ConnectableSensor(spec, null, false, mProviders);
         }
 
         /**
@@ -65,7 +71,7 @@ public class ConnectableSensor {
          * com.google.android.apps.forscience.whistlepunk.SensorRegistry}
          */
         public ConnectableSensor builtIn(String sensorId, boolean included) {
-            return new ConnectableSensor(null, sensorId, included);
+            return new ConnectableSensor(null, sensorId, included, mProviders);
         }
 
         /**
@@ -75,7 +81,7 @@ public class ConnectableSensor {
             if (sensor.isBuiltIn()) {
                 return builtIn(sensor.mConnectedSensorId, false);
             } else {
-                return disconnected(sensor.mSpec);
+                return disconnected(ExternalSensorSpec.fromGoosciSpec(sensor.mSpec, mProviders));
             }
         }
     }
@@ -85,13 +91,16 @@ public class ConnectableSensor {
      *                 sensorId in the database for this sensor.  Otherwise, it's null; we could
      *                 connect, but a sensorId would need to be created if we did
      * @param spec     specification of the sensor if external, null if built-in (see
-     *                 {@link #builtIn(String, boolean)}).
+     *                 {@link #builtIn(String, boolean, Map)}).
      * @param included true if the sensor is included in the current experiment
      */
-    private ConnectableSensor(ExternalSensorSpec spec, String connectedSensorId, boolean included) {
-        mSpec = spec;
+    private ConnectableSensor(ExternalSensorSpec spec, String connectedSensorId, boolean included,
+            Map<String, ExternalSensorProvider> providerMap) {
+        // TODO: handle built-in sensors as SensorSpec, too.
+        mSpec = spec != null ? spec.asGoosciSpec() : null;
         mConnectedSensorId = connectedSensorId;
         mIncluded = included;
+        mProviderMap = Preconditions.checkNotNull(providerMap);
     }
 
     public static Map<String, ExternalSensorSpec> makeMap(List<ConnectableSensor> sensors) {
@@ -115,7 +124,7 @@ public class ConnectableSensor {
     }
 
     public ExternalSensorSpec getSpec() {
-        return mSpec;
+        return ExternalSensorSpec.fromGoosciSpec(mSpec, mProviderMap);
     }
 
     /**
@@ -125,14 +134,14 @@ public class ConnectableSensor {
      */
     public SensorAppearance getAppearance(SensorAppearanceProvider sap) {
         if (mSpec != null) {
-            return mSpec.getSensorAppearance();
+            return getSpec().getSensorAppearance();
         } else {
             return sap.getAppearance(mConnectedSensorId);
         }
     }
 
     public String getAddress() {
-        return mSpec.getAddress();
+        return mSpec.address;
     }
 
     public String getConnectedSensorId() {
@@ -142,17 +151,13 @@ public class ConnectableSensor {
     @Override
     public String toString() {
         return "ConnectableSensor{" +
-                "mSpec=" + mSpec +
-                ", mConnectedSensorId='" + mConnectedSensorId + '\'' +
-                '}';
+               "mSpec=" + mSpec +
+               ", mConnectedSensorId='" + mConnectedSensorId + '\'' +
+               '}';
     }
 
     public boolean shouldShowOptionsOnConnect() {
-        return mSpec != null && mSpec.shouldShowOptionsOnConnect();
-    }
-
-    public String getDeviceAddress() {
-        return mSpec.getDeviceAddress();
+        return mSpec != null && getSpec().shouldShowOptionsOnConnect();
     }
 
     // auto-generated by Android Studio
@@ -184,14 +189,7 @@ public class ConnectableSensor {
         if (mSpec == null) {
             return Objects.equals(other.mConnectedSensorId, mConnectedSensorId);
         }
-        return mSpec.isSameSensor(other.mSpec);
-    }
-
-    public boolean isUnchanged(ConnectableSensor other) {
-        if (mSpec == null) {
-            return Objects.equals(other.mConnectedSensorId, mConnectedSensorId);
-        }
-        return mSpec.isSameSensorAndSpec(other.mSpec);
+        return getSpec().isSameSensor(other.getSpec());
     }
 
     public boolean isBuiltIn() {

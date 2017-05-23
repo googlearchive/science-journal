@@ -105,7 +105,7 @@ class MemorySensorGroup implements SensorGroup {
 
     public String getDeviceName(int i) {
         ConnectableSensor sensor = getSensor(i);
-        String address = sensor.getDeviceAddress();
+        String address = sensor.getSpec().getDeviceAddress();
         InputDeviceSpec device = mDeviceRegistry.getDevice(sensor.getSpec().getType(), address);
         Assert.assertNotNull(address + " not in " + mDeviceRegistry, device);
         return device.getName();

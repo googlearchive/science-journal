@@ -24,6 +24,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
@@ -66,6 +67,7 @@ public class ConnectableSensorRegistry {
     private final Map<String, ExternalSensorDiscoverer.SettingsInterface>
             mSettingsIntents = new ArrayMap<>();
     private final Scheduler mScheduler;
+    private final Map<String, ExternalSensorProvider> mProviders;
     private boolean mScanning = false;
     private int mScanCount = 0;
 
@@ -91,8 +93,9 @@ public class ConnectableSensorRegistry {
             UsageTracker usageTracker, ConnectableSensor.Connector connector) {
         mDataController = dataController;
         mDiscoverers = discoverers;
+        mProviders = AppSingleton.buildProviderMap(mDiscoverers);
         mPresenter = presenter;
-        mScheduler = scheduler;
+        mScheduler = Preconditions.checkNotNull(scheduler);
         mClock = clock;
         mOptionsListener = optionsListener;
         mDeviceRegistry = deviceRegistry;
@@ -228,23 +231,20 @@ public class ConnectableSensorRegistry {
         final Set<String> keysSeen = new HashSet<>();
 
 
-        final TaskPool pool = new TaskPool(new Runnable() {
-            @Override
-            public void run() {
-                long nowMillis = mClock.getNow();
+        final TaskPool pool = new TaskPool(() -> {
+            long nowMillis = mClock.getNow();
 
-                for (String key : keysSeen) {
-                    mMostRecentlySeen.put(key, nowMillis);
-                }
+            for (String key : keysSeen) {
+                mMostRecentlySeen.put(key, nowMillis);
+            }
 
-                Set<Map.Entry<String, Long>> entries = mMostRecentlySeen.entrySet();
-                Iterator<Map.Entry<String, Long>> iter = entries.iterator();
-                while (iter.hasNext()) {
-                    Map.Entry<String, Long> entry = iter.next();
-                    if (nowMillis - entry.getValue() > timeout) {
-                        getAvailableGroup().removeSensor(entry.getKey());
-                        iter.remove();
-                    }
+            Set<Map.Entry<String, Long>> entries = mMostRecentlySeen.entrySet();
+            Iterator<Map.Entry<String, Long>> iter = entries.iterator();
+            while (iter.hasNext()) {
+                Map.Entry<String, Long> entry = iter.next();
+                if (nowMillis - entry.getValue() > timeout) {
+                    getAvailableGroup().removeSensor(entry.getKey());
+                    iter.remove();
                 }
             }
         });
@@ -310,15 +310,12 @@ public class ConnectableSensorRegistry {
             mScanning = true;
             mScanCount++;
             final int thisScanCount = mScanCount;
-            mTimeoutRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    if (mScanCount == thisScanCount) {
-                        mScanning = false;
-                        stopScanningInDiscoverers();
-                        // TODO: test that this actually happens
-                        mPresenter.refreshScanningUI();
-                    }
+            mTimeoutRunnable = () -> {
+                if (mScanCount == thisScanCount) {
+                    mScanning = false;
+                    stopScanningInDiscoverers();
+                    // TODO: test that this actually happens
+                    mPresenter.refreshScanningUI();
                 }
             };
             mScheduler.schedule(Delay.seconds(10), mTimeoutRunnable);

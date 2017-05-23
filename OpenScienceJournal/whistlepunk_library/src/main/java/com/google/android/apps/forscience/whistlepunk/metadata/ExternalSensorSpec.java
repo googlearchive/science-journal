@@ -18,15 +18,21 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.util.Log;
 
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.nano.CodedOutputByteBufferNano;
 import com.google.protobuf.nano.MessageNano;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
+
+import dagger.internal.Preconditions;
 
 /**
  * Represents a specification of an external sensor, including its name and address.  Subclasses
@@ -141,7 +147,7 @@ public abstract class ExternalSensorSpec {
 
     @Override
     public String toString() {
-        return "ExternalSensorSpec(" + getType() + "," + getAddress() + ")";
+        return "ExternalSensorSpec(" + getType() + "," + getAddress() + ": " + getName() + ")";
     }
 
     public abstract boolean shouldShowOptionsOnConnect();
@@ -156,4 +162,32 @@ public abstract class ExternalSensorSpec {
     public ExternalSensorSpec maybeAdjustBeforePairing(int numPairedBeforeAdded) {
         return this;
     }
+
+    public GoosciSensorSpec.SensorSpec asGoosciSpec() {
+        // TODO: fill in other fields here (providerId, address, etc)
+        GoosciSensorSpec.SensorSpec spec = new GoosciSensorSpec.SensorSpec();
+        spec.providerId = getType();
+        spec.rememberedAppearance = new GoosciSensorAppearance.BasicSensorAppearance();
+        spec.rememberedAppearance.name = getName();
+        spec.config = getConfig();
+        return spec;
+    }
+
+    public static ExternalSensorSpec fromGoosciSpec(GoosciSensorSpec.SensorSpec spec,
+            Map<String, ExternalSensorProvider> providerMap) {
+        Preconditions.checkNotNull(providerMap);
+        if (spec == null) {
+            return null;
+        }
+        ExternalSensorProvider externalSensorProvider = providerMap.get(spec.providerId);
+        if (externalSensorProvider == null) {
+            throw new IllegalArgumentException("No provider for sensor type: "
+                                               + spec.providerId
+                                               + ". Options: "
+                                               + providerMap.keySet());
+        }
+
+        return externalSensorProvider.buildSensorSpec(spec.rememberedAppearance.name, spec.config);
+    }
+
 }

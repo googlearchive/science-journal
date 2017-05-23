@@ -19,8 +19,6 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
-import android.util.ArrayMap;
-import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -41,7 +39,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
 import java.util.Arrays;
