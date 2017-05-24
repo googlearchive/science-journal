@@ -282,7 +282,10 @@ public class MaybeConsumers {
         return new MaybeConsumer<T>() {
             @Override
             public void success(T value) {
-                o.onNext(value);
+                // if value is null, just report empty
+                if (value != null) {
+                    o.onNext(value);
+                }
                 o.onComplete();
             }
 

@@ -372,7 +372,9 @@ public class MainActivity extends AppCompatActivity
 
     private Fragment createNewFragment(int itemId) {
         if (itemId == R.id.navigation_item_observe) {
-            mRecordFragment = RecordFragment.newInstance(false);
+            boolean showSnapshot = false;
+            boolean inflateMenu = true;
+            mRecordFragment = RecordFragment.newInstance(showSnapshot, inflateMenu);
             return mRecordFragment;
         } else if (itemId == R.id.navigation_item_experiments) {
             return ExperimentListFragment.newInstance(shouldUsePanes());

@@ -34,6 +34,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -358,11 +359,18 @@ public class AddNoteDialog extends DialogFragment {
                 @Override
                 public void onClick(View v) {
                     addLabel();
+                    hideKeyboard(v);
                 }
             });
         }
 
         return addNoteView;
+    }
+
+    private void hideKeyboard(View v) {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
     @NonNull
@@ -468,6 +476,7 @@ public class AddNoteDialog extends DialogFragment {
 
     private void addTextLabel() {
         TextLabelValue labelValue = TextLabelValue.fromText(mInput.getText().toString());
+        mInput.setText("");
         Label label = Label.newLabelWithValue(getTimestamp(), labelValue);
         addLabel(label);
     }

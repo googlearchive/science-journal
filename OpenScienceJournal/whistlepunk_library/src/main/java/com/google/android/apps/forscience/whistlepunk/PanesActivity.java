@@ -22,17 +22,21 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
+import com.jakewharton.rxbinding2.view.RxView;
 
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -72,11 +76,10 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
-                        return RecordFragment.newInstance(true);
+                        return RecordFragment.newInstance(true, false);
                     case 1:
                         // TODO: b/62022245
-                        return CameraFragment.newInstance(mActiveExperiment.getValue()
-                                .getExperimentId());
+                        return CameraFragment.newInstance();
                     case 2:
                         return mAddNoteDialog;
                 }
@@ -89,6 +92,16 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
         };
         pager.setAdapter(adapter);
+
+        View bottomSheet = findViewById(R.id.bottom);
+        RxView.globalLayouts(bottomSheet).firstElement().subscribe(o -> {
+            // After first layout, height is valid
+
+            BottomSheetBehavior<View> bottom = BottomSheetBehavior.from(bottomSheet);
+            bottom.setBottomSheetCallback(
+                    new TriStateCallback(bottom, true, getWindow().getDecorView().getHeight(),
+                            findViewById(R.id.tool_picker)));
+        });
 
         mActiveExperiment.subscribe(experiment -> {
             String experimentId = experiment.getExperimentId();
@@ -204,10 +217,85 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     }
                 });
             }
+
+            @Override
+            public Observable<String> getActiveExperimentId() {
+                return mActiveExperiment.map(e -> e.getExperimentId());
+            }
         };
     }
 
     private DataController getDataController() {
         return AppSingleton.getInstance(PanesActivity.this).getDataController();
+    }
+
+    // TODO: this is acceptable, but still a bit wonky.  For example, it's hard to get from bottom
+    // back to middle without going to top first.
+    // Keep adjusting.
+
+    /**
+     * A callback that allows a bottom call sheet to snap to middle, bottom, and top positions.
+     */
+    private static class TriStateCallback extends BottomSheetBehavior.BottomSheetCallback {
+        private boolean mCurrentlySettlingToMiddle;
+        private int mFullHeight;
+        private final View mVisibleOnBottom;
+        private BottomSheetBehavior<View> mBottom;
+
+        public TriStateCallback(BottomSheetBehavior<View> bottom,
+                boolean currentlySettlingToMiddle, int fullHeight, View visibleOnBottom) {
+            mBottom = bottom;
+            mFullHeight = fullHeight;
+            mVisibleOnBottom = visibleOnBottom;
+            setSettlingToMiddle(currentlySettlingToMiddle);
+        }
+
+        private void adjustSettling() {
+            if (mCurrentlySettlingToMiddle) {
+                // set peek height to halfway up page
+                mBottom.setPeekHeight(mFullHeight / 2);
+
+                // Hideable is true so that we can drag _beneath_ peek height
+                mBottom.setHideable(true);
+            } else {
+                // set peek height to bottom
+                mBottom.setPeekHeight(mVisibleOnBottom.getHeight());
+
+                // Hideable is false so that we don't actually drag off screen (hopefully)
+                mBottom.setHideable(false);
+            }
+        }
+
+        @Override
+        public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                // Should never _actually_ hide.  Instead, reset to bottom peeking.
+                setSettlingToMiddle(false);
+                mBottom.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        }
+
+        private void setSettlingToMiddle(boolean currentlySettlingToMiddle) {
+            mCurrentlySettlingToMiddle = currentlySettlingToMiddle;
+            adjustSettling();
+        }
+
+        @Override
+        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+            if (mCurrentlySettlingToMiddle) {
+                // If we're currently settling to middle, but we've slid such that less than a
+                // fourth of the height is taken up by the bottom panel, shift to settling to the
+                // bottom
+                if (slideOffset < -0.5) {
+                    setSettlingToMiddle(false);
+                }
+            } else {
+                // If we're currently settling to bottom, but we've slid such that more than a
+                // fourth of the height is taken up by bottom panel, shift to settlingt to middle.
+                if (slideOffset > 0.25) {
+                    setSettlingToMiddle(true);
+                }
+            }
+        }
     }
 }
