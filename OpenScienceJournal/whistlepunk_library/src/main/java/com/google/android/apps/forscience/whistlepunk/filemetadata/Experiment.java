@@ -26,7 +26,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
@@ -58,6 +57,8 @@ public class Experiment extends LabelListHolder {
         experimentOverview.isArchived = false;
         experimentOverview.experimentId = experimentId;
         proto.creationTimeMs = creationTime;
+        // This experiment is being created with the latest VERSION available.
+        proto.version = ExperimentCache.VERSION;
         return new Experiment(proto, experimentOverview);
     }
 

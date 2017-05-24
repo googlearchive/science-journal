@@ -37,13 +37,23 @@ import java.io.IOException;
 class ExperimentCache {
     private static final String TAG = "ExperimentCache";
 
+    // The current version number we expect from experiments.
+    // See upgradeExperimentVersionIfNeeded for the meaning of version numbers.
+    protected static final int VERSION = 1;
+
     // Write the experiment file no more than once per every WRITE_DELAY_MS.
     private static final long WRITE_DELAY_MS = 1000;
 
     public interface FailureListener {
         // TODO: What's helpful to pass back here? Maybe info about the type of error?
+        // When writing an experiment failed
         void onWriteFailed(Experiment experimentToWrite);
+
+        // When reading an experiment failed
         void onReadFailed(GoosciUserMetadata.ExperimentOverview localExperimentOverview);
+
+        // When a newer version is found and we cannot parse it
+        void onNewerVersionDetected(GoosciUserMetadata.ExperimentOverview experimentOverview);
     }
 
     private FailureListener mFailureListener;
@@ -269,12 +279,38 @@ class ExperimentCache {
         GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
         boolean success = mExperimentProtoFileHelper.readFromFile(experimentFile, proto);
         if (success) {
+            ugradeExperimentVersionIfNeeded(proto, VERSION, experimentOverview);
             mActiveExperiment = Experiment.fromExperiment(proto, experimentOverview);
         } else {
             // Or maybe pass a FailureListener into the load instead of failing here.
             mFailureListener.onReadFailed(experimentOverview);
             mActiveExperiment = null;
         }
+    }
+
+    /**
+     * Upgrades an experiment proto if necessary. Requests a save if the upgrade happened.
+     * @param proto The experiment to upgrade if necessary
+     * @param newVersion The version to upgrade it to
+     */
+    @VisibleForTesting
+    void ugradeExperimentVersionIfNeeded(GoosciExperiment.Experiment proto, int newVersion,
+            GoosciUserMetadata.ExperimentOverview experimentOverview) {
+        int version = proto.version;
+        if (version >= newVersion) {
+            // No upgrade needed -- it either matches our current or is newer.
+            if (version > newVersion) {
+                // It is too new for us to read.
+                mFailureListener.onNewerVersionDetected(experimentOverview);
+            }
+            return;
+        }
+        if (version == 0 && version < newVersion) {
+            // Upgrade from 0 to 1, for example.
+            proto.version = 1;
+        }
+        // We've made changes we need to save.
+        startWriteTimer();
     }
 
     private File getExperimentFile(GoosciUserMetadata.ExperimentOverview experimentOverview) {

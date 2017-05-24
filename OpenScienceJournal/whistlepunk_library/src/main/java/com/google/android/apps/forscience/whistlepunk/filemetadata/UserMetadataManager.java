@@ -20,6 +20,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,10 +35,18 @@ import java.util.List;
 public class UserMetadataManager {
     private static final String TAG = "UserMetadataManager";
 
+    // The current version number we expect from UserMetadata.
+    // See upgradeUserMetadataVersionIfNeeded for the meaning of version numbers.
+    private static final int VERSION = 1;
+
     interface FailureListener {
         // TODO: What's helpful to pass back here? Maybe info about the type of error?
         void onWriteFailed();
         void onReadFailed();
+
+        // A newer version of the User Metadata proto was found on the device. We cannot parse it
+        // with this version of the app.
+        void onNewerVersionDetected();
     }
 
     private FailureListener mFailureListener;
@@ -167,7 +176,33 @@ public class UserMetadataManager {
             mFailureListener.onReadFailed();
             return null;
         }
+        upgradeUserMetadataVersionIfNeeded(userMetadata, VERSION);
         return userMetadata;
+    }
+
+    /**
+     * Upgrades and saves user metadata to match the version given.
+     * @param userMetadata The metadata to upgrade if necessary
+     * @param newVersion The version to upgrade to
+     */
+    @VisibleForTesting
+    void upgradeUserMetadataVersionIfNeeded(GoosciUserMetadata.UserMetadata userMetadata,
+            int newVersion) {
+        int version = userMetadata.version;
+        if (version >= newVersion) {
+            // No upgrade needed -- it either matches our current or is newer.
+            if (version > newVersion) {
+                // It is too new for us to read.
+                mFailureListener.onNewerVersionDetected();
+            }
+            return;
+        }
+        if (version == 0 && version < newVersion) {
+            // Upgrade from 0 to 1, for example.
+            userMetadata.version = 1;
+        }
+        // We've made changes we need to save.
+        writeUserMetadata(userMetadata);
     }
 
     /**

@@ -515,6 +515,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
             expProto.description = "";
         }
 
+        // Version 1 for starters.
+        // TODO: Remove this if we default the proto to 1.
+        expProto.version = 1;
+
         return Experiment.fromExperiment(expProto, createExperimentOverviewFromCursor(cursor));
     }
 

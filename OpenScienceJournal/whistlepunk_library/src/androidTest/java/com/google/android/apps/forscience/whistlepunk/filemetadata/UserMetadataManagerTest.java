@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.test.InstrumentationTestCase;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 
 import java.io.File;
@@ -26,6 +27,7 @@ import java.io.File;
  * Tests for SharedMetadatamanager
  */
 public class UserMetadataManagerTest extends InstrumentationTestCase {
+    private int mFailureCount = 0;
 
     private UserMetadataManager.FailureListener getFailureFailsListener() {
         return new UserMetadataManager.FailureListener() {
@@ -37,6 +39,30 @@ public class UserMetadataManagerTest extends InstrumentationTestCase {
             @Override
             public void onReadFailed() {
                 throw new RuntimeException("Expected success");
+            }
+
+            @Override
+            public void onNewerVersionDetected() {
+                throw new RuntimeException("Expected success");
+            }
+        };
+    }
+
+    private UserMetadataManager.FailureListener getFailureExpectedListener() {
+        return new UserMetadataManager.FailureListener() {
+            @Override
+            public void onWriteFailed() {
+                mFailureCount++;
+            }
+
+            @Override
+            public void onReadFailed() {
+                mFailureCount++;
+            }
+
+            @Override
+            public void onNewerVersionDetected() {
+                mFailureCount++;
             }
         };
     }
@@ -53,6 +79,7 @@ public class UserMetadataManagerTest extends InstrumentationTestCase {
         File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(
                 getInstrumentation().getContext());
         sharedMetadataFile.delete();
+        mFailureCount = 0;
     }
 
 
@@ -108,6 +135,34 @@ public class UserMetadataManagerTest extends InstrumentationTestCase {
         // Check delete works properly
         smm.deleteExperimentOverview(second.experimentId);
         assertEquals(smm.getExperimentOverviews(true).size(), 2);
+    }
 
+    public void testUpgrade() {
+        // This test is not very interesting but more can be added as upgrades get more complex.
+        UserMetadataManager smm = new UserMetadataManager(getInstrumentation().getContext(),
+                getFailureFailsListener());
+        GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
+        proto.version = 0;
+        smm.upgradeUserMetadataVersionIfNeeded(proto, 1);
+        assertEquals(proto.version, 1);
+    }
+
+    public void testNoUpgrade() {
+        UserMetadataManager smm = new UserMetadataManager(getInstrumentation().getContext(),
+                getFailureFailsListener());
+        GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
+        proto.version = 1;
+        smm.upgradeUserMetadataVersionIfNeeded(proto, 1);
+        assertEquals(proto.version, 1);
+    }
+
+    public void testVersionTooNewThrowsError() {
+        UserMetadataManager smm = new UserMetadataManager(getInstrumentation().getContext(),
+                getFailureExpectedListener());
+
+        GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
+        proto.version = 2;
+        smm.upgradeUserMetadataVersionIfNeeded(proto, 1);
+        assertEquals(1, mFailureCount);
     }
 }

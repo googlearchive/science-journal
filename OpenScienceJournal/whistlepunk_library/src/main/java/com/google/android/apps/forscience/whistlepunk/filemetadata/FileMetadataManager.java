@@ -63,6 +63,13 @@ public class FileMetadataManager {
                 // TODO: Propagate this up to the user somehow.
                 Log.d(TAG, "read failed");
             }
+
+            @Override
+            public void onNewerVersionDetected(
+                    GoosciUserMetadata.ExperimentOverview experimentOverview) {
+                // TODO: Propagate this up to the user somehow.
+                Log.d(TAG, "newer proto version detected than we can handle");
+            }
         };
         UserMetadataManager.FailureListener userMetadataListener =
                 new UserMetadataManager.FailureListener() {
@@ -77,6 +84,12 @@ public class FileMetadataManager {
                     public void onReadFailed() {
                         // TODO: Propagate this up to the user somehow.
                         Log.d(TAG, "read failed");
+                    }
+
+                    @Override
+                    public void onNewerVersionDetected() {
+                        // TODO: Propagate this up to the user somehow.
+                        Log.d(TAG, "newer proto version detected than we can handle");
                     }
                 };
         mActiveExperimentCache = new ExperimentCache(applicationContext, failureListener);

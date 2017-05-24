@@ -18,12 +18,9 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.test.InstrumentationTestCase;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.protobuf.nano.MessageNano;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 
 import java.io.File;
 
@@ -33,6 +30,8 @@ import java.io.File;
  * automatically.
  */
 public class ExperimentCacheTest extends InstrumentationTestCase {
+    private int mFailureCount = 0;
+
     private ExperimentCache.FailureListener getFailureFailsListener() {
         return new ExperimentCache.FailureListener() {
             @Override
@@ -43,6 +42,33 @@ public class ExperimentCacheTest extends InstrumentationTestCase {
             @Override
             public void onReadFailed(GoosciUserMetadata.ExperimentOverview experimentOverview) {
                 throw new RuntimeException("Expected success");
+            }
+
+            @Override
+            public void onNewerVersionDetected(
+                    GoosciUserMetadata.ExperimentOverview experimentOverview) {
+                throw new RuntimeException("Expected success");
+            }
+        };
+    }
+
+    private ExperimentCache.FailureListener getFailureExpectedListener() {
+        return new ExperimentCache.FailureListener() {
+            @Override
+            public void onWriteFailed(Experiment experimentToWrite) {
+                mFailureCount++;
+            }
+
+            @Override
+            public void onReadFailed(
+                    GoosciUserMetadata.ExperimentOverview localExperimentOverview) {
+                mFailureCount++;
+            }
+
+            @Override
+            public void onNewerVersionDetected(
+                    GoosciUserMetadata.ExperimentOverview experimentOverview) {
+                mFailureCount++;
             }
         };
     }
@@ -62,6 +88,7 @@ public class ExperimentCacheTest extends InstrumentationTestCase {
                 ExperimentCache.deleteRecursive(file);
             }
         }
+        mFailureCount = 0;
     }
 
     public void testExperimentWriteRead() {
@@ -128,5 +155,38 @@ public class ExperimentCacheTest extends InstrumentationTestCase {
         cache.getExperiment(experiment.getExperimentOverview());
         assertEquals(cache.getActiveExperimentForTests().getCreationTimeMs(), 10);
         assertEquals(cache.getActiveExperimentForTests().getTitle(), "Title");
+    }
+
+    public void testUpgradeStartsWriteTimer() {
+        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
+                getFailureFailsListener(), 0);
+        GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
+        proto.version = 0;
+        cache.ugradeExperimentVersionIfNeeded(proto, 1,
+                new GoosciUserMetadata.ExperimentOverview());
+        assertEquals(1, proto.version);
+        assertTrue(cache.needsWrite());
+    }
+
+    public void testNoUpgradeDoesNotStartWriteTimer() {
+        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
+                getFailureFailsListener(), 0);
+        GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
+        proto.version = 1;
+        cache.ugradeExperimentVersionIfNeeded(proto, 1,
+                new GoosciUserMetadata.ExperimentOverview());
+        assertEquals(1, proto.version);
+        assertFalse(cache.needsWrite());
+    }
+
+    public void testVersionTooNewThrowsError() {
+        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
+                getFailureExpectedListener());
+
+        GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
+        proto.version = ExperimentCache.VERSION + 1;
+        cache.ugradeExperimentVersionIfNeeded(proto, ExperimentCache.VERSION,
+                new GoosciUserMetadata.ExperimentOverview());
+        assertEquals(1, mFailureCount);
     }
 }
