@@ -32,7 +32,6 @@ import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
@@ -41,7 +40,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class DataControllerTest extends AndroidTestCase {
@@ -212,7 +210,8 @@ public class DataControllerTest extends AndroidTestCase {
 
     public void testGenerateLabelId() {
         IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
-        DataController dc = new DataControllerImpl(null, null, null, null, null, clock, null);
+        DataController dc = new DataControllerImpl(null, null, null, null, null, clock, null,
+                new ConnectableSensor.Connector());
         clock.increment();
 
         String firstLabelId = dc.generateNewLabelId();

@@ -33,6 +33,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public class DeviceOptionsViewControllerTest extends AndroidTestCase {
+    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector();
+
     public void testCommit() {
         DataController dc = new InMemorySensorDatabase().makeSimpleController(
                 new MemoryMetadataManager(), DataControllerTest.bleProviderMap(getContext()));
@@ -65,7 +67,7 @@ public class DeviceOptionsViewControllerTest extends AndroidTestCase {
 
         dc.getExternalSensorsByExperiment(experiment.getExperimentId(),
                 TestConsumers.<ExperimentSensors>expecting(new ExperimentSensors(Lists.newArrayList(
-                        ConnectableSensor.connected(newSpec,
+                        mConnector.connected(newSpec,
                                 ExternalSensorSpec.getSensorId(oldSpec, 1))),
                         Sets.<String>newHashSet(oldSensorId))));
 

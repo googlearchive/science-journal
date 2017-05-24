@@ -15,9 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
@@ -25,6 +22,9 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDevic
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 
 import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ExpandableServiceAdapterTest {
     @Test
@@ -70,7 +70,8 @@ public class ExpandableServiceAdapterTest {
         });
 
         assertFalse(adapter.hasSensorKey("sensorKey"));
-        adapter.addAvailableSensor("sensorKey", ConnectableSensor.disconnected(spec));
+        adapter.addAvailableSensor("sensorKey",
+                new ConnectableSensor.Connector().disconnected(spec));
         assertTrue(adapter.hasSensorKey("sensorKey"));
     }
 }

@@ -36,7 +36,6 @@ import com.google.common.collect.Sets;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -156,11 +155,13 @@ public class MemoryMetadataManager implements MetaDataManager {
 
     @Override
     public ExperimentSensors getExperimentExternalSensors(String experimentId,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, ExternalSensorProvider> providerMap,
+            ConnectableSensor.Connector connector) {
+        Preconditions.checkNotNull(connector);
         // TODO: doesn't deal with exclusions
         List<ConnectableSensor> specs = new ArrayList<>();
         for (String id : mExperimentIncluded.get(experimentId)) {
-            specs.add(ConnectableSensor.connected(mExternalSensors.get(id), id));
+            specs.add(connector.connected(mExternalSensors.get(id), id));
         }
         return new ExperimentSensors(specs, Sets.newHashSet(mExperimentExcluded.get(experimentId)));
     }

@@ -18,10 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.common.annotations.VisibleForTesting;
 
 import java.util.List;
 import java.util.Map;
@@ -96,7 +94,8 @@ public interface MetaDataManager {
      * Gets all the external sensors which are linked to an experiment, in insertion order
      */
     ExperimentSensors getExperimentExternalSensors(String experimentId,
-            Map<String, ExternalSensorProvider> providerMap);
+            Map<String, ExternalSensorProvider> providerMap,
+            ConnectableSensor.Connector connector);
 
     /**
      * Adds this device as one to be remembered as "my device" in the manage devices screen from

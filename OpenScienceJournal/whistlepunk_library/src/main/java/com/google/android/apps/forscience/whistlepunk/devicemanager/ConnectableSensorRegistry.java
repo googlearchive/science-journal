@@ -80,6 +80,7 @@ public class ConnectableSensorRegistry {
     private final SensorAppearanceProvider mAppearanceProvider;
     private UsageTracker mUsageTracker;
     private Runnable mTimeoutRunnable;
+    private ConnectableSensor.Connector mConnector;
 
     // TODO: reduce parameter list?
     public ConnectableSensorRegistry(DataController dataController,
@@ -87,7 +88,7 @@ public class ConnectableSensorRegistry {
             Scheduler scheduler, Clock clock,
             DeviceOptionsDialog.DeviceOptionsListener optionsListener,
             DeviceRegistry deviceRegistry, SensorAppearanceProvider appearanceProvider,
-            UsageTracker usageTracker) {
+            UsageTracker usageTracker, ConnectableSensor.Connector connector) {
         mDataController = dataController;
         mDiscoverers = discoverers;
         mPresenter = presenter;
@@ -97,6 +98,7 @@ public class ConnectableSensorRegistry {
         mDeviceRegistry = deviceRegistry;
         mAppearanceProvider = appearanceProvider;
         mUsageTracker = usageTracker;
+        mConnector = connector;
     }
 
     public void pair(final String sensorKey) {
@@ -169,7 +171,7 @@ public class ConnectableSensorRegistry {
                     private void addBuiltInSensors(ExperimentSensors sensors,
                             List<ConnectableSensor> allSensors) {
                         for (String sensorId : sr.getBuiltInSources()) {
-                            allSensors.add(ConnectableSensor.builtIn(sensorId,
+                            allSensors.add(mConnector.builtIn(sensorId,
                                     !sensors.getExcludedSensorIds().contains(sensorId)));
                         }
                     }
@@ -325,7 +327,7 @@ public class ConnectableSensorRegistry {
 
     private void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor ds,
             Set<String> availableKeysSeen) {
-        ConnectableSensor sensor = ConnectableSensor.disconnected(ds.getSpec());
+        ConnectableSensor sensor = mConnector.disconnected(ds.getSpec());
         final String sensorKey = findSensorKey(sensor);
 
         if (sensorKey == null) {
@@ -373,7 +375,7 @@ public class ConnectableSensorRegistry {
                             mOptionsListener.onExperimentSensorReplaced(oldSensorId,
                                     newSensorId);
                             mSensors.put(sensorKey,
-                                    ConnectableSensor.connected(newSensor.getSpec(), newSensorId));
+                                    mConnector.connected(newSensor.getSpec(), newSensorId));
                         }
                     });
         }
@@ -433,7 +435,7 @@ public class ConnectableSensorRegistry {
         for (String sensorKey : mSensors.keySet()) {
             ConnectableSensor sensor = mSensors.get(sensorKey);
             if (sensor.isPaired() && !sensors.containsKey(sensor.getConnectedSensorId())) {
-                mSensors.put(sensorKey, ConnectableSensor.disconnected(sensor.getSpec()));
+                mSensors.put(sensorKey, mConnector.disconnected(sensor.getSpec()));
                 getPairedGroup().removeSensor(sensorKey);
             }
         }
@@ -474,7 +476,7 @@ public class ConnectableSensorRegistry {
                         @Override
                         public void take(final String sensorId) {
                             addSensorToCurrentExperiment(
-                                    ConnectableSensor.connected(pairedSpec, sensorId), onAdded);
+                                    mConnector.connected(pairedSpec, sensorId), onAdded);
                         }
                     }));
         } else {
@@ -537,7 +539,7 @@ public class ConnectableSensorRegistry {
 
     public void unpair(String sensorKey) {
         ConnectableSensor sensor = getSensor(sensorKey);
-        getPairedGroup().replaceSensor(sensorKey, sensor.asDisconnected());
+        getPairedGroup().replaceSensor(sensorKey, mConnector.asDisconnected(sensor));
         mPresenter.unpair(mExperimentId, sensor.getConnectedSensorId());
     }
 

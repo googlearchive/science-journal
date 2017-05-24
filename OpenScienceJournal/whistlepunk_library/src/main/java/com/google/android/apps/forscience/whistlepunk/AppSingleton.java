@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleClientImpl;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
@@ -51,6 +52,7 @@ public class AppSingleton {
     private SensorRegistry mSensorRegistry;
     private PrefsSensorHistoryStorage mPrefsSensorHistoryStorage;
     private Map<String, ExternalSensorProvider> mExternalSensorProviders;
+    private ConnectableSensor.Connector mSensorConnector;
 
     private SensorEnvironment mSensorEnvironment = new SensorEnvironment() {
                 @Override
@@ -118,7 +120,7 @@ public class AppSingleton {
                     getUiThreadExecutor(), Executors.newSingleThreadExecutor(),
                     Executors.newSingleThreadExecutor(),
                     new SimpleMetaDataManager(mApplicationContext), getDefaultClock(),
-                    getExternalSensorProviders());
+                    getExternalSensorProviders(), getSensorConnector());
         }
         return mDataController;
     }
@@ -228,5 +230,12 @@ public class AppSingleton {
             }
         }
         return mExternalSensorProviders;
+    }
+
+    public ConnectableSensor.Connector getSensorConnector() {
+        if (mSensorConnector == null) {
+            mSensorConnector = new ConnectableSensor.Connector();
+        }
+        return mSensorConnector;
     }
 }

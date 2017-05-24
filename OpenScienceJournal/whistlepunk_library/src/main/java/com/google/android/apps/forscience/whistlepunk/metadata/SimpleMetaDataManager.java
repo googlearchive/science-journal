@@ -1414,7 +1414,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public ExperimentSensors getExperimentExternalSensors(String experimentId,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, ExternalSensorProvider> providerMap,
+            ConnectableSensor.Connector connector) {
         List<ConnectableSensor> includedSensors = new ArrayList<>();
         Set<String> excludedTags = new ArraySet<>();
 
@@ -1452,7 +1453,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             // only be one or two, so we are trading off code complexity of doing a db join.
             for (String tag : tags) {
                 includedSensors.add(
-                        ConnectableSensor.connected(getExternalSensorById(tag, providerMap), tag));
+                        connector.connected(getExternalSensorById(tag, providerMap), tag));
             }
         }
 
