@@ -20,9 +20,6 @@ import android.test.InstrumentationTestCase;
 
 import com.google.android.apps.forscience.whistlepunk.sensordb.IncrementableMonotonicClock;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-
 import java.io.File;
 
 /**
@@ -39,7 +36,7 @@ public class FileMetadataManagerTest extends InstrumentationTestCase {
     }
 
     private void cleanUp() {
-        File sharedMetadataFile = FileMetadataManager.getSharedMetadataFile(
+        File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(
                 getInstrumentation().getContext());
         sharedMetadataFile.delete();
     }

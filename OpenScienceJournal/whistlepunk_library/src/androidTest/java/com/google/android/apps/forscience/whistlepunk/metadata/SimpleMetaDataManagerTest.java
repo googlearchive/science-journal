@@ -86,7 +86,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
 
     public void tearDown() {
         getContext().getDatabasePath("test.main.db").delete();
-        File sharedMetadataFile = FileMetadataManager.getSharedMetadataFile(getContext());
+        File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(getContext());
         sharedMetadataFile.delete();
     }
 
@@ -96,7 +96,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertFalse(TextUtils.isEmpty(experiment.getExperimentId()));
         assertTrue(experiment.getCreationTimeMs() > 0);
 
-        List<GoosciSharedMetadata.ExperimentOverview> experiments =
+        List<GoosciUserMetadata.ExperimentOverview> experiments =
                 mMetaDataManager.getDatabaseExperimentOverviews(false);
         assertEquals(1, experiments.size());
         assertEquals(experiment.getExperimentId(), experiments.get(0).experimentId);
@@ -139,7 +139,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         experiment.setArchived(false);
         mMetaDataManager.updateDatabaseExperiment(experiment);
 
-        List<GoosciSharedMetadata.ExperimentOverview> experiments =
+        List<GoosciUserMetadata.ExperimentOverview> experiments =
                 mMetaDataManager.getDatabaseExperimentOverviews(false);
         assertEquals(1, experiments.size());
         assertEquals(experiment.getExperimentId(), experiments.get(0).experimentId);

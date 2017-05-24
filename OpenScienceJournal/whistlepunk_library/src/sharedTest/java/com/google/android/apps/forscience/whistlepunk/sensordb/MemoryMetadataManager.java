@@ -26,7 +26,8 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableS
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
@@ -83,9 +84,9 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     @Override
-    public List<GoosciSharedMetadata.ExperimentOverview> getExperimentOverviews(
+    public List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(
             boolean includeArchived) {
-        List<GoosciSharedMetadata.ExperimentOverview> result = new ArrayList<>();
+        List<GoosciUserMetadata.ExperimentOverview> result = new ArrayList<>();
         for (Experiment experiment : mExperiments) {
             result.add(experiment.getExperimentOverview());
         }

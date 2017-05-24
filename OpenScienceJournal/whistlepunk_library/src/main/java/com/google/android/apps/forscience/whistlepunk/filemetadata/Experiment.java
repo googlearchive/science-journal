@@ -24,8 +24,9 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
@@ -42,7 +43,7 @@ import java.util.List;
  */
 // TODO: Get the ExperimentOverview photo path from labels and trials at load and change.
 public class Experiment extends LabelListHolder {
-    private GoosciSharedMetadata.ExperimentOverview mExperimentOverview;
+    private GoosciUserMetadata.ExperimentOverview mExperimentOverview;
     private GoosciExperiment.Experiment mProto;
     private List<GoosciSensorLayout.SensorLayout> mSensorLayouts;
     private List<GoosciExperiment.ExperimentSensor> mExperimentSensors;
@@ -51,8 +52,8 @@ public class Experiment extends LabelListHolder {
 
     public static Experiment newExperiment(long creationTime, String experimentId) {
         GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-        GoosciSharedMetadata.ExperimentOverview experimentOverview = new GoosciSharedMetadata
-                .ExperimentOverview();
+        GoosciUserMetadata.ExperimentOverview experimentOverview =
+                new GoosciUserMetadata.ExperimentOverview();
         experimentOverview.lastUsedTimeMs = creationTime;
         experimentOverview.isArchived = false;
         experimentOverview.experimentId = experimentId;
@@ -64,7 +65,7 @@ public class Experiment extends LabelListHolder {
      * Populates the Experiment from an existing proto.
      */
     public static Experiment fromExperiment(GoosciExperiment.Experiment experiment,
-            GoosciSharedMetadata.ExperimentOverview experimentOverview) {
+            GoosciUserMetadata.ExperimentOverview experimentOverview) {
         return new Experiment(experiment, experimentOverview);
     }
 
@@ -72,7 +73,7 @@ public class Experiment extends LabelListHolder {
     // it will not show up as archived on another account. Therefore it is stored outside of the
     // experiment proto.
     private Experiment(GoosciExperiment.Experiment experimentProto,
-            GoosciSharedMetadata.ExperimentOverview experimentOverview) {
+            GoosciUserMetadata.ExperimentOverview experimentOverview) {
         mProto = experimentProto;
         mExperimentOverview = experimentOverview;
         mLabels = new ArrayList<>();
@@ -99,7 +100,7 @@ public class Experiment extends LabelListHolder {
         return mProto;
     }
 
-    public GoosciSharedMetadata.ExperimentOverview getExperimentOverview() {
+    public GoosciUserMetadata.ExperimentOverview getExperimentOverview() {
         mExperimentOverview.trialCount = mTrials.size();
         return mExperimentOverview;
     }

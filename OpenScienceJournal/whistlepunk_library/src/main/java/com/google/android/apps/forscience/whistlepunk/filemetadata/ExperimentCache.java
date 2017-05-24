@@ -22,7 +22,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -43,7 +43,7 @@ class ExperimentCache {
     public interface FailureListener {
         // TODO: What's helpful to pass back here? Maybe info about the type of error?
         void onWriteFailed(Experiment experimentToWrite);
-        void onReadFailed(GoosciSharedMetadata.ExperimentOverview localExperimentOverview);
+        void onReadFailed(GoosciUserMetadata.ExperimentOverview localExperimentOverview);
     }
 
     private FailureListener mFailureListener;
@@ -115,7 +115,7 @@ class ExperimentCache {
      *                           if they have the same ID.
      */
     void onExperimentOverviewUpdated(
-            GoosciSharedMetadata.ExperimentOverview experimentOverview) {
+            GoosciUserMetadata.ExperimentOverview experimentOverview) {
         if (!isDifferentFromActive(experimentOverview)) {
             mActiveExperiment.setLastUsedTime(experimentOverview.lastUsedTimeMs);
             mActiveExperiment.setArchived(experimentOverview.isArchived);
@@ -129,7 +129,7 @@ class ExperimentCache {
      * @param localExperimentOverview The local ExperimentOverview of the experiment to load. This
      *                                is used for lookup.
      */
-    Experiment getExperiment(GoosciSharedMetadata.ExperimentOverview localExperimentOverview) {
+    Experiment getExperiment(GoosciUserMetadata.ExperimentOverview localExperimentOverview) {
         // Write only if the experiment ID is changing. If it's not changing, we just want to
         // reload even if it was dirty.
         if (isDifferentFromActive(localExperimentOverview)) {
@@ -210,7 +210,7 @@ class ExperimentCache {
      * Immediately writes the current active experiment to disk if it is different from the given
      * parameter localExperimentId.
      */
-    private void immediateWriteIfActiveChanging(GoosciSharedMetadata.ExperimentOverview
+    private void immediateWriteIfActiveChanging(GoosciUserMetadata.ExperimentOverview
             localExperimentOverview) {
         if (mActiveExperimentNeedsWrite && isDifferentFromActive(localExperimentOverview)) {
             // First write the old active experiment if the ID has changed.
@@ -264,7 +264,7 @@ class ExperimentCache {
     }
 
     @VisibleForTesting
-    void loadActiveExperimentFromFile(GoosciSharedMetadata.ExperimentOverview experimentOverview) {
+    void loadActiveExperimentFromFile(GoosciUserMetadata.ExperimentOverview experimentOverview) {
         File experimentFile = getExperimentFile(experimentOverview);
         GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
         boolean success = mExperimentProtoFileHelper.readFromFile(experimentFile, proto);
@@ -277,7 +277,7 @@ class ExperimentCache {
         }
     }
 
-    private File getExperimentFile(GoosciSharedMetadata.ExperimentOverview experimentOverview) {
+    private File getExperimentFile(GoosciUserMetadata.ExperimentOverview experimentOverview) {
         return getExperimentFile(experimentOverview.experimentId);
     }
 
@@ -294,7 +294,7 @@ class ExperimentCache {
         return new File(experimentDirectory, FileMetadataManager.ASSETS_DIRECTORY);
     }
 
-    private boolean isDifferentFromActive(GoosciSharedMetadata.ExperimentOverview other) {
+    private boolean isDifferentFromActive(GoosciUserMetadata.ExperimentOverview other) {
         if (mActiveExperiment == null) {
             return true;
         }

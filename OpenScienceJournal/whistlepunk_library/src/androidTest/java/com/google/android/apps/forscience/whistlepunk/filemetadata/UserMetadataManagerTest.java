@@ -18,22 +18,17 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.test.InstrumentationTestCase;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
-import com.google.common.util.concurrent.MoreExecutors;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 
 import java.io.File;
 
 /**
  * Tests for SharedMetadatamanager
  */
-public class SharedMetadataManagerTest extends InstrumentationTestCase {
+public class UserMetadataManagerTest extends InstrumentationTestCase {
 
-    private SharedMetadataManager.FailureListener getFailureFailsListener() {
-        return new SharedMetadataManager.FailureListener() {
+    private UserMetadataManager.FailureListener getFailureFailsListener() {
+        return new UserMetadataManager.FailureListener() {
             @Override
             public void onWriteFailed() {
                 throw new RuntimeException("Expected success");
@@ -55,24 +50,24 @@ public class SharedMetadataManagerTest extends InstrumentationTestCase {
     }
 
     private void cleanUp() {
-        File sharedMetadataFile = FileMetadataManager.getSharedMetadataFile(
+        File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(
                 getInstrumentation().getContext());
         sharedMetadataFile.delete();
     }
 
 
     public void testEmpty() {
-        SharedMetadataManager smm = new SharedMetadataManager(getInstrumentation().getContext(),
+        UserMetadataManager smm = new UserMetadataManager(getInstrumentation().getContext(),
                 getFailureFailsListener());
         assertNull(smm.getExperimentOverview("doesNotExist"));
         assertEquals(0, smm.getExperimentOverviews(true).size());
     }
 
     public void testReadAndWriteSingle() {
-        SharedMetadataManager smm = new SharedMetadataManager(getInstrumentation().getContext(),
+        UserMetadataManager smm = new UserMetadataManager(getInstrumentation().getContext(),
                 getFailureFailsListener());
-        GoosciSharedMetadata.ExperimentOverview overview =
-                new GoosciSharedMetadata.ExperimentOverview();
+        GoosciUserMetadata.ExperimentOverview overview =
+                new GoosciUserMetadata.ExperimentOverview();
         overview.experimentId = "expId";
         overview.lastUsedTimeMs = 42;
         smm.addExperimentOverview(overview);
@@ -83,20 +78,20 @@ public class SharedMetadataManagerTest extends InstrumentationTestCase {
     }
 
     public void testReadAndWriteMultiple() {
-        SharedMetadataManager smm = new SharedMetadataManager(getInstrumentation().getContext(),
+        UserMetadataManager smm = new UserMetadataManager(getInstrumentation().getContext(),
                 getFailureFailsListener());
-        GoosciSharedMetadata.ExperimentOverview first =
-                new GoosciSharedMetadata.ExperimentOverview();
+        GoosciUserMetadata.ExperimentOverview first =
+                new GoosciUserMetadata.ExperimentOverview();
         first.experimentId = "exp1";
         first.lastUsedTimeMs = 1;
         smm.addExperimentOverview(first);
-        GoosciSharedMetadata.ExperimentOverview second =
-                new GoosciSharedMetadata.ExperimentOverview();
+        GoosciUserMetadata.ExperimentOverview second =
+                new GoosciUserMetadata.ExperimentOverview();
         second.experimentId = "exp2";
         second.lastUsedTimeMs = 2;
         smm.addExperimentOverview(second);
-        GoosciSharedMetadata.ExperimentOverview third =
-                new GoosciSharedMetadata.ExperimentOverview();
+        GoosciUserMetadata.ExperimentOverview third =
+                new GoosciUserMetadata.ExperimentOverview();
         third.experimentId = "exp3";
         third.lastUsedTimeMs = 3;
         smm.addExperimentOverview(third);

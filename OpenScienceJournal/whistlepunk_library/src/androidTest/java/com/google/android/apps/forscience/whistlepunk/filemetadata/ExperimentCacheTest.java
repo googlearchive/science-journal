@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.test.InstrumentationTestCase;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.protobuf.nano.MessageNano;
 
 import org.junit.After;
@@ -41,7 +41,7 @@ public class ExperimentCacheTest extends InstrumentationTestCase {
             }
 
             @Override
-            public void onReadFailed(GoosciSharedMetadata.ExperimentOverview experimentOverview) {
+            public void onReadFailed(GoosciUserMetadata.ExperimentOverview experimentOverview) {
                 throw new RuntimeException("Expected success");
             }
         };

@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,8 +31,8 @@ import java.util.List;
  * Reads and writes ExperimentOverview lists
  */
 // TODO: Should this be a cache too?
-public class SharedMetadataManager {
-    private static final String TAG = "SharedMetadataManager";
+public class UserMetadataManager {
+    private static final String TAG = "UserMetadataManager";
 
     interface FailureListener {
         // TODO: What's helpful to pass back here? Maybe info about the type of error?
@@ -41,24 +41,24 @@ public class SharedMetadataManager {
     }
 
     private FailureListener mFailureListener;
-    private ProtoFileHelper<GoosciSharedMetadata.SharedMetadata> mOverviewProtoFileHelper;
-    private File mSharedMetadataFile;
+    private ProtoFileHelper<GoosciUserMetadata.UserMetadata> mOverviewProtoFileHelper;
+    private File mUserMetadataFile;
 
-    public SharedMetadataManager(Context context, FailureListener failureListener) {
+    public UserMetadataManager(Context context, FailureListener failureListener) {
         mFailureListener = failureListener;
         mOverviewProtoFileHelper = new ProtoFileHelper<>();
-        mSharedMetadataFile = FileMetadataManager.getSharedMetadataFile(context);
+        mUserMetadataFile = FileMetadataManager.getUserMetadataFile(context);
     }
 
     /**
      * Gets an experiment overview by experiment ID from the Shared Metadata.
      */
-    GoosciSharedMetadata.ExperimentOverview getExperimentOverview(String experimentId) {
-        GoosciSharedMetadata.SharedMetadata sharedMetadata = readSharedMetadata();
-        if (sharedMetadata == null) {
+    GoosciUserMetadata.ExperimentOverview getExperimentOverview(String experimentId) {
+        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        if (userMetadata == null) {
             return null;
         }
-        for (GoosciSharedMetadata.ExperimentOverview overview : sharedMetadata.experiments) {
+        for (GoosciUserMetadata.ExperimentOverview overview : userMetadata.experiments) {
             if (TextUtils.equals(overview.experimentId, experimentId)) {
                 return overview;
             }
@@ -69,37 +69,37 @@ public class SharedMetadataManager {
     /**
      * Adds a new experiment overview to the Shared Metadata.
      */
-    void addExperimentOverview(GoosciSharedMetadata.ExperimentOverview overviewToAdd) {
-        GoosciSharedMetadata.SharedMetadata sharedMetadata = readSharedMetadata();
-        if (sharedMetadata == null) {
+    void addExperimentOverview(GoosciUserMetadata.ExperimentOverview overviewToAdd) {
+        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        if (userMetadata == null) {
             return;
         }
-        GoosciSharedMetadata.ExperimentOverview[] newList =
-                Arrays.copyOf(sharedMetadata.experiments, sharedMetadata.experiments.length + 1);
-        newList[sharedMetadata.experiments.length] = overviewToAdd;
-        sharedMetadata.experiments = newList;
-        writeSharedMetadata(sharedMetadata);
+        GoosciUserMetadata.ExperimentOverview[] newList =
+                Arrays.copyOf(userMetadata.experiments, userMetadata.experiments.length + 1);
+        newList[userMetadata.experiments.length] = overviewToAdd;
+        userMetadata.experiments = newList;
+        writeUserMetadata(userMetadata);
     }
 
     /**
      * Updates an experiment overview in the Shared Metadata.
      */
-    void updateExperimentOverview(GoosciSharedMetadata.ExperimentOverview overviewToUpdate) {
-        GoosciSharedMetadata.SharedMetadata sharedMetadata = readSharedMetadata();
-        if (sharedMetadata == null) {
+    void updateExperimentOverview(GoosciUserMetadata.ExperimentOverview overviewToUpdate) {
+        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        if (userMetadata == null) {
             return;
         }
         boolean updated = false;
-        for (int i = 0; i < sharedMetadata.experiments.length; i++) {
-            if (TextUtils.equals(sharedMetadata.experiments[i].experimentId,
+        for (int i = 0; i < userMetadata.experiments.length; i++) {
+            if (TextUtils.equals(userMetadata.experiments[i].experimentId,
                     overviewToUpdate.experimentId)) {
-                sharedMetadata.experiments[i] = overviewToUpdate;
+                userMetadata.experiments[i] = overviewToUpdate;
                 updated = true;
                 break;
             }
         }
         if (updated) {
-            writeSharedMetadata(sharedMetadata);
+            writeUserMetadata(userMetadata);
         }
     }
 
@@ -108,27 +108,27 @@ public class SharedMetadataManager {
      * @param experimentIdToDelete the ID of the overview to be deleted.
      */
     void deleteExperimentOverview(String experimentIdToDelete) {
-        GoosciSharedMetadata.SharedMetadata sharedMetadata = readSharedMetadata();
-        if (sharedMetadata == null || sharedMetadata.experiments.length == 0) {
+        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        if (userMetadata == null || userMetadata.experiments.length == 0) {
             return;
         }
         boolean updated = false;
-        GoosciSharedMetadata.ExperimentOverview[] newList =
-                new GoosciSharedMetadata.ExperimentOverview[sharedMetadata.experiments.length - 1];
+        GoosciUserMetadata.ExperimentOverview[] newList =
+                new GoosciUserMetadata.ExperimentOverview[userMetadata.experiments.length - 1];
         int newIndex = 0;
-        for (int oldIndex = 0; oldIndex < sharedMetadata.experiments.length; oldIndex++) {
+        for (int oldIndex = 0; oldIndex < userMetadata.experiments.length; oldIndex++) {
             // If it's not the one we want to delete, add it to the new list.
             if (!TextUtils.equals(experimentIdToDelete,
-                    sharedMetadata.experiments[oldIndex].experimentId)) {
-                newList[newIndex] = sharedMetadata.experiments[oldIndex];
+                    userMetadata.experiments[oldIndex].experimentId)) {
+                newList[newIndex] = userMetadata.experiments[oldIndex];
                 newIndex++;
             } else {
                 updated = true;
             }
         }
         if (updated) {
-            sharedMetadata.experiments = newList;
-            writeSharedMetadata(sharedMetadata);
+            userMetadata.experiments = newList;
+            writeUserMetadata(userMetadata);
         }
     }
 
@@ -136,17 +136,17 @@ public class SharedMetadataManager {
      * Gets all the experiment overviews
      * @param includeArchived Whether to include the archived experiments.
      */
-    List<GoosciSharedMetadata.ExperimentOverview> getExperimentOverviews(
+    List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(
             boolean includeArchived) {
-        GoosciSharedMetadata.SharedMetadata sharedMetadata = readSharedMetadata();
-        if (sharedMetadata == null) {
+        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        if (userMetadata == null) {
             return null;
         }
         if (includeArchived) {
-            return Arrays.asList(sharedMetadata.experiments);
+            return Arrays.asList(userMetadata.experiments);
         } else {
-            List<GoosciSharedMetadata.ExperimentOverview> result = new ArrayList<>();
-            for (GoosciSharedMetadata.ExperimentOverview overview : sharedMetadata.experiments) {
+            List<GoosciUserMetadata.ExperimentOverview> result = new ArrayList<>();
+            for (GoosciUserMetadata.ExperimentOverview overview : userMetadata.experiments) {
                 if (!overview.isArchived) {
                     result.add(overview);
                 }
@@ -159,24 +159,23 @@ public class SharedMetadataManager {
      * Reads the shared metadata from the file, and throws an error to the failure listener if
      * needed.
      */
-    private GoosciSharedMetadata.SharedMetadata readSharedMetadata() {
-        createSharedMetadataFileIfNeeded();
-        GoosciSharedMetadata.SharedMetadata sharedMetadata =
-                new GoosciSharedMetadata.SharedMetadata();
-        boolean success = mOverviewProtoFileHelper.readFromFile(mSharedMetadataFile, sharedMetadata);
+    private GoosciUserMetadata.UserMetadata readUserMetadata() {
+        createUserMetadataFileIfNeeded();
+        GoosciUserMetadata.UserMetadata userMetadata = new GoosciUserMetadata.UserMetadata();
+        boolean success = mOverviewProtoFileHelper.readFromFile(mUserMetadataFile, userMetadata);
         if (!success) {
             mFailureListener.onReadFailed();
             return null;
         }
-        return sharedMetadata;
+        return userMetadata;
     }
 
     /**
      * Writes the shared metadata object to the file.
      */
-    private void writeSharedMetadata(GoosciSharedMetadata.SharedMetadata sharedMetadata) {
-        createSharedMetadataFileIfNeeded();
-        if (!mOverviewProtoFileHelper.writeToFile(mSharedMetadataFile, sharedMetadata)) {
+    private void writeUserMetadata(GoosciUserMetadata.UserMetadata userMetadata) {
+        createUserMetadataFileIfNeeded();
+        if (!mOverviewProtoFileHelper.writeToFile(mUserMetadataFile, userMetadata)) {
             mFailureListener.onWriteFailed();
         };
     }
@@ -186,11 +185,11 @@ public class SharedMetadataManager {
      * app is opened, so we could consider calling this only once to reduce load, but it doesn't
      * seem super expensive.
      */
-    private void createSharedMetadataFileIfNeeded() {
-        if (!mSharedMetadataFile.exists()) {
+    private void createUserMetadataFileIfNeeded() {
+        if (!mUserMetadataFile.exists()) {
             // If the files aren't there yet, create them.
             try {
-                boolean created = mSharedMetadataFile.createNewFile();
+                boolean created = mUserMetadataFile.createNewFile();
                 if (!created) {
                     mFailureListener.onWriteFailed();
                 }
