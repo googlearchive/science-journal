@@ -42,9 +42,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValu
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Adapter for a recycler view of pinned notes.
  */
@@ -164,7 +161,7 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
             PictureLabelValue labelValue =
                     (PictureLabelValue) label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE);
-            text = labelValue.getCaption();
+            text = label.getCaptionText();
             noteHolder.mImage.setVisibility(View.VISIBLE);
             noteHolder.mAutoText.setVisibility(View.GONE);
             Glide.with(noteHolder.mImage.getContext())
@@ -179,7 +176,7 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (label.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
             SensorTriggerLabelValue labelValue = ((SensorTriggerLabelValue) label.getLabelValue(
                     GoosciLabelValue.LabelValue.SENSOR_TRIGGER));
-            text = labelValue.getCustomText();
+            text = label.getCaptionText();
             noteHolder.mImage.setVisibility(View.GONE);
             noteHolder.mAutoText.setVisibility(View.VISIBLE);
             String autoText = labelValue.getAutogenText();
@@ -202,8 +199,7 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (mEditListener != null) {
             // Only allow editing of notes with empty text onclick.
             if ((label.hasValueType(GoosciLabelValue.LabelValue.PICTURE) &&
-                    TextUtils.isEmpty(((PictureLabelValue) label.getLabelValue(
-                            GoosciLabelValue.LabelValue.PICTURE)).getCaption())) ||
+                    TextUtils.isEmpty(label.getCaptionText())) ||
                     (label.hasValueType(GoosciLabelValue.LabelValue.TEXT) &&
                             TextUtils.isEmpty(((TextLabelValue) label.getLabelValue(
                                     GoosciLabelValue.LabelValue.TEXT)).getText()))) {
@@ -260,13 +256,16 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (mLabelListHolder.getLabelCount() == 0 && position == 0) {
             return TYPE_NO_NOTES;
         }
-        if (mLabelListHolder.getLabels().get(position).hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
+        if (mLabelListHolder.getLabels().get(position).hasValueType(
+                GoosciLabelValue.LabelValue.TEXT)) {
             return TYPE_TEXT_NOTE;
         }
-        if (mLabelListHolder.getLabels().get(position).hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+        if (mLabelListHolder.getLabels().get(position).hasValueType(
+                GoosciLabelValue.LabelValue.PICTURE)) {
             return TYPE_PICTURE_NOTE;
         }
-        if (mLabelListHolder.getLabels().get(position).hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
+        if (mLabelListHolder.getLabels().get(position).hasValueType(
+                GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
             return TYPE_TRIGGER_NOTE;
         }
         return TYPE_UNKNOWN;

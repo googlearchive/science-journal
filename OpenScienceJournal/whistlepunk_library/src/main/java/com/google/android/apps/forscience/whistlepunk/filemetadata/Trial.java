@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
@@ -245,6 +246,17 @@ public class Trial extends LabelListHolder {
     // The Trial ID cannot be set after it is created.
     public String getTrialId() {
         return mTrial.trialId;
+    }
+
+    public String getCaptionText() {
+        if (mTrial.caption == null) {
+            return "";
+        }
+        return mTrial.caption.text;
+    }
+
+    public void setCaption(GoosciCaption.Caption caption) {
+        mTrial.caption = caption;
     }
 
     /**
