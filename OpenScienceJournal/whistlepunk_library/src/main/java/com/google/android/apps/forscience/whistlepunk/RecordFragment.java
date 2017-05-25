@@ -109,6 +109,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private static final String KEY_SAVED_ACTIVE_SENSOR_CARD = "savedActiveCardIndex";
     private static final String KEY_SAVED_RECYCLER_LAYOUT = "savedRecyclerLayout";
     private static final String KEY_SHOW_SNAPSHOT = "showSnapshot";
+    private static final String KEY_INFLATE_MENU = "inflateMenu";
 
     private static final int DEFAULT_CARD_VIEW = GoosciSensorLayout.SensorLayout.METER;
     private static final boolean DEFAULT_AUDIO_ENABLED = false;
@@ -223,10 +224,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private int mRecorderStateListenerId = RecorderController.NO_LISTENER_ID;
     private int mTriggerFiredListenerId = RecorderController.NO_LISTENER_ID;
 
-    public static RecordFragment newInstance(boolean showSnapshot) {
+    public static RecordFragment newInstance(boolean showSnapshot, boolean inflateMenu) {
         RecordFragment fragment = new RecordFragment();
         Bundle args = new Bundle();
         args.putBoolean(KEY_SHOW_SNAPSHOT, showSnapshot);
+        args.putBoolean(KEY_INFLATE_MENU, inflateMenu);
         fragment.setArguments(args);
         return fragment;
     }
@@ -658,6 +660,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private boolean getShowSnapshot() {
         return getArguments().getBoolean(KEY_SHOW_SNAPSHOT, false);
+    }
+
+    private boolean shouldInflateMenu() {
+        return getArguments().getBoolean(KEY_INFLATE_MENU, true);
     }
 
     private void activateSensorCardPresenter(SensorCardPresenter sensorCardPresenter,
@@ -1625,23 +1631,27 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (getActivity() == null) {
             return;
         }
-        inflater.inflate(R.menu.menu_record, menu);
-        boolean enableDevTools = DevOptionsFragment.isDevToolsEnabled(getActivity());
-        menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
-        menu.findItem(R.id.action_level).setVisible(enableDevTools);
-        menu.findItem(R.id.action_ruler).setVisible(enableDevTools);
+        if (shouldInflateMenu()) {
+            inflater.inflate(R.menu.menu_record, menu);
+            boolean enableDevTools = DevOptionsFragment.isDevToolsEnabled(getActivity());
+            menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
+            menu.findItem(R.id.action_level).setVisible(enableDevTools);
+            menu.findItem(R.id.action_ruler).setVisible(enableDevTools);
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public void onPrepareOptionsMenu(final Menu menu) {
-        MenuItem addSensors = menu.findItem(R.id.btn_add_sensors);
-        if (addSensors != null) {
-            addSensors.setVisible(!isRecording());
-        }
-        MenuItem expDetails = menu.findItem(R.id.btn_experiment_details);
-        if (expDetails != null) {
-            expDetails.setVisible(!isRecording());
+        if (shouldInflateMenu()) {
+            MenuItem addSensors = menu.findItem(R.id.btn_add_sensors);
+            if (addSensors != null) {
+                addSensors.setVisible(!isRecording());
+            }
+            MenuItem expDetails = menu.findItem(R.id.btn_experiment_details);
+            if (expDetails != null) {
+                expDetails.setVisible(!isRecording());
+            }
         }
     }
 

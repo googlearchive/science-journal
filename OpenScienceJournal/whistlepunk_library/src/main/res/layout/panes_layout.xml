@@ -1,32 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
-
-    <Spinner
-        android:id="@+id/spinner_nav"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/accessibility_touch_target_min_size"
-        android:background="@android:color/transparent"
-        android:visibility="gone"
-        />
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <FrameLayout
         android:id="@+id/experiment_pane"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/text_color_black"
+        android:layout_height="match_parent"
         />
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/pager"
+    <LinearLayout
+        android:id="@+id/bottom"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-</LinearLayout>
+        android:layout_height="match_parent"
+        android:background="@color/text_color_white"
+        android:orientation="vertical"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
+        >
+
+        <View
+            android:id="@+id/tool_picker"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@color/text_color_dark_grey"
+            />
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>
