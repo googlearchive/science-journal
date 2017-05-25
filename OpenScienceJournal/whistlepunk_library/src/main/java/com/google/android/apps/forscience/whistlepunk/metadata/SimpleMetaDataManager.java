@@ -31,6 +31,7 @@ import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
@@ -51,6 +52,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -144,10 +150,76 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
         for (String experimentId : experimentIds) {
             Experiment experiment = getDatabaseExperimentById(db, experimentId, mContext, true);
-            mFileMetadataManager.addExperimentImmediately(experiment);
+
+            // This prepares the file system for the new experiment.
+            mFileMetadataManager.addExperiment(experiment);
+
+            // Migrate assets
+            for (Label label : experiment.getLabels()) {
+                if (migratePictureAssetsIfNeeded(experimentId, label)) {
+                    experiment.updateLabel(label);
+                }
+            }
+            for (Trial trial : experiment.getTrials()) {
+                // TODO: Also migrate any sensor specific assets needed to view this trial.
+                for (Label trialLabel : trial.getLabels()) {
+                    if (migratePictureAssetsIfNeeded(experimentId, trialLabel)) {
+                        trial.updateLabel(trialLabel);
+                    }
+                }
+            }
+            // Now that all the labels have their assets in the right place, we can save them.
+            mFileMetadataManager.updateExperiment(experiment);
+            mFileMetadataManager.saveImmediately();
+
             deleteDatabaseExperiment(db, experiment, mContext, /* don't delete assets */ false);
         }
-        // TODO: Migrate assets!
+    }
+
+    /**
+     * Tries to migrate a label's picture assets if it is a picture label, returns true if the label
+     * was modified.
+     * @param label The label whose pictures should be migrated, if needed
+     * @return true if the label was modified
+     */
+    private boolean migratePictureAssetsIfNeeded(String experimentId, Label label) {
+        if (!label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+            return false;
+        }
+        PictureLabelValue pictureLabelValue =
+                (PictureLabelValue) label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE);
+        File oldFile = new File(pictureLabelValue.getAbsoluteFilePath());
+        if (!oldFile.exists()) {
+            // It has been deleted by the user, don't try to copy it.
+            pictureLabelValue.updateFilePath("");
+            return true;
+        }
+        boolean success = false;
+
+        try {
+            File newFile = PictureUtils.createImageFile(mContext, experimentId,
+                    label.getLabelId());
+            pictureLabelValue.updateFilePath("file:" + newFile.getAbsolutePath());
+            try (FileChannel input = new FileInputStream(oldFile).getChannel();
+                 FileChannel output = new FileOutputStream(newFile).getChannel()) {
+                // We can't do a simple rename because we used to store photos on external storage
+                // and we are moving them to internal storage
+                // Instead we have to copy the file contents over.
+                input.transferTo(0, input.size(), output);
+                success = true;
+            }
+        } catch (IOException e) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, e.getMessage());
+            }
+        }
+        if (success) {
+            oldFile.delete();
+            label.setLabelValue(pictureLabelValue);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private List<String> getAllExperimentIds(SQLiteDatabase db) {

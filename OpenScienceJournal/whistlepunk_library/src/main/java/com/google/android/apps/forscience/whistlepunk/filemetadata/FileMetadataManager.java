@@ -48,7 +48,7 @@ public class FileMetadataManager {
 
     public FileMetadataManager(Context applicationContext, Clock clock) {
         mClock = clock;
-        // TODO: Probably pass failure listeners from a higher level in order to propgate them
+        // TODO: Probably pass failure listeners from a higher level in order to propagate them
         // up to the user.
         ExperimentCache.FailureListener failureListener = new ExperimentCache.FailureListener() {
             @Override
@@ -112,15 +112,14 @@ public class FileMetadataManager {
     }
 
     // Adds an existing experiment to the file system (rather than creating a new one).
-    private void addExperiment(Experiment experiment) {
-        // Write the experiment to a file
+    // This should just be used for data migration and testing.
+    public void addExperiment(Experiment experiment) {
+        // Get ready to write the experiment to a file. Will write when the timer expires.
         mActiveExperimentCache.createNewExperiment(experiment);
         mSharedMetadataManager.addExperimentOverview(experiment.getExperimentOverview());
     }
 
-    // Adds an experiment to the file system and saves it immediately.
-    public void addExperimentImmediately(Experiment experiment) {
-        addExperiment(experiment);
+    public void saveImmediately() {
         mActiveExperimentCache.saveImmediately();
     }
 

@@ -56,6 +56,7 @@ import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
+import java.io.File;
 import java.util.UUID;
 
 import io.reactivex.Single;
@@ -251,7 +252,6 @@ public class AddNoteDialog extends DialogFragment {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mPictureLabelPath = null;
                         dialog.cancel();
                     }
                 });
@@ -565,4 +565,17 @@ public class AddNoteDialog extends DialogFragment {
         }
     }
 
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        // Delete the picture we've taken if we are not saving it.
+        if (mPictureLabelPath != null) {
+            // Delete the picture if we canceled this.
+            File picture = new File(PictureLabelValue.getAbsoluteFilePath(mPictureLabelPath));
+            if (picture.exists()) {
+                picture.delete();
+            }
+            mPictureLabelPath = null;
+        }
+        super.onCancel(dialog);
+    }
 }

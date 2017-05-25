@@ -67,6 +67,7 @@ public class PictureUtils {
      * Scan the file when adding or deleting so that media scanner aware apps like Gallery apps can
      * properly index the file.
      */
+    // TODO: Delete this, it doesn't work in the new system. Instead, use DocumentProvider.
     public static void scanFile(String photoPath, Context context) {
         MediaScannerConnection.scanFile(context, new String[]{photoPath}, null,
                 new MediaScannerConnection.OnScanCompletedListener() {

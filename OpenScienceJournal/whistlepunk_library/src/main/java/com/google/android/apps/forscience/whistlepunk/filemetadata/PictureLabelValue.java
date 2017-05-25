@@ -57,7 +57,10 @@ public class PictureLabelValue extends LabelValue {
      * @return the pure disk path of the file, without any "file" prepending.
      */
     public String getAbsoluteFilePath() {
-        String filePath = getFilePath();
+        return getAbsoluteFilePath(getFilePath());
+    }
+
+    public static String getAbsoluteFilePath(String filePath) {
         if (filePath.startsWith("file:")) {
             filePath = filePath.substring("file:".length());
         }
@@ -65,11 +68,24 @@ public class PictureLabelValue extends LabelValue {
     }
 
     public static String getFilePath(GoosciLabelValue.LabelValue value) {
-        if (value.data.length > INDEX_FILE_PATH &&
-                TextUtils.equals(value.data[INDEX_FILE_PATH].key, KEY_FILE_PATH)) {
+        if (hasFilePath(value)) {
             return value.data[INDEX_FILE_PATH].value;
         }
         return "";
+    }
+
+    /**
+     * Changes the path for this picture label value.
+     */
+    public void updateFilePath(String filePath) {
+        if (hasFilePath(getValue())) {
+            getValue().data[INDEX_FILE_PATH].value = filePath;
+        }
+    }
+
+    private static boolean hasFilePath(GoosciLabelValue.LabelValue value) {
+        return value.data.length > INDEX_FILE_PATH &&
+                TextUtils.equals(value.data[INDEX_FILE_PATH].key, KEY_FILE_PATH);
     }
 
     // The caption within the PictureLabelValue is no longer used.
