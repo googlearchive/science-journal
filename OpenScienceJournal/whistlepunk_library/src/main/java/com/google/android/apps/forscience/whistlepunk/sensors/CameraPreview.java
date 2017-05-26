@@ -18,8 +18,10 @@
 package com.google.android.apps.forscience.whistlepunk.sensors;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -35,6 +37,7 @@ import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import io.reactivex.Maybe;
 
@@ -44,6 +47,7 @@ public class CameraPreview extends SurfaceView {
 
     private SurfaceHolder mHolder;
     private Camera mCamera;
+    private int mRotation = Surface.ROTATION_0;
 
     public CameraPreview(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -114,9 +118,9 @@ public class CameraPreview extends SurfaceView {
                 Camera.getCameraInfo(cameraId, info);
                 WindowManager manager =
                         (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-                int rotation = manager.getDefaultDisplay().getRotation();
+                mRotation = manager.getDefaultDisplay().getRotation();
                 int degrees = 0;
-                switch (rotation) {
+                switch (mRotation) {
                     case Surface.ROTATION_0:
                         degrees = 0;
                         break;
@@ -152,6 +156,7 @@ public class CameraPreview extends SurfaceView {
 
     public void setCamera(Camera camera) {
         mCamera = camera;
+        requestLayout();
     }
 
     public void removeCamera() {
@@ -159,6 +164,69 @@ public class CameraPreview extends SurfaceView {
             mCamera.release();
             mCamera = null;
         }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (mCamera != null) {
+            adjustPreviewSizeAndShrinkToMatchRatio();
+        }
+    }
+
+    private void adjustPreviewSizeAndShrinkToMatchRatio() {
+        Camera.Parameters params = mCamera.getParameters();
+        int idealWidth = getMeasuredWidth();
+        int idealHeight = getMeasuredHeight();
+        double idealRatio = (1.0 * idealHeight) / idealWidth;
+
+        // Sizes come out as larger-dimension first regardless of orientation, which makes them
+        // weird if we're in portrait mode, so we have to flip them in that case
+        // TODO: is this still right on a Chromebook?
+
+        boolean flipSizes = isInPortrait();
+        Camera.Size bestSize = null;
+        double bestRatioMatch = 0.0;
+
+        // Find preview size with closest aspect ratio, tiebreaking with absolute size
+        // On one test device, largest size was first.  Assuming this always works
+        for (Camera.Size size : params.getSupportedPreviewSizes()) {
+            int testHeight = !flipSizes ? size.height : size.width;
+            int testWidth = !flipSizes ? size.width : size.height;
+            double ratio = (1.0 * testHeight) / testWidth;
+            double ratioMatch = Math.min(ratio, idealRatio) / Math.max(ratio, idealRatio);
+            if (ratioMatch > bestRatioMatch) {
+                bestSize = size;
+                bestRatioMatch = ratioMatch;
+            }
+        }
+
+        if (bestSize == null) {
+            return;
+        }
+
+        // Bake in the new preview size
+        params.setPreviewSize(bestSize.width, bestSize.height);
+        mCamera.setParameters(params);
+
+        // Remeasure to match ideal
+        double ratio = 1.0 * bestSize.height / bestSize.width;
+
+        if (flipSizes) {
+            ratio = 1.0 / ratio;
+        }
+
+        if (ratio < idealRatio) {
+            // preview is too short, reduce measured height
+            setMeasuredDimension(idealWidth, (int) (idealHeight * ratio / idealRatio));
+        } else {
+            // preview is too skinny (or just right), reduce measured width
+            setMeasuredDimension((int) (idealWidth * idealRatio / ratio), idealHeight);
+        }
+    }
+
+    private boolean isInPortrait() {
+        return mRotation == Surface.ROTATION_0 || mRotation == Surface.ROTATION_180;
     }
 
     public void takePicture(Maybe<String> maybeExperimentId, String uuid,
@@ -176,17 +244,14 @@ public class CameraPreview extends SurfaceView {
                     PictureUtils.createImageFile(getContext(), uuid, experimentId);
             final FileOutputStream out = new FileOutputStream(photoFile);
 
-            mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
-                @Override
-                public void onPictureTaken(byte[] data, Camera camera) {
-                    try {
-                        out.write(data);
-                        out.close();
-                        onSuccess.success(photoFile);
-                        mCamera.startPreview();
-                    } catch (IOException e) {
-                        onSuccess.fail(e);
-                    }
+            mCamera.takePicture(null, null, null, (data, camera) -> {
+                try {
+                    out.write(data);
+                    out.close();
+                    onSuccess.success(photoFile);
+                    mCamera.startPreview();
+                } catch (IOException e) {
+                    onSuccess.fail(e);
                 }
             });
         } catch (IOException e) {
