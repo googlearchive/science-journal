@@ -31,7 +31,8 @@ import java.util.List;
 
 // TODO: make this a java-only unit test
 public class SensorRegistryTest extends DevOptionsTestCase {
-    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector();
+    // TODO: never pass in null once we actually use the providers
+    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector(null);
 
 
     public void testImmediatelyReset() {

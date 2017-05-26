@@ -33,7 +33,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public class DeviceOptionsViewControllerTest extends AndroidTestCase {
-    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector();
+    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector(null);
 
     public void testCommit() {
         DataController dc = new InMemorySensorDatabase().makeSimpleController(

@@ -222,19 +222,25 @@ public class AppSingleton {
 
     public Map<String,ExternalSensorProvider> getExternalSensorProviders() {
         if (mExternalSensorProviders == null) {
-            mExternalSensorProviders = new HashMap<>();
-            Map<String, ExternalSensorDiscoverer> discoverers =
-                    WhistlePunkApplication.getExternalSensorDiscoverers(mApplicationContext);
-            for (Map.Entry<String, ExternalSensorDiscoverer> entry : discoverers.entrySet()) {
-                mExternalSensorProviders.put(entry.getKey(), entry.getValue().getProvider());
-            }
+            mExternalSensorProviders = buildProviderMap(
+                    WhistlePunkApplication.getExternalSensorDiscoverers(mApplicationContext));
         }
         return mExternalSensorProviders;
     }
 
+    @NonNull
+    public static Map<String, ExternalSensorProvider> buildProviderMap(
+            Map<String, ExternalSensorDiscoverer> discoverers) {
+        Map<String, ExternalSensorProvider> providers = new HashMap<>();
+        for (Map.Entry<String, ExternalSensorDiscoverer> entry : discoverers.entrySet()) {
+            providers.put(entry.getKey(), entry.getValue().getProvider());
+        }
+        return providers;
+    }
+
     public ConnectableSensor.Connector getSensorConnector() {
         if (mSensorConnector == null) {
-            mSensorConnector = new ConnectableSensor.Connector();
+            mSensorConnector = new ConnectableSensor.Connector(getExternalSensorProviders());
         }
         return mSensorConnector;
     }

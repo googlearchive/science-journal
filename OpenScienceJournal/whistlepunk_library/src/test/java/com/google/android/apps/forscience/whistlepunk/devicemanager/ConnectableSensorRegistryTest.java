@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
@@ -70,14 +71,14 @@ public class ConnectableSensorRegistryTest {
             mPairedDevices);
     private TestSensorRegistry mSensorRegistry = new TestSensorRegistry();
     private SensorAppearanceProvider mAppearanceProvider = new MemoryAppearanceProvider();
-    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector();
+    // private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector(providers);
 
     @Test
     public void testScalarInputPassthrough() {
         final ScalarInputScenario s = makeScenarioWithProviders();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
-                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, mConnector);
+                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, s.makeConnector());
 
         registry.startScanningInDiscoverers(false);
 
@@ -97,7 +98,7 @@ public class ConnectableSensorRegistryTest {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
-                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, mConnector);
+                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, s.makeConnector());
         Map<String, ExternalSensorSpec> pairedSensors = new HashMap<>();
         String sensorId = Arbitrary.string();
 
@@ -122,10 +123,12 @@ public class ConnectableSensorRegistryTest {
 
     private void setPairedSensors(ConnectableSensorRegistry registry,
             Map<String, ExternalSensorSpec> pairedSensors) {
+        mProviderMap.putAll(EnumeratedDiscoverer.buildProviderMap(
+                pairedSensors.values().toArray(new ExternalSensorSpec[0])));
         List<ConnectableSensor> paired = Lists.newArrayList();
-        for (Map.Entry<String, ExternalSensorSpec> entry : pairedSensors.entrySet()) {
-            paired.add(mConnector.connected(entry.getValue(), entry.getKey()));
-        }
+        ConnectableSensor.Connector connector = new ConnectableSensor.Connector(mProviderMap);
+        for (Map.Entry<String, ExternalSensorSpec> entry : pairedSensors.entrySet())
+            paired.add(connector.connected(entry.getValue(), entry.getKey()));
         registry.setPairedSensors(paired);
     }
 
@@ -137,18 +140,21 @@ public class ConnectableSensorRegistryTest {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
-                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, mConnector);
+                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, s.makeConnector());
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String sensorName = Arbitrary.string();
-        sensors.put("sensorId",
-                new ScalarInputSpec(sensorName, "serviceId", "address", null, null, "deviceId"));
+        ScalarInputSpec spec =
+                new ScalarInputSpec(sensorName, "serviceId", "address", null, null, "deviceId");
+        sensors.put("sensorId", spec);
+        mProviderMap.putAll(EnumeratedDiscoverer.buildProviderMap(spec));
 
         setPairedSensors(registry, sensors);
         Assert.assertEquals(0, mAvailableDevices.size());
         Assert.assertEquals(1, mPairedDevices.size());
 
         assertTrue(registry.isPaired(mPairedDevices.getKey(0)));
+
         assertEquals(sensorName, mPairedDevices.getTitle(0));
         assertEquals(deviceName, mPairedDevices.getDeviceName(0));
     }
@@ -159,7 +165,7 @@ public class ConnectableSensorRegistryTest {
         final DataController dc = makeDataController();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
-                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, mConnector);
+                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, s.makeConnector());
 
         final String experimentId = Arbitrary.string("experimentId");
         StoringConsumer<String> storeSensorId = new StoringConsumer<>();
@@ -186,10 +192,11 @@ public class ConnectableSensorRegistryTest {
 
         ExternalSensorDiscoverer dupeDiscoverer = new EnumeratedDiscoverer(
                 new BleSensorSpec("address", "name"), new BleSensorSpec("address", "name"));
-        discoverers.put("type", dupeDiscoverer);
+        discoverers.put("bluetooth_le", dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers, mPresenter, mScheduler, new CurrentTimeClock(), mOptionsListener,
-                null, mAppearanceProvider, UsageTracker.STUB, mConnector);
+                null, mAppearanceProvider, UsageTracker.STUB, new ConnectableSensor.Connector(
+                AppSingleton.buildProviderMap(discoverers)));
 
         registry.startScanningInDiscoverers(false);
 
@@ -203,10 +210,11 @@ public class ConnectableSensorRegistryTest {
         Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
         ExternalSensorDiscoverer dupeDiscoverer = new EnumeratedDiscoverer(
                 new BleSensorSpec("address", "name"));
-        discoverers.put("type", dupeDiscoverer);
+        discoverers.put(BleSensorSpec.TYPE, dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers, mPresenter, mScheduler, new CurrentTimeClock(), mOptionsListener,
-                null, mAppearanceProvider, UsageTracker.STUB, mConnector);
+                null, mAppearanceProvider, UsageTracker.STUB,
+                ConnectableSensor.Connector.fromDiscoverers(discoverers));
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         String connectedId = Arbitrary.string();
@@ -228,10 +236,11 @@ public class ConnectableSensorRegistryTest {
         BleSensorSpec spec2 = new BleSensorSpec("address", "name");
         spec2.setCustomPin("A2");
         ExternalSensorDiscoverer d = new EnumeratedDiscoverer(spec1, spec2);
-        discoverers.put("type", d);
+        discoverers.put("bluetooth_le", d);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers, mPresenter, mScheduler, new CurrentTimeClock(), mOptionsListener,
-                null, mAppearanceProvider, UsageTracker.STUB, mConnector);
+                null, mAppearanceProvider, UsageTracker.STUB,
+                ConnectableSensor.Connector.fromDiscoverers(discoverers));
 
         registry.startScanningInDiscoverers(false);
 
@@ -245,7 +254,7 @@ public class ConnectableSensorRegistryTest {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
-                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, mConnector);
+                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, s.makeConnector());
 
         registry.startScanningInDiscoverers(false);
 
@@ -271,7 +280,8 @@ public class ConnectableSensorRegistryTest {
 
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 tsd.makeDiscovererMap("serviceId"), mPresenter, mScheduler, new CurrentTimeClock(),
-                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, mConnector);
+                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB,
+                new ConnectableSensor.Connector(mProviderMap));
 
         registry.startScanningInDiscoverers(false);
 
@@ -300,9 +310,11 @@ public class ConnectableSensorRegistryTest {
         tsd.addSensor("deviceId", new TestSensor("address2", "name2", appearance1));
 
         SettableClock clock = new SettableClock();
+        Map<String, ExternalSensorDiscoverer> discoverers = tsd.makeDiscovererMap("serviceId");
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
-                tsd.makeDiscovererMap("serviceId"), mPresenter, mScheduler, clock, mOptionsListener,
-                null, mAppearanceProvider, UsageTracker.STUB, mConnector);
+                discoverers, mPresenter, mScheduler, clock, mOptionsListener,
+                null, mAppearanceProvider, UsageTracker.STUB,
+                ConnectableSensor.Connector.fromDiscoverers(discoverers));
 
         clock.setNow(0);
         registry.startScanningInDiscoverers(false);
@@ -341,7 +353,8 @@ public class ConnectableSensorRegistryTest {
         SettableClock clock = new SettableClock();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers, mPresenter, mScheduler, clock, mOptionsListener, null,
-                mAppearanceProvider, UsageTracker.STUB, mConnector);
+                mAppearanceProvider, UsageTracker.STUB,
+                ConnectableSensor.Connector.fromDiscoverers(discoverers));
 
         clock.setNow(0);
         registry.startScanningInDiscoverers(true);
@@ -367,7 +380,7 @@ public class ConnectableSensorRegistryTest {
         final ScalarInputScenario s = new ScalarInputScenario();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
-                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, mConnector);
+                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, s.makeConnector());
 
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
         ScalarInputSpec spec = s.makeSpec();
@@ -395,7 +408,7 @@ public class ConnectableSensorRegistryTest {
 
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
-                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, mConnector);
+                mOptionsListener, null, mAppearanceProvider, UsageTracker.STUB, s.makeConnector());
         registry.setExperimentId(experiment.getExperimentId(), mSensorRegistry);
         registry.pair(mAvailableDevices.getKey(0));
         s.appearance.units = "newUnits";
@@ -403,7 +416,7 @@ public class ConnectableSensorRegistryTest {
 
         Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
                 mMetadataManager.getExperimentExternalSensors(experiment.getExperimentId(),
-                        mProviderMap, mConnector).getIncludedSensors());
+                        mProviderMap, s.makeConnector()).getIncludedSensors());
         ScalarInputSpec retrievedSpec = (ScalarInputSpec) sensors.values().iterator().next();
         SensorAppearance appearance = retrievedSpec.getSensorAppearance();
         assertEquals("newUnits", appearance.getUnits(null));
@@ -432,10 +445,10 @@ public class ConnectableSensorRegistryTest {
         DeviceRegistry deviceRegistry = new DeviceRegistry(null);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc, discoverers,
                 mPresenter, mScheduler, new CurrentTimeClock(), mOptionsListener, deviceRegistry,
-                mAppearanceProvider, UsageTracker.STUB, mConnector);
+                mAppearanceProvider, UsageTracker.STUB, s.makeConnector());
 
         registry.setMyDevices(deviceSpec);
-        setPairedSensors(registry, ImmutableMap.of(sensorId, (ExternalSensorSpec) sensorSpec));
+        setPairedSensors(registry, ImmutableMap.of(sensorId, sensorSpec));
 
         assertEquals(deviceSpec, deviceRegistry.getDevice(sensorSpec));
     }
@@ -448,7 +461,7 @@ public class ConnectableSensorRegistryTest {
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
                 s.makeScalarInputDiscoverers(), mPresenter, mScheduler, new CurrentTimeClock(),
                 mOptionsListener, mDeviceRegistry, mAppearanceProvider, UsageTracker.STUB,
-                mConnector);
+                s.makeConnector());
         registry.setExperimentId("experimentId", mSensorRegistry);
 
         InputDeviceSpec device = mDeviceRegistry.getDevice(ScalarInputSpec.TYPE,
@@ -462,10 +475,11 @@ public class ConnectableSensorRegistryTest {
         mSensorRegistry.addManualBuiltInSensor("id2");
 
         DataController dc = makeDataController();
+        HashMap<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
-                new HashMap<String, ExternalSensorDiscoverer>(), mPresenter, mScheduler,
+                discoverers, mPresenter, mScheduler,
                 new CurrentTimeClock(), mOptionsListener, mDeviceRegistry, mAppearanceProvider,
-                UsageTracker.STUB, mConnector);
+                UsageTracker.STUB, ConnectableSensor.Connector.fromDiscoverers(discoverers));
 
         registry.setExperimentId("experimentId", mSensorRegistry);
         assertEquals(2, mPairedDevices.getSensorCount());

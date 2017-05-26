@@ -29,6 +29,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public class InMemorySensorDatabase implements SensorDatabase {
     }
 
     public DataControllerImpl makeSimpleController(MemoryMetadataManager mmm) {
-        return makeSimpleController(mmm, null);
+        return makeSimpleController(mmm, new HashMap<>());
     }
 
     @NonNull
@@ -51,7 +52,7 @@ public class InMemorySensorDatabase implements SensorDatabase {
 
     public RecordingDataController makeSimpleRecordingController(
             MemoryMetadataManager memoryMetadataManager) {
-        return makeDataControllerImpl(memoryMetadataManager, null);
+        return makeDataControllerImpl(memoryMetadataManager, new HashMap<>());
     }
 
     @NonNull
@@ -59,7 +60,7 @@ public class InMemorySensorDatabase implements SensorDatabase {
             Map<String, ExternalSensorProvider> providerMap) {
         return new DataControllerImpl(this, MoreExecutors.directExecutor(),
                 MoreExecutors.directExecutor(), MoreExecutors.directExecutor(), manager,
-                new MonotonicClock(), providerMap, new ConnectableSensor.Connector());
+                new MonotonicClock(), providerMap, new ConnectableSensor.Connector(providerMap));
     }
 
     @Override

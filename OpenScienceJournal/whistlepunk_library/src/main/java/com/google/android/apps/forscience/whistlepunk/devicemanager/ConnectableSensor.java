@@ -15,6 +15,8 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
@@ -36,6 +38,14 @@ public class ConnectableSensor {
      * configurations.
      */
     public static class Connector {
+        public static Connector fromDiscoverers(Map<String, ExternalSensorDiscoverer> discoverers) {
+            return new Connector(AppSingleton.buildProviderMap(discoverers));
+        }
+
+        public Connector(Map<String, ExternalSensorProvider> providers) {
+            // TODO: actually use providers to build specs
+        }
+
         /**
          * Create an entry for an external sensor we've connected to in the past
          */
