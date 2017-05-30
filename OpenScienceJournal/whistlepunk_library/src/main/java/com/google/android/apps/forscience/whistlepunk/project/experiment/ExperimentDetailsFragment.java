@@ -91,7 +91,6 @@ import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemD
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
@@ -709,11 +708,11 @@ public class ExperimentDetailsFragment extends Fragment
         private static final String KEY_SAVED_SENSOR_INDICES = "savedSensorIndices";
 
         private static final int VIEW_TYPE_EXPERIMENT_DESCRIPTION = 0;
-        private static final int VIEW_TYPE_EXPERIMENT_TEXT_LABEL = 1;
-        private static final int VIEW_TYPE_EXPERIMENT_PICTURE_LABEL = 2;
-        private static final int VIEW_TYPE_RUN_CARD = 3;
+        static final int VIEW_TYPE_EXPERIMENT_TEXT_LABEL = 1;
+        static final int VIEW_TYPE_EXPERIMENT_PICTURE_LABEL = 2;
+        static final int VIEW_TYPE_RUN_CARD = 3;
         private static final int VIEW_TYPE_EMPTY = 4;
-        private static final int VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL = 5;
+        static final int VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL = 5;
 
         private final WeakReference<ExperimentDetailsFragment> mParentReference;
         private Experiment mExperiment;
@@ -763,8 +762,8 @@ public class ExperimentDetailsFragment extends Fragment
                 TextView textView = (TextView) holder.itemView.findViewById(R.id.note_text);
                 TextView autoTextView = (TextView) holder.itemView.findViewById(
                         R.id.auto_note_text);
-                final Label label = mItems.get(position).mLabel;
-                final LabelValue labelValue = mItems.get(position).mLabelValue;
+                final Label label = mItems.get(position).getLabel();
+                final LabelValue labelValue = mItems.get(position).getLabelValue();
                 String text = isPictureLabel || isTriggerLabel ? label.getCaptionText() :
                         ((TextLabelValue) labelValue).getText();
                 if (!TextUtils.isEmpty(text)) {
@@ -881,9 +880,9 @@ public class ExperimentDetailsFragment extends Fragment
             if (position == -1) {
                 return;
             }
-            mItems.get(position).mLabel = label;
+            mItems.get(position).setLabel(label);
             List<LabelValue> values = label.getLabelValues();
-            mItems.get(position).mLabelValue = values.size() > 0 ? values.get(0) : null;
+            mItems.get(position).setLabelValue(values.size() > 0 ? values.get(0) : null);
             notifyItemChanged(position);
         }
 
@@ -907,7 +906,7 @@ public class ExperimentDetailsFragment extends Fragment
             for (int i = 0; i < size; i++) {
                 ExperimentDetailItem item = mItems.get(i);
                 if (item.getViewType() == expectedViewType) {
-                    if (TextUtils.equals(label.getLabelId(), item.mLabel.getLabelId())) {
+                    if (TextUtils.equals(label.getLabelId(), item.getLabel().getLabelId())) {
                         position = i;
                         break;
                     }
@@ -1275,7 +1274,7 @@ public class ExperimentDetailsFragment extends Fragment
                                 public void success(final Experiment experiment) {
                                     // Rebind the View Holder to reload the stats and graphs.
                                     mExperiment = experiment;
-                                    mItems.get(trialIndex).mTrial = experiment.getTrial(trialId);
+                                    mItems.get(trialIndex).setTrial(experiment.getTrial(trialId));
                                 }
                             });
                     return;
@@ -1379,84 +1378,6 @@ public class ExperimentDetailsFragment extends Fragment
             }
         }
 
-        /**
-         * Represents a detail item: either a run or an experiment level label or a special card.
-         * <p>
-         * TODO: might be able to rework this when Run objects exist.
-         */
-        public static class ExperimentDetailItem {
-            private final int mViewType;
-            private Trial mTrial;
-            private int mSensorTagIndex = -1;
-            private Label mLabel;
-            private LabelValue mLabelValue;
-            private long mTimestamp;
-            private ChartController mChartController;
-
-            ExperimentDetailItem(Trial trial, ScalarDisplayOptions scalarDisplayOptions) {
-                mTrial = trial;
-                mTimestamp = mTrial.getFirstTimestamp();
-                mViewType = VIEW_TYPE_RUN_CARD;
-                mSensorTagIndex = mTrial.getSensorIds().size() > 0 ? 0 : -1;
-                mChartController = new ChartController(
-                        ChartOptions.ChartPlacementType.TYPE_PREVIEW_REVIEW,
-                        scalarDisplayOptions);
-            }
-
-            ExperimentDetailItem(Label label) {
-                mLabel = label;
-                if (label.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
-                    mLabelValue = label.getLabelValue(GoosciLabelValue.LabelValue.TEXT);
-                    mViewType = VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
-                } else if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-                    mLabelValue = label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE);
-                    mViewType = VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
-                } else {
-                    mLabelValue = label.getLabelValue(GoosciLabelValue.LabelValue.SENSOR_TRIGGER);
-                    mViewType = VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
-                }
-                mTimestamp = label.getTimeStamp();
-            }
-
-            ExperimentDetailItem(int viewType) {
-                mViewType = viewType;
-            }
-
-            int getViewType() {
-                return mViewType;
-            }
-
-            long getTimestamp() {
-                return mTimestamp;
-            }
-
-            Trial getTrial() {
-                return mTrial;
-            }
-
-            int getSensorTagIndex() {
-                return mSensorTagIndex;
-            }
-
-            GoosciSensorLayout.SensorLayout getSelectedSensorLayout() {
-                return mTrial.getSensorLayouts().get(mSensorTagIndex);
-            }
-
-            String getNextSensorId() {
-                return mTrial.getSensorIds().get(mSensorTagIndex + 1);
-            }
-
-            String getPrevSensorId() {
-                return mTrial.getSensorIds().get(mSensorTagIndex - 1);
-            }
-
-            void setSensorTagIndex(int index) {
-                mSensorTagIndex = index;
-            }
-
-            ChartController getChartController() {
-                return mChartController;
-            }
-        }
     }
+
 }
