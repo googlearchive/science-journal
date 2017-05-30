@@ -10,6 +10,7 @@
         android:id="@+id/experiment_pane"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="top"
         />
 
     <LinearLayout

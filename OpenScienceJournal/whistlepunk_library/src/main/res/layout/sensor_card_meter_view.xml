@@ -17,7 +17,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="fill_parent"
+    android:layout_height="match_parent"
     android:minHeight="@dimen/sensor_card_content_height_min"
     android:background="@color/sensor_card_meter_view_color"
     android:id="@+id/back_view_content_group"
@@ -49,13 +49,15 @@
             />
 
         <RelativeLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             >
 
+            <!-- Use match_parent here or else every value change causes a full requestLayout -->
             <com.google.android.apps.forscience.whistlepunk.SingleLineResizableTextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minWidth="@dimen/sensor_card_back_icon_size"
                 android:id="@+id/live_sensor_value"

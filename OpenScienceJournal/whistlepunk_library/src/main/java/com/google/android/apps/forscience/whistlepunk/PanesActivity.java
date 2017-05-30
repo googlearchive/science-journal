@@ -23,11 +23,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
@@ -130,6 +132,37 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             getDataController().getExperimentById(experimentId,
                     MaybeConsumers.fromObserver(mActiveExperiment));
         }
+
+        View experimentPane = findViewById(R.id.experiment_pane);
+        CoordinatorLayout.LayoutParams params =
+                (CoordinatorLayout.LayoutParams) experimentPane.getLayoutParams();
+        params.setBehavior(new CoordinatorLayout.Behavior() {
+            @Override
+            public boolean layoutDependsOn(CoordinatorLayout parent, View child, View dependency) {
+                if (dependency.getId() == R.id.bottom) {
+                    return true;
+                } else {
+                    return super.layoutDependsOn(parent, child, dependency);
+                }
+            }
+
+            @Override
+            public boolean onDependentViewChanged(CoordinatorLayout parent, View child,
+                    View dependency) {
+                int desiredBottom = dependency.getTop();
+                int currentBottom = child.getBottom();
+
+                if (desiredBottom != currentBottom) {
+                    ViewGroup.LayoutParams layoutParams = child.getLayoutParams();
+                    layoutParams.height = desiredBottom - child.getTop();
+                    child.setLayoutParams(layoutParams);
+                    return true;
+                } else {
+                    return super.onDependentViewChanged(parent, child, dependency);
+                }
+            }
+        });
+        experimentPane.setLayoutParams(params);
     }
 
     private void setExperimentFragmentId(String experimentId) {
