@@ -19,6 +19,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.RecordingU
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.EnumeratedDiscoverer;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -35,17 +36,18 @@ public class SensorRegistryUnitTest {
     public void addApiSensorsOnlyOnce() {
         SensorRegistry registry = new SensorRegistry();
 
-        List<ConnectableSensor> sensors = Lists.newArrayList(
-                new ConnectableSensor.Connector().connected(
-                        new ScalarInputSpec("name", "serviceId", "address", null, null, "devId"),
-                        "id"));
+        ScalarInputSpec spec =
+                new ScalarInputSpec("name", "serviceId", "address", null, null, "devId");
+        ConnectableSensor.Connector connector =
+                new ConnectableSensor.Connector(EnumeratedDiscoverer.buildProviderMap(spec));
+        List<ConnectableSensor> sensors = Lists.newArrayList(connector.connected(spec, "id"));
 
         assertEquals(Lists.newArrayList("id"),
                 registry.updateExternalSensors(sensors, getProviders()));
         assertEquals(Lists.newArrayList(), registry.updateExternalSensors(sensors, getProviders()));
     }
 
-    public Map<String,ExternalSensorProvider> getProviders() {
+    private Map<String, ExternalSensorProvider> getProviders() {
         Map<String, ExternalSensorProvider> providers = new HashMap<>();
 
         providers.put(ScalarInputSpec.TYPE,

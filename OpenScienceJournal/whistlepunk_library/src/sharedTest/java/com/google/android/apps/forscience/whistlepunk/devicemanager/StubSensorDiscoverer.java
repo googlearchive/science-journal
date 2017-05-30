@@ -47,8 +47,12 @@ class StubSensorDiscoverer implements ExternalSensorDiscoverer {
 
             @Override
             public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
-                return null;
+                return StubSensorDiscoverer.this.buildSensorSpec(name, config);
             }
         };
+    }
+
+    protected ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
+        return null;
     }
 }

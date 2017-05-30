@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 
 import java.util.Map;
@@ -112,5 +113,9 @@ public class ScalarInputScenario {
                 // override with empty implementation: we never call c.onScanDone, to test timeout
             }
         };
+    }
+
+    public ConnectableSensor.Connector makeConnector() {
+        return new ConnectableSensor.Connector(makeScalarInputProviders());
     }
 }

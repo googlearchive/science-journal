@@ -22,6 +22,7 @@ import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
@@ -51,21 +52,28 @@ public class ExpandableDeviceAdapterTest {
     private DataController mDataController = new InMemorySensorDatabase().makeSimpleController(
             mMetadataManager);
     private TestSensorRegistry mSensors = new TestSensorRegistry();
-    private Map<String, ExternalSensorDiscoverer> mDiscoverers = new HashMap<>();
     private final MemorySensorGroup mAvailableDevices = new MemorySensorGroup(mDeviceRegistry);
     private final MemorySensorGroup mPairedDevices = new MemorySensorGroup(mDeviceRegistry);
     private final TestDevicesPresenter mPresenter = new TestDevicesPresenter(mAvailableDevices,
             mPairedDevices);
 
-    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector();
-    private ConnectableSensorRegistry mSensorRegistry = new ConnectableSensorRegistry(
-            mDataController, mDiscoverers, mPresenter, null, null, null,
-            mDeviceRegistry, null, UsageTracker.STUB, mConnector);
     private Scenario mScenario = new Scenario();
+    private Map<String, ExternalSensorProvider> mProviders = mScenario.providers;
+    private Map<String, ExternalSensorDiscoverer> mDiscoverers = mScenario.discoverers;
+    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector(mProviders);
+    private ConnectableSensorRegistry mSensorRegistry =
+            new ConnectableSensorRegistry(mDataController, mDiscoverers, mPresenter,
+                    new MockScheduler(), null, null, mDeviceRegistry, null, UsageTracker.STUB,
+                    mConnector);
 
+    // TODO: Pull this out and make it reusable?
     private class Scenario {
         private int mSensorCount = 0;
         private int mKeyCount = 0;
+        private EnumeratedDiscoverer mDiscoverer = new EnumeratedDiscoverer();
+
+        public Map<String, ExternalSensorProvider> providers = new HashMap<>();
+        public Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
 
         public ScalarInputSpec makeSensorNewDevice() {
             String deviceId = Arbitrary.string("deviceId" + mSensorCount);
@@ -79,13 +87,22 @@ public class ExpandableDeviceAdapterTest {
             String sensorAddress = Arbitrary.string("sensorAddress" + mSensorCount);
             ScalarInputSpec sis = new ScalarInputSpec(sensorName, serviceId, sensorAddress, null,
                     null, deviceId);
+            addSpecToDiscoverer(sis);
 
             String deviceName = Arbitrary.string("deviceName");
-            mDeviceRegistry.addDevice(
-                    new InputDeviceSpec(ScalarInputSpec.TYPE, sis.getDeviceAddress(), deviceName));
+            InputDeviceSpec device =
+                    new InputDeviceSpec(ScalarInputSpec.TYPE, sis.getDeviceAddress(), deviceName);
+            addSpecToDiscoverer(device);
+            mDeviceRegistry.addDevice(device);
 
             mSensorCount++;
             return sis;
+        }
+
+        private void addSpecToDiscoverer(ExternalSensorSpec spec) {
+            mDiscoverer.addSpec(spec);
+            discoverers.put(spec.getType(), mDiscoverer);
+            providers.put(spec.getType(), mDiscoverer.getProvider());
         }
 
         public ScalarInputSpec makeSensorSameDevice(ExternalSensorSpec spec) {
@@ -95,6 +112,7 @@ public class ExpandableDeviceAdapterTest {
             String sensorName = Arbitrary.string("sensorName" + mSensorCount);
             ScalarInputSpec sis = new ScalarInputSpec(sensorName, previous.getServiceId(),
                     sensorAddress, null, null, previous.getDeviceId());
+            addSpecToDiscoverer(sis);
 
             mSensorCount++;
             return sis;
@@ -248,18 +266,21 @@ public class ExpandableDeviceAdapterTest {
 
     @Test
     public void checkBuiltInWhenForgettingLastSensor() {
+        final ConnectableSensor sensor = mScenario.makeConnectedSensorNewDevice();
+
+
         Experiment experiment = mMetadataManager.newExperiment();
         TestDevicesPresenter presenter = new TestDevicesPresenter(mAvailableDevices,
                 null);
-        ConnectableSensorRegistry sensorRegistry = new ConnectableSensorRegistry(
-                mDataController, mDiscoverers, presenter, null, null, null,
-                mDeviceRegistry, null, UsageTracker.STUB, mConnector);
+        ConnectableSensorRegistry sensorRegistry =
+                new ConnectableSensorRegistry(mDataController, mDiscoverers, presenter,
+                        new MockScheduler(), null, null, mDeviceRegistry, null, UsageTracker.STUB,
+                        mConnector);
         ExpandableDeviceAdapter adapter = ExpandableDeviceAdapter.createEmpty(sensorRegistry,
                 mDeviceRegistry, null, mSensors, 0);
         presenter.setPairedDevices(adapter);
         sensorRegistry.setExperimentId(experiment.getExperimentId(), mSensors);
 
-        final ConnectableSensor sensor = mScenario.makeConnectedSensorNewDevice();
         String key = mScenario.newSensorKey();
 
         // Add built-in device

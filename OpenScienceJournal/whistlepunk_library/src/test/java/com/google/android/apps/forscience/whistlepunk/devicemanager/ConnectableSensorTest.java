@@ -34,7 +34,8 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 public class ConnectableSensorTest {
-    private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector();
+    private ConnectableSensor.Connector mConnector =
+            new ConnectableSensor.Connector(new HashMap<>());
 
     public static class MemoryAppearanceProvider implements SensorAppearanceProvider {
         private Map<String, SensorAppearance> mAppearances = new HashMap<>();
@@ -52,12 +53,14 @@ public class ConnectableSensorTest {
         public SensorAppearance getAppearance(String sensorId) {
             return mAppearances.get(sensorId);
         }
+
     }
 
     @Test
     public void getNameExternal() {
         InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "address", "name");
-        SensorAppearance appearance = mConnector.disconnected(spec).getAppearance(null);
+        SensorAppearance appearance = new ConnectableSensor.Connector(
+                EnumeratedDiscoverer.buildProviderMap(spec)).disconnected(spec).getAppearance(null);
         assertEquals("name", appearance.getName(null));
     }
 

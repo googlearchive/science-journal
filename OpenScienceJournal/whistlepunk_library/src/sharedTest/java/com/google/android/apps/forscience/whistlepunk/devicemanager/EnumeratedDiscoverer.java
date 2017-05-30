@@ -15,19 +15,33 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.app.PendingIntent;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
-import java.util.Set;
+import org.junit.Assert;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * For testing, an {@link ExternalSensorDiscoverer} that knows exactly which specs it knows how to
+ * return.
+ */
 public class EnumeratedDiscoverer extends StubSensorDiscoverer {
-    private final ExternalSensorSpec[] mSpecs;
+    private final List<ExternalSensorSpec> mSpecs = new ArrayList<>();
 
     public EnumeratedDiscoverer(ExternalSensorSpec... specs) {
-        mSpecs = specs;
+        mSpecs.addAll(Arrays.asList(specs));
+    }
+
+    public void addSpec(ExternalSensorSpec spec) {
+        mSpecs.add(spec);
     }
 
     @Override
@@ -57,4 +71,40 @@ public class EnumeratedDiscoverer extends StubSensorDiscoverer {
             }
         };
     }
+
+    /**
+     * For testing, generate a provider map that has providers that know how to generate exactly
+     * the given set of specs.
+     */
+    public static Map<String, ExternalSensorProvider> buildProviderMap(
+            ExternalSensorSpec... specs) {
+        EnumeratedDiscoverer discoverer = new EnumeratedDiscoverer(specs);
+        Map<String, ExternalSensorProvider> providers = new HashMap<>();
+        for (ExternalSensorSpec spec : specs) {
+            providers.put(spec.getType(), discoverer.getProvider());
+        }
+        return providers;
+    }
+
+    public static Map<String, ExternalSensorDiscoverer> buildDiscovererMap(
+            ExternalSensorSpec... specs) {
+        EnumeratedDiscoverer discoverer = new EnumeratedDiscoverer(specs);
+        Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
+        for (ExternalSensorSpec spec : specs) {
+            discoverers.put(spec.getType(), discoverer);
+        }
+        return discoverers;
+    }
+
+    @Override
+    protected ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
+        for (ExternalSensorSpec spec : mSpecs) {
+            if (spec.getName().equals(name)) {
+                return spec;
+            }
+        }
+        Assert.fail("Can't find " + name + " in " + Arrays.asList(mSpecs));
+        return null;
+    }
+
 }

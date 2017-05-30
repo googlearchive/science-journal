@@ -58,7 +58,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     private SimpleMetaDataManager mMetaDataManager;
     private TestSystemClock mTestSystemClock;
     private ConnectableSensor.Connector
-            mConnector = new ConnectableSensor.Connector();
+            mConnector = new ConnectableSensor.Connector(null);
 
     public class TestSystemClock implements Clock {
 

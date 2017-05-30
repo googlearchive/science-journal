@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 public class ExpandableServiceAdapterTest {
     @Test
     public void hasSensorKeyIsCorrect() {
+        final BleSensorSpec spec = new BleSensorSpec("address", "name");
         ExpandableServiceAdapter adapter = ExpandableServiceAdapter.createEmpty(null, null, 0,
                 new DeviceRegistry(null), null, null);
         ExternalSensorDiscoverer.DiscoveredService service =
@@ -55,7 +56,6 @@ public class ExpandableServiceAdapterTest {
                     }
                 };
         adapter.addAvailableService("providerId", service, false);
-        final BleSensorSpec spec = new BleSensorSpec("address", "name");
         final InputDeviceSpec deviceSpec = DeviceRegistry.createHoldingDevice(spec);
         adapter.addAvailableDevice(new ExternalSensorDiscoverer.DiscoveredDevice() {
             @Override
@@ -71,7 +71,8 @@ public class ExpandableServiceAdapterTest {
 
         assertFalse(adapter.hasSensorKey("sensorKey"));
         adapter.addAvailableSensor("sensorKey",
-                new ConnectableSensor.Connector().disconnected(spec));
+                new ConnectableSensor.Connector(
+                        EnumeratedDiscoverer.buildProviderMap(spec)).disconnected(spec));
         assertTrue(adapter.hasSensorKey("sensorKey"));
     }
 }
