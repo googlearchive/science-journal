@@ -69,4 +69,9 @@
         <resource>license_apache2</resource>
         <copyrightHeader>Copyright 2010-2017 Stephen Colebourne</copyrightHeader>
     </license>
+    <license key="rxjava">
+        <title>RxJava</title>
+        <resource>license_apache2</resource>
+        <copyrightHeader>Copyright 2012 Netflix, Inc.</copyrightHeader>
+    </license>
 </licenses>
