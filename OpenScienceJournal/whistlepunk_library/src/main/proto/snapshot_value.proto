@@ -25,7 +25,8 @@ option optimize_for = LITE_RUNTIME;
 import "sensor_spec.proto";
 
 /*
- * The contents of a label, able to represent many different types of scalar data.
+ * A value that can be stored in the proto_data field of label_value.proto, to store a set of
+ * snapshotted values from one or more sensors.
  */
 message SnapshotValue {
     message SensorSnapshot {
