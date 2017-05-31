@@ -120,7 +120,8 @@ public class ExpandableDeviceAdapterTest {
 
         @NonNull
         private ConnectableSensor makeConnectedSensorNewDevice() {
-            return mConnector.connected(makeSensorNewDevice(), newConnectedSensorId());
+            return mConnector.connected(makeSensorNewDevice().asGoosciSpec(),
+                    newConnectedSensorId());
         }
 
 
@@ -187,7 +188,7 @@ public class ExpandableDeviceAdapterTest {
         // Same device, new sensor
         ScalarInputSpec sis2 = mScenario.makeSensorSameDevice(sensor1.getSpec());
         String id2 = Arbitrary.string(sensor1.getConnectedSensorId());
-        adapter.addSensor(mScenario.newSensorKey(), mConnector.connected(sis2, id2));
+        adapter.addSensor(mScenario.newSensorKey(), mConnector.connected(sis2.asGoosciSpec(), id2));
 
         assertEquals(1, adapter.getParentItemList().size());
         assertEquals(2, adapter.getParentItemList().get(0).getChildItemList().size());
@@ -218,7 +219,7 @@ public class ExpandableDeviceAdapterTest {
         ScalarInputSpec replacement = mScenario.makeSensorSameDevice(sensor1.getSpec());
 
         adapter.addSensor(key,
-                mConnector.connected(replacement, sensor1.getConnectedSensorId()));
+                mConnector.connected(replacement.asGoosciSpec(), sensor1.getConnectedSensorId()));
 
         ConnectableSensor sensor = adapter.getSensor(0, 0);
 
@@ -235,16 +236,16 @@ public class ExpandableDeviceAdapterTest {
         // Replace only sensor of second device
         ScalarInputSpec newReplace = mScenario.makeSensorSameDevice(newSensor.getSpec());
         adapter.addSensor(newKey,
-                mConnector.connected(newReplace, newSensor.getConnectedSensorId()));
+                mConnector.connected(newReplace.asGoosciSpec(), newSensor.getConnectedSensorId()));
         observer.assertMostRecentNotification("Changed 2 at 2 [null]");
 
         ScalarInputSpec sensor3 = mScenario.makeSensorSameDevice(newReplace);
         String key3 = mScenario.newSensorKey();
-        adapter.addSensor(key3, mConnector.connected(sensor3, "connectedId3"));
+        adapter.addSensor(key3, mConnector.connected(sensor3.asGoosciSpec(), "connectedId3"));
 
         // Replace second sensor of second device
         ScalarInputSpec replace3 = mScenario.makeSensorSameDevice(sensor3);
-        adapter.addSensor(key3, mConnector.connected(replace3, "connectedId3"));
+        adapter.addSensor(key3, mConnector.connected(replace3.asGoosciSpec(), "connectedId3"));
         observer.assertMostRecentNotification("Changed 3 at 2 [null]");
     }
 

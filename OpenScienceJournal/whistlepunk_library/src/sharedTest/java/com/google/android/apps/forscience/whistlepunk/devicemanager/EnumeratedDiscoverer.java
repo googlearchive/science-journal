@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 import org.junit.Assert;
@@ -58,6 +59,11 @@ public class EnumeratedDiscoverer extends StubSensorDiscoverer {
             @Override
             public ExternalSensorSpec getSpec() {
                 return spec;
+            }
+
+            @Override
+            public GoosciSensorSpec.SensorSpec getSensorSpec() {
+                return spec.asGoosciSpec();
             }
 
             @Override

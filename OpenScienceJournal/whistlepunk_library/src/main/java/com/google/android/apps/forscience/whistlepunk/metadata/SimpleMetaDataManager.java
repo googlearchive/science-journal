@@ -1358,6 +1358,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return sensors;
     }
 
+    // TODO: this should return SensorSpec instead of building it from providers right here.
     @Override
     public ExternalSensorSpec getExternalSensorById(String id,
             Map<String, ExternalSensorProvider> providerMap) {
@@ -1471,7 +1472,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
             // only be one or two, so we are trading off code complexity of doing a db join.
             for (String tag : tags) {
                 includedSensors.add(
-                        connector.connected(getExternalSensorById(tag, providerMap), tag));
+                        connector.connected(getExternalSensorById(tag, providerMap).asGoosciSpec(),
+                                tag));
             }
         }
 

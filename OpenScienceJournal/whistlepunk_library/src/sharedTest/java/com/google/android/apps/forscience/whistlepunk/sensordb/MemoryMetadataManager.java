@@ -161,7 +161,8 @@ public class MemoryMetadataManager implements MetaDataManager {
         // TODO: doesn't deal with exclusions
         List<ConnectableSensor> specs = new ArrayList<>();
         for (String id : mExperimentIncluded.get(experimentId)) {
-            specs.add(connector.connected(mExternalSensors.get(id), id));
+            specs.add(connector.connected(ExternalSensorSpec.toGoosciSpec(mExternalSensors.get(id)),
+                    id));
         }
         return new ExperimentSensors(specs, Sets.newHashSet(mExperimentExcluded.get(experimentId)));
     }

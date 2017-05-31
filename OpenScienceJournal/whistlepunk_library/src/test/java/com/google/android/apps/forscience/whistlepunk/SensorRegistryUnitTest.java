@@ -40,7 +40,8 @@ public class SensorRegistryUnitTest {
                 new ScalarInputSpec("name", "serviceId", "address", null, null, "devId");
         ConnectableSensor.Connector connector =
                 new ConnectableSensor.Connector(EnumeratedDiscoverer.buildProviderMap(spec));
-        List<ConnectableSensor> sensors = Lists.newArrayList(connector.connected(spec, "id"));
+        List<ConnectableSensor> sensors =
+                Lists.newArrayList(connector.connected(spec.asGoosciSpec(), "id"));
 
         assertEquals(Lists.newArrayList("id"),
                 registry.updateExternalSensors(sensors, getProviders()));

@@ -119,7 +119,7 @@ public class ConnectableSensorRegistry {
                                     @Override
                                     public void success(Success value) {
                                         if (sensor.shouldShowOptionsOnConnect()
-                                                && settings != null) {
+                                            && settings != null) {
                                             mPresenter.showSensorOptions(mExperimentId,
                                                     sensor.getConnectedSensorId(), settings);
                                         }
@@ -202,11 +202,11 @@ public class ConnectableSensorRegistry {
         if (!atLeastOneWasPaired && !sensors.isEmpty()) {
             addSensorToCurrentExperiment(sensors.get(0),
                     new LoggingConsumer<ConnectableSensor>(TAG, "Adding backup sensor") {
-                @Override
-                public void success(ConnectableSensor value) {
-                    refresh(false, sr);
-                }
-            });
+                        @Override
+                        public void success(ConnectableSensor value) {
+                            refresh(false, sr);
+                        }
+                    });
         }
 
         startScanningInDiscoverers(clearSensorCache);
@@ -324,7 +324,7 @@ public class ConnectableSensorRegistry {
 
     private void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor ds,
             Set<String> availableKeysSeen) {
-        ConnectableSensor sensor = mConnector.disconnected(ds.getSpec());
+        ConnectableSensor sensor = mConnector.disconnected(ds.getSensorSpec());
         final String sensorKey = findSensorKey(sensor);
 
         if (sensorKey == null) {
@@ -362,7 +362,7 @@ public class ConnectableSensorRegistry {
             final ExternalSensorDiscoverer.DiscoveredSensor newSensor) {
         mSettingsIntents.put(sensorKey, newSensor.getSettingsInterface());
         if (!newSensor.getSpec().isSameSensorAndSpec(oldSensor.getSpec())
-                && newSensor.shouldReplaceStoredSensor(oldSensor)) {
+            && newSensor.shouldReplaceStoredSensor(oldSensor)) {
             final String oldSensorId = oldSensor.getConnectedSensorId();
             DeviceOptionsViewController.maybeReplaceSensor(mDataController, mExperimentId,
                     oldSensorId, newSensor.getSpec(),
@@ -372,7 +372,7 @@ public class ConnectableSensorRegistry {
                             mOptionsListener.onExperimentSensorReplaced(oldSensorId,
                                     newSensorId);
                             mSensors.put(sensorKey,
-                                    mConnector.connected(newSensor.getSpec(), newSensorId));
+                                    mConnector.connected(newSensor.getSensorSpec(), newSensorId));
                         }
                     });
         }
@@ -432,7 +432,7 @@ public class ConnectableSensorRegistry {
         for (String sensorKey : mSensors.keySet()) {
             ConnectableSensor sensor = mSensors.get(sensorKey);
             if (sensor.isPaired() && !sensors.containsKey(sensor.getConnectedSensorId())) {
-                mSensors.put(sensorKey, mConnector.disconnected(sensor.getSpec()));
+                mSensors.put(sensorKey, mConnector.asDisconnected(sensor));
                 getPairedGroup().removeSensor(sensorKey);
             }
         }
@@ -462,6 +462,7 @@ public class ConnectableSensorRegistry {
 
         // TODO: probably shouldn't finish in these cases, instead go into sensor editing.
 
+        // TODO: work with SensorSpec instead
         ExternalSensorSpec spec = connectableSensor.getSpec();
         if (spec != null) {
             // The paired spec will be stored in the database, and may contain modified/added
@@ -473,7 +474,8 @@ public class ConnectableSensorRegistry {
                         @Override
                         public void take(final String sensorId) {
                             addSensorToCurrentExperiment(
-                                    mConnector.connected(pairedSpec, sensorId), onAdded);
+                                    mConnector.connected(pairedSpec.asGoosciSpec(), sensorId),
+                                    onAdded);
                         }
                     }));
         } else {

@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 /**
@@ -35,7 +36,10 @@ public interface ExternalSensorDiscoverer {
     }
 
     public interface DiscoveredSensor {
+        // TODO: remove need for this call, only use getSensorSpec
         ExternalSensorSpec getSpec();
+
+        GoosciSensorSpec.SensorSpec getSensorSpec();
 
         SettingsInterface getSettingsInterface();
 

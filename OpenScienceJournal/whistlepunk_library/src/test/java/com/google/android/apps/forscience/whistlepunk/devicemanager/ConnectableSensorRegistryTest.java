@@ -128,7 +128,7 @@ public class ConnectableSensorRegistryTest {
         List<ConnectableSensor> paired = Lists.newArrayList();
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(mProviderMap);
         for (Map.Entry<String, ExternalSensorSpec> entry : pairedSensors.entrySet())
-            paired.add(connector.connected(entry.getValue(), entry.getKey()));
+            paired.add(connector.connected(entry.getValue().asGoosciSpec(), entry.getKey()));
         registry.setPairedSensors(paired);
     }
 

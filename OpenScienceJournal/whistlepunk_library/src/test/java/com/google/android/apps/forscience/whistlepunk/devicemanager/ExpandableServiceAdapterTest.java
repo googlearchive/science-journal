@@ -72,7 +72,8 @@ public class ExpandableServiceAdapterTest {
         assertFalse(adapter.hasSensorKey("sensorKey"));
         adapter.addAvailableSensor("sensorKey",
                 new ConnectableSensor.Connector(
-                        EnumeratedDiscoverer.buildProviderMap(spec)).disconnected(spec));
+                        EnumeratedDiscoverer.buildProviderMap(spec)).disconnected(
+                        spec.asGoosciSpec()));
         assertTrue(adapter.hasSensorKey("sensorKey"));
     }
 }
