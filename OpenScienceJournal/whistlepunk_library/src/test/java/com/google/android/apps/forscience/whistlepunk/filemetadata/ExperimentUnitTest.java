@@ -21,7 +21,7 @@ import static junit.framework.Assert.assertEquals;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 
 import org.junit.Test;
 
@@ -98,7 +98,7 @@ public class ExperimentUnitTest {
         expSensorProto.sensorId = "sensorId";
         proto.experimentSensors = new GoosciExperiment.ExperimentSensor[]{expSensorProto};
 
-        GoosciSharedMetadata.ExperimentOverview overview = new GoosciSharedMetadata
+        GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata
                 .ExperimentOverview();
         overview.experimentId = "cheese";
 

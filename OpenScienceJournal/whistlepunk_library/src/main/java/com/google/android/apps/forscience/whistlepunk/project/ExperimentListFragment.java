@@ -49,8 +49,7 @@ import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
 
@@ -151,16 +150,16 @@ public class ExperimentListFragment extends Fragment {
 
     private void loadExperiments() {
         getDataController().getExperimentOverviews(mIncludeArchived,
-                new LoggingConsumer<List<GoosciSharedMetadata.ExperimentOverview>>(TAG,
+                new LoggingConsumer<List<GoosciUserMetadata.ExperimentOverview>>(TAG,
                         "Retrieve experiments") {
                     @Override
-                    public void success(List<GoosciSharedMetadata.ExperimentOverview> experiments) {
+                    public void success(List<GoosciUserMetadata.ExperimentOverview> experiments) {
                         attachToExperiments(experiments);
                     }
                 });
     }
 
-    private void attachToExperiments(List<GoosciSharedMetadata.ExperimentOverview> experiments) {
+    private void attachToExperiments(List<GoosciUserMetadata.ExperimentOverview> experiments) {
         final View rootView = getView();
         if (rootView == null) {
             return;
@@ -207,7 +206,7 @@ public class ExperimentListFragment extends Fragment {
         private final Drawable mPlaceHolderImage;
         private DataController mDataController;
 
-        private List<GoosciSharedMetadata.ExperimentOverview> mExperiments;
+        private List<GoosciUserMetadata.ExperimentOverview> mExperiments;
         private boolean mShouldUsePanes;
 
         public ExperimentListAdapter(Context context, DataController dc, boolean shouldUsePanes) {
@@ -218,7 +217,7 @@ public class ExperimentListFragment extends Fragment {
             mShouldUsePanes = shouldUsePanes;
         }
 
-        void setData(List<GoosciSharedMetadata.ExperimentOverview> experiments) {
+        void setData(List<GoosciUserMetadata.ExperimentOverview> experiments) {
             mExperiments.clear();
             mExperiments.addAll(experiments);
             notifyDataSetChanged();
@@ -258,7 +257,7 @@ public class ExperimentListFragment extends Fragment {
         }
 
         private void bindExperiment(final ViewHolder holder,
-                final GoosciSharedMetadata.ExperimentOverview experiment) {
+                final GoosciUserMetadata.ExperimentOverview experiment) {
             Resources res = holder.itemView.getResources();
             // First on the UI thread, set what experiment we're trying to load.
             holder.overviewLoadStatus = ViewHolder.LOAD_STATUS_IN_PROGRESS;
@@ -320,7 +319,7 @@ public class ExperimentListFragment extends Fragment {
         }
 
         private void loadRunData(final ViewHolder holder,
-                final GoosciSharedMetadata.ExperimentOverview experiment) {
+                final GoosciUserMetadata.ExperimentOverview experiment) {
             Context context = holder.itemView.getContext();
             holder.experimentRunTotals.setText(context.getResources()
                     .getQuantityString(R.plurals.experiment_run_count, experiment.trialCount,

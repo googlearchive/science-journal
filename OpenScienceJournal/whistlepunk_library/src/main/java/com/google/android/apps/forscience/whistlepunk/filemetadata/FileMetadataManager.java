@@ -23,9 +23,10 @@ import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 
 import java.io.File;
 import java.util.List;
@@ -39,12 +40,12 @@ public class FileMetadataManager {
     private static final String TAG = "FileMetadataManager";
     static final String ASSETS_DIRECTORY = "assets";
     static final String EXPERIMENT_FILE = "experiment.proto";
-    private static final String SHARED_METADATA_FILE = "shared_metadata.proto";
+    private static final String USER_METADATA_FILE = "user_metadata.proto";
 
     private Clock mClock;
 
     private ExperimentCache mActiveExperimentCache;
-    private SharedMetadataManager mSharedMetadataManager;
+    private UserMetadataManager mUserMetadataManager;
 
     public FileMetadataManager(Context applicationContext, Clock clock) {
         mClock = clock;
@@ -58,14 +59,13 @@ public class FileMetadataManager {
             }
 
             @Override
-            public void onReadFailed(
-                    GoosciSharedMetadata.ExperimentOverview experimentOverview) {
+            public void onReadFailed(GoosciUserMetadata.ExperimentOverview experimentOverview) {
                 // TODO: Propagate this up to the user somehow.
                 Log.d(TAG, "read failed");
             }
         };
-        SharedMetadataManager.FailureListener sharedMetadataListener =
-                new SharedMetadataManager.FailureListener() {
+        UserMetadataManager.FailureListener userMetadataListener =
+                new UserMetadataManager.FailureListener() {
 
                     @Override
                     public void onWriteFailed() {
@@ -80,8 +80,8 @@ public class FileMetadataManager {
                     }
                 };
         mActiveExperimentCache = new ExperimentCache(applicationContext, failureListener);
-        mSharedMetadataManager = new SharedMetadataManager(applicationContext,
-                sharedMetadataListener);
+        mUserMetadataManager = new UserMetadataManager(applicationContext,
+                userMetadataListener);
     }
 
     /**
@@ -94,8 +94,8 @@ public class FileMetadataManager {
     }
 
     public Experiment getExperimentById(String experimentId) {
-        GoosciSharedMetadata.ExperimentOverview overview =
-                mSharedMetadataManager.getExperimentOverview(experimentId);
+        GoosciUserMetadata.ExperimentOverview overview =
+                mUserMetadataManager.getExperimentOverview(experimentId);
         if (overview == null) {
             return null;
         }
@@ -115,7 +115,7 @@ public class FileMetadataManager {
     private void addExperiment(Experiment experiment) {
         // Write the experiment to a file
         mActiveExperimentCache.createNewExperiment(experiment);
-        mSharedMetadataManager.addExperimentOverview(experiment.getExperimentOverview());
+        mUserMetadataManager.addExperimentOverview(experiment.getExperimentOverview());
     }
 
     // Adds an experiment to the file system and saves it immediately.
@@ -130,7 +130,7 @@ public class FileMetadataManager {
 
     private void deleteExperiment(String experimentId) {
         mActiveExperimentCache.deleteExperiment(experimentId);
-        mSharedMetadataManager.deleteExperimentOverview(experimentId);
+        mUserMetadataManager.deleteExperimentOverview(experimentId);
     }
 
     public void updateExperiment(Experiment experiment) {
@@ -138,19 +138,19 @@ public class FileMetadataManager {
 
         // TODO: Only do this if strictly necessary, instead of every time?
         // Or does updateExperiment mean the last updated time should change, and we need a clock?
-        mSharedMetadataManager.updateExperimentOverview(experiment.getExperimentOverview());
+        mUserMetadataManager.updateExperimentOverview(experiment.getExperimentOverview());
     }
 
-    public List<GoosciSharedMetadata.ExperimentOverview> getExperimentOverviews(
+    public List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(
             boolean includeArchived) {
-        return mSharedMetadataManager.getExperimentOverviews(includeArchived);
+        return mUserMetadataManager.getExperimentOverviews(includeArchived);
     }
 
     public Experiment getLastUsedUnarchivedExperiment() {
-        List<GoosciSharedMetadata.ExperimentOverview> overviews = getExperimentOverviews(false);
+        List<GoosciUserMetadata.ExperimentOverview> overviews = getExperimentOverviews(false);
         long mostRecent = Long.MIN_VALUE;
-        GoosciSharedMetadata.ExperimentOverview overviewToGet = null;
-        for (GoosciSharedMetadata.ExperimentOverview overview : overviews) {
+        GoosciUserMetadata.ExperimentOverview overviewToGet = null;
+        for (GoosciUserMetadata.ExperimentOverview overview : overviews) {
             if (overview.lastUsedTimeMs > mostRecent) {
                 mostRecent = overview.lastUsedTimeMs;
                 overviewToGet = overview;
@@ -166,53 +166,16 @@ public class FileMetadataManager {
         long timestamp = mClock.getNow();
         experiment.setLastUsedTime(timestamp);
         mActiveExperimentCache.onExperimentOverviewUpdated(experiment.getExperimentOverview());
-        mSharedMetadataManager.updateExperimentOverview(experiment.getExperimentOverview());
+        mUserMetadataManager.updateExperimentOverview(experiment.getExperimentOverview());
     }
 
-    public Map<String, ExternalSensorSpec> getExternalSensors(
-            Map<String, ExternalSensorProvider> providerMap) {
-        // TODO
-        return null;
-    }
-
-    public ExternalSensorSpec getExternalSensorById(String id,
-            Map<String, ExternalSensorProvider> providerMap) {
-        // TODO
-        return null;
-    }
-
-    public String addOrGetExternalSensor(ExternalSensorSpec sensor,
-            Map<String, ExternalSensorProvider> providerMap) {
-        // TODO
-        return null;
-    }
-
-    public void removeExternalSensor(String databaseTag) {
-        // TODO
-    }
-
-    public ExperimentSensors getExperimentExternalSensors(String experimentId,
-            Map<String, ExternalSensorProvider> providerMap) {
-        // TODO
-        return null;
-    }
-
-    public void addMyDevice(InputDeviceSpec deviceSpec) {
-        // TODO
-    }
-
-    public void removeMyDevice(InputDeviceSpec deviceSpec) {
-        // TODO
-    }
-
-    public List<InputDeviceSpec> getMyDevices() {
-        // TODO
-        return null;
+    public void close() {
+        mActiveExperimentCache.saveImmediately();
     }
 
     @VisibleForTesting
-    public static File getSharedMetadataFile(Context context) {
-        return new File(context.getFilesDir(), SHARED_METADATA_FILE);
+    public static File getUserMetadataFile(Context context) {
+        return new File(context.getFilesDir(), USER_METADATA_FILE);
     }
 
     public static File getAssetsDirectory(Context context, String experimentId) {

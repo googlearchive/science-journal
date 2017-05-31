@@ -81,6 +81,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     public void close() {
         mDbHelper.close();
+        getFileMetadataManager().close();
     }
 
     /**
@@ -471,15 +472,15 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public List<GoosciSharedMetadata.ExperimentOverview> getExperimentOverviews(
+    public List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(
             boolean includeArchived) {
         return getFileMetadataManager().getExperimentOverviews(includeArchived);
     }
 
     @VisibleForTesting
-    List<GoosciSharedMetadata.ExperimentOverview> getDatabaseExperimentOverviews(
+    List<GoosciUserMetadata.ExperimentOverview> getDatabaseExperimentOverviews(
             boolean includeArchived) {
-        List<GoosciSharedMetadata.ExperimentOverview> experiments = new ArrayList<>();
+        List<GoosciUserMetadata.ExperimentOverview> experiments = new ArrayList<>();
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
@@ -517,10 +518,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return Experiment.fromExperiment(expProto, createExperimentOverviewFromCursor(cursor));
     }
 
-    private static GoosciSharedMetadata.ExperimentOverview createExperimentOverviewFromCursor(
+    private static GoosciUserMetadata.ExperimentOverview createExperimentOverviewFromCursor(
             Cursor cursor) {
-        GoosciSharedMetadata.ExperimentOverview overviewProto = new GoosciSharedMetadata
-                .ExperimentOverview();
+        GoosciUserMetadata.ExperimentOverview overviewProto =
+                new GoosciUserMetadata.ExperimentOverview();
         overviewProto.lastUsedTimeMs = cursor.getLong(7);
         overviewProto.title = cursor.getString(3);
         overviewProto.isArchived = cursor.getInt(6) != 0;

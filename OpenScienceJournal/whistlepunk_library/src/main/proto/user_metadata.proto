@@ -18,21 +18,26 @@ syntax = "proto2";
 
 package goosci;
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
-option java_outer_classname = "GoosciSharedMetadata";
+option java_outer_classname = "GoosciUserMetadata";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 
 /*
- * Represents metadata shared across the whole Science Journal app.
+ * Represents metadata shared across the whole Science Journal app for one user.
  * Added in V2.
  */
-message SharedMetadata {
-    // Experiment state that is per-device, such as whether the experiment is archived.
+message UserMetadata {
+    // Experiment state that is per-user, such as whether the experiment is archived.
     repeated ExperimentOverview experiments = 1;
 
+    // The version code of this proto. Devices may use this to understand what version of data
+    // they are working with, and to perform upgrades.
+    // Version 1: Initial version
+    optional int32 version = 2 [default = 1];
+
     // TODO: b/36397730
-    // repeated SensorSpec sensorSpecs = 2;
+    // repeated SensorSpec sensorSpecs = 3;
 }
 
 /*

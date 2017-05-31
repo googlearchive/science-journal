@@ -21,7 +21,7 @@ import android.test.AndroidTestCase;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.protobuf.nano.MessageNano;
 
@@ -45,7 +45,7 @@ public class ExperimentTest extends AndroidTestCase {
 
     public void testLabels() {
         GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-        GoosciSharedMetadata.ExperimentOverview overview = new GoosciSharedMetadata
+        GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata
                 .ExperimentOverview();
 
         // No labels on creation
@@ -82,7 +82,7 @@ public class ExperimentTest extends AndroidTestCase {
     public void testGetLabelsForRange() {
         GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[]{99, 100, 125, 201});
         Experiment experiment = Experiment.fromExperiment(proto,
-                new GoosciSharedMetadata.ExperimentOverview());
+                new GoosciUserMetadata.ExperimentOverview());
 
         GoosciTrial.Range range = new GoosciTrial.Range();
         range.startMs = 0;
@@ -104,7 +104,7 @@ public class ExperimentTest extends AndroidTestCase {
 
         // No trials on creation
         Experiment experiment = Experiment.fromExperiment(proto,
-                new GoosciSharedMetadata.ExperimentOverview());
+                new GoosciUserMetadata.ExperimentOverview());
         assertEquals(experiment.getTrialCount(), 0);
         assertEquals(experiment.getTrials(), Collections.emptyList());
 
@@ -119,7 +119,7 @@ public class ExperimentTest extends AndroidTestCase {
         proto.trials[0] = trialProto;
 
         Experiment experiment1 = Experiment.fromExperiment(proto,
-                new GoosciSharedMetadata.ExperimentOverview());
+                new GoosciUserMetadata.ExperimentOverview());
         assertEquals(experiment1.getTrialCount(), 1);
 
         // Adding a new trial should work as expected.
@@ -141,7 +141,7 @@ public class ExperimentTest extends AndroidTestCase {
     public void testGetTrialsWithFilters() {
         GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[]{});
         Experiment experiment = Experiment.fromExperiment(proto,
-                new GoosciSharedMetadata.ExperimentOverview());
+                new GoosciUserMetadata.ExperimentOverview());
 
         // New trials are invalid -- no end time.
         experiment.addTrial(Trial.newTrial(10, null));
@@ -189,7 +189,7 @@ public class ExperimentTest extends AndroidTestCase {
         proto.trials = new GoosciTrial.Trial[]{trialProto};
 
         Experiment experiment = Experiment.fromExperiment(proto,
-                new GoosciSharedMetadata.ExperimentOverview());
+                new GoosciUserMetadata.ExperimentOverview());
 
         // Try to get the proto *before* converting the objects into lists.
         GoosciExperiment.Experiment result = experiment.getExperimentProto();

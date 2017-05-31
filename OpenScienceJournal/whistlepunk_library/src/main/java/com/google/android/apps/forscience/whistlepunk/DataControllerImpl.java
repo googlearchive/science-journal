@@ -28,7 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSharedMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase;
@@ -274,11 +274,11 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     @Override
     public void getExperimentOverviews(final boolean includeArchived,
-            final MaybeConsumer<List<GoosciSharedMetadata.ExperimentOverview>> onSuccess) {
+            final MaybeConsumer<List<GoosciUserMetadata.ExperimentOverview>> onSuccess) {
         background(mMetaDataThread, onSuccess,
-                new Callable<List<GoosciSharedMetadata.ExperimentOverview>>() {
+                new Callable<List<GoosciUserMetadata.ExperimentOverview>>() {
                     @Override
-                    public List<GoosciSharedMetadata.ExperimentOverview> call() throws Exception {
+                    public List<GoosciUserMetadata.ExperimentOverview> call() throws Exception {
                         return mMetaDataManager.getExperimentOverviews(includeArchived);
                     }
                 });

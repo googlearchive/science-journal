@@ -55,6 +55,11 @@ message Experiment {
 
     // Sensor triggers associated with sensors in this experiment.
     repeated SensorTrigger sensorTriggers = 8;
+
+    // The version code of this proto. Devices may use this to understand what version of data
+    // they are working with, and to perform upgrades.
+    // Version 1: Initial version
+    optional int32 version = 9 [default = 1];
 };
 
 /*

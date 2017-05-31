@@ -49,7 +49,7 @@ public interface MetaDataManager {
     /**
      * @return the list of all experiments.
      */
-    List<GoosciSharedMetadata.ExperimentOverview> getExperimentOverviews(boolean includeArchived);
+    List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(boolean includeArchived);
 
     /**
      * Gets all the external sensors previously saved.
