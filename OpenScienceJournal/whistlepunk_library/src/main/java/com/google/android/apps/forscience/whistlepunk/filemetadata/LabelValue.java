@@ -23,6 +23,8 @@ import java.util.Map;
 /**
  * Interprets a label
  */
+// TODO: This will be deprecated. Rename to LegacyLabelValue, and rename classes that inherit
+// from it as well.
 public abstract class LabelValue {
     GoosciLabelValue.LabelValue mValue;
 
