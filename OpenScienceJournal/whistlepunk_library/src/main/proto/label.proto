@@ -41,6 +41,8 @@ message Label {
     optional int64 timestampMs = 2;
 
     // The contents of the label.
+    // TODO: This is deprecated and should not be used. Delete this field when the code does not
+    // depend on it any more, before the V2 release.
     repeated LabelValue values = 3;
 
     // The time that the label was created. This is not editable.
@@ -49,4 +51,23 @@ message Label {
     // An optional user-added caption. Not all labels will make use of this field.
     // Currently text labels will not use this, but picture, trigger, and snapshot will.
     optional Caption caption = 5;
+
+    enum ValueType {
+        TEXT = 1;  // A text label.
+                   // This ValueType is associated with protoData field of text_label_value.proto.
+        PICTURE = 2;  // A label that has a picture and may also have a text caption.
+                      // This ValueType is associated with protoData of picture_label_value.proto.
+        SENSOR_TRIGGER = 3;  // A label created from a sensor trigger.
+                             // This ValueType is associated with protoData field of
+                             // sensor_trigger_label_value.proto.
+        SNAPSHOT = 4;  // A label with value snapshot(s) for one or more sensors.
+                       // This ValueType is associated with protoData of snapshot_label_value.proto.
+    };
+
+    // The type this label represents. This can be used to reference the type of proto_data.
+    optional ValueType type = 6;
+
+    // A proto can be written to this field to represent the label's data.
+    // See ValueType above for which proto will be used in protoData for each ValueType.
+    optional bytes protoData = 7;
 }
