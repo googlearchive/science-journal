@@ -252,16 +252,18 @@ public class ExperimentDetailsFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_experiment_details, container, false);
+        View view = inflater.inflate(computeFragmentLayoutId(), container, false);
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
 
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        if (mDisappearingActionBar) {
-            mControlledToolbar = toolbar;
-            activity.setSupportActionBar(mControlledToolbar);
-        } else {
-            toolbar.setVisibility(View.GONE);
+        if (toolbar != null) {
+            if (mDisappearingActionBar) {
+                mControlledToolbar = toolbar;
+                activity.setSupportActionBar(mControlledToolbar);
+            } else {
+                toolbar.setVisibility(View.GONE);
+            }
         }
 
         ActionBar actionBar = activity.getSupportActionBar();
@@ -334,7 +336,26 @@ public class ExperimentDetailsFragment extends Fragment
         return view;
     }
 
+    private int computeFragmentLayoutId() {
+        if (mDisappearingActionBar) {
+            return R.layout.fragment_experiment_details;
+        } else {
+            return R.layout.fragment_panes_experiment_details;
+        }
+    }
+
     public void loadExperimentData(final Experiment experiment) {
+        adjustObserveButton(experiment);
+
+        boolean includeInvalidRuns = false;
+        mAdapter.setData(experiment, experiment.getTrials(mIncludeArchived, includeInvalidRuns),
+                mScalarDisplayOptions);
+    }
+
+    private void adjustObserveButton(Experiment experiment) {
+        if (mObserveButton == null) {
+            return;
+        }
 
         // If we don't have the disappearing action bar, we're in V2 UI, and shouldn't have a FAB,
         // either.
@@ -350,9 +371,6 @@ public class ExperimentDetailsFragment extends Fragment
                 }
             });
         }
-        boolean includeInvalidRuns = false;
-        mAdapter.setData(experiment, experiment.getTrials(mIncludeArchived, includeInvalidRuns),
-                mScalarDisplayOptions);
     }
 
     private void attachExperimentDetails(Experiment experiment) {
@@ -365,7 +383,9 @@ public class ExperimentDetailsFragment extends Fragment
         getActivity().setTitle(experiment.getDisplayTitle(getActivity()));
 
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
-        toolbar.setTitle(experiment.getDisplayTitle(getActivity()));
+        if (toolbar != null) {
+            toolbar.setTitle(experiment.getDisplayTitle(getActivity()));
+        }
     }
 
     private DataController getDataController() {
