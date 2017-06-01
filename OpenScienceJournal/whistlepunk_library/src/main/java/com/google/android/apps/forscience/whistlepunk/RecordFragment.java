@@ -891,7 +891,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         mRecyclerViewGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (getActivity() == null) {
+                if (getActivity() == null || mSensorCardAdapter == null) {
                     return;
                 }
                 // A sensor presenter should be the height of the recycler view, minus

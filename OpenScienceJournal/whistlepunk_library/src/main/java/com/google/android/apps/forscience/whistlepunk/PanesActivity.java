@@ -26,6 +26,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
@@ -110,15 +111,24 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         });
 
         String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
+
+
         if (experimentId == null) {
             getMetadataController().addExperimentChangeListener(TAG,
                     new MetadataController.MetadataChangeListener() {
                         @Override
                         public void onMetadataChanged(Experiment activeExperiment) {
+                            if (Log.isLoggable(TAG, Log.INFO)) {
+                                Log.i(TAG, "Launching most recent experiment id: "
+                                           + activeExperiment.getExperimentId());
+                            }
                             mActiveExperiment.onNext(activeExperiment);
                         }
                     });
         } else {
+            if (Log.isLoggable(TAG, Log.INFO)) {
+                Log.i(TAG, "Launching specified experiment id: " + experimentId);
+            }
             getDataController().getExperimentById(experimentId,
                     MaybeConsumers.fromObserver(mActiveExperiment));
         }

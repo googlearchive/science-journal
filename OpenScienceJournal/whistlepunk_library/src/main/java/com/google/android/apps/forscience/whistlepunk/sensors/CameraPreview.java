@@ -18,10 +18,8 @@
 package com.google.android.apps.forscience.whistlepunk.sensors;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -37,7 +35,6 @@ import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
 
 import io.reactivex.Maybe;
 
@@ -207,7 +204,16 @@ public class CameraPreview extends SurfaceView {
 
         // Bake in the new preview size
         params.setPreviewSize(bestSize.width, bestSize.height);
-        mCamera.setParameters(params);
+        try {
+            mCamera.setParameters(params);
+        } catch (RuntimeException e) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                String msg =
+                        "Failure setting camera size to " + bestSize.width + "," + bestSize.height;
+                Log.e(TAG, msg, e);
+                return;
+            }
+        }
 
         // Remeasure to match ideal
         double ratio = 1.0 * bestSize.height / bestSize.width;
