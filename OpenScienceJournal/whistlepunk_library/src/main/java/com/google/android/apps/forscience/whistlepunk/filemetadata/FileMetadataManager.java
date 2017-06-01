@@ -31,6 +31,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadat
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * MetadataManager backed by a file-based system using internal storage.
@@ -117,7 +118,7 @@ public class FileMetadataManager {
 
     public Experiment newExperiment() {
         long timestamp = mClock.getNow();
-        String localExperimentId = "experiment_" + timestamp;
+        String localExperimentId = UUID.randomUUID().toString();
         Experiment experiment = Experiment.newExperiment(timestamp, localExperimentId);
 
         addExperiment(experiment);
