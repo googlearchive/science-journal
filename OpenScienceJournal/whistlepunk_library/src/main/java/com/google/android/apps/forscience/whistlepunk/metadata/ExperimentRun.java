@@ -59,7 +59,7 @@ public class ExperimentRun {
         return mTrial.getLabels();
     }
 
-    public PictureLabelValue getCoverPictureLabelValue() {
+    public GoosciPictureLabelValue.PictureLabelValue getCoverPictureLabelValue() {
         return mTrial.getCoverPictureLabelValue();
     }
 

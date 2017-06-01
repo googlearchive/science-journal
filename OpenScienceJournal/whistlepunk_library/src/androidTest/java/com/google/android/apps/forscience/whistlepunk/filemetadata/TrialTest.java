@@ -42,7 +42,7 @@ public class TrialTest extends AndroidTestCase {
         trial.updateLabel(label);
         assertEquals(trial.getLabels().get(0).getTimeStamp(), 10);
 
-        Label second = Label.newLabel(20);
+        Label second = Label.newLabel(20, GoosciLabel.Label.TEXT);
         trial.addLabel(second);
         assertEquals(trial.getLabelCount(), 2);
 
@@ -52,9 +52,9 @@ public class TrialTest extends AndroidTestCase {
 
     public void testLabelsStillSortedOnAdd() {
         Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0]);
-        trial.addLabel(Label.newLabel(20));
-        trial.addLabel(Label.newLabel(30));
-        trial.addLabel(Label.newLabel(10));
+        trial.addLabel(Label.newLabel(20, GoosciLabel.Label.TEXT));
+        trial.addLabel(Label.newLabel(30, GoosciLabel.Label.TEXT));
+        trial.addLabel(Label.newLabel(10, GoosciLabel.Label.TEXT));
         assertEquals(trial.getLabels().size(), 3);
         assertEquals(trial.getLabels().get(0).getTimeStamp(), 10);
         assertEquals(trial.getLabels().get(1).getTimeStamp(), 20);
@@ -63,9 +63,9 @@ public class TrialTest extends AndroidTestCase {
 
     public void testLabelsStillSortedOnUpdate() {
         Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0]);
-        trial.addLabel(Label.newLabel(10));
-        trial.addLabel(Label.newLabel(20));
-        trial.addLabel(Label.newLabel(30));
+        trial.addLabel(Label.newLabel(10, GoosciLabel.Label.TEXT));
+        trial.addLabel(Label.newLabel(20, GoosciLabel.Label.TEXT));
+        trial.addLabel(Label.newLabel(30, GoosciLabel.Label.TEXT));
         Label second = trial.getLabels().get(1);
         second.setTimestamp(40);
         trial.updateLabel(second);

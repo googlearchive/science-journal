@@ -40,8 +40,12 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
@@ -327,9 +331,13 @@ public class RecorderControllerImpl implements RecorderController {
         if (getSelectedExperiment() == null) {
             return;
         }
-        SensorTriggerLabelValue labelValue = SensorTriggerLabelValue.fromTrigger(trigger,
-                context);
-        final Label triggerLabel = Label.newLabelWithValue(timestamp, labelValue);
+        // TODO: Use the new type of trigger labels.
+        // Meanwhile this is not super.
+        GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
+        labelValue.text = SensorTriggerLabelValue.generateAutoNoteText(trigger, context) + " " +
+                trigger.getNoteText();
+        final Label triggerLabel = Label.newLabelWithValue(timestamp, GoosciLabel.Label.TEXT,
+                labelValue, null);
         if (isRecording()) {
             // Adds the label to the trial and saves the updated experiment.
             getSelectedExperiment().getTrial(mCurrentTrialId).addLabel(triggerLabel);

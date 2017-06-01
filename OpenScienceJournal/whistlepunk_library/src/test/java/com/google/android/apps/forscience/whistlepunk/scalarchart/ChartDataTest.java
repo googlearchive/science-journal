@@ -22,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 
 import org.junit.Test;
 
@@ -135,7 +136,7 @@ public class ChartDataTest {
         populatePointsList(3, data);
         chartData.setPoints(data);
 
-        Label label = Label.newLabel(-1);
+        Label label = Label.newLabel(-1, GoosciLabel.Label.TEXT);
         assertFalse(chartData.tryAddingLabel(label));
         assertEquals(chartData.getLabelPoints().size(), 0);
     }
@@ -146,7 +147,7 @@ public class ChartDataTest {
         populatePointsList(3, data);
         chartData.setPoints(data);
 
-        Label label = Label.newLabel(3);
+        Label label = Label.newLabel(3, GoosciLabel.Label.TEXT);
         assertFalse(chartData.tryAddingLabel(label));
         assertEquals(chartData.getLabelPoints().size(), 0);
     }
@@ -157,7 +158,7 @@ public class ChartDataTest {
         populatePointsList(3, data);
         chartData.setPoints(data);
 
-        Label label = Label.newLabel(1);
+        Label label = Label.newLabel(1, GoosciLabel.Label.TEXT);
         assertTrue(chartData.tryAddingLabel(label));
         List<ChartData.DataPoint> labelPoints = chartData.getLabelPoints();
         assertEquals(labelPoints.size(), 1);

@@ -58,14 +58,15 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevice
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
@@ -1143,22 +1144,16 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                     }
                 };
             }
-
-            public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
-                    int labelType,
-                    long selectedTimestamp) {
-                // Do nothing. Timestamp will not be shown and this is unused.
-            }
         };
     }
 
-    private static void adjustLabelTimestamp(Label label) {
-        if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+    private void adjustLabelTimestamp(Label label) {
+        if (label.getType() == GoosciLabel.Label.PICTURE) {
             // We want to set the time stamp of this label to the time of the picture
-            PictureLabelValue pictureLabel =
-                    (PictureLabelValue) label.getLabelValue(
-                            GoosciLabelValue.LabelValue.PICTURE);
-            File file = new File(pictureLabel.getAbsoluteFilePath());
+            GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
+                    label.getPictureLabelValue();
+            File file =  new File(PictureUtils.getImagePath(getActivity(),
+                    mSelectedExperiment.getExperimentId(), pictureLabelValue.filePath));
             // Check to make sure this value is not crazy: should be within 10 minutes of
             // now and not from the future.
             long delta = System.currentTimeMillis() - file.lastModified();
@@ -1173,7 +1168,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         ensureUnarchived(mSelectedExperiment, getDataController());
         playAddNoteAnimation();
         // Trigger labels are logged in RecorderControllerImpl.
-        if (!(label.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER))) {
+        if (!(label.getType() == GoosciLabel.Label.SENSOR_TRIGGER)) {
             String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
                     TrackerConstants.LABEL_OBSERVE;
             WhistlePunkApplication.getUsageTracker(getActivity())
@@ -1374,15 +1369,22 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         // get text
         return rc.generateSnapshotText(selectedExperiment.getSensorIds(), idToName)
 
-                 // Make it into a label
-                 .map(text -> Label.newLabelWithValue(rc.getNow(), TextLabelValue.fromText(text)))
+                // Make it into a label
+                // TODO: This should be a snapshot label, not a text label.
+                .map(text -> {
+                        GoosciTextLabelValue.TextLabelValue labelValue =
+                                new GoosciTextLabelValue.TextLabelValue();
+                        labelValue.text = text;
+                        return Label.newLabelWithValue(rc.getNow(), GoosciLabel.Label.TEXT,
+                                labelValue, null);
+                })
 
-                 // Make sure it's successfully added
-                 .flatMapSingle(label -> {
-                     selectedExperiment.addLabel(label);
-                     return RxDataController.updateExperiment(dc, selectedExperiment)
-                                            .andThen(Single.just(label));
-                 });
+                // Make sure it's successfully added
+                .flatMapSingle(label -> {
+                    selectedExperiment.addLabel(label);
+                    return RxDataController.updateExperiment(dc, selectedExperiment)
+                            .andThen(Single.just(label));
+                });
     }
 
 

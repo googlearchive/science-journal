@@ -72,6 +72,6 @@ public class RecordFragmentTest {
         assertTrue(test.await(2, TimeUnit.SECONDS));
         test.assertComplete();
 
-        assertEquals("[" + now + ": id has value 55.0]", exp.getLabels().toString());
+        assertEquals("id has value 55.0", exp.getLabels().get(0).getTextLabelValue().text);
     }
 }

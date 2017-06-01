@@ -20,6 +20,7 @@ import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 
 /**
@@ -98,13 +99,13 @@ public final class TrackerConstants {
     /**
      * Gets the logging type for a label.
      */
-    // TODO: Update this for labels that have multiple types
+    // TODO: Add tracking for snapshot labels.
     public static long getLabelValueType(Label label) {
-        if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+        if (label.getType() == GoosciLabel.Label.PICTURE) {
             return TrackerConstants.VALUE_TYPE_PICTURE;
-        } else if (label.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
+        } else if (label.getType() == GoosciLabel.Label.TEXT) {
             return TrackerConstants.VALUE_TYPE_TEXT;
-        } else if (label.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
+        } else if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
             return TrackerConstants.VALUE_TYPE_SENSOR_TRIGGER;
         } else {
             throw new IllegalArgumentException("Label type is not supported for logging.");

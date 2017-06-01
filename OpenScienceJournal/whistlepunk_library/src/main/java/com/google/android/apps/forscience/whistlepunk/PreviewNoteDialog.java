@@ -26,9 +26,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 
 /**
  * For viewing existing notes.
@@ -63,25 +62,20 @@ public class PreviewNoteDialog extends DialogFragment {
         ImageView imageView = (ImageView) rootView.findViewById(R.id.picture_note_preview_image);
         final TextView previewText = (TextView) rootView.findViewById(R.id.preview_note_text);
 
-        if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-            final PictureLabelValue labelValue = (PictureLabelValue) label.getLabelValue(
-                    GoosciLabelValue.LabelValue.PICTURE);
+        if (label.getType() == GoosciLabel.Label.PICTURE) {
+            final GoosciPictureLabelValue.PictureLabelValue labelValue =
+                    label.getPictureLabelValue();
             imageView.setVisibility(View.VISIBLE);
             previewText.setVisibility(View.GONE);
             PictureUtils.loadImage(getActivity(), imageView, experimentId,
-                    labelValue.getFilePath());
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    PictureUtils.launchExternalViewer(getActivity(), experimentId,
-                            labelValue.getFilePath());
-                }
-            });
-        } else if (label.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
+                    labelValue.filePath);
+            imageView.setOnClickListener(
+                    v -> PictureUtils.launchExternalViewer(getActivity(), experimentId,
+                            labelValue.filePath));
+        } else if (label.getType() == GoosciLabel.Label.TEXT) {
             imageView.setVisibility(View.GONE);
             previewText.setVisibility(View.VISIBLE);
-            previewText.setText(((TextLabelValue) label.getLabelValue(
-                    GoosciLabelValue.LabelValue.TEXT)).getText());
+            previewText.setText(label.getTextLabelValue().text);
         }
         AlertDialog dialog = alertDialog.create();
         return dialog;

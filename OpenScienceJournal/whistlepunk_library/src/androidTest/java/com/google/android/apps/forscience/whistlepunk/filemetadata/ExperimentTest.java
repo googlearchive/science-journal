@@ -21,6 +21,7 @@ import android.test.AndroidTestCase;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.protobuf.nano.MessageNano;
@@ -37,7 +38,7 @@ public class ExperimentTest extends AndroidTestCase {
         GoosciExperiment.Experiment result = new GoosciExperiment.Experiment();
         result.labels = new GoosciLabel.Label[labelTimes.length];
         for (int i = 0; i < labelTimes.length; i++) {
-            Label label = Label.newLabel(labelTimes[i]);
+            Label label = Label.newLabel(labelTimes[i], GoosciLabel.Label.TEXT);
             result.labels[i] = label.getLabelProto();
         }
         return result;
@@ -54,11 +55,11 @@ public class ExperimentTest extends AndroidTestCase {
         assertEquals(experiment.getLabels(), Collections.emptyList());
 
         // Add a label manually, outside of the proto
-        GoosciLabelValue.LabelValue labelValueProto = new GoosciLabelValue.LabelValue();
-        PictureLabelValue.populateLabelValue(labelValueProto, "path", "caption");
+        GoosciPictureLabelValue.PictureLabelValue labelValueProto = new GoosciPictureLabelValue
+                .PictureLabelValue();
         GoosciLabel.Label labelProto = new GoosciLabel.Label();
-        labelProto.values = new GoosciLabelValue.LabelValue[1];
-        labelProto.values[0] = labelValueProto;
+        labelProto.protoData = MessageNano.toByteArray(labelValueProto);
+        labelProto.type = GoosciLabel.Label.PICTURE;
         experiment.getLabels().add(Label.fromLabel(labelProto));
         assertEquals(experiment.getLabelCount(), 1);
 
@@ -69,11 +70,11 @@ public class ExperimentTest extends AndroidTestCase {
 
         // Try constructing an experiment from a proto that already has these fields.
         Experiment experiment2 = Experiment.fromExperiment(proto, overview);
-        assertTrue(MessageNano.messageNanoEquals(experiment2.getLabels().get(0)
-                .getLabelValue(GoosciLabelValue.LabelValue.PICTURE).getValue(), labelValueProto));
+        assertTrue(MessageNano.messageNanoEquals(
+                experiment2.getLabels().get(0).getPictureLabelValue(), labelValueProto));
         assertEquals(experiment2.getLabelCount(), 1);
         List<Label> labels = experiment2.getLabels();
-        labels.add(Label.newLabel(20));
+        labels.add(Label.newLabel(20, GoosciLabel.Label.TEXT));
         assertEquals(experiment2.getLabelCount(), 2);
 
         assertEquals(experiment2.getExperimentProto().labels.length, 2);

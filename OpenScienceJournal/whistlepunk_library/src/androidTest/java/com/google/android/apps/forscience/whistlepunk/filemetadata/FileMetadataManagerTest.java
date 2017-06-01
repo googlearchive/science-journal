@@ -18,6 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.test.InstrumentationTestCase;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensordb.IncrementableMonotonicClock;
 
 import java.io.File;
@@ -56,8 +58,8 @@ public class FileMetadataManagerTest extends InstrumentationTestCase {
 
         clock.increment();
         experiment.setTitle("Title");
-        experiment.addLabel(Label.newLabelWithValue(clock.getNow(),
-                TextLabelValue.fromText("text note")));
+        experiment.addLabel(Label.newLabelWithValue(clock.getNow(), GoosciLabel.Label.TEXT,
+                new GoosciTextLabelValue.TextLabelValue(), null));
         fmm.updateExperiment(experiment);
 
         Experiment saved = fmm.getLastUsedUnarchivedExperiment();

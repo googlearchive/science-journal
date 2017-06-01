@@ -111,54 +111,15 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(count, experiments.size());
     }
 
-    public void testUpdateDatabaseExperiment() {
-        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
-
-        experiment.setTitle("new title");
-        experiment.setDescription("my description");
-        experiment.setLastUsedTime(123);
-
-        mMetaDataManager.updateDatabaseExperiment(experiment);
-
-        Experiment retrieve = mMetaDataManager.getDatabaseExperimentById(
-                experiment.getExperimentId());
-        assertEquals("new title", retrieve.getTitle());
-        assertEquals("my description", retrieve.getDescription());
-        assertEquals(123, retrieve.getLastUsedTime());
-        assertFalse(retrieve.isArchived());
-    }
-
-    public void testArchiveExperiment() {
-        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
-
-        experiment.setTitle("new title");
-        experiment.setDescription("my description");
-        experiment.setLastUsedTime(123);
-        experiment.setArchived(false);
-        mMetaDataManager.updateDatabaseExperiment(experiment);
-
-        List<GoosciUserMetadata.ExperimentOverview> experiments =
-                mMetaDataManager.getDatabaseExperimentOverviews(false);
-        assertEquals(1, experiments.size());
-        assertEquals(experiment.getExperimentId(), experiments.get(0).experimentId);
-
-        // Now archive this.
-        experiment.setArchived(true);
-        mMetaDataManager.updateDatabaseExperiment(experiment);
-        experiments = mMetaDataManager.getDatabaseExperimentOverviews(false);
-        assertEquals(0, experiments.size());
-
-        // Now search include archived experiments
-        experiments = mMetaDataManager.getDatabaseExperimentOverviews(true);
-        assertEquals(1, experiments.size());
-        assertEquals(experiment.getExperimentId(), experiments.get(0).experimentId);
-    }
-
     public void testNewLabel() {
         Experiment experiment = mMetaDataManager.newExperiment();
 
         String testLabelString = "test label";
-        Label textLabel = Label.newLabelWithValue(1, TextLabelValue.fromText(testLabelString));
+        GoosciTextLabelValue.TextLabelValue textLabelValue =
+                new GoosciTextLabelValue.TextLabelValue();
+        textLabelValue.text = testLabelString;
+
+        Label textLabel = Label.newLabelWithValue(1, GoosciLabel.Label.TEXT, textLabelValue, null);
         experiment.addLabel(textLabel);
         File tmpFile;
         try {
@@ -172,11 +133,19 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         // This mimics what PictureUtils does: adds a file scheme to the path.
         String testPicturePath = "file:" + tmpFile.getAbsolutePath();
         String testPictureCaption = "life, the universe, and everything";
-        Label pictureLabel = Label.newLabelWithValue(2, PictureLabelValue.fromPicture(
-                testPicturePath, testPictureCaption));
+
+        GoosciCaption.Caption caption = new GoosciCaption.Caption();
+        caption.text = testPictureCaption;
+
+        GoosciPictureLabelValue.PictureLabelValue labelValue = new GoosciPictureLabelValue
+                .PictureLabelValue();
+        labelValue.filePath = testPicturePath;
+
+        Label pictureLabel = Label.newLabelWithValue(2, GoosciLabel.Label.PICTURE, labelValue,
+                caption);
         experiment.addLabel(pictureLabel);
 
-        mMetaDataManager.updateDatabaseExperiment(experiment);
+        mMetaDataManager.updateExperiment(experiment);
 
         List<Label> labels = mMetaDataManager.getExperimentById(experiment.getExperimentId())
                 .getLabels();
@@ -185,48 +154,21 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         boolean foundText = false;
         boolean foundPicture = false;
         for (Label foundLabel : labels) {
-            if (foundLabel.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
-                assertEquals(testLabelString, ((TextLabelValue) foundLabel.getLabelValue(
-                        GoosciLabelValue.LabelValue.TEXT)).getText());
+            if (foundLabel.getType() == GoosciLabel.Label.TEXT) {
+                assertEquals(testLabelString, foundLabel.getTextLabelValue().text);
                 assertEquals(textLabel.getLabelId(), foundLabel.getLabelId());
                 foundText = true;
             }
-            if (foundLabel.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-                assertEquals(testPicturePath, ((PictureLabelValue) foundLabel.getLabelValue(
-                        GoosciLabelValue.LabelValue.PICTURE)).getFilePath());
+            if (foundLabel.getType() == GoosciLabel.Label.PICTURE) {
+                assertEquals(testPicturePath, foundLabel.getPictureLabelValue().filePath);
                 assertEquals(pictureLabel.getLabelId(), foundLabel.getLabelId());
-                assertEquals(testPictureCaption, ((PictureLabelValue) foundLabel.getLabelValue(
-                        GoosciLabelValue.LabelValue.PICTURE)).getCaption());
+                assertEquals(testPictureCaption, foundLabel.getCaptionText());
                 foundPicture = true;
             }
             assertTrue(foundLabel.getTimeStamp() > 0);
         }
         assertTrue("Text label was not saved.", foundText);
         assertTrue("Picture label was not saved.", foundPicture);
-    }
-
-    public void testLabelsWithAndWithoutTrial() {
-        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
-        Trial trial = mMetaDataManager.newTrial(experiment, "duringStartId", 2,
-                Collections.<GoosciSensorLayout.SensorLayout>emptyList());
-        final Label before = Label.newLabel(1);
-        final Label during1 = Label.newLabel(2);
-        final Label during2 = Label.newLabel(3);
-        final Label after = Label.newLabel(4);
-        before.setLabelValue(TextLabelValue.fromText("before"));
-        during1.setLabelValue(TextLabelValue.fromText("during1"));
-        during2.setLabelValue(TextLabelValue.fromText("during2"));
-        after.setLabelValue(TextLabelValue.fromText("after"));
-        experiment.addLabel(before);
-        experiment.addLabel(after);
-        trial.addLabel(during1);
-        trial.addLabel(during2);
-        mMetaDataManager.updateDatabaseExperiment(experiment);
-        mMetaDataManager.updateTrial(trial);
-        final List<Label> labels = mMetaDataManager.getDatabaseTrial("duringStartId",
-                Collections.<ApplicationLabel>emptyList()).getLabels();
-        assertEqualLabels(during1, labels.get(0));
-        assertEqualLabels(during2, labels.get(1));
     }
 
     public void testExperimentStartIds() {
@@ -237,8 +179,10 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
                 "stopId1", "startId1", 1);
         final ApplicationLabel startId2 = new ApplicationLabel(
                 ApplicationLabel.TYPE_RECORDING_START, "startId2", "startId2", 2);
-        final Label label = Label.newLabel(3);
-        label.setLabelValue(TextLabelValue.fromText("text"));
+        final Label label = Label.newLabel(3, GoosciLabel.Label.TEXT);
+        GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
+        labelValue.text = "text";
+        label.setLabelProtoData(labelValue);
         ApplicationLabel stopId2 = new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP,
                 "stopId2", "startId2", 4);
         final ApplicationLabel startId3 = new ApplicationLabel(
@@ -430,32 +374,6 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(0, sensors.size());
     }
 
-    public void testStoreTrialsWithStats() {
-        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-        layout.sensorId = "sensorId";
-        List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
-        layouts.add(layout);
-        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
-        Trial trial = mMetaDataManager.newTrial(experiment, "startLabelId", 10, layouts);
-
-        final TrialStats stats = new TrialStats("sensorId");
-        stats.putStat(GoosciTrial.SensorStat.MINIMUM, 1);
-        stats.putStat(GoosciTrial.SensorStat.AVERAGE, 2);
-        stats.putStat(GoosciTrial.SensorStat.MAXIMUM, 3);
-        trial.setStats(stats);
-
-        mMetaDataManager.updateTrial(trial);
-        mMetaDataManager.close();
-
-        final TrialStats trialStats = makeMetaDataManager().getDatabaseTrial("startLabelId",
-                Collections.<ApplicationLabel>emptyList())
-                .getStatsForSensor("sensorId");
-
-        assertEquals(1.0, trialStats.getStatValue(GoosciTrial.SensorStat.MINIMUM, -1), 0.001);
-        assertEquals(2.0, trialStats.getStatValue(GoosciTrial.SensorStat.AVERAGE, -1), 0.001);
-        assertEquals(3.0, trialStats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, -1), 0.001);
-    }
-
     public void testRunStorage() {
         Experiment experiment = mMetaDataManager.newDatabaseExperiment();
         final ApplicationLabel startLabel = newStartLabel("startId", 1);
@@ -477,15 +395,6 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(sensorIds, loaded.getSensorIds());
         assertEquals(5, saved.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
         assertEquals(5, loaded.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
-
-        layout1.maximumYAxisValue = 15;
-        List<GoosciSensorLayout.SensorLayout> layouts = loaded.getSensorLayouts();
-        layouts.set(0, layout1);
-        loaded.setSensorLayouts(layouts);
-        mMetaDataManager.updateTrial(loaded);
-        Trial updated = mMetaDataManager.getDatabaseTrial(startLabel.getLabelId(),
-                Arrays.asList(startLabel));
-        assertEquals(15, updated.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
 
         // Test that runs are deleted.
         mMetaDataManager.deleteDatabaseTrial(startLabel.getLabelId());
@@ -648,10 +557,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
                 secondExp.getExperimentId());
         List<Label> labels = secondExpResult.getLabels();
         assertEquals(2, labels.size());
-        assertEquals("Description", ((TextLabelValue) labels.get(0).getLabelValue(
-                GoosciLabelValue.LabelValue.TEXT)).getText());
-        assertEquals("path/to/photo", ((PictureLabelValue) labels.get(1).getLabelValue(
-                GoosciLabelValue.LabelValue.PICTURE)).getFilePath());
+        assertEquals("Description", labels.get(0).getTextLabelValue().text);
+        assertEquals("path/to/photo", labels.get(1).getPictureLabelValue().filePath);
         assertTrue(labels.get(0).getTimeStamp() < secondExpResult.getCreationTimeMs());
         assertTrue(labels.get(1).getTimeStamp() < secondExpResult.getCreationTimeMs());
         assertTrue(secondExpResult.getDisplayTitle(getContext()).startsWith(

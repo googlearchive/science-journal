@@ -39,7 +39,11 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHold
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 
 /**
@@ -155,33 +159,31 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         noteHolder.mDurationText.setContentDescription(getNoteTimeContentDescription(
                 label.getTimeStamp(), mStartTimestamp, noteHolder.mDurationText.getContext()));
         String text = "";
-        if (label.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
-            text = ((TextLabelValue) label.getLabelValue(GoosciLabelValue.LabelValue.TEXT))
-                    .getText();
+        if (label.getType() == GoosciLabel.Label.TEXT) {
+            text = label.getTextLabelValue().text;
             noteHolder.mImage.setVisibility(View.GONE);
             noteHolder.mAutoText.setVisibility(View.GONE);
-        } else if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-            PictureLabelValue labelValue =
-                    (PictureLabelValue) label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE);
+        } else if (label.getType() == GoosciLabel.Label.PICTURE) {
+            GoosciPictureLabelValue.PictureLabelValue labelValue = label.getPictureLabelValue();
             text = label.getCaptionText();
             noteHolder.mImage.setVisibility(View.VISIBLE);
             noteHolder.mAutoText.setVisibility(View.GONE);
             PictureUtils.loadImage(noteHolder.mImage.getContext(), noteHolder.mImage, mExperimentId,
-                    labelValue.getFilePath());
+                    labelValue.filePath);
             noteHolder.mImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mClickListener.onPictureItemClicked(label);
                 }
             });
-        } else if (label.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
-            SensorTriggerLabelValue labelValue = ((SensorTriggerLabelValue) label.getLabelValue(
-                    GoosciLabelValue.LabelValue.SENSOR_TRIGGER));
+        } else if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
+            GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
+                    label.getSensorTriggerLabelValue();
             text = label.getCaptionText();
             noteHolder.mImage.setVisibility(View.GONE);
             noteHolder.mAutoText.setVisibility(View.VISIBLE);
-            String autoText = labelValue.getAutogenText();
-            TriggerHelper.populateAutoTextViews(noteHolder.mAutoText, autoText,
+            // TODO: Load triggers correctly.
+            TriggerHelper.populateAutoTextViews(noteHolder.mAutoText, "TODO",
                     R.drawable.ic_label_black_18dp, noteHolder.mAutoText.getResources());
         }
         if (!TextUtils.isEmpty(text)) {
@@ -190,7 +192,8 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     noteHolder.mText.getResources().getColor(R.color.text_color_black));
         } else {
             noteHolder.mText.setText(noteHolder.mText.getResources().getString(
-                    label.hasValueType(GoosciLabelValue.LabelValue.PICTURE) ? R.string.picture_note_caption_hint :
+                    label.getType() == GoosciLabel.Label.PICTURE ?
+                            R.string.picture_note_caption_hint :
                             R.string.pinned_note_placeholder_text));
             noteHolder.mText.setTextColor(noteHolder.mText.getResources().getColor(
                     R.color.text_color_light_grey));
@@ -199,11 +202,10 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         if (mEditListener != null) {
             // Only allow editing of notes with empty text onclick.
-            if ((label.hasValueType(GoosciLabelValue.LabelValue.PICTURE) &&
+            if ((label.getType() == GoosciLabel.Label.PICTURE &&
                     TextUtils.isEmpty(label.getCaptionText())) ||
-                    (label.hasValueType(GoosciLabelValue.LabelValue.TEXT) &&
-                            TextUtils.isEmpty(((TextLabelValue) label.getLabelValue(
-                                    GoosciLabelValue.LabelValue.TEXT)).getText()))) {
+                    (label.getType() == GoosciLabel.Label.TEXT &&
+                            TextUtils.isEmpty(label.getTextLabelValue().text))) {
                 noteHolder.mText.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -257,16 +259,14 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (mLabelListHolder.getLabelCount() == 0 && position == 0) {
             return TYPE_NO_NOTES;
         }
-        if (mLabelListHolder.getLabels().get(position).hasValueType(
-                GoosciLabelValue.LabelValue.TEXT)) {
+        if (mLabelListHolder.getLabels().get(position).getType() == GoosciLabel.Label.TEXT) {
             return TYPE_TEXT_NOTE;
         }
-        if (mLabelListHolder.getLabels().get(position).hasValueType(
-                GoosciLabelValue.LabelValue.PICTURE)) {
+        if (mLabelListHolder.getLabels().get(position).getType() == GoosciLabel.Label.PICTURE) {
             return TYPE_PICTURE_NOTE;
         }
-        if (mLabelListHolder.getLabels().get(position).hasValueType(
-                GoosciLabelValue.LabelValue.SENSOR_TRIGGER)) {
+        if (mLabelListHolder.getLabels().get(position).getType() ==
+                GoosciLabel.Label.SENSOR_TRIGGER) {
             return TYPE_TRIGGER_NOTE;
         }
         return TYPE_UNKNOWN;
