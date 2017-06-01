@@ -25,7 +25,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
@@ -37,13 +36,13 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 public class PreviewNoteDialog extends DialogFragment {
     public static final String TAG = "preview_note_dialog";
     public static final String KEY_SAVED_LABEL = "keySavedLabel";
+    public static final String KEY_EXPERIMENT_ID = "keyExperimentId";
 
-    private Label mLabel;
-
-    public static PreviewNoteDialog newInstance(Label label) {
+    public static PreviewNoteDialog newInstance(Label label, String experimentId) {
         PreviewNoteDialog dialog = new PreviewNoteDialog();
         Bundle args = new Bundle();
         args.putParcelable(KEY_SAVED_LABEL, label);
+        args.putString(KEY_EXPERIMENT_ID, experimentId);
         dialog.setArguments(args);
         return dialog;
     }
@@ -53,7 +52,8 @@ public class PreviewNoteDialog extends DialogFragment {
 
     @Override
     public AlertDialog onCreateDialog(Bundle savedInstanceState) {
-        mLabel = getArguments().getParcelable(KEY_SAVED_LABEL);
+        Label label = getArguments().getParcelable(KEY_SAVED_LABEL);
+        String experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
         LinearLayout rootView = (LinearLayout) LayoutInflater.from(getActivity()).inflate(
@@ -63,24 +63,24 @@ public class PreviewNoteDialog extends DialogFragment {
         ImageView imageView = (ImageView) rootView.findViewById(R.id.picture_note_preview_image);
         final TextView previewText = (TextView) rootView.findViewById(R.id.preview_note_text);
 
-        if (mLabel.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-            final PictureLabelValue labelValue = (PictureLabelValue) mLabel.getLabelValue(
+        if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
+            final PictureLabelValue labelValue = (PictureLabelValue) label.getLabelValue(
                     GoosciLabelValue.LabelValue.PICTURE);
             imageView.setVisibility(View.VISIBLE);
             previewText.setVisibility(View.GONE);
-            Glide.with(getActivity())
-                    .load(labelValue.getFilePath())
-                    .into(imageView);
+            PictureUtils.loadImage(getActivity(), imageView, experimentId,
+                    labelValue.getFilePath());
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    PictureUtils.launchExternalViewer(getActivity(), labelValue.getFilePath());
+                    PictureUtils.launchExternalViewer(getActivity(), experimentId,
+                            labelValue.getFilePath());
                 }
             });
-        } else if (mLabel.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
+        } else if (label.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
             imageView.setVisibility(View.GONE);
             previewText.setVisibility(View.VISIBLE);
-            previewText.setText(((TextLabelValue) mLabel.getLabelValue(
+            previewText.setText(((TextLabelValue) label.getLabelValue(
                     GoosciLabelValue.LabelValue.TEXT)).getText());
         }
         AlertDialog dialog = alertDialog.create();

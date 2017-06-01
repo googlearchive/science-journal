@@ -32,8 +32,11 @@ import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,6 +82,10 @@ public class PictureUtils {
                 });
     }
 
+    /**
+     * Tries to capture a picture label using the default camera app.
+     * @return The relative path to the picture in the experiment.
+     */
     public static String capturePictureLabel(final Activity activity, String experimentId,
             String uuid) {
         return capturePictureLabel(activity, experimentId, uuid, new IStartable() {
@@ -112,9 +119,8 @@ public class PictureUtils {
                     takePictureIntent.setClipData(ClipData.newRawUri(null, contentUri));
                 }
                 takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                String pictureLabelPath = "file:" + photoFile.getAbsoluteFile();
                 startable.startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-                return pictureLabelPath;
+                return FileMetadataManager.getRelativePathInExperiment(experimentId, photoFile);
             }
         }
         return null;
@@ -149,17 +155,14 @@ public class PictureUtils {
         }
     }
 
-    public static void launchExternalViewer(Activity activity, String fileUrl) {
+    public static void launchExternalViewer(Activity activity, String experimentId,
+            String relativeFilePath) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        String extension = MimeTypeMap.getFileExtensionFromUrl(fileUrl);
+        File file = FileMetadataManager.getExperimentFile(activity, experimentId, relativeFilePath);
+        String extension = MimeTypeMap.getFileExtensionFromUrl(file.getAbsolutePath());
         String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         if (!TextUtils.isEmpty(type)) {
-            String filePath = fileUrl;
-            if (filePath.startsWith("file:")) {
-                filePath = filePath.substring("file:".length());
-            }
-            Uri photoUri = FileProvider.getUriForFile(activity, activity.getPackageName(),
-                    new File(filePath));
+            Uri photoUri = FileProvider.getUriForFile(activity, activity.getPackageName(), file);
             intent.setDataAndType(photoUri, type);
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 // Needed to avoid security exception on KitKat.
@@ -169,11 +172,24 @@ public class PictureUtils {
             try {
                 activity.startActivity(intent);
             } catch (ActivityNotFoundException e) {
-                Log.e(TAG, "No activity found to handle this " + fileUrl + " type "
+                Log.e(TAG, "No activity found to handle this " + file.getAbsolutePath() + " type "
                         + type);
             }
         } else {
-            Log.w(TAG, "Could not find mime type for " + fileUrl);
+            Log.w(TAG, "Could not find mime type for " + file.getAbsolutePath());
         }
+    }
+
+    public static void loadImage(Context context, ImageView view, String experimentId,
+            String relativeFilePath) {
+        File file = FileMetadataManager.getExperimentFile(context, experimentId, relativeFilePath);
+        Glide.clear(view);
+        Glide.with(context).load(file.getAbsolutePath()).into(view);
+    }
+
+    public static String getImagePath(Context context, String experimentId,
+            String relativeFilePath) {
+        File file = FileMetadataManager.getExperimentFile(context, experimentId, relativeFilePath);
+        return file.getAbsolutePath();
     }
 }

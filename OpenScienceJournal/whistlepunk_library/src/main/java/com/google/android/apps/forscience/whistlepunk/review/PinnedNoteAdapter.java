@@ -29,10 +29,10 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
@@ -99,14 +99,16 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private LabelListHolder mLabelListHolder;
     private long mStartTimestamp;
     private long mEndTimestamp;
+    private String mExperimentId;
     private ListItemEditListener mEditListener;
     private ListItemClickListener mClickListener;
 
     public PinnedNoteAdapter(LabelListHolder labelListHolder, long startTimestamp,
-            long endTimestamp) {
+            long endTimestamp, String experimentId) {
         mLabelListHolder = labelListHolder;
         mStartTimestamp = startTimestamp;
         mEndTimestamp = endTimestamp;
+        mExperimentId = experimentId;
     }
 
     public void updateRunTimestamps(long startTimestamp, long endTimestamp) {
@@ -164,9 +166,8 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             text = label.getCaptionText();
             noteHolder.mImage.setVisibility(View.VISIBLE);
             noteHolder.mAutoText.setVisibility(View.GONE);
-            Glide.with(noteHolder.mImage.getContext())
-                    .load(labelValue.getFilePath())
-                    .into(noteHolder.mImage);
+            PictureUtils.loadImage(noteHolder.mImage.getContext(), noteHolder.mImage, mExperimentId,
+                    labelValue.getFilePath());
             noteHolder.mImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

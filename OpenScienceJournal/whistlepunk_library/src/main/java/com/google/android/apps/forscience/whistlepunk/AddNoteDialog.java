@@ -42,15 +42,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
@@ -409,10 +406,7 @@ public class AddNoteDialog extends DialogFragment {
 
         setViewVisibilities(takePictureBtn, imageView, !hasPicture());
         if (mPictureLabelPath != null) {
-            Glide.clear(imageView);
-            Glide.with(getActivity())
-                 .load(mPictureLabelPath)
-                 .into(imageView);
+            PictureUtils.loadImage(getActivity(), imageView, mExperimentId, mPictureLabelPath);
         }
 
         takePictureBtn.setOnClickListener(new View.OnClickListener() {
@@ -537,10 +531,7 @@ public class AddNoteDialog extends DialogFragment {
             Dialog dialog = getDialog();
             ImageView imageView = (ImageView) dialog.findViewById(R.id.picture_note_preview_image);
             if (resultCode == Activity.RESULT_OK) {
-                Glide.clear(imageView);
-                Glide.with(getActivity())
-                     .load(mPictureLabelPath)
-                     .into(imageView);
+                PictureUtils.loadImage(getActivity(), imageView, mExperimentId, mPictureLabelPath);
             } else {
                 mPictureLabelPath = null;
             }

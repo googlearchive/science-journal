@@ -94,4 +94,18 @@ public class FileMetadataManagerTest extends InstrumentationTestCase {
         fmm.deleteExperiment(second);
         fmm.deleteExperiment(third);
     }
+
+    public void testRelativePathFunctions() {
+        File file = new File(getInstrumentation().getContext().getFilesDir() +
+                "/experiments/experiment182/assets/cats.png");
+        assertEquals("assets/cats.png",
+                FileMetadataManager.getRelativePathInExperiment("experiment182", file));
+
+        // No match should return an empty string.
+        assertEquals("", FileMetadataManager.getRelativePathInExperiment("experiment42", file));
+
+        File result = FileMetadataManager.getExperimentFile(getInstrumentation().getContext(),
+                "experiment182", "assets/cats.png");
+        assertEquals(file.getAbsolutePath(), result.getAbsolutePath());
+    }
 }

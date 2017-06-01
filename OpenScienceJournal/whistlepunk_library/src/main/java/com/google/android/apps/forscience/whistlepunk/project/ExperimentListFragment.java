@@ -44,6 +44,7 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.PanesActivity;
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -332,13 +333,15 @@ public class ExperimentListFragment extends Fragment {
                 // TODO: imagePath is always empty. Fix this as part of the file-system migration.
                 // Photo should be the most recent run photo or label photo? Or the first one
                 // ever added to this experiment? Discuss with UX.
-                loadPhoto(holder, experiment.imagePath);
+                loadPhoto(holder, experiment.experimentId, experiment.imagePath);
             }
         }
 
-        private void loadPhoto(final ViewHolder holder, String pictureFilePath) {
+        private void loadPhoto(final ViewHolder holder, String experimentId,
+                String pictureFilePath) {
             Glide.with(holder.experimentImage.getContext())
-                    .load(pictureFilePath)
+                    .load(PictureUtils.getImagePath(holder.experimentImage.getContext(),
+                            experimentId, pictureFilePath))
                     .asBitmap()
                     .centerCrop()
                     .into(new BitmapImageViewTarget(holder.experimentImage) {

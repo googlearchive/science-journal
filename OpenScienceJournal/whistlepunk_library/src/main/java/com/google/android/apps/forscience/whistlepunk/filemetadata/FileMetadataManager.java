@@ -192,7 +192,26 @@ public class FileMetadataManager {
     }
 
     public static File getAssetsDirectory(Context context, String experimentId) {
-        return new File(context.getFilesDir() + "/experiments/" + experimentId + "/" +
-                ASSETS_DIRECTORY);
+        return new File(getExperimentDirectory(context, experimentId) + ASSETS_DIRECTORY);
+    }
+
+    private static String getExperimentDirectory(Context context, String experimentId) {
+        return context.getFilesDir() + "/experiments/" + experimentId + "/";
+    }
+
+    public static String getRelativePathInExperiment(String experimentId, File file) {
+        String absolutePath = file.getAbsolutePath();
+        int start = absolutePath.indexOf(experimentId);
+        if (start < 0) {
+            // This file is not part of this experiment.
+            return "";
+        } else {
+            return absolutePath.substring(start + experimentId.length() + 1);
+        }
+    }
+
+    public static File getExperimentFile(Context context, String experimentId,
+            String relativePath) {
+        return new File(getExperimentDirectory(context, experimentId) + "/" + relativePath);
     }
 }
