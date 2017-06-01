@@ -1,0 +1,154 @@
+/*
+ *  Copyright 2017 Google Inc. All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package com.google.android.apps.forscience.whistlepunk;
+
+import android.app.Activity;
+import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Binder;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
+
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.BehaviorSubject;
+
+/**
+ * A main-process service that provides global data connectivity to any activity
+ *
+ * Over time, using this should replace AppSingleton, so that eventually Android can better
+ * garbage collect global resources when unneeded.
+ *
+ * To bind from an activity, use:
+ *
+ * <pre>
+ * class MyActivity extends Activity {
+ *     public void scanForDevicesOnce() {
+ *         DataService.bind(this).subscribe(appSingleton ->
+ *             appSingleton.getBleClient().scanForDevices(...);
+ *         );
+ *     }
+ * }
+ * </pre>
+ *
+ * Fragments are trickier, since they only sometimes have an attached activity that can bind to
+ * the data service.  So the FragmentBinder helper class is provided:
+ *
+ * <pre>
+ * Class MyFragment extends Fragment {
+ *     DataService FragmentBinder mDataBinder = new DataService.FragmentBinder();
+ *
+ *     @Override public void onAttach(Context context) {
+ *         mDataBinder.onAttach(context);
+ *     }
+ *
+ *     public void scanForDevicesOnce() {
+ *         mDataBinder.bind().subscribe(appSingleton ->
+ *             appSingleton.getBleClient().scanForDevices(...);
+ *         );
+ *     }
+ * }
+ * </pre>
+ *
+ * Following the RxJava style, this separates the users of a stream from how it is produced.
+ * The current implementation binds to the service just long enough to satisfy the immediate
+ * subscriber, and then unbinds again.  If this turns out to have a poor performance impact, we
+ * can switch the implementation here to cache the connection without effecting users of the
+ * interface.
+ */
+public class DataService extends Service {
+    /**
+     * See top-level commends on {@link DataService}
+     */
+    public static class FragmentBinder {
+        private BehaviorSubject<Context> mApplicationContext = BehaviorSubject.create();
+
+        private Observable<AppSingleton> mBound =
+                mApplicationContext.flatMapSingle(ac -> DataService.bind(ac));
+
+        // SAFF: can we use RxLifecycle for this?
+        public void onAttach(Context context) {
+            if (! mApplicationContext.hasValue()) {
+                mApplicationContext.onNext(context.getApplicationContext());
+            }
+        }
+
+        public Maybe<AppSingleton> bind() {
+            return mBound.firstElement();
+        }
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return new DataBinder(AppSingleton.getInstance(this));
+    }
+
+    private class DataBinder extends Binder {
+        private AppSingleton mSingleton;
+
+        public DataBinder(AppSingleton singleton) {
+            mSingleton = singleton;
+        }
+
+        public AppSingleton getData() {
+            return mSingleton;
+        }
+    }
+
+    public static Single<AppSingleton> bind(Context context) {
+        Context appContext = context.getApplicationContext();
+
+        return Single.create(emitter -> {
+            ServiceConnection conn = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    DataBinder binder = (DataBinder) service;
+                    emitter.onSuccess(binder.getData());
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+
+                }
+            };
+            Intent intent = new Intent(appContext, DataService.class);
+            if (appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE)) {
+                emitter.setDisposable(new Disposable() {
+                    public boolean mDisposed = false;
+
+                    @Override
+                    public void dispose() {
+                        appContext.unbindService(conn);
+                        mDisposed = true;
+                    }
+
+                    @Override
+                    public boolean isDisposed() {
+                        return mDisposed;
+                    }
+                });
+            } else {
+                emitter.onError(new Exception("Could not bind DataService"));
+            }
+        });
+    }
+}
