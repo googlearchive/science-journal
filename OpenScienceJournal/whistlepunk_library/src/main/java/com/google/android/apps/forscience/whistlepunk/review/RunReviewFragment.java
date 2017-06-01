@@ -107,7 +107,8 @@ public class RunReviewFragment extends Fragment implements
         EditNoteDialog.EditNoteDialogListener, EditTimeDialogListener,
         DeleteMetadataItemDialog.DeleteDialogListener,
         AudioSettingsDialog.AudioSettingsDialogListener,
-        ChartController.ChartLoadingStatus {
+        ChartController.ChartLoadingStatus,
+        ExportOptionsDialogFragment.Exporter {
     public static final String ARG_EXPERIMENT_ID = "experimentId";
     public static final String ARG_START_LABEL_ID = "start_label_id";
     public static final String ARG_SENSOR_INDEX = "sensor_tag_index";
@@ -1721,8 +1722,17 @@ public class RunReviewFragment extends Fragment implements
     }
 
     private void exportRun(final Trial trial) {
-        // Until we have UI to override it, we never use relative timestamps.
-        boolean startAtZero = false;
+        showExportDialog(mExperiment.getDisplayTitle(getActivity()), trial.getTitle(getActivity()));
+    }
+
+    private void showExportDialog(String experimentTitle, String trialTitle) {
+        ExportOptionsDialogFragment fragment = ExportOptionsDialogFragment.createOptionsDialog(
+                experimentTitle, trialTitle);
+        fragment.show(((AppCompatActivity) getActivity()).getSupportFragmentManager(), "export");
+    }
+
+    public void onExport(boolean startAtZero) {
+        Trial trial = mExperiment.getTrial(mTrialId);
         mRunReviewExporter.startExport(getActivity(), mExperiment.getDisplayTitle(getActivity()),
                 trial, trial.getSensorLayouts().get(mSelectedSensorIndex).sensorId, startAtZero);
         // Disable the item.

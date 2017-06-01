@@ -1370,7 +1370,13 @@ Permissions notice:
 
     <!-- Experiment title prefixed by project title, i.e. if the project is named "Airplanes" and the experiment is "Takeoff", this would be "Airplanes: Takeoff". CHAR_LIMIT=NONE]-->
     <string name="project_experiment_title"><xliff:g id="project_name">%1s</xliff:g>: <xliff:g id="experiment_name">%1s</xliff:g></string>
+
     <string name="snapshot_button_text">snapshot</string>
+
+    <!-- Dialog title shown when exporting the data to another app [CHAR_LIMIT=100]-->
+    <string name="export_options_title">Export…</string>
+    <!-- Export option for selecting whether to use relative timestamps when exporting (0, 1, 2) vs absolute time [CHAR_LIMIT=100]-->
+    <string name="export_options_relative_time">Relative time</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
