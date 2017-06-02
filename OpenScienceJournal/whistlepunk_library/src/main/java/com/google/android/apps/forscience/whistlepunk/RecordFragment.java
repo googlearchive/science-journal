@@ -85,6 +85,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.jakewharton.rxbinding2.view.RxView;
 
 import java.io.File;
 import java.text.NumberFormat;
@@ -197,7 +198,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private RecyclerView mSensorCardRecyclerView;
     private SensorCardAdapter mSensorCardAdapter;
     private ExternalAxisController mExternalAxis;
-    private ViewTreeObserver.OnGlobalLayoutListener mRecyclerViewGlobalLayoutListener;
     private View mBottomPanel;
     // Stores the rect of the panel.
     private Rect mPanelRect = new Rect();
@@ -887,39 +887,33 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         });
         mSensorCardRecyclerView.setVisibility(View.VISIBLE);
 
-        // Figure out the optimal height of a sensor presenter when the recycler view is layed out.
-        mRecyclerViewGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (getActivity() == null || mSensorCardAdapter == null) {
-                    return;
-                }
-                // A sensor presenter should be the height of the recycler view, minus
-                // the margins, and minus the active card header size. We also subtract the height
-                // of the external axis, which is transparent so the cards are shown behind it
-                // but must be short enough to fit above it.
-                int headerHeight = getResources().getDimensionPixelSize(
-                        R.dimen.sensor_card_header_height);
-                int marginHeight = getResources().getDimensionPixelSize(
-                        R.dimen.cardview_margin);
-                int externalAxisHeight = getResources().getDimensionPixelSize(
-                        R.dimen.external_axis_height);
-                final int optimalHeight = mSensorCardRecyclerView.getHeight() -
-                        headerHeight - marginHeight * 3 - externalAxisHeight;
-                int minHeight = getResources().getDimensionPixelSize(
-                        R.dimen.sensor_card_content_height_min);
-
-                // TODO: one time, I saw a crash here.  Can we prevent it more gracefully?
-                if (mSensorCardAdapter != null) {
-                    mSensorCardAdapter.setSingleCardPresenterHeight(
-                            Math.max(optimalHeight, minHeight));
-                }
-                mSensorCardRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(
-                        mRecyclerViewGlobalLayoutListener);
+        // Figure out the optimal height of a sensor presenter when the recycler view is laid out;
+        // only do this on first layout
+        RxView.globalLayouts(mSensorCardRecyclerView).firstElement().subscribe(o -> {
+            if (getActivity() == null || mSensorCardAdapter == null) {
+                return;
             }
-        };
-        mSensorCardRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
-                mRecyclerViewGlobalLayoutListener);
+            // A sensor presenter should be the height of the recycler view, minus
+            // the margins, and minus the active card header size. We also subtract the height
+            // of the external axis, which is transparent so the cards are shown behind it
+            // but must be short enough to fit above it.
+            int headerHeight = getResources().getDimensionPixelSize(
+                    R.dimen.sensor_card_header_height);
+            int marginHeight = getResources().getDimensionPixelSize(
+                    R.dimen.cardview_margin);
+            int externalAxisHeight = getResources().getDimensionPixelSize(
+                    R.dimen.external_axis_height);
+            final int optimalHeight = mSensorCardRecyclerView.getHeight() -
+                                      headerHeight - marginHeight * 3 - externalAxisHeight;
+            int minHeight = getResources().getDimensionPixelSize(
+                    R.dimen.sensor_card_content_height_min);
+
+            // TODO: one time, I saw a crash here.  Can we prevent it more gracefully?
+            if (mSensorCardAdapter != null) {
+                mSensorCardAdapter.setSingleCardPresenterHeight(
+                        Math.max(optimalHeight, minHeight));
+            }
+        });
         mSensorCardRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
 
