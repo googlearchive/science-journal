@@ -185,7 +185,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private SensorRegistry mSensorRegistry;
     private Snackbar mVisibleSnackbar;
 
-    private ImageButton mAddButton;
     private ImageButton mRecordButton;
 
     private SensorSettingsController mSensorSettingsController;
@@ -204,6 +203,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private Experiment mSelectedExperiment;
     private BehaviorSubject<Experiment> mSelectedExperimentSubject = BehaviorSubject.create();
+
+    // Subscribe to get whether we are currently recording, and future updates.
+    private BehaviorSubject<Boolean> mRecordingState = BehaviorSubject.create();
+
+    // Subscribe to get whether control buttons are currently enabled, and future updates.
+    private BehaviorSubject<Boolean> mControlButtonsEnabled = BehaviorSubject.create();
 
     // A temporary variable to store a sensor card presenter that wants to use
     // the decibel sensor before the permission to use microphone is granted
@@ -601,16 +606,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                     }
                 }, /* IsLive */ true, new CurrentTimeClock(), resetButton);
 
-        mAddButton = (ImageButton) rootView.findViewById(R.id.btn_add);
-        mAddButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Save the timestamp for the note, but show the user a UI to create it:
-                // Can't create the note yet as we don't know ahead of time if this is a picture
-                // or text note.
-                launchLabelAdd(getNow());
-            }
-        });
+        attachAddButton(rootView);
 
         mRecordButton = (ImageButton) rootView.findViewById(R.id.btn_record);
 
@@ -656,6 +652,33 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         }
 
         return rootView;
+    }
+
+    private void attachAddButton(ViewGroup rootView) {
+        ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Save the timestamp for the note, but show the user a UI to create it:
+                // Can't create the note yet as we don't know ahead of time if this is a picture
+                // or text note.
+                launchLabelAdd(getNow());
+            }
+        });
+
+        mRecordingState.subscribe(isRecording -> {
+            if (isRecording) {
+                addButton.setContentDescription(
+                        getResources().getString(R.string.btn_add_run_note_description));
+            } else {
+                addButton.setContentDescription(
+                        getResources().getString(R.string.btn_add_experiment_note_description));
+            }
+        });
+
+        mControlButtonsEnabled.subscribe(enabled -> {
+            addButton.setEnabled(enabled);
+        });
     }
 
     private boolean getShowSnapshot() {
@@ -1266,6 +1289,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void updateRecordingUIState() {
+        mRecordingState.onNext(isRecording());
+
         if (mRecordButton != null) {
             mRecordButton.setEnabled(true);
         }
@@ -1276,16 +1301,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
         if (isRecording()) {
             lockUiForRecording();
-            mAddButton.setContentDescription(
-                    getResources().getString(R.string.btn_add_run_note_description));
             mRecordButton.setContentDescription(getResources().getString(
                     R.string.btn_stop_description));
             mRecordButton.setImageDrawable(getResources().getDrawable(
                     R.drawable.ic_recording_stop_36dp));
         } else {
             mUICallbacks.onRecordingStopped();
-            mAddButton.setContentDescription(
-                    getResources().getString(R.string.btn_add_experiment_note_description));
             mRecordButton.setContentDescription(getResources().getString(
                     R.string.btn_record_description));
             mRecordButton.setImageDrawable(getResources().getDrawable(
@@ -1297,8 +1318,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void setControlButtonsEnabled(boolean enabled) {
+        mControlButtonsEnabled.onNext(enabled);
         mRecordButton.setEnabled(enabled);
-        mAddButton.setEnabled(enabled);
     }
 
     private void refreshLabels() {
