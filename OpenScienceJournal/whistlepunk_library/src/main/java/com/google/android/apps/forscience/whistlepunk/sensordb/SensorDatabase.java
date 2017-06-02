@@ -16,6 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensordb;
 
+import io.reactivex.Observable;
+
 /**
  * Stores and retrieves sensor data from on-device storage.  All access should be be from a single
  * background thread; all calls are blocking, and do not perform internal synchronization.
@@ -54,4 +56,7 @@ public interface SensorDatabase {
      * Deletes the scalar records for the given sensor for the given time range.
      */
     void deleteScalarReadings(String sensorTag, TimeRange range);
+
+    Observable<ScalarReading> createScalarObservable(String[] sensorTags, TimeRange range,
+            int resolutionTier);
 }

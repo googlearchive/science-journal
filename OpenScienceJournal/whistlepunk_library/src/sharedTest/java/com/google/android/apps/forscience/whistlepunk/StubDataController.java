@@ -23,11 +23,14 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 
 import java.util.List;
 import java.util.Map;
+
+import io.reactivex.Observable;
 
 /**
  * A DataController with empty implementations of all the methods, for tests to
@@ -38,6 +41,12 @@ public class StubDataController implements DataController {
     public void getScalarReadings(String databaseTag, int resolutionTier, TimeRange timeRange,
             int maxRecords, MaybeConsumer<ScalarReadingList> onSuccess) {
 
+    }
+
+    @Override
+    public Observable<ScalarReading> createScalarObservable(String[] sensorIds, TimeRange timeRange,
+            int resolutionTier) {
+        return null;
     }
 
     @Override

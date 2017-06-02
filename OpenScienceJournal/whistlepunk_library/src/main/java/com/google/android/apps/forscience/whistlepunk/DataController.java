@@ -24,11 +24,14 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 
 import java.util.List;
 import java.util.Map;
+
+import io.reactivex.Observable;
 
 /**
  * Provides access to any data outside of the UI.  All methods should be called from the UI thread;
@@ -38,6 +41,9 @@ import java.util.Map;
 public interface DataController {
     void getScalarReadings(String databaseTag, final int resolutionTier, TimeRange timeRange,
             int maxRecords, MaybeConsumer<ScalarReadingList> onSuccess);
+
+    Observable<ScalarReading> createScalarObservable(String[] sensorIds,
+            TimeRange timeRange, final int resolutionTier);
 
     void deleteTrialData(Trial trial, MaybeConsumer<Success> onSuccess);
 

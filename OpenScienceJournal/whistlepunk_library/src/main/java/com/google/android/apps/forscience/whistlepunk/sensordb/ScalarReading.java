@@ -21,18 +21,27 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A reading from the database.  Comparable based on timestamp only, to find a given timestamp
  * in a list of readings.
  */
 public class ScalarReading implements TimedEvent, Comparable<ScalarReading> {
+    public static final String SENSOR_TAG_UNDEFINED = "undefined";
+
     private final long mTimestampMillis;
     private final double mValue;
+    private final String mSensorTag;
 
-    public ScalarReading(long timestampMillis, double value) {
+    public ScalarReading(long timestampMillis, double value, String sensorTag) {
         mTimestampMillis = timestampMillis;
         mValue = value;
+        mSensorTag = sensorTag;
+    }
+
+    public ScalarReading(long timestampMillis, double value) {
+        this(timestampMillis, value, SENSOR_TAG_UNDEFINED);
     }
 
     /**
@@ -67,6 +76,9 @@ public class ScalarReading implements TimedEvent, Comparable<ScalarReading> {
         if (mTimestampMillis != that.mTimestampMillis) {
             return false;
         }
+        if (!Objects.equals(mSensorTag, that.mSensorTag)) {
+            return false;
+        }
         return Double.compare(that.mValue, mValue) == 0;
 
     }
@@ -78,6 +90,7 @@ public class ScalarReading implements TimedEvent, Comparable<ScalarReading> {
         result = (int) (mTimestampMillis ^ (mTimestampMillis >>> 32));
         temp = Double.doubleToLongBits(mValue);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + mSensorTag.hashCode();
         return result;
     }
 
@@ -86,6 +99,7 @@ public class ScalarReading implements TimedEvent, Comparable<ScalarReading> {
         return "ScalarReading{" +
                 "mTimestampMillis=" + mTimestampMillis +
                 ", mValue=" + mValue +
+                ", mSensorTag=" + mSensorTag +
                 '}';
     }
 
@@ -96,6 +110,10 @@ public class ScalarReading implements TimedEvent, Comparable<ScalarReading> {
 
     public double getValue() {
         return mValue;
+    }
+
+    public String getSensorTag() {
+        return mSensorTag;
     }
 
     @Override

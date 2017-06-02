@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Observable;
+
 public class InMemorySensorDatabase implements SensorDatabase {
     private List<List<Reading>> mReadings = new ArrayList<>();
 
@@ -127,6 +129,12 @@ public class InMemorySensorDatabase implements SensorDatabase {
                 }
             }
         }
+    }
+
+    @Override
+    public Observable<ScalarReading> createScalarObservable(String[] sensorTags, TimeRange range,
+            int resolutionTier) {
+        return null;
     }
 
     public List<Reading> getReadings(int resolutionTier) {

@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
+import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -42,6 +43,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 
 public class DataControllerImpl implements DataController, RecordingDataController {
     private static final String TAG = "DataControllerImpl";
@@ -157,6 +161,13 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                         maxRecords);
             }
         });
+    }
+
+    @Override
+    public Observable<ScalarReading> createScalarObservable(final String[] sensorIds,
+            final TimeRange timeRange, final int resolutionTier) {
+        return mSensorDatabase.createScalarObservable(sensorIds, timeRange, resolutionTier)
+                .observeOn(Schedulers.from(mSensorDataThread));
     }
 
     @Override

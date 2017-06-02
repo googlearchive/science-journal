@@ -19,11 +19,16 @@ package com.google.android.apps.forscience.whistlepunk.sensordb;
 import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.observers.TestObserver;
 
 public class SensorDatabaseTest extends AndroidTestCase {
     private static final String TEST_DATABASE_NAME = "test.db";
@@ -161,6 +166,64 @@ public class SensorDatabaseTest extends AndroidTestCase {
         assertEquals(1, db.getScalarReadings("tag2",
                 TimeRange.oldest(Range.closed(0L, 1L)), 0, 0).size());
 
+    }
+
+    public void testObservable_oneSensor() {
+        SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+        db.addScalarReading("tag", 0, 0, 0.0);
+        db.addScalarReading("tag", 0, 1, 1.0);
+        db.addScalarReading("tag", 0, 101, 2.0);
+        db.addScalarReading("tag", 0, 102, 2.0);
+        db.addScalarReading("tag", 0, 103, 2.0);
+        db.addScalarReading("tag2", 0, 0, 1.0);
+
+        TestObserver<ScalarReading> testObserver = new TestObserver<>();
+        Observable<ScalarReading> obs = db.createScalarObservable(new String[] {"tag"},
+                TimeRange.oldest(Range.closed(0L, 1L)), 0);
+        obs.subscribe(testObserver);
+        testObserver.assertNoErrors();
+        testObserver.assertValues(new ScalarReading(0, 0.0, "tag"),
+                new ScalarReading(1, 1.0, "tag"));
+    }
+
+    public void testObservable_multipleSensors() {
+        SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+        db.addScalarReading("tag", 0, 0, 0.0);
+        db.addScalarReading("tag", 0, 3, 1.0);
+        db.addScalarReading("tag", 0, 101, 2.0);
+        db.addScalarReading("tag", 0, 102, 2.0);
+        db.addScalarReading("tag", 0, 103, 2.0);
+        db.addScalarReading("tag2", 0, 1, 3.0);
+        db.addScalarReading("tag2", 0, 2, 4.0);
+
+        TestObserver<ScalarReading> testObserver = new TestObserver<>();
+        Observable<ScalarReading> obs = db.createScalarObservable(new String[] {"tag", "tag2"},
+                TimeRange.oldest(Range.closed(0L, 3L)), 0);
+        obs.subscribe(testObserver);
+        testObserver.assertNoErrors();
+        testObserver.assertValues(new ScalarReading(0, 0.0, "tag"),
+                new ScalarReading(1, 3.0, "tag2"),
+                new ScalarReading(2, 4.0, "tag2"),
+                new ScalarReading(3, 1.0, "tag"));
+    }
+
+    public void testObservable_paging() {
+        SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+
+        int pageSize = 10;
+        int total = pageSize * 10;
+        List<ScalarReading> expected = Lists.newArrayList();
+        for (int index = 0; index < total; ++index) {
+            db.addScalarReading("tag", 0, index, 0.0);
+            expected.add(new ScalarReading(index, 0.0, "tag"));
+        }
+
+        TestObserver<ScalarReading> testObserver = new TestObserver<>();
+        Observable<ScalarReading> obs = db.createScalarObservable(new String[] {"tag"},
+                TimeRange.oldest(Range.closed(0L, (long) total)), 0, pageSize);
+        obs.subscribe(testObserver);
+        testObserver.assertNoErrors();
+        testObserver.assertValueSequence(expected);
     }
 
     @Override

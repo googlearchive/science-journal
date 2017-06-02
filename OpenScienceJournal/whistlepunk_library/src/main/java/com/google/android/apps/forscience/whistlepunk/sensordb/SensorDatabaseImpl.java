@@ -21,6 +21,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.Pair;
 
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
@@ -28,10 +29,15 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.common.base.Joiner;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.DiscreteDomain;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 
 public class SensorDatabaseImpl implements SensorDatabase {
     private static class DbVersions {
@@ -102,13 +108,31 @@ public class SensorDatabaseImpl implements SensorDatabase {
      * @return a pair where the first element is the selection string and the second element is the
      * array of selectionArgs.
      */
-    private Pair<String, String[]> getSelectionAndArgs(String sensorTag, TimeRange range,
+    private Pair<String, String[]> getSelectionAndArgs(String[] sensorTags, TimeRange range,
             int resolutionTier) {
         List<String> clauses = new ArrayList<>();
         List<String> values = new ArrayList<>();
 
-        clauses.add(ScalarSensorsTable.Column.TAG + " = ?");
-        values.add(sensorTag);
+        if (sensorTags != null || sensorTags.length == 0) {
+          if (sensorTags.length == 1) {
+              clauses.add(ScalarSensorsTable.Column.TAG + " = ?");
+              values.add(sensorTags[0]);
+          } else {
+              // Generate "(?,?...") for length.
+              StringBuilder bindString = new StringBuilder();
+              for (String sensorTag : sensorTags) {
+                  values.add(sensorTag);
+                  if (bindString.length() == 0) {
+                      bindString.append("(?");
+                  } else {
+                      bindString.append(",?");
+                  }
+              }
+              bindString.append(")");
+              clauses.add(ScalarSensorsTable.Column.TAG + " IN " + bindString.toString());
+          }
+        }
+
 
         if (resolutionTier >= 0) {
             clauses.add(ScalarSensorsTable.Column.RESOLUTION_TIER + " = ?");
@@ -138,17 +162,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
     public ScalarReadingList getScalarReadings(String sensorTag, TimeRange range,
             int resolutionTier, int maxRecords) {
 
-        String[] columns =
-                {ScalarSensorsTable.Column.TIMESTAMP_MILLIS, ScalarSensorsTable.Column.VALUE};
-        Pair<String, String[]> selectionAndArgs = getSelectionAndArgs(sensorTag, range,
-                resolutionTier);
-        String selection = selectionAndArgs.first;
-        String[] selectionArgs = selectionAndArgs.second;
-        String orderBy = ScalarSensorsTable.Column.TIMESTAMP_MILLIS + (range.getOrder().equals(
-                TimeRange.ObservationOrder.OLDEST_FIRST) ? " ASC" : " DESC");
-        String limit = maxRecords <= 0 ? null : String.valueOf(maxRecords);
-        Cursor cursor = mOpenHelper.getReadableDatabase().query(ScalarSensorsTable.NAME, columns,
-                selection, selectionArgs, null, null, orderBy, limit);
+        Cursor cursor = getCursor(new String[] {sensorTag}, range, resolutionTier, maxRecords);
         try {
             final int max = maxRecords <= 0 ? cursor.getCount() : maxRecords;
             final long[] readTimestamps = new long[max];
@@ -187,6 +201,75 @@ public class SensorDatabaseImpl implements SensorDatabase {
         }
     }
 
+    @Override
+    public Observable<ScalarReading> createScalarObservable(String[] sensorTags,
+            final TimeRange range, int resolutionTier) {
+        return createScalarObservable(sensorTags, range, resolutionTier, 500);
+    }
+
+    @VisibleForTesting
+    Observable<ScalarReading> createScalarObservable(String[] sensorTags, final TimeRange range,
+            int resolutionTier, int pageSize) {
+        return Observable.create(new ObservableOnSubscribe<ScalarReading>() {
+
+            private long mLastTimeStampWritten = -1;
+
+            @Override
+            public void subscribe(ObservableEmitter<ScalarReading> observableEmitter)
+                    throws Exception {
+                // Start by opening the cursor.
+                TimeRange searchRange = range;
+                while (true) {
+                    Cursor c = null;
+                    try {
+                        c = getCursor(sensorTags, searchRange, resolutionTier, pageSize);
+                        if (c != null) {
+                            int count = 0;
+                            while (c.moveToNext()) {
+                                long timeStamp = c.getLong(0);
+                                observableEmitter.onNext(new ScalarReading(timeStamp,
+                                        c.getLong(1), c.getString(2)));
+                                mLastTimeStampWritten = timeStamp;
+                                count++;
+                            }
+                            if (count == 0) {
+                                break;
+                            }
+                        }
+                    } finally {
+                        if (c != null) {
+                            c.close();
+                        }
+                    }
+                    if (mLastTimeStampWritten >= range.getTimes().upperEndpoint()) {
+                        break;
+                    } else {
+                        Range<Long> times = Range.openClosed(mLastTimeStampWritten,
+                                range.getTimes().upperEndpoint());
+                        searchRange = TimeRange.oldest(times);
+                    }
+                }
+                observableEmitter.onComplete();
+            }
+        });
+    }
+
+    private Cursor getCursor(String[] sensorTags, TimeRange range, int resolutionTier,
+            int maxRecords) {
+        String[] columns = new String[] {ScalarSensorsTable.Column.TIMESTAMP_MILLIS,
+                ScalarSensorsTable.Column.VALUE, ScalarSensorsTable.Column.TAG};
+        Pair<String, String[]> selectionAndArgs = getSelectionAndArgs(sensorTags,
+                range, resolutionTier);
+        String selection = selectionAndArgs.first;
+        String[] selectionArgs = selectionAndArgs.second;
+        String orderBy = ScalarSensorsTable.Column.TIMESTAMP_MILLIS + (range.getOrder().equals(
+                TimeRange.ObservationOrder.OLDEST_FIRST) ? " ASC" : " DESC");
+        String limit = maxRecords <= 0 ? null : String.valueOf(maxRecords);
+        return mOpenHelper.getReadableDatabase().query(ScalarSensorsTable.NAME,
+                columns,  selection, selectionArgs, null, null, orderBy,
+                limit);
+    }
+
     // TODO: test
     @Override
     public String getFirstDatabaseTagAfter(long timestamp) {
@@ -208,8 +291,8 @@ public class SensorDatabaseImpl implements SensorDatabase {
 
     @Override
     public void deleteScalarReadings(String sensorTag, TimeRange range) {
-        Pair<String, String[]> selectionAndArgs = getSelectionAndArgs(sensorTag, range,
-                -1 /* delete all resolutions */);
+        Pair<String, String[]> selectionAndArgs = getSelectionAndArgs(new String[] {sensorTag},
+                range, -1 /* delete all resolutions */);
         String selection = selectionAndArgs.first;
         String[] selectionArgs = selectionAndArgs.second;
         mOpenHelper.getWritableDatabase().delete(ScalarSensorsTable.NAME, selection, selectionArgs);
