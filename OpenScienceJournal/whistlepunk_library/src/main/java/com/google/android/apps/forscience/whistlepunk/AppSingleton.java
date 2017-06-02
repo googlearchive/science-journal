@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import io.reactivex.Single;
+
 public class AppSingleton {
     private static final String SENSOR_DATABASE_NAME = "sensors.db";
     private static final String TAG = "AppSingleton";
@@ -178,8 +180,16 @@ public class AppSingleton {
      * @param c consumer that will have the RecorderController delivered, either immediately,
      *          or on the main thread when it becomes available.
      */
+    // TODO: prefer whenRecorderController everywhere
     public void withRecorderController(String tag, Consumer<RecorderController> c) {
-        c.take(getRecorderController());
+        whenRecorderController().subscribe(rc -> c.take(rc));
+    }
+
+    /**
+     * Connect to and return the RecorderController {@see #getRecorderController}
+     */
+    public Single<RecorderController> whenRecorderController() {
+        return Single.just(getRecorderController());
     }
 
     /**
