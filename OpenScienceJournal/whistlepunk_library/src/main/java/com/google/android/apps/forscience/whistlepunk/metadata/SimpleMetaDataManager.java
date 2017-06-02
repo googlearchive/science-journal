@@ -200,7 +200,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         try {
             File newFile = PictureUtils.createImageFile(mContext, experimentId,
                     label.getLabelId());
-            pictureLabelValue.updateFilePath("file:" + newFile.getAbsolutePath());
+            pictureLabelValue.updateFilePath(FileMetadataManager.getRelativePathInExperiment(
+                    experimentId, newFile));
             try (FileChannel input = new FileInputStream(oldFile).getChannel();
                  FileChannel output = new FileOutputStream(newFile).getChannel()) {
                 // We can't do a simple rename because we used to store photos on external storage

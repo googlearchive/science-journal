@@ -50,7 +50,6 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
@@ -804,9 +803,9 @@ public class ExperimentDetailsFragment extends Fragment
                 ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.note_image);
                 if (isPictureLabel) {
                     imageView.setVisibility(View.VISIBLE);
-                    Glide.with(imageView.getContext())
-                            .load(((PictureLabelValue) labelValue).getFilePath())
-                            .into(imageView);
+                    PictureUtils.loadImage(imageView.getContext(), imageView,
+                            mExperiment.getExperimentId(),
+                            ((PictureLabelValue) labelValue).getFilePath());
                     View.OnClickListener clickListener = new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

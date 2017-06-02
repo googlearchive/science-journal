@@ -32,7 +32,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -156,16 +155,11 @@ public class EditNoteDialog extends DialogFragment {
             autoTextView.setVisibility(View.GONE);
             editText.setText(mLabel.getCaptionText());
             editText.setHint(R.string.picture_note_caption_hint);
-            Glide.with(getActivity())
-                    .load(PictureLabelValue.getFilePath(mSelectedValue))
-                    .into(imageView);
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    PictureUtils.launchExternalViewer(getActivity(),
-                            (PictureLabelValue.getFilePath(mSelectedValue)));
-                }
-            });
+            PictureUtils.loadImage(getActivity(), imageView, mExperimentId,
+                    PictureLabelValue.getFilePath(mSelectedValue));
+            imageView.setOnClickListener(
+                    v -> PictureUtils.launchExternalViewer(getActivity(), mExperimentId,
+                            PictureLabelValue.getFilePath(mSelectedValue)));
         } else if (mLabel.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
             imageView.setVisibility(View.GONE);
             autoTextView.setVisibility(View.GONE);

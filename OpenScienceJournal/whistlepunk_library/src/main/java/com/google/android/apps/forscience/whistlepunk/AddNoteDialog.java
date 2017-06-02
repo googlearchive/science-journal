@@ -42,7 +42,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -393,10 +392,7 @@ public class AddNoteDialog extends DialogFragment {
 
         setViewVisibilities(takePictureBtn, imageView, !hasPicture());
         if (mPictureLabelPath != null) {
-            Glide.clear(imageView);
-            Glide.with(getActivity())
-                 .load(mPictureLabelPath)
-                 .into(imageView);
+            PictureUtils.loadImage(getActivity(), imageView, mExperimentId, mPictureLabelPath);
         }
 
         takePictureBtn.setOnClickListener(new View.OnClickListener() {
@@ -526,10 +522,7 @@ public class AddNoteDialog extends DialogFragment {
             Dialog dialog = getDialog();
             ImageView imageView = (ImageView) dialog.findViewById(R.id.picture_note_preview_image);
             if (resultCode == Activity.RESULT_OK) {
-                Glide.clear(imageView);
-                Glide.with(getActivity())
-                     .load(mPictureLabelPath)
-                     .into(imageView);
+                PictureUtils.loadImage(getActivity(), imageView, mExperimentId, mPictureLabelPath);
             } else {
                 mPictureLabelPath = null;
             }

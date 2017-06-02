@@ -774,7 +774,7 @@ public class RunReviewFragment extends Fragment implements
         pinnedNoteList.setLayoutManager(layoutManager);
 
         mPinnedNoteAdapter = new PinnedNoteAdapter(trial, trial.getFirstTimestamp(),
-                trial.getLastTimestamp());
+                trial.getLastTimestamp(), mExperimentId);
         mPinnedNoteAdapter.setListItemModifyListener(new PinnedNoteAdapter.ListItemEditListener() {
             @Override
             public void onListItemEdit(final Label item) {
@@ -1289,7 +1289,7 @@ public class RunReviewFragment extends Fragment implements
     }
 
     private void launchPicturePreview(Label label) {
-        PreviewNoteDialog dialog = PreviewNoteDialog.newInstance(label);
+        PreviewNoteDialog dialog = PreviewNoteDialog.newInstance(label, mExperimentId);
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
