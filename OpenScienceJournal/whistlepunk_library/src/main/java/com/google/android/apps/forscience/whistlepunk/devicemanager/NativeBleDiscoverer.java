@@ -27,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
@@ -194,6 +195,11 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
             @Override
             public ExternalSensorSpec getSpec() {
                 return spec;
+            }
+
+            @Override
+            public GoosciSensorSpec.SensorSpec getSensorSpec() {
+                return spec.asGoosciSpec();
             }
 
             @Override

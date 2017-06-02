@@ -70,7 +70,7 @@ public class DeviceOptionsViewControllerTest extends AndroidTestCase {
 
         dc.getExternalSensorsByExperiment(experiment.getExperimentId(),
                 TestConsumers.<ExperimentSensors>expecting(new ExperimentSensors(Lists.newArrayList(
-                        connector.connected(newSpec,
+                        connector.connected(newSpec.asGoosciSpec(),
                                 ExternalSensorSpec.getSensorId(oldSpec, 1))),
                         Sets.<String>newHashSet(oldSensorId))));
 

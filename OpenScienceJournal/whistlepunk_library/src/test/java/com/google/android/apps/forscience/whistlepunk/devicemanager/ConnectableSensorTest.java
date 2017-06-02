@@ -60,7 +60,8 @@ public class ConnectableSensorTest {
     public void getNameExternal() {
         InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "address", "name");
         SensorAppearance appearance = new ConnectableSensor.Connector(
-                EnumeratedDiscoverer.buildProviderMap(spec)).disconnected(spec).getAppearance(null);
+                EnumeratedDiscoverer.buildProviderMap(spec)).disconnected(spec.asGoosciSpec())
+                                                            .getAppearance(null);
         assertEquals("name", appearance.getName(null));
     }
 

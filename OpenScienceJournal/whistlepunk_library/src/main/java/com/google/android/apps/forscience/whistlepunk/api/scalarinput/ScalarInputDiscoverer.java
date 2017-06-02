@@ -33,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -288,6 +289,11 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                             @Override
                             public ExternalSensorSpec getSpec() {
                                 return spec;
+                            }
+
+                            @Override
+                            public GoosciSensorSpec.SensorSpec getSensorSpec() {
+                                return spec.asGoosciSpec();
                             }
 
                             @Override

@@ -23,6 +23,7 @@ import com.google.android.apps.forscience.whistlepunk.AccumulatingConsumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.DeviceRegistry;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -62,7 +63,9 @@ public class ScalarInputDiscovererTest {
         assertFalse(listener.isDone);
 
         uiThread.drain();
-        ExternalSensorSpec sensor = getOnly(listener.sensors).getSpec();
+        ExternalSensorSpec sensor =
+                ExternalSensorSpec.fromGoosciSpec(getOnly(listener.sensors).getSensorSpec(),
+                        s.makeScalarInputProviders());
         ScalarInputSpec spec = (ScalarInputSpec) sensor;
         assertEquals(s.getSensorName(), spec.getName());
         assertEquals(s.getSensorAddress(), spec.getSensorAddressInService());
@@ -219,9 +222,9 @@ public class ScalarInputDiscovererTest {
         assertEquals(true,
                 sid.startScanning(new TestScanListener(c, onScanDone),
                         TestConsumers.expectingSuccess()));
-        ExternalSensorSpec sensor = c.getOnlySeen().getSpec();
-        ScalarInputSpec spec = (ScalarInputSpec) sensor;
-        assertEquals(s.getSensorName(), spec.getName());
+        GoosciSensorSpec.SensorSpec sensor = c.getOnlySeen().getSensorSpec();
+        assertEquals(ScalarInputSpec.TYPE, sensor.providerId);
+        assertEquals(s.getSensorName(), sensor.rememberedAppearance.name);
 
         assertFalse(onScanDone.hasRun);
         scheduler.incrementTime(200);

@@ -190,4 +190,7 @@ public abstract class ExternalSensorSpec {
         return externalSensorProvider.buildSensorSpec(spec.rememberedAppearance.name, spec.config);
     }
 
+    public static GoosciSensorSpec.SensorSpec toGoosciSpec(ExternalSensorSpec spec) {
+        return spec == null ? null : spec.asGoosciSpec();
+    }
 }
