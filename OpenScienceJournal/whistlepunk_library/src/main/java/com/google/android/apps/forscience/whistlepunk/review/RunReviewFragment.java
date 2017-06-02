@@ -1722,12 +1722,8 @@ public class RunReviewFragment extends Fragment implements
     }
 
     private void exportRun(final Trial trial) {
-        showExportDialog(mExperiment.getDisplayTitle(getActivity()), trial.getTitle(getActivity()));
-    }
-
-    private void showExportDialog(String experimentTitle, String trialTitle) {
         ExportOptionsDialogFragment fragment = ExportOptionsDialogFragment.createOptionsDialog(
-                experimentTitle, trialTitle);
+                mExperiment.getExperimentId(), trial.getTrialId());
         fragment.show(((AppCompatActivity) getActivity()).getSupportFragmentManager(), "export");
     }
 

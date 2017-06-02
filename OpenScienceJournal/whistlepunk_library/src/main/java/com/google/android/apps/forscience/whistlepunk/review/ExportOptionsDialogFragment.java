@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
-import android.app.Dialog;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -26,26 +25,37 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.DataService;
+import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.RxDataController;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+
+import java.util.List;
+
 
 /**
  * Shows options for exporting.
  */
 public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
 
-    private static final String KEY_EXPERIMENT_TITLE = "experiment_title";
-    private static final String KEY_TRIAL_TITLE = "trial_title";
+    private static final boolean DEBUG_USE_SERVICE = false;
+
+    private static final String KEY_EXPERIMENT_ID = "experiment_id";
+    private static final String KEY_TRIAL_ID = "trial_id";
     private CheckBox mRelativeTime;
+    private List<String> mSensorIds;
 
     public interface Exporter {
         void onExport(boolean startAtZero);
     }
 
-    public static ExportOptionsDialogFragment createOptionsDialog(String experimentTitle,
-            String trialTitle) {
+    public static ExportOptionsDialogFragment createOptionsDialog(String experimentId,
+            String trialId) {
         Bundle args = new Bundle();
-        args.putString(KEY_EXPERIMENT_TITLE, experimentTitle);
-        args.putString(KEY_TRIAL_TITLE, trialTitle);
+        args.putString(KEY_EXPERIMENT_ID, experimentId);
+        args.putString(KEY_TRIAL_ID, trialId);
         ExportOptionsDialogFragment fragment = new ExportOptionsDialogFragment();
         fragment.setArguments(args);
         return fragment;
@@ -60,11 +70,27 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
         view.findViewById(R.id.action_cancel).setOnClickListener(v -> {
             dismiss();
         });
+        final String experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
+        final String trialId = getArguments().getString(KEY_TRIAL_ID);
+        DataService.bind(getActivity()).map(AppSingleton::getDataController)
+                .flatMap(dc -> RxDataController.getExperimentById(dc, experimentId))
+                .subscribe(experiment -> {
+                    Trial trial = experiment.getTrial(trialId);
+                    mSensorIds = trial.getSensorIds();
+                });
         view.findViewById(R.id.action_export).setOnClickListener(v -> {
-            // TODO: remove this when moving to the service: just kick off intentservice instead.
-            Fragment fragment = getActivity().getFragmentManager().findFragmentById(R.id.container);
-            if (fragment instanceof Exporter) {
-                ((Exporter) fragment).onExport(mRelativeTime.isChecked());
+
+            if (DEBUG_USE_SERVICE) {
+                ExportService.exportTrial(getActivity(), experimentId, trialId,
+                        mRelativeTime.isChecked(), mSensorIds.toArray(new String[]{}));
+            } else {
+                // TODO: remove this when moving to the service: just kick off intentservice
+                // instead.
+                Fragment fragment = getActivity().getFragmentManager().findFragmentById(
+                        R.id.container);
+                if (fragment instanceof Exporter) {
+                    ((Exporter) fragment).onExport(mRelativeTime.isChecked());
+                }
             }
             dismiss();
         });
