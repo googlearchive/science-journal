@@ -363,12 +363,7 @@ public class ExperimentDetailsFragment extends Fragment
             mObserveButton.setOnClickListener(null);
         } else {
             mObserveButton.setVisibility(View.VISIBLE);
-            mObserveButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    launchObserve();
-                }
-            });
+            mObserveButton.setOnClickListener(v -> launchObserve());
         }
     }
 
@@ -394,24 +389,20 @@ public class ExperimentDetailsFragment extends Fragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-
-        if (mDisappearingActionBar) {
-            inflater.inflate(R.menu.menu_experiment_details, menu);
-        }
+        inflater.inflate(R.menu.menu_experiment_details, menu);
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        if (mDisappearingActionBar) {
-            menu.findItem(R.id.action_archive_experiment).setVisible(mExperiment != null &&
-                                                                     !mExperiment.isArchived());
-            menu.findItem(R.id.action_unarchive_experiment).setVisible(mExperiment != null &&
-                                                                       mExperiment.isArchived());
-            menu.findItem(R.id.action_delete_experiment).setEnabled(mExperiment != null
-                                                                    && mExperiment.isArchived());
-            menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
-            menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
-        }
+        menu.findItem(R.id.action_experiment_add_note).setVisible(mDisappearingActionBar);
+        menu.findItem(R.id.action_archive_experiment).setVisible(mExperiment != null &&
+                                                                 !mExperiment.isArchived());
+        menu.findItem(R.id.action_unarchive_experiment).setVisible(mExperiment != null &&
+                                                                   mExperiment.isArchived());
+        menu.findItem(R.id.action_delete_experiment).setEnabled(mExperiment != null
+                                                                && mExperiment.isArchived());
+        menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
+        menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
     }
 
     @Override
@@ -484,13 +475,7 @@ public class ExperimentDetailsFragment extends Fragment
                         Snackbar.LENGTH_LONG);
 
                 if (archived) {
-                    bar.setAction(R.string.action_undo, new View.OnClickListener() {
-
-                        @Override
-                        public void onClick(View v) {
-                            setExperimentArchived(false);
-                        }
-                    });
+                    bar.setAction(R.string.action_undo, v -> setExperimentArchived(false));
                 }
                 bar.show();
                 getActivity().invalidateOptionsMenu();
@@ -798,31 +783,24 @@ public class ExperimentDetailsFragment extends Fragment
                 }
                 ((RelativeTimeTextView) holder.itemView.findViewById(R.id.duration_text)).setTime(
                         label.getTimeStamp());
-                setupNoteMenu(label, holder.itemView.findViewById(R.id.note_menu_button),
-                        label.getTimeStamp());
+                setupNoteMenu(label, holder.itemView.findViewById(R.id.note_menu_button));
                 ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.note_image);
                 if (isPictureLabel) {
                     imageView.setVisibility(View.VISIBLE);
                     PictureUtils.loadImage(imageView.getContext(), imageView,
                             mExperiment.getExperimentId(),
                             ((PictureLabelValue) labelValue).getFilePath());
-                    View.OnClickListener clickListener = new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (mParentReference.get() != null) {
-                                mParentReference.get().launchPicturePreview(label);
-                            }
+                    View.OnClickListener clickListener = v -> {
+                        if (mParentReference.get() != null) {
+                            mParentReference.get().launchPicturePreview(label);
                         }
                     };
                     holder.cardView.setOnClickListener(clickListener);
                     autoTextView.setVisibility(View.GONE);
                 } else {
-                    holder.cardView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (mParentReference.get() != null) {
-                                mParentReference.get().launchLabelEdit(label);
-                            }
+                    holder.cardView.setOnClickListener(v -> {
+                        if (mParentReference.get() != null) {
+                            mParentReference.get().launchLabelEdit(label);
                         }
                     });
                     imageView.setVisibility(View.GONE);
@@ -858,31 +836,26 @@ public class ExperimentDetailsFragment extends Fragment
             }
         }
 
-        private void setupNoteMenu(final Label label, final View menu, final long timestamp) {
-            menu.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Context context = menu.getContext();
-                    PopupMenu popup = new PopupMenu(context, menu);
-                    popup.getMenuInflater().inflate(R.menu.menu_note, popup.getMenu());
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        public boolean onMenuItemClick(MenuItem item) {
-                            if (item.getItemId() == R.id.btn_edit_note) {
-                                if (mParentReference.get() != null) {
-                                    mParentReference.get().launchLabelEdit(label);
-                                }
-                                return true;
-                            } else if (item.getItemId() == R.id.btn_delete_note) {
-                                if (mParentReference.get() != null) {
-                                    mParentReference.get().onLabelDelete(label);
-                                }
-                                return true;
-                            }
-                            return false;
+        private void setupNoteMenu(final Label label, final View menu) {
+            menu.setOnClickListener(v -> {
+                Context context = menu.getContext();
+                PopupMenu popup = new PopupMenu(context, menu);
+                popup.getMenuInflater().inflate(R.menu.menu_note, popup.getMenu());
+                popup.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.btn_edit_note) {
+                        if (mParentReference.get() != null) {
+                            mParentReference.get().launchLabelEdit(label);
                         }
-                    });
-                    popup.show();
-                }
+                        return true;
+                    } else if (item.getItemId() == R.id.btn_delete_note) {
+                        if (mParentReference.get() != null) {
+                            mParentReference.get().onLabelDelete(label);
+                        }
+                        return true;
+                    }
+                    return false;
+                });
+                popup.show();
             });
         }
 
@@ -1125,36 +1098,30 @@ public class ExperimentDetailsFragment extends Fragment
 
             } else if (trial.getSensorIds().size() > 0) {
                 loadSensorData(applicationContext, holder, item);
-                holder.sensorNext.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Sometimes we tap the button before it can disable so return if the button
-                        //should be disabled.
-                        if (item.getSensorTagIndex() >= item.getTrial().getSensorIds().size() - 1)
-                            return;
-                        item.setSensorTagIndex(item.getSensorTagIndex() + 1);
-                        loadSensorData(applicationContext, holder, item);
-                        GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
-                        holder.cardView.setOnClickListener(createRunClickListener(
-                                item.getSensorTagIndex()));
-                        holder.setSensorId(layout.sensorId);
-                    }
+                holder.sensorNext.setOnClickListener(v -> {
+                    //Sometimes we tap the button before it can disable so return if the button
+                    //should be disabled.
+                    if (item.getSensorTagIndex() >= item.getTrial().getSensorIds().size() - 1)
+                        return;
+                    item.setSensorTagIndex(item.getSensorTagIndex() + 1);
+                    loadSensorData(applicationContext, holder, item);
+                    GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
+                    holder.cardView.setOnClickListener(createRunClickListener(
+                            item.getSensorTagIndex()));
+                    holder.setSensorId(layout.sensorId);
                 });
-                holder.sensorPrev.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // TODO: reduce duplication with next listener above?
-                        //Sometimes we tap the button before it can disable so return if the button
-                        //should be disabled.
-                        if (item.getSensorTagIndex() == 0)
-                            return;
-                        item.setSensorTagIndex(item.getSensorTagIndex() - 1);
-                        loadSensorData(applicationContext, holder, item);
-                        GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
-                        holder.cardView.setOnClickListener(createRunClickListener(
-                                item.getSensorTagIndex()));
-                        holder.setSensorId(layout.sensorId);
-                    }
+                holder.sensorPrev.setOnClickListener(v -> {
+                    // TODO: reduce duplication with next listener above?
+                    //Sometimes we tap the button before it can disable so return if the button
+                    //should be disabled.
+                    if (item.getSensorTagIndex() == 0)
+                        return;
+                    item.setSensorTagIndex(item.getSensorTagIndex() - 1);
+                    loadSensorData(applicationContext, holder, item);
+                    GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
+                    holder.cardView.setOnClickListener(createRunClickListener(
+                            item.getSensorTagIndex()));
+                    holder.setSensorId(layout.sensorId);
                 });
 
             } else {
@@ -1169,19 +1136,16 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         private View.OnClickListener createRunClickListener(final int selectedSensorIndex) {
-            return new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                    String runId = (String) v.getTag(R.id.run_title_text);
+            return v -> {
+                AppCompatActivity activity = (AppCompatActivity) v.getContext();
+                String runId = (String) v.getTag(R.id.run_title_text);
 
-                    ActivityOptionsCompat options = ActivityOptionsCompat
-                            .makeSceneTransitionAnimation(activity, TransitionUtils
-                                    .getTransitionPairs(activity, v, runId));
-                    RunReviewActivity.launch(v.getContext(), runId, mExperiment.getExperimentId(),
-                            selectedSensorIndex, false /* from record */, false /* create task */,
-                            options.toBundle());
-                }
+                ActivityOptionsCompat options = ActivityOptionsCompat
+                        .makeSceneTransitionAnimation(activity, TransitionUtils
+                                .getTransitionPairs(activity, v, runId));
+                RunReviewActivity.launch(v.getContext(), runId, mExperiment.getExperimentId(),
+                        selectedSensorIndex, false /* from record */, false /* create task */,
+                        options.toBundle());
             };
         }
 
@@ -1254,12 +1218,8 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         void sortItems() {
-            Collections.sort(mItems, new Comparator<ExperimentDetailItem>() {
-                @Override
-                public int compare(ExperimentDetailItem lhs, ExperimentDetailItem rhs) {
-                    return Long.compare(rhs.getTimestamp(), lhs.getTimestamp());
-                }
-            });
+            Collections.sort(mItems,
+                    (lhs, rhs) -> Long.compare(rhs.getTimestamp(), lhs.getTimestamp()));
         }
 
         public void onSaveInstanceState(Bundle outState) {
@@ -1317,7 +1277,7 @@ public class ExperimentDetailsFragment extends Fragment
 
             final int mViewType;
 
-            int statsLoadStatus;
+            int statsLoadStatus = STATS_LOAD_STATUS_IDLE;
 
             View cardView;
 
@@ -1336,7 +1296,6 @@ public class ExperimentDetailsFragment extends Fragment
             ImageButton sensorPrev;
             ImageButton sensorNext;
             public ProgressBar progressView;
-            public TrialStats currentSensorStats;
 
             public ViewHolder(View itemView, int viewType) {
                 super(itemView);
