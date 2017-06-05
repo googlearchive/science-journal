@@ -83,6 +83,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValu
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
@@ -511,16 +512,13 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     private void launchPicturePreview(Label label) {
-        EditNoteDialog dialog = EditNoteDialog.newInstance(label,
-                label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE).getValue(),
+        EditNoteDialog dialog = EditNoteDialog.newInstance(label, null,
                 label.getTimeStamp(), mExperimentId, RecorderController.NOT_RECORDING_RUN_ID);
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
     private void launchLabelEdit(final Label label) {
-        // Assuming one labelValue per label at the moment.
-        GoosciLabelValue.LabelValue value = label.getLabelValues().get(0).getValue();
-        EditNoteDialog dialog = EditNoteDialog.newInstance(label, value,
+        EditNoteDialog dialog = EditNoteDialog.newInstance(label, null,
                 label.getTimeStamp(), mExperimentId, RecorderController.NOT_RECORDING_RUN_ID);
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
@@ -563,8 +561,7 @@ public class ExperimentDetailsFragment extends Fragment
             }
 
             @Override
-            public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
-                    int labelType, long selectedTimestamp) {
+            public void onAddNoteTimestampClicked(Label label, long selectedTimestamp) {
                 // No timestamp editing available in Experiments.
             }
         };
@@ -586,7 +583,7 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     @Override
-    public void onEditNoteTimestampClicked(Label label, GoosciLabelValue.LabelValue selectedValue,
+    public void onEditNoteTimestampClicked(Label label, Label editedLabel,
             long labelTimestamp) {
         // No timestamp editing available in Experiments.
     }
@@ -717,6 +714,7 @@ public class ExperimentDetailsFragment extends Fragment
         static final int VIEW_TYPE_RUN_CARD = 3;
         private static final int VIEW_TYPE_EMPTY = 4;
         static final int VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL = 5;
+        static final int VIEW_TYPE_UNKNOWN_LABEL = 6;
 
         private final WeakReference<ExperimentDetailsFragment> mParentReference;
         private Experiment mExperiment;
@@ -767,9 +765,7 @@ public class ExperimentDetailsFragment extends Fragment
                 TextView autoTextView = (TextView) holder.itemView.findViewById(
                         R.id.auto_note_text);
                 final Label label = mItems.get(position).getLabel();
-                final LabelValue labelValue = mItems.get(position).getLabelValue();
-                String text = isPictureLabel || isTriggerLabel ? label.getCaptionText() :
-                        ((TextLabelValue) labelValue).getText();
+                String text = isTextLabel ? label.getTextLabelValue().text : label.getCaptionText();
                 if (!TextUtils.isEmpty(text)) {
                     textView.setText(text);
                     textView.setTextColor(textView.getResources().getColor(
@@ -788,8 +784,7 @@ public class ExperimentDetailsFragment extends Fragment
                 if (isPictureLabel) {
                     imageView.setVisibility(View.VISIBLE);
                     PictureUtils.loadImage(imageView.getContext(), imageView,
-                            mExperiment.getExperimentId(),
-                            ((PictureLabelValue) labelValue).getFilePath());
+                            mExperiment.getExperimentId(), label.getPictureLabelValue().filePath);
                     View.OnClickListener clickListener = v -> {
                         if (mParentReference.get() != null) {
                             mParentReference.get().launchPicturePreview(label);
@@ -806,8 +801,8 @@ public class ExperimentDetailsFragment extends Fragment
                     imageView.setVisibility(View.GONE);
                     if (isTriggerLabel) {
                         autoTextView.setVisibility(View.VISIBLE);
-                        String autoText = ((SensorTriggerLabelValue) labelValue).getAutogenText();
-                        TriggerHelper.populateAutoTextViews(autoTextView, autoText,
+                        // TODO: Show new trigger labels.
+                        TriggerHelper.populateAutoTextViews(autoTextView, "TODO",
                                 R.drawable.ic_label_black_18dp, autoTextView.getResources());
 
                     }
@@ -860,9 +855,9 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         public void updateLabel(Label label) {
-            if (!(label.hasValueType(GoosciLabelValue.LabelValue.TEXT) ||
-                    label.hasValueType(GoosciLabelValue.LabelValue.PICTURE) ||
-                    label.hasValueType(GoosciLabelValue.LabelValue.SENSOR_TRIGGER))) {
+            if (!(label.getType() == GoosciLabel.Label.TEXT ||
+                    label.getType() == GoosciLabel.Label.PICTURE ||
+                    label.getType() == GoosciLabel.Label.SENSOR_TRIGGER)) {
                 if (Log.isLoggable(TAG, Log.WARN)) {
                     Log.w(TAG, "How did we try to replace text on a non-text label?");
                 }
@@ -873,8 +868,6 @@ public class ExperimentDetailsFragment extends Fragment
                 return;
             }
             mItems.get(position).setLabel(label);
-            List<LabelValue> values = label.getLabelValues();
-            mItems.get(position).setLabelValue(values.size() > 0 ? values.get(0) : null);
             notifyItemChanged(position);
         }
 
@@ -889,9 +882,8 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         private int findLabelIndex(Label label) {
-            int expectedViewType = label.hasValueType(GoosciLabelValue.LabelValue.TEXT) ?
-                    VIEW_TYPE_EXPERIMENT_TEXT_LABEL :
-                    label.hasValueType(GoosciLabelValue.LabelValue.PICTURE) ?
+            int expectedViewType = label.getType() == GoosciLabel.Label.TEXT ?
+                    VIEW_TYPE_EXPERIMENT_TEXT_LABEL : label.getType() == GoosciLabel.Label.PICTURE ?
                     VIEW_TYPE_EXPERIMENT_PICTURE_LABEL : VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
             int position = -1;
             int size = mItems.size();

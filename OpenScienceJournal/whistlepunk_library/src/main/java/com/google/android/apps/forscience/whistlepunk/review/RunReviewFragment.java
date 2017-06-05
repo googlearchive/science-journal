@@ -133,7 +133,6 @@ public class RunReviewFragment extends Fragment implements
 
     public static final double MILLIS_IN_A_SECOND = 1000.0;
 
-    public static final int LABEL_TYPE_UNDECIDED = -1;
     public static final int LABEL_TYPE_TEXT = 0;
     public static final int LABEL_TYPE_PICTURE = 1;
 
@@ -574,8 +573,8 @@ public class RunReviewFragment extends Fragment implements
             }
         } else if (id == R.id.action_run_review_add_note) {
             if (mExperiment != null && !mRunReviewOverlay.getIsCropping()) {
-                launchLabelAdd(new GoosciLabelValue.LabelValue(), LABEL_TYPE_UNDECIDED,
-                        Math.max(mRunReviewOverlay.getTimestamp(), getTrial().getFirstTimestamp()));
+                launchLabelAdd(null, Math.max(mRunReviewOverlay.getTimestamp(),
+                        getTrial().getFirstTimestamp()));
             }
         } else if (id == R.id.action_run_review_delete) {
             if (mExperiment != null) {
@@ -779,7 +778,7 @@ public class RunReviewFragment extends Fragment implements
             @Override
             public void onListItemEdit(final Label item) {
                 // This assumes one value per label. Update when it is possible to have more.
-                launchLabelEdit(item, item.getLabelProto().values[0], item.getTimeStamp());
+                launchLabelEdit(item, null, item.getTimeStamp());
             }
 
             @Override
@@ -1219,13 +1218,12 @@ public class RunReviewFragment extends Fragment implements
         mRunReviewOverlay.setUnits(appearance.getUnits(context));
     }
 
-    private void launchLabelAdd(GoosciLabelValue.LabelValue selectedValue, int labelType,
-            long timestamp) {
+    private void launchLabelAdd(Label editedLabel, long timestamp) {
         String labelTimeText = PinnedNoteAdapter.getNoteTimeText(timestamp,
                 getTrial().getFirstTimestamp());
         AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, getTrial().getTrialId(),
                 mExperiment.getExperimentId(), R.string.add_note_hint_text,
-                /* show timestamp section */ true, labelTimeText, selectedValue, labelType,
+                /* show timestamp section */ true, labelTimeText, editedLabel,
                 PinnedNoteAdapter.getNoteTimeContentDescription(timestamp,
                         getTrial().getFirstTimestamp(), getActivity()), true);
         dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
@@ -1251,8 +1249,7 @@ public class RunReviewFragment extends Fragment implements
             }
 
             @Override
-            public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
-                    int labelType, long selectedTimestamp) {
+            public void onAddNoteTimestampClicked(Label editedLabel, long selectedTimestamp) {
                 AddNoteDialog addDialog = (AddNoteDialog) getChildFragmentManager()
                         .findFragmentByTag(AddNoteDialog.TAG);
                 if (addDialog != null) {
@@ -1262,7 +1259,7 @@ public class RunReviewFragment extends Fragment implements
                 // Show the timestamp edit window below the graph / over the notes
                 getView().findViewById(R.id.embedded).setVisibility(View.VISIBLE);
                 EditLabelTimeDialog timeDialog =
-                        EditLabelTimeDialog.newInstance(selectedValue, labelType, selectedTimestamp,
+                        EditLabelTimeDialog.newInstance(editedLabel, selectedTimestamp,
                                 getTrial().getFirstTimestamp());
                 FragmentTransaction ft = getChildFragmentManager().beginTransaction();
                 ft.add(R.id.embedded, timeDialog, EditLabelTimeDialog.TAG);
@@ -1311,7 +1308,7 @@ public class RunReviewFragment extends Fragment implements
     }
 
     @Override
-    public void onEditNoteTimestampClicked(Label label, GoosciLabelValue.LabelValue selectedValue,
+    public void onEditNoteTimestampClicked(Label label, Label selectedValue,
             long labelTimestamp) {
         // Dismiss the edit note dialog and show the timestamp dialog.
         EditNoteDialog editDialog = (EditNoteDialog) getChildFragmentManager()
@@ -1523,26 +1520,25 @@ public class RunReviewFragment extends Fragment implements
     }
 
     @Override
-    public void onEditTimeDialogDismissedEdit(Label label,
-            GoosciLabelValue.LabelValue selectedValue, long selectedTimestamp) {
+    public void onEditTimeDialogDismissedEdit(Label originalLabel, Label editedLabel,
+            long selectedTimestamp) {
         setTimepickerUi(getView(), false);
-        launchLabelEdit(label, selectedValue, selectedTimestamp);
+        launchLabelEdit(originalLabel, editedLabel, selectedTimestamp);
     }
 
     @Override
-    public void onEditTimeDialogDismissedAdd(GoosciLabelValue.LabelValue selectedValue,
-            int labelType, long selectedTimestamp) {
+    public void onEditTimeDialogDismissedAdd(Label editedLabel, long selectedTimestamp) {
         setTimepickerUi(getView(), false);
-        launchLabelAdd(selectedValue, labelType, selectedTimestamp);
+        launchLabelAdd(editedLabel, selectedTimestamp);
     }
 
-    private void launchLabelEdit(Label label, GoosciLabelValue.LabelValue newValue,
+    private void launchLabelEdit(Label originalLabel, Label editedLabel,
             long selectedTimestamp) {
         String labelTimeText =
                 PinnedNoteAdapter.getNoteTimeText(selectedTimestamp,
                         getTrial().getFirstTimestamp());
-        EditNoteDialog dialog = EditNoteDialog.newInstance(label, newValue, labelTimeText,
-                selectedTimestamp, PinnedNoteAdapter.getNoteTimeContentDescription(
+        EditNoteDialog dialog = EditNoteDialog.newInstance(originalLabel, editedLabel,
+                labelTimeText, selectedTimestamp, PinnedNoteAdapter.getNoteTimeContentDescription(
                         selectedTimestamp, getTrial().getFirstTimestamp(), getActivity()),
                 mExperimentId, getTrial().getTrialId());
         dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);

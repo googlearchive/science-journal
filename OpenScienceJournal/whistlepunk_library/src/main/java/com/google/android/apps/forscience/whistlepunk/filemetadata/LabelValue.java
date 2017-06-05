@@ -25,6 +25,7 @@ import java.util.Map;
  */
 // TODO: This will be deprecated. Rename to LegacyLabelValue, and rename classes that inherit
 // from it as well.
+@Deprecated
 public abstract class LabelValue {
     GoosciLabelValue.LabelValue mValue;
 
@@ -45,20 +46,4 @@ public abstract class LabelValue {
     }
 
     public abstract boolean canEditTimestamp();
-
-    static Map<Integer, LabelValue> getLabelValues(GoosciLabelValue.LabelValue[] values) {
-        Map<Integer, LabelValue> result = new HashMap<>();
-        for (int i = 0; i < values.length; i++) {
-            int valueType = values[i].type;
-            if (valueType == GoosciLabelValue.LabelValue.TEXT) {
-                result.put(valueType, new TextLabelValue(values[i]));
-            } else if (valueType == GoosciLabelValue.LabelValue.PICTURE) {
-                result.put(valueType,  new PictureLabelValue(values[i]));
-            } else if (valueType == GoosciLabelValue.LabelValue.SENSOR_TRIGGER) {
-                result.put(valueType,  new SensorTriggerLabelValue(values[i]));
-            }
-            // ApplicationLabels are no longer used in the file-based scheme.
-        }
-        return result;
-    }
 }

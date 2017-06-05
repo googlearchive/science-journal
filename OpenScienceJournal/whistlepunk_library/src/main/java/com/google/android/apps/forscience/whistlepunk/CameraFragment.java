@@ -27,6 +27,8 @@ import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensors.CameraPreview;
 import com.google.common.base.Preconditions;
 
@@ -108,15 +110,15 @@ public class CameraFragment extends Fragment {
             final long timestamp = getTimestamp(v.getContext());
             final String uuid = UUID.randomUUID().toString();
             mPreview.takePicture(mListener.getActiveExperimentId().firstElement(), uuid,
-                    new LoggingConsumer<File>(TAG, "taking picture") {
+                    new LoggingConsumer<String>(TAG, "taking picture") {
                         @Override
-                        public void success(File picturePath) {
-                            String absolutePath = picturePath.getAbsolutePath();
-                            PictureLabelValue labelValue =
-                                    PictureLabelValue.fromPicture(absolutePath, "");
-                            Label label = Label.fromUuidAndValue(timestamp, uuid, labelValue);
+                        public void success(String relativePicturePath) {
+                            GoosciPictureLabelValue.PictureLabelValue labelValue =
+                                    new GoosciPictureLabelValue.PictureLabelValue();
+                            labelValue.filePath = relativePicturePath;
+                            Label label = Label.fromUuidAndValue(timestamp, uuid,
+                                    GoosciLabel.Label.PICTURE, labelValue);
                             mListener.onPictureLabelTaken(label);
-                            PictureUtils.scanFile(absolutePath, getActivity());
                         }
                     });
         });

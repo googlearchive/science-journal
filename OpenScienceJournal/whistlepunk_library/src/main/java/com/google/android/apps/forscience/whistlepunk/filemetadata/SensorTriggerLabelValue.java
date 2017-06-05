@@ -142,7 +142,7 @@ public class SensorTriggerLabelValue extends LabelValue {
         value.data[INDEX_SENSOR_ID] = new GoosciLabelValue.LabelValue.DataEntry();
     }
 
-    private static String generateAutoNoteText(SensorTrigger trigger,
+    public static String generateAutoNoteText(SensorTrigger trigger,
             Context context) {
         SensorAppearance appearance = AppSingleton.getInstance(context)
                 .getSensorAppearanceProvider().getAppearance(trigger.getSensorId());

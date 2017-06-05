@@ -39,18 +39,16 @@ import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 public class EditLabelTimeDialog extends DialogFragment implements RunReviewOverlay.OnTimestampChangeListener {
     public static final String TAG = "edit_time_dialog";
     public static final String KEY_LABEL = "savedLabel";
-    public static final String KEY_LABEL_TYPE = "savedLabelType";
+    public static final String KEY_EDITED_LABEL = "editedLabel";
     public static final String KEY_INITIAL_TIMESTAMP = "savedFirstTimestamp";
     public static final String KEY_RUN_START_TIMESTAMP = "savedRunStartTimestamp";
-    public static final String KEY_SELECTED_VALUE = "savedLabelValue";
 
     public static final long NO_TIMESTAMP_SELECTED = -1;
 
     public interface EditTimeDialogListener {
-        void onEditTimeDialogDismissedEdit(Label label, GoosciLabelValue.LabelValue selectedValue,
+        void onEditTimeDialogDismissedEdit(Label originalLabel, Label editedLabel,
                 long selectedTimestamp);
-        void onEditTimeDialogDismissedAdd(GoosciLabelValue.LabelValue selectedValue, int labelType,
-                long selectedTimestamp);
+        void onEditTimeDialogDismissedAdd(Label label, long selectedTimestamp);
     }
 
     // The timestamp to initially show to the user.
@@ -68,29 +66,28 @@ public class EditLabelTimeDialog extends DialogFragment implements RunReviewOver
     private boolean mDismissed = false;
 
     public static EditLabelTimeDialog newInstance(Label label,
-            GoosciLabelValue.LabelValue selectedValue, long initialTimestamp,
+            Label editedLabel, long initialTimestamp,
             long runStartTimestamp) {
-        EditLabelTimeDialog dialog = newInstanceHelper(selectedValue, initialTimestamp,
+        EditLabelTimeDialog dialog = newInstanceHelper(editedLabel, initialTimestamp,
                 runStartTimestamp);
         dialog.getArguments().putParcelable(KEY_LABEL, label);
         return dialog;
     }
 
-    public static EditLabelTimeDialog newInstance(GoosciLabelValue.LabelValue selectedValue,
-            int labelType, long initialTimestamp, long runStartTimestamp) {
-        EditLabelTimeDialog dialog = newInstanceHelper(selectedValue, initialTimestamp,
+    public static EditLabelTimeDialog newInstance(Label editedLabel,
+            long initialTimestamp, long runStartTimestamp) {
+        EditLabelTimeDialog dialog = newInstanceHelper(editedLabel, initialTimestamp,
                 runStartTimestamp);
-        dialog.getArguments().putInt(KEY_LABEL_TYPE, labelType);
         return dialog;
     }
 
-    private static EditLabelTimeDialog newInstanceHelper(GoosciLabelValue.LabelValue selectedValue,
+    private static EditLabelTimeDialog newInstanceHelper(Label editedLabel,
             long initialTimestamp, long runStartTimestamp) {
         EditLabelTimeDialog dialog = new EditLabelTimeDialog();
         Bundle args = new Bundle();
         args.putLong(KEY_INITIAL_TIMESTAMP, initialTimestamp);
         args.putLong(KEY_RUN_START_TIMESTAMP, runStartTimestamp);
-        args.putByteArray(KEY_SELECTED_VALUE, ProtoUtils.makeBlob(selectedValue));
+        args.putParcelable(KEY_EDITED_LABEL, editedLabel);
         dialog.setArguments(args);
         return dialog;
     }
@@ -126,23 +123,16 @@ public class EditLabelTimeDialog extends DialogFragment implements RunReviewOver
         // Avoid double-callbacks by checking if this was already dismissed.
         if (!mDismissed) {
             mDismissed = true;
-            GoosciLabelValue.LabelValue selectedValue = new GoosciLabelValue.LabelValue();
-            try {
-                selectedValue = GoosciLabelValue.LabelValue.parseFrom(
-                        getArguments().getByteArray(KEY_SELECTED_VALUE));
-            } catch (InvalidProtocolBufferNanoException ex) {
-                Log.wtf(TAG, "Unable to parse label value");
-            }
+            Label label = getArguments().getParcelable(KEY_EDITED_LABEL);
             if (getArguments().containsKey(KEY_LABEL)) {
                 // Then this came from editing an existing label.
                 ((EditTimeDialogListener) getParentFragment()).onEditTimeDialogDismissedEdit(
-                        (Label) getArguments().getParcelable(KEY_LABEL), selectedValue,
+                        getArguments().getParcelable(KEY_LABEL), label,
                         timestampSelected ? mCurrentTimestamp : mInitialTimestamp);
             } else {
                 // Then this came from adding a new label.
                 ((EditTimeDialogListener) getParentFragment()).onEditTimeDialogDismissedAdd(
-                        selectedValue, getArguments().getInt(KEY_LABEL_TYPE),
-                        timestampSelected ? mCurrentTimestamp : mInitialTimestamp);
+                        label, timestampSelected ? mCurrentTimestamp : mInitialTimestamp);
             }
         }
         super.dismiss();

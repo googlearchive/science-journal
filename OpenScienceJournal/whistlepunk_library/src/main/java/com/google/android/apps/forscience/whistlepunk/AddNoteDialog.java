@@ -29,7 +29,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,10 +47,13 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.io.File;
 import java.util.UUID;
@@ -111,8 +113,7 @@ public class AddNoteDialog extends DialogFragment {
          * Called when the timestamp section is clicked. Note that this is only used if
          * showTimestampSection is true when creating a newInstance of AddNoteDialog.
          */
-        public void onAddNoteTimestampClicked(GoosciLabelValue.LabelValue selectedValue,
-                int labelType, long selectedTimestamp) {
+        public void onAddNoteTimestampClicked(Label editedLabel, long selectedTimestamp) {
 
         }
     }
@@ -189,19 +190,19 @@ public class AddNoteDialog extends DialogFragment {
 
     public static AddNoteDialog newInstance(long timestamp, String currentRunId,
             String experimentId, int hintTextId, boolean showTimestampSection,
-            String labelTimeText, GoosciLabelValue.LabelValue currentValue, int labelType,
+            String labelTimeText, Label editedLabel,
             String labelTimeTextDescription, boolean shouldUseSavedTimestamp) {
         AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, currentRunId, experimentId,
                 hintTextId, showTimestampSection, labelTimeText, labelTimeTextDescription,
                 shouldUseSavedTimestamp);
 
-        if (labelType == RunReviewFragment.LABEL_TYPE_UNDECIDED) {
+        if (editedLabel == null) {
             // no user added value yet, so no need to store anything else.
             return dialog;
         }
 
         Bundle args = dialog.getArguments();
-        args.putByteArray(KEY_SAVED_VALUE, ProtoUtils.makeBlob(currentValue));
+        args.putParcelable(KEY_SAVED_VALUE, editedLabel);
 
         dialog.setArguments(args);
         return dialog;
@@ -293,7 +294,6 @@ public class AddNoteDialog extends DialogFragment {
     protected LinearLayout createAddNoteViewFromSavedState(Bundle savedInstanceState,
             LayoutInflater inflater, boolean nativeSaveButton) {
         String text = "";
-        GoosciLabelValue.LabelValue value;
         if (getArguments() != null) {
             mTimestamp = getArguments().getLong(KEY_SAVED_TIMESTAMP, -1);
             mUseSavedTimestamp = getArguments().getBoolean(KEY_SHOULD_USE_SAVED_TIMESTAMP, true);
@@ -315,22 +315,14 @@ public class AddNoteDialog extends DialogFragment {
                         getArguments().getString(KEY_SAVED_TIME_TEXT_DESCRIPTION);
             }
             if (getArguments().containsKey(KEY_SAVED_VALUE)) {
-                try {
-                    value = GoosciLabelValue.LabelValue.parseFrom(
-                            getArguments().getByteArray(KEY_SAVED_VALUE));
-                    mPictureLabelPath = PictureLabelValue.getFilePath(value);
-                    if (TextUtils.isEmpty(mPictureLabelPath)) {
-                        // If there is no picture path, then this was saved as a text label by
-                        // default (see addTrialLabel). See if any text is available to populate the
-                        // text field.
-                        text = TextLabelValue.getText(value);
+                Label savedLabel = getArguments().getParcelable(KEY_SAVED_VALUE);
+                if (savedLabel != null) {
+                    if (savedLabel.getType() == GoosciLabel.Label.TEXT) {
+                        // Text labels don't use the caption field.
+                        text = savedLabel.getTextLabelValue().text;
                     } else {
-                        // If there is a picture path, this was saved as a picture label, so get
-                        // the caption if it is available to populate the text field.
-                        text = PictureLabelValue.getCaption(value);
+                        text = savedLabel.getCaptionText();
                     }
-                } catch (InvalidProtocolBufferNanoException e) {
-                    Log.wtf(TAG, "Unable to parse label value");
                 }
             }
         }
@@ -384,7 +376,7 @@ public class AddNoteDialog extends DialogFragment {
             timestampSection.setOnClickListener(v -> {
                 int labelType = getLabelType();
                 getTimestamp().subscribe(
-                        t -> mListener.onAddNoteTimestampClicked(getCurrentValue(), labelType, t));
+                        t -> mListener.onAddNoteTimestampClicked(getCurrentValue(), t));
             });
         } else {
             rootView.findViewById(R.id.label_dialog_timestamp_section).setVisibility(View.GONE);
@@ -430,15 +422,24 @@ public class AddNoteDialog extends DialogFragment {
         }
     }
 
-    private GoosciLabelValue.LabelValue getCurrentValue() {
-        GoosciLabelValue.LabelValue result = new GoosciLabelValue.LabelValue();
+    private Label getCurrentValue() {
+        long timestamp = AppSingleton.getInstance(getActivity())
+                .getSensorEnvironment().getDefaultClock().getNow();
         if (hasPicture()) {
-            PictureLabelValue.populateLabelValue(result, mPictureLabelPath,
-                    mInput.getText().toString());
+            GoosciPictureLabelValue.PictureLabelValue labelValue =
+                    new GoosciPictureLabelValue.PictureLabelValue();
+            labelValue.filePath = mPictureLabelPath;
+            GoosciCaption.Caption caption = new GoosciCaption.Caption();
+            caption.text = mInput.getText().toString();
+            caption.lastEditedTimestamp = timestamp;
+            return Label.newLabelWithValue(timestamp, GoosciLabel.Label.PICTURE,
+                    labelValue, caption);
         } else {
-            TextLabelValue.populateLabelValue(result, mInput.getText().toString());
+            GoosciTextLabelValue.TextLabelValue labelValue =
+                    new GoosciTextLabelValue.TextLabelValue();
+            labelValue.text = mInput.getText().toString();
+            return Label.newLabelWithValue(timestamp, GoosciLabel.Label.TEXT, labelValue, null);
         }
-        return result;
     }
 
     private void setViewVisibilities(View imageButton, View imageView, boolean textSideVisible) {
@@ -465,9 +466,11 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     private void addTextLabel(long timestamp) {
-        TextLabelValue labelValue = TextLabelValue.fromText(mInput.getText().toString());
+        GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
+        labelValue.text = mInput.getText().toString();
         mInput.setText("");
-        Label label = Label.newLabelWithValue(timestamp, labelValue);
+        Label label = Label.newLabelWithValue(timestamp, GoosciLabel.Label.TEXT,
+                labelValue, null);
         addLabel(label);
     }
 
@@ -481,9 +484,15 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     private void addPictureLabel(long timestamp) {
-        PictureLabelValue labelValue = PictureLabelValue.fromPicture(mPictureLabelPath,
-                mInput.getText().toString());
-        Label label = Label.fromUuidAndValue(timestamp, mUuid, labelValue);
+        GoosciPictureLabelValue.PictureLabelValue labelValue = new GoosciPictureLabelValue
+                .PictureLabelValue();
+        labelValue.filePath = mPictureLabelPath;
+        Label label = Label.fromUuidAndValue(timestamp, mUuid, GoosciLabel.Label.PICTURE,
+                labelValue);
+        GoosciCaption.Caption caption = new GoosciCaption.Caption();
+        caption.text = mInput.getText().toString();
+        caption.lastEditedTimestamp = label.getCreationTimeMs();
+        label.setCaption(caption);
         addLabel(label);
         PictureUtils.scanFile(mPictureLabelPath, getActivity());
         mPictureLabelPath = null;

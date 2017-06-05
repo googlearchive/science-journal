@@ -31,6 +31,7 @@ import android.view.WindowManager;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -236,7 +237,7 @@ public class CameraPreview extends SurfaceView {
     }
 
     public void takePicture(Maybe<String> maybeExperimentId, String uuid,
-            final MaybeConsumer<File> onSuccess) {
+            final MaybeConsumer<String> onSuccess) {
         // TODO: better strategy (RxJava?) to avoid these null checks
         if (mCamera == null) {
             onSuccess.fail(new IllegalStateException("No camera loaded in CameraPreview"));
@@ -244,7 +245,7 @@ public class CameraPreview extends SurfaceView {
         maybeExperimentId.subscribe(experimentId -> takePicture(experimentId, uuid, onSuccess));
     }
 
-    private void takePicture(String experimentId, String uuid, MaybeConsumer<File> onSuccess) {
+    private void takePicture(String experimentId, String uuid, MaybeConsumer<String> onSuccess) {
         try {
             final File photoFile =
                     PictureUtils.createImageFile(getContext(), uuid, experimentId);
@@ -254,7 +255,9 @@ public class CameraPreview extends SurfaceView {
                 try {
                     out.write(data);
                     out.close();
-                    onSuccess.success(photoFile);
+                    // Pass back the relative path for saving in the label.
+                    onSuccess.success(FileMetadataManager.getRelativePathInExperiment(experimentId,
+                            photoFile));
                     mCamera.startPreview();
                 } catch (IOException e) {
                     onSuccess.fail(e);

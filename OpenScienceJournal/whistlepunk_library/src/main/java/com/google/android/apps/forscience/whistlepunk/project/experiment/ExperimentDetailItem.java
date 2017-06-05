@@ -4,6 +4,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
@@ -19,7 +20,6 @@ public class ExperimentDetailItem {
     private Trial mTrial;
     private int mSensorTagIndex = -1;
     private Label mLabel;
-    private LabelValue mLabelValue;
     private long mTimestamp;
     private ChartController mChartController;
 
@@ -35,15 +35,14 @@ public class ExperimentDetailItem {
 
     ExperimentDetailItem(Label label) {
         mLabel = label;
-        if (label.hasValueType(GoosciLabelValue.LabelValue.TEXT)) {
-            mLabelValue = label.getLabelValue(GoosciLabelValue.LabelValue.TEXT);
+        if (label.getType() == GoosciLabel.Label.TEXT) {
             mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
-        } else if (label.hasValueType(GoosciLabelValue.LabelValue.PICTURE)) {
-            mLabelValue = label.getLabelValue(GoosciLabelValue.LabelValue.PICTURE);
+        } else if (label.getType() == GoosciLabel.Label.PICTURE) {
             mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
-        } else {
-            mLabelValue = label.getLabelValue(GoosciLabelValue.LabelValue.SENSOR_TRIGGER);
+        } else if (label.getType() ==(GoosciLabel.Label.SENSOR_TRIGGER)) {
             mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
+        } else {
+            mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_UNKNOWN_LABEL;
         }
         mTimestamp = label.getTimeStamp();
     }
@@ -92,16 +91,8 @@ public class ExperimentDetailItem {
         return mLabel;
     }
 
-    public LabelValue getLabelValue() {
-        return mLabelValue;
-    }
-
     public void setLabel(Label label) {
         mLabel = label;
-    }
-
-    public void setLabelValue(LabelValue labelValue) {
-        mLabelValue = labelValue;
     }
 
     public void setTrial(Trial trial) {
