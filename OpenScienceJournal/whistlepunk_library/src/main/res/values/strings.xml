@@ -210,16 +210,16 @@
     <string name="recording_stop_failed_save">Stop recording failed: failed to save trial. Please try again.</string>
 
     <!-- The string formatting string used to display elapsed time less than 60 seconds [CHAR_LIMIT=3] -->
-    <string name="elapsed_time_short_format"><xliff:g id="seconds">%1ds</xliff:g></string>
+    <string name="elapsed_time_short_format"><xliff:g id="seconds">%1d</xliff:g>s</string>
 
     <!-- The string formatting string used to display elapsed time greater or equal to 60 seconds [CHAR_LIMIT=5] -->
-    <string name="elapsed_time_long_format"><xliff:g id="minutes">%1dmin</xliff:g> <xliff:g id="seconds">%2ds</xliff:g></string>
+    <string name="elapsed_time_long_format"><xliff:g id="minutes">%1d</xliff:g>min <xliff:g id="seconds">%2d</xliff:g>s</string>
 
     <!-- The string formatting string used to describe elapsed time views less than 60 seconds [CHAR_LIMIT=NONE] -->
-    <string name="accessible_elapsed_time_short_format"><xliff:g id="seconds">%1d seconds</xliff:g></string>
+    <string name="accessible_elapsed_time_short_format"><xliff:g id="seconds">%1d</xliff:g> seconds</string>
 
     <!-- The string formatting string used to describe elapsed time views greater or equal to 60 seconds [CHAR_LIMIT=NONE] -->
-    <string name="accessible_elapsed_time_long_format"><xliff:g id="minutes">%1d minutes</xliff:g> <xliff:g id="seconds">%2d seconds</xliff:g></string>
+    <string name="accessible_elapsed_time_long_format"><xliff:g id="minutes">%1d</xliff:g> minutes <xliff:g id="seconds">%2d</xliff:g> seconds</string>
 
     <!-- The string formatting string used to display elapsed time on the x axis less than 60 minutes [CHAR_LIMIT=3] -->
     <string name="elapsed_time_axis_format_small"><xliff:g id="minutes">%1d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g></string>
