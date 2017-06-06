@@ -807,7 +807,7 @@ public class RunReviewFragment extends Fragment implements
                                     Log.e(TAG, "Failed: re-add deleted label");
                                 }
                                 // It didn't work, so remove the label from the view again.
-                                getTrial().deleteLabel(label, getActivity());
+                                getTrial().deleteLabel(label, getActivity(), mExperimentId);
                             }
 
                             @Override
@@ -828,7 +828,7 @@ public class RunReviewFragment extends Fragment implements
 
                 // Delete the item immediately, and remove it from the pinned note list.
                 // TODO: Deleting the assets makes undo not work on photo labels...
-                getTrial().deleteLabel(item, getActivity());
+                getTrial().deleteLabel(item, getActivity(), mExperimentId);
                 dc.updateExperiment(mExperimentId, new MaybeConsumer<Success>() {
                     @Override
                     public void fail(Exception e) {

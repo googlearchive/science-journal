@@ -69,8 +69,8 @@ public abstract class LabelListHolder {
     /**
      * Deletes a label from this object and also deletes any assets associated with that label.
      */
-    public void deleteLabel(Label label, Context context) {
-        label.deleteAssets(context);
+    public void deleteLabel(Label label, Context context, String experimentId) {
+        label.deleteAssets(context, experimentId);
         mLabels.remove(label);
     }
 

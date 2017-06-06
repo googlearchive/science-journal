@@ -175,7 +175,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             mFileMetadataManager.updateExperiment(experiment);
             mFileMetadataManager.saveImmediately();
 
-            deleteDatabaseExperiment(db, experiment, mContext, /* don't delete assets */ false);
+            deleteDatabaseExperiment(db, experiment, mContext);
         }
     }
 
@@ -485,18 +485,18 @@ public class SimpleMetaDataManager implements MetaDataManager {
     void deleteDatabaseExperiment(Experiment experiment) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            deleteDatabaseExperiment(db, experiment, mContext, /* delete assets */ true);
+            deleteDatabaseExperiment(db, experiment, mContext);
         }
     }
 
     private static void deleteDatabaseExperiment(SQLiteDatabase db, Experiment experiment,
-            Context context, boolean deleteAssets) {
+            Context context) {
         List<String> runIds = getDatabaseExperimentRunIds(db, experiment.getExperimentId(),
                 /* include archived runs */ true);
         for (String runId : runIds) {
-            deleteDatabaseTrial(db, runId, context, deleteAssets);
+            deleteDatabaseTrial(db, runId, context);
         }
-        deleteDatabaseObjectsInExperiment(db, experiment, deleteAssets, context);
+        deleteDatabaseObjectsInExperiment(db, experiment, context);
         String[] experimentArgs = new String[]{experiment.getExperimentId()};
         db.delete(Tables.EXPERIMENTS, ExperimentColumns.EXPERIMENT_ID + "=?", experimentArgs);
         db.delete(Tables.EXPERIMENT_SENSORS, ExperimentSensorColumns.EXPERIMENT_ID + "=?",
@@ -620,13 +620,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return experiment;
     }
 
-    private static void deleteDatabaseObjectsInExperiment(SQLiteDatabase db, Experiment experiment,
-            boolean deleteAssets, Context context) {
+    private static void deleteDatabaseObjectsInExperiment(SQLiteDatabase db,
+            Experiment experiment, Context context) {
         List<Label> labels = getDatabaseLabelsForExperiment(db, experiment, context);
         for (Label label : labels) {
-            if (deleteAssets) {
-                label.deleteAssets(context);
-            }
             deleteDatabaseLabel(db, label);
         }
         List<SensorTrigger> triggers = getDatabaseSensorTriggers(db, experiment.getExperimentId());
@@ -942,16 +939,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
     void deleteDatabaseTrial(String runId) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            deleteDatabaseTrial(db, runId, mContext, /*delete assets*/ true);
+            deleteDatabaseTrial(db, runId, mContext);
         }
     }
 
-    private static void deleteDatabaseTrial(SQLiteDatabase db, String runId, Context context,
-            boolean deleteAssets) {
+    private static void deleteDatabaseTrial(SQLiteDatabase db, String runId, Context context) {
         for (Label label : getDatabaseLabelsForTrial(db, runId, context)) {
-            if (deleteAssets) {
-                label.deleteAssets(context);
-            }
             deleteDatabaseLabel(db, label);
         }
         for (ApplicationLabel label : getDatabaseApplicationLabelsWithStartId(db, runId)) {

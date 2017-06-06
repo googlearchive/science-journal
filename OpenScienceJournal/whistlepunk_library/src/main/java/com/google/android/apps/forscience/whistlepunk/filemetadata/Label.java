@@ -272,9 +272,10 @@ public class Label implements Parcelable {
     /**
      * Deletes any assets associated with this label
      */
-    public void deleteAssets(Context context) {
+    public void deleteAssets(Context context, String experimentId) {
         if (mLabel.type == GoosciLabel.Label.PICTURE) {
-            File file = new File((getPictureLabelValue().filePath));
+            File file = new File(PictureUtils.getImagePath(context, experimentId,
+                    getPictureLabelValue().filePath));
             boolean deleted = file.delete();
             if (!deleted && Log.isLoggable(TAG, Log.WARN)) {
                 Log.w(TAG, "Could not delete " + file.toString());

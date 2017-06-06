@@ -283,7 +283,7 @@ public class Experiment extends LabelListHolder {
      * Removes a trial from the experiment.
      */
     public void deleteTrial(Trial trial, Context context) {
-        trial.deleteContents(context);
+        trial.deleteContents(context, getExperimentId());
         mTrials.remove(trial);
         mExperimentOverview.trialCount = mTrials.size();
     }
@@ -293,7 +293,7 @@ public class Experiment extends LabelListHolder {
      */
     public void deleteContents(Context context) {
         for (Label label : getLabels()) {
-            deleteLabel(label, context);
+            deleteLabel(label, context, getExperimentId());
         }
         for (Trial trial : getTrials()) {
             deleteTrial(trial, context);
@@ -472,5 +472,9 @@ public class Experiment extends LabelListHolder {
             sensorIds.add(layout.sensorId);
         }
         return sensorIds;
+    }
+
+    public void deleteLabel(Label item, Context context) {
+        deleteLabel(item, context, getExperimentId());
     }
 }

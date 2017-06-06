@@ -264,9 +264,9 @@ public class Trial extends LabelListHolder {
      * Deletes the trial and any assets associated with it, including labels and label pictures,
      * run data, etc.
      */
-    public void deleteContents(Context context) {
+    public void deleteContents(Context context, String experimentId) {
         for (Label label : mLabels) {
-            deleteLabel(label, context);
+            deleteLabel(label, context, experimentId);
         }
         AppSingleton.getInstance(context).getDataController().deleteTrialData(this,
                 MaybeConsumers.expectSuccess(new FailureListener() {
