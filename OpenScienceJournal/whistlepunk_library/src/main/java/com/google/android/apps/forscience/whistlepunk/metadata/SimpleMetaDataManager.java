@@ -622,7 +622,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     private static void deleteDatabaseObjectsInExperiment(SQLiteDatabase db, Experiment experiment,
             boolean deleteAssets, Context context) {
-        List<Label> labels = getDatabaseLabelsForExperiment(db, experiment);
+        List<Label> labels = getDatabaseLabelsForExperiment(db, experiment, context);
         for (Label label : labels) {
             if (deleteAssets) {
                 label.deleteAssets(context);
@@ -640,7 +640,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         if (experiment == null) {
             return;
         }
-        List<Label> labels = getDatabaseLabelsForExperiment(db, experiment);
+        List<Label> labels = getDatabaseLabelsForExperiment(db, experiment, context);
         experiment.populateLabels(labels);
         List<SensorTrigger> triggers = getDatabaseSensorTriggers(db, experiment.getExperimentId());
         experiment.setSensorTriggers(triggers);
@@ -760,7 +760,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     private static Trial getDatabaseTrial(SQLiteDatabase db, String trialId,
             List<ApplicationLabel> applicationLabels, Context context) {
-        List<Label> labels = getDatabaseLabelsForTrial(db, trialId);
+        List<Label> labels = getDatabaseLabelsForTrial(db, trialId, context);
 
         List<GoosciSensorLayout.SensorLayout> sensorLayouts = new ArrayList<>();
         int runIndex = -1;
@@ -948,7 +948,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     private static void deleteDatabaseTrial(SQLiteDatabase db, String runId, Context context,
             boolean deleteAssets) {
-        for (Label label : getDatabaseLabelsForTrial(db, runId)) {
+        for (Label label : getDatabaseLabelsForTrial(db, runId, context)) {
             if (deleteAssets) {
                 label.deleteAssets(context);
             }
@@ -1069,16 +1069,16 @@ public class SimpleMetaDataManager implements MetaDataManager {
      * an experiment with labels.
      */
     private static List<Label> getDatabaseLabelsForExperiment(SQLiteDatabase db,
-            Experiment experiment) {
+            Experiment experiment, Context context) {
         final String selection = LabelColumns.EXPERIMENT_ID + "=? AND " +
                 LabelColumns.START_LABEL_ID + "=? and not " + LabelColumns.TYPE + "=?";;
         final String[] selectionArgs = new String[]{experiment.getExperimentId(),
                 RecorderController.NOT_RECORDING_RUN_ID, ApplicationLabel.TAG};
-        return getDatabaseLabels(db, selection, selectionArgs);
+        return getDatabaseLabels(db, selection, selectionArgs, context);
     }
 
     private static List<Label> getDatabaseLabels(SQLiteDatabase db, String selection,
-            String[] selectionArgs) {
+            String[] selectionArgs, Context context) {
         List<Label> labels = new ArrayList<>();
         Cursor cursor = null;
         try {
@@ -1129,9 +1129,15 @@ public class SimpleMetaDataManager implements MetaDataManager {
                         // info to keep them as triggers.
                         GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue
                                 .TextLabelValue();
-                        // TODO: Better formatting.
-                        labelValue.text = SensorTriggerLabelValue.getAutogenText(value) + " " +
-                                SensorTriggerLabelValue.getCustomText(value);
+                        String autoText = SensorTriggerLabelValue.getAutogenText(value);
+                        String customText = SensorTriggerLabelValue.getCustomText(value);
+                        if (TextUtils.isEmpty(customText)) {
+                            labelValue.text = String.format(context.getResources().getString(
+                                    R.string.old_trigger_note_format), autoText);
+                        } else {
+                            labelValue.text = String.format(context.getResources().getString(
+                                    R.string.old_trigger_note_format_custom), customText, autoText);
+                        }
                         goosciLabel.type = GoosciLabel.Label.TEXT;
                         goosciLabel.protoData = MessageNano.toByteArray(labelValue);
                     }
@@ -1167,11 +1173,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return labels;
     }
 
-    private static List<Label> getDatabaseLabelsForTrial(SQLiteDatabase db, String trialId) {
+    private static List<Label> getDatabaseLabelsForTrial(SQLiteDatabase db, String trialId,
+            Context context) {
         final String selection = LabelColumns.START_LABEL_ID + "=? and not " +
                 LabelColumns.TYPE + "=?";
         final String[] selectionArgs = new String[]{trialId, ApplicationLabel.TAG};
-        return getDatabaseLabels(db, selection, selectionArgs);
+        return getDatabaseLabels(db, selection, selectionArgs, context);
     }
 
     @VisibleForTesting

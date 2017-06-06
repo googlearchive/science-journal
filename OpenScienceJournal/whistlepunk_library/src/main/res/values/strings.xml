@@ -1378,6 +1378,12 @@ Permissions notice:
     <!-- Export option for selecting whether to use relative timestamps when exporting (0, 1, 2) vs absolute time [CHAR_LIMIT=100]-->
     <string name="export_options_relative_time">Relative time</string>
 
+    <!-- Text format for old trigger notes. This includes the type of note (Trigger note), as well as the auto-genererated strings [CHAR_LIMIT=NONE] -->
+    <string name="old_trigger_note_format">Triggered note: <xliff:g id="auto_text">%1s</xliff:g></string>
+
+    <!-- Text format for old trigger notes. This includes the type of note (Trigger note), as well as the auto-genererated and user-generated strings [CHAR_LIMIT=NONE] -->
+    <string name="old_trigger_note_format_custom">Triggered note: <xliff:g id="user_text">%1s</xliff:g>; <xliff:g id="auto_text">%2s</xliff:g></string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
