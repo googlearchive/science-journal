@@ -171,7 +171,7 @@ public class SensorDatabaseTest extends AndroidTestCase {
     public void testObservable_oneSensor() {
         SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
         db.addScalarReading("tag", 0, 0, 0.0);
-        db.addScalarReading("tag", 0, 1, 1.0);
+        db.addScalarReading("tag", 0, 1, 1.5);
         db.addScalarReading("tag", 0, 101, 2.0);
         db.addScalarReading("tag", 0, 102, 2.0);
         db.addScalarReading("tag", 0, 103, 2.0);
@@ -183,7 +183,7 @@ public class SensorDatabaseTest extends AndroidTestCase {
         obs.subscribe(testObserver);
         testObserver.assertNoErrors();
         testObserver.assertValues(new ScalarReading(0, 0.0, "tag"),
-                new ScalarReading(1, 1.0, "tag"));
+                new ScalarReading(1, 1.5, "tag"));
     }
 
     public void testObservable_multipleSensors() {

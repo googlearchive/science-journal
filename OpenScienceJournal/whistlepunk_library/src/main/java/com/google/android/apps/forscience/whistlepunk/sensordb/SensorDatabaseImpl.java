@@ -228,7 +228,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
                             while (c.moveToNext()) {
                                 long timeStamp = c.getLong(0);
                                 observableEmitter.onNext(new ScalarReading(timeStamp,
-                                        c.getLong(1), c.getString(2)));
+                                        c.getDouble(1), c.getString(2)));
                                 mLastTimeStampWritten = timeStamp;
                                 count++;
                             }
