@@ -1,5 +1,5 @@
 /*
- *  Copyright 2016 Google Inc. All Rights Reserved.
+ *  Copyright 2017 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,40 +32,59 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusList
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 
 /**
- * Class to get sensor data from the Magnetic sensor.
+ * Class to create a compass sensor from the magnetic field and accelerometer.
  */
-public class MagneticRotationSensor extends ScalarSensor {
-    public static final String ID = "MagneticRotationSensor";
+public class CompassSensor extends ScalarSensor {
+    public static final String ID = "CompassSensor";
     private SensorEventListener mSensorEventListener;
 
-    public MagneticRotationSensor() {
+    public CompassSensor() {
         super(ID);
     }
 
     @Override
-    protected SensorRecorder makeScalarControl(final StreamConsumer c,
-            final SensorEnvironment environment, final Context context,
-            final SensorStatusListener listener) {
+    protected SensorRecorder makeScalarControl(StreamConsumer c, SensorEnvironment environment,
+            Context context, SensorStatusListener listener) {
         return new AbstractSensorRecorder() {
             @Override
             public void startObserving() {
                 listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
                 SensorManager sensorManager = getSensorManager(context);
                 Sensor magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+                Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
                 if (mSensorEventListener != null) {
                     getSensorManager(context).unregisterListener(mSensorEventListener);
                 }
                 final Clock clock = environment.getDefaultClock();
                 mSensorEventListener = new SensorEventListener() {
+                    private float[] orientation = new float[3];
+                    private float[] magneticRotation;
+                    private float[] acceleration;
+                    private float[] rotation = new float[9];
+                    private float[] inclination = new float[9];
+
                     @Override
                     public void onSensorChanged(SensorEvent event) {
-                        double x = event.values[0];
-                        double y = event.values[1];
-                        // Convert X and Y components to angle
-                        // https://en.wikipedia.org/wiki/Atan2
-                        // TODO: Change this to an absolute magnetic magnitude sensor.
-                        double angle = Math.toDegrees(Math.atan2(y,x)) + 180.;
-                        c.addData(clock.getNow(), angle);
+                        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                            acceleration = event.values;
+                        } else {
+                            magneticRotation = event.values;
+                        }
+                        // Update data as long as we have a value for both. This is the highest
+                        // rate of update.
+                        // If we want a slower rate, we can update when *both* values have changed,
+                        // or only when magneticRotation changes, for example.
+                        if (acceleration == null || magneticRotation == null) {
+                            return;
+                        }
+                        boolean hasRotation = SensorManager.getRotationMatrix(rotation, inclination,
+                                acceleration, magneticRotation);
+                        if (hasRotation) {
+                            SensorManager.getOrientation(rotation, orientation);
+                            // Use a positive angle in degrees between 0 and 360.
+                            c.addData(clock.getNow(), 360 - (360 - (Math.toDegrees(orientation[0])))
+                                    % 360);
+                        }
                     }
 
                     @Override
@@ -74,6 +93,8 @@ public class MagneticRotationSensor extends ScalarSensor {
                     }
                 };
                 sensorManager.registerListener(mSensorEventListener, magnetometer,
+                        SensorManager.SENSOR_DELAY_UI);
+                sensorManager.registerListener(mSensorEventListener, accelerometer,
                         SensorManager.SENSOR_DELAY_UI);
             }
 
@@ -85,7 +106,8 @@ public class MagneticRotationSensor extends ScalarSensor {
         };
     }
 
-    public static boolean isMagneticRotationSensorAvailable(AvailableSensors availableSensors) {
-        return availableSensors.isSensorAvailable(Sensor.TYPE_MAGNETIC_FIELD);
+    public static boolean isCompassSensorAvailable(AvailableSensors availableSensors) {
+        return availableSensors.isSensorAvailable(Sensor.TYPE_ACCELEROMETER) &&
+                availableSensors.isSensorAvailable(Sensor.TYPE_MAGNETIC_FIELD);
     }
 }

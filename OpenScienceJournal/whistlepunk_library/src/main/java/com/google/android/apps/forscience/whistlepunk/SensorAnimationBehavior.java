@@ -20,6 +20,8 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.support.annotation.IntDef;
+import android.view.Surface;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import java.lang.annotation.Retention;
@@ -63,7 +65,22 @@ public class SensorAnimationBehavior {
 
     public void updateImageView(ImageView view, double newValue, double yMin, double yMax) {
         if (mBehaviorType == TYPE_ROTATION) {
-            view.setRotation((float) newValue);
+            int screenOrientation = ((WindowManager) view.getContext().getSystemService(
+                    Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
+            double delta = 0;
+            // Use screen orientation to make sure we point the icon the right way even if the
+            // screen is rotated.
+            // The data itself is not changed when the screen is rotated: We always report angle
+            // along the long axis of the phone. However, if we do not rotate the image here, it
+            // will appear off by 90/180/270 deg.
+            if (screenOrientation == Surface.ROTATION_90) {
+                delta = 90;
+            } else if (screenOrientation == Surface.ROTATION_180) {
+                delta = 180;
+            } else if (screenOrientation == Surface.ROTATION_270) {
+                delta = 270;
+            }
+            view.setRotation((float) (-1.0 * (newValue + delta)));
             view.setImageLevel(0);
         } else {
             view.setRotation(0.0f);

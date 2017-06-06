@@ -21,7 +21,14 @@
         android:defaultValue="false"
         android:title="@string/enable_magnetometer_sensor_title"
         android:summary="@string/enable_magnetometer_sensor_summary"
-    />
+        />
+
+    <CheckBoxPreference
+        android:key="enable_compass_sensor"
+        android:defaultValue="false"
+        android:title="@string/enable_compass_sensor_title"
+        android:summary="@string/enable_compass_sensor_summary"
+        />
 
     <CheckBoxPreference
         android:key="enable_ambient_temp_sensor"
