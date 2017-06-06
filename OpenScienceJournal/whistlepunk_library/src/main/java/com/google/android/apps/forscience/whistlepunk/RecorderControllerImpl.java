@@ -34,14 +34,15 @@ import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
@@ -331,13 +332,19 @@ public class RecorderControllerImpl implements RecorderController {
         if (getSelectedExperiment() == null) {
             return;
         }
-        // TODO: Use the new type of trigger labels.
-        // Meanwhile this is not super.
-        GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
-        labelValue.text = SensorTriggerLabelValue.generateAutoNoteText(trigger, context) + " " +
-                trigger.getNoteText();
-        final Label triggerLabel = Label.newLabelWithValue(timestamp, GoosciLabel.Label.TEXT,
-                labelValue, null);
+        GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
+                new GoosciSensorTriggerLabelValue.SensorTriggerLabelValue();
+        labelValue.triggerInformation = trigger.getTriggerProto().triggerInformation;
+        GoosciCaption.Caption caption = null;
+        if (!TextUtils.isEmpty((trigger.getNoteText()))) {
+            caption = new GoosciCaption.Caption();
+            caption.lastEditedTimestamp = timestamp;
+            caption.text = trigger.getNoteText();
+        }
+        labelValue.sensor = new GoosciSensorSpec.SensorSpec();
+        // TODO: Get the sensor spec and fill in labelValue.sensor.
+        final Label triggerLabel = Label.newLabelWithValue(timestamp,
+                GoosciLabel.Label.SENSOR_TRIGGER, labelValue, caption);
         if (isRecording()) {
             // Adds the label to the trial and saves the updated experiment.
             getSelectedExperiment().getTrial(mCurrentTrialId).addLabel(triggerLabel);
