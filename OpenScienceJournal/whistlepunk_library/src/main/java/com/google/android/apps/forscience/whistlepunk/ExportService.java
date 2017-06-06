@@ -16,21 +16,29 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.IntentService;
-import android.content.Intent;
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.net.Uri;
+import android.os.Binder;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.review.RunReviewExporter;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.collect.Range;
-
-import org.reactivestreams.Subscription;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,20 +46,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Single;
-import io.reactivex.SingleObserver;
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.BehaviorSubject;
 
 /**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread for exporting various data sets in various
- * formats.
+ * Service for exporting trial data with different options.
+ * Can be bound for status updates using {@link #bind(Context)}.
+ * Export trial data using {@link #exportTrial(Context, String, String, boolean, String[])}
  */
-public class ExportService extends IntentService {
+public class ExportService extends Service {
     private static final String TAG = "ExportService";
 
     private static final String ACTION_EXPORT_TRIAL =
@@ -66,8 +73,50 @@ public class ExportService extends IntentService {
     private static final String EXTRA_SENSOR_IDS =
             "com.google.android.apps.forscience.whistlepunk.extra.SENSOR_IDS";
 
-    public ExportService() {
-        super("ExportService");
+    private final IBinder mBinder = new ExportServiceBinder();
+
+    private final BehaviorSubject<ExportProgress> mProgressBehaviorSubject =
+            BehaviorSubject.createDefault(new ExportProgress("", ExportProgress.NOT_EXPORTING, 0));
+
+    // Copied from IntentService: basically we do everything the same except wait to call stopSelf
+    // until subscriptions finish.
+    private volatile Looper mServiceLooper;
+    private volatile ServiceHandler mServiceHandler;
+
+    private final class ServiceHandler extends Handler {
+        public ServiceHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            onHandleIntent((Intent) msg.obj, msg.arg1);
+        }
+    }
+
+    public class ExportServiceBinder extends Binder {
+        ExportService getService() {
+            return ExportService.this;
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        HandlerThread thread = new HandlerThread("ExportService");
+        thread.start();
+        mServiceLooper = thread.getLooper();
+        mServiceHandler = new ServiceHandler(mServiceLooper);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = startId;
+        msg.obj = intent;
+        mServiceHandler.sendMessage(msg);
+
+        return START_NOT_STICKY;
     }
 
     /**
@@ -88,8 +137,7 @@ public class ExportService extends IntentService {
     }
 
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
+    private void onHandleIntent(Intent intent, int startId) {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_EXPORT_TRIAL.equals(action)) {
@@ -97,9 +145,116 @@ public class ExportService extends IntentService {
                 final String trialId = intent.getStringExtra(EXTRA_TRIAL_ID);
                 final boolean relativeTime = intent.getBooleanExtra(EXTRA_RELATIVE_TIME, false);
                 final String[] sensorIds = intent.getStringArrayExtra(EXTRA_SENSOR_IDS);
-                handleActionExportTrial(experimentId, trialId, relativeTime, sensorIds);
+                handleActionExportTrial(experimentId, trialId, relativeTime, sensorIds, startId);
             }
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Destroying service");
+        super.onDestroy();
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+
+    public static class ExportProgress {
+        public static final int NOT_EXPORTING = 0;
+        public static final int ERROR = 1;
+        public static final int EXPORTING = 2;
+        public static final int EXPORT_COMPLETE = 3;
+
+        private final String mTrialId;
+        private final int mState;
+        private final int mProgress;
+
+        private Throwable mError;
+        private Uri mFileUri;
+
+        public ExportProgress(String trialId, int state, int progress) {
+            mTrialId = trialId;
+            mState = state;
+            mProgress = progress;
+        }
+
+        public String getTrialId() {
+            return mTrialId;
+        }
+
+        public int getState() {
+            return mState;
+        }
+
+        public int getProgress() {
+            return mProgress;
+        }
+
+        public Throwable getError() {
+            return mError;
+        }
+
+        public Uri getFileUri() {
+            return mFileUri;
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(mProgress);
+        }
+
+        public static ExportProgress getComplete(String trialId, Uri fileUri) {
+            ExportProgress progress = new ExportProgress(trialId, EXPORT_COMPLETE, 0);
+            progress.mFileUri = fileUri;
+            return progress;
+        }
+
+        public static ExportProgress fromThrowable(String trialId, Throwable throwable) {
+            ExportProgress progress = new ExportProgress(trialId, ERROR, 0);
+            progress.mError = throwable;
+            return progress;
+        }
+    }
+
+    public static Single<Observable<ExportProgress>> bind(Context context) {
+        final Context appContext = context.getApplicationContext();
+
+        return Single.create(singleEmitter -> {
+            final ServiceConnection conn = new ServiceConnection() {
+
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    ExportServiceBinder exporter = (ExportServiceBinder) service;
+                    final ServiceConnection connection = this;
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "binding service " + exporter);
+                    }
+                    // Create a new observable for each connection with defer.
+                    singleEmitter.onSuccess(
+                            Observable.defer(() -> exporter.getService().mProgressBehaviorSubject)
+                                    .doOnDispose(() -> {
+                                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                                            Log.d(TAG, "unbinding service " + exporter);
+                                        }
+                                        appContext.unbindService(connection);
+                                    }));
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {}
+            };
+            Intent intent = new Intent(appContext, ExportService.class);
+            if (appContext.bindService(intent, conn, BIND_AUTO_CREATE)) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "trying to bind service.");
+                }
+            } else {
+                singleEmitter.onError(new RuntimeException("Could not bind service."));
+            }
+        });
     }
 
     /**
@@ -107,7 +262,7 @@ public class ExportService extends IntentService {
      * parameters.
      */
     private void handleActionExportTrial(String experimentId, String trialId, boolean relativeTime,
-            String[] sensorIds) {
+            String[] sensorIds, int startId) {
         // Blocking gets OK: this is already background threaded.
         DataController dc = getDataController().blockingGet();
         Experiment experiment = RxDataController.getExperimentById(dc, experimentId).blockingGet();
@@ -119,7 +274,10 @@ public class ExportService extends IntentService {
         // Then write the rows out.
         Range<Long> range = Range.closed(trial.getFirstTimestamp(), trial.getLastTimestamp());
         dc.createScalarObservable(sensorIds, TimeRange.oldest(range), 0 /* resolution tier */)
-                .subscribe(new TrialDataWriter(fileName, relativeTime, sensorIds));
+                .doOnComplete(() -> stopSelf(startId))
+                .subscribeOn(Schedulers.io())
+                .subscribe(new TrialDataWriter(trialId, fileName, relativeTime, sensorIds,
+                        trial.getFirstTimestamp(), trial.getLastTimestamp()));
     }
 
     private Single<DataController> getDataController() {
@@ -152,13 +310,24 @@ public class ExportService extends IntentService {
         return inputName.replaceAll("[^ a-zA-Z0-9-_\\.]", "_");
     }
 
+    private void updateProgress(ExportProgress exportProgress) {
+        mProgressBehaviorSubject.onNext(exportProgress);
+    }
+
     @NonNull
     private File getStorageDir() {
         return new File(getFilesDir().getPath(), "exported_run_files");
     }
 
+    @NonNull
+    private Uri getFileUri(String fileName) {
+        return Uri.parse("content://" + getPackageName() + "/exported_runs/" + fileName);
+    }
+
     private class TrialDataWriter implements Observer<ScalarReading> {
 
+        private final long mFirstTimeStamp;
+        private final long mLastTimeStamp;
         private long mCurrentTimestamp = -1;
         private long mFirstTimeStampWritten = -1;
 
@@ -167,11 +336,16 @@ public class ExportService extends IntentService {
         private final String mFileName;
         private final boolean mRelativeTime;
         private final String[] mSensorIds;
+        private final String mTrialId;
 
-        public TrialDataWriter(String fileName, boolean relativeTime, String[] sensorIds) {
+        public TrialDataWriter(String trialId, String fileName, boolean relativeTime,
+                String[] sensorIds, long firstTimeStamp, long lastTimeStamp) {
+            mTrialId = trialId;
             mFileName = fileName;
             mRelativeTime = relativeTime;
             mSensorIds = sensorIds;
+            mFirstTimeStamp = firstTimeStamp;
+            mLastTimeStamp = lastTimeStamp;
         }
 
         @Override
@@ -211,6 +385,7 @@ public class ExportService extends IntentService {
                 onError(e);
                 return;
             }
+            updateProgress(new ExportProgress(mTrialId, ExportProgress.EXPORTING, 0));
         }
 
         @Override
@@ -246,18 +421,23 @@ public class ExportService extends IntentService {
                 mFirstTimeStampWritten = scalarReading.getCollectedTimeMillis();
             }
             mCurrentTimestamp = scalarReading.getCollectedTimeMillis();
+            int progress = (int) (((mCurrentTimestamp - mFirstTimeStamp) /
+                    (double) (mLastTimeStamp - mFirstTimeStamp)) * 100);
+            updateProgress(new ExportProgress(mTrialId, ExportProgress.EXPORTING, progress));
         }
 
         @Override
         public void onError(Throwable throwable) {
             // End writing stream.
             closeStreamIfNecessary();
+            updateProgress(ExportProgress.fromThrowable(mTrialId, throwable));
         }
 
         @Override
         public void onComplete() {
             // End writing stream.
             closeStreamIfNecessary();
+            updateProgress(ExportProgress.getComplete(mTrialId, getFileUri(mFileName)));
         }
 
         private String getTimestampString(long time) {

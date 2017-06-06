@@ -17,22 +17,31 @@
 package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
+import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 
+import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataService;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
+import com.google.android.apps.forscience.whistlepunk.ExportService.ExportProgress;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 
 import java.util.List;
+import java.util.Objects;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 
 /**
@@ -40,13 +49,14 @@ import java.util.List;
  */
 public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
 
-    private static final boolean DEBUG_USE_SERVICE = false;
-
     private static final String KEY_EXPERIMENT_ID = "experiment_id";
     private static final String KEY_TRIAL_ID = "trial_id";
+    private String mTrialId;
     private CheckBox mRelativeTime;
     private List<String> mSensorIds;
+    private Disposable mUntilStop;
 
+    // TODO: remove this interface and related methods in RunReview.
     public interface Exporter {
         void onExport(boolean startAtZero);
     }
@@ -59,6 +69,57 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
         ExportOptionsDialogFragment fragment = new ExportOptionsDialogFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mTrialId = getArguments().getString(KEY_TRIAL_ID);
+        ExportService.bind(getActivity())
+                .subscribe(subscriber -> mUntilStop = subscriber
+                        // Only look at events for this trial or the default value
+                        .filter(progress -> Objects.equals(progress.getTrialId(), mTrialId)
+                                || progress.getTrialId().equals(""))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(this::updateProgress));
+
+    }
+
+    private void updateProgress(ExportProgress progress) {
+        if (progress.getState() == ExportProgress.EXPORTING) {
+            // TODO: Show progress UI, update progress.
+        } else if (progress.getState() == ExportProgress.EXPORT_COMPLETE) {
+            // Finish dialog and send the filename.
+            if (getActivity() != null) {
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("application/octet-stream");
+                intent.putExtra(Intent.EXTRA_STREAM, progress.getFileUri());
+                if (getActivity().getPackageManager().queryIntentActivities(intent, 0)
+                        .size() > 0) {
+                    getActivity().startActivity(Intent.createChooser(intent, getString(
+                            R.string.export_run_chooser_title)));
+                    dismiss();
+                } else {
+                    Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
+                            getString(R.string.no_app_found), Snackbar.LENGTH_LONG);
+                    bar.show();
+                }
+            }
+        } else if (progress.getState() == ExportProgress.ERROR) {
+            if (getActivity() != null) {
+                Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
+                        getString(R.string.export_error), Snackbar.LENGTH_LONG);
+                bar.show();
+            }
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mUntilStop != null) {
+            mUntilStop.dispose();
+        }
     }
 
     @Nullable
@@ -77,22 +138,11 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
                 .subscribe(experiment -> {
                     Trial trial = experiment.getTrial(trialId);
                     mSensorIds = trial.getSensorIds();
+                    // TODO: fill in UI with these sensors.
                 });
         view.findViewById(R.id.action_export).setOnClickListener(v -> {
-
-            if (DEBUG_USE_SERVICE) {
-                ExportService.exportTrial(getActivity(), experimentId, trialId,
-                        mRelativeTime.isChecked(), mSensorIds.toArray(new String[]{}));
-            } else {
-                // TODO: remove this when moving to the service: just kick off intentservice
-                // instead.
-                Fragment fragment = getActivity().getFragmentManager().findFragmentById(
-                        R.id.container);
-                if (fragment instanceof Exporter) {
-                    ((Exporter) fragment).onExport(mRelativeTime.isChecked());
-                }
-            }
-            dismiss();
+            ExportService.exportTrial(getActivity(), experimentId, trialId,
+                    mRelativeTime.isChecked(), mSensorIds.toArray(new String[]{}));
         });
         return view;
     }
