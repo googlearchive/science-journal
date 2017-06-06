@@ -76,15 +76,10 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
@@ -100,7 +95,6 @@ import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -783,7 +777,7 @@ public class ExperimentDetailsFragment extends Fragment
                 ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.note_image);
                 if (isPictureLabel) {
                     imageView.setVisibility(View.VISIBLE);
-                    PictureUtils.loadImage(imageView.getContext(), imageView,
+                    PictureUtils.loadExperimentImage(imageView.getContext(), imageView,
                             mExperiment.getExperimentId(), label.getPictureLabelValue().filePath);
                     View.OnClickListener clickListener = v -> {
                         if (mParentReference.get() != null) {

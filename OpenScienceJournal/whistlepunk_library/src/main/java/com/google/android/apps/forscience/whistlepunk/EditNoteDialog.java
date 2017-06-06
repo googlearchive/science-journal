@@ -36,12 +36,8 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -166,7 +162,7 @@ public class EditNoteDialog extends DialogFragment {
             autoTextView.setVisibility(View.GONE);
             editText.setText(mLabel.getCaptionText());
             editText.setHint(R.string.picture_note_caption_hint);
-            PictureUtils.loadImage(getActivity(), imageView, mExperimentId,
+            PictureUtils.loadExperimentImage(getActivity(), imageView, mExperimentId,
                     mEditedLabel.getPictureLabelValue().filePath);
             imageView.setOnClickListener(
                     v -> PictureUtils.launchExternalViewer(getActivity(), mExperimentId,

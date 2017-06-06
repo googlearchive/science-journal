@@ -36,13 +36,8 @@ import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 
@@ -168,8 +163,8 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             text = label.getCaptionText();
             noteHolder.mImage.setVisibility(View.VISIBLE);
             noteHolder.mAutoText.setVisibility(View.GONE);
-            PictureUtils.loadImage(noteHolder.mImage.getContext(), noteHolder.mImage, mExperimentId,
-                    labelValue.filePath);
+            PictureUtils.loadExperimentImage(noteHolder.mImage.getContext(), noteHolder.mImage,
+                    mExperimentId, labelValue.filePath);
             noteHolder.mImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

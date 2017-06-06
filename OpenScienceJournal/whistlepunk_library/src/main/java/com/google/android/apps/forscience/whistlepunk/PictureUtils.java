@@ -180,16 +180,26 @@ public class PictureUtils {
         }
     }
 
-    public static void loadImage(Context context, ImageView view, String experimentId,
+    public static void loadExperimentImage(Context context, ImageView view, String experimentId,
             String relativeFilePath) {
         File file = FileMetadataManager.getExperimentFile(context, experimentId, relativeFilePath);
         Glide.clear(view);
         Glide.with(context).load(file.getAbsolutePath()).into(view);
     }
 
-    public static String getImagePath(Context context, String experimentId,
+    public static String getExperimentImagePath(Context context, String experimentId,
             String relativeFilePath) {
         File file = FileMetadataManager.getExperimentFile(context, experimentId, relativeFilePath);
         return file.getAbsolutePath();
+    }
+
+    public static String getExperimentOverviewRelativeImagePath(String experimentId,
+            String relativeFilePath) {
+        return FileMetadataManager.getRelativePathInFilesDir(experimentId, relativeFilePath);
+    }
+
+    public static String getExperimentOverviewFullImagePath(Context context,
+            String relativeFilePath) {
+        return context.getFilesDir() + "/" + relativeFilePath;
     }
 }

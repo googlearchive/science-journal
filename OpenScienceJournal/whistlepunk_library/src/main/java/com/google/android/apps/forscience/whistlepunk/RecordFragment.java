@@ -62,7 +62,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
@@ -1152,7 +1151,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             // We want to set the time stamp of this label to the time of the picture
             GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
                     label.getPictureLabelValue();
-            File file =  new File(PictureUtils.getImagePath(getActivity(),
+            File file =  new File(PictureUtils.getExperimentImagePath(getActivity(),
                     mSelectedExperiment.getExperimentId(), pictureLabelValue.filePath));
             // Check to make sure this value is not crazy: should be within 10 minutes of
             // now and not from the future.

@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.util.Collections;
@@ -64,12 +65,18 @@ public abstract class LabelListHolder {
     public void addLabel(Label label) {
         mLabels.add(label);
         sortLabels();
+        if (label.getType() == GoosciLabel.Label.PICTURE) {
+            onPictureLabelAdded(label);
+        }
     }
 
     /**
      * Deletes a label from this object and also deletes any assets associated with that label.
      */
     public void deleteLabel(Label label, Context context, String experimentId) {
+        if (label.getType() == GoosciLabel.Label.PICTURE) {
+            beforeDeletingPictureLabel(label);
+        }
         label.deleteAssets(context, experimentId);
         mLabels.remove(label);
     }
@@ -78,8 +85,11 @@ public abstract class LabelListHolder {
         Collections.sort(mLabels, Label.COMPARATOR_BY_TIMESTAMP);
     }
 
-    @VisibleForTesting
-    void setLabels(List<Label> labels) {
+    protected void setLabels(List<Label> labels) {
         mLabels = labels;
     }
+
+    protected abstract void onPictureLabelAdded(Label label);
+
+    protected abstract void beforeDeletingPictureLabel(Label label);
 }

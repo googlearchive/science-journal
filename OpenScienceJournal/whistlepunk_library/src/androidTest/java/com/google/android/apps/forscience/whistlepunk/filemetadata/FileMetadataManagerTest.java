@@ -109,5 +109,8 @@ public class FileMetadataManagerTest extends InstrumentationTestCase {
         File result = FileMetadataManager.getExperimentFile(getInstrumentation().getContext(),
                 "experiment182", "assets/cats.png");
         assertEquals(file.getAbsolutePath(), result.getAbsolutePath());
+
+        assertEquals("experiments/experiment182/assets/cats.png",
+                FileMetadataManager.getRelativePathInFilesDir("experiment182", "assets/cats.png"));
     }
 }

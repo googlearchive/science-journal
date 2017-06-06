@@ -46,10 +46,8 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
@@ -384,7 +382,8 @@ public class AddNoteDialog extends DialogFragment {
 
         setViewVisibilities(takePictureBtn, imageView, !hasPicture());
         if (mPictureLabelPath != null) {
-            PictureUtils.loadImage(getActivity(), imageView, mExperimentId, mPictureLabelPath);
+            PictureUtils.loadExperimentImage(getActivity(), imageView, mExperimentId,
+                    mPictureLabelPath);
         }
 
         takePictureBtn.setOnClickListener(new View.OnClickListener() {
@@ -531,7 +530,8 @@ public class AddNoteDialog extends DialogFragment {
             Dialog dialog = getDialog();
             ImageView imageView = (ImageView) dialog.findViewById(R.id.picture_note_preview_image);
             if (resultCode == Activity.RESULT_OK) {
-                PictureUtils.loadImage(getActivity(), imageView, mExperimentId, mPictureLabelPath);
+                PictureUtils.loadExperimentImage(getActivity(), imageView, mExperimentId,
+                        mPictureLabelPath);
             } else {
                 mPictureLabelPath = null;
             }

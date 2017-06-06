@@ -53,17 +53,20 @@ import java.util.Map;
 public class Trial extends LabelListHolder {
     private static final String TAG = "Trial";
 
-    public static final Comparator<Trial> COMPARATOR_BY_TIMESTAMP = new Comparator<Trial>() {
-        @Override
-        public int compare(Trial first, Trial second) {
-            // Sort based on the recording first timestamp.
-            return Long.compare(first.getOriginalFirstTimestamp(),
-                    second.getOriginalFirstTimestamp());
-        }
+    public static final Comparator<Trial> COMPARATOR_BY_TIMESTAMP = (first, second) -> {
+        // Sort based on the recording first timestamp.
+        return Long.compare(first.getOriginalFirstTimestamp(),
+                second.getOriginalFirstTimestamp());
     };
+
+    interface OnLabelChangeListener {
+        void onPictureLabelAdded(Label label);
+        void beforeDeletingPictureLabel(Label label);
+    }
 
     private GoosciTrial.Trial mTrial;
     private Map<String, TrialStats> mTrialStats;
+    private OnLabelChangeListener mOnLabelChangeListener;
 
     /**
      * Populates the Trial from an existing proto.
@@ -297,5 +300,23 @@ public class Trial extends LabelListHolder {
             result[i] = mLabels.get(i).getLabelProto();
         }
         mTrial.labels = result;
+    }
+
+    public void setOnLabelChangeListener(OnLabelChangeListener listener) {
+        mOnLabelChangeListener = listener;
+    }
+
+    @Override
+    protected void onPictureLabelAdded(Label label) {
+        if (mOnLabelChangeListener != null) {
+            mOnLabelChangeListener.onPictureLabelAdded(label);
+        }
+    }
+
+    @Override
+    protected void beforeDeletingPictureLabel(Label label) {
+        if (mOnLabelChangeListener != null) {
+            mOnLabelChangeListener.beforeDeletingPictureLabel(label);
+        }
     }
 }

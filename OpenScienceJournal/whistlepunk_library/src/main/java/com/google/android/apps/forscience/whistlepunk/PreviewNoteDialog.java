@@ -67,7 +67,7 @@ public class PreviewNoteDialog extends DialogFragment {
                     label.getPictureLabelValue();
             imageView.setVisibility(View.VISIBLE);
             previewText.setVisibility(View.GONE);
-            PictureUtils.loadImage(getActivity(), imageView, experimentId,
+            PictureUtils.loadExperimentImage(getActivity(), imageView, experimentId,
                     labelValue.filePath);
             imageView.setOnClickListener(
                     v -> PictureUtils.launchExternalViewer(getActivity(), experimentId,

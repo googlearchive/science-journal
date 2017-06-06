@@ -152,6 +152,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         mFileMetadataManager.deleteAll(experimentIds);
 
         for (String experimentId : experimentIds) {
+            boolean foundPicture = false;
             Experiment experiment = getDatabaseExperimentById(db, experimentId, mContext, true);
 
             // This prepares the file system for the new experiment.
@@ -159,16 +160,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
             // Migrate assets
             for (Label label : experiment.getLabels()) {
-                if (migratePictureAssetsIfNeeded(experimentId, label)) {
-                    experiment.updateLabel(label);
-                }
+                updateLabelPictureAssets(experiment, label);
             }
             for (Trial trial : experiment.getTrials()) {
                 // TODO: Also migrate any sensor specific assets needed to view this trial.
                 for (Label trialLabel : trial.getLabels()) {
-                    if (migratePictureAssetsIfNeeded(experimentId, trialLabel)) {
-                        trial.updateLabel(trialLabel);
-                    }
+                    updateLabelPictureAssets(experiment, trialLabel);
                 }
             }
             // Now that all the labels have their assets in the right place, we can save them.
@@ -176,6 +173,23 @@ public class SimpleMetaDataManager implements MetaDataManager {
             mFileMetadataManager.saveImmediately();
 
             deleteDatabaseExperiment(db, experiment, mContext);
+        }
+    }
+
+    /**
+     * Migrates label picture assets, updating the Experiment Overview image if it is not yet set.
+     */
+    private void updateLabelPictureAssets(Experiment experiment, Label label) {
+        if (migratePictureAssetsIfNeeded(experiment.getExperimentId(), label)) {
+            experiment.updateLabel(label);
+            if (TextUtils.isEmpty(experiment.getExperimentOverview().imagePath)) {
+                String path = label.getPictureLabelValue().filePath;
+                if (!TextUtils.isEmpty(path)) {
+                    experiment.getExperimentOverview().imagePath =
+                            PictureUtils.getExperimentOverviewRelativeImagePath(
+                                    experiment.getExperimentId(), path);
+                }
+            }
         }
     }
 

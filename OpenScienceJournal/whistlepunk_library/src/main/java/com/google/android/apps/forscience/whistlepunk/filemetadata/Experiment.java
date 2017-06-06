@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
@@ -293,7 +294,7 @@ public class Experiment extends LabelListHolder {
      */
     public void deleteContents(Context context) {
         for (Label label : getLabels()) {
-            deleteLabel(label, context, getExperimentId());
+            deleteLabel(label, context);
         }
         for (Trial trial : getTrials()) {
             deleteTrial(trial, context);
@@ -472,6 +473,37 @@ public class Experiment extends LabelListHolder {
             sensorIds.add(layout.sensorId);
         }
         return sensorIds;
+    }
+
+    @Override
+    protected void onPictureLabelAdded(Label label) {
+        if (TextUtils.isEmpty(mExperimentOverview.imagePath)) {
+            mExperimentOverview.imagePath =
+                    PictureUtils.getExperimentOverviewRelativeImagePath(getExperimentId(),
+                            label.getPictureLabelValue().filePath);
+        }
+    }
+
+    @Override
+    protected void beforeDeletingPictureLabel(Label label) {
+        if (TextUtils.equals(mExperimentOverview.imagePath,
+                PictureUtils.getExperimentOverviewRelativeImagePath(getExperimentId(),
+                        label.getPictureLabelValue().filePath))) {
+            // This is the picture label which is used as the cover photo for this experiment.
+            // Try to find another, oldest first.
+            for (int i = mLabels.size() - 1; i >= 0; i--) {
+                Label other = mLabels.get(i);
+                if (!TextUtils.equals(other.getLabelId(), label.getLabelId()) &&
+                        other.getType() == GoosciLabel.Label.PICTURE) {
+                    mExperimentOverview.imagePath =
+                            PictureUtils.getExperimentOverviewRelativeImagePath(getExperimentId(),
+                                    other.getPictureLabelValue().filePath);
+                    return;
+                }
+            }
+            // Couldn't find another, so just set it to nothing.
+            mExperimentOverview.imagePath = "";
+        }
     }
 
     public void deleteLabel(Label item, Context context) {

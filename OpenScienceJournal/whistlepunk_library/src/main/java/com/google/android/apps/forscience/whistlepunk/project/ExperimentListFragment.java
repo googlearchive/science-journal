@@ -338,10 +338,11 @@ public class ExperimentListFragment extends Fragment {
         }
 
         private void loadPhoto(final ViewHolder holder, String experimentId,
-                String pictureFilePath) {
+                String experimentOverviewFilePath) {
             Glide.with(holder.experimentImage.getContext())
-                    .load(PictureUtils.getImagePath(holder.experimentImage.getContext(),
-                            experimentId, pictureFilePath))
+                    .load(PictureUtils.getExperimentOverviewFullImagePath(
+                            holder.experimentImage.getContext(),
+                            experimentOverviewFilePath))
                     .asBitmap()
                     .centerCrop()
                     .into(new BitmapImageViewTarget(holder.experimentImage) {

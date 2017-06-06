@@ -51,7 +51,7 @@ public class FileMetadataManager {
     public FileMetadataManager(Context applicationContext, Clock clock) {
         mClock = clock;
         // TODO: Probably pass failure listeners from a higher level in order to propagate them
-        // up to the user.
+        // up to the user. b/62373187.
         ExperimentCache.FailureListener failureListener = new ExperimentCache.FailureListener() {
             @Override
             public void onWriteFailed(Experiment experimentToWrite) {
@@ -100,6 +100,7 @@ public class FileMetadataManager {
 
     /**
      * Deletes all experiments in the list of experiment IDs.
+     * This really deletes everything and should be used very sparingly!
      */
     public void deleteAll(List<String> experimentIds) {
         for (String experimentId : experimentIds) {
@@ -199,6 +200,12 @@ public class FileMetadataManager {
         return context.getFilesDir() + "/experiments/" + experimentId + "/";
     }
 
+    /**
+     * Gets the relative path to a file within an experiment. For example, if the file is
+     * a picture pic.png in the assets/ directory of experiment xyz, this will return just
+     * "assets/pic.png". If the file is not in xyz but the experimentId passed in is xyz, this will
+     * return an empty string.
+     */
     public static String getRelativePathInExperiment(String experimentId, File file) {
         String absolutePath = file.getAbsolutePath();
         int start = absolutePath.indexOf(experimentId);
@@ -210,8 +217,19 @@ public class FileMetadataManager {
         }
     }
 
+    /**
+     * Gets a file in an experiment from a relative path to that file within the experiment.
+     */
     public static File getExperimentFile(Context context, String experimentId,
             String relativePath) {
         return new File(getExperimentDirectory(context, experimentId) + "/" + relativePath);
+    }
+
+    /**
+     * Gets the relative path to the file from the user's files directory.
+     * This can be used to create the imagePath in UserMetadata.ExperimentOverview.
+     */
+    public static String getRelativePathInFilesDir(String experimentId, String relativePath) {
+        return "experiments/" + experimentId + "/" + relativePath;
     }
 }
