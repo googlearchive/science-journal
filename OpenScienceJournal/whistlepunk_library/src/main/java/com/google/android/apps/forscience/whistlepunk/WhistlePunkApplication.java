@@ -89,7 +89,7 @@ public abstract class WhistlePunkApplication extends Application {
         }
         mRefWatcher = installLeakCanary();
         onCreateInjector();
-        RunReviewExporter.cleanOldFiles(this);
+        ExportService.cleanOldFiles(this);
         enableStrictMode();
         setupBackupAgent();
     }

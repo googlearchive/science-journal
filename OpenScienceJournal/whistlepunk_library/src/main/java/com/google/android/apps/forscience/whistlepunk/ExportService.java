@@ -73,6 +73,9 @@ public class ExportService extends Service {
     private static final String EXTRA_SENSOR_IDS =
             "com.google.android.apps.forscience.whistlepunk.extra.SENSOR_IDS";
 
+    private static final String ACTION_CLEAN_OLD_FILES =
+            "com.google.android.apps.forscience.whistlepunk.action.CLEAN_OLD_FILES";
+
     private final IBinder mBinder = new ExportServiceBinder();
 
     private final BehaviorSubject<ExportProgress> mProgressBehaviorSubject =
@@ -123,7 +126,6 @@ public class ExportService extends Service {
      * Starts this service to perform action export trial with the given parameters. If
      * the service is already performing a task this action will be queued.
      *
-     * @see IntentService
      */
     public static void exportTrial(Context context, String experimentId, String trialId,
             boolean relativeTime, String[] sensorIds) {
@@ -133,6 +135,15 @@ public class ExportService extends Service {
         intent.putExtra(EXTRA_TRIAL_ID, trialId);
         intent.putExtra(EXTRA_RELATIVE_TIME, relativeTime);
         intent.putExtra(EXTRA_SENSOR_IDS, sensorIds);
+        context.startService(intent);
+    }
+
+    /**
+     * Starts this service to clean up old files.
+     */
+    public static void cleanOldFiles(Context context) {
+        Intent intent = new Intent(context, ExportService.class);
+        intent.setAction(ACTION_CLEAN_OLD_FILES);
         context.startService(intent);
     }
 
@@ -146,6 +157,8 @@ public class ExportService extends Service {
                 final boolean relativeTime = intent.getBooleanExtra(EXTRA_RELATIVE_TIME, false);
                 final String[] sensorIds = intent.getStringArrayExtra(EXTRA_SENSOR_IDS);
                 handleActionExportTrial(experimentId, trialId, relativeTime, sensorIds, startId);
+            } else if (ACTION_CLEAN_OLD_FILES.equals(action)) {
+                handleCleanOldFiles(startId);
             }
         }
     }
@@ -322,6 +335,23 @@ public class ExportService extends Service {
     @NonNull
     private Uri getFileUri(String fileName) {
         return Uri.parse("content://" + getPackageName() + "/exported_runs/" + fileName);
+    }
+
+    /**
+     * Removes old exported run files on the IO thread and then stops when done.
+     */
+    private void handleCleanOldFiles(int startId) {
+        Observable.just(startId)
+                .observeOn(Schedulers.io())
+                .doOnComplete(() -> stopSelf(startId))
+                .subscribe(id -> {
+                    final File storageDir = getStorageDir();
+                    if (storageDir.exists()) {
+                        for (File file : storageDir.listFiles()) {
+                            file.delete();
+                        }
+                    }
+                });
     }
 
     private class TrialDataWriter implements Observer<ScalarReading> {
