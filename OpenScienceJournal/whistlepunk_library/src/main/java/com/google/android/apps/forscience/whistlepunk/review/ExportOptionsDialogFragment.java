@@ -58,11 +58,6 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
     private ProgressBar mProgressBar;
     private Disposable mUntilStop;
 
-    // TODO: remove this interface and related methods in RunReview.
-    public interface Exporter {
-        void onExport(boolean startAtZero);
-    }
-
     public static ExportOptionsDialogFragment createOptionsDialog(String experimentId,
             String trialId) {
         Bundle args = new Bundle();

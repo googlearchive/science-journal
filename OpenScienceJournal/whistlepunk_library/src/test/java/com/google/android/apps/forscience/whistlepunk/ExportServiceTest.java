@@ -14,29 +14,25 @@
  *  limitations under the License.
  */
 
-package com.google.android.apps.forscience.whistlepunk.review;
+package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 
 import org.junit.Test;
 
-import java.util.Collections;
-
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link RunReviewExporter}.
+ * Tests for {@link ExportService}.
  */
-public class RunReviewExporterTest {
+public class ExportServiceTest {
     @Test
     public void testSanitizeFileName_normal() {
         String experimentName = "Untitled Experiment";
         String runName = "Run 1";
 
-        assertEquals("Untitled Experiment Run 1", RunReviewExporter.sanitizeFilename(
+        assertEquals("Untitled Experiment Run 1", ExportService.sanitizeFilename(
                 experimentName + " " + runName));
     }
 
@@ -45,19 +41,19 @@ public class RunReviewExporterTest {
         String experimentName = "//Untitled Experiment";
         String runName = "Run 1";
 
-        assertEquals("__Untitled Experiment Run 1", RunReviewExporter.sanitizeFilename(
+        assertEquals("__Untitled Experiment Run 1", ExportService.sanitizeFilename(
                 experimentName + " " + runName));
 
         experimentName = "U.nti\tled Ex. periment";
         runName = "Run 10";
 
-        assertEquals("U.nti_led Ex. periment Run 10", RunReviewExporter.sanitizeFilename(
+        assertEquals("U.nti_led Ex. periment Run 10", ExportService.sanitizeFilename(
                 experimentName + " " + runName));
     }
 
     @Test public void makeFilenameWhenShort() {
         Trial trial = makeTrial("runTitle");
-        String filename = RunReviewExporter.makeExportFilename("experiment", trial, null);
+        String filename = ExportService.makeExportFilename("experiment", trial.getRawTitle());
         assertEquals("experiment runTitle.csv", filename);
     }
 
@@ -66,8 +62,8 @@ public class RunReviewExporterTest {
         String veryLongString = "012345678901234567890123456789012345678901234567890123456789";
         Trial trial = makeTrial("runTitle" + veryLongString);
 
-        String filename =
-                RunReviewExporter.makeExportFilename("experiment" + veryLongString, trial, null);
+        String filename = ExportService.makeExportFilename("experiment" +
+                veryLongString,trial.getRawTitle());
         assertEquals(80, filename.length());
         assertEquals(
                 "experiment01234567890123456789018953cd53 runTitle0123456789012345678a7c9ddcd.csv",

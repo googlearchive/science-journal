@@ -72,6 +72,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.RunReviewOverlay;
+import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
@@ -107,8 +108,7 @@ public class RunReviewFragment extends Fragment implements
         EditNoteDialog.EditNoteDialogListener, EditTimeDialogListener,
         DeleteMetadataItemDialog.DeleteDialogListener,
         AudioSettingsDialog.AudioSettingsDialogListener,
-        ChartController.ChartLoadingStatus,
-        ExportOptionsDialogFragment.Exporter {
+        ChartController.ChartLoadingStatus {
     public static final String ARG_EXPERIMENT_ID = "experimentId";
     public static final String ARG_START_LABEL_ID = "start_label_id";
     public static final String ARG_SENSOR_INDEX = "sensor_tag_index";
@@ -152,8 +152,6 @@ public class RunReviewFragment extends Fragment implements
     private PinnedNoteAdapter mPinnedNoteAdapter;
     private Experiment mExperiment;
     private ActionMode mActionMode;
-    private ProgressBar mExportProgress;
-    private RunReviewExporter mRunReviewExporter;
     private TrialStats mCurrentSensorStats;
     private boolean mShowStatsOverlay = false;
     private BroadcastReceiver mBroadcastReceiver;
@@ -241,48 +239,6 @@ public class RunReviewFragment extends Fragment implements
             }
             mShowStatsOverlay = savedInstanceState.getBoolean(KEY_STATS_OVERLAY_VISIBLE, false);
         }
-        mRunReviewExporter = new RunReviewExporter(getDataController(),
-                new RunReviewExporter.Listener() {
-                    @Override
-                    public void onExportStarted() {
-                        showExportUi();
-                    }
-
-                    @Override
-                    public void onExportProgress(int progress) {
-                        setExportProgress(progress);
-                    }
-
-                    @Override
-                    public void onExportEnd(Uri uri) {
-                        resetExportUi();
-                        if (uri != null && getActivity() != null) {
-                            Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-                            intent.setType("application/octet-stream");
-                            intent.putExtra(Intent.EXTRA_STREAM, uri);
-
-                            if (getActivity().getPackageManager().queryIntentActivities(intent, 0)
-                                    .size() > 0) {
-                                getActivity().startActivity(Intent.createChooser(intent, getString(
-                                        R.string.export_run_chooser_title)));
-                            } else {
-                                Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
-                                        getString(R.string.no_app_found), Snackbar.LENGTH_LONG);
-                                bar.show();
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onExportError(Exception e) {
-                        resetExportUi();
-                        if (getActivity() != null) {
-                            Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
-                                    getString(R.string.export_error), Snackbar.LENGTH_LONG);
-                            bar.show();
-                        }
-                    }
-                });
         mAudioPlaybackController = new AudioPlaybackController(
                 new AudioPlaybackController.AudioPlaybackListener() {
                     @Override
@@ -332,9 +288,6 @@ public class RunReviewFragment extends Fragment implements
 
     @Override
     public void onStop() {
-        if (mRunReviewExporter.isExporting()) {
-            mRunReviewExporter.stop();
-        }
         if (isMultiWindowEnabled()) {
             pausePlaybackForLifecycleEvent();
         }
@@ -350,7 +303,6 @@ public class RunReviewFragment extends Fragment implements
             final Bundle savedInstanceState) {
         mSavedInstanceStateForLoad = savedInstanceState;
         final View rootView = inflater.inflate(R.layout.fragment_run_review, container, false);
-        mExportProgress = (ProgressBar) rootView.findViewById(R.id.export_progress);
         AppBarLayout appBarLayout = (AppBarLayout) rootView.findViewById(R.id.app_bar_layout);
         ViewCompat.setTransitionName(appBarLayout, mTrialId);
         ExternalAxisView externalAxisView =
@@ -501,8 +453,7 @@ public class RunReviewFragment extends Fragment implements
         if (mExperiment != null) {
             menu.findItem(R.id.action_run_review_archive).setVisible(!getTrial().isArchived());
             menu.findItem(R.id.action_run_review_unarchive).setVisible(getTrial().isArchived());
-            menu.findItem(R.id.action_run_review_delete).setEnabled(getTrial().isArchived()
-                    && !mRunReviewExporter.isExporting());
+            menu.findItem(R.id.action_run_review_delete).setEnabled(getTrial().isArchived());
 
             menu.findItem(R.id.action_disable_auto_zoom).setVisible(
                     getTrial().getAutoZoomEnabled());
@@ -512,6 +463,8 @@ public class RunReviewFragment extends Fragment implements
             // You can only do a crop if the run length is long enough.
             menu.findItem(R.id.action_run_review_crop).setEnabled(
                     CropHelper.experimentIsLongEnoughForCrop(getTrial()));
+
+            menu.findItem(R.id.action_export).setVisible(true);
         } else {
             menu.findItem(R.id.action_run_review_archive).setVisible(false);
             menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
@@ -519,8 +472,8 @@ public class RunReviewFragment extends Fragment implements
             menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
             menu.findItem(R.id.action_run_review_delete).setVisible(false);
             menu.findItem(R.id.action_run_review_crop).setVisible(false);
+            menu.findItem(R.id.action_export).setVisible(false);
         }
-        menu.findItem(R.id.action_export).setEnabled(!mRunReviewExporter.isExporting());
 
         if (((RunReviewActivity) getActivity()).isFromRecord()) {
             // If this is from record, always enable deletion.
@@ -560,13 +513,8 @@ public class RunReviewFragment extends Fragment implements
             mGraphOptionsController.launchOptionsDialog(mScalarDisplayOptions,
                     new NewOptionsStorage.SnackbarFailureListener(getView()));
         } else if (id == R.id.action_export) {
-            getDataController().getExperimentById(mExperimentId,
-                new LoggingConsumer<Experiment>(TAG, "retrieve argument") {
-                    @Override
-                    public void success(final Experiment experiment) {
-                        exportRun(experiment.getTrial(mTrialId));
-                    }
-                });
+            RxDataController.getExperimentById(getDataController(), mExperimentId)
+                    .subscribe(experiment -> exportRun(experiment.getTrial(mTrialId)));
         } else if (id == R.id.action_run_review_crop) {
             if (mExperiment != null) {
                 launchCrop(getView());
@@ -1721,47 +1669,6 @@ public class RunReviewFragment extends Fragment implements
         ExportOptionsDialogFragment fragment = ExportOptionsDialogFragment.createOptionsDialog(
                 mExperiment.getExperimentId(), trial.getTrialId());
         fragment.show(((AppCompatActivity) getActivity()).getSupportFragmentManager(), "export");
-    }
-
-    public void onExport(boolean startAtZero) {
-        Trial trial = mExperiment.getTrial(mTrialId);
-        mRunReviewExporter.startExport(getActivity(), mExperiment.getDisplayTitle(getActivity()),
-                trial, trial.getSensorLayouts().get(mSelectedSensorIndex).sensorId, startAtZero);
-        // Disable the item.
-        getActivity().invalidateOptionsMenu();
-    }
-
-    private void showExportUi() {
-        mExportProgress.setMax(100);
-        mExportProgress.setProgress(0);
-        mExportProgress.setVisibility(View.VISIBLE);
-    }
-
-    private void setExportProgress(final int progress) {
-        if (getView() == null) {
-            return;
-        }
-        getView().post(new Runnable() {
-            @Override
-            public void run() {
-                mExportProgress.setProgress(progress);
-            }
-        });
-    }
-
-    private void resetExportUi() {
-        if (getView() == null) {
-            return;
-        }
-        getView().post(new Runnable() {
-            @Override
-            public void run() {
-                if (getActivity() != null) {
-                    getActivity().invalidateOptionsMenu();
-                }
-                mExportProgress.setVisibility(View.GONE);
-            }
-        });
     }
 
     @Override
