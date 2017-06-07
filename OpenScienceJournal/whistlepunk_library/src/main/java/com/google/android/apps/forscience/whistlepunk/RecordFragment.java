@@ -97,10 +97,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.MaybeSubject;
 
 public class RecordFragment extends Fragment implements AddNoteDialog.ListenerProvider,
         Handler.Callback, StopRecordingNoDataDialog.StopRecordingDialogListener,
@@ -185,8 +185,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private SensorRegistry mSensorRegistry;
     private Snackbar mVisibleSnackbar;
 
-    private ImageButton mRecordButton;
-
     private SensorSettingsController mSensorSettingsController;
     private GraphOptionsController mGraphOptionsController;
     private ColorAllocator mColorAllocator;
@@ -204,11 +202,54 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private Experiment mSelectedExperiment;
     private BehaviorSubject<Experiment> mSelectedExperimentSubject = BehaviorSubject.create();
 
-    // Subscribe to get whether we are currently recording, and future updates.
-    private BehaviorSubject<Boolean> mRecordingState = BehaviorSubject.create();
+    // TODO: RecorderController should own this state.
+    private static enum RecordingState {
+        //We are not yet connected to the RecorderController, and don't yet know the current state
+        UNCONNECTED,
 
-    // Subscribe to get whether control buttons are currently enabled, and future updates.
-    private BehaviorSubject<Boolean> mControlButtonsEnabled = BehaviorSubject.create();
+        // No current recording
+        INACTIVE {
+            @Override
+            public boolean shouldEnableRecordButton() {
+                return true;
+            }
+        },
+
+        // User has requested recording to start, but it hasn't yet
+        STARTING,
+
+        // Currently recording
+        ACTIVE {
+            @Override
+            public boolean shouldEnableRecordButton() {
+                return true;
+            }
+
+            @Override
+            public boolean shouldShowStopButton() {
+                return true;
+            }
+        },
+
+        // User has requested recording to stop, but it hasn't yet.
+        STOPPING {
+            @Override
+            public boolean shouldShowStopButton() {
+                return true;
+            }
+        };
+
+        public boolean shouldEnableRecordButton() {
+            return false;
+        }
+
+        public boolean shouldShowStopButton() {
+            return false;
+        }
+    }
+
+    // Subscribe to get whether we are currently recording, and future updates.
+    private BehaviorSubject<RecordingState> mRecordingState = BehaviorSubject.create();
 
     // A temporary variable to store a sensor card presenter that wants to use
     // the decibel sensor before the permission to use microphone is granted
@@ -335,18 +376,15 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             mSensorCardAdapter.onPause();
         }
         getMetadataController().removeExperimentChangeListener(TAG);
-        withRecorderController(new Consumer<RecorderController>() {
-            @Override
-            public void take(RecorderController rc) {
-                mRecorderPauseId = rc.pauseObservingAll();
-                if (mRecorderStateListenerId != RecorderController.NO_LISTENER_ID) {
-                    rc.removeRecordingStateListener(mRecorderStateListenerId);
-                    mRecorderStateListenerId = RecorderController.NO_LISTENER_ID;
-                }
-                if (mTriggerFiredListenerId != RecorderController.NO_LISTENER_ID) {
-                    rc.removeTriggerFiredListener(mTriggerFiredListenerId);
-                    mTriggerFiredListenerId = RecorderController.NO_LISTENER_ID;
-                }
+        whenRecorderController().subscribe(rc -> {
+            mRecorderPauseId = rc.pauseObservingAll();
+            if (mRecorderStateListenerId != RecorderController.NO_LISTENER_ID) {
+                rc.removeRecordingStateListener(mRecorderStateListenerId);
+                mRecorderStateListenerId = RecorderController.NO_LISTENER_ID;
+            }
+            if (mTriggerFiredListenerId != RecorderController.NO_LISTENER_ID) {
+                rc.removeTriggerFiredListener(mTriggerFiredListenerId);
+                mTriggerFiredListenerId = RecorderController.NO_LISTENER_ID;
             }
         });
         AppSingleton.getInstance(getActivity()).removeListeners(TAG);
@@ -388,110 +426,47 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void startUI() {
-        setControlButtonsEnabled(false);
+        mRecordingState.onNext(RecordingState.UNCONNECTED);
         mExternalAxis.onResumeLiveAxis();
 
-        withRecorderController(new Consumer<RecorderController>() {
-            @Override
-            public void take(final RecorderController rc) {
-                RecorderController.RecordingStateListener listener =
-                        new RecorderController.RecordingStateListener() {
-                            @Override
-                            public void onRecordingStateChanged(
-                                    RecordingMetadata currentRecording) {
-                                RecordingMetadata prevRecording = mCurrentRecording;
+        whenRecorderController().subscribe(rc -> {
+                    mRecorderStateListenerId = rc.addRecordingStateListener(
+                            createRecordingStateListener());
 
-                                mCurrentRecording = currentRecording;
-                                onRecordingMetadataUpdated();
-                                // If we have switched from a recording state to a not-recording
-                                // state, update the UI.
-                                if (prevRecording != null && !isRecording()) {
-                                    mExternalAxis.onStopRecording();
-                                    AddNoteDialog dialog = (AddNoteDialog) getChildFragmentManager()
-                                            .findFragmentByTag(AddNoteDialog.TAG);
-                                    if (dialog != null) {
-                                        dialog.dismiss();
-                                    }
-                                    if (!mRecordingWasCanceled) {
-                                        mUICallbacks.onRecordingSaved(prevRecording.getRunId(),
-                                                mSelectedExperiment);
-                                    }
+                    RecorderController.TriggerFiredListener tlistener =
+                            new RecorderController.TriggerFiredListener() {
+                                @Override
+                                public void onTriggerFired(SensorTrigger trigger) {
+                                    doVisualAlert(trigger);
                                 }
-                                mRecordingWasCanceled = false;
-                            }
 
-                            @Override
-                            public void onRecordingStartFailed(
-                                    @RecorderController.RecordingStartErrorType int errorType,
-                                    Exception e) {
-                                if (errorType == RecorderController.ERROR_START_FAILED) {
-                                    failedStartRecording(R.string.recording_start_failed);
-                                } else if (errorType ==
-                                           RecorderController.ERROR_START_FAILED_DISCONNECTED) {
-                                    failedStartRecording(
-                                            R.string.recording_start_failed_disconnected);
+                                @Override
+                                public void onRequestStartRecording() {
+                                    lockUiForRecording();
                                 }
-                                updateRecordingUIState();
-                            }
 
-                            @Override
-                            public void onRecordingStopFailed(
-                                    @RecorderController.RecordingStopErrorType int errorType) {
-                                if (errorType
-                                    == RecorderController.ERROR_STOP_FAILED_DISCONNECTED) {
-                                    failedStopRecording(
-                                            R.string.recording_stop_failed_disconnected);
-                                } else if (errorType
-                                           == RecorderController.ERROR_STOP_FAILED_NO_DATA) {
-                                    failedStopRecording(R.string.recording_stop_failed_no_data);
-                                } else if (errorType
-                                           == RecorderController.ERROR_FAILED_SAVE_RECORDING) {
-                                    AccessibilityUtils.makeSnackbar(getView(),
-                                            getActivity().getResources().getString(
-                                                    R.string.recording_stop_failed_save),
-                                            Snackbar.LENGTH_LONG).show();
+                                @Override
+                                public void onLabelAdded(Label label) {
+                                    processAddedLabel(label);
                                 }
-                                updateRecordingUIState();
-                            }
-                        };
-                mRecorderStateListenerId = rc.addRecordingStateListener(listener);
 
-                RecorderController.TriggerFiredListener tlistener =
-                        new RecorderController.TriggerFiredListener() {
-                            @Override
-                            public void onTriggerFired(SensorTrigger trigger) {
-                                doVisualAlert(trigger);
-                            }
+                                @Override
+                                public void onRequestStopRecording(RecorderController rc) {
+                                }
+                            };
+                    mTriggerFiredListenerId = rc.addTriggerFiredListener(tlistener);
 
-                            @Override
-                            public void onRequestStartRecording() {
-                                lockUiForRecording();
-                            }
-
-                            @Override
-                            public void onLabelAdded(Label label) {
-                                processAddedLabel(label);
-                            }
-
-                            @Override
-                            public void onRequestStopRecording(RecorderController rc) {
-                            }
-                        };
-                mTriggerFiredListenerId = rc.addTriggerFiredListener(tlistener);
-
-                if (!rc.resumeObservingAll(mRecorderPauseId)) {
-                    // Force a reload of the current experiment's ob
-                    mSelectedExperiment = null;
-                    if (mSelectedExperimentSubject.hasValue()) {
-                        mSelectedExperimentSubject.onComplete();
-                        mSelectedExperimentSubject = BehaviorSubject.create();
+                    if (!rc.resumeObservingAll(mRecorderPauseId)) {
+                        // Force a reload of the current experiment's ob
+                        mSelectedExperiment = null;
+                        if (mSelectedExperimentSubject.hasValue()) {
+                            mSelectedExperimentSubject.onComplete();
+                            mSelectedExperimentSubject = BehaviorSubject.create();
+                        }
                     }
-                }
 
-                getMetadataController().addExperimentChangeListener(TAG,
-                        new MetadataController.MetadataChangeListener() {
-                            @Override
-                            public void onMetadataChanged(Experiment selectedExperiment) {
+                    getMetadataController().addExperimentChangeListener(TAG,
+                            selectedExperiment -> {
                                 if (!readSensorsFromExtras(rc)) {
                                     // By spec, newExperiments should always be non-zero
                                     onSelectedExperimentChanged(selectedExperiment, rc);
@@ -501,32 +476,93 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                                 // The recording UI shows the current experiment in the toolbar,
                                 // so it cannot be set up until experiments are loaded.
                                 onRecordingMetadataUpdated();
-                            }
-                        });
-            }
-
-            public boolean readSensorsFromExtras(RecorderController rc) {
-                Bundle extras = getActivity().getIntent().getExtras();
-                if (extras == null) {
-                    return false;
+                            });
                 }
-                String sensorIds = extras.getString(EXTRA_SENSOR_IDS, "");
-                if (TextUtils.isEmpty(sensorIds)) {
-                    return false;
-                }
-
-                setSensorPresenters(CommandLineSpecs.buildLayouts(sensorIds, RecordFragment.this.getResources()), rc);
-                return true;
-            }
-        });
+        );
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_OBSERVE_RECORD);
+    }
+
+    public boolean readSensorsFromExtras(RecorderController rc) {
+        Bundle extras = getActivity().getIntent().getExtras();
+        if (extras == null) {
+            return false;
+        }
+        String sensorIds = extras.getString(EXTRA_SENSOR_IDS, "");
+        if (TextUtils.isEmpty(sensorIds)) {
+            return false;
+        }
+
+        setSensorPresenters(CommandLineSpecs.buildLayouts(sensorIds, RecordFragment.this.getResources()), rc);
+        return true;
+    }
+
+    @NonNull
+    private RecorderController.RecordingStateListener createRecordingStateListener() {
+        return new RecorderController.RecordingStateListener() {
+            @Override
+            public void onRecordingStateChanged(
+                    RecordingMetadata currentRecording) {
+                RecordingMetadata prevRecording = mCurrentRecording;
+
+                mCurrentRecording = currentRecording;
+                onRecordingMetadataUpdated();
+                // If we have switched from a recording state to a not-recording
+                // state, update the UI.
+                if (prevRecording != null && !isRecording()) {
+                    mExternalAxis.onStopRecording();
+                    AddNoteDialog dialog = (AddNoteDialog) getChildFragmentManager()
+                            .findFragmentByTag(AddNoteDialog.TAG);
+                    if (dialog != null) {
+                        dialog.dismiss();
+                    }
+                    if (!mRecordingWasCanceled) {
+                        mUICallbacks.onRecordingSaved(prevRecording.getRunId(),
+                                mSelectedExperiment);
+                    }
+                }
+                mRecordingWasCanceled = false;
+            }
+
+            @Override
+            public void onRecordingStartFailed(
+                    @RecorderController.RecordingStartErrorType int errorType,
+                    Exception e) {
+                if (errorType == RecorderController.ERROR_START_FAILED) {
+                    failedStartRecording(R.string.recording_start_failed);
+                } else if (errorType ==
+                           RecorderController.ERROR_START_FAILED_DISCONNECTED) {
+                    failedStartRecording(
+                            R.string.recording_start_failed_disconnected);
+                }
+                updateRecordingUIState();
+            }
+
+            @Override
+            public void onRecordingStopFailed(
+                    @RecorderController.RecordingStopErrorType int errorType) {
+                if (errorType
+                    == RecorderController.ERROR_STOP_FAILED_DISCONNECTED) {
+                    failedStopRecording(
+                            R.string.recording_stop_failed_disconnected);
+                } else if (errorType
+                           == RecorderController.ERROR_STOP_FAILED_NO_DATA) {
+                    failedStopRecording(R.string.recording_stop_failed_no_data);
+                } else if (errorType
+                           == RecorderController.ERROR_FAILED_SAVE_RECORDING) {
+                    AccessibilityUtils.makeSnackbar(getView(),
+                            getActivity().getResources().getString(
+                                    R.string.recording_stop_failed_save),
+                            Snackbar.LENGTH_LONG).show();
+                }
+                updateRecordingUIState();
+            }
+        };
     }
 
     @Override
     public void onDestroyView() {
         // TODO: extract presenter with lifespan identical to the views.
-        mRecordButton = null;
         if (mSensorCardAdapter != null) {
             mSensorCardAdapter.onDestroy();
             mSensorCardAdapter = null;
@@ -544,13 +580,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         }
         final List<GoosciSensorLayout.SensorLayout> layouts = saveCurrentExperiment();
         Preconditions.checkNotNull(saveCurrentExperiment());
+
         // Freeze layouts to be saved if recording finishes
-        withRecorderController(new Consumer<RecorderController>() {
-            @Override
-            public void take(RecorderController recorderController) {
-                recorderController.setLayoutSupplier(Suppliers.ofInstance(layouts));
-            }
-        });
+        whenRecorderController().subscribe(
+                rc -> rc.setLayoutSupplier(Suppliers.ofInstance(layouts)));
     }
 
     @Override
@@ -606,40 +639,26 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                     }
                 }, /* IsLive */ true, new CurrentTimeClock(), resetButton);
 
-        attachAddButton(rootView);
+        ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add);
+        if (getShowSnapshot()) {
+            // If we're showing the snapshot, we're in the panes ui, and should not have an add
+            // note button
+            addButton.setVisibility(View.GONE);
+        } else {
+            addButton.setVisibility(View.VISIBLE);
+            attachAddButton(addButton).subscribe(o -> {
+                // Save the timestamp for the note, but show the user a UI to create it:
+                // Can't create the note yet as we don't know ahead of time if this is a picture
+                // or text note.
+                launchLabelAdd(getNow());
+            });
+        }
 
-        mRecordButton = (ImageButton) rootView.findViewById(R.id.btn_record);
-
-        // Hide the record button until we have a RecorderController instance it can use.
-        mRecordButton.setVisibility(View.INVISIBLE);
-        withRecorderController(new Consumer<RecorderController>() {
-            @Override
-            public void take(final RecorderController rc) {
-                mRecordButton.setVisibility(View.VISIBLE);
-                mRecordButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Disable the record button to stop double-clicks.
-                        mRecordButton.setEnabled(false);
-                        if (isRecording()) {
-                            tryStopRecording(rc);
-                        } else {
-                            lockUiForRecording();
-                            tryStartRecording(rc);
-                        }
-                    }
-                });
-            }
-        });
+        ImageButton recordButton = (ImageButton) rootView.findViewById(R.id.btn_record);
+        attachRecordButton(recordButton);
 
         View snapshotButton = rootView.findViewById(R.id.snapshot_button);
-        snapshotButton.setVisibility(getShowSnapshot() ? View.VISIBLE : View.GONE);
-        snapshotButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                takeSnapshot();
-            }
-        });
+        attachSnapshotButton(snapshotButton);
 
         mBottomPanel = rootView.findViewById(R.id.bottom_panel);
 
@@ -654,20 +673,52 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         return rootView;
     }
 
-    private void attachAddButton(ViewGroup rootView) {
-        ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add);
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Save the timestamp for the note, but show the user a UI to create it:
-                // Can't create the note yet as we don't know ahead of time if this is a picture
-                // or text note.
-                launchLabelAdd(getNow());
-            }
+    private void attachSnapshotButton(View snapshotButton) {
+        snapshotButton.setVisibility(getShowSnapshot() ? View.VISIBLE : View.GONE);
+        snapshotButton.setOnClickListener(v -> takeSnapshot());
+    }
+
+    private void attachRecordButton(ImageButton recordButton) {
+        // Hide the record button until we have a RecorderController instance it can use.
+        recordButton.setVisibility(View.INVISIBLE);
+        whenRecorderController().subscribe(rc -> {
+            recordButton.setVisibility(View.VISIBLE);
+            recordButton.setOnClickListener(v -> {
+                if (isRecording()) {
+                    // Disable the record button to stop double-clicks.
+                    mRecordingState.onNext(RecordingState.STOPPING);
+                    tryStopRecording(rc);
+                } else {
+                    // Disable the record button to stop double-clicks.
+                    mRecordingState.onNext(RecordingState.STARTING);
+                    lockUiForRecording();
+                    tryStartRecording(rc);
+                }
+            });
         });
 
-        mRecordingState.subscribe(isRecording -> {
-            if (isRecording) {
+        mRecordingState.subscribe(state -> {
+            recordButton.setEnabled(state.shouldEnableRecordButton());
+
+            if (state.shouldShowStopButton()) {
+                recordButton.setContentDescription(getResources().getString(
+                        R.string.btn_stop_description));
+                recordButton.setImageDrawable(getResources().getDrawable(
+                        R.drawable.ic_recording_stop_36dp));
+            } else {
+                recordButton.setContentDescription(getResources().getString(
+                        R.string.btn_record_description));
+                recordButton.setImageDrawable(getResources().getDrawable(
+                        R.drawable.ic_recording_red_40dp));
+            }
+        });
+    }
+
+    private Observable<Object> attachAddButton(ImageButton addButton) {
+        mRecordingState.subscribe(state -> {
+            addButton.setEnabled(state.shouldEnableRecordButton());
+
+            if (state.shouldShowStopButton()) {
                 addButton.setContentDescription(
                         getResources().getString(R.string.btn_add_run_note_description));
             } else {
@@ -676,9 +727,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             }
         });
 
-        mControlButtonsEnabled.subscribe(enabled -> {
-            addButton.setEnabled(enabled);
-        });
+        return RxView.clicks(addButton);
     }
 
     private boolean getShowSnapshot() {
@@ -716,7 +765,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         mSelectedExperimentSubject.onNext(selectedExperiment);
         loadIncludedSensors(mSelectedExperiment.getSensorLayouts(), rc);
         rc.setSelectedExperiment(mSelectedExperiment);
-        setControlButtonsEnabled(true);
+
+        enterStableRecordingState();
     }
 
     private void updateSensorLayout(GoosciSensorLayout.SensorLayout sensorLayout) {
@@ -1283,11 +1333,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void updateRecordingUIState() {
-        mRecordingState.onNext(isRecording());
-
-        if (mRecordButton != null) {
-            mRecordButton.setEnabled(true);
-        }
+        enterStableRecordingState();
 
         if (mSelectedExperiment == null) {
             return;
@@ -1295,25 +1341,16 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
         if (isRecording()) {
             lockUiForRecording();
-            mRecordButton.setContentDescription(getResources().getString(
-                    R.string.btn_stop_description));
-            mRecordButton.setImageDrawable(getResources().getDrawable(
-                    R.drawable.ic_recording_stop_36dp));
         } else {
             mUICallbacks.onRecordingStopped();
-            mRecordButton.setContentDescription(getResources().getString(
-                    R.string.btn_record_description));
-            mRecordButton.setImageDrawable(getResources().getDrawable(
-                    R.drawable.ic_recording_red_40dp));
             if (mSensorCardAdapter != null) {
                 mSensorCardAdapter.setUiLockedForRecording(false);
             }
         }
     }
 
-    private void setControlButtonsEnabled(boolean enabled) {
-        mControlButtonsEnabled.onNext(enabled);
-        mRecordButton.setEnabled(enabled);
+    private void enterStableRecordingState() {
+        mRecordingState.onNext(isRecording() ? RecordingState.ACTIVE : RecordingState.INACTIVE);
     }
 
     private void refreshLabels() {
@@ -1337,10 +1374,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private void takeSnapshot() {
         // Load recorder controller
-        getRecorderController()
+        whenRecorderController()
 
                 // Then add new snapshot label
-                .flatMapSingle(rc -> addSnapshotLabelToExperiment(rc))
+                .flatMap(rc -> addSnapshotLabelToExperiment(rc))
 
                 // Then process the added label, or complain.
                 .subscribe(label -> {
@@ -1424,19 +1461,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     @Override
     public void requestCancelRecording() {
         mRecordingWasCanceled = true;
-        withRecorderController(new Consumer<RecorderController>() {
-            @Override
-            public void take(RecorderController rc) {
-                rc.stopRecordingWithoutSaving();
-            }
-        });
+        whenRecorderController().subscribe(rc -> rc.stopRecordingWithoutSaving());
     }
 
     @Override
     public void continueRecording() {
-        if (mRecordButton != null) {
-            mRecordButton.setEnabled(true);
-        }
+        enterStableRecordingState();
     }
 
     private DataController getDataController() {
@@ -1492,12 +1522,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 new LoggingConsumer<Success>(TAG, "disable sensor triggers") {
                     @Override
                     public void success(Success value) {
-                        withRecorderController(new Consumer<RecorderController>() {
-                            @Override
-                            public void take(RecorderController recorderController) {
-                                recorderController.clearSensorTriggers(layout.sensorId);
-                                presenter.onSensorTriggersCleared();
-                            }
+                        whenRecorderController().subscribe(rc -> {
+                            rc.clearSensorTriggers(layout.sensorId);
+                            presenter.onSensorTriggersCleared();
                         });
                     }
                 });
@@ -1716,20 +1743,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         return RecordingMetadata.getStartTime(mCurrentRecording);
     }
 
-    private Maybe<RecorderController> getRecorderController() {
-        final MaybeSubject s = MaybeSubject.create();
-        withRecorderController(new Consumer<RecorderController>() {
-            @Override
-            public void take(RecorderController recorderController) {
-                s.onSuccess(recorderController);
-            }
-        });
-        return s;
-    }
-
-    private void withRecorderController(Consumer<RecorderController> c) {
-        // TODO: use getRecorderController everywhere?
-        AppSingleton.getInstance(getActivity()).withRecorderController(TAG, c);
+    private Single<RecorderController> whenRecorderController() {
+        return AppSingleton.getInstance(getActivity()).whenRecorderController();
     }
 
     /**
