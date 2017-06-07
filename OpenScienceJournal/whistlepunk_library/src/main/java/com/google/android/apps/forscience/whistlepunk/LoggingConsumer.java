@@ -52,7 +52,7 @@ public abstract class LoggingConsumer<T> implements MaybeConsumer<T> {
 
     }
 
-    private static void complain(Throwable e, String tag, String operation) {
+    public static void complain(Throwable e, String tag, String operation) {
         // TODO: allow non-ERROR log levels
         if (Log.isLoggable(tag, Log.ERROR)) {
             Log.e(tag, "Failed: " + operation, e);
