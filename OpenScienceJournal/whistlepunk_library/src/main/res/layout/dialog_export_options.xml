@@ -29,6 +29,14 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/accessibility_touch_target_min_size"
         android:text="@string/export_options_relative_time"/>
+    <ProgressBar
+        android:id="@+id/progress"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="false"
+        android:visibility="invisible"
+        />
     <LinearLayout
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"

@@ -275,7 +275,7 @@ public class ExportService extends Service {
         Range<Long> range = Range.closed(trial.getFirstTimestamp(), trial.getLastTimestamp());
         dc.createScalarObservable(sensorIds, TimeRange.oldest(range), 0 /* resolution tier */)
                 .doOnComplete(() -> stopSelf(startId))
-                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
                 .subscribe(new TrialDataWriter(trialId, fileName, relativeTime, sensorIds,
                         trial.getFirstTimestamp(), trial.getLastTimestamp()));
     }
@@ -393,26 +393,8 @@ public class ExportService extends Service {
             // Check if we have a different timestamp than the current row.
             if (scalarReading.getCollectedTimeMillis() != mCurrentTimestamp) {
                 if (mCurrentRow != null && mCurrentTimestamp != -1) {
-                    // If so, if current row, then write it out (the old one)!
-                    try {
-                        if (mOutputStreamWriter == null) {
-                            onError(new IllegalStateException("Output stream closed."));
-                        }
-                        mOutputStreamWriter.write(getTimestampString(mCurrentTimestamp));
-                        for (int index = 0, length = mSensorIds.length; index < length; ++index) {
-                            String value = "";
-                            if (mCurrentRow.containsKey(mSensorIds[index])) {
-                                value = Double.toString(mCurrentRow.get(mSensorIds[index]));
-                            }
-                            mOutputStreamWriter.write(",");
-                            mOutputStreamWriter.write(value);
-                        }
-                        mOutputStreamWriter.write("\n");
-                    } catch (IOException e) {
-                        onError(e);
-                    }
+                    writeRow();
                 }
-
                 mCurrentRow.clear();
             }
             // If not, just add to current row.
@@ -435,9 +417,35 @@ public class ExportService extends Service {
 
         @Override
         public void onComplete() {
+            // Write the last row if necessary.
+            if (!mCurrentRow.isEmpty()) {
+                writeRow();
+            }
+
             // End writing stream.
             closeStreamIfNecessary();
             updateProgress(ExportProgress.getComplete(mTrialId, getFileUri(mFileName)));
+        }
+
+        private void writeRow() {
+            // If so, if current row, then write it out (the old one)!
+            try {
+                if (mOutputStreamWriter == null) {
+                    onError(new IllegalStateException("Output stream closed."));
+                }
+                mOutputStreamWriter.write(getTimestampString(mCurrentTimestamp));
+                for (int index = 0, length = mSensorIds.length; index < length; ++index) {
+                    String value = "";
+                    if (mCurrentRow.containsKey(mSensorIds[index])) {
+                        value = Double.toString(mCurrentRow.get(mSensorIds[index]));
+                    }
+                    mOutputStreamWriter.write(",");
+                    mOutputStreamWriter.write(value);
+                }
+                mOutputStreamWriter.write("\n");
+            } catch (IOException e) {
+                onError(e);
+            }
         }
 
         private String getTimestampString(long time) {

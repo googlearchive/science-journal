@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ProgressBar;
 
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
@@ -54,6 +55,7 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
     private String mTrialId;
     private CheckBox mRelativeTime;
     private List<String> mSensorIds;
+    private ProgressBar mProgressBar;
     private Disposable mUntilStop;
 
     // TODO: remove this interface and related methods in RunReview.
@@ -86,8 +88,10 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
     }
 
     private void updateProgress(ExportProgress progress) {
+        mProgressBar.setVisibility(progress.getState() ==
+                ExportProgress.EXPORTING ? View.VISIBLE : View.INVISIBLE);
         if (progress.getState() == ExportProgress.EXPORTING) {
-            // TODO: Show progress UI, update progress.
+            mProgressBar.setProgress(progress.getProgress());
         } else if (progress.getState() == ExportProgress.EXPORT_COMPLETE) {
             // Finish dialog and send the filename.
             if (getActivity() != null) {
@@ -128,6 +132,8 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_export_options, container, false);
         mRelativeTime = (CheckBox) view.findViewById(R.id.export_relative_time);
+        mProgressBar = (ProgressBar) view.findViewById(R.id.progress);
+        mProgressBar.setMax(100);
         view.findViewById(R.id.action_cancel).setOnClickListener(v -> {
             dismiss();
         });
