@@ -232,7 +232,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
                                 mLastTimeStampWritten = timeStamp;
                                 count++;
                             }
-                            if (count == 0) {
+                            if (count == 0 || observableEmitter.isDisposed()) {
                                 break;
                             }
                         }
@@ -247,6 +247,9 @@ public class SensorDatabaseImpl implements SensorDatabase {
                         Range<Long> times = Range.openClosed(mLastTimeStampWritten,
                                 range.getTimes().upperEndpoint());
                         searchRange = TimeRange.oldest(times);
+                    }
+                    if (observableEmitter.isDisposed()) {
+                        break;
                     }
                 }
                 observableEmitter.onComplete();
