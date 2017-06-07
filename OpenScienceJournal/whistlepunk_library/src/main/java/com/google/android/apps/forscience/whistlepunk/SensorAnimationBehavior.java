@@ -36,7 +36,7 @@ public class SensorAnimationBehavior {
 
     // The different types of behavior for the sensor animation.
     @IntDef({TYPE_STATIC_ICON, TYPE_ACCELEROMETER_SCALE, TYPE_RELATIVE_SCALE,
-            TYPE_POSITIVE_RELATIVE_SCALE, TYPE_ROTATION})
+            TYPE_POSITIVE_RELATIVE_SCALE, TYPE_ROTATION, TYPE_ACCELEROMETER_SCALE_ROTATES})
     @Retention(RetentionPolicy.SOURCE)
     public @interface BehaviorType {}
 
@@ -45,6 +45,7 @@ public class SensorAnimationBehavior {
     public static final int TYPE_RELATIVE_SCALE = 3;
     public static final int TYPE_POSITIVE_RELATIVE_SCALE = 4;
     public static final int TYPE_ROTATION = 5;
+    public static final int TYPE_ACCELEROMETER_SCALE_ROTATES = 6;
 
     private final int mBehaviorType;
     private int mLevelDrawableId;
@@ -67,23 +68,16 @@ public class SensorAnimationBehavior {
         if (mBehaviorType == TYPE_ROTATION) {
             int screenOrientation = ((WindowManager) view.getContext().getSystemService(
                     Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
-            double delta = 0;
-            // Use screen orientation to make sure we point the icon the right way even if the
-            // screen is rotated.
-            // The data itself is not changed when the screen is rotated: We always report angle
-            // along the long axis of the phone. However, if we do not rotate the image here, it
-            // will appear off by 90/180/270 deg.
-            if (screenOrientation == Surface.ROTATION_90) {
-                delta = 90;
-            } else if (screenOrientation == Surface.ROTATION_180) {
-                delta = 180;
-            } else if (screenOrientation == Surface.ROTATION_270) {
-                delta = 270;
-            }
+            float delta = getScreenRotationDelta(view.getContext());
             view.setRotation((float) (-1.0 * (newValue + delta)));
             view.setImageLevel(0);
         } else {
-            view.setRotation(0.0f);
+            if (mBehaviorType == TYPE_ACCELEROMETER_SCALE_ROTATES) {
+                float delta = getScreenRotationDelta(view.getContext());
+                view.setRotation(-1 * delta);
+            } else {
+                view.setRotation(0.0f);
+            }
             view.setImageLevel(getUpdatedLevel(newValue, yMin, yMax));
         }
     }
@@ -97,7 +91,8 @@ public class SensorAnimationBehavior {
         int index;
         if (mBehaviorType == TYPE_STATIC_ICON) {
             index = 0;
-        } else if (mBehaviorType == TYPE_ACCELEROMETER_SCALE) {
+        } else if (mBehaviorType == TYPE_ACCELEROMETER_SCALE ||
+                mBehaviorType == TYPE_ACCELEROMETER_SCALE_ROTATES) {
             if (newValue > 3.0) {
                 index = 4;
             } else if (newValue > 0.5) {
@@ -129,6 +124,25 @@ public class SensorAnimationBehavior {
             }
         }
         return index;
+    }
+
+    private float getScreenRotationDelta(Context context) {
+        int screenOrientation = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay().getRotation();
+        float delta = 0;
+        // Use screen orientation to make sure we point the icon the right way even if the
+        // screen is rotated.
+        // The data itself is not changed when the screen is rotated: We always report angle
+        // along the long axis of the phone. However, if we do not rotate the image here, it
+        // will appear off by 90/180/270 deg.
+        if (screenOrientation == Surface.ROTATION_90) {
+            delta = 90;
+        } else if (screenOrientation == Surface.ROTATION_180) {
+            delta = 180;
+        } else if (screenOrientation == Surface.ROTATION_270) {
+            delta = 270;
+        }
+        return delta;
     }
 
     public Drawable getLevelDrawable(Context context) {

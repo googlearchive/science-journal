@@ -67,7 +67,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 R.string.sensor_desc_short_acc_x, R.string.sensor_desc_first_paragraph_acc,
                 R.string.sensor_desc_second_paragraph_acc, R.drawable.learnmore_acc,
                 new SensorAnimationBehavior(R.drawable.accx_level_drawable,
-                        SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE),
+                        SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE_ROTATES),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
         putAppearance(AccelerometerSensor.Axis.Y.getSensorId(), BuiltInSensorAppearance.create(
@@ -75,7 +75,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 R.string.sensor_desc_short_acc_y, R.string.sensor_desc_first_paragraph_acc,
                 R.string.sensor_desc_second_paragraph_acc, R.drawable.learnmore_acc,
                 new SensorAnimationBehavior(R.drawable.accy_level_drawable,
-                        SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE),
+                        SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE_ROTATES),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
         putAppearance(AccelerometerSensor.Axis.Z.getSensorId(), BuiltInSensorAppearance.create(
