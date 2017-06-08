@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
 
@@ -56,6 +57,7 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
     private CheckBox mRelativeTime;
     private List<String> mSensorIds;
     private ProgressBar mProgressBar;
+    private Button mExportButton;
     private Disposable mUntilStop;
 
     public static ExportOptionsDialogFragment createOptionsDialog(String experimentId,
@@ -72,19 +74,24 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
     public void onStart() {
         super.onStart();
         mTrialId = getArguments().getString(KEY_TRIAL_ID);
-        ExportService.bind(getActivity())
-                .subscribe(subscriber -> mUntilStop = subscriber
-                        // Only look at events for this trial or the default value
-                        .filter(progress -> Objects.equals(progress.getTrialId(), mTrialId)
-                                || progress.getTrialId().equals(""))
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(this::updateProgress));
-
+        mUntilStop = ExportService.bind(getActivity())
+                // Only look at events for this trial or the default value
+                .filter(progress -> Objects.equals(progress.getTrialId(), mTrialId)
+                        || progress.getTrialId().equals(""))
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(progress -> {
+                    if (progress.getState() == ExportProgress.EXPORT_COMPLETE) {
+                        // Reset the progress only after the UI has consumed this.
+                        ExportService.resetProgress(mTrialId);
+                    }
+                })
+                .subscribe(this::updateProgress);
     }
 
     private void updateProgress(ExportProgress progress) {
-        mProgressBar.setVisibility(progress.getState() ==
-                ExportProgress.EXPORTING ? View.VISIBLE : View.INVISIBLE);
+        mProgressBar.setVisibility(progress.getState() == ExportProgress.EXPORTING ?
+                View.VISIBLE : View.INVISIBLE);
+        mExportButton.setEnabled(progress.getState() != ExportProgress.EXPORTING);
         if (progress.getState() == ExportProgress.EXPORTING) {
             mProgressBar.setProgress(progress.getProgress());
         } else if (progress.getState() == ExportProgress.EXPORT_COMPLETE) {
@@ -130,6 +137,8 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
         mProgressBar = (ProgressBar) view.findViewById(R.id.progress);
         mProgressBar.setMax(100);
         view.findViewById(R.id.action_cancel).setOnClickListener(v -> {
+            // TODO: could cancel the export action here: requires saving references in
+            // ExportService.
             dismiss();
         });
         final String experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
@@ -141,7 +150,8 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
                     mSensorIds = trial.getSensorIds();
                     // TODO: fill in UI with these sensors.
                 });
-        view.findViewById(R.id.action_export).setOnClickListener(v -> {
+        mExportButton = (Button) view.findViewById(R.id.action_export);
+        mExportButton.setOnClickListener(v -> {
             ExportService.exportTrial(getActivity(), experimentId, trialId,
                     mRelativeTime.isChecked(), mSensorIds.toArray(new String[]{}));
         });
