@@ -15,45 +15,52 @@
   limitations under the License.
  -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/cardview_content_margin"
+        android:layout_height="204dp"
         android:id="@+id/content"
         >
 
         <ImageView
             android:id="@+id/experiment_image"
             android:layout_centerVertical="true"
-            android:layout_width="@dimen/experiment_overview_image_size"
-            android:layout_height="@dimen/experiment_overview_image_size"
-            android:layout_alignParentStart="true"
-            android:layout_marginEnd="@dimen/cardview_content_margin"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:scaleType="centerCrop"
+            android:layout_alignParentTop="true"
             android:contentDescription="@null"
+            android:background="@color/color_primary"
+            android:layout_above="@+id/experiment_title"
             />
 
         <TextView
-            android:id="@+id/experiment_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/experiment_image"
-            android:layout_alignParentEnd="true"
-            android:singleLine="true"
+            android:id="@id/experiment_title"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:padding="12dp"
+            android:ellipsize="end"
+            android:layout_alignParentBottom="true"
+            android:layout_toStartOf="@+id/menu_button"
             android:textStyle="bold"
             android:textColor="@color/text_color_dark_grey"
             style="@style/TextAppearance.AppCompat.Medium"
             />
 
-        <com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView
-            android:id="@+id/experiment_last_run"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:layout_width="@dimen/accessibility_touch_target_min_size"
+            android:layout_height="@dimen/accessibility_touch_target_min_size"
+            android:id="@id/menu_button"
+            android:src="@drawable/ic_menu_moreoverflow_mtrl_alpha"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="center"
+            android:tint="@color/text_color_dark_grey"
+            android:contentDescription="@string/menu_btn_content_description"
             android:layout_alignParentEnd="true"
-            android:layout_toEndOf="@id/experiment_image"
-            android:layout_below="@id/experiment_title"
-            android:singleLine="true"
-            style="@style/TextAppearance.AppCompat.Small"
+            android:layout_alignTop="@id/experiment_title"
             />
 
         <include layout="@layout/archived_badge"
@@ -62,17 +69,6 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="@dimen/cardview_content_margin"
-            />
-
-        <TextView
-            android:id="@+id/experiment_total_runs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/experiment_image"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@id/experiment_last_run"
-            android:singleLine="true"
-            style="@style/TextAppearance.AppCompat.Small"
             />
 
     </RelativeLayout>

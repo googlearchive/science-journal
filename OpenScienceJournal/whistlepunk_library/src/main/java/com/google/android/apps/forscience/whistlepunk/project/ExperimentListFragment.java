@@ -19,14 +19,12 @@ package com.google.android.apps.forscience.whistlepunk.project;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -35,18 +33,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
+import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -121,26 +120,25 @@ public class ExperimentListFragment extends Fragment {
 
         mExperimentListAdapter = new ExperimentListAdapter(getActivity(), getDataController(),
                 shouldUsePanes());
-        detailList.setLayoutManager(new LinearLayoutManager(getActivity(),
-                LinearLayoutManager.VERTICAL, false));
+        // TODO: Instead of hard-coding a GridLayout to 2, we need to be flexible to show only one
+        // row when in an empty state and to show items that span the whole width as the date
+        // headers. May need a different type of LayoutManager or way to sort the items in the
+        // adapter to manage this.
+        // Plus we probably will have a different column count for different layout widths.
+        int column_count = 2;
+        detailList.setLayoutManager(new GridLayoutManager(getActivity(), column_count));
         detailList.setAdapter(mExperimentListAdapter);
 
         FloatingActionButton newExperimentButton = (FloatingActionButton) view.findViewById(
                 R.id.new_experiment);
-        newExperimentButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                getDataController().createExperiment(
-                        new LoggingConsumer<Experiment>(TAG, "Create a new experiment") {
-                            @Override
-                            public void success(final Experiment experiment) {
-                                UpdateExperimentActivity.launch(getActivity(),
-                                        experiment.getExperimentId(), true /* is new */);
-                            }
-                        });
-            }
-        });
+        newExperimentButton.setOnClickListener(v -> getDataController().createExperiment(
+                new LoggingConsumer<Experiment>(TAG, "Create a new experiment") {
+                    @Override
+                    public void success(final Experiment experiment) {
+                        UpdateExperimentActivity.launch(getActivity(),
+                                experiment.getExperimentId(), true /* is new */);
+                    }
+                }));
 
         return view;
     }
@@ -165,7 +163,7 @@ public class ExperimentListFragment extends Fragment {
         if (rootView == null) {
             return;
         }
-        mExperimentListAdapter.setData(experiments);
+        mExperimentListAdapter.setData(experiments, mIncludeArchived);
     }
 
     private DataController getDataController() {
@@ -209,16 +207,19 @@ public class ExperimentListFragment extends Fragment {
 
         private List<GoosciUserMetadata.ExperimentOverview> mExperiments;
         private boolean mShouldUsePanes;
+        private boolean mIncludeArchived;
 
         public ExperimentListAdapter(Context context, DataController dc, boolean shouldUsePanes) {
             mExperiments = new ArrayList<>();
             mPlaceHolderImage = context.getResources().getDrawable(
-                    R.drawable.placeholder_experiment);
+                    R.drawable.experiment_card_placeholder);
             mDataController = dc;
             mShouldUsePanes = shouldUsePanes;
         }
 
-        void setData(List<GoosciUserMetadata.ExperimentOverview> experiments) {
+        void setData(List<GoosciUserMetadata.ExperimentOverview> experiments,
+                boolean includeArchived) {
+            mIncludeArchived = includeArchived;
             mExperiments.clear();
             mExperiments.addAll(experiments);
             notifyDataSetChanged();
@@ -261,17 +262,12 @@ public class ExperimentListFragment extends Fragment {
                 final GoosciUserMetadata.ExperimentOverview experiment) {
             Resources res = holder.itemView.getResources();
             // First on the UI thread, set what experiment we're trying to load.
-            holder.overviewLoadStatus = ViewHolder.LOAD_STATUS_IN_PROGRESS;
             holder.experimentId = experiment.experimentId;
 
             // Set the data we know about.
             String experimentText = Experiment.getDisplayTitle(holder.itemView.getContext(),
                     experiment.title);
             holder.experimentTitle.setText(experimentText);
-            holder.experimentImage.setImageDrawable(mPlaceHolderImage);
-            // Set indeterminate states on the things we don't know.
-            holder.experimentLastRun.setText("");
-            holder.experimentRunTotals.setText("");
             holder.archivedIndicator.setVisibility(experiment.isArchived ?
                     View.VISIBLE : View.GONE);
 
@@ -291,26 +287,94 @@ public class ExperimentListFragment extends Fragment {
 
             holder.itemView.setTag(R.id.experiment_title, experiment.experimentId);
 
-            holder.cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mShouldUsePanes) {
-                        PanesActivity.launch(v.getContext(), experiment.experimentId);
-                    } else {
-                        ExperimentDetailsActivity.launch(v.getContext(), experiment.experimentId);
-                    }
+            holder.cardView.setOnClickListener(v -> {
+                if (mShouldUsePanes) {
+                    PanesActivity.launch(v.getContext(), experiment.experimentId);
+                } else {
+                    ExperimentDetailsActivity.launch(v.getContext(), experiment.experimentId);
                 }
             });
 
-            // Start loading data for runs.
-            boolean includeInvalidRuns = false;
-            holder.overviewLoadStatus = ViewHolder.LOAD_STATUS_IDLE;
-            loadRunData(holder, experiment);
+            holder.menuButton.setOnClickListener(v -> {
+                Context context = holder.menuButton.getContext();
+                PopupMenu popup = new PopupMenu(context, holder.menuButton);
+                popup.getMenuInflater().inflate(R.menu.menu_experiment_overview, popup.getMenu());
+                popup.getMenu().findItem(R.id.menu_item_archive).setVisible(
+                        !experiment.isArchived);
+                popup.getMenu().findItem(R.id.menu_item_unarchive).setVisible(
+                        experiment.isArchived);
+                popup.getMenu().findItem(R.id.menu_item_delete).setEnabled(experiment.isArchived);
+                popup.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.menu_item_archive) {
+                        experiment.isArchived = true;
+                        RxDataController.getExperimentById(mDataController, experiment.experimentId)
+                                .subscribe(fullExperiment -> {
+                                    fullExperiment.setArchived(true);
+                                    mDataController.updateExperiment(experiment.experimentId,
+                                            new LoggingConsumer<Success>(TAG, "set archived bit") {
+                                                @Override
+                                                public void success(Success value) {
+                                                    if (mIncludeArchived) {
+                                                        notifyItemChanged(
+                                                                mExperiments.indexOf(experiment));
+                                                    } else {
+                                                        // Remove archived experiment immediately.
+                                                        int i = mExperiments.indexOf(experiment);
+                                                        mExperiments.remove(experiment);
+                                                        notifyItemRemoved(i);
+                                                    }
+                                                }
+                                            });
+                                });
+                        return true;
+                    } else if (item.getItemId() == R.id.menu_item_unarchive) {
+                        experiment.isArchived = false;
+                        RxDataController.getExperimentById(mDataController, experiment.experimentId)
+                                .subscribe(fullExperiment -> {
+                                    fullExperiment.setArchived(false);
+                                    mDataController.updateExperiment(experiment.experimentId,
+                                            new LoggingConsumer<Success>(TAG, "set archived bit") {
+                                                @Override
+                                                public void success(Success value) {
+                                                    notifyItemChanged(
+                                                            mExperiments.indexOf(experiment));
+                                                }
+                                            });
+                                });
+                        return true;
+                    } else if (item.getItemId() == R.id.menu_item_delete) {
+                        // TODO: Show a confirmation dialog before deleting.
+                        RxDataController.getExperimentById(mDataController, experiment.experimentId)
+                                .subscribe(fullExperiment -> {
+                                    mDataController.deleteExperiment(fullExperiment,
+                                            new LoggingConsumer<Success>(TAG, "delete experiment") {
+                                                @Override
+                                                public void success(Success value) {
+                                                    int i = mExperiments.indexOf(experiment);
+                                                    mExperiments.remove(experiment);
+                                                    notifyItemRemoved(i);
+                                                }
+                                            });
+                                });
+                        return true;
+                    }
+                    return false;
+                });
+                popup.show();
+            });
+
+            if (!TextUtils.isEmpty(experiment.imagePath)) {
+                loadPhoto(holder, experiment.imagePath);
+            } else {
+                // Make sure the scale type is correct for the placeholder
+                holder.experimentImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                holder.experimentImage.setImageDrawable(mPlaceHolderImage);
+            }
         }
 
         private void setCardColor(ViewHolder holder, int color) {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                holder.cardView.setBackgroundColor(color);
+                //holder.cardView.setBackgroundColor(color);
             } else {
                 // Setting the color of the CardView in KitKat has a side-effect of making the
                 // drop shadow disappear around the card. Instead, we set the background color
@@ -319,43 +383,12 @@ public class ExperimentListFragment extends Fragment {
             }
         }
 
-        private void loadRunData(final ViewHolder holder,
-                final GoosciUserMetadata.ExperimentOverview experiment) {
-            Context context = holder.itemView.getContext();
-            holder.experimentRunTotals.setText(context.getResources()
-                    .getQuantityString(R.plurals.experiment_run_count, experiment.trialCount,
-                            experiment.trialCount));
-
-            // TODO: This is no longer relevant in D. Remove this field.
-            holder.experimentLastRun.setText("");
-
-            if (!TextUtils.isEmpty(experiment.imagePath)) {
-                // TODO: imagePath is always empty. Fix this as part of the file-system migration.
-                // Photo should be the most recent run photo or label photo? Or the first one
-                // ever added to this experiment? Discuss with UX.
-                loadPhoto(holder, experiment.experimentId, experiment.imagePath);
-            }
-        }
-
-        private void loadPhoto(final ViewHolder holder, String experimentId,
-                String experimentOverviewFilePath) {
+        private void loadPhoto(final ViewHolder holder, String experimentOverviewFilePath) {
+            holder.experimentImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
             Glide.with(holder.experimentImage.getContext())
                     .load(PictureUtils.getExperimentOverviewFullImagePath(
                             holder.experimentImage.getContext(),
-                            experimentOverviewFilePath))
-                    .asBitmap()
-                    .centerCrop()
-                    .into(new BitmapImageViewTarget(holder.experimentImage) {
-                        @Override
-                        protected void setResource(Bitmap resource) {
-                            RoundedBitmapDrawable experimentDrawable =
-                                    RoundedBitmapDrawableFactory.create(
-                                            holder.itemView.getContext().getResources(),
-                                            resource);
-                            experimentDrawable.setCircular(true);
-                            holder.experimentImage.setImageDrawable(experimentDrawable);
-                        }
-                    });
+                            experimentOverviewFilePath)).into(holder.experimentImage);
         }
 
         public boolean hasEmptyView() {
@@ -365,9 +398,6 @@ public class ExperimentListFragment extends Fragment {
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        static final int LOAD_STATUS_IN_PROGRESS = 1;
-        static final int LOAD_STATUS_IDLE = 2;
-
         // Accessing via fields for faster access.
 
         /**
@@ -375,17 +405,11 @@ public class ExperimentListFragment extends Fragment {
          */
         String experimentId;
 
-        /**
-         * Load status for the experiment overview.
-         */
-        int overviewLoadStatus;
-
         TextView experimentTitle;
-        RelativeTimeTextView experimentLastRun;
-        TextView experimentRunTotals;
         ImageView experimentImage;
         View archivedIndicator;
         View cardView;
+        ImageButton menuButton;
 
         int viewType;
 
@@ -396,10 +420,8 @@ public class ExperimentListFragment extends Fragment {
                 cardView = itemView.findViewById(R.id.card_view);
                 experimentImage = (ImageView) itemView.findViewById(R.id.experiment_image);
                 experimentTitle = (TextView) itemView.findViewById(R.id.experiment_title);
-                experimentLastRun = (RelativeTimeTextView) itemView.findViewById(
-                        R.id.experiment_last_run);
-                experimentRunTotals = (TextView) itemView.findViewById(R.id.experiment_total_runs);
-                archivedIndicator = (View) itemView.findViewById(R.id.archived_indicator);
+                archivedIndicator = itemView.findViewById(R.id.archived_indicator);
+                menuButton = (ImageButton) itemView.findViewById(R.id.menu_button);
             }
         }
     }

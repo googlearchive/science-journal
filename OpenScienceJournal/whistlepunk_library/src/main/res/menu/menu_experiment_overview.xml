@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2016 Google Inc. All Rights Reserved.
+  Copyright 2017 Google Inc. All Rights Reserved.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,12 +14,25 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/placeholder_experiment_background"
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <item
+        android:title="@string/action_archive_experiment"
+        android:id="@+id/menu_item_archive"
+        android:visible="true"
         />
-    <item>
-        <bitmap android:src="@drawable/ic_experiment_white_24dp"
-                android:gravity="center"
-            />
-    </item>
-</layer-list>
+
+    <item
+        android:title="@string/action_unarchive_experiment"
+        android:id="@+id/menu_item_unarchive"
+        android:visible="false"
+        />
+
+    <item
+        android:title="@string/action_delete"
+        android:id="@+id/menu_item_delete"
+        />
+
+</menu>
