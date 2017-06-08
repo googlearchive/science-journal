@@ -50,14 +50,18 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 
 import java.io.File;
 import java.util.UUID;
 
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.BehaviorSubject;
 
 /**
  * Dialog for adding new notes.
@@ -78,6 +82,7 @@ public class AddNoteDialog extends DialogFragment {
     private static final String KEY_SAVED_VALUE = "savedLabelValue";
     private static final java.lang.String KEY_SAVED_TIME_TEXT_DESCRIPTION =
             "keySavedTimeTextDescription";
+
     private String mUuid;
     private DataService.FragmentBinder mDataBinder = new DataService.FragmentBinder();
 
@@ -127,11 +132,22 @@ public class AddNoteDialog extends DialogFragment {
     private String mLabelTimeText;
     private String mLabelTimeTextDescription = "";
     private String mTrialId;
-    private String mExperimentId;
     private int mHintTextId = R.string.add_run_note_placeholder_text;
     private String mPictureLabelPath;
     private EditText mInput;
-    private Experiment mExperiment;
+    private BehaviorSubject<String> mWhenExperimentId = BehaviorSubject.create();
+
+    private Observable<Experiment> mWhenExperiment =
+
+            // when the experiment id changes,
+            mWhenExperimentId
+                    // connect to datacontroller
+                    .flatMapSingle(id -> whenDataController()
+                            // and load experiment
+                            .flatMapSingle(dc -> RxDataController.getExperimentById(dc, id)))
+                    .doOnError(LoggingConsumer.complain(TAG, "get experiment"));
+
+    CompositeDisposable mUntilDestroyed = new CompositeDisposable();
 
     /**
      * Create an AddNoteDialog that does not show the timestamp section, and where the note
@@ -151,6 +167,14 @@ public class AddNoteDialog extends DialogFragment {
     public static AddNoteDialog createWithDynamicTimestamp(String currentRunId, String experimentId,
             int hintTextId) {
         return AddNoteDialog.newInstance(-1, currentRunId, experimentId, hintTextId, false);
+    }
+
+    /**
+     * Create an AddNoteDialog that will wait to be told what the current experiment is
+     */
+    public static AddNoteDialog createWithNoExperimentYet(int hintTextId) {
+        return createWithDynamicTimestamp(RecorderController.NOT_RECORDING_RUN_ID, null,
+                hintTextId);
     }
 
     /**
@@ -210,7 +234,7 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     public void setExperimentId(String experimentId) {
-        mExperimentId = experimentId;
+        mWhenExperimentId.onNext(experimentId);
     }
 
     @Override
@@ -241,22 +265,20 @@ public class AddNoteDialog extends DialogFragment {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
         alertDialog.setView(rootView);
         alertDialog.setPositiveButton(R.string.action_save, (dialog1, which) -> addLabel());
-        alertDialog.setNegativeButton(android.R.string.cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
+        alertDialog.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
         alertDialog.setCancelable(true);
         AlertDialog dialog = alertDialog.create();
-        dialog.setOnShowListener(
-                dialogInterface -> updatePositiveButtonEnabled((AlertDialog) dialogInterface));
         if (!hasPicture()) {
             dialog.getWindow().setSoftInputMode(
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
         return dialog;
+    }
+
+    @Override
+    public void onDestroy() {
+        mUntilDestroyed.dispose();
+        super.onDestroy();
     }
 
     @Override
@@ -289,7 +311,7 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     @NonNull
-    protected LinearLayout createAddNoteViewFromSavedState(Bundle savedInstanceState,
+    private LinearLayout createAddNoteViewFromSavedState(Bundle savedInstanceState,
             LayoutInflater inflater, boolean nativeSaveButton) {
         String text = "";
         if (getArguments() != null) {
@@ -300,14 +322,14 @@ public class AddNoteDialog extends DialogFragment {
             mLabelTimeText = getArguments().getString(KEY_LABEL_TIME_TEXT, "");
             mPictureLabelPath = getArguments().getString(KEY_SAVED_PICTURE_PATH, null);
             mTrialId = getArguments().getString(KEY_SAVED_RUN_ID);
-            mExperimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
+            String experimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
+            if (experimentId != null) {
+                mWhenExperimentId.onNext(experimentId);
+            }
 
-            getDataController()
-                    .flatMapSingle(dc -> RxDataController.getExperimentById(dc, mExperimentId))
-                    .subscribe(exp -> {
-                        mExperiment = exp;
-                        updatePositiveButtonEnabled((AlertDialog) getDialog());
-                    }, LoggingConsumer.complain(TAG, "get experiment"));
+            mUntilDestroyed.add(mWhenExperiment.subscribe(
+                    exp -> updatePositiveButtonEnabled((AlertDialog) getDialog(), true)));
+
             if (getArguments().containsKey(KEY_SAVED_TIME_TEXT_DESCRIPTION)) {
                 mLabelTimeTextDescription =
                         getArguments().getString(KEY_SAVED_TIME_TEXT_DESCRIPTION);
@@ -372,7 +394,6 @@ public class AddNoteDialog extends DialogFragment {
                 timestampSection.setContentDescription(mLabelTimeTextDescription);
             }
             timestampSection.setOnClickListener(v -> {
-                int labelType = getLabelType();
                 getTimestamp().subscribe(
                         t -> mListener.onAddNoteTimestampClicked(getCurrentValue(), t));
             });
@@ -382,43 +403,34 @@ public class AddNoteDialog extends DialogFragment {
 
         setViewVisibilities(takePictureBtn, imageView, !hasPicture());
         if (mPictureLabelPath != null) {
-            PictureUtils.loadExperimentImage(getActivity(), imageView, mExperimentId,
-                    mPictureLabelPath);
+            mWhenExperimentId.firstElement()
+                             .subscribe(id -> PictureUtils.loadExperimentImage(getActivity(),
+                                     imageView, id, mPictureLabelPath));
         }
 
-        takePictureBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean grantedCamera = PermissionUtils.tryRequestingPermission(getActivity(),
-                        Manifest.permission.CAMERA,
-                        PictureUtils.PERMISSIONS_CAMERA, /* force retry */ true);
-                // If camera permission was not granted, on permission result we try requesting
-                // storage. If it was granted, then check storage separately here.
-                if (grantedCamera) {
-                    boolean grantedStorage = PermissionUtils.tryRequestingPermission(
-                            getActivity(),
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            PictureUtils.PERMISSIONS_WRITE_EXTERNAL_STORAGE,
-                                /* force retry */ true);
-                    if (grantedStorage) {
-                        // TODO: Error states if these are not granted (b/24303452)
-                        mUuid = UUID.randomUUID().toString();
-                        mPictureLabelPath = PictureUtils.capturePictureLabel(getActivity(),
-                                mExperimentId, mUuid);
-                    }
+        takePictureBtn.setOnClickListener(v -> {
+            boolean grantedCamera = PermissionUtils.tryRequestingPermission(getActivity(),
+                    Manifest.permission.CAMERA,
+                    PictureUtils.PERMISSIONS_CAMERA, /* force retry */ true);
+            // If camera permission was not granted, on permission result we try requesting
+            // storage. If it was granted, then check storage separately here.
+            if (grantedCamera) {
+                boolean grantedStorage = PermissionUtils.tryRequestingPermission(
+                        getActivity(),
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        PictureUtils.PERMISSIONS_WRITE_EXTERNAL_STORAGE,
+                            /* force retry */ true);
+                if (grantedStorage) {
+                    // TODO: Error states if these are not granted (b/24303452)
+                    mUuid = UUID.randomUUID().toString();
+
+                    mWhenExperimentId.firstElement().subscribe(
+                            id -> PictureUtils.capturePictureLabel(getActivity(), id, mUuid));
                 }
             }
         });
 
         return rootView;
-    }
-
-    private int getLabelType() {
-        if (hasPicture()) {
-            return RunReviewFragment.LABEL_TYPE_PICTURE;
-        } else {
-            return RunReviewFragment.LABEL_TYPE_TEXT;
-        }
     }
 
     private Label getCurrentValue() {
@@ -500,15 +512,17 @@ public class AddNoteDialog extends DialogFragment {
     private void addLabel(final Label label) {
         mListener.adjustLabelBeforeAdd(label);
 
-        // The listener may be cleared by onDetach() before the experiment/trial is written,
-        // so save the MaybeConsumer here as a final var.
-        if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
-            mExperiment.addLabel(label);
-        } else {
-            mExperiment.getTrial(mTrialId).addLabel(label);
-        }
-        getDataController().flatMapSingle(dc -> saveExperiment(dc, mExperiment, label))
-                           .subscribe(MaybeConsumers.toSingleObserver(mListener.onLabelAdd()));
+        mWhenExperiment.firstElement().subscribe(experiment -> {
+            // The listener may be cleared by onDetach() before the experiment/trial is written,
+            // so save the MaybeConsumer here as a final var.
+            if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
+                experiment.addLabel(label);
+            } else {
+                experiment.getTrial(mTrialId).addLabel(label);
+            }
+            whenDataController().flatMapSingle(dc -> saveExperiment(dc, experiment, label))
+                                .subscribe(MaybeConsumers.toSingleObserver(mListener.onLabelAdd()));
+        });
     }
 
     /**
@@ -520,7 +534,7 @@ public class AddNoteDialog extends DialogFragment {
                                .andThen(Single.just(label));
     }
 
-    private Maybe<DataController> getDataController() {
+    private Maybe<DataController> whenDataController() {
         return mDataBinder.bind().map(s -> s.getDataController());
     }
 
@@ -530,8 +544,9 @@ public class AddNoteDialog extends DialogFragment {
             Dialog dialog = getDialog();
             ImageView imageView = (ImageView) dialog.findViewById(R.id.picture_note_preview_image);
             if (resultCode == Activity.RESULT_OK) {
-                PictureUtils.loadExperimentImage(getActivity(), imageView, mExperimentId,
-                        mPictureLabelPath);
+                mWhenExperimentId.firstElement().subscribe(
+                        id -> PictureUtils.loadExperimentImage(getActivity(), imageView, id,
+                                mPictureLabelPath));
             } else {
                 mPictureLabelPath = null;
             }
@@ -546,14 +561,12 @@ public class AddNoteDialog extends DialogFragment {
         return !TextUtils.isEmpty(mPictureLabelPath);
     }
 
-    private void updatePositiveButtonEnabled(AlertDialog dialog) {
+    private void updatePositiveButtonEnabled(AlertDialog dialog, boolean enabled) {
         if (dialog == null) {
             return;
         }
         Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        if (positiveButton != null) {
-            positiveButton.setEnabled(mExperiment != null);
-        }
+        positiveButton.setEnabled(enabled);
     }
 
     @Override

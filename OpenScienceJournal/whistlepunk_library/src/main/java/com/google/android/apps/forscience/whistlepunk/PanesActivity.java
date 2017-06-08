@@ -42,7 +42,6 @@ import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
@@ -87,14 +86,14 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         // TODO: b/62022245
                         return CameraFragment.newInstance();
                     case 2:
-                        return mAddNoteDialog;
+                        return getAddNoteDialog();
                 }
                 return null;
             }
 
             @Override
             public int getCount() {
-                return mAddNoteDialog == null ? 2 : 3;
+                return 3;
             }
         };
         pager.setAdapter(adapter);
@@ -114,12 +113,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         mUntilDestroyed.add(mActiveExperiment.subscribe(experiment -> {
             String experimentId = experiment.getExperimentId();
             setExperimentFragmentId(experimentId);
-            setNoteFragmentId(adapter, experimentId);
+            setNoteFragmentId(experimentId);
         }));
 
         // TODO: can I do this without a behavior subject?
         String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
-
 
         if (experimentId == null) {
             // Load currently-active experiment
@@ -183,18 +181,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         }
     }
 
-    private void setNoteFragmentId(FragmentPagerAdapter adapter, String experimentId) {
-        if (mAddNoteDialog == null) {
-            mAddNoteDialog = makeNoteFragment(experimentId);
-            adapter.notifyDataSetChanged();
-        } else {
-            mAddNoteDialog.setExperimentId(experimentId);
-        }
-    }
-
-    private AddNoteDialog makeNoteFragment(String experimentId) {
-        return AddNoteDialog.createWithDynamicTimestamp(RecorderController.NOT_RECORDING_RUN_ID,
-                experimentId, R.string.add_experiment_note_placeholder_text);
+    private void setNoteFragmentId(String experimentId) {
+        getAddNoteDialog().setExperimentId(experimentId);
     }
 
     @NonNull
@@ -247,15 +235,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             public void onPictureLabelTaken(final Label label) {
                 // Get the most recent experiment, or wait if none has been loaded yet.
                 Maybe<Experiment> experimentMaybe = mActiveExperiment.firstElement();
-                experimentMaybe.subscribe(new Consumer<Experiment>() {
-                    @Override
-                    public void accept(Experiment e) throws Exception {
-                        // TODO: change this to lambda once we can use Java 8.
-                        e.addLabel(label);
-                        AddNoteDialog.saveExperiment(getDataController(), e, label)
-                                     .subscribe(MaybeConsumers.toSingleObserver(
-                                             getAddNoteDialogListener().onLabelAdd()));
-                    }
+                experimentMaybe.subscribe(e -> {
+                    // TODO: change this to lambda once we can use Java 8.
+                    e.addLabel(label);
+                    AddNoteDialog.saveExperiment(getDataController(), e, label)
+                                 .subscribe(MaybeConsumers.toSingleObserver(
+                                         getAddNoteDialogListener().onLabelAdd()));
                 });
             }
 
@@ -268,6 +253,14 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     private DataController getDataController() {
         return AppSingleton.getInstance(PanesActivity.this).getDataController();
+    }
+
+    public AddNoteDialog getAddNoteDialog() {
+        if (mAddNoteDialog == null) {
+            mAddNoteDialog = AddNoteDialog.createWithNoExperimentYet(
+                    R.string.add_experiment_note_placeholder_text);
+        }
+        return mAddNoteDialog;
     }
 
     // TODO: this is acceptable, but still a bit wonky.  For example, it's hard to get from bottom
