@@ -31,10 +31,24 @@ message UserMetadata {
     // Experiment state that is per-user, such as whether the experiment is archived.
     repeated ExperimentOverview experiments = 1;
 
-    // The version code of this proto. Devices may use this to understand what version of data
+    // The main version code of this proto. Devices may use this to understand what version of data
     // they are working with, and to perform upgrades.
-    // Version 1: Initial version
+    // A combination of the major and minor versions is used to understand what is available in this
+    // proto. Major version numbers represent large, non-backwards-compatable changes.
+    // See UserMetadataManager#upgradeUserMetadataVersionIfNeeded for more on versions.
+    // Version 1.1: Initial version
     optional int32 version = 2 [default = 1];
+
+    // The minor verion code fo this proto. Devices may use this to understand what version of data
+    // they are working with, and to perform upgrades.
+    // A combination of the major and minor versions is used to understand what is available in this
+    // proto. Minor version numbers represent small, non-breaking changes. A device running an older
+    // version of Science Journal should be able to parse a proto with a newer minorVersion so long
+    // as the version is the same. However, that device should only *read* and not *write* older
+    // version protos because data would be lost in the write.
+    // See UserMetadataManager#upgradeUserMetadataVersionIfNeeded for more on versions.
+    // Version 1.1: Initial version
+    optional int32 minorVersion = 3 [default = 1];
 
     // TODO: b/36397730
     // repeated SensorSpec sensorSpecs = 3;

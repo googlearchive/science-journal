@@ -143,8 +143,10 @@ public class UserMetadataManagerTest extends InstrumentationTestCase {
                 getFailureFailsListener());
         GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
         proto.version = 0;
-        smm.upgradeUserMetadataVersionIfNeeded(proto, 1);
+        proto.minorVersion = 0;
+        smm.upgradeUserMetadataVersionIfNeeded(proto, 1, 1);
         assertEquals(proto.version, 1);
+        assertEquals(proto.minorVersion, 1);
     }
 
     public void testNoUpgrade() {
@@ -152,8 +154,10 @@ public class UserMetadataManagerTest extends InstrumentationTestCase {
                 getFailureFailsListener());
         GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
         proto.version = 1;
-        smm.upgradeUserMetadataVersionIfNeeded(proto, 1);
+        proto.minorVersion = 1;
+        smm.upgradeUserMetadataVersionIfNeeded(proto, 1, 1);
         assertEquals(proto.version, 1);
+        assertEquals(proto.minorVersion, 1);
     }
 
     public void testVersionTooNewThrowsError() {
@@ -162,7 +166,27 @@ public class UserMetadataManagerTest extends InstrumentationTestCase {
 
         GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
         proto.version = 2;
-        smm.upgradeUserMetadataVersionIfNeeded(proto, 1);
+        proto.minorVersion = 0;
+        smm.upgradeUserMetadataVersionIfNeeded(proto, 1, 1);
+        assertEquals(1, mFailureCount);
+    }
+
+    public void testOnlyUpgradesMinorVersion() {
+        UserMetadataManager smm = new UserMetadataManager(getInstrumentation().getContext(),
+                getFailureFailsListener());
+        GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
+        proto.version = 1;
+        proto.minorVersion = 0;
+        smm.upgradeUserMetadataVersionIfNeeded(proto, 1, 1);
+        assertEquals(proto.version, 1);
+        assertEquals(proto.minorVersion, 1);
+    }
+
+    public void testCantWriteNewerVersion() {
+        UserMetadataManager smm = new UserMetadataManager(getInstrumentation().getContext(),
+                getFailureExpectedListener());
+        GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
+        smm.upgradeUserMetadataVersionIfNeeded(proto, 100, 0);
         assertEquals(1, mFailureCount);
     }
 }
