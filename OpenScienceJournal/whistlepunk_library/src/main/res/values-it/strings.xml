@@ -43,7 +43,7 @@
     <string name="video_stream" msgid="6479736939735009121">"Video stream"</string>
     <string name="acc_units" msgid="3131953779961725111">"m/s²"</string>
     <string name="ambient_light_units" msgid="3481544691869862434">"lux"</string>
-    <string name="magnetic_rotation_units" msgid="9212090641224993573">"gradi"</string>
+    <string name="compass_units" msgid="9212090641224993573">"gradi"</string>
     <string name="decibel_units" msgid="1242238682082079824">"dB"</string>
     <string name="rpm_units" msgid="2651871280948091901">"RPM"</string>
     <string name="voltage_units" msgid="598716668433769220">"V"</string>

@@ -43,7 +43,7 @@
     <string name="video_stream" msgid="6479736939735009121">"بث الفيديو"</string>
     <string name="acc_units" msgid="3131953779961725111">"م/ث²"</string>
     <string name="ambient_light_units" msgid="3481544691869862434">"لوكس"</string>
-    <string name="magnetic_rotation_units" msgid="9212090641224993573">"درجة"</string>
+    <string name="compass_units" msgid="9212090641224993573">"درجة"</string>
     <string name="decibel_units" msgid="1242238682082079824">"ديسيبل"</string>
     <string name="rpm_units" msgid="2651871280948091901">"دورة/دقيقة"</string>
     <string name="voltage_units" msgid="598716668433769220">"فولط"</string>

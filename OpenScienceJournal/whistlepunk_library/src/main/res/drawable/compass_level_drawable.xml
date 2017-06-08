@@ -15,5 +15,5 @@
   limitations under the License.
  -->
 <level-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:maxLevel="0" android:drawable="@drawable/magnetometer_meter"/>
+    <item android:maxLevel="0" android:drawable="@drawable/compass_meter"/>
 </level-list>
