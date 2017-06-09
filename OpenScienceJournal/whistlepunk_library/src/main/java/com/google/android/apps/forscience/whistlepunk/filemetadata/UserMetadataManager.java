@@ -174,17 +174,18 @@ public class UserMetadataManager {
      */
     private GoosciUserMetadata.UserMetadata readUserMetadata() {
         boolean firstTime = createUserMetadataFileIfNeeded();
+        GoosciUserMetadata.UserMetadata userMetadata;
         // Create a new user metadata proto to populate
-        GoosciUserMetadata.UserMetadata userMetadata = new GoosciUserMetadata.UserMetadata();
         if (firstTime) {
             // If the file has nothing in it, these version numbers will be the basis of our initial
             // UserMetadata file.
+            userMetadata = new GoosciUserMetadata.UserMetadata();
             userMetadata.version = VERSION;
             userMetadata.minorVersion = MINOR_VERSION;
         } else {
-            boolean success = mOverviewProtoFileHelper.readFromFile(mUserMetadataFile,
-                    userMetadata);
-            if (!success) {
+            userMetadata = mOverviewProtoFileHelper.readFromFile(mUserMetadataFile,
+                    GoosciUserMetadata.UserMetadata::parseFrom);
+            if (userMetadata == null) {
                 mFailureListener.onReadFailed();
                 return null;
             }

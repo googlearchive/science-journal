@@ -60,6 +60,7 @@ public class Experiment extends LabelListHolder {
         proto.creationTimeMs = creationTime;
         // This experiment is being created with the latest VERSION available.
         proto.version = ExperimentCache.VERSION;
+        proto.minorVersion = ExperimentCache.MINOR_VERSION;
         return new Experiment(proto, experimentOverview);
     }
 
@@ -508,5 +509,13 @@ public class Experiment extends LabelListHolder {
 
     public void deleteLabel(Label item, Context context) {
         deleteLabel(item, context, getExperimentId());
+    }
+
+    int getVersion() {
+        return mProto.version;
+    }
+
+    int getMinorVersion() {
+        return mProto.minorVersion;
     }
 }

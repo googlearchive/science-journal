@@ -25,6 +25,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import io.reactivex.functions.Function;
+
 /**
  * Helper to write Protocol Buffers written to and read them from files.
  */
@@ -32,17 +34,21 @@ import java.io.IOException;
 public class ProtoFileHelper<T extends MessageNano> {
     private static final String TAG = "ProtoFileHelper";
 
-    public boolean readFromFile(File file, T protoToPopulate) {
+    public T readFromFile(File file, Function<byte[], T> parseFrom) {
         try (FileInputStream inputStream = new FileInputStream(file)) {
             byte[] bytes = new byte[(int) file.length()];
             inputStream.read(bytes);
-            MessageNano.mergeFrom(protoToPopulate, bytes);
-            return true;
+            return parseFrom.apply(bytes);
         }  catch (IOException ex) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, Log.getStackTraceString(ex));
             }
-            return false;
+            return null;
+        } catch (Exception ex) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, Log.getStackTraceString(ex));
+            }
+            return null;
         }
     }
 
