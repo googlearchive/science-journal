@@ -39,6 +39,10 @@ public class UserMetadataManager {
     // See upgradeUserMetadataVersionIfNeeded for the meaning of version numbers.
     private static final int VERSION = 1;
 
+    // The current minor version number we expect from UserMetadata.
+    // See upgradeUserMetadataVersionIfNeeded for the meaning of version numbers.
+    private static final int MINOR_VERSION = 1;
+
     interface FailureListener {
         // TODO: What's helpful to pass back here? Maybe info about the type of error?
         void onWriteFailed();
@@ -169,46 +173,96 @@ public class UserMetadataManager {
      * needed.
      */
     private GoosciUserMetadata.UserMetadata readUserMetadata() {
-        createUserMetadataFileIfNeeded();
+        boolean firstTime = createUserMetadataFileIfNeeded();
+        // Create a new user metadata proto to populate
         GoosciUserMetadata.UserMetadata userMetadata = new GoosciUserMetadata.UserMetadata();
-        boolean success = mOverviewProtoFileHelper.readFromFile(mUserMetadataFile, userMetadata);
-        if (!success) {
-            mFailureListener.onReadFailed();
-            return null;
+        if (firstTime) {
+            // If the file has nothing in it, these version numbers will be the basis of our initial
+            // UserMetadata file.
+            userMetadata.version = VERSION;
+            userMetadata.minorVersion = MINOR_VERSION;
+        } else {
+            boolean success = mOverviewProtoFileHelper.readFromFile(mUserMetadataFile,
+                    userMetadata);
+            if (!success) {
+                mFailureListener.onReadFailed();
+                return null;
+            }
+            upgradeUserMetadataVersionIfNeeded(userMetadata);
         }
-        upgradeUserMetadataVersionIfNeeded(userMetadata, VERSION);
         return userMetadata;
+    }
+
+    private void upgradeUserMetadataVersionIfNeeded(GoosciUserMetadata.UserMetadata userMetadata) {
+        upgradeUserMetadataVersionIfNeeded(userMetadata, VERSION, MINOR_VERSION);
     }
 
     /**
      * Upgrades and saves user metadata to match the version given.
      * @param userMetadata The metadata to upgrade if necessary
-     * @param newVersion The version to upgrade to
+     * @param newMajorVersion The major version to upgrade to, available for testing
+     * @param newMinorVersion The minor version to upgrade to, available for testing
      */
     @VisibleForTesting
     void upgradeUserMetadataVersionIfNeeded(GoosciUserMetadata.UserMetadata userMetadata,
-            int newVersion) {
-        int version = userMetadata.version;
-        if (version >= newVersion) {
-            // No upgrade needed -- it either matches our current or is newer.
-            if (version > newVersion) {
-                // It is too new for us to read.
-                mFailureListener.onNewerVersionDetected();
-            }
+            int newMajorVersion, int newMinorVersion) {
+        if (userMetadata.version == newMajorVersion &&
+                userMetadata.minorVersion == newMinorVersion) {
+            // No upgrade needed, this is running the same version as us.
             return;
         }
-        if (version == 0 && version < newVersion) {
-            // Upgrade from 0 to 1, for example.
-            userMetadata.version = 1;
+        if (userMetadata.version > newMajorVersion) {
+            // It is too new for us to read -- the major version is later than ours.
+            mFailureListener.onNewerVersionDetected();
+            return;
+        }
+        // Try to upgrade the major version
+        if (userMetadata.version == 0) {
+            // Do any work to increment the minor version.
+
+            if (userMetadata.version < newMajorVersion) {
+                // Upgrade from 0 to 1, for example: Increment the major version and reset the minor
+                // version.
+                // Other work could be done here first like populating protos.
+                revMajorVersionTo(userMetadata, 1);
+            }
+        }
+        if (userMetadata.version == 1) {
+            // Minor version upgrades are done within the if statement
+            // for their major version counterparts.
+            if (userMetadata.minorVersion == 0 && userMetadata.minorVersion < newMinorVersion) {
+                // Upgrade minor version from 0 to 1, within in major version 1, for example.
+                userMetadata.minorVersion = 1;
+            }
+            // More minor version upgrades for major version 1 could be done here.
+
+            // When we are ready for version 2.0, we would do work in the following if statement
+            // and then call incrementMajorVersion.
+            if (userMetadata.version < newMajorVersion) {
+                // Do any work to upgrade version, then increment the version when we are
+                // ready to go to 2.0 or above.
+                revMajorVersionTo(userMetadata, 2);
+
+            }
         }
         // We've made changes we need to save.
         writeUserMetadata(userMetadata);
+    }
+
+    private void revMajorVersionTo(GoosciUserMetadata.UserMetadata userMetadata, int majorVersion) {
+        userMetadata.version = majorVersion;
+        userMetadata.minorVersion = 0;
     }
 
     /**
      * Writes the shared metadata object to the file.
      */
     private void writeUserMetadata(GoosciUserMetadata.UserMetadata userMetadata) {
+        if (userMetadata.version > VERSION ||
+                userMetadata.version == VERSION && userMetadata.minorVersion > MINOR_VERSION) {
+            // If the major version is too new, or the minor version is too new, we can't save this.
+            mFailureListener.onNewerVersionDetected(); // TODO: Or should this throw onWriteFailed?
+        }
         createUserMetadataFileIfNeeded();
         if (!mOverviewProtoFileHelper.writeToFile(mUserMetadataFile, userMetadata)) {
             mFailureListener.onWriteFailed();
@@ -219,18 +273,22 @@ public class UserMetadataManager {
      * Lazy creation of the shared metadata file. This is probably only done the first time the
      * app is opened, so we could consider calling this only once to reduce load, but it doesn't
      * seem super expensive.
+     * Returns true if a new file was created.
      */
-    private void createUserMetadataFileIfNeeded() {
+    private boolean createUserMetadataFileIfNeeded() {
         if (!mUserMetadataFile.exists()) {
             // If the files aren't there yet, create them.
             try {
                 boolean created = mUserMetadataFile.createNewFile();
                 if (!created) {
                     mFailureListener.onWriteFailed();
+                    return false;
                 }
+                return true;
             } catch (IOException e) {
                 mFailureListener.onWriteFailed();
             }
         }
+        return false;
     }
 }
