@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -26,26 +24,29 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.Clock;
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 
 /**
- * Details view controller for TextLabel
+ * Details view controller for PictureLabel
  */
-public class TextLabelDetailsFragment extends LabelDetailsFragment {
-    private static final String TAG = "TextLabelDetailsFragment";
-
-    private EditText mNoteText;
+public class PictureLabelDetailsFragment extends LabelDetailsFragment {
+    private EditText mCaption;
     private TextWatcher mWatcher;
+    private Clock mClock;
 
-    public static TextLabelDetailsFragment newInstance(String experimentId, Label originalLabel) {
-        TextLabelDetailsFragment result = new TextLabelDetailsFragment();
+    public static PictureLabelDetailsFragment newInstance(String experimentId,
+            Label originalLabel) {
+        PictureLabelDetailsFragment result = new PictureLabelDetailsFragment();
         Bundle args = new Bundle();
         args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
         args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
@@ -53,17 +54,23 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
         return result;
     }
 
-    public TextLabelDetailsFragment() {
+    public PictureLabelDetailsFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mClock = AppSingleton.getInstance(getActivity()).getSensorEnvironment().getDefaultClock();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             final Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        mNoteText = (EditText) inflater.inflate(R.layout.text_label_details_fragment,
-                container, false);
-        mNoteText.setText(mOriginalLabel.getTextLabelValue().text);
+        View rootView = inflater.inflate(R.layout.picture_label_details_fragment, container, false);
+        mCaption = (EditText) rootView.findViewById(R.id.caption);
+        mCaption.setText(mOriginalLabel.getCaptionText());
         mWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -78,51 +85,47 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
             @Override
             public void afterTextChanged(Editable editable) {
                 // Save the label changes
-                saveTextChanges(mNoteText.getText().toString());
+                saveCaptionChanges(mCaption.getText().toString());
             }
         };
-        mNoteText.addTextChangedListener(mWatcher);
-        mNoteText.setEnabled(false);
-
+        mCaption.addTextChangedListener(mWatcher);
+        mCaption.setEnabled(false);
         mExperiment.firstElement().subscribe(experiment -> {
-            mNoteText.setEnabled(true);
+            mCaption.setEnabled(true);
             // Move the cursor to the end
-            mNoteText.post(() -> mNoteText.setSelection(mNoteText.getText().toString().length()));
+            mCaption.post(() -> mCaption.setSelection(mCaption.getText().toString().length()));
         });
+
+        ImageView imageView = (ImageView) rootView.findViewById(R.id.image);
+        PictureUtils.loadExperimentImage(getActivity(), imageView, mExperimentId,
+                mOriginalLabel.getPictureLabelValue().filePath);
 
         // TODO: Transition
 
-        return mNoteText;
+        return rootView;
     }
 
     @Override
     public void onDestroyView() {
-        mNoteText.removeTextChangedListener(mWatcher);
+        mCaption.removeTextChangedListener(mWatcher);
         super.onDestroyView();
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_text_label_details, menu);
+        inflater.inflate(R.menu.menu_picture_label_details, menu);
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle(getActivity().getResources().getString(
-                R.string.text_label_details_title));
+        actionBar.setTitle("");
 
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_delete);
-        item.getIcon().mutate().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-        super.onPrepareOptionsMenu(menu);
-    }
-
-    private void saveTextChanges(String newText) {
-        GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
-        labelValue.text = newText;
-        mOriginalLabel.setLabelProtoData(labelValue);
+    private void saveCaptionChanges(String newText) {
+        GoosciCaption.Caption caption = new GoosciCaption.Caption();
+        caption.text = newText;
+        caption.lastEditedTimestamp = mClock.getNow();
+        mOriginalLabel.setCaption(caption);
         saveUpdatedOriginalLabel();
     }
 }

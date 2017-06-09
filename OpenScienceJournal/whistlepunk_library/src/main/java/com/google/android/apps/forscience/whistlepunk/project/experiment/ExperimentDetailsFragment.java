@@ -779,30 +779,26 @@ public class ExperimentDetailsFragment extends Fragment
                 }
                 ((RelativeTimeTextView) holder.itemView.findViewById(R.id.duration_text)).setTime(
                         label.getTimeStamp());
-                if (isTextLabel) {
+                if (isTextLabel || isPictureLabel) {
                     holder.itemView.findViewById(R.id.note_menu_button).setVisibility(View.GONE);
                 } else {
                     setupNoteMenu(label, holder.itemView.findViewById(R.id.note_menu_button));
                 }
                 ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.note_image);
-                if (isTextLabel) {
+                if (isPictureLabel) {
+                    imageView.setVisibility(View.VISIBLE);
+                    PictureUtils.loadExperimentImage(imageView.getContext(), imageView,
+                            mExperiment.getExperimentId(), label.getPictureLabelValue().filePath);
+                    autoTextView.setVisibility(View.GONE);
+                }
+                // Set the click listeners
+                if (isTextLabel || isPictureLabel) {
                     holder.itemView.setOnClickListener(view -> {
                         if (mParentReference.get() != null) {
                             LabelDetailsActivity.launch(holder.itemView.getContext(),
                                     mExperiment.getExperimentId(), label);
                         }
                     });
-                } else if (isPictureLabel) {
-                    imageView.setVisibility(View.VISIBLE);
-                    PictureUtils.loadExperimentImage(imageView.getContext(), imageView,
-                            mExperiment.getExperimentId(), label.getPictureLabelValue().filePath);
-                    View.OnClickListener clickListener = v -> {
-                        if (mParentReference.get() != null) {
-                            mParentReference.get().launchPicturePreview(label);
-                        }
-                    };
-                    holder.cardView.setOnClickListener(clickListener);
-                    autoTextView.setVisibility(View.GONE);
                 } else {
                     holder.cardView.setOnClickListener(v -> {
                         if (mParentReference.get() != null) {

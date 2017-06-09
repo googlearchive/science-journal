@@ -116,4 +116,9 @@
         <item name="colorPrimary">#9A9A9A</item>
     </style>
 
+    <style name="picture_label_details">
+        <item name="colorPrimaryDark">#000</item>
+        <item name="colorPrimary">#000</item>
+    </style>
+
 </resources>

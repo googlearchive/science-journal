@@ -18,8 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.review.labels;
 
 import android.app.Fragment;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;

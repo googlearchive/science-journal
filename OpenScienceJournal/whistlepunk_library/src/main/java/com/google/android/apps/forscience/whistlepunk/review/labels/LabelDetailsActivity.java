@@ -53,6 +53,8 @@ public class LabelDetailsActivity extends AppCompatActivity {
         // Update the theme if this is a text note before setting the view.
         if (labelType == GoosciLabel.Label.TEXT) {
             setTheme(R.style.text_label_details);
+        } else if (labelType == GoosciLabel.Label.PICTURE) {
+            setTheme(R.style.picture_label_details);
         }
 
         super.onCreate(savedInstanceState);
@@ -68,9 +70,8 @@ public class LabelDetailsActivity extends AppCompatActivity {
                 fragment = TextLabelDetailsFragment.newInstance(
                         getIntent().getExtras().getString(ARG_EXPERIMENT_ID), originalLabel);
             } else if (labelType == GoosciLabel.Label.PICTURE) {
-                // TODO
-                finish();
-                return;
+                fragment = PictureLabelDetailsFragment.newInstance(
+                        getIntent().getExtras().getString(ARG_EXPERIMENT_ID), originalLabel);
             } else if (labelType == GoosciLabel.Label.SENSOR_TRIGGER) {
                 // TODO
                 finish();

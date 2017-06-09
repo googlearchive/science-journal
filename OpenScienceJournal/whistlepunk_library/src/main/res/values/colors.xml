@@ -71,6 +71,7 @@
     <color name="tutorial_background_take_notes">#C2185B</color>
     <color name="thumb_color_transparent">#57000000</color>
     <color name="snackbar_action_color">#f8f081</color>
+    <color name="picture_background_color">#262626</color>
 
     <integer name="trigger_drawable_alpha">192</integer>
 </resources>
