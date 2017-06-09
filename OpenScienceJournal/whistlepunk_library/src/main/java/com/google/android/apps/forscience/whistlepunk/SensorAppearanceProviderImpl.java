@@ -25,7 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.AmbientTemperature
 import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.CompassSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.common.base.Preconditions;
@@ -94,22 +94,21 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                     SensorAnimationBehavior.TYPE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
-        // TODO: Change this to an absolute magnitude vector and don't use a rotation animation.
-        putAppearance(MagneticRotationSensor.ID, BuiltInSensorAppearance.create(R.string.magnetic_rotation,
-                R.drawable.ic_sensor_magnetometer_white_24dp, R.string.magnetic_rotation_units,
-                R.string.sensor_desc_short_magnetic_rotation,
-                R.string.sensor_desc_first_paragraph_magnetic_rotation,
-                R.string.sensor_desc_second_paragraph_magnetic_rotation,
+        putAppearance(MagneticStrengthSensor.ID, BuiltInSensorAppearance.create(
+                R.string.magnetic_field_strength, R.drawable.ic_sensors_white_24dp, // TODO: icons
+                R.string.magnetic_strength_units, R.string.sensor_desc_short_magnetic_strength,
+                R.string.sensor_desc_first_paragraph_magnetic_strength,
+                R.string.sensor_desc_second_paragraph_magnetic_strength,
                 R.drawable.learnmore_magnetometer,
-                new SensorAnimationBehavior(R.drawable.magnetometer_level_drawable,
-                        SensorAnimationBehavior.TYPE_ROTATION),
+                new SensorAnimationBehavior(R.drawable.bluetooth_level_drawable, // TODO: drawables
+                        SensorAnimationBehavior.TYPE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
         putAppearance(CompassSensor.ID, BuiltInSensorAppearance.create(R.string.compass,
-                R.drawable.ic_sensor_magnetometer_white_24dp, R.string.magnetic_rotation_units,
+                R.drawable.ic_sensor_compass_white_24dp, R.string.compass_units,
                 R.string.sensor_desc_short_compass, R.string.sensor_desc_first_paragraph_compass,
                 R.string.sensor_desc_second_paragraph_compass, R.drawable.learnmore_magnetometer,
-                new SensorAnimationBehavior(R.drawable.magnetometer_level_drawable,
+                new SensorAnimationBehavior(R.drawable.compass_level_drawable,
                         SensorAnimationBehavior.TYPE_ROTATION),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 

@@ -34,11 +34,13 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 /**
  * Class to get sensor data from the Magnetic sensor.
  */
-public class MagneticRotationSensor extends ScalarSensor {
+public class MagneticStrengthSensor extends ScalarSensor {
+    // For historical reasons, the ID is MagneticRotationSensor. Since this is not exposed to the
+    // user, we will just not mind the inconsistency.
     public static final String ID = "MagneticRotationSensor";
     private SensorEventListener mSensorEventListener;
 
-    public MagneticRotationSensor() {
+    public MagneticStrengthSensor() {
         super(ID);
     }
 
@@ -59,13 +61,10 @@ public class MagneticRotationSensor extends ScalarSensor {
                 mSensorEventListener = new SensorEventListener() {
                     @Override
                     public void onSensorChanged(SensorEvent event) {
-                        double x = event.values[0];
-                        double y = event.values[1];
-                        // Convert X and Y components to angle
-                        // https://en.wikipedia.org/wiki/Atan2
-                        // TODO: Change this to an absolute magnetic magnitude sensor.
-                        double angle = Math.toDegrees(Math.atan2(y,x)) + 180.;
-                        c.addData(clock.getNow(), angle);
+                        // The strength is the square root of the sum of the squares of the
+                        // values in X, Y and Z.
+                        c.addData(clock.getNow(), Math.sqrt(Math.pow(event.values[0], 2) +
+                                Math.pow(event.values[1], 2) + Math.pow(event.values[2], 2)));
                     }
 
                     @Override

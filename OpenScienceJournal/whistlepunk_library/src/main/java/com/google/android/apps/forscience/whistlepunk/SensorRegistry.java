@@ -33,7 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.AmbientTemperature
 import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.CompassSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.MagneticRotationSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.common.base.Preconditions;
@@ -211,8 +211,8 @@ public class SensorRegistry {
         }
 
         if (DevOptionsFragment.isMagnetometerEnabled(context)) {
-            if (MagneticRotationSensor.isMagneticRotationSensorAvailable(available)) {
-                addBuiltInSensor(new MagneticRotationSensor());
+            if (MagneticStrengthSensor.isMagneticRotationSensorAvailable(available)) {
+                addBuiltInSensor(new MagneticStrengthSensor());
             }
         }
 

@@ -74,8 +74,8 @@
     <!-- Displayed name of a sensor that shows ambient light as measured by the phone's proximity sensor [CHAR_LIMIT=25] -->
     <string name="ambient_light">Ambient light</string>
 
-    <!-- Displayed name of a sensor that shows magnetic field rotation measured by the phone's magnetometer [CHAR_LIMIT=25]  -->
-    <string name="magnetic_rotation">Magnetometer</string>
+    <!-- Displayed name of a sensor that shows magnetic field strength measured by the phone's magnetometer [CHAR_LIMIT=25]  -->
+    <string name="magnetic_field_strength">Magnetometer</string>
 
     <!-- Displayed name of a sensor that measures air pressure [CHAR_LIMIT=25] -->
     <string name="barometer">Barometer</string>
@@ -92,8 +92,8 @@
     <!-- Displayed units for an ambient light sensor [CHAR_LIMIT=10] -->
     <string name="ambient_light_units">lux</string>
 
-    <!-- Displayed units for a magnetic rotation sensor [CHAR_LIMIT=10] -->
-    <string name="magnetic_rotation_units">degrees</string>
+    <!-- Displayed units for a magnetic strength sensor [CHAR_LIMIT=10] -->
+    <string name="magnetic_strength_units">μT</string>
 
     <!-- Displayed units for a sound intensity sensor, decibels [CHAR_LIMIT=10] -->
     <string name="decibel_units">dB</string>
@@ -652,8 +652,8 @@
     <!-- One-sentence description of the accelerometer X sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_light">The amount of light, measured in lux, reaching the ambient light sensor.</string>
 
-    <!-- One-sentence description of the magnetic rotation sensor [CHAR_LIMIT=100] -->
-    <string name="sensor_desc_short_magnetic_rotation">The angle between the phone and the external magnetic field.</string>
+    <!-- One-sentence description of the magnetic strength sensor [CHAR_LIMIT=100] -->
+    <string name="sensor_desc_short_magnetic_strength">The strength of the ambient geomagnetic field in Microtesla.</string>
 
     <!-- One-sentence description of an unknown bluetooth sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_bluetooth">An external sensor is displaying its data here, based on custom settings.</string>
@@ -679,13 +679,13 @@
     </string>
 
     <!-- Long description of a magnetic rotation sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
-    <string name="sensor_desc_first_paragraph_magnetic_rotation">You probably already knew that the Earth has a magnetic field. What you may not have realized is that your phone contains a device designed to detect magnetic fields: a magnetometer.
-        \n\nAn old-fashioned compass is a low-tech magnetometer, with a magnetized needle that turns to align itself with the surrounding magnetic field. There\'s no tiny compass inside your phone, but instead a tiny three-axis sensor that uses electric currents to detect the magnetic field strength in the three dimensions of space.
+    <string name="sensor_desc_first_paragraph_magnetic_strength">You probably already knew that the Earth has a magnetic field. What you may not have realized is that your phone contains a device designed to detect magnetic fields: a magnetometer.
+        \n\nYour phone has a tiny three-axis sensor that uses electric currents to detect the magnetic field strength in the three dimensions of space. By combining data from all three axes we can create a total magnetic field strength sensor.
         \n\nSome magnetometers detect magnetic fields using the Hall effect—the tendency of magnetic fields to deflect moving charge as it flows. Newer magnetometers rely on magnetoresistors, metal alloys that change their resistance in response to magnetic fields.
         \n\nWhy does a phone need a magnetometer? Knowing your orientation in space is useful for built-in compass and navigation apps, especially those that seek to give turn-by-turn directions.</string>
 
     <!-- Long description of a magnetic rotation sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
-    <string name="sensor_desc_second_paragraph_magnetic_rotation">As you may have noticed, the magnetometer in your phone responds not just to the Earth\'s magnetic field, but also to any and every magnetic field that happens to be around. Magnets, electric currents, and metal objects will easily steer your phone\'s magnetometer this way and that. Stand in an open area—preferably outdoors and far from power lines— if you want to be sure that your magnetometer\'s red tip is aligning with the Earth\'s magnetic field. It helps to move your phone in a figure 8 pattern to calibrate the magnetometer in your phone.</string>
+    <string name="sensor_desc_second_paragraph_magnetic_strength">Magnets, electric currents, and metal objects will easily steer your phone\'s magnetometer this way and that. But even in the middle of an empty field, the magnetometer in your phone always shows a low, non-zero reading: this is the Earth\'s magnetic field!</string>
 
     <!-- Long description of a accelerometer sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_acc">Objects have a tendency to stay put, or to keep moving if they\'re moving—we call this tendency inertia. Newton\'s First Law expresses this idea formally: An object continues in its state of motion or rest unless acted on by an unbalanced force.
@@ -1392,6 +1392,9 @@ Permissions notice:
 
     <!-- Displayed name of a sensor that shows a compass orientation [CHAR_LIMIT=25]  -->
     <string name="compass">Compass</string>
+
+    <!-- Units for a compass sensor [CHAR_LIMIT=10] -->
+    <string name="compass_units">degrees</string>
 
     <!-- One-sentence description of the compass sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_compass">The orientation of the earth\'s magnetic field, or whatever magnetic field is closest to the phone.</string>
