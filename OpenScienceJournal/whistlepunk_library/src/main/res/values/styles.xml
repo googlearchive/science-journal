@@ -111,4 +111,9 @@
         <item name="colorPrimary">@color/color_primary</item>
     </style>
 
+    <style name="text_label_details">
+        <item name="colorPrimaryDark">#5E5E5E</item>
+        <item name="colorPrimary">#9A9A9A</item>
+    </style>
+
 </resources>
