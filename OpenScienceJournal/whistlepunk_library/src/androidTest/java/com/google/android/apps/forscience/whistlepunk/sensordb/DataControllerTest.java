@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
+import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
@@ -151,16 +152,15 @@ public class DataControllerTest extends AndroidTestCase {
         List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>(1);
         layouts.add(layout);
         experiment.setSensorLayouts(layouts);
-        dc.updateExperiment(experiment.getExperimentId(),
-                TestConsumers.<Success>expectingSuccess());
+        dc.updateExperiment(experiment.getExperimentId(), TestConsumers.expectingSuccess());
         dc.addSensorToExperiment(experiment.getExperimentId(), "oldSensorId",
-                TestConsumers.<Success>expectingSuccess());
+                TestConsumers.expectingSuccess());
 
         StoringConsumer<String> cid = new StoringConsumer<>();
         dc.addOrGetExternalSensor(new BleSensorSpec("address", "name"), cid);
         final String newSensorId = cid.getValue();
         dc.replaceSensorInExperiment(experiment.getExperimentId(), "oldSensorId", newSensorId,
-                TestConsumers.<Success>expectingSuccess());
+                TestConsumers.expectingSuccess());
         dc.getExternalSensorsByExperiment(experiment.getExperimentId(),
                 TestConsumers.expectingSuccess(new Consumer<ExperimentSensors>() {
                     @Override
@@ -186,18 +186,17 @@ public class DataControllerTest extends AndroidTestCase {
         dc.createExperiment(cExperiment);
         Experiment experiment = cExperiment.getValue();
         dc.addSensorToExperiment(experiment.getExperimentId(), "oldSensorId",
-                TestConsumers.<Success>expectingSuccess());
+                TestConsumers.expectingSuccess());
 
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = "oldSensorId";
         List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>(1);
         layouts.add(layout);
         experiment.setSensorLayouts(layouts);
-        dc.updateExperiment(experiment.getExperimentId(),
-                TestConsumers.<Success>expectingSuccess());
+        dc.updateExperiment(experiment.getExperimentId(), TestConsumers.expectingSuccess());
 
         dc.removeSensorFromExperiment(experiment.getExperimentId(), "oldSensorId",
-                TestConsumers.<Success>expectingSuccess());
+                TestConsumers.expectingSuccess());
         dc.getExperimentById(experiment.getExperimentId(),
                 new LoggingConsumer<Experiment>(TAG, "get updated experiment") {
                     @Override
@@ -224,5 +223,19 @@ public class DataControllerTest extends AndroidTestCase {
         clock.increment();
         String fourthLabelId = dc.generateNewLabelId();
         assertNotSame(thirdLabelId, fourthLabelId);
+    }
+
+    public void testUpdateExperimentUpdatesLastUsedTime() {
+        IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
+        DataController dc = new InMemorySensorDatabase().makeSimpleController(
+                new MemoryMetadataManager(), clock);
+        StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
+        dc.createExperiment(cExperiment);
+        Experiment experiment = cExperiment.getValue();
+        clock.increment();
+        dc.updateExperiment(experiment.getExperimentId(), TestConsumers.expectingSuccess());
+        assertEquals(clock.getNow(),
+                RxDataController.getExperimentById(dc, experiment.getExperimentId())
+                        .test().values().get(0).getLastUsedTime());
     }
 }

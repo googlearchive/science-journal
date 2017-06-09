@@ -492,17 +492,10 @@ public class ExperimentDetailsFragment extends Fragment
         if (mExperiment == null) {
             return;
         }
-        getDataController().setLastUsedExperiment(mExperiment,
-                new LoggingConsumer<Success>(TAG, "updating active experiment") {
-                    @Override
-                    public void success(Success value) {
-                        Context context = getActivity();
-                        boolean usePanes = false;
-                        context.startActivity(
-                                MainActivity.launchIntent(context, R.id.navigation_item_observe,
-                                        usePanes));
-                    }
-                });
+        Context context = getActivity();
+        boolean usePanes = false;
+        context.startActivity(MainActivity.launchIntent(context, R.id.navigation_item_observe,
+                usePanes));
     }
 
     private void launchPicturePreview(Label label) {

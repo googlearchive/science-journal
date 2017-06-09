@@ -120,7 +120,11 @@ public interface MetaDataManager {
 
     /**
      * Updates which experiment was last used. Does not save other parts of this experiment.
+     *
+     * This is deprecated -- any changes to the experiment should be done using updateExperiment
+     * on the main thread, and not here on the data thread.
      */
+    @Deprecated
     void setLastUsedExperiment(Experiment experiment);
 
     void close();

@@ -71,7 +71,6 @@ public class MetadataController {
      */
     private void internalSetSelectedExperiment(Experiment experiment) {
         mSelectedExperiment = experiment;
-        updateLastExperimentPreferences(mSelectedExperiment);
     }
 
     /**
@@ -133,12 +132,6 @@ public class MetadataController {
                         setMetadata(value);
                     }
                 }));
-    }
-
-    private void updateLastExperimentPreferences(final Experiment experiment) {
-        getDataController().setLastUsedExperiment(experiment,
-                LoggingConsumer.<Success>expectSuccess(TAG,
-                        "Update last used experiment preference"));
     }
 
     DataController getDataController() {

@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.sensordb;
 
 import android.support.annotation.NonNull;
 
+import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
@@ -46,23 +47,27 @@ public class InMemorySensorDatabase implements SensorDatabase {
         return makeSimpleController(mmm, new HashMap<>());
     }
 
+    public DataControllerImpl makeSimpleController(MemoryMetadataManager mmm, Clock clock) {
+        return makeDataControllerImpl(mmm, new HashMap<>(), clock);
+    }
+
     @NonNull
     public DataControllerImpl makeSimpleController(MemoryMetadataManager manager,
             Map<String, ExternalSensorProvider> providerMap) {
-        return makeDataControllerImpl(manager, providerMap);
+        return makeDataControllerImpl(manager, providerMap, new MonotonicClock());
     }
 
     public RecordingDataController makeSimpleRecordingController(
             MemoryMetadataManager memoryMetadataManager) {
-        return makeDataControllerImpl(memoryMetadataManager, new HashMap<>());
+        return makeDataControllerImpl(memoryMetadataManager, new HashMap<>(), new MonotonicClock());
     }
 
     @NonNull
     private DataControllerImpl makeDataControllerImpl(MemoryMetadataManager manager,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, ExternalSensorProvider> providerMap, Clock clock) {
         return new DataControllerImpl(this, MoreExecutors.directExecutor(),
                 MoreExecutors.directExecutor(), MoreExecutors.directExecutor(), manager,
-                new MonotonicClock(), providerMap, new ConnectableSensor.Connector(providerMap));
+                clock, providerMap, new ConnectableSensor.Connector(providerMap));
     }
 
     @Override

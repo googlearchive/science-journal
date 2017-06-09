@@ -176,6 +176,11 @@ public class FileMetadataManager {
         return null;
     }
 
+    /**
+     * Sets the most recently used experiment. This should only be used in testing -- the experiment
+     * object should not actually be modified by FileMetadataManager.
+     */
+    @Deprecated
     public void setLastUsedExperiment(Experiment experiment) {
         long timestamp = mClock.getNow();
         experiment.setLastUsedTime(timestamp);
