@@ -41,6 +41,10 @@ class ExperimentCache {
     // See upgradeExperimentVersionIfNeeded for the meaning of version numbers.
     protected static final int VERSION = 1;
 
+    // The current minor version number we expect from experiments.
+    // See upgradeExperimentVersionIfNeeded for the meaning of version numbers.
+    protected static final int MINOR_VERSION = 1;
+
     // Write the experiment file no more than once per every WRITE_DELAY_MS.
     private static final long WRITE_DELAY_MS = 1000;
 
@@ -222,7 +226,8 @@ class ExperimentCache {
      */
     private void immediateWriteIfActiveChanging(GoosciUserMetadata.ExperimentOverview
             localExperimentOverview) {
-        if (mActiveExperimentNeedsWrite && isDifferentFromActive(localExperimentOverview)) {
+        if (mActiveExperiment != null && mActiveExperimentNeedsWrite &&
+                isDifferentFromActive(localExperimentOverview)) {
             // First write the old active experiment if the ID has changed.
             // Then cancel the write timer on the old experiment. We will reset it below.
             cancelWriteTimer();
@@ -263,6 +268,13 @@ class ExperimentCache {
      */
     @VisibleForTesting
     void writeActiveExperimentFile() {
+        if (mActiveExperiment.getVersion() > VERSION ||
+                mActiveExperiment.getVersion() == VERSION &&
+                        mActiveExperiment.getMinorVersion() > MINOR_VERSION) {
+            // If the major version is too new, or the minor version is too new, we can't save this.
+            // TODO: Or should this throw onWriteFailed?
+            mFailureListener.onNewerVersionDetected(mActiveExperiment.getExperimentOverview());
+        }
         File experimentFile = getExperimentFile(mActiveExperiment.getExperimentOverview());
         boolean success = mExperimentProtoFileHelper.writeToFile(experimentFile,
                 mActiveExperiment.getExperimentProto());
@@ -276,10 +288,10 @@ class ExperimentCache {
     @VisibleForTesting
     void loadActiveExperimentFromFile(GoosciUserMetadata.ExperimentOverview experimentOverview) {
         File experimentFile = getExperimentFile(experimentOverview);
-        GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-        boolean success = mExperimentProtoFileHelper.readFromFile(experimentFile, proto);
-        if (success) {
-            ugradeExperimentVersionIfNeeded(proto, VERSION, experimentOverview);
+        GoosciExperiment.Experiment proto = mExperimentProtoFileHelper.readFromFile(experimentFile,
+                GoosciExperiment.Experiment::parseFrom);
+        if (proto != null) {
+            upgradeExperimentVersionIfNeeded(proto, experimentOverview);
             mActiveExperiment = Experiment.fromExperiment(proto, experimentOverview);
         } else {
             // Or maybe pass a FailureListener into the load instead of failing here.
@@ -288,29 +300,66 @@ class ExperimentCache {
         }
     }
 
+    private void upgradeExperimentVersionIfNeeded(GoosciExperiment.Experiment proto,
+            GoosciUserMetadata.ExperimentOverview experimentOverview) {
+        upgradeExperimentVersionIfNeeded(proto, experimentOverview, VERSION, MINOR_VERSION);
+    }
+
     /**
      * Upgrades an experiment proto if necessary. Requests a save if the upgrade happened.
      * @param proto The experiment to upgrade if necessary
-     * @param newVersion The version to upgrade it to
+     * @param newMajorVersion The major version to upgrade to, available for testing
+     * @param newMinorVersion The minor version to upgrade to, available for testing
      */
     @VisibleForTesting
-    void ugradeExperimentVersionIfNeeded(GoosciExperiment.Experiment proto, int newVersion,
-            GoosciUserMetadata.ExperimentOverview experimentOverview) {
-        int version = proto.version;
-        if (version >= newVersion) {
-            // No upgrade needed -- it either matches our current or is newer.
-            if (version > newVersion) {
-                // It is too new for us to read.
-                mFailureListener.onNewerVersionDetected(experimentOverview);
-            }
+    void upgradeExperimentVersionIfNeeded(GoosciExperiment.Experiment proto,
+            GoosciUserMetadata.ExperimentOverview experimentOverview, int newMajorVersion,
+            int newMinorVersion) {
+        if (proto.version == newMajorVersion && proto.minorVersion == newMinorVersion) {
+            // No upgrade needed, this is running the same version as us.
             return;
         }
-        if (version == 0 && version < newVersion) {
-            // Upgrade from 0 to 1, for example.
-            proto.version = 1;
+        if (proto.version > newMajorVersion) {
+            // It is too new for us to read -- the major version is later than ours.
+            mFailureListener.onNewerVersionDetected(experimentOverview);
+            return;
+        }
+        // Try to upgrade the major version
+        if (proto.version == 0) {
+            // Do any work to increment the minor version.
+
+            if (proto.version < newMajorVersion) {
+                // Upgrade from 0 to 1, for example: Increment the major version and reset the minor
+                // version.
+                // Other work could be done here first like populating protos.
+                revMajorVersionTo(proto, 1);
+            }
+        }
+        if (proto.version == 1) {
+            // Minor version upgrades are done within the if statement
+            // for their major version counterparts.
+            if (proto.minorVersion == 0 && proto.minorVersion < newMinorVersion) {
+                // Upgrade minor version from 0 to 1, within in major version 1, for example.
+                proto.minorVersion = 1;
+            }
+            // More minor version upgrades for major version 1 could be done here.
+
+            // When we are ready for version 2.0, we would do work in the following if statement
+            // and then call incrementMajorVersion.
+            if (proto.version < newMajorVersion) {
+                // Do any work to upgrade version, then increment the version when we are
+                // ready to go to 2.0 or above.
+                revMajorVersionTo(proto, 2);
+
+            }
         }
         // We've made changes we need to save.
         startWriteTimer();
+    }
+
+    private void revMajorVersionTo(GoosciExperiment.Experiment proto, int majorVersion) {
+        proto.version = majorVersion;
+        proto.minorVersion = 0;
     }
 
     private File getExperimentFile(GoosciUserMetadata.ExperimentOverview experimentOverview) {
