@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.modules;
 
 import android.content.Context;
 
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 
@@ -32,7 +32,7 @@ public class NativeBleDiscovererModule {
     @Provides
     @IntoMap
     @StringKey(BleSensorSpec.TYPE)
-    public ExternalSensorDiscoverer providesNativeDiscoverer(Context context) {
+    public SensorDiscoverer providesNativeDiscoverer(Context context) {
         return new NativeBleDiscoverer(context);
     }
 }

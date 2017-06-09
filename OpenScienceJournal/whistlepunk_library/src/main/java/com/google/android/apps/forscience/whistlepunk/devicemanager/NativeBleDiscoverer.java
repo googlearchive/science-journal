@@ -36,7 +36,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
 /**
  * Discovers BLE sensors that speak our "native" Science Journal protocol.
  */
-public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
+public class NativeBleDiscoverer implements SensorDiscoverer {
 
     private static final ExternalSensorProvider PROVIDER = new ExternalSensorProvider() {
         @Override
@@ -192,10 +192,6 @@ public class NativeBleDiscoverer implements ExternalSensorDiscoverer {
         });
 
         scanListener.onSensorFound(new DiscoveredSensor() {
-            @Override
-            public ExternalSensorSpec getSpec() {
-                return spec;
-            }
 
             @Override
             public GoosciSensorSpec.SensorSpec getSensorSpec() {

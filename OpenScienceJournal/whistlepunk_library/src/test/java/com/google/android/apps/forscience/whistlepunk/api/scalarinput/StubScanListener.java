@@ -15,21 +15,21 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 
-public class StubScanListener implements ExternalSensorDiscoverer.ScanListener {
+public class StubScanListener implements SensorDiscoverer.ScanListener {
     @Override
-    public void onServiceFound(ExternalSensorDiscoverer.DiscoveredService service) {
+    public void onServiceFound(SensorDiscoverer.DiscoveredService service) {
 
     }
 
     @Override
-    public void onDeviceFound(ExternalSensorDiscoverer.DiscoveredDevice device) {
+    public void onDeviceFound(SensorDiscoverer.DiscoveredDevice device) {
 
     }
 
     @Override
-    public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
+    public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {
 
     }
 

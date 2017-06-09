@@ -26,7 +26,7 @@ import com.google.android.apps.forscience.ble.BleClientImpl;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabaseImpl;
@@ -240,9 +240,9 @@ public class AppSingleton {
 
     @NonNull
     public static Map<String, ExternalSensorProvider> buildProviderMap(
-            Map<String, ExternalSensorDiscoverer> discoverers) {
+            Map<String, SensorDiscoverer> discoverers) {
         Map<String, ExternalSensorProvider> providers = new HashMap<>();
-        for (Map.Entry<String, ExternalSensorDiscoverer> entry : discoverers.entrySet()) {
+        for (Map.Entry<String, SensorDiscoverer> entry : discoverers.entrySet()) {
             providers.put(entry.getKey(), entry.getValue().getProvider());
         }
         return providers;

@@ -86,7 +86,7 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
                 itemView.callOnClick();
             }
         });
-        final ExternalSensorDiscoverer.ServiceConnectionError error =
+        final SensorDiscoverer.ServiceConnectionError error =
                 item.getConnectionErrorIfAny();
         if (error == null) {
             mErrorIcon.setVisibility(View.GONE);
@@ -138,7 +138,7 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
 
     @NonNull
     private View.OnClickListener getOnClickListener(
-            final ExternalSensorDiscoverer.ServiceConnectionError error,
+            final SensorDiscoverer.ServiceConnectionError error,
             final FragmentManager fragmentManager) {
         if (error.canBeResolved()) {
             return new View.OnClickListener() {

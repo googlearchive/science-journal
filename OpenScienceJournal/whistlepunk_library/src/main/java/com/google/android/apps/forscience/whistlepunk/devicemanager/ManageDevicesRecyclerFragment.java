@@ -67,7 +67,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
         super.onCreate(savedInstanceState);
         AppSingleton appSingleton = AppSingleton.getInstance(getActivity());
         DataController dc = appSingleton.getDataController();
-        Map<String, ExternalSensorDiscoverer> discoverers =
+        Map<String, SensorDiscoverer> discoverers =
                 WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
         DeviceRegistry deviceRegistry = new DeviceRegistry(
                 InputDeviceSpec.builtInDevice(getActivity()));
@@ -223,7 +223,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
 
     @Override
     public void showSensorOptions(String experimentId, String sensorId,
-            ExternalSensorDiscoverer.SettingsInterface settings) {
+            SensorDiscoverer.SettingsInterface settings) {
         if (!isResumed()) {
             // Fragment has paused between pairing and popping up options.
             // TODO: if the sensor says that immediate options must be shown, then in this case

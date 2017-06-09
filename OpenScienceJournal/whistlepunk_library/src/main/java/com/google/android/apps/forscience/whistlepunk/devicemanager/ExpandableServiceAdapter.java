@@ -205,7 +205,7 @@ public class ExpandableServiceAdapter extends
 
     @Override
     public void addAvailableService(String providerId,
-            ExternalSensorDiscoverer.DiscoveredService service, boolean startSpinners) {
+            SensorDiscoverer.DiscoveredService service, boolean startSpinners) {
         String serviceId = service.getServiceId();
         if (indexOfService(serviceId) >= 0) {
             if (startSpinners) {
@@ -244,7 +244,7 @@ public class ExpandableServiceAdapter extends
     }
 
     @Override
-    public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
+    public void addAvailableDevice(SensorDiscoverer.DiscoveredDevice device) {
         for (InputDeviceSpec myDevice : mMyDevices) {
             // Don't add something that's already in my devices
             if (myDevice.isSameSensor(device.getSpec())) {

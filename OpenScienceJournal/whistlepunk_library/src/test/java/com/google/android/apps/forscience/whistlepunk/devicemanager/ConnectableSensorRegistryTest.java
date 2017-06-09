@@ -188,9 +188,9 @@ public class ConnectableSensorRegistryTest {
 
     @Test
     public void testDuplicateSensorAdded() {
-        Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
+        Map<String, SensorDiscoverer> discoverers = new HashMap<>();
 
-        ExternalSensorDiscoverer dupeDiscoverer = new EnumeratedDiscoverer(
+        SensorDiscoverer dupeDiscoverer = new EnumeratedDiscoverer(
                 new BleSensorSpec("address", "name"), new BleSensorSpec("address", "name"));
         discoverers.put("bluetooth_le", dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
@@ -207,8 +207,8 @@ public class ConnectableSensorRegistryTest {
 
     @Test
     public void testDontAddAvailableWhenAlreadyPaired() {
-        Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
-        ExternalSensorDiscoverer dupeDiscoverer = new EnumeratedDiscoverer(
+        Map<String, SensorDiscoverer> discoverers = new HashMap<>();
+        SensorDiscoverer dupeDiscoverer = new EnumeratedDiscoverer(
                 new BleSensorSpec("address", "name"));
         discoverers.put(BleSensorSpec.TYPE, dupeDiscoverer);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
@@ -230,12 +230,12 @@ public class ConnectableSensorRegistryTest {
 
     @Test
     public void testDifferentConfigIsDuplicate() {
-        Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
+        Map<String, SensorDiscoverer> discoverers = new HashMap<>();
         BleSensorSpec spec1 = new BleSensorSpec("address", "name");
         spec1.setCustomPin("A1");
         BleSensorSpec spec2 = new BleSensorSpec("address", "name");
         spec2.setCustomPin("A2");
-        ExternalSensorDiscoverer d = new EnumeratedDiscoverer(spec1, spec2);
+        SensorDiscoverer d = new EnumeratedDiscoverer(spec1, spec2);
         discoverers.put("bluetooth_le", d);
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers, mPresenter, mScheduler, new CurrentTimeClock(), mOptionsListener,
@@ -310,7 +310,7 @@ public class ConnectableSensorRegistryTest {
         tsd.addSensor("deviceId", new TestSensor("address2", "name2", appearance1));
 
         SettableClock clock = new SettableClock();
-        Map<String, ExternalSensorDiscoverer> discoverers = tsd.makeDiscovererMap("serviceId");
+        Map<String, SensorDiscoverer> discoverers = tsd.makeDiscovererMap("serviceId");
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(makeDataController(),
                 discoverers, mPresenter, mScheduler, clock, mOptionsListener,
                 null, mAppearanceProvider, UsageTracker.STUB,
@@ -345,7 +345,7 @@ public class ConnectableSensorRegistryTest {
         final SensorAppearanceResources appearance3 = new SensorAppearanceResources();
         tsd2.addSensor("deviceId2", new TestSensor("address4", "name4", appearance3));
 
-        Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
+        Map<String, SensorDiscoverer> discoverers = new HashMap<>();
         discoverers.put(ScalarInputSpec.TYPE, tsd1.makeScalarInputDiscoverer("serviceId",
                 MoreExecutors.directExecutor()));
         discoverers.put(ScalarInputSpec.TYPE + "2", tsd2.makeScalarInputDiscoverer("serviceId2",
@@ -429,7 +429,7 @@ public class ConnectableSensorRegistryTest {
 
         TestSensorDiscoverer tsd = new TestSensorDiscoverer(s.getServiceName());
         mProviderMap.putAll(tsd.makeProviderMap(serviceId));
-        Map<String, ExternalSensorDiscoverer> discoverers = tsd.makeDiscovererMap(serviceId);
+        Map<String, SensorDiscoverer> discoverers = tsd.makeDiscovererMap(serviceId);
         DataController dc = makeDataController();
 
         InputDeviceSpec deviceSpec = new InputDeviceSpec(ScalarInputSpec.TYPE,
@@ -475,7 +475,7 @@ public class ConnectableSensorRegistryTest {
         mSensorRegistry.addManualBuiltInSensor("id2");
 
         DataController dc = makeDataController();
-        HashMap<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
+        HashMap<String, SensorDiscoverer> discoverers = new HashMap<>();
         ConnectableSensorRegistry registry = new ConnectableSensorRegistry(dc,
                 discoverers, mPresenter, mScheduler,
                 new CurrentTimeClock(), mOptionsListener, mDeviceRegistry, mAppearanceProvider,

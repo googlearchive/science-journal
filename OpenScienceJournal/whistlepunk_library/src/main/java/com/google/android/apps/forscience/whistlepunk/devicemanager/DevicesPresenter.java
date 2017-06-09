@@ -15,8 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.app.PendingIntent;
-
 /**
  * interface for presenting options for a given sensor within a given experiment
  */
@@ -24,7 +22,7 @@ public interface DevicesPresenter {
     void refreshScanningUI();
 
     void showSensorOptions(String experimentId, String sensorId,
-            ExternalSensorDiscoverer.SettingsInterface settings);
+            SensorDiscoverer.SettingsInterface settings);
 
     /**
      * @return a display that shows "My Devices"

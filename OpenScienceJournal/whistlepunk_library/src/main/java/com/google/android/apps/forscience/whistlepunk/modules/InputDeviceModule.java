@@ -19,10 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.modules;
 import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.InputDevice;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
-import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 
 import dagger.Module;
 import dagger.Provides;
@@ -34,7 +31,7 @@ public class InputDeviceModule {
     @Provides
     @IntoMap
     @StringKey(InputDeviceSpec.TYPE)
-    public ExternalSensorDiscoverer providesDeviceDiscoverer(Context context) {
+    public SensorDiscoverer providesDeviceDiscoverer(Context context) {
         return InputDeviceSpec.DISCOVERER;
     }
 }

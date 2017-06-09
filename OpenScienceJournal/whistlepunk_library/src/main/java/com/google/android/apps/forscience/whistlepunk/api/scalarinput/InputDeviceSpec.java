@@ -26,7 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.InputDevice;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.common.collect.ImmutableMap;
@@ -63,7 +63,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
         }
     };
 
-    public static final ExternalSensorDiscoverer DISCOVERER = new ExternalSensorDiscoverer() {
+    public static final SensorDiscoverer DISCOVERER = new SensorDiscoverer() {
         @Override
         public boolean startScanning(ScanListener listener, FailureListener onScanError) {
             // These are only remembered from the database, never discovered by scanning

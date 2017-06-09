@@ -34,7 +34,7 @@ class TestDevicesPresenter implements DevicesPresenter {
 
     @Override
     public void showSensorOptions(String experimentId, String sensorId,
-            ExternalSensorDiscoverer.SettingsInterface settings) {
+            SensorDiscoverer.SettingsInterface settings) {
         this.experimentId = experimentId;
         this.sensorId = sensorId;
     }

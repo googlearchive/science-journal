@@ -15,29 +15,29 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.common.collect.Lists;
 
 import java.util.List;
 
-public class RecordingScanListener implements ExternalSensorDiscoverer.ScanListener {
-    public List<ExternalSensorDiscoverer.DiscoveredService> services = Lists.newArrayList();
-    public List<ExternalSensorDiscoverer.DiscoveredDevice> devices = Lists.newArrayList();
-    public List<ExternalSensorDiscoverer.DiscoveredSensor> sensors = Lists.newArrayList();
+public class RecordingScanListener implements SensorDiscoverer.ScanListener {
+    public List<SensorDiscoverer.DiscoveredService> services = Lists.newArrayList();
+    public List<SensorDiscoverer.DiscoveredDevice> devices = Lists.newArrayList();
+    public List<SensorDiscoverer.DiscoveredSensor> sensors = Lists.newArrayList();
     public boolean isDone = false;
 
     @Override
-    public void onServiceFound(ExternalSensorDiscoverer.DiscoveredService service) {
+    public void onServiceFound(SensorDiscoverer.DiscoveredService service) {
         services.add(service);
     }
 
     @Override
-    public void onDeviceFound(ExternalSensorDiscoverer.DiscoveredDevice device) {
+    public void onDeviceFound(SensorDiscoverer.DiscoveredDevice device) {
         devices.add(device);
     }
 
     @Override
-    public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
+    public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {
         sensors.add(sensor);
     }
 

@@ -16,20 +16,20 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 
 class TestScanListener extends StubScanListener {
-    private final Consumer<ExternalSensorDiscoverer.DiscoveredSensor> onNewSensor;
+    private final Consumer<SensorDiscoverer.DiscoveredSensor> onNewSensor;
     private final Runnable mOnScanDone;
 
-    public TestScanListener(Consumer<ExternalSensorDiscoverer.DiscoveredSensor> c,
+    public TestScanListener(Consumer<SensorDiscoverer.DiscoveredSensor> c,
             Runnable onScanDone) {
         onNewSensor = c;
         mOnScanDone = onScanDone;
     }
 
     @Override
-    public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
+    public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {
         onNewSensor.take(sensor);
     }
 

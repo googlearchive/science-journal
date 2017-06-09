@@ -20,7 +20,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.squareup.leakcanary.LeakCanary;
@@ -47,7 +47,7 @@ public abstract class WhistlePunkApplication extends Application {
     FeedbackProvider mFeedbackProvider;
 
     @Inject
-    Map<String, ExternalSensorDiscoverer> mSensorDiscoverers;
+    Map<String, SensorDiscoverer> mSensorDiscoverers;
 
     public static RefWatcher getRefWatcher(Context context) {
         WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
@@ -72,7 +72,7 @@ public abstract class WhistlePunkApplication extends Application {
         return app.mFeedbackProvider;
     }
 
-    public static Map<String, ExternalSensorDiscoverer> getExternalSensorDiscoverers(
+    public static Map<String, SensorDiscoverer> getExternalSensorDiscoverers(
             Context context) {
         WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
         return app.mSensorDiscoverers;

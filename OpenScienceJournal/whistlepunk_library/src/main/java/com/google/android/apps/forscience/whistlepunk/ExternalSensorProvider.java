@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 
-// TODO: clarify why this is a different interface from ExternalSensorDiscoverer
+// TODO: clarify why this is a different interface from SensorDiscoverer
 public interface ExternalSensorProvider {
     public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec);
 

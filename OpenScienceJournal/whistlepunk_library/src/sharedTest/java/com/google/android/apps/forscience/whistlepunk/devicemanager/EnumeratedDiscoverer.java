@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * For testing, an {@link ExternalSensorDiscoverer} that knows exactly which specs it knows how to
+ * For testing, an {@link SensorDiscoverer} that knows exactly which specs it knows how to
  * return.
  */
 public class EnumeratedDiscoverer extends StubSensorDiscoverer {
@@ -54,12 +54,8 @@ public class EnumeratedDiscoverer extends StubSensorDiscoverer {
     }
 
     @NonNull
-    private ExternalSensorDiscoverer.DiscoveredSensor getDiscovered(final ExternalSensorSpec spec) {
-        return new ExternalSensorDiscoverer.DiscoveredSensor() {
-            @Override
-            public ExternalSensorSpec getSpec() {
-                return spec;
-            }
+    private SensorDiscoverer.DiscoveredSensor getDiscovered(final ExternalSensorSpec spec) {
+        return new SensorDiscoverer.DiscoveredSensor() {
 
             @Override
             public GoosciSensorSpec.SensorSpec getSensorSpec() {
@@ -92,10 +88,10 @@ public class EnumeratedDiscoverer extends StubSensorDiscoverer {
         return providers;
     }
 
-    public static Map<String, ExternalSensorDiscoverer> buildDiscovererMap(
+    public static Map<String, SensorDiscoverer> buildDiscovererMap(
             ExternalSensorSpec... specs) {
         EnumeratedDiscoverer discoverer = new EnumeratedDiscoverer(specs);
-        Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
+        Map<String, SensorDiscoverer> discoverers = new HashMap<>();
         for (ExternalSensorSpec spec : specs) {
             discoverers.put(spec.getType(), discoverer);
         }

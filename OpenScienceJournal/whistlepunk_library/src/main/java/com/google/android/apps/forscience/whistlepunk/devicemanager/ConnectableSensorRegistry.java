@@ -35,11 +35,13 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Runnables;
+import com.google.protobuf.nano.MessageNano;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -60,11 +62,11 @@ public class ConnectableSensorRegistry {
     private static final String EXTERNAL_SENSOR_KEY_PREFIX = "sensorKey";
 
     private final DataController mDataController;
-    private final Map<String, ExternalSensorDiscoverer> mDiscoverers;
+    private final Map<String, SensorDiscoverer> mDiscoverers;
 
     private final DevicesPresenter mPresenter;
     private final Map<String, ConnectableSensor> mSensors = new ArrayMap<>();
-    private final Map<String, ExternalSensorDiscoverer.SettingsInterface>
+    private final Map<String, SensorDiscoverer.SettingsInterface>
             mSettingsIntents = new ArrayMap<>();
     private final Scheduler mScheduler;
     private final Map<String, ExternalSensorProvider> mProviders;
@@ -86,7 +88,7 @@ public class ConnectableSensorRegistry {
 
     // TODO: reduce parameter list?
     public ConnectableSensorRegistry(DataController dataController,
-            Map<String, ExternalSensorDiscoverer> discoverers, DevicesPresenter presenter,
+            Map<String, SensorDiscoverer> discoverers, DevicesPresenter presenter,
             Scheduler scheduler, Clock clock,
             DeviceOptionsDialog.DeviceOptionsListener optionsListener,
             DeviceRegistry deviceRegistry, SensorAppearanceProvider appearanceProvider,
@@ -105,7 +107,7 @@ public class ConnectableSensorRegistry {
     }
 
     public void pair(final String sensorKey) {
-        final ExternalSensorDiscoverer.SettingsInterface settings = mSettingsIntents.get(sensorKey);
+        final SensorDiscoverer.SettingsInterface settings = mSettingsIntents.get(sensorKey);
         addSensorIfNecessary(sensorKey, getPairedGroup().getSensorCount(),
                 new LoggingConsumer<ConnectableSensor>(TAG, "Add external sensor") {
                     @Override
@@ -249,14 +251,14 @@ public class ConnectableSensorRegistry {
             }
         });
 
-        for (final Map.Entry<String, ExternalSensorDiscoverer> entry : mDiscoverers.entrySet()) {
-            ExternalSensorDiscoverer discoverer = entry.getValue();
+        for (final Map.Entry<String, SensorDiscoverer> entry : mDiscoverers.entrySet()) {
+            SensorDiscoverer discoverer = entry.getValue();
             startScanning(entry.getKey(), discoverer, pool, keysSeen, true);
         }
         mPresenter.refreshScanningUI();
     }
 
-    private void startScanning(final String providerKey, ExternalSensorDiscoverer discoverer,
+    private void startScanning(final String providerKey, SensorDiscoverer discoverer,
             final TaskPool pool, final Set<String> keysSeen, final boolean startSpinners) {
         ExternalSensorProvider provider = discoverer.getProvider();
         final String providerId = provider.getProviderId();
@@ -265,15 +267,15 @@ public class ConnectableSensorRegistry {
         mUsageTracker.trackEvent(TrackerConstants.CATEGORY_SENSOR_MANAGEMENT,
                 TrackerConstants.ACTION_SCAN, providerId, 0);
 
-        ExternalSensorDiscoverer.ScanListener listener =
-                new ExternalSensorDiscoverer.ScanListener() {
+        SensorDiscoverer.ScanListener listener =
+                new SensorDiscoverer.ScanListener() {
                     @Override
-                    public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
+                    public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {
                         ConnectableSensorRegistry.this.onSensorFound(sensor, keysSeen);
                     }
 
                     @Override
-                    public void onServiceFound(ExternalSensorDiscoverer.DiscoveredService service) {
+                    public void onServiceFound(SensorDiscoverer.DiscoveredService service) {
                         getAvailableGroup().addAvailableService(providerKey, service,
                                 startSpinners);
                     }
@@ -284,7 +286,7 @@ public class ConnectableSensorRegistry {
                     }
 
                     @Override
-                    public void onDeviceFound(ExternalSensorDiscoverer.DiscoveredDevice device) {
+                    public void onDeviceFound(SensorDiscoverer.DiscoveredDevice device) {
                         getAvailableGroup().addAvailableDevice(device);
                         if (mDeviceRegistry != null) {
                             mDeviceRegistry.addDevice(device.getSpec());
@@ -322,7 +324,7 @@ public class ConnectableSensorRegistry {
         }
     }
 
-    private void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor ds,
+    private void onSensorFound(SensorDiscoverer.DiscoveredSensor ds,
             Set<String> availableKeysSeen) {
         ConnectableSensor sensor = mConnector.disconnected(ds.getSensorSpec());
         final String sensorKey = findSensorKey(sensor);
@@ -359,13 +361,17 @@ public class ConnectableSensorRegistry {
     }
 
     private void replaceSensorDataDuringScan(final String sensorKey, ConnectableSensor oldSensor,
-            final ExternalSensorDiscoverer.DiscoveredSensor newSensor) {
+            final SensorDiscoverer.DiscoveredSensor newSensor) {
         mSettingsIntents.put(sensorKey, newSensor.getSettingsInterface());
-        if (!newSensor.getSpec().isSameSensorAndSpec(oldSensor.getSpec())
+
+        // TODO: can we avoid translating here?
+        ExternalSensorSpec newSpec =
+                ExternalSensorSpec.fromGoosciSpec(newSensor.getSensorSpec(), mProviders);
+        if (!newSpec.isSameSensorAndSpec(oldSensor.getSpec())
             && newSensor.shouldReplaceStoredSensor(oldSensor)) {
             final String oldSensorId = oldSensor.getConnectedSensorId();
             DeviceOptionsViewController.maybeReplaceSensor(mDataController, mExperimentId,
-                    oldSensorId, newSensor.getSpec(),
+                    oldSensorId, newSpec,
                     new LoggingConsumer<String>(TAG, "replacing sensor on scan") {
                         @Override
                         public void success(String newSensorId) {
@@ -376,6 +382,11 @@ public class ConnectableSensorRegistry {
                         }
                     });
         }
+    }
+
+    public static final boolean isSameSensorAndSpec(GoosciSensorSpec.SensorSpec a,
+            GoosciSensorSpec.SensorSpec b) {
+        return MessageNano.messageNanoEquals(a, b);
     }
 
     private String findSensorKey(ConnectableSensor sensor) {
@@ -440,7 +451,7 @@ public class ConnectableSensorRegistry {
 
     @NonNull
     private String registerSensor(String key, ConnectableSensor sensor,
-            ExternalSensorDiscoverer.SettingsInterface settingsInterface) {
+            SensorDiscoverer.SettingsInterface settingsInterface) {
         if (key == null) {
             key = EXTERNAL_SENSOR_KEY_PREFIX + (mKeyNum++);
         }
@@ -505,7 +516,7 @@ public class ConnectableSensorRegistry {
     }
 
     public void stopScanningInDiscoverers() {
-        for (ExternalSensorDiscoverer discoverer : mDiscoverers.values()) {
+        for (SensorDiscoverer discoverer : mDiscoverers.values()) {
             discoverer.stopScanning();
         }
         if (mTimeoutRunnable != null) {
@@ -610,7 +621,7 @@ public class ConnectableSensorRegistry {
     }
 
     public void reloadProvider(String providerKey, boolean startSpinners) {
-        ExternalSensorDiscoverer discoverer = mDiscoverers.get(providerKey);
+        SensorDiscoverer discoverer = mDiscoverers.get(providerKey);
         if (discoverer == null) {
             throw new IllegalArgumentException(
                     "Couldn't find " + providerKey + " in " + mDiscoverers);
