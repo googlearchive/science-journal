@@ -159,6 +159,7 @@ public class CameraPreview extends SurfaceView {
 
     public void removeCamera() {
         if (mCamera != null) {
+            mCamera.stopPreview();
             mCamera.release();
             mCamera = null;
         }
@@ -206,6 +207,7 @@ public class CameraPreview extends SurfaceView {
         // Bake in the new preview size
         params.setPreviewSize(bestSize.width, bestSize.height);
         try {
+            mCamera.stopPreview();
             mCamera.setParameters(params);
         } catch (RuntimeException e) {
             if (Log.isLoggable(TAG, Log.ERROR)) {
@@ -214,6 +216,8 @@ public class CameraPreview extends SurfaceView {
                 Log.e(TAG, msg, e);
                 return;
             }
+        } finally {
+            mCamera.startPreview();
         }
 
         // Remeasure to match ideal
