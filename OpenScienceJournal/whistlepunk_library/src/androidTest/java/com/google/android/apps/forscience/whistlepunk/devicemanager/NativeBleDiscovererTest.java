@@ -23,8 +23,8 @@ import com.google.android.apps.forscience.whistlepunk.AccumulatingConsumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.RecordingRunnable;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 public class NativeBleDiscovererTest extends AndroidTestCase {
     // TODO: can we make this a JDK-only test?
@@ -71,23 +71,23 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
             }
         };
 
-        final AccumulatingConsumer<ExternalSensorDiscoverer.DiscoveredSensor> sensorsSeen =
+        final AccumulatingConsumer<SensorDiscoverer.DiscoveredSensor> sensorsSeen =
                 new AccumulatingConsumer<>();
         final RecordingRunnable onScanDone = new RecordingRunnable();
-        ExternalSensorDiscoverer.ScanListener listener =
-                new ExternalSensorDiscoverer.ScanListener() {
+        SensorDiscoverer.ScanListener listener =
+                new SensorDiscoverer.ScanListener() {
                     @Override
-                    public void onServiceFound(ExternalSensorDiscoverer.DiscoveredService service) {
+                    public void onServiceFound(SensorDiscoverer.DiscoveredService service) {
 
                     }
 
                     @Override
-                    public void onDeviceFound(ExternalSensorDiscoverer.DiscoveredDevice device) {
+                    public void onDeviceFound(SensorDiscoverer.DiscoveredDevice device) {
 
                     }
 
                     @Override
-                    public void onSensorFound(ExternalSensorDiscoverer.DiscoveredSensor sensor) {
+                    public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {
                         sensorsSeen.take(sensor);
                     }
 
@@ -103,10 +103,10 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
                 };
         discoverer.startScanning(listener, TestConsumers.expectingSuccess());
         assertEquals(1, sensorsSeen.seen.size());
-        ExternalSensorSpec sensor = sensorsSeen.seen.get(0).getSpec();
-        assertEquals(name, sensor.getName());
-        assertEquals(address, sensor.getAddress());
-        assertEquals(BleSensorSpec.TYPE, sensor.getType());
+        GoosciSensorSpec.SensorSpec sensor = sensorsSeen.seen.get(0).getSensorSpec();
+        assertEquals(name, sensor.rememberedAppearance.name);
+        assertEquals(address, sensor.address);
+        assertEquals(BleSensorSpec.TYPE, sensor.providerId);
         assertFalse(onScanDone.hasRun);
         discoverer.stopScanning();
         assertTrue(onScanDone.hasRun);

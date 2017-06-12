@@ -23,6 +23,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.nano.CodedOutputByteBufferNano;
 import com.google.protobuf.nano.MessageNano;
@@ -81,7 +82,7 @@ public abstract class ExternalSensorSpec {
     /**
      * @return the address at which this sensor sits.  This is opaque to whistlepunk; each sensor
      * that an
-     * {@link com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer}
+     * {@link SensorDiscoverer}
      * returns must have a unique address, but that address need not have any specific semantic
      * relationship to how the sensor is physically addressed.
      */
@@ -90,7 +91,7 @@ public abstract class ExternalSensorSpec {
     /**
      * @return an "address" for the device that hosts this sensor.  This is opaque to whistlepunk;
      * each device that is referred to by a sensor that an
-     * {@link com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer}
+     * {@link SensorDiscoverer}
      * returns must have a unique address, but that address need not have any specific semantic
      * relationship to how the device is physically addressed.
      *
@@ -164,12 +165,13 @@ public abstract class ExternalSensorSpec {
     }
 
     public GoosciSensorSpec.SensorSpec asGoosciSpec() {
-        // TODO: fill in other fields here (providerId, address, etc)
+        // TODO: fill in other fields here?  hostDescription?  hostId?
         GoosciSensorSpec.SensorSpec spec = new GoosciSensorSpec.SensorSpec();
         spec.providerId = getType();
         spec.rememberedAppearance = new GoosciSensorAppearance.BasicSensorAppearance();
         spec.rememberedAppearance.name = getName();
         spec.config = getConfig();
+        spec.address = getAddress();
         return spec;
     }
 

@@ -51,12 +51,12 @@ public interface SensorGroup {
      * @param service
      * @param startSpinners whether this new service should be shown as "loading"
      */
-    void addAvailableService(String providerId, ExternalSensorDiscoverer.DiscoveredService service,
+    void addAvailableService(String providerId, SensorDiscoverer.DiscoveredService service,
             boolean startSpinners);
 
     void onServiceScanComplete(String serviceId);
 
-    void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device);
+    void addAvailableDevice(SensorDiscoverer.DiscoveredDevice device);
 
     // TODO: too many methods that only some implementors care about
     void setMyDevices(List<InputDeviceSpec> device);

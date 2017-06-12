@@ -17,13 +17,11 @@ package com.google.android.apps.forscience.whistlepunk.modules;
 
 import android.content.Context;
 
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.AppDiscoveryCallbacks;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarSensorServiceFinder;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 
 import dagger.Module;
 import dagger.Provides;
@@ -35,7 +33,7 @@ public class ScalarInputDiscoveryModule {
     @Provides
     @IntoMap
     @StringKey(ScalarInputSpec.TYPE)
-    public ExternalSensorDiscoverer providesScalarInputDiscoverer(Context context,
+    public SensorDiscoverer providesScalarInputDiscoverer(Context context,
             UsageTracker usageTracker) {
         return new ScalarInputDiscoverer(new ScalarSensorServiceFinder(context), context,
                 usageTracker);

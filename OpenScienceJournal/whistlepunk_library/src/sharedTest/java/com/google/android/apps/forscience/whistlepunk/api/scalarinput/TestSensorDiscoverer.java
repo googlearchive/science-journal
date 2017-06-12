@@ -21,7 +21,7 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -148,10 +148,10 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
     }
 
     @NonNull
-    public Map<String, ExternalSensorDiscoverer> makeDiscovererMap(String serviceId) {
+    public Map<String, SensorDiscoverer> makeDiscovererMap(String serviceId) {
         ScalarInputDiscoverer sid = makeScalarInputDiscoverer(serviceId,
                 MoreExecutors.directExecutor());
-        Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
+        Map<String, SensorDiscoverer> discoverers = new HashMap<>();
         discoverers.put(ScalarInputSpec.TYPE, sid);
         return discoverers;
     }
@@ -159,8 +159,8 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
     @NonNull
     public Map<String, ExternalSensorProvider> makeProviderMap(String serviceId) {
         Map<String, ExternalSensorProvider> providers = new HashMap<>();
-        Map<String, ExternalSensorDiscoverer> discoverers = makeDiscovererMap(serviceId);
-        for (Map.Entry<String, ExternalSensorDiscoverer> entry : discoverers.entrySet()) {
+        Map<String, SensorDiscoverer> discoverers = makeDiscovererMap(serviceId);
+        for (Map.Entry<String, SensorDiscoverer> entry : discoverers.entrySet()) {
             providers.put(entry.getKey(), entry.getValue().getProvider());
         }
         return providers;

@@ -35,15 +35,14 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
+public class ScalarInputDiscoverer implements SensorDiscoverer {
     private static final long DEFAULT_SCAN_TIMEOUT_MILLIS = 10_000;
     private static String TAG = "SIDiscoverer";
     public static final String SCALAR_INPUT_PROVIDER_ID =
@@ -286,10 +285,6 @@ public class ScalarInputDiscoverer implements ExternalSensorDiscoverer {
                             return;
                         }
                         mScanListener.onSensorFound(new DiscoveredSensor() {
-                            @Override
-                            public ExternalSensorSpec getSpec() {
-                                return spec;
-                            }
 
                             @Override
                             public GoosciSensorSpec.SensorSpec getSensorSpec() {

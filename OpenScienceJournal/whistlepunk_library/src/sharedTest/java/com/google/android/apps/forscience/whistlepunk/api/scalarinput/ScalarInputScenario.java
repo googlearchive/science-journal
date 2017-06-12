@@ -20,7 +20,7 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ExternalSensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -86,7 +86,7 @@ public class ScalarInputScenario {
     }
 
     @NonNull
-    public Map<String, ExternalSensorDiscoverer> makeScalarInputDiscoverers() {
+    public Map<String, SensorDiscoverer> makeScalarInputDiscoverers() {
         return makeTestSensorDiscoverer().makeDiscovererMap(getServiceId());
     }
 

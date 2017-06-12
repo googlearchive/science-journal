@@ -58,7 +58,7 @@ class MemorySensorGroup implements SensorGroup {
 
     @Override
     public void addAvailableService(String providerId,
-            ExternalSensorDiscoverer.DiscoveredService service, boolean startSpinners) {
+            SensorDiscoverer.DiscoveredService service, boolean startSpinners) {
 
     }
 
@@ -68,7 +68,7 @@ class MemorySensorGroup implements SensorGroup {
     }
 
     @Override
-    public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
+    public void addAvailableDevice(SensorDiscoverer.DiscoveredDevice device) {
 
     }
 

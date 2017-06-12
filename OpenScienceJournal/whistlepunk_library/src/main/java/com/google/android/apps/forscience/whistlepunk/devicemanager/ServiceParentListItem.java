@@ -28,13 +28,13 @@ import java.util.List;
 public class ServiceParentListItem implements ParentListItem {
     // TODO: duplication with DeviceParentListItem
     private String mProviderId;
-    private ExternalSensorDiscoverer.DiscoveredService mService;
+    private SensorDiscoverer.DiscoveredService mService;
     private ArrayList<DeviceWithSensors> mDevices = Lists.newArrayList();
     private boolean mIsLoading;
     private boolean mIsNowExpanded;
 
     public ServiceParentListItem(String providerId,
-            ExternalSensorDiscoverer.DiscoveredService service,
+            SensorDiscoverer.DiscoveredService service,
             boolean startsExpanded) {
         mProviderId = providerId;
         mService = service;
@@ -71,7 +71,7 @@ public class ServiceParentListItem implements ParentListItem {
         return mService.getServiceId().equals(serviceId);
     }
 
-    public boolean addDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
+    public boolean addDevice(SensorDiscoverer.DiscoveredDevice device) {
         for (DeviceWithSensors spec : mDevices) {
             if (spec.isSameSensor(device.getSpec())) {
                 return false;
@@ -104,7 +104,7 @@ public class ServiceParentListItem implements ParentListItem {
         return false;
     }
 
-    public ExternalSensorDiscoverer.ServiceConnectionError getConnectionErrorIfAny() {
+    public SensorDiscoverer.ServiceConnectionError getConnectionErrorIfAny() {
         return mService.getConnectionErrorIfAny();
     }
 

@@ -32,8 +32,8 @@ public class ExpandableServiceAdapterTest {
         final BleSensorSpec spec = new BleSensorSpec("address", "name");
         ExpandableServiceAdapter adapter = ExpandableServiceAdapter.createEmpty(null, null, 0,
                 new DeviceRegistry(null), null, null);
-        ExternalSensorDiscoverer.DiscoveredService service =
-                new ExternalSensorDiscoverer.DiscoveredService() {
+        SensorDiscoverer.DiscoveredService service =
+                new SensorDiscoverer.DiscoveredService() {
                     @Override
                     public String getServiceId() {
                         return "serviceId";
@@ -50,14 +50,14 @@ public class ExpandableServiceAdapterTest {
                     }
 
                     @Override
-                    public ExternalSensorDiscoverer.ServiceConnectionError
+                    public SensorDiscoverer.ServiceConnectionError
                     getConnectionErrorIfAny() {
                         return null;
                     }
                 };
         adapter.addAvailableService("providerId", service, false);
         final InputDeviceSpec deviceSpec = DeviceRegistry.createHoldingDevice(spec);
-        adapter.addAvailableDevice(new ExternalSensorDiscoverer.DiscoveredDevice() {
+        adapter.addAvailableDevice(new SensorDiscoverer.DiscoveredDevice() {
             @Override
             public String getServiceId() {
                 return "serviceId";

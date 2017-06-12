@@ -46,7 +46,7 @@ public class ConnectableSensor {
     public static class Connector {
         private final Map<String, ExternalSensorProvider> mProviders;
 
-        public static Connector fromDiscoverers(Map<String, ExternalSensorDiscoverer> discoverers) {
+        public static Connector fromDiscoverers(Map<String, SensorDiscoverer> discoverers) {
             return new Connector(AppSingleton.buildProviderMap(discoverers));
         }
 

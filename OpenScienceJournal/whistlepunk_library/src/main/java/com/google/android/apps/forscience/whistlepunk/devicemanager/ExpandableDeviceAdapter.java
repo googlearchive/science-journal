@@ -31,7 +31,6 @@ import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.Runnables;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -224,7 +223,7 @@ public class ExpandableDeviceAdapter extends
     }
 
     @Override
-    public void addAvailableDevice(ExternalSensorDiscoverer.DiscoveredDevice device) {
+    public void addAvailableDevice(SensorDiscoverer.DiscoveredDevice device) {
         // Don't need anything here; we'll grab from DeviceRegistry if this is My Device
     }
 
@@ -319,7 +318,7 @@ public class ExpandableDeviceAdapter extends
 
     @Override
     public void addAvailableService(String providerId,
-            ExternalSensorDiscoverer.DiscoveredService service, boolean startSpinners) {
+            SensorDiscoverer.DiscoveredService service, boolean startSpinners) {
         // This view doesn't track services
     }
 

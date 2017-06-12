@@ -59,7 +59,7 @@ public class ExpandableDeviceAdapterTest {
 
     private Scenario mScenario = new Scenario();
     private Map<String, ExternalSensorProvider> mProviders = mScenario.providers;
-    private Map<String, ExternalSensorDiscoverer> mDiscoverers = mScenario.discoverers;
+    private Map<String, SensorDiscoverer> mDiscoverers = mScenario.discoverers;
     private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector(mProviders);
     private ConnectableSensorRegistry mSensorRegistry =
             new ConnectableSensorRegistry(mDataController, mDiscoverers, mPresenter,
@@ -73,7 +73,7 @@ public class ExpandableDeviceAdapterTest {
         private EnumeratedDiscoverer mDiscoverer = new EnumeratedDiscoverer();
 
         public Map<String, ExternalSensorProvider> providers = new HashMap<>();
-        public Map<String, ExternalSensorDiscoverer> discoverers = new HashMap<>();
+        public Map<String, SensorDiscoverer> discoverers = new HashMap<>();
 
         public ScalarInputSpec makeSensorNewDevice() {
             String deviceId = Arbitrary.string("deviceId" + mSensorCount);
