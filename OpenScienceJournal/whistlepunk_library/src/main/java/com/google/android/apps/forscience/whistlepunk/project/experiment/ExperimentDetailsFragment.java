@@ -103,8 +103,8 @@ import java.util.Objects;
  * A fragment to handle displaying Experiment details, runs and labels.
  */
 public class ExperimentDetailsFragment extends Fragment
-        implements AddNoteDialog.ListenerProvider, EditNoteDialog.EditNoteDialogListener,
-        Handler.Callback, DeleteMetadataItemDialog.DeleteDialogListener {
+        implements AddNoteDialog.ListenerProvider, Handler.Callback,
+        DeleteMetadataItemDialog.DeleteDialogListener {
 
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
     public static final String ARG_OLDEST_AT_TOP = "oldest_at_top";
@@ -519,18 +519,6 @@ public class ExperimentDetailsFragment extends Fragment
                 });
     }
 
-    private void launchPicturePreview(Label label) {
-        EditNoteDialog dialog = EditNoteDialog.newInstance(label, null,
-                label.getTimeStamp(), mExperimentId, RecorderController.NOT_RECORDING_RUN_ID);
-        dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
-    }
-
-    private void launchLabelEdit(final Label label) {
-        EditNoteDialog dialog = EditNoteDialog.newInstance(label, null,
-                label.getTimeStamp(), mExperimentId, RecorderController.NOT_RECORDING_RUN_ID);
-        dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
-    }
-
     private void launchLabelAdd() {
         long now = AppSingleton.getInstance(getActivity()).getSensorEnvironment()
                 .getDefaultClock().getNow();
@@ -573,27 +561,6 @@ public class ExperimentDetailsFragment extends Fragment
                 // No timestamp editing available in Experiments.
             }
         };
-    }
-
-    @Override
-    public MaybeConsumer<Success> onLabelEdit(final Label label) {
-        return new LoggingConsumer<Success>(TAG, "edit label text") {
-            @Override
-            public void success(Success value) {
-                mAdapter.updateLabel(label);
-                WhistlePunkApplication.getUsageTracker(getActivity())
-                        .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                TrackerConstants.ACTION_EDITED,
-                                TrackerConstants.LABEL_EXPERIMENT_DETAIL,
-                                TrackerConstants.getLabelValueType(label));
-            }
-        };
-    }
-
-    @Override
-    public void onEditNoteTimestampClicked(Label label, Label editedLabel,
-            long labelTimestamp) {
-        // No timestamp editing available in Experiments.
     }
 
     private void onLabelDelete(final Label item) {
@@ -759,6 +726,7 @@ public class ExperimentDetailsFragment extends Fragment
             boolean isPictureLabel = type == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
             boolean isTextLabel = type == VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
             boolean isTriggerLabel = type == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
+            // TODO: Add snapshot label.
             if (isPictureLabel || isTextLabel || isTriggerLabel) {
                 // TODO: Can this code be reused from PinnedNoteAdapter?
                 TextView textView = (TextView) holder.itemView.findViewById(R.id.note_text);
@@ -779,41 +747,26 @@ public class ExperimentDetailsFragment extends Fragment
                 }
                 ((RelativeTimeTextView) holder.itemView.findViewById(R.id.duration_text)).setTime(
                         label.getTimeStamp());
-                if (isTextLabel || isPictureLabel) {
-                    holder.itemView.findViewById(R.id.note_menu_button).setVisibility(View.GONE);
-                } else {
-                    setupNoteMenu(label, holder.itemView.findViewById(R.id.note_menu_button));
-                }
                 ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.note_image);
                 if (isPictureLabel) {
                     imageView.setVisibility(View.VISIBLE);
                     PictureUtils.loadExperimentImage(imageView.getContext(), imageView,
                             mExperiment.getExperimentId(), label.getPictureLabelValue().filePath);
                     autoTextView.setVisibility(View.GONE);
-                }
-                // Set the click listeners
-                if (isTextLabel || isPictureLabel) {
-                    holder.itemView.setOnClickListener(view -> {
-                        if (mParentReference.get() != null) {
-                            LabelDetailsActivity.launch(holder.itemView.getContext(),
-                                    mExperiment.getExperimentId(), label);
-                        }
-                    });
-                } else {
-                    holder.cardView.setOnClickListener(v -> {
-                        if (mParentReference.get() != null) {
-                            mParentReference.get().launchLabelEdit(label);
-                        }
-                    });
+                } else if (isTriggerLabel) {
                     imageView.setVisibility(View.GONE);
-                    if (isTriggerLabel) {
-                        autoTextView.setVisibility(View.VISIBLE);
-                        // TODO: Show new trigger labels.
-                        TriggerHelper.populateAutoTextViews(autoTextView, "TODO",
-                                R.drawable.ic_label_black_18dp, autoTextView.getResources());
-
-                    }
+                    autoTextView.setVisibility(View.VISIBLE);
+                    // TODO: Show new trigger labels.
+                    TriggerHelper.populateAutoTextViews(autoTextView, "TODO",
+                            R.drawable.ic_label_black_18dp, autoTextView.getResources());
                 }
+                holder.itemView.findViewById(R.id.note_menu_button).setVisibility(View.GONE);
+                holder.itemView.setOnClickListener(view -> {
+                    if (mParentReference.get() != null) {
+                        LabelDetailsActivity.launch(holder.itemView.getContext(),
+                                mExperiment.getExperimentId(), label);
+                    }
+                });
             }
             if (type == VIEW_TYPE_EXPERIMENT_DESCRIPTION) {
                 TextView description = (TextView) holder.itemView.findViewById(
@@ -836,45 +789,6 @@ public class ExperimentDetailsFragment extends Fragment
                         view.getResources().getDrawable(R.drawable.empty_run));
 
             }
-        }
-
-        private void setupNoteMenu(final Label label, final View menu) {
-            menu.setVisibility(View.VISIBLE);
-            menu.setOnClickListener(v -> {
-                Context context = menu.getContext();
-                PopupMenu popup = new PopupMenu(context, menu);
-                popup.getMenuInflater().inflate(R.menu.menu_note, popup.getMenu());
-                popup.setOnMenuItemClickListener(item -> {
-                    if (item.getItemId() == R.id.btn_edit_note) {
-                        if (mParentReference.get() != null) {
-                            mParentReference.get().launchLabelEdit(label);
-                        }
-                        return true;
-                    } else if (item.getItemId() == R.id.btn_delete_note) {
-                        // TODO: Fully move delete into detail views, then get rid of this menu
-                        return true;
-                    }
-                    return false;
-                });
-                popup.show();
-            });
-        }
-
-        public void updateLabel(Label label) {
-            if (!(label.getType() == GoosciLabel.Label.TEXT ||
-                    label.getType() == GoosciLabel.Label.PICTURE ||
-                    label.getType() == GoosciLabel.Label.SENSOR_TRIGGER)) {
-                if (Log.isLoggable(TAG, Log.WARN)) {
-                    Log.w(TAG, "How did we try to replace text on a non-text label?");
-                }
-                return;
-            }
-            int position = findLabelIndex(label);
-            if (position == -1) {
-                return;
-            }
-            mItems.get(position).setLabel(label);
-            notifyItemChanged(position);
         }
 
         public void deleteNote(Label label) {

@@ -137,7 +137,8 @@
         <activity
             android:name=".review.labels.LabelDetailsActivity"
             android:exported="false"
-            android:theme="@style/AppTheme.RunReview"
+            android:theme="@style/NoBarTheme.Experiment"
+            android:windowSoftInputMode="adjustResize"
             android:parentActivityName=".project.experiment.ExperimentDetailsActivity"
             >
             <meta-data
