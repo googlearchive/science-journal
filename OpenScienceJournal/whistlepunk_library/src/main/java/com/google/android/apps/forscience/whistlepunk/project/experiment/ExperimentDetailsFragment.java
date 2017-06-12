@@ -656,7 +656,9 @@ public class ExperimentDetailsFragment extends Fragment
         }
         FeatureDiscoveryProvider provider = WhistlePunkApplication.getFeatureDiscoveryProvider(
                 getActivity());
-        mObserveButton.setTag(TAG);
+        if (mObserveButton != null) {
+            mObserveButton.setTag(TAG);
+        }
         provider.show(((AppCompatActivity) getActivity()),
                 FeatureDiscoveryProvider.FEATURE_OBSERVE_FAB, TAG);
     }
