@@ -72,13 +72,19 @@ public abstract class LabelListHolder {
 
     /**
      * Deletes a label from this object and also deletes any assets associated with that label.
+     * Matches by Label ID.
      */
-    public void deleteLabel(Label label, Context context, String experimentId) {
-        if (label.getType() == GoosciLabel.Label.PICTURE) {
-            beforeDeletingPictureLabel(label);
+    public void deleteLabel(Label toDelete, Context context, String experimentId) {
+        if (toDelete.getType() == GoosciLabel.Label.PICTURE) {
+            beforeDeletingPictureLabel(toDelete);
         }
-        label.deleteAssets(context, experimentId);
-        mLabels.remove(label);
+        toDelete.deleteAssets(context, experimentId);
+        for (Label label : mLabels) {
+            if (TextUtils.equals(label.getLabelId(), toDelete.getLabelId())) {
+                mLabels.remove(label);
+                break;
+            }
+        }
     }
 
     private void sortLabels() {

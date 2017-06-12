@@ -85,6 +85,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
+import com.google.android.apps.forscience.whistlepunk.review.labels.LabelDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
@@ -108,6 +109,7 @@ public class ExperimentDetailsFragment extends Fragment
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
     public static final String ARG_OLDEST_AT_TOP = "oldest_at_top";
     public static final String ARG_DISAPPEARING_ACTION_BAR = "disappearing_action_bar";
+    public static final String ARG_DELETED_LABEL = "deleted_label";
     public static final String ARG_CREATE_TASK = "create_task";
     private static final String TAG = "ExperimentDetails";
     private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
@@ -132,6 +134,7 @@ public class ExperimentDetailsFragment extends Fragment
     private Toolbar mControlledToolbar;
     private BroadcastReceiver mBroadcastReceiver;
     private boolean mDisappearingActionBar;
+    private Label mDeletedLabel;
 
     /**
      * Creates a new instance of this fragment.
@@ -146,13 +149,15 @@ public class ExperimentDetailsFragment extends Fragment
      *                              action bar, which should disappear when the items scroll up.
      */
     public static ExperimentDetailsFragment newInstance(String experimentId,
-            boolean createTaskStack, boolean oldestAtTop, boolean disappearingActionBar) {
+            boolean createTaskStack, boolean oldestAtTop, boolean disappearingActionBar,
+            Label deletedLabel) {
         ExperimentDetailsFragment fragment = new ExperimentDetailsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_EXPERIMENT_ID, experimentId);
         args.putBoolean(ARG_CREATE_TASK, createTaskStack);
         args.putBoolean(ARG_OLDEST_AT_TOP, oldestAtTop);
         args.putBoolean(ARG_DISAPPEARING_ACTION_BAR, disappearingActionBar);
+        args.putParcelable(ARG_DELETED_LABEL, deletedLabel);
         fragment.setArguments(args);
         return fragment;
     }
@@ -166,6 +171,10 @@ public class ExperimentDetailsFragment extends Fragment
         mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
         mOldestAtTop = getArguments().getBoolean(ARG_OLDEST_AT_TOP, false);
         mDisappearingActionBar = getArguments().getBoolean(ARG_DISAPPEARING_ACTION_BAR, true);
+        if (savedInstanceState == null) {
+            // Only try to restore a deleted label the first time.
+            mDeletedLabel = getArguments().getParcelable(ARG_DELETED_LABEL);
+        }
         mHandler = new Handler(this);
         setHasOptionsMenu(true);
     }
@@ -367,6 +376,11 @@ public class ExperimentDetailsFragment extends Fragment
         final View rootView = getView();
         if (rootView == null) {
             return;
+        }
+
+        if (mDeletedLabel != null) {
+            onLabelDelete(mDeletedLabel);
+            mDeletedLabel = null;
         }
 
         getActivity().setTitle(experiment.getDisplayTitle(getActivity()));
@@ -614,17 +628,9 @@ public class ExperimentDetailsFragment extends Fragment
                 });
             }
         });
-
-        // Delete the item immediately, and remove it from the pinned note list.
-        // TODO: Deleting the assets makes undo not work on photo labels...
-        mExperiment.deleteLabel(item, getActivity());
-        dc.updateExperiment(mExperimentId, new LoggingConsumer<Success>(TAG, "delete label") {
-            @Override
-            public void success(Success value) {
-                mAdapter.deleteNote(item);
-            }
-        });
         bar.show();
+
+        mAdapter.deleteNote(item);
 
         WhistlePunkApplication.getUsageTracker(getActivity())
                 .trackEvent(TrackerConstants.CATEGORY_NOTES,
@@ -773,9 +779,20 @@ public class ExperimentDetailsFragment extends Fragment
                 }
                 ((RelativeTimeTextView) holder.itemView.findViewById(R.id.duration_text)).setTime(
                         label.getTimeStamp());
-                setupNoteMenu(label, holder.itemView.findViewById(R.id.note_menu_button));
+                if (isTextLabel) {
+                    holder.itemView.findViewById(R.id.note_menu_button).setVisibility(View.GONE);
+                } else {
+                    setupNoteMenu(label, holder.itemView.findViewById(R.id.note_menu_button));
+                }
                 ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.note_image);
-                if (isPictureLabel) {
+                if (isTextLabel) {
+                    holder.itemView.setOnClickListener(view -> {
+                        if (mParentReference.get() != null) {
+                            LabelDetailsActivity.launch(holder.itemView.getContext(),
+                                    mExperiment.getExperimentId(), label);
+                        }
+                    });
+                } else if (isPictureLabel) {
                     imageView.setVisibility(View.VISIBLE);
                     PictureUtils.loadExperimentImage(imageView.getContext(), imageView,
                             mExperiment.getExperimentId(), label.getPictureLabelValue().filePath);
@@ -826,6 +843,7 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         private void setupNoteMenu(final Label label, final View menu) {
+            menu.setVisibility(View.VISIBLE);
             menu.setOnClickListener(v -> {
                 Context context = menu.getContext();
                 PopupMenu popup = new PopupMenu(context, menu);
@@ -837,9 +855,7 @@ public class ExperimentDetailsFragment extends Fragment
                         }
                         return true;
                     } else if (item.getItemId() == R.id.btn_delete_note) {
-                        if (mParentReference.get() != null) {
-                            mParentReference.get().onLabelDelete(label);
-                        }
+                        // TODO: Fully move delete into detail views, then get rid of this menu
                         return true;
                     }
                     return false;

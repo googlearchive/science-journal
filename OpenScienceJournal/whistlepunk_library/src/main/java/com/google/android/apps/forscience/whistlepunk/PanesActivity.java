@@ -168,9 +168,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             boolean createTaskStack = false;
             boolean oldestAtTop = true;
             boolean disappearingActionBar = false;
+            Label deletedLabel = getIntent().getExtras().getParcelable(
+                    ExperimentDetailsFragment.ARG_DELETED_LABEL);
             mExperimentFragment =
                     ExperimentDetailsFragment.newInstance(experimentId,
-                            createTaskStack, oldestAtTop, disappearingActionBar);
+                            createTaskStack, oldestAtTop, disappearingActionBar, deletedLabel);
 
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()

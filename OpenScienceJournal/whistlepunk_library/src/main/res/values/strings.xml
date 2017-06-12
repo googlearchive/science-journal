@@ -1408,6 +1408,8 @@ Permissions notice:
     <!-- Long description of a compass sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_compass">As you may have noticed, the magnetometer in your phone responds not just to the Earth\'s magnetic field, but also to any and every magnetic field that happens to be around. Magnets, electric currents, and metal objects will easily steer your phone\'s magnetometer this way and that, causing the compass reading to change. Stand in an open area—preferably outdoors and far from power lines— if you want to be sure that your compass\'s red tip is aligning with the Earth\'s magnetic field. It helps to move your phone in a figure 8 pattern to calibrate the magnetometer in your phone.</string>
 
+    <!-- Title of a activity to edit the value of a text note [CHAR_LIMIT=30] -->
+    <string name="text_label_details_title">Edit text note</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

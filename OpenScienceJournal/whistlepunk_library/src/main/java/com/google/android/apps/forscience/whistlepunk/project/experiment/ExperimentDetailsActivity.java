@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.MetadataActivity;
 
 public class ExperimentDetailsActivity extends MetadataActivity {
@@ -37,11 +38,12 @@ public class ExperimentDetailsActivity extends MetadataActivity {
         Bundle extras = getIntent().getExtras();
         if (savedInstanceState == null && extras != null) {
             String experimentId = extras.getString(ExperimentDetailsFragment.ARG_EXPERIMENT_ID);
+            Label deletedLabel = extras.getParcelable(ExperimentDetailsFragment.ARG_DELETED_LABEL);
             boolean oldestAtTop = false;
             boolean disappearingActionBar = true;
             ExperimentDetailsFragment fragment = ExperimentDetailsFragment.newInstance(experimentId,
                     extras.getBoolean(ExperimentDetailsFragment.ARG_CREATE_TASK, false),
-                    oldestAtTop, disappearingActionBar);
+                    oldestAtTop, disappearingActionBar, deletedLabel);
             getFragmentManager().beginTransaction().add(R.id.container, fragment,
                     FRAGMENT_TAG).commit();
         } else if (savedInstanceState != null) {
