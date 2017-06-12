@@ -318,6 +318,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
+    public List<GoosciUserMetadata.ExperimentOverview> blockingGetExperimentOverviews(
+            boolean includeArchived) {
+        return mMetaDataManager.getExperimentOverviews(includeArchived);
+    }
+
+    @Override
     public void getLastUsedUnarchivedExperiment(final MaybeConsumer<Experiment> onSuccess) {
         MaybeConsumer<Experiment> onSuccessWrapper = new MaybeConsumer<Experiment>() {
             @Override

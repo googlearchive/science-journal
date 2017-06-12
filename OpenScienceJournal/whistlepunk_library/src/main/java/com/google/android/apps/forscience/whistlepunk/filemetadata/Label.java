@@ -280,7 +280,6 @@ public class Label implements Parcelable {
             if (!deleted && Log.isLoggable(TAG, Log.WARN)) {
                 Log.w(TAG, "Could not delete " + file.toString());
             }
-            PictureUtils.scanFile(file.getAbsolutePath(), context);
         }
     }
 

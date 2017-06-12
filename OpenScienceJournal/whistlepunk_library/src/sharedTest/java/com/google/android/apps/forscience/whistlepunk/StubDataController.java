@@ -23,6 +23,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -93,6 +94,12 @@ public class StubDataController implements DataController {
     public void getExperimentOverviews(boolean includeArchived,
             MaybeConsumer<List<GoosciUserMetadata.ExperimentOverview>> onSuccess) {
 
+    }
+
+    @Override
+    public List<GoosciUserMetadata.ExperimentOverview> blockingGetExperimentOverviews(
+            boolean includeArchived) {
+        return null;
     }
 
     @Override

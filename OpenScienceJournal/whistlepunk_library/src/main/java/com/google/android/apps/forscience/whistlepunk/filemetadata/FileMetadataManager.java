@@ -210,7 +210,11 @@ public class FileMetadataManager {
     }
 
     private static String getExperimentDirectory(Context context, String experimentId) {
-        return context.getFilesDir() + "/experiments/" + experimentId + "/";
+        return getExperimentsRootDirectory(context) + experimentId + "/";
+    }
+
+    public static String getExperimentsRootDirectory(Context context) {
+        return context.getFilesDir() + "/experiments/";
     }
 
     /**
