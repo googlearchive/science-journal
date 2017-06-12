@@ -264,7 +264,7 @@ public class AddNoteDialog extends DialogFragment {
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
         alertDialog.setView(rootView);
-        alertDialog.setPositiveButton(R.string.action_save, (dialog1, which) -> addLabel());
+        alertDialog.setPositiveButton(R.string.action_save, null);
         alertDialog.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
         alertDialog.setCancelable(true);
         AlertDialog dialog = alertDialog.create();
@@ -272,6 +272,11 @@ public class AddNoteDialog extends DialogFragment {
             dialog.getWindow().setSoftInputMode(
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
+        // Set the click listener for the postive button separately so we can control when the
+        // dialog closes. This allows us to not close the dialog in the case of an error.
+        dialog.setOnShowListener(
+                dialogInterface -> dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                        .setOnClickListener(view -> addLabel()));
         return dialog;
     }
 
@@ -468,21 +473,31 @@ public class AddNoteDialog extends DialogFragment {
         // Save this as a picture label if it has a picture, otherwise just save it as a text
         // label.
         getTimestamp().subscribe(t -> {
+            boolean success = false;
             if (hasPicture()) {
-                addPictureLabel(t);
+                success = addPictureLabel(t);
             } else {
-                addTextLabel(t);
+                success = addTextLabel(t);
+            }
+            if (success) {
+                getDialog().dismiss();
             }
         });
     }
 
-    private void addTextLabel(long timestamp) {
+    private boolean addTextLabel(long timestamp) {
+        String text = mInput.getText().toString();
+        if (TextUtils.isEmpty(text)) {
+            mInput.setError(getResources().getString(R.string.empty_text_note_error));
+            return false;
+        }
         GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
-        labelValue.text = mInput.getText().toString();
+        labelValue.text = text;
         mInput.setText("");
         Label label = Label.newLabelWithValue(timestamp, GoosciLabel.Label.TEXT,
                 labelValue, null);
         addLabel(label);
+        return true;
     }
 
     private Maybe<Long> getTimestamp() {
@@ -494,7 +509,7 @@ public class AddNoteDialog extends DialogFragment {
         }
     }
 
-    private void addPictureLabel(long timestamp) {
+    private boolean addPictureLabel(long timestamp) {
         GoosciPictureLabelValue.PictureLabelValue labelValue = new GoosciPictureLabelValue
                 .PictureLabelValue();
         labelValue.filePath = mPictureLabelPath;
@@ -507,6 +522,7 @@ public class AddNoteDialog extends DialogFragment {
         addLabel(label);
         PictureUtils.scanFile(mPictureLabelPath, getActivity());
         mPictureLabelPath = null;
+        return true;
     }
 
     private void addLabel(final Label label) {
