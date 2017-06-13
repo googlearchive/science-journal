@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -120,9 +121,21 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
     }
 
     private void saveTextChanges(String newText) {
+        if (!verifyInput(newText)) {
+            return;
+        }
         GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
         labelValue.text = newText;
         mOriginalLabel.setLabelProtoData(labelValue);
         saveUpdatedOriginalLabel();
+    }
+
+    private boolean verifyInput(String text) {
+        if (TextUtils.isEmpty(text)) {
+            mNoteText.setError(getActivity().getResources().getString(
+                    R.string.empty_text_note_error));
+            return false;
+        }
+        return true;
     }
 }

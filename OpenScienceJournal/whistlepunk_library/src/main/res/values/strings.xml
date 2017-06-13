@@ -1411,6 +1411,9 @@ Permissions notice:
     <!-- Title of a activity to edit the value of a text note [CHAR_LIMIT=30] -->
     <string name="text_label_details_title">Edit text note</string>
 
+    <!-- Error text for when a user tries to save an empty text note [CHAR_LIMIT=100] -->
+    <string name="empty_text_note_error">Text notes cannot be empty</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
