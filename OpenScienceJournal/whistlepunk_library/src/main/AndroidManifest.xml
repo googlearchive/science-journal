@@ -137,7 +137,7 @@
         <activity
             android:name=".review.labels.LabelDetailsActivity"
             android:exported="false"
-            android:theme="@style/NoBarTheme.Experiment"
+            android:theme="@style/NoBarTheme.Review"
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName=".project.experiment.ExperimentDetailsActivity"
             >
@@ -159,7 +159,7 @@
             android:exported="false"
             android:label="@string/title_activity_update_experiment"
             android:parentActivityName=".project.experiment.ExperimentDetailsActivity"
-            android:theme="@style/AppTheme.UpdateMetadata"
+            android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateVisible|adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -170,7 +170,7 @@
             android:exported="false"
             android:label="@string/title_activity_trigger_list"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.UpdateMetadata"
+            android:theme="@style/AppTheme.Triggers"
             >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -183,7 +183,7 @@
             android:exported="false"
             android:label="@string/title_activity_edit_trigger"
             android:parentActivityName=".metadata.TriggerListActivity"
-            android:theme="@style/AppTheme.UpdateMetadata"
+            android:theme="@style/AppTheme.Triggers"
             android:windowSoftInputMode="stateHidden"
             >
             <meta-data
@@ -206,7 +206,7 @@
             android:exported="false"
             android:label="@string/title_activity_experiment_details"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/NoBarTheme.Experiment">
+            android:theme="@style/NoBarTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
@@ -221,7 +221,7 @@
             android:name=".intro.TutorialActivity"
             android:exported="false"
             android:label="@string/title_activity_tutorial"
-            android:theme="@style/NoBarTheme.Experiment"
+            android:theme="@style/NoBarTheme.Review"
             android:launchMode="singleTop">
         </activity>
         <activity

@@ -27,9 +27,6 @@
     <style name="NoBarTheme.MainActivity" parent="NoBarTheme">
     </style>
 
-    <style name="NoBarTheme.ProjectDetails" parent="NoBarTheme">
-    </style>
-
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
@@ -43,14 +40,14 @@
         <item name="colorAccent">@color/color_accent</item>
     </style>
 
-    <!-- For activities that deal with experiments. Different primary color. -->
-    <style name="NoBarTheme.Experiment">
+    <!-- For activities that deal with reviewing data. Different primary color. -->
+    <style name="NoBarTheme.Review">
         <item name="colorPrimaryDark">@color/color_accent_dark</item>
         <item name="colorPrimary">@color/color_accent</item>
     </style>
 
-    <!-- Metadata update activities for projects and experiments have a different primary color. -->
-    <style name="AppTheme.UpdateMetadata">
+    <!-- Metadata update activities for triggers have a different primary color. -->
+    <style name="AppTheme.Triggers">
         <item name="colorPrimaryDark">@color/color_accent_dark</item>
         <item name="colorPrimary">@color/color_accent</item>
     </style>
@@ -61,9 +58,11 @@
     </style>
 
     <style name="AppTheme.RunReview">
+        <item name="colorPrimaryDark">@color/color_accent_dark</item>
+        <item name="colorPrimary">@color/color_accent</item>
         <item name="android:actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
-        <item name="android:actionModeBackground">@color/color_primary</item>
-        <item name="actionModeBackground">@color/color_primary</item>
+        <item name="android:actionModeBackground">@color/color_accent</item>
+        <item name="actionModeBackground">@color/color_accent</item>
     </style>
 
     <style name="AppTheme.Panes">

@@ -16,7 +16,6 @@
  -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group
-        android:id="@+id/navigation_top"
         android:checkableBehavior="single">
         <item
             android:id="@+id/navigation_item_observe"
@@ -26,14 +25,7 @@
         <item
             android:id="@+id/navigation_item_experiments"
             android:icon="@drawable/ic_navlibrary_black_24dp"
-            android:title="@string/navigation_item_projects"/>
-    </group>
-    <group
-        android:id="@+id/navigation_project_list"
-        />
-    <group
-        android:id="@+id/navigation_bottom"
-        >
+            android:title="@string/navigation_item_experiments"/>
         <item
             android:id="@+id/navigation_item_activities"
             android:icon="@drawable/ic_web_asset_black_24dp"

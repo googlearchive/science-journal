@@ -245,9 +245,6 @@
     <!-- Title of the navigation item to select observe page [CHAR_LIMIT=25] -->
     <string name="navigation_item_observe">Observe</string>
 
-    <!-- Title of the navigation item to select project library page [CHAR_LIMIT=25] -->
-    <string name="navigation_item_projects">Project library</string>
-
     <!-- Title of the navigation item to go to making science activities [CHAR_LIMIT=25] -->
     <string name="navigation_item_activities">Activities</string>
 
@@ -1413,6 +1410,9 @@ Permissions notice:
 
     <!-- Error text for when a user tries to save an empty text note [CHAR_LIMIT=100] -->
     <string name="empty_text_note_error">Text notes cannot be empty</string>
+
+    <!-- Title of the navigation item to select experiment list page [CHAR_LIMIT=25] -->
+    <string name="navigation_item_experiments">Experiments</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

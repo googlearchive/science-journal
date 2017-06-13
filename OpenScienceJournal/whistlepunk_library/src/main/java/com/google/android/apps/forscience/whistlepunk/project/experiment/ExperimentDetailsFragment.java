@@ -768,7 +768,7 @@ public class ExperimentDetailsFragment extends Fragment
                         R.id.metadata_description);
                 holder.itemView.findViewById(R.id.metadata_description_holder)
                         .setBackgroundColor(holder.itemView.getContext().getResources()
-                                .getColor(R.color.color_accent_dark));
+                                .getColor(R.color.color_primary_dark));
                 holder.itemView.findViewById(R.id.description_overlap_spacer).setVisibility(
                         hasEmptyView() ? View.GONE : View.VISIBLE);
                 description.setText(mExperiment.getDescription());

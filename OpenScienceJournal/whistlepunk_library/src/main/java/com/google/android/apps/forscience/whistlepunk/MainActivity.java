@@ -298,7 +298,8 @@ public class MainActivity extends AppCompatActivity
         if (menuItem == null) {
             return false;
         }
-        if (menuItem.getGroupId() == R.id.navigation_top) {
+        if (menuItem.getItemId() == R.id.navigation_item_observe ||
+                menuItem.getItemId() == R.id.navigation_item_experiments) {
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             Fragment fragment;
@@ -319,7 +320,7 @@ public class MainActivity extends AppCompatActivity
             mDrawerLayout.closeDrawers();
             restoreActionBar();
             mSelectedItemId = itemId;
-        } else if (menuItem.getGroupId() == R.id.navigation_bottom) {
+        } else {
             mDrawerLayout.closeDrawers();
             // Launch intents
             Intent intent = null;
@@ -365,6 +366,8 @@ public class MainActivity extends AppCompatActivity
     private CharSequence getTitleToRestore(MenuItem menuItem) {
         if (menuItem.getItemId() == R.id.navigation_item_observe) {
             return null;
+        } else if (menuItem.getItemId() == R.id.navigation_item_experiments) {
+            return getResources().getString(R.string.app_name);
         } else {
             return menuItem.getTitle();
         }
