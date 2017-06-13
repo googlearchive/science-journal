@@ -196,7 +196,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             @Override
             public Experiment call() throws Exception {
                 Experiment experiment = mMetaDataManager.newExperiment();
-                mMetaDataManager.setLastUsedExperiment(experiment);
                 return experiment;
             }
         });
@@ -262,12 +261,11 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             onSuccess.fail(new Exception("Experiment not loaded"));
             return;
         }
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.updateExperiment(experiment);
-                return Success.SUCCESS;
-            }
+        // Every time we update the experiment, we can update its last used time.
+        experiment.setLastUsedTime(mClock.getNow());
+        background(mMetaDataThread, onSuccess, () -> {
+            mMetaDataManager.updateExperiment(experiment);
+            return Success.SUCCESS;
         });
 
     }
@@ -394,18 +392,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                                 });
                     }
                 }));
-    }
-
-    @Override
-    public void setLastUsedExperiment(
-            final Experiment experiment, MaybeConsumer<Success> onSuccess) {
-        background(mMetaDataThread, onSuccess, new Callable<Success>() {
-            @Override
-            public Success call() throws Exception {
-                mMetaDataManager.setLastUsedExperiment(experiment);
-                return Success.SUCCESS;
-            }
-        });
     }
 
     @Override

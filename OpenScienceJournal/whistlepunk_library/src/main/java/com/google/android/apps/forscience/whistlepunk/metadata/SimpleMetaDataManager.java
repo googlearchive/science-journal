@@ -669,6 +669,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
+    @Deprecated
     public void setLastUsedExperiment(Experiment experiment) {
         getFileMetadataManager().setLastUsedExperiment(experiment);
     }

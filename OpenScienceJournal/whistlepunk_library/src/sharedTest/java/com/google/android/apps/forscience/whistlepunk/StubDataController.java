@@ -119,11 +119,6 @@ public class StubDataController implements DataController {
     }
 
     @Override
-    public void setLastUsedExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
     public void addOrGetExternalSensor(ExternalSensorSpec sensor,
             MaybeConsumer<String> onSensorId) {
 
