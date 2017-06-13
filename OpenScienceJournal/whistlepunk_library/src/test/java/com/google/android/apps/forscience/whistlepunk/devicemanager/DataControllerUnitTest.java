@@ -20,11 +20,11 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
+import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
@@ -37,6 +37,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class DataControllerUnitTest {
     @Test
@@ -45,7 +46,7 @@ public class DataControllerUnitTest {
         RecordingDataController controller = db.makeSimpleRecordingController(
                 new MemoryMetadataManager());
         controller.setDataErrorListenerForSensor("tag",
-                new ExplodingFactory().makeListenerForOperation(""));
+                ExplodingFactory.makeListener());
 
         controller.addScalarReading("tag", 0, 1234, 12.34);
 
@@ -94,6 +95,36 @@ public class DataControllerUnitTest {
         assertEquals(trial.getTrialId(), runWhileStopped.getTrialId());
         assertTrue(runWhileStopped.isValid());
         assertEquals(15, runWhileStarted.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
+    }
+
+    @Test
+    public void tryToUpdateUncachedExperiment() {
+        InMemorySensorDatabase db = new InMemorySensorDatabase();
+        MemoryMetadataManager manager = new MemoryMetadataManager();
+        final DataController dc = db.makeSimpleController(manager);
+        try {
+            Experiment uncached = manager.newExperiment();
+            dc.updateExperiment(uncached, TestConsumers.expectingSuccess());
+        } catch (IllegalArgumentException expected) {
+            return;
+        }
+        fail("Should have thrown");
+    }
+
+    @Test
+    public void tryToUpdateMiscachedExperiment() {
+        InMemorySensorDatabase db = new InMemorySensorDatabase();
+        MemoryMetadataManager manager = new MemoryMetadataManager();
+        final DataController dc = db.makeSimpleController(manager);
+        Experiment e = RxDataController.createExperiment(dc).test().values().get(0);
+        Experiment miscached = manager.newExperiment(0, e.getExperimentId());
+
+        try {
+            dc.updateExperiment(miscached, TestConsumers.expectingSuccess());
+        } catch (IllegalArgumentException expected) {
+            return;
+        }
+        fail("Should have thrown");
     }
 
     private Trial getOnlyExperimentRun(DataController dc, String experimentId) {
