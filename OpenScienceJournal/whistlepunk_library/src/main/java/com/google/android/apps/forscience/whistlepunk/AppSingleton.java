@@ -186,7 +186,9 @@ public class AppSingleton {
     }
 
     /**
-     * Connect to and return the RecorderController {@see #getRecorderController}
+     * Connect to and return the RecorderController {@see #getRecorderController}.
+     *
+     * Current code convention is to treat this as immediate, that is, no unsubscribe is needed.
      */
     public Single<RecorderController> whenRecorderController() {
         return Single.just(getRecorderController());

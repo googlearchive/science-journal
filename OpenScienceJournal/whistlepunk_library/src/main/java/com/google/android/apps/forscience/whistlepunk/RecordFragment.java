@@ -43,7 +43,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageButton;
 
@@ -76,12 +75,10 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -97,10 +94,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.SingleObserver;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -623,20 +617,17 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         View resetButton = rootView.findViewById(R.id.btn_reset);
         ExternalAxisView axisView = (ExternalAxisView) rootView.findViewById(R.id.external_x_axis);
         mExternalAxis = new ExternalAxisController(axisView,
-                new ExternalAxisController.AxisUpdateListener() {
-                    @Override
-                    public void onAxisUpdated(long xMin, long xMax, boolean isPinnedToNow) {
-                        if (mSensorCardAdapter == null) {
-                            return;
-                        }
-                        List<SensorCardPresenter> sensorCardPresenters =
-                                mSensorCardAdapter.getSensorCardPresenters();
-                        for (SensorCardPresenter sensorCardPresenter : sensorCardPresenters) {
-                            SensorPresenter presenter = sensorCardPresenter.getSensorPresenter();
-                            if (presenter != null) {
-                                presenter.onGlobalXAxisChanged(xMin, xMax, isPinnedToNow,
-                                        getDataController());
-                            }
+                (xMin, xMax, isPinnedToNow) -> {
+                    if (mSensorCardAdapter == null) {
+                        return;
+                    }
+                    List<SensorCardPresenter> sensorCardPresenters =
+                            mSensorCardAdapter.getSensorCardPresenters();
+                    for (SensorCardPresenter sensorCardPresenter : sensorCardPresenters) {
+                        SensorPresenter presenter = sensorCardPresenter.getSensorPresenter();
+                        if (presenter != null) {
+                            presenter.onGlobalXAxisChanged(xMin, xMax, isPinnedToNow,
+                                    getDataController());
                         }
                     }
                 }, /* IsLive */ true, new CurrentTimeClock(), resetButton);
@@ -648,7 +639,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             addButton.setVisibility(View.GONE);
         } else {
             addButton.setVisibility(View.VISIBLE);
-            attachAddButton(addButton).subscribe(o -> {
+            attachAddButton(addButton);
+
+            RxView.clicks(addButton).subscribe(o -> {
                 // Save the timestamp for the note, but show the user a UI to create it:
                 // Can't create the note yet as we don't know ahead of time if this is a picture
                 // or text note.
@@ -699,7 +692,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             });
         });
 
-        mRecordingState.subscribe(state -> {
+        mRecordingState.takeUntil(RxView.detaches(recordButton)).subscribe(state -> {
             recordButton.setEnabled(state.shouldEnableRecordButton());
 
             if (state.shouldShowStopButton()) {
@@ -716,8 +709,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         });
     }
 
-    private Observable<Object> attachAddButton(ImageButton addButton) {
-        mRecordingState.subscribe(state -> {
+    private void attachAddButton(ImageButton addButton) {
+        mRecordingState.takeUntil(RxView.detaches(addButton)).subscribe(state -> {
             addButton.setEnabled(state.shouldEnableRecordButton());
 
             if (state.shouldShowStopButton()) {
@@ -728,8 +721,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                         getResources().getString(R.string.btn_add_experiment_note_description));
             }
         });
-
-        return RxView.clicks(addButton);
     }
 
     private boolean getShowSnapshot() {
@@ -925,12 +916,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                     }
         });
 
-        rc.setLayoutSupplier(new Supplier<List<GoosciSensorLayout.SensorLayout>>() {
-            @Override
-            public List<GoosciSensorLayout.SensorLayout> get() {
-                return buildCurrentLayouts();
-            }
-        });
+        rc.setLayoutSupplier(() -> buildCurrentLayouts());
 
         updateSensorCount();
         mSensorCardAdapter.setRecording(isRecording(), getRecordingStartTime());
@@ -990,13 +976,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             }
         });
         mSensorCardRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-
-                    @Override
-                    public void onGlobalLayout() {
-                        adjustSensorCardAddAlpha();
-                    }
-                });
+                () -> adjustSensorCardAddAlpha());
     }
 
     private List<String> getAllIncludedSources() {
@@ -1082,25 +1062,19 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         sensorCardPresenter.setSensorStatusListener(sensorStatusListener);
         // TODO: make this externally testable.
         sensorCardPresenter.setOnRetryClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Retry streaming.
-                        final String sensorId = sensorCardPresenter.getSelectedSensorId();
-                        if (sensorId != null && mSensorCardAdapter.getSensorCardPresenters()
-                                .contains(sensorCardPresenter)) {
-                            sensorCardPresenter.retryConnection(getActivity());
-                        }
+                v -> {
+                    // Retry streaming.
+                    final String sensorId = sensorCardPresenter.getSelectedSensorId();
+                    if (sensorId != null && mSensorCardAdapter.getSensorCardPresenters()
+                            .contains(sensorCardPresenter)) {
+                        sensorCardPresenter.retryConnection(getActivity());
                     }
                 });
 
         sensorCardPresenter.setOnSensorSelectedListener(
-                new SensorCardPresenter.OnSensorClickListener() {
-                    @Override
-                    public void onSensorClicked(String sensorId) {
-                        sensorCardPresenter.stopObserving();
-                        tryStartObserving(sensorCardPresenter, sensorId, true);
-                    }
+                sensorId -> {
+                    sensorCardPresenter.stopObserving();
+                    tryStartObserving(sensorCardPresenter, sensorId, true);
                 });
         sensorCardPresenter.setAppearanceProvider(getSensorAppearanceProvider());
 
@@ -1487,12 +1461,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                         .getSensorAppearanceProvider().getAppearance(sensorId).getNumberFormat();
                 final SensorPresenter sensorPresenter = sensorChoice.createPresenter(
                         sensorCardPresenter.getDataViewOptions(), numberFormat,
-                        new StatsListener() {
-                            @Override
-                            public void onStatsUpdated(List<StreamStat> stats) {
-                                if (isRecording()) {
-                                    sensorCardPresenter.updateStats(stats);
-                                }
+                        stats -> {
+                            if (isRecording()) {
+                                sensorCardPresenter.updateStats(stats);
                             }
                         });
 
@@ -1567,12 +1538,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                     trigger.getValueToTrigger(), units);
             final Snackbar bar = AccessibilityUtils.makeSnackbar(getView(), message,
                     Snackbar.LENGTH_LONG);
-            bar.setAction(R.string.scroll_to_card, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mSensorCardLayoutManager.scrollToPosition(getPositionOfPresenter(presenter));
-                }
-            });
+            bar.setAction(R.string.scroll_to_card,
+                    v -> mSensorCardLayoutManager.scrollToPosition(
+                            getPositionOfPresenter(presenter)));
             showSnackbar(bar);
         }
     }
@@ -1745,6 +1713,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         return RecordingMetadata.getStartTime(mCurrentRecording);
     }
 
+    // Current code convention is to treat this as immediate, that is, no unsubscribe is needed.
     private Single<RecorderController> whenRecorderController() {
         return AppSingleton.getInstance(getActivity()).whenRecorderController();
     }
