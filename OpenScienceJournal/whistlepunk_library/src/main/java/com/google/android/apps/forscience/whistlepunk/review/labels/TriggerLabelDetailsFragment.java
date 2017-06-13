@@ -16,34 +16,30 @@
 
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageView;
 
-import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.Clock;
-import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 
 /**
- * Details view controller for PictureLabel
+ * Details view controller for a TriggerLabel.
  */
-public class PictureLabelDetailsFragment extends LabelDetailsFragment {
+public class TriggerLabelDetailsFragment extends LabelDetailsFragment {
 
-    public static PictureLabelDetailsFragment newInstance(String experimentId,
+    public static TriggerLabelDetailsFragment newInstance(String experimentId,
             Label originalLabel) {
-        PictureLabelDetailsFragment result = new PictureLabelDetailsFragment();
+        TriggerLabelDetailsFragment result = new TriggerLabelDetailsFragment();
         Bundle args = new Bundle();
         args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
         args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
@@ -51,39 +47,44 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
         return result;
     }
 
-    public PictureLabelDetailsFragment() {
+    public TriggerLabelDetailsFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             final Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        View rootView = inflater.inflate(R.layout.picture_label_details_fragment, container, false);
+        View rootView = inflater.inflate(R.layout.sensor_readings_label_details_fragment, container, false);
+
+        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
+            // TODO: replace these once the Trigger page is in spec.
+            actionBar.setTitle("Triggered at...");
+            actionBar.setSubtitle("subtitle...");
+        }
+
+        // TODO: Populate the list with trigger values.
 
         setupCaption(rootView);
-
-        ImageView imageView = (ImageView) rootView.findViewById(R.id.image);
-        PictureUtils.loadExperimentImage(getActivity(), imageView, mExperimentId,
-                mOriginalLabel.getPictureLabelValue().filePath);
-
-        // TODO: Transition
 
         return rootView;
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_picture_label_details, menu);
-
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle("");
-
+        inflater.inflate(R.menu.menu_sensor_item_label_details, menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_delete);
+        item.getIcon().mutate().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+        super.onPrepareOptionsMenu(menu);
     }
 }

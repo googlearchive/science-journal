@@ -73,13 +73,11 @@ public class LabelDetailsActivity extends AppCompatActivity {
                 fragment = PictureLabelDetailsFragment.newInstance(
                         getIntent().getExtras().getString(ARG_EXPERIMENT_ID), originalLabel);
             } else if (labelType == GoosciLabel.Label.SENSOR_TRIGGER) {
-                // TODO
-                finish();
-                return;
+                fragment = TriggerLabelDetailsFragment.newInstance(
+                        getIntent().getExtras().getString(ARG_EXPERIMENT_ID), originalLabel);
             } else if (labelType == GoosciLabel.Label.SNAPSHOT) {
-                // TODO
-                finish();
-                return;
+                fragment = SnapshotLabelDetailsFragment.newInstance(
+                        getIntent().getExtras().getString(ARG_EXPERIMENT_ID), originalLabel);
             } else {
                 // Unknown type
                 finish();
