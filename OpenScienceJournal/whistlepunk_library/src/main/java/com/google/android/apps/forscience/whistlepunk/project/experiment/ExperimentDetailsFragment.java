@@ -727,35 +727,67 @@ public class ExperimentDetailsFragment extends Fragment
                 TextView textView = (TextView) holder.itemView.findViewById(R.id.note_text);
                 TextView autoTextView = (TextView) holder.itemView.findViewById(
                         R.id.auto_note_text);
+                View captionView = holder.itemView.findViewById(R.id.caption_section);
+                ImageView editIcon = (ImageView) holder.itemView.findViewById(R.id.edit_icon);
                 final Label label = mItems.get(position).getLabel();
-                String text = isTextLabel ? label.getTextLabelValue().text : label.getCaptionText();
-                if (!TextUtils.isEmpty(text)) {
-                    textView.setText(text);
-                    textView.setTextColor(textView.getResources().getColor(
-                            R.color.text_color_black));
+                if (isTextLabel) {
+                    // No caption.
+                    textView.setVisibility(View.VISIBLE);
+                    captionView.setVisibility(View.GONE);
+                    String text = label.getTextLabelValue().text;
+                    if (!TextUtils.isEmpty(text)) {
+                        textView.setText(text);
+                        textView.setTextColor(textView.getResources().getColor(
+                                R.color.text_color_black));
+                    } else {
+                        textView.setText(textView.getResources().getString(
+                                R.string.pinned_note_placeholder_text));
+                        textView.setTextColor(
+                                textView.getResources().getColor(R.color.text_color_light_grey));
+                    }
+                    editIcon.setImageDrawable(editIcon.getContext().getResources().getDrawable(
+                            R.drawable.ic_mode_edit_white_24dp));
                 } else {
-                    textView.setText(textView.getResources().getString(isPictureLabel ?
-                            R.string.picture_note_caption_hint :
-                            R.string.pinned_note_placeholder_text));
-                    textView.setTextColor(
-                            textView.getResources().getColor(R.color.text_color_light_grey));
+                    // Deal with the caption
+                    textView.setVisibility(View.GONE);
+                    String caption = label.getCaptionText();
+                    if (!TextUtils.isEmpty(caption)) {
+                        captionView.setVisibility(View.VISIBLE);
+                        TextView captionTextView = (TextView) holder.itemView.findViewById(
+                                R.id.caption);
+                        captionTextView.setText(caption);
+                        editIcon.setImageDrawable(editIcon.getContext().getResources().getDrawable(
+                                R.drawable.ic_mode_edit_white_24dp));
+                    } else {
+                        captionView.setVisibility(View.GONE);
+                        editIcon.setImageDrawable(editIcon.getContext().getResources().getDrawable(
+                                R.drawable.ic_comment_white_24dp));
+                    }
                 }
-                ((RelativeTimeTextView) holder.itemView.findViewById(R.id.duration_text)).setTime(
-                        label.getTimeStamp());
+
                 ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.note_image);
                 if (isPictureLabel) {
                     imageView.setVisibility(View.VISIBLE);
                     PictureUtils.loadExperimentImage(imageView.getContext(), imageView,
                             mExperiment.getExperimentId(), label.getPictureLabelValue().filePath);
-                    autoTextView.setVisibility(View.GONE);
-                } else if (isTriggerLabel) {
+                } else {
                     imageView.setVisibility(View.GONE);
+                }
+
+                if (isTriggerLabel) {
                     autoTextView.setVisibility(View.VISIBLE);
                     // TODO: Show new trigger labels.
                     TriggerHelper.populateAutoTextViews(autoTextView, "TODO",
                             R.drawable.ic_label_black_18dp, autoTextView.getResources());
+                } else {
+                    autoTextView.setVisibility(View.GONE);
                 }
-                holder.itemView.findViewById(R.id.note_menu_button).setVisibility(View.GONE);
+
+                // Common to all labels.
+                ((RelativeTimeTextView) holder.itemView.findViewById(R.id.duration_text)).setTime(
+                        label.getTimeStamp());
+                ColorUtils.colorDrawable(editIcon.getContext(), editIcon.getDrawable(),
+                        R.color.text_color_light_grey);
                 holder.itemView.setOnClickListener(view -> {
                     if (mParentReference.get() != null) {
                         LabelDetailsActivity.launch(holder.itemView.getContext(),
