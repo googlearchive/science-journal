@@ -66,6 +66,7 @@ import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
+import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
@@ -556,6 +557,12 @@ public class ExperimentDetailsFragment extends Fragment
         };
     }
 
+    void deleteLabel(Label label) {
+        mExperiment.deleteLabel(label, getActivity());
+        RxDataController.updateExperiment(getDataController(), mExperiment)
+                .subscribe(() -> onLabelDelete(label));
+    }
+
     private void onLabelDelete(final Label item) {
         final DataController dc = getDataController();
         Snackbar bar = AccessibilityUtils.makeSnackbar(getView(), getActivity().getResources()
@@ -723,15 +730,17 @@ public class ExperimentDetailsFragment extends Fragment
             boolean isTriggerLabel = type == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
             // TODO: Add snapshot label.
             if (isPictureLabel || isTextLabel || isTriggerLabel) {
-                // TODO: Can this code be reused from PinnedNoteAdapter?
+                // TODO: Can this code be shared with PinnedNoteAdapter?
                 TextView textView = (TextView) holder.itemView.findViewById(R.id.note_text);
                 TextView autoTextView = (TextView) holder.itemView.findViewById(
                         R.id.auto_note_text);
                 View captionView = holder.itemView.findViewById(R.id.caption_section);
-                ImageView editIcon = (ImageView) holder.itemView.findViewById(R.id.edit_icon);
+                ImageView captionIcon = (ImageView) holder.itemView.findViewById(R.id.edit_icon);
+                ImageButton menuButton = (ImageButton) holder.itemView.findViewById(
+                        R.id.note_menu_button);
                 final Label label = mItems.get(position).getLabel();
                 if (isTextLabel) {
-                    // No caption.
+                    // No caption, and no caption edit button.
                     textView.setVisibility(View.VISIBLE);
                     captionView.setVisibility(View.GONE);
                     String text = label.getTextLabelValue().text;
@@ -745,8 +754,7 @@ public class ExperimentDetailsFragment extends Fragment
                         textView.setTextColor(
                                 textView.getResources().getColor(R.color.text_color_light_grey));
                     }
-                    editIcon.setImageDrawable(editIcon.getContext().getResources().getDrawable(
-                            R.drawable.ic_mode_edit_white_24dp));
+                    captionIcon.setVisibility(View.GONE);
                 } else {
                     // Deal with the caption
                     textView.setVisibility(View.GONE);
@@ -756,12 +764,10 @@ public class ExperimentDetailsFragment extends Fragment
                         TextView captionTextView = (TextView) holder.itemView.findViewById(
                                 R.id.caption);
                         captionTextView.setText(caption);
-                        editIcon.setImageDrawable(editIcon.getContext().getResources().getDrawable(
-                                R.drawable.ic_mode_edit_white_24dp));
+                        captionIcon.setVisibility(View.GONE);
                     } else {
                         captionView.setVisibility(View.GONE);
-                        editIcon.setImageDrawable(editIcon.getContext().getResources().getDrawable(
-                                R.drawable.ic_comment_white_24dp));
+                        captionIcon.setVisibility(View.VISIBLE);
                     }
                 }
 
@@ -786,8 +792,25 @@ public class ExperimentDetailsFragment extends Fragment
                 // Common to all labels.
                 ((RelativeTimeTextView) holder.itemView.findViewById(R.id.duration_text)).setTime(
                         label.getTimeStamp());
-                ColorUtils.colorDrawable(editIcon.getContext(), editIcon.getDrawable(),
+                ColorUtils.colorDrawable(captionIcon.getContext(), captionIcon.getDrawable(),
                         R.color.text_color_light_grey);
+                ColorUtils.colorDrawable(menuButton.getContext(), menuButton.getDrawable(),
+                        R.color.text_color_light_grey);
+                menuButton.setOnClickListener(view -> {
+                    Context context = menuButton.getContext();
+                    PopupMenu popup = new PopupMenu(context, menuButton);
+                    popup.getMenuInflater().inflate(R.menu.menu_experiment_note, popup.getMenu());
+                    popup.setOnMenuItemClickListener(menuItem -> {
+                        if (menuItem.getItemId() == R.id.btn_delete_note) {
+                            if (mParentReference.get() != null) {
+                                mParentReference.get().deleteLabel(label);
+                            }
+                            return true;
+                        }
+                        return false;
+                    });
+                    popup.show();
+                });
                 holder.itemView.setOnClickListener(view -> {
                     if (mParentReference.get() != null) {
                         LabelDetailsActivity.launch(holder.itemView.getContext(),
@@ -1234,7 +1257,7 @@ public class ExperimentDetailsFragment extends Fragment
             ImageView sensorImage;
             ImageButton sensorPrev;
             ImageButton sensorNext;
-            public ProgressBar progressView;
+            ProgressBar progressView;
 
             public ViewHolder(View itemView, int viewType) {
                 super(itemView);

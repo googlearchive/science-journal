@@ -37,7 +37,7 @@
         android:maxLines="5"
         android:layout_alignParentBottom="true"
         android:id="@+id/caption"
-        android:hint="@string/picture_note_caption_hint"
+        android:hint="@string/note_caption_hint"
         android:layout_margin="8dp"
         />
 
