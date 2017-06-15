@@ -27,6 +27,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -54,6 +55,10 @@ import com.google.android.apps.forscience.whistlepunk.project.experiment.Experim
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -120,13 +125,17 @@ public class ExperimentListFragment extends Fragment {
 
         mExperimentListAdapter = new ExperimentListAdapter(getActivity(), getDataController(),
                 shouldUsePanes());
-        // TODO: Instead of hard-coding a GridLayout to 2, we need to be flexible to show only one
-        // row when in an empty state and to show items that span the whole width as the date
-        // headers. May need a different type of LayoutManager or way to sort the items in the
-        // adapter to manage this.
-        // Plus we probably will have a different column count for different layout widths.
+        // TODO: Adjust the column count based on breakpoint specs when available.
         int column_count = 2;
-        detailList.setLayoutManager(new GridLayoutManager(getActivity(), column_count));
+        GridLayoutManager manager = new GridLayoutManager(getActivity(), column_count);
+        manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                return mExperimentListAdapter.getItemViewType(position) ==
+                        ExperimentListAdapter.VIEW_TYPE_EXPERIMENT ? 1 : column_count;
+            }
+        });
+        detailList.setLayoutManager(manager);
         detailList.setAdapter(mExperimentListAdapter);
 
         FloatingActionButton newExperimentButton = (FloatingActionButton) view.findViewById(
@@ -199,29 +208,72 @@ public class ExperimentListFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    static class ExperimentListItem {
+        public final int viewType;
+        public final GoosciUserMetadata.ExperimentOverview experimentOverview;
+        public final String dateString;
+
+        ExperimentListItem(GoosciUserMetadata.ExperimentOverview experimentOverview) {
+            viewType = ExperimentListAdapter.VIEW_TYPE_EXPERIMENT;
+            this.experimentOverview = experimentOverview;
+            dateString = null;
+        }
+
+        ExperimentListItem(String date) {
+            viewType = ExperimentListAdapter.VIEW_TYPE_DATE;
+            dateString = date;
+            experimentOverview = null;
+        }
+    }
+
     public static class ExperimentListAdapter extends RecyclerView.Adapter<ViewHolder> {
         static final int VIEW_TYPE_EXPERIMENT = 0;
         static final int VIEW_TYPE_EMPTY = 1;
+        static final int VIEW_TYPE_DATE = 2;
         private final Drawable mPlaceHolderImage;
         private DataController mDataController;
 
-        private List<GoosciUserMetadata.ExperimentOverview> mExperiments;
+        private List<ExperimentListItem> mItems;
         private boolean mShouldUsePanes;
         private boolean mIncludeArchived;
+        private final Calendar mCalendar;
+        private final int mCurrentYear;
+        private final String mMonthYearFormat;
 
         public ExperimentListAdapter(Context context, DataController dc, boolean shouldUsePanes) {
-            mExperiments = new ArrayList<>();
+            mItems = new ArrayList<>();
             mPlaceHolderImage = context.getResources().getDrawable(
                     R.drawable.experiment_card_placeholder);
             mDataController = dc;
             mShouldUsePanes = shouldUsePanes;
+            mCalendar = Calendar.getInstance(
+                    context.getResources().getConfiguration().locale);
+            mCurrentYear = mCalendar.get(Calendar.YEAR);
+            mMonthYearFormat = context.getResources().getString(R.string.month_year_format);
         }
 
-        void setData(List<GoosciUserMetadata.ExperimentOverview> experiments,
+        void setData(List<GoosciUserMetadata.ExperimentOverview> experimentOverviews,
                 boolean includeArchived) {
             mIncludeArchived = includeArchived;
-            mExperiments.clear();
-            mExperiments.addAll(experiments);
+            mItems.clear();
+            if (experimentOverviews.size() == 0) {
+                return;
+            }
+            // Sort most recent first
+            Collections.sort(experimentOverviews,
+                    (eo1, eo2) -> Long.compare(eo2.lastUsedTimeMs, eo1.lastUsedTimeMs));
+            String date = "";
+            for (GoosciUserMetadata.ExperimentOverview overview : experimentOverviews) {
+                // Only show the year if it is not this year.
+                mCalendar.setTime(new Date(overview.lastUsedTimeMs));
+                String nextDate = DateFormat.format(mCalendar.get(Calendar.YEAR) == mCurrentYear ?
+                        "MMMM" : mMonthYearFormat, mCalendar).toString();
+                if (!TextUtils.equals(date, nextDate)) {
+                    date = nextDate;
+                    mItems.add(new ExperimentListItem(date));
+                }
+                mItems.add(new ExperimentListItem(overview));
+            }
             notifyDataSetChanged();
         }
 
@@ -231,6 +283,8 @@ public class ExperimentListFragment extends Fragment {
             View view;
             if (viewType == VIEW_TYPE_EMPTY) {
                 view = inflater.inflate(R.layout.empty_list, parent, false);
+            } else if (viewType == VIEW_TYPE_DATE) {
+                view = inflater.inflate(R.layout.experiment_date, parent, false);
             } else {
                 view = inflater.inflate(R.layout.project_experiment_overview, parent, false);
             }
@@ -239,39 +293,44 @@ public class ExperimentListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            if (mExperiments.size() != 0) {
-                bindExperiment(holder, mExperiments.get(position));
+            if (mItems.size() == 0) {
+                // Empty view holder doesn't need any binding logic.
+                return;
+            }
+            if (mItems.get(position).viewType == VIEW_TYPE_EXPERIMENT) {
+                bindExperiment(holder, mItems.get(position));
+            } else if (mItems.get(position).viewType == VIEW_TYPE_DATE) {
+                ((TextView)holder.itemView).setText(mItems.get(position).dateString);
             }
         }
 
         @Override
         public int getItemCount() {
-            return mExperiments.size() == 0 ? 1 : mExperiments.size();
+            return mItems.size() == 0 ? 1 : mItems.size();
         }
 
         @Override
         public int getItemViewType(int position) {
-            if (mExperiments.size() > 0){
-                return VIEW_TYPE_EXPERIMENT;
-            } else {
+            if (mItems.size() == 0){
                 return VIEW_TYPE_EMPTY;
+            } else {
+                return mItems.get(position).viewType;
             }
         }
 
-        private void bindExperiment(final ViewHolder holder,
-                final GoosciUserMetadata.ExperimentOverview experiment) {
+        private void bindExperiment(final ViewHolder holder, final ExperimentListItem item) {
             Resources res = holder.itemView.getResources();
             // First on the UI thread, set what experiment we're trying to load.
-            holder.experimentId = experiment.experimentId;
+            holder.experimentId = item.experimentOverview.experimentId;
 
             // Set the data we know about.
             String experimentText = Experiment.getDisplayTitle(holder.itemView.getContext(),
-                    experiment.title);
+                    item.experimentOverview.title);
             holder.experimentTitle.setText(experimentText);
-            holder.archivedIndicator.setVisibility(experiment.isArchived ?
+            holder.archivedIndicator.setVisibility(item.experimentOverview.isArchived ?
                     View.VISIBLE : View.GONE);
 
-            if (experiment.isArchived) {
+            if (item.experimentOverview.isArchived) {
                 holder.experimentTitle.setContentDescription(res.getString(
                         R.string.archived_content_description, experimentText));
                 holder.itemView.findViewById(R.id.content).setAlpha(res.getFraction(
@@ -285,13 +344,14 @@ public class ExperimentListFragment extends Fragment {
                 setCardColor(holder, res.getColor(R.color.text_color_white));
             }
 
-            holder.itemView.setTag(R.id.experiment_title, experiment.experimentId);
+            holder.itemView.setTag(R.id.experiment_title, item.experimentOverview.experimentId);
 
             holder.cardView.setOnClickListener(v -> {
                 if (mShouldUsePanes) {
-                    PanesActivity.launch(v.getContext(), experiment.experimentId);
+                    PanesActivity.launch(v.getContext(), item.experimentOverview.experimentId);
                 } else {
-                    ExperimentDetailsActivity.launch(v.getContext(), experiment.experimentId);
+                    ExperimentDetailsActivity.launch(v.getContext(),
+                            item.experimentOverview.experimentId);
                 }
             });
 
@@ -300,58 +360,60 @@ public class ExperimentListFragment extends Fragment {
                 PopupMenu popup = new PopupMenu(context, holder.menuButton);
                 popup.getMenuInflater().inflate(R.menu.menu_experiment_overview, popup.getMenu());
                 popup.getMenu().findItem(R.id.menu_item_archive).setVisible(
-                        !experiment.isArchived);
+                        !item.experimentOverview.isArchived);
                 popup.getMenu().findItem(R.id.menu_item_unarchive).setVisible(
-                        experiment.isArchived);
-                popup.getMenu().findItem(R.id.menu_item_delete).setEnabled(experiment.isArchived);
-                popup.setOnMenuItemClickListener(item -> {
-                    if (item.getItemId() == R.id.menu_item_archive) {
-                        experiment.isArchived = true;
-                        RxDataController.getExperimentById(mDataController, experiment.experimentId)
+                        item.experimentOverview.isArchived);
+                popup.getMenu().findItem(R.id.menu_item_delete).setEnabled(
+                        item.experimentOverview.isArchived);
+                popup.setOnMenuItemClickListener(menuItem -> {
+                    GoosciUserMetadata.ExperimentOverview overview = item.experimentOverview;
+                    if (menuItem.getItemId() == R.id.menu_item_archive) {
+                        item.experimentOverview.isArchived = true;
+                        RxDataController.getExperimentById(mDataController, overview.experimentId)
                                 .subscribe(fullExperiment -> {
                                     fullExperiment.setArchived(true);
-                                    mDataController.updateExperiment(experiment.experimentId,
+                                    mDataController.updateExperiment(overview.experimentId,
                                             new LoggingConsumer<Success>(TAG, "set archived bit") {
                                                 @Override
                                                 public void success(Success value) {
                                                     if (mIncludeArchived) {
                                                         notifyItemChanged(
-                                                                mExperiments.indexOf(experiment));
+                                                                mItems.indexOf(item));
                                                     } else {
                                                         // Remove archived experiment immediately.
-                                                        int i = mExperiments.indexOf(experiment);
-                                                        mExperiments.remove(experiment);
+                                                        int i = mItems.indexOf(item);
+                                                        mItems.remove(item);
                                                         notifyItemRemoved(i);
                                                     }
                                                 }
                                             });
                                 });
                         return true;
-                    } else if (item.getItemId() == R.id.menu_item_unarchive) {
-                        experiment.isArchived = false;
-                        RxDataController.getExperimentById(mDataController, experiment.experimentId)
+                    } else if (menuItem.getItemId() == R.id.menu_item_unarchive) {
+                        overview.isArchived = false;
+                        RxDataController.getExperimentById(mDataController, overview.experimentId)
                                 .subscribe(fullExperiment -> {
                                     fullExperiment.setArchived(false);
-                                    mDataController.updateExperiment(experiment.experimentId,
+                                    mDataController.updateExperiment(overview.experimentId,
                                             new LoggingConsumer<Success>(TAG, "set archived bit") {
                                                 @Override
                                                 public void success(Success value) {
                                                     notifyItemChanged(
-                                                            mExperiments.indexOf(experiment));
+                                                            mItems.indexOf(item));
                                                 }
                                             });
                                 });
                         return true;
-                    } else if (item.getItemId() == R.id.menu_item_delete) {
+                    } else if (menuItem.getItemId() == R.id.menu_item_delete) {
                         // TODO: Show a confirmation dialog before deleting.
-                        RxDataController.getExperimentById(mDataController, experiment.experimentId)
+                        RxDataController.getExperimentById(mDataController, overview.experimentId)
                                 .subscribe(fullExperiment -> {
                                     mDataController.deleteExperiment(fullExperiment,
                                             new LoggingConsumer<Success>(TAG, "delete experiment") {
                                                 @Override
                                                 public void success(Success value) {
-                                                    int i = mExperiments.indexOf(experiment);
-                                                    mExperiments.remove(experiment);
+                                                    int i = mItems.indexOf(item);
+                                                    mItems.remove(item);
                                                     notifyItemRemoved(i);
                                                 }
                                             });
@@ -363,8 +425,8 @@ public class ExperimentListFragment extends Fragment {
                 popup.show();
             });
 
-            if (!TextUtils.isEmpty(experiment.imagePath)) {
-                loadPhoto(holder, experiment.imagePath);
+            if (!TextUtils.isEmpty(item.experimentOverview.imagePath)) {
+                loadPhoto(holder, item.experimentOverview.imagePath);
             } else {
                 // Make sure the scale type is correct for the placeholder
                 holder.experimentImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -392,7 +454,7 @@ public class ExperimentListFragment extends Fragment {
         }
 
         public boolean hasEmptyView() {
-            return mExperiments.size() == 0;
+            return mItems.size() == 0;
         }
     }
 
@@ -403,13 +465,13 @@ public class ExperimentListFragment extends Fragment {
         /**
          * Experiment ID that is being loaded or has been loaded.
          */
-        String experimentId;
+        public String experimentId;
 
-        TextView experimentTitle;
-        ImageView experimentImage;
-        View archivedIndicator;
-        View cardView;
-        ImageButton menuButton;
+        public TextView experimentTitle;
+        public ImageView experimentImage;
+        public View archivedIndicator;
+        public View cardView;
+        public ImageButton menuButton;
 
         int viewType;
 

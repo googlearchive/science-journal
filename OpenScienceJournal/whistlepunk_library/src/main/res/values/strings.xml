@@ -1417,6 +1417,9 @@ Permissions notice:
     <!-- Hint text for the caption text input field while picture note editing [CHAR_LIMIT=30]-->
     <string name="note_caption_hint">Add a description</string>
 
+    <!-- String to format a date to the nearest month and year. For example, "May 2015" or "September 2017". Use 4 'y' characters for the year and 4 'M' characters for the month. [CHAR_LIMIT=NONE] -->
+    <string name="month_year_format">MMMM yyyy</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

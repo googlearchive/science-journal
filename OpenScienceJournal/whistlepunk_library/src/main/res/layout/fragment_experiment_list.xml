@@ -28,14 +28,9 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:paddingBottom="@dimen/list_bottom_padding"
+        android:paddingTop="8dp"
         android:clipToPadding="false"
         />
-
-    <include
-        android:id="@+id/empty"
-        android:visibility="gone"
-        layout="@layout/empty_list"
-    />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/new_experiment"
