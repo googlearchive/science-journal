@@ -75,6 +75,11 @@ public class StubDataController implements DataController {
     }
 
     @Override
+    public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+
+    }
+
+    @Override
     public String generateNewLabelId() {
         return null;
     }

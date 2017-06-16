@@ -25,20 +25,15 @@ import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
-import com.google.android.apps.forscience.whistlepunk.metadata.ApplicationLabel;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MonotonicClock;
-import com.google.common.collect.Lists;
 
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class ChartControllerTest {
@@ -162,7 +157,7 @@ public class ChartControllerTest {
     private ChartController makeChartController() {
         return new ChartController(
                 ChartOptions.ChartPlacementType.TYPE_OBSERVE, new ScalarDisplayOptions(), 100, 100L,
-                new MonotonicClock(), new ExplodingFactory().makeListenerForOperation("load"));
+                new MonotonicClock(), ExplodingFactory.makeListener());
     }
 
     private Trial trialBetween(MemoryMetadataManager mmm, int startTimestamp, int endTimestamp,

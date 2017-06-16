@@ -548,11 +548,4 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
-    private MetadataController getMetadataController() {
-        return AppSingleton.getInstance(this).getMetadataController();
-    }
-
-    private DataController getDataController() {
-        return AppSingleton.getInstance(this).getDataController();
-    }
 }

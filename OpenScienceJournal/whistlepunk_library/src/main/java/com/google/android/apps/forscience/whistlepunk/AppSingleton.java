@@ -50,7 +50,6 @@ public class AppSingleton {
     private final Clock mCurrentTimeClock = new CurrentTimeClock();
     private BleClientImpl mBleClient;
     private RecorderController mRecorderController;
-    private MetadataController mMetadataController;
     private SensorRegistry mSensorRegistry;
     private PrefsSensorHistoryStorage mPrefsSensorHistoryStorage;
     private Map<String, ExternalSensorProvider> mExternalSensorProviders;
@@ -216,20 +215,6 @@ public class AppSingleton {
             });
         }
         return mSensorRegistry;
-    }
-
-    @NonNull
-    public MetadataController getMetadataController() {
-        if (mMetadataController == null) {
-            mMetadataController = new MetadataController(
-                    getDataController(), new MetadataController.FailureListenerFactory() {
-                @Override
-                public FailureListener makeListenerForOperation(String operation) {
-                    return LoggingConsumer.expectSuccess(TAG, operation);
-                }
-            });
-        }
-        return mMetadataController;
     }
 
     public Map<String,ExternalSensorProvider> getExternalSensorProviders() {

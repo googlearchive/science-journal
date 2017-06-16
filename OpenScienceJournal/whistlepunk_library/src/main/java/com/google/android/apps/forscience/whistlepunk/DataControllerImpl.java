@@ -261,13 +261,29 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             onSuccess.fail(new Exception("Experiment not loaded"));
             return;
         }
+
+        updateExperiment(experiment, onSuccess);
+    }
+
+    @Override
+    public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+        if (!mCachedExperiments.containsKey(experiment.getExperimentId())) {
+            throw new IllegalArgumentException(
+                    "Updating experiment not returned by DataController: " + experiment);
+        }
+
+        if (mCachedExperiments.get(experiment.getExperimentId()).get() != experiment) {
+            throw new IllegalArgumentException(
+                    "Updating different instance of experiment than is managed by DataController: "
+                    + experiment);
+        }
+
         // Every time we update the experiment, we can update its last used time.
         experiment.setLastUsedTime(mClock.getNow());
         background(mMetaDataThread, onSuccess, () -> {
             mMetaDataManager.updateExperiment(experiment);
             return Success.SUCCESS;
         });
-
     }
 
     @Override

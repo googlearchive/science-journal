@@ -371,7 +371,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (mSensorCardAdapter != null) {
             mSensorCardAdapter.onPause();
         }
-        getMetadataController().removeExperimentChangeListener(TAG);
         whenRecorderController().subscribe(rc -> {
             mRecorderPauseId = rc.pauseObservingAll();
             if (mRecorderStateListenerId != RecorderController.NO_LISTENER_ID) {
@@ -461,7 +460,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                         }
                     }
 
-                    getMetadataController().addExperimentChangeListener(TAG,
+                    RxDataController.loadOrCreateRecentExperiment(getDataController()).subscribe(
                             selectedExperiment -> {
                                 if (!readSensorsFromExtras(rc)) {
                                     // By spec, newExperiments should always be non-zero
@@ -741,10 +740,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 }
             }
         }
-    }
-
-    private MetadataController getMetadataController() {
-        return AppSingleton.getInstance(getActivity()).getMetadataController();
     }
 
     private void onSelectedExperimentChanged(final Experiment selectedExperiment,

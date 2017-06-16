@@ -20,6 +20,9 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeEmitter;
+import io.reactivex.MaybeOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -165,6 +168,38 @@ public class MaybeConsumers {
                 });
             }
         });
+    }
+
+    // SAFF: fix docs
+    /**
+     * Given an operation that takes a {@link MaybeConsumer<T>}, create a JavaRX
+     * {@link Maybe<T>} that produces the value passed to the MaybeConsumer, or onComplete if the
+     * value is null
+     *
+     * Example:
+     * <pre>
+     *     // log the name of the experiment with a given id
+     *     DataController dc = getDataController();
+     *     MaybeConsumers.MaybeConsumers.buildMaybe(mc -> dc.getLastUsedUnarchivedExperiment(mc))
+     *                   .subscribe(experiment -> log("Name: " + experiment.getName()));
+     * </pre>
+     */
+    public static <T> Maybe<T> buildMaybe(io.reactivex.functions.Consumer<MaybeConsumer<T>> c) {
+        return Maybe.create(emitter -> c.accept(new MaybeConsumer<T>() {
+            @Override
+            public void success(T value) {
+                if (value == null) {
+                    emitter.onComplete();
+                } else {
+                    emitter.onSuccess(value);
+                }
+            }
+
+            @Override
+            public void fail(Exception e) {
+                emitter.onError(e);
+            }
+        }));
     }
 
     /**

@@ -56,6 +56,8 @@ public interface DataController {
 
     void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess);
 
+    void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
+
     String generateNewLabelId();
 
     /**

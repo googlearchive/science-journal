@@ -56,7 +56,7 @@ public class SensorCardPresenterTest extends AndroidTestCase {
     }
 
     private FailureListener explodingListener() {
-        return new ExplodingFactory().makeListenerForOperation("");
+        return ExplodingFactory.makeListener();
     }
 
     public void testUseSensorDefaults() {

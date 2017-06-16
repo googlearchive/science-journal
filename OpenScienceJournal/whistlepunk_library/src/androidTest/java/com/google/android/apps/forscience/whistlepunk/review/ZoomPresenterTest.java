@@ -20,18 +20,13 @@ import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
-import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
-import com.google.android.apps.forscience.whistlepunk.TestData;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
-import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.ZoomRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 
@@ -118,7 +113,4 @@ public class ZoomPresenterTest extends AndroidTestCase {
                 new RecordingSensorObserver());
     }
 
-    private FailureListener makeFailureListener() {
-        return new ExplodingFactory().makeListenerForOperation("load");
-    }
 }

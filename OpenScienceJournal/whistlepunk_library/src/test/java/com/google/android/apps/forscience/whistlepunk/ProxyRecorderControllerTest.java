@@ -59,7 +59,7 @@ public class ProxyRecorderControllerTest {
     };
     private final AlwaysAllowedPolicy mPolicy = new AlwaysAllowedPolicy();
     private final FailureListener mFailureListener =
-            new ExplodingFactory().makeListenerForOperation("test");
+            ExplodingFactory.makeListener();
     private final RecordingSensorObserver mObserver = new RecordingSensorObserver();
     private final RecordingStatusListener mStatusListener = new RecordingStatusListener();
     private SensorRegistry mRegistry = new AllSensorsRegistry();

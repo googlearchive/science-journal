@@ -120,9 +120,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
 
         if (experimentId == null) {
-            // Load currently-active experiment
-            getMetadataController().flatMapObservable(mc -> mc.activeExperimentStream(TAG))
-                                   .subscribe(mActiveExperiment);
+            if (Log.isLoggable(TAG, Log.INFO)) {
+                Log.i(TAG, "Launching most recent experiment");
+            }
+            RxDataController.loadOrCreateRecentExperiment(getDataController())
+                            .toObservable()
+                            .subscribe(mActiveExperiment);
         } else {
             if (Log.isLoggable(TAG, Log.INFO)) {
                 Log.i(TAG, "Launching specified experiment id: " + experimentId);
@@ -168,8 +171,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             boolean createTaskStack = false;
             boolean oldestAtTop = true;
             boolean disappearingActionBar = false;
-            Label deletedLabel = getIntent().getExtras().getParcelable(
-                    ExperimentDetailsFragment.ARG_DELETED_LABEL);
+            Label deletedLabel = getDeletedLabel();
             mExperimentFragment =
                     ExperimentDetailsFragment.newInstance(experimentId,
                             createTaskStack, oldestAtTop, disappearingActionBar, deletedLabel);
@@ -183,13 +185,17 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         }
     }
 
-    private void setNoteFragmentId(String experimentId) {
-        getAddNoteDialog().setExperimentId(experimentId);
+    private Label getDeletedLabel() {
+        Bundle extras = getIntent().getExtras();
+        if (extras == null) {
+            return null;
+        } else {
+            return extras.getParcelable(ExperimentDetailsFragment.ARG_DELETED_LABEL);
+        }
     }
 
-    @NonNull
-    private Single<MetadataController> getMetadataController() {
-        return DataService.bind(this).map(data -> data.getMetadataController());
+    private void setNoteFragmentId(String experimentId) {
+        getAddNoteDialog().setExperimentId(experimentId);
     }
 
     @Override
