@@ -1070,6 +1070,9 @@ public class SensorCardPresenter {
     // When the stats drawer is recycled, this can return the old drawer for a different
     // sensor, so check whether the view is recycled (unavailable) before updating.
     public void updateStats(List<StreamStat> stats) {
+        if (!isRecording()) {
+            return;
+        }
         if (mCardViewHolder != null && mSensorPresenter != null && mTextTimeHasElapsed) {
             if (mLayout.cardView == GoosciSensorLayout.SensorLayout.GRAPH) {
                 mCardViewHolder.graphStatsList.updateStats(stats);
