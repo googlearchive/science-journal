@@ -53,7 +53,7 @@
             android:minHeight="@dimen/accessibility_touch_target_min_size"
             android:maxLines="5"
             android:id="@+id/caption"
-            android:hint="@string/picture_note_caption_hint"
+            android:hint="@string/note_caption_hint"
             android:layout_margin="8dp"
             />
 

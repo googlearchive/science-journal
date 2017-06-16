@@ -125,8 +125,8 @@ abstract class LabelDetailsFragment extends Fragment {
         // TODO: Log analytics here? That would send an event per keystroke.
         mExperiment.firstElement().subscribe(experiment -> {
             experiment.updateLabel(mOriginalLabel);
-            getDataController().subscribe(
-                    dc -> RxDataController.updateExperiment(dc, experiment));
+            getDataController().subscribe(dc -> RxDataController.updateExperiment(dc, experiment)
+                    .subscribe());  // Need to subscribe to the update or it won't complete.
         });
     }
 

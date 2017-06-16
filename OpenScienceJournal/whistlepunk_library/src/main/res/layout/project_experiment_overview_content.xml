@@ -69,6 +69,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="@dimen/cardview_content_margin"
+            android:layout_marginEnd="@dimen/cardview_content_margin"
             />
 
     </RelativeLayout>
