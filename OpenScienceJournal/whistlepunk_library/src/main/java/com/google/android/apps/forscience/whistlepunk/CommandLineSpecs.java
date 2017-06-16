@@ -47,7 +47,7 @@ public class CommandLineSpecs {
                     new GoosciSensorLayout.SensorLayout();
             layout.sensorId = id;
             if (color != null) {
-                layout.color = resources.getColor(findKioskColor(color));
+                layout.colorIndex = findKioskColor(color);
             }
             layout.cardView = findCardView(side);
             layouts.add(layout);
@@ -63,17 +63,18 @@ public class CommandLineSpecs {
         }
     }
 
+    // Returns an index into the graph_colors.xml array.
     private static int findKioskColor(String color) {
         switch (color) {
             case PARAM_RED:
-                return R.color.graph_line_color_red;
+                return 3;
             case PARAM_YELLOW:
-                return R.color.graph_line_color_yellow;
+                return 2;
             case PARAM_GREEN:
-                return R.color.graph_line_color_green;
+                return 1;
             case PARAM_BLUE:
             default:
-                return R.color.graph_line_color_blue;
+                return 0;
         }
     }
 }

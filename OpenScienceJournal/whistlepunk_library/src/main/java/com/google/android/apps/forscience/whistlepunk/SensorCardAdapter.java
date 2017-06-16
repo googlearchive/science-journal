@@ -304,12 +304,12 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     /**
-     * Gets the array of colors from the sensor card presenters, in order.
+     * Gets the array of color indexes from the sensor card presenters, in order.
      */
-    public int[] getColorArray() {
+    public int[] getUsedColors() {
         int[] colors = new int[mSensorCardPresenters.size()];
         for (int index = 0, size = mSensorCardPresenters.size(); index < size; index++) {
-            colors[index] = mSensorCardPresenters.get(index).getDataViewOptions().getGraphColor();
+            colors[index] = mSensorCardPresenters.get(index).getColorIndex();
         }
         return colors;
     }

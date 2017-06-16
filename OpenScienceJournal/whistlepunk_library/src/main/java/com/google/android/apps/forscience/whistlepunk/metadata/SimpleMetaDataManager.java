@@ -804,7 +804,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
         // Now get sensor layouts.
         GoosciSensorLayout.SensorLayout layout;
-        int defaultColor = context.getResources().getColor(R.color.graph_line_color_blue);
         try {
             cursor = db.query(Tables.RUN_SENSORS, new String[]{RunSensorsColumns.LAYOUT,
                             RunSensorsColumns.SENSOR_ID}, selection, selectionArgs, null, null,
@@ -818,7 +817,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
                         // In this case, create a fake sensorLayout since none exists.
                         layout = new GoosciSensorLayout.SensorLayout();
                         layout.sensorId = cursor.getString(1);
-                        layout.color = defaultColor;
                     }
                     sensorLayouts.add(layout);
                 } catch (InvalidProtocolBufferNanoException e) {

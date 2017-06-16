@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.scalarchart;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PointF;
 import android.os.Build;
@@ -31,6 +32,7 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.GraphPopulator;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
+import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -450,6 +452,14 @@ public class ChartController {
         return mChartView.getViewTreeObserver();
     }
 
+    private void updateColor(int colorIndex, Context context) {
+        if (context == null) {
+            return;
+        }
+        int color = context.getResources().getIntArray(R.array.graph_colors_array)[colorIndex];
+        updateColor(color);
+    }
+
     public void updateColor(int color) {
         mChartOptions.setLineColor(color);
         if (mChartView != null) {
@@ -522,8 +532,8 @@ public class ChartController {
     // this should be revisited to get a range for the original load.
     public void loadRunData(Trial trial, GoosciSensorLayout.SensorLayout sensorLayout,
             DataController dc, ChartLoadingStatus status, TrialStats stats,
-            ChartDataLoadedCallback fullChartLoadDataCallback) {
-        updateColor(sensorLayout.color);
+            ChartDataLoadedCallback fullChartLoadDataCallback, Context context) {
+        updateColor(sensorLayout.colorIndex, context);
         setShowProgress(true);
         clearData();
         final long firstTimestamp = trial.getFirstTimestamp();
@@ -533,7 +543,7 @@ public class ChartController {
         mSensorId = sensorLayout.sensorId;
         tryLoadingChartData(trial.getTrialId(), sensorLayout, dc,
                 mChartOptions.getRecordingStartTime(), mChartOptions.getRecordingEndTime(), status,
-                stats, fullChartLoadDataCallback);
+                stats, fullChartLoadDataCallback, context);
     }
 
     // TODO: remove duplication with loadReadings?
@@ -541,7 +551,7 @@ public class ChartController {
             final GoosciSensorLayout.SensorLayout sensorLayout,
             final DataController dc, final long firstTimestamp, final long lastTimestamp,
             final ChartLoadingStatus status, final TrialStats stats,
-            final ChartDataLoadedCallback fullChartLoadDataCallback) {
+            final ChartDataLoadedCallback fullChartLoadDataCallback, Context context) {
         Preconditions.checkNotNull(runId);
 
         // If we are currently trying to load something, don't try and load something else.
@@ -552,7 +562,7 @@ public class ChartController {
         if (status.getGraphLoadStatus() != ChartLoadingStatus.GRAPH_LOAD_STATUS_IDLE) {
             return;
         }
-        updateColor(sensorLayout.color);
+        updateColor(sensorLayout.colorIndex, context);
         status.setGraphLoadStatus(ChartLoadingStatus.GRAPH_LOAD_STATUS_LOADING);
         addChartDataLoadedCallback(fullChartLoadDataCallback);
         callChartDataStartLoadingCallbacks(true);
@@ -583,7 +593,7 @@ public class ChartController {
                     clearData();
                     tryLoadingChartData(status.getRunId(),
                             sensorLayout, dc, firstTimestamp, lastTimestamp,
-                            status, stats, fullChartLoadDataCallback);
+                            status, stats, fullChartLoadDataCallback, context);
                 } else {
                     mCurrentLoadIds.remove(requestId);
                     callChartDataLoadedCallbacks(firstTimestamp, lastTimestamp);
