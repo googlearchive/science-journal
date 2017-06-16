@@ -78,5 +78,10 @@ message ExperimentOverview {
     // Whether this experiment is archived.
     optional bool isArchived = 6;
 
+    // Index into the Experiment Colors array. This allows the experiment to have a consistent
+    // color overlay if its imagePath is not yet set.
+    // See values/experiment_colors.xml.
+    optional int32 colorIndex = 7 [default=0];
+
     // Information about DriveFileID and sync state can be added here as needed.
 }

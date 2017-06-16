@@ -35,21 +35,15 @@ message SensorLayout {
   }
   optional CardView cardView = 2 [default = METER];
 
-  // TODO: these should be extras
-  // If you add additional top-level options here, they should apply to all possible sensors,
-  // including non-scalar ones.  These are included for legacy, but it's not clear how, for example,
-  // a video sensor would have audio enabled or a stats overlay.
-  //
-  // If you want to add options that only make sense for a subset of possible sensors, just
-  // use 'extras' below, rather than adding additional fields here.
   optional bool audioEnabled = 3 [default = false];
+
   optional bool showStatsOverlay = 4 [default = false];
 
   // Color, as a packed int as described in android.graphics.Color
   //
   // Default is 0 (transparent).  We will interpret this as unset in code and replace with a
   // more appropriate default.
-  optional int32 color = 5 [default = 0];
+  optional int32 color = 5 [default = 0, deprecated=true];
 
   // Extra options for this card, which can be used by individual selected sensors.
   // Keys in this map should begin with some fully-qualified package name that the adding code
@@ -66,4 +60,8 @@ message SensorLayout {
 
   // The IDs of active SensorTriggers for this layout.
   repeated string activeSensorTriggerIds = 9;
+
+  // The index into the sensor card color array.
+  // See values/graph_colors.xml.
+  optional int32 colorIndex = 10 [default = 0];
 };
