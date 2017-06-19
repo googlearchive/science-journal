@@ -15,7 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.app.IntentService;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -52,6 +51,7 @@ import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 
 /**
  * Service for exporting trial data with different options.
@@ -78,7 +78,8 @@ public class ExportService extends Service {
 
     private final IBinder mBinder = new ExportServiceBinder();
 
-    private final BehaviorSubject<ExportProgress> mProgressBehaviorSubject =
+    // Make static so that all instances of this service can reach it.
+    private final static BehaviorSubject<ExportProgress> sProgressSubject =
             BehaviorSubject.createDefault(new ExportProgress("", ExportProgress.NOT_EXPORTING, 0));
 
     // Copied from IntentService: basically we do everything the same except wait to call stopSelf
@@ -175,6 +176,10 @@ public class ExportService extends Service {
         return mBinder;
     }
 
+    public BehaviorSubject<ExportProgress> getProgressSubject() {
+        return sProgressSubject;
+    }
+
     public static class ExportProgress {
         public static final int NOT_EXPORTING = 0;
         public static final int ERROR = 1;
@@ -216,7 +221,7 @@ public class ExportService extends Service {
 
         @Override
         public String toString() {
-            return String.valueOf(mProgress);
+            return "State: " + mState + " progress " + mProgress;
         }
 
         public static ExportProgress getComplete(String trialId, Uri fileUri) {
@@ -232,42 +237,43 @@ public class ExportService extends Service {
         }
     }
 
-    public static Single<Observable<ExportProgress>> bind(Context context) {
+    public static void resetProgress(String trialId) {
+        sProgressSubject.onNext(new ExportProgress(trialId, ExportProgress.NOT_EXPORTING, 0));
+    }
+
+    public static Observable<ExportProgress> bind(Context context) {
         final Context appContext = context.getApplicationContext();
+        final PublishSubject<ExportProgress> progressPublishSubject = PublishSubject.create();
 
-        return Single.create(singleEmitter -> {
-            final ServiceConnection conn = new ServiceConnection() {
+        final ServiceConnection conn = new ServiceConnection() {
 
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    ExportServiceBinder exporter = (ExportServiceBinder) service;
-                    final ServiceConnection connection = this;
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "binding service " + exporter);
-                    }
-                    // Create a new observable for each connection with defer.
-                    singleEmitter.onSuccess(
-                            Observable.defer(() -> exporter.getService().mProgressBehaviorSubject)
-                                    .doOnDispose(() -> {
-                                        if (Log.isLoggable(TAG, Log.DEBUG)) {
-                                            Log.d(TAG, "unbinding service " + exporter);
-                                        }
-                                        appContext.unbindService(connection);
-                                    }));
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {}
-            };
-            Intent intent = new Intent(appContext, ExportService.class);
-            if (appContext.bindService(intent, conn, BIND_AUTO_CREATE)) {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                ExportServiceBinder exporter = (ExportServiceBinder) service;
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, "trying to bind service.");
+                    Log.d(TAG, "binding service " + exporter);
                 }
-            } else {
-                singleEmitter.onError(new RuntimeException("Could not bind service."));
+                exporter.getService().getProgressSubject()
+                        .subscribe(progressPublishSubject);
             }
-        });
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {}
+        };
+        Intent intent = new Intent(appContext, ExportService.class);
+        if (appContext.bindService(intent, conn, BIND_AUTO_CREATE)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "trying to bind service.");
+            }
+        }
+
+        return progressPublishSubject
+                .doOnDispose(() -> {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "unbinding service ");
+                    }
+                    appContext.unbindService(conn);
+                });
     }
 
     /**
@@ -324,7 +330,12 @@ public class ExportService extends Service {
     }
 
     private void updateProgress(ExportProgress exportProgress) {
-        mProgressBehaviorSubject.onNext(exportProgress);
+        if (Log.isLoggable(TAG, Log.DEBUG) &&
+                (exportProgress.getState() != ExportProgress.EXPORTING ||
+                        exportProgress.getProgress() % 20 == 0)) {
+            Log.d(TAG, "Updating progress " + exportProgress + " from " + this);
+        }
+        sProgressSubject.onNext(exportProgress);
     }
 
     @NonNull
