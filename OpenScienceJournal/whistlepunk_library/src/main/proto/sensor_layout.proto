@@ -23,6 +23,8 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 message SensorLayout {
+  // id, to be looked up in either the Experiment.availableSensors or Trial.sensorAppearances
+  //    field depending on the context.
   optional string sensorId = 1;
 
   enum CardView {
