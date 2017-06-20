@@ -16,29 +16,38 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import android.content.Context;
+
+import com.google.android.apps.forscience.whistlepunk.MemoryAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+
+import org.junit.Test;
+
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.metadata.*;
-import com.google.common.collect.Lists;
-
-import org.junit.Test;
-
-import java.util.ArrayList;
-
 /**
  * Tests for the Trial class.
  */
 public class TrialUnitTest {
+    private static final GoosciSensorLayout.SensorLayout[]
+            NO_LAYOUTS = new GoosciSensorLayout.SensorLayout[0];
+    private SensorAppearanceProvider mFakeProvider = new FakeUnitAppearanceProvider();
 
     private Trial makeSimpleTrial(long startTime, String sensorId) {
         GoosciSensorLayout.SensorLayout[] layouts = new GoosciSensorLayout.SensorLayout[]{
                 new GoosciSensorLayout.SensorLayout()};
-        layouts[0].sensorId =  sensorId;
-        return Trial.newTrial(startTime, layouts);
+        layouts[0].sensorId = sensorId;
+        return Trial.newTrial(startTime, layouts, mFakeProvider, null);
     }
 
     @Test
@@ -114,8 +123,8 @@ public class TrialUnitTest {
 
     @Test
     public void testUniqueIds() {
-        Trial first = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0]);
-        Trial second = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0]);
+        Trial first = Trial.newTrial(10, NO_LAYOUTS, mFakeProvider, null);
+        Trial second = Trial.newTrial(10, NO_LAYOUTS, mFakeProvider, null);
         assertNotEquals(first.getTrialId(), second.getTrialId());
 
         Trial firstAgain = Trial.fromTrial(first.getTrialProto());
@@ -124,10 +133,28 @@ public class TrialUnitTest {
 
     @Test
     public void testElapsedSeconds() {
-        Trial trial = Trial.newTrial(7, new GoosciSensorLayout.SensorLayout[0]);
+        Trial trial = Trial.newTrial(7, NO_LAYOUTS, mFakeProvider, null);
         assertEquals(0, trial.elapsedSeconds());
 
         trial.setRecordingEndTime(5007);
         assertEquals(5, trial.elapsedSeconds());
+    }
+
+    @Test
+    public void testNewTrialWithAppearances() {
+        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
+        layout.sensorId = "foo";
+        MemoryAppearanceProvider provider = new MemoryAppearanceProvider();
+        provider.putAppearance(layout.sensorId, new EmptySensorAppearance() {
+            @Override
+            public String getName(Context context) {
+                return "Fun name!";
+            }
+        });
+        Trial trial =
+                Trial.newTrial(7, new GoosciSensorLayout.SensorLayout[]{layout}, provider, null);
+        Map<String, GoosciSensorAppearance.BasicSensorAppearance> appearances =
+                trial.getAppearances();
+        assertEquals("Fun name!", appearances.get("foo").name);
     }
 }

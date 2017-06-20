@@ -74,12 +74,6 @@ public class Trial extends LabelListHolder {
         return new Trial(trial);
     }
 
-    public static Trial newTrial(long startTimeMs,
-            GoosciSensorLayout.SensorLayout[] sensorLayouts) {
-        // TODO: remove and only use below once all uses are removed
-        return newTrial(startTimeMs, sensorLayouts, null, null);
-    }
-
     /**
      * Invoked when recording begins to save the metadata about what's being recorded.
      */
@@ -109,18 +103,14 @@ public class Trial extends LabelListHolder {
         mTrial.trialId = trialId;
 
         mTrial.sensorAppearances = new GoosciTrial.Trial.AppearanceEntry[sensorLayouts.length];
-
-        // TODO: remove this check, and always compute appearances, once all callers provide
-        // provider
-        if (provider != null) {
-            for (int i = 0; i < sensorLayouts.length; i++) {
-                GoosciTrial.Trial.AppearanceEntry entry = new GoosciTrial.Trial.AppearanceEntry();
-                GoosciSensorLayout.SensorLayout layout = sensorLayouts[i];
-                entry.sensorId = layout.sensorId;
-                entry.rememberedAppearance =
-                        SensorAppearanceProviderImpl.toProto(provider.getAppearance(layout.sensorId), context);
-                mTrial.sensorAppearances[i] = entry;
-            }
+        for (int i = 0; i < sensorLayouts.length; i++) {
+            GoosciTrial.Trial.AppearanceEntry entry = new GoosciTrial.Trial.AppearanceEntry();
+            GoosciSensorLayout.SensorLayout layout = sensorLayouts[i];
+            entry.sensorId = layout.sensorId;
+            entry.rememberedAppearance =
+                    SensorAppearanceProviderImpl.appearanceToProto(
+                            provider.getAppearance(layout.sensorId), context);
+            mTrial.sensorAppearances[i] = entry;
         }
 
         mLabels = new ArrayList<>();

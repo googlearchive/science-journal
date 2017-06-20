@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.test.AndroidTestCase;
 
+import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
@@ -51,7 +52,8 @@ public class TrialTest extends AndroidTestCase {
     }
 
     public void testLabelsStillSortedOnAdd() {
-        Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0]);
+        Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0],
+                new FakeAppearanceProvider(), getContext());
         trial.addLabel(Label.newLabel(20, GoosciLabel.Label.TEXT));
         trial.addLabel(Label.newLabel(30, GoosciLabel.Label.TEXT));
         trial.addLabel(Label.newLabel(10, GoosciLabel.Label.TEXT));
@@ -62,7 +64,8 @@ public class TrialTest extends AndroidTestCase {
     }
 
     public void testLabelsStillSortedOnUpdate() {
-        Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0]);
+        Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0],
+                new FakeAppearanceProvider(), getContext());
         trial.addLabel(Label.newLabel(10, GoosciLabel.Label.TEXT));
         trial.addLabel(Label.newLabel(20, GoosciLabel.Label.TEXT));
         trial.addLabel(Label.newLabel(30, GoosciLabel.Label.TEXT));

@@ -25,7 +25,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 
-@VisibleForTesting
 public class StatefulRecorder {
     private boolean mObserving = false;
     private boolean mRecording = false;

@@ -24,7 +24,7 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
-import com.google.android.apps.forscience.whistlepunk.MemoryAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
@@ -70,7 +70,8 @@ public class ConnectableSensorRegistryTest {
     private TestDevicesPresenter mPresenter = new TestDevicesPresenter(mAvailableDevices,
             mPairedDevices);
     private TestSensorRegistry mSensorRegistry = new TestSensorRegistry();
-    private SensorAppearanceProvider mAppearanceProvider = new MemoryAppearanceProvider();
+    private SensorAppearanceProvider mAppearanceProvider =
+            new FakeAppearanceProvider(R.string.sensor_custom);
     // private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector(providers);
 
     @Test

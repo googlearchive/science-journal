@@ -18,8 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.test.AndroidTestCase;
 
-import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
+import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
@@ -53,7 +52,8 @@ public class ZoomPresenterTest extends AndroidTestCase {
         int perZoomLevel = 5;
         ManualSensor sensor = new ManualSensor("test", 1000, perZoomLevel);
         SensorRecorder recorder = createRecorder(sensor);
-        Trial trial = Trial.newTrial(0, new GoosciSensorLayout.SensorLayout[0]);
+        Trial trial = Trial.newTrial(0, new GoosciSensorLayout.SensorLayout[0],
+                new FakeAppearanceProvider(), getContext());
         sensor.pushDataPoints(recorder, 100, trial);
 
         int howManyDesiredDataPoints = 4;

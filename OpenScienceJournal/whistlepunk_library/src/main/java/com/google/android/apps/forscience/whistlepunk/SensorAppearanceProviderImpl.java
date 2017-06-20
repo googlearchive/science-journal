@@ -96,7 +96,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 R.string.sensor_desc_short_acc_z, R.string.sensor_desc_first_paragraph_acc,
                 R.string.sensor_desc_second_paragraph_acc, R.drawable.learnmore_acc,
                 new SensorAnimationBehavior(R.drawable.accz_level_drawable,
-                    SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE),
+                        SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
         putAppearance(LinearAccelerometerSensor.ID, BuiltInSensorAppearance.create(
@@ -113,7 +113,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 R.string.sensor_desc_short_light, R.string.sensor_desc_first_paragraph_light,
                 R.string.sensor_desc_second_paragraph_light, R.drawable.learnmore_light,
                 new SensorAnimationBehavior(R.drawable.ambient_level_drawable,
-                    SensorAnimationBehavior.TYPE_RELATIVE_SCALE),
+                        SensorAnimationBehavior.TYPE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
         putAppearance(MagneticStrengthSensor.ID, BuiltInSensorAppearance.create(
@@ -139,7 +139,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 R.string.sensor_desc_short_decibel, R.string.sensor_desc_first_paragraph_decibel,
                 R.string.sensor_desc_second_paragraph_decibel, R.drawable.learnmore_sound,
                 new SensorAnimationBehavior(R.drawable.decibel_level_drawable,
-                    SensorAnimationBehavior.TYPE_RELATIVE_SCALE),
+                        SensorAnimationBehavior.TYPE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
         putAppearance(BarometerSensor.ID, BuiltInSensorAppearance.create(R.string.barometer,
@@ -178,5 +178,14 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
 
         // Completely unknown sensors get a default appearance here.
         return UNKNOWN_SENSOR_APPEARANCE;
+    }
+
+    public static GoosciSensorAppearance.BasicSensorAppearance appearanceToProto(
+            SensorAppearance appearance, Context context) {
+        // TODO: transfer other appearance fields
+        GoosciSensorAppearance.BasicSensorAppearance proto = new GoosciSensorAppearance
+                .BasicSensorAppearance();
+        proto.name = appearance.getName(context);
+        return proto;
     }
 }

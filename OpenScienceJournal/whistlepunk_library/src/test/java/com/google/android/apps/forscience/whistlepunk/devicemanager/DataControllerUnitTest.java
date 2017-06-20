@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
+import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
@@ -73,7 +74,8 @@ public class DataControllerUnitTest {
         layout.maximumYAxisValue = 5;
         layouts.add(layout);
 
-        Trial trial = Trial.newTrial(10, layouts.toArray(new GoosciSensorLayout.SensorLayout[1]));
+        Trial trial = Trial.newTrial(10, layouts.toArray(new GoosciSensorLayout.SensorLayout[1]),
+                new FakeUnitAppearanceProvider(), null);
         experiment.addTrial(trial);
         dc.updateExperiment(experiment.getExperimentId(),
                 TestConsumers.<Success>expectingSuccess());
