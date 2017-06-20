@@ -129,18 +129,6 @@ public class MainActivity extends AppCompatActivity
                 mIsRecording = recording != null;
                 exitMetadataIfNeeded();
             }
-
-            @Override
-            public void onRecordingStartFailed(
-                    @RecorderController.RecordingStartErrorType int errorType, Exception e) {
-
-            }
-
-            @Override
-            public void onRecordingStopFailed(
-                    @RecorderController.RecordingStopErrorType int recordingStateErrorType) {
-
-            }
         };
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);

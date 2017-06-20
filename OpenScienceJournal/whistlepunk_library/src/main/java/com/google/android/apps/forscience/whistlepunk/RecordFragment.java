@@ -558,6 +558,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                         if (dialog != null) {
                             dialog.dismiss();
                         }
+                        updateRecordingState();
                         if (!mRecordingWasCanceled) {
                             mUICallbacks.onRecordingSaved(prevRecording.getRunId(),
                                     mSelectedExperiment);
@@ -567,44 +568,34 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 });
             }
 
-            @Override
-            public void onRecordingStartFailed(
-                    @RecorderController.RecordingStartErrorType int errorType,
-                    Exception e) {
-                if (errorType == RecorderController.ERROR_START_FAILED) {
-                    failedStartRecording(R.string.recording_start_failed);
-                } else if (errorType ==
-                           RecorderController.ERROR_START_FAILED_DISCONNECTED) {
-                    failedStartRecording(
-                            R.string.recording_start_failed_disconnected);
-                }
-                updateRecordingState();
-            }
-
-            @Override
-            public void onRecordingStopFailed(
-                    @RecorderController.RecordingStopErrorType int errorType) {
-                if (errorType
-                    == RecorderController.ERROR_STOP_FAILED_DISCONNECTED) {
-                    failedStopRecording(
-                            R.string.recording_stop_failed_disconnected);
-                } else if (errorType
-                           == RecorderController.ERROR_STOP_FAILED_NO_DATA) {
-                    failedStopRecording(R.string.recording_stop_failed_no_data);
-                } else if (errorType
-                           == RecorderController.ERROR_FAILED_SAVE_RECORDING) {
-                    AccessibilityUtils.makeSnackbar(getView(),
-                            getActivity().getResources().getString(
-                                    R.string.recording_stop_failed_save),
-                            Snackbar.LENGTH_LONG).show();
-                }
-                updateRecordingState();
-            }
-
-            private void updateRecordingState() {
-                mRecordingStatus.firstElement().subscribe(status -> updateRecordingUIState(status));
-            }
         };
+    }
+
+    private void updateRecordingState() {
+        mRecordingStatus.firstElement().subscribe(status -> updateRecordingUIState(status));
+    }
+
+    private void onRecordingStartFailed(@RecorderController.RecordingStartErrorType int errorType,
+            Throwable e) {
+        if (errorType == RecorderController.ERROR_START_FAILED) {
+            failedStartRecording(R.string.recording_start_failed);
+        } else if (errorType == RecorderController.ERROR_START_FAILED_DISCONNECTED) {
+            failedStartRecording(R.string.recording_start_failed_disconnected);
+        }
+        updateRecordingState();
+    }
+
+    private void onRecordingStopFailed(@RecorderController.RecordingStopErrorType int errorType) {
+        if (errorType == RecorderController.ERROR_STOP_FAILED_DISCONNECTED) {
+            failedStopRecording(R.string.recording_stop_failed_disconnected);
+        } else if (errorType == RecorderController.ERROR_STOP_FAILED_NO_DATA) {
+            failedStopRecording(R.string.recording_stop_failed_no_data);
+        } else if (errorType == RecorderController.ERROR_FAILED_SAVE_RECORDING) {
+            AccessibilityUtils.makeSnackbar(getView(),
+                    getActivity().getResources().getString(R.string.recording_stop_failed_save),
+                    Snackbar.LENGTH_LONG).show();
+        }
+        updateRecordingState();
     }
 
     @Override
@@ -1486,7 +1477,13 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         mLaunchIntent.setData(
                 Uri.fromParts("observe", "experiment=" + mSelectedExperiment.getExperimentId(),
                         null));
-        rc.startRecording(mLaunchIntent);
+        rc.startRecording(mLaunchIntent).subscribe(() -> {}, error -> {
+            if (error instanceof RecorderController.RecordingStartFailedException) {
+                RecorderController.RecordingStartFailedException e =
+                        (RecorderController.RecordingStartFailedException) error;
+                onRecordingStartFailed(e.errorType, e.getCause());
+            }
+        });
     }
 
     private void failedStartRecording(int stringId) {
@@ -1497,7 +1494,13 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private void tryStopRecording(final RecorderController rc) {
         mUICallbacks.onRecordStopRequested();
-        rc.stopRecording();
+        rc.stopRecording().subscribe(() -> {}, error -> {
+            if (error instanceof RecorderController.RecordingStopFailedException) {
+                RecorderController.RecordingStopFailedException e =
+                        (RecorderController.RecordingStopFailedException) error;
+                onRecordingStopFailed(e.errorType);
+            }
+        });
     }
 
     private void failedStopRecording(int stringId) {

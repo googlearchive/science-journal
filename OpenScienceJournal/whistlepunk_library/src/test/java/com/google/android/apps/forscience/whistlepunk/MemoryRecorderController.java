@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.functions.Function;
 
@@ -72,13 +73,13 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public void startRecording(Intent resumeIntent) {
-
+    public Completable startRecording(Intent resumeIntent) {
+        return Completable.complete();
     }
 
     @Override
-    public void stopRecording() {
-
+    public Completable stopRecording() {
+        return Completable.complete();
     }
 
     @Override

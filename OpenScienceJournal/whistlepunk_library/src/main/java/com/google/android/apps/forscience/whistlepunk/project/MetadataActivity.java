@@ -53,19 +53,6 @@ public class MetadataActivity extends AppCompatActivity {
                                             finish();
                                         }
                                     }
-
-                                    @Override
-                                    public void onRecordingStartFailed(
-                                            @RecorderController.RecordingStartErrorType int type,
-                                            Exception e) {
-
-                                    }
-
-                                    @Override
-                                    public void onRecordingStopFailed(
-                                            @RecorderController.RecordingStopErrorType int type) {
-
-                                    }
                                 };
 
                         mRecorderListenerId =

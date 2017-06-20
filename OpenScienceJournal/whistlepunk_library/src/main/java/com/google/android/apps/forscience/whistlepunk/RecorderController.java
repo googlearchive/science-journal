@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Intent;
 import android.support.annotation.IntDef;
-import android.support.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -34,7 +33,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.functions.Function;
 
 public interface RecorderController extends SensorRegistryListener {
@@ -51,6 +52,16 @@ public interface RecorderController extends SensorRegistryListener {
     @Retention(RetentionPolicy.SOURCE)
     @interface RecordingStartErrorType {}
 
+
+    public class RecordingStartFailedException extends Exception {
+        public @RecordingStartErrorType int errorType;
+
+        public RecordingStartFailedException(int errorType, Throwable cause) {
+            super(cause);
+            this.errorType = errorType;
+        }
+    }
+
     int ERROR_STOP_FAILED_DISCONNECTED = 0;
     int ERROR_STOP_FAILED_NO_DATA = 1;
     int ERROR_FAILED_SAVE_RECORDING = 2;
@@ -59,6 +70,14 @@ public interface RecorderController extends SensorRegistryListener {
             ERROR_FAILED_SAVE_RECORDING})
     @Retention(RetentionPolicy.SOURCE)
     @interface RecordingStopErrorType {}
+
+    public class RecordingStopFailedException extends Exception {
+        public @RecordingStopErrorType int errorType;
+
+        public RecordingStopFailedException(int errorType) {
+            this.errorType = errorType;
+        }
+    }
 
     /**
      * @return observerId: should be passed to stopObserving, so that this client only kills
@@ -91,10 +110,16 @@ public interface RecorderController extends SensorRegistryListener {
     /**
      * @param resumeIntent this must be distinct from any other active Intent, as defined by
      *                     {@link Intent#filterEquals(Intent)}
+     * @return a Completable that can be watched for success or errors.  Errors will, whenever
+     *         possible, be flagged by an instance of {@link RecordingStartFailedException}
      */
-    void startRecording(Intent resumeIntent);
+    Completable startRecording(Intent resumeIntent);
 
-    void stopRecording();
+    /**
+     * @return a Completable that can be watched for success or errors.  Errors will, whenever
+     *         possible, be flagged by an instance of {@link RecordingStopFailedException}
+     */
+    Completable stopRecording();
 
     /**
      * @return a maybe of a string that will contain (a) for any sensor that has already had an
@@ -122,10 +147,6 @@ public interface RecorderController extends SensorRegistryListener {
 
     interface RecordingStateListener {
         void onRecordingStateChanged(RecordingMetadata currentRecording);
-
-        void onRecordingStartFailed(@RecordingStartErrorType int errorType, Exception e);
-
-        void onRecordingStopFailed(@RecordingStopErrorType int errorType);
     }
 
     public static int NO_LISTENER_ID = -1;
@@ -193,4 +214,5 @@ public interface RecorderController extends SensorRegistryListener {
     void setLayoutSupplier(Supplier<List<GoosciSensorLayout.SensorLayout>> supplier);
 
     long getNow();
+
 }

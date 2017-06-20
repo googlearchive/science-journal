@@ -39,14 +39,12 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableS
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
@@ -71,10 +69,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -279,7 +277,8 @@ public class RecorderControllerImpl implements RecorderController {
                 for (TriggerFiredListener listener : mTriggerListeners.values()) {
                     listener.onRequestStartRecording();
                 }
-                startRecording(new Intent(mContext, MainActivity.class));
+                // TODO: test this subscribe
+                startRecording(new Intent(mContext, MainActivity.class)).subscribe();
                 WhistlePunkApplication.getUsageTracker(mContext).trackEvent(
                         TrackerConstants.CATEGORY_RUNS,
                         TrackerConstants.ACTION_TRY_RECORDING_FROM_TRIGGER, null, 0);
@@ -291,7 +290,7 @@ public class RecorderControllerImpl implements RecorderController {
                 for (TriggerFiredListener listener : mTriggerListeners.values()) {
                     listener.onRequestStopRecording(this);
                 }
-                stopRecording();
+                stopRecording().subscribe();
                 WhistlePunkApplication.getUsageTracker(mContext).trackEvent(
                         TrackerConstants.CATEGORY_RUNS,
                         TrackerConstants.ACTION_TRY_STOP_RECORDING_FROM_TRIGGER, null, 0);
@@ -503,73 +502,77 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @Override
-    public void startRecording(final Intent resumeIntent) {
+    public Completable startRecording(final Intent resumeIntent) {
         if (mRecording != null || mRecordingStateChangeInProgress) {
-            return;
+            return Completable.complete();
         }
         if (mRecorders.size() == 0) {
             // If the recorders are empty, then we stopped observing a sensor before we tried
             // to start recording it. This may happen if we failed to connect to an external sensor
             // and it was disconnected before recording started.
-            callRecordingStartFailedListeners(RecorderController.ERROR_START_FAILED, null);
-            return;
+            return Completable.error(
+                    new RecordingStartFailedException(RecorderController.ERROR_START_FAILED, null));
         }
         // Check that all sensors are connected before starting a recording.
         for (String sensorId : mRecorders.keySet()) {
             if (!mRegistry.isSourceConnectedWithoutError(sensorId)) {
-                callRecordingStartFailedListeners(
-                        RecorderController.ERROR_START_FAILED_DISCONNECTED, null);
-                return;
+                return Completable.error(
+                        new RecordingStartFailedException(
+                                RecorderController.ERROR_START_FAILED_DISCONNECTED, null));
             }
         }
         mRecordingStateChangeInProgress = true;
-        withBoundRecorderService(new FallibleConsumer<RecorderService>() {
-            @Override
-            public void take(final RecorderService recorderService) throws RemoteException {
-                final DataController dataController = mDataController;
-                final long creationTimeMs = mClock.getNow();
-                List<GoosciSensorLayout.SensorLayout> layouts = buildSensorLayouts();
-                Trial trial = Trial.newTrial(creationTimeMs, layouts.toArray(
-                        new GoosciSensorLayout.SensorLayout[layouts.size()]));
-                mCurrentTrialId = trial.getTrialId();
-                getSelectedExperiment().addTrial(trial);
-                dataController.updateExperiment(getSelectedExperiment().getExperimentId(),
-                        new LoggingConsumer<Success>(TAG, "start trial") {
-                            @Override
-                            public void success(Success success) {
-                                mRecording = new RecordingMetadata(creationTimeMs, mCurrentTrialId,
-                                        getSelectedExperiment().getDisplayTitle(mContext));
+        return Completable.create(emitter ->
+                withBoundRecorderService(new FallibleConsumer<RecorderService>() {
+                    @Override
+                    public void take(final RecorderService recorderService) throws RemoteException {
+                        final DataController dataController = mDataController;
+                        final long creationTimeMs = mClock.getNow();
+                        List<GoosciSensorLayout.SensorLayout> layouts = buildSensorLayouts();
+                        Trial trial = Trial.newTrial(creationTimeMs, layouts.toArray(
+                                new GoosciSensorLayout.SensorLayout[layouts.size()]));
+                        mCurrentTrialId = trial.getTrialId();
+                        getSelectedExperiment().addTrial(trial);
+                        dataController.updateExperiment(getSelectedExperiment().getExperimentId(),
+                                new LoggingConsumer<Success>(TAG, "start trial") {
+                                    @Override
+                                    public void success(Success success) {
+                                        mRecording = new RecordingMetadata(creationTimeMs,
+                                                mCurrentTrialId,
+                                                getSelectedExperiment().getDisplayTitle(mContext));
 
-                                ensureUnarchived(getSelectedExperiment(), dataController);
-                                recorderService.beginServiceRecording(
-                                        mRecording.getExperimentName(), resumeIntent);
+                                        ensureUnarchived(getSelectedExperiment(), dataController);
+                                        recorderService.beginServiceRecording(
+                                                mRecording.getExperimentName(), resumeIntent);
 
-                                for (StatefulRecorder recorder : mRecorders.values()) {
-                                    recorder.startRecording(mRecording.getRunId());
-                                }
-                                updateRecordingListeners();
-                                mRecordingStateChangeInProgress = false;
-                            }
+                                        for (StatefulRecorder recorder : mRecorders.values()) {
+                                            recorder.startRecording(mRecording.getRunId());
+                                        }
+                                        updateRecordingListeners();
+                                        mRecordingStateChangeInProgress = false;
+                                        emitter.onComplete();
+                                    }
 
-                            @Override
-                            public void fail(Exception e) {
-                                super.fail(e);
-                                callRecordingStartFailedListeners(
-                                        RecorderController.ERROR_START_FAILED, e);
-                                mRecordingStateChangeInProgress = false;
-                                mCurrentTrialId = "";
-                            }
-                        });
-            }
-        });
+                                    @Override
+                                    public void fail(Exception e) {
+                                        super.fail(e);
+                                        mRecordingStateChangeInProgress = false;
+                                        mCurrentTrialId = "";
+                                        emitter.onError(new RecordingStartFailedException(
+                                                RecorderController.ERROR_START_FAILED, e));
+                                    }
+                                });
+                    }
+                })
+        );
     }
 
     @Override
-    public void stopRecording() {
+    public Completable stopRecording() {
         if (mRecording == null
             || getSelectedExperiment() == null
             || mRecordingStateChangeInProgress) {
-            return;
+            return Completable.complete();
         }
 
         // TODO: What happens when recording stop fails and the app is in the background?
@@ -579,71 +582,76 @@ public class RecorderControllerImpl implements RecorderController {
         for (String sensorId : mRecorders.keySet()) {
             // If we try to stop recording when a sensor is not connected, recording stop fails.
             if (!mRegistry.isSourceConnectedWithoutError(sensorId)) {
-                callRecordingStopFailedListeners(RecorderController.ERROR_STOP_FAILED_DISCONNECTED);
-                return;
+                return Completable.error(new RecordingStopFailedException(
+                        RecorderController.ERROR_STOP_FAILED_DISCONNECTED));
             }
             // Check to see if it has no data recorded, as this also fails stop recording.
             if (!mRecorders.get(sensorId).hasRecordedData()) {
-                callRecordingStopFailedListeners(RecorderController.ERROR_STOP_FAILED_NO_DATA);
-                return;
+                return Completable.error(new RecordingStopFailedException(
+                        RecorderController.ERROR_STOP_FAILED_NO_DATA));
             }
         }
         mRecordingStateChangeInProgress = true;
         final boolean activityInForground = mActivityInForeground;
-        withBoundRecorderService(new FallibleConsumer<RecorderService>() {
-            @Override
-            public void take(final RecorderService recorderService) throws RemoteException {
-                final Trial trial = getSelectedExperiment().getTrial(mCurrentTrialId);
-                final List<GoosciSensorLayout.SensorLayout> sensorLayoutsAtStop =
-                        buildSensorLayouts();
-                if (sensorLayoutsAtStop.size() > 0) {
-                    trial.setSensorLayouts(sensorLayoutsAtStop);
-                }
-                trial.setRecordingEndTime(mClock.getNow());
-                mDataController.updateExperiment(getSelectedExperiment().getExperimentId(),
-                        new LoggingConsumer<Success>(TAG, "stopTrial") {
-                            @Override
-                            public void success(Success value) {
-                                for (StatefulRecorder recorder : mRecorders.values()) {
-                                    recorder.stopRecording(trial);
-                                }
-                                trackStopRecording(recorderService.getApplicationContext(),
-                                        trial, sensorLayoutsAtStop);
-                                mDataController.updateExperiment(
-                                        getSelectedExperiment().getExperimentId(),
-                                        new LoggingConsumer<Success>(TAG, "update stats") {
-                                            @Override
-                                            public void success(Success value) {
-                                                // Close the service. When the service is closed, if
-                                                // the app is in the background, all processes will
-                                                // stop -- so this needs to be the last thing to
-                                                // happen!
-                                                Experiment exp = getSelectedExperiment();
-                                                recorderService.endServiceRecording(
-                                                        !activityInForground, mCurrentTrialId,
-                                                        exp.getExperimentId(),
-                                                        exp.getDisplayTitle(mContext));
-                                            }
-                                        });
 
-                                // Now actually stop the recording.
-                                mRecording = null;
-                                mCurrentTrialId = "";
-                                cleanUpUnusedRecorders();
-                                updateRecordingListeners();
-                                mRecordingStateChangeInProgress = false;
-                            }
+        return Completable.create(emitter ->
+                withBoundRecorderService(new FallibleConsumer<RecorderService>() {
+                    @Override
+                    public void take(final RecorderService recorderService) throws RemoteException {
+                        final Trial trial = getSelectedExperiment().getTrial(mCurrentTrialId);
+                        final List<GoosciSensorLayout.SensorLayout> sensorLayoutsAtStop =
+                                buildSensorLayouts();
+                        if (sensorLayoutsAtStop.size() > 0) {
+                            trial.setSensorLayouts(sensorLayoutsAtStop);
+                        }
+                        trial.setRecordingEndTime(mClock.getNow());
+                        mDataController.updateExperiment(getSelectedExperiment().getExperimentId(),
+                                new LoggingConsumer<Success>(TAG, "stopTrial") {
+                                    @Override
+                                    public void success(Success value) {
+                                        for (StatefulRecorder recorder : mRecorders.values()) {
+                                            recorder.stopRecording(trial);
+                                        }
+                                        trackStopRecording(recorderService.getApplicationContext(),
+                                                trial, sensorLayoutsAtStop);
+                                        mDataController.updateExperiment(
+                                                getSelectedExperiment().getExperimentId(),
+                                                new LoggingConsumer<Success>(TAG, "update stats") {
+                                                    @Override
+                                                    public void success(Success value) {
+                                                        // Close the service. When the service is
+                                                        // closed, if the app is in the background,
+                                                        // all processes will stop -- so this needs
+                                                        // to be the last thing to happen!
+                                                        Experiment exp = getSelectedExperiment();
+                                                        recorderService.endServiceRecording(
+                                                                !activityInForground,
+                                                                mCurrentTrialId,
+                                                                exp.getExperimentId(),
+                                                                exp.getDisplayTitle(mContext));
+                                                    }
+                                                });
 
-                            @Override
-                            public void fail(Exception e) {
-                                super.fail(e);
-                                callRecordingStopFailedListeners(
-                                        RecorderController.ERROR_FAILED_SAVE_RECORDING);
-                                mRecordingStateChangeInProgress = false;
-                            }
-                        });
-            }
-        });
+                                        // Now actually stop the recording.
+                                        mRecording = null;
+                                        mCurrentTrialId = "";
+                                        cleanUpUnusedRecorders();
+                                        updateRecordingListeners();
+                                        mRecordingStateChangeInProgress = false;
+                                        emitter.onComplete();
+                                    }
+
+                                    @Override
+                                    public void fail(Exception e) {
+                                        super.fail(e);
+                                        mRecordingStateChangeInProgress = false;
+                                        emitter.onError(new RecordingStopFailedException(
+                                                RecorderController.ERROR_FAILED_SAVE_RECORDING));
+                                    }
+                                });
+                    }
+                })
+        );
     }
 
     @Override
@@ -746,29 +754,13 @@ public class RecorderControllerImpl implements RecorderController {
         }
     }
 
-    private void callRecordingStopFailedListeners(@RecordingStopErrorType int errorType) {
-        for (RecordingStateListener listener : mRecordingStateListeners.values()) {
-            if (listener != null) {
-                listener.onRecordingStopFailed(errorType);
-            }
-        }
-    }
-
-    private void callRecordingStartFailedListeners(@RecordingStartErrorType int errorType,
-            Exception e) {
-        for (RecordingStateListener listener : mRecordingStateListeners.values()) {
-            if (listener != null) {
-                listener.onRecordingStartFailed(errorType, e);
-            }
-        }
-    }
-
     /**
      * Convenience function for asynchronously binding to the service and doing something with it.
      *
      * @param c what to do
      */
     protected void withBoundRecorderService(final FallibleConsumer<RecorderService> c) {
+        // TODO: push logic to RecorderService
         if (mServiceConnection == null) {
             mServiceConnection = mConnectionSupplier.get();
         }

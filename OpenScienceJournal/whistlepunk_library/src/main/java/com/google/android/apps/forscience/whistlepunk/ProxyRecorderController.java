@@ -167,18 +167,6 @@ public class ProxyRecorderController extends IRecorderController.Stub {
                     failureListener.fail(e);
                 }
             }
-
-            @Override
-            public void onRecordingStartFailed(
-                    @RecorderController.RecordingStartErrorType int errorType, Exception e) {
-
-            }
-
-            @Override
-            public void onRecordingStopFailed(
-                    @RecorderController.RecordingStopErrorType int recordingStateErrorType) {
-
-            }
         };
     }
 
