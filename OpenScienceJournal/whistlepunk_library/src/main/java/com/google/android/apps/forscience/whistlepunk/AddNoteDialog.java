@@ -58,9 +58,7 @@ import java.util.UUID;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.SingleObserver;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 
 /**
@@ -429,8 +427,10 @@ public class AddNoteDialog extends DialogFragment {
                     // TODO: Error states if these are not granted (b/24303452)
                     mUuid = UUID.randomUUID().toString();
 
-                    mWhenExperimentId.firstElement().subscribe(
-                            id -> PictureUtils.capturePictureLabel(getActivity(), id, mUuid));
+                    mWhenExperimentId.firstElement().subscribe(id -> {
+                        mPictureLabelPath =
+                                PictureUtils.capturePictureLabel(getActivity(), id, mUuid);
+                    });
                 }
             }
         });
@@ -470,6 +470,7 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     private void addLabel() {
+
         // Save this as a picture label if it has a picture, otherwise just save it as a text
         // label.
         getTimestamp().subscribe(t -> {

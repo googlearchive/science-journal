@@ -170,7 +170,6 @@ public class MaybeConsumers {
         });
     }
 
-    // SAFF: fix docs
     /**
      * Given an operation that takes a {@link MaybeConsumer<T>}, create a JavaRX
      * {@link Maybe<T>} that produces the value passed to the MaybeConsumer, or onComplete if the
