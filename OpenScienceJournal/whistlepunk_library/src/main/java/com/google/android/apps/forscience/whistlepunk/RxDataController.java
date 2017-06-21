@@ -17,6 +17,8 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
 
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -27,10 +29,17 @@ import io.reactivex.Single;
  */
 public class RxDataController {
     /**
-     * @return a {@link Completable} that completes when updateExperiment is successful.
+     * @return a {@link Completable} that completes when updateExperiment is successful.  Caller
+     *         <em>must</em> subscribe to this completeable to deal with errors and force execution.
      */
     public static Completable updateExperiment(DataController dc, Experiment e) {
         return MaybeConsumers.buildCompleteable(mc -> dc.updateExperiment(e.getExperimentId(), mc));
+    }
+
+    public static Completable updateLabel(DataController dc, LabelListHolder h, Label l,
+            Experiment e) {
+        h.updateLabel(l);
+        return updateExperiment(dc, e);
     }
 
     public static Single<Experiment> getExperimentById(DataController dc, String experimentId) {

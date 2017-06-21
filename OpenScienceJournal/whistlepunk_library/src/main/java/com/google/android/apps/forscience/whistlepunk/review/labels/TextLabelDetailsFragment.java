@@ -33,17 +33,16 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
+import com.jakewharton.rxbinding2.widget.RxTextView;
 
 /**
  * Details view controller for TextLabel
  */
 public class TextLabelDetailsFragment extends LabelDetailsFragment {
-    private static final String TAG = "TextLabelDetailsFragment";
-
     private EditText mNoteText;
-    private TextWatcher mWatcher;
 
     public static TextLabelDetailsFragment newInstance(String experimentId, Label originalLabel) {
         TextLabelDetailsFragment result = new TextLabelDetailsFragment();
@@ -65,41 +64,20 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
         mNoteText = (EditText) inflater.inflate(R.layout.text_label_details_fragment,
                 container, false);
         mNoteText.setText(mOriginalLabel.getTextLabelValue().text);
-        mWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                // Save the label changes
-                saveTextChanges(mNoteText.getText().toString());
-            }
-        };
-        mNoteText.addTextChangedListener(mWatcher);
         mNoteText.setEnabled(false);
 
         mExperiment.firstElement().subscribe(experiment -> {
             mNoteText.setEnabled(true);
             // Move the cursor to the end
             mNoteText.post(() -> mNoteText.setSelection(mNoteText.getText().toString().length()));
+            RxTextView.afterTextChangeEvents(mNoteText)
+                      .subscribe(
+                              event -> saveTextChanges(mNoteText.getText().toString(), experiment));
         });
 
         // TODO: Transition
 
         return mNoteText;
-    }
-
-    @Override
-    public void onDestroyView() {
-        mNoteText.removeTextChangedListener(mWatcher);
-        super.onDestroyView();
     }
 
     @Override
@@ -120,14 +98,14 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
         super.onPrepareOptionsMenu(menu);
     }
 
-    private void saveTextChanges(String newText) {
+    private void saveTextChanges(String newText, Experiment experiment) {
         if (!verifyInput(newText)) {
             return;
         }
         GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
         labelValue.text = newText;
         mOriginalLabel.setLabelProtoData(labelValue);
-        saveUpdatedOriginalLabel();
+        saveUpdatedOriginalLabel(experiment);
     }
 
     private boolean verifyInput(String text) {
