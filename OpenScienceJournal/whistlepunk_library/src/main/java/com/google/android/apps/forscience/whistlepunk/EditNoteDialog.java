@@ -33,9 +33,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
@@ -180,6 +182,7 @@ public class EditNoteDialog extends DialogFragment {
                     R.drawable.ic_label_black_24dp, getResources());
         }
 
+        EditNoteDialogListener listener = (EditNoteDialogListener) getParentFragment();
         alertDialog.setPositiveButton(R.string.action_save,
                 (dialog, which) -> {
                     // Copy all the updated fields into the label.
@@ -196,14 +199,11 @@ public class EditNoteDialog extends DialogFragment {
                         caption.lastEditedTimestamp = mTimestamp;
                         mLabel.setCaption(caption);
                     }
-                    if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
-                        mExperiment.updateLabel(mLabel);
-                    } else {
-                        mExperiment.getTrial(mTrialId).updateLabel(mLabel);
-                    }
-                    getDataController().updateExperiment(mExperimentId,
-                            ((EditNoteDialogListener) getParentFragment()).onLabelEdit(
-                                    mLabel));
+                    LabelListHolder holder =
+                            labelBelongsToRun() ? mExperiment.getTrial(mTrialId) : mExperiment;
+                    RxDataController.updateLabel(getDataController(), holder, mLabel, mExperiment)
+                                    .subscribe(MaybeConsumers.toCompletableObserver(
+                                            listener.onLabelEdit(mLabel)));
                 }
         );
         alertDialog.setNegativeButton(android.R.string.cancel,
@@ -228,7 +228,7 @@ public class EditNoteDialog extends DialogFragment {
                     caption.lastEditedTimestamp = AppSingleton.getInstance(getActivity())
                             .getSensorEnvironment().getDefaultClock().getNow();
                     mEditedLabel.setCaption(caption);
-                    ((EditNoteDialogListener) getParentFragment()).onEditNoteTimestampClicked(
+                    listener.onEditNoteTimestampClicked(
                             mLabel, mEditedLabel, mTimestamp);
                 } else if (mLabel.getType() == GoosciLabel.Label.TEXT) {
                     GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue
@@ -236,7 +236,7 @@ public class EditNoteDialog extends DialogFragment {
                     mLabel.getTextLabelValue();
                     labelValue.text = editText.getText().toString();
                     mEditedLabel.setLabelProtoData(labelValue);
-                    ((EditNoteDialogListener) getParentFragment()).onEditNoteTimestampClicked(
+                    listener.onEditNoteTimestampClicked(
                             mLabel, mEditedLabel, mTimestamp);
                 }
             });
@@ -251,12 +251,8 @@ public class EditNoteDialog extends DialogFragment {
         }
 
         AlertDialog dialog = alertDialog.create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                updatePositiveButtonEnabled((AlertDialog) dialogInterface);
-            }
-        });
+        dialog.setOnShowListener(
+                dialogInterface -> updatePositiveButtonEnabled((AlertDialog) dialogInterface));
         if (mLabel.getType() == GoosciLabel.Label.TEXT ||
                 mLabel.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
             dialog.getWindow().setSoftInputMode(

@@ -22,8 +22,6 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,15 +31,15 @@ import android.widget.EditText;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.DataService;
+import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
+import com.jakewharton.rxbinding2.widget.RxTextView;
 
-import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 
 /**
@@ -49,12 +47,12 @@ import io.reactivex.subjects.BehaviorSubject;
  */
 abstract class LabelDetailsFragment extends Fragment {
     private static final String KEY_SAVED_LABEL = "saved_label";
+    private static final String TAG = "LabelDetails";
     protected String mExperimentId;
     protected BehaviorSubject<Experiment> mExperiment = BehaviorSubject.create();
     protected Label mOriginalLabel;
 
     private EditText mCaption;
-    private TextWatcher mWatcher;
     private Clock mClock;
 
     @Override
@@ -69,21 +67,11 @@ abstract class LabelDetailsFragment extends Fragment {
             mOriginalLabel = savedInstanceState.getParcelable(KEY_SAVED_LABEL);
         }
 
-        // Get the data controller and ask it to get the experiment and subscribe to that event.
-        getDataController()
-                .flatMap(dc -> RxDataController.getExperimentById(dc, mExperimentId))
-                .subscribe(this::attachExperiment);
+        RxDataController.getExperimentById(getDataController(), mExperimentId)
+                        .subscribe(this::attachExperiment);
         mExperiment.firstElement().subscribe(experiment -> getActivity().invalidateOptionsMenu());
 
         mClock = AppSingleton.getInstance(getActivity()).getSensorEnvironment().getDefaultClock();
-    }
-
-    @Override
-    public void onDestroyView() {
-        if (mCaption != null) {
-            mCaption.removeTextChangedListener(mWatcher);
-        }
-        super.onDestroyView();
     }
 
     @Override
@@ -121,21 +109,18 @@ abstract class LabelDetailsFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    protected void saveUpdatedOriginalLabel() {
+    protected void saveUpdatedOriginalLabel(Experiment experiment) {
         // TODO: Log analytics here? That would send an event per keystroke.
-        mExperiment.firstElement().subscribe(experiment -> {
-            experiment.updateLabel(mOriginalLabel);
-            getDataController().subscribe(dc -> RxDataController.updateExperiment(dc, experiment)
-                    .subscribe());  // Need to subscribe to the update or it won't complete.
-        });
+        RxDataController.updateLabel(getDataController(), experiment, mOriginalLabel, experiment)
+                        .subscribe(LoggingConsumer.observe(TAG, "update"));
     }
 
     private void attachExperiment(Experiment experiment) {
         mExperiment.onNext(experiment);
     }
 
-    protected Single<DataController> getDataController() {
-        return DataService.bind(getActivity()).map(AppSingleton::getDataController);
+    protected DataController getDataController() {
+        return AppSingleton.getInstance(getActivity()).getDataController();
     }
 
     protected void returnToParent(boolean labelDeleted) {
@@ -162,48 +147,37 @@ abstract class LabelDetailsFragment extends Fragment {
 
     protected void deleteAndReturnToParent() {
         // TODO: Log analytics here or on return to parent?
-        mExperiment.firstElement().subscribe(experiment -> {
-            experiment.deleteLabel(mOriginalLabel, getActivity());
-            getDataController().subscribe(dc -> RxDataController.updateExperiment(dc, experiment)
-                    .subscribe(() -> returnToParent(/* label deleted */ true)));
-                });
+        mExperiment.firstElement()
+                   .flatMapCompletable(experiment -> {
+                       experiment.deleteLabel(mOriginalLabel, getActivity());
+                       return RxDataController.updateExperiment(getDataController(), experiment);
+                   })
+                   .subscribe(() -> returnToParent(/* label deleted */ true),
+                           LoggingConsumer.complain(TAG, "delete label"));
     }
 
     // Most types of labels have a caption. This sets up the text watcher / autosave for that.
     protected void setupCaption(View rootView) {
         mCaption = (EditText) rootView.findViewById(R.id.caption);
         mCaption.setText(mOriginalLabel.getCaptionText());
-        mWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                // Save the label changes
-                saveCaptionChanges(mCaption.getText().toString());
-            }
-        };
-        mCaption.addTextChangedListener(mWatcher);
         mCaption.setEnabled(false);
         mExperiment.firstElement().subscribe(experiment -> {
             mCaption.setEnabled(true);
             // Move the cursor to the end
             mCaption.post(() -> mCaption.setSelection(mCaption.getText().toString().length()));
+
+            RxTextView.afterTextChangeEvents(mCaption)
+                      .subscribe(event -> saveCaptionChanges(experiment,
+                              mCaption.getText().toString()));
         });
     }
 
-    private void saveCaptionChanges(String newText) {
+    private void saveCaptionChanges(Experiment experiment, String newText) {
         GoosciCaption.Caption caption = new GoosciCaption.Caption();
         caption.text = newText;
         caption.lastEditedTimestamp = mClock.getNow();
         mOriginalLabel.setCaption(caption);
-        saveUpdatedOriginalLabel();
+        saveUpdatedOriginalLabel(experiment);
     }
 }

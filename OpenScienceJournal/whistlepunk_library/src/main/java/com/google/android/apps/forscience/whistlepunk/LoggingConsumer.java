@@ -20,6 +20,8 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 
+import io.reactivex.CompletableObserver;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
 /**
@@ -64,5 +66,24 @@ public abstract class LoggingConsumer<T> implements MaybeConsumer<T> {
      */
     public static Consumer<? super Throwable> complain(String tag, String operation) {
         return e -> complain(e, tag, operation);
+    }
+
+    public static CompletableObserver observe(String tag, String operation) {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                complain(e, tag, operation);
+            }
+        };
     }
 }

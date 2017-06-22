@@ -278,7 +278,8 @@ public class RecorderControllerImpl implements RecorderController {
                     listener.onRequestStartRecording();
                 }
                 // TODO: test this subscribe
-                startRecording(new Intent(mContext, MainActivity.class)).subscribe();
+                startRecording(new Intent(mContext, MainActivity.class)).subscribe(
+                        LoggingConsumer.observe(TAG, "start recording with trigger"));
                 WhistlePunkApplication.getUsageTracker(mContext).trackEvent(
                         TrackerConstants.CATEGORY_RUNS,
                         TrackerConstants.ACTION_TRY_RECORDING_FROM_TRIGGER, null, 0);
@@ -290,7 +291,8 @@ public class RecorderControllerImpl implements RecorderController {
                 for (TriggerFiredListener listener : mTriggerListeners.values()) {
                     listener.onRequestStopRecording(this);
                 }
-                stopRecording().subscribe();
+                stopRecording().subscribe(
+                        LoggingConsumer.observe(TAG, "stop recording with trigger"));
                 WhistlePunkApplication.getUsageTracker(mContext).trackEvent(
                         TrackerConstants.CATEGORY_RUNS,
                         TrackerConstants.ACTION_TRY_STOP_RECORDING_FROM_TRIGGER, null, 0);
