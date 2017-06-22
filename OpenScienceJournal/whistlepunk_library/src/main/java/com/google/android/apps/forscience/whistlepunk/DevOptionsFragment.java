@@ -61,7 +61,7 @@ public class DevOptionsFragment extends PreferenceFragment {
     }
 
     static boolean shouldHideTestingOptions(Context context) {
-        if (!isDebugVersion(context)) {
+        if (!isDebugVersion()) {
             return true;
         }
         return Build.TYPE.equals("user") && !BuildConfig.DEBUG && !BuildConfig.BUILD_TYPE.equals(
@@ -75,7 +75,7 @@ public class DevOptionsFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.dev_options);
 
         CheckBoxPreference leakPref = (CheckBoxPreference) findPreference(KEY_LEAK_CANARY);
-        if (isDebugVersion(getActivity())) {
+        if (isDebugVersion()) {
             leakPref.setChecked(isLeakCanaryEnabled(getActivity()));
             leakPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
@@ -138,7 +138,7 @@ public class DevOptionsFragment extends PreferenceFragment {
         return getBoolean(KEY_STRICT_MODE, false, context);
     }
 
-    public static boolean isDebugVersion(Context context) {
+    public static boolean isDebugVersion() {
         return BuildConfig.DEBUG;
     }
 
@@ -155,7 +155,7 @@ public class DevOptionsFragment extends PreferenceFragment {
     }
 
     private static boolean getBoolean(String key, boolean defaultBool, Context context) {
-        if (!isDebugVersion(context)) {
+        if (!isDebugVersion()) {
             return defaultBool;
         }
         return getPrefs(context).getBoolean(key, defaultBool);
