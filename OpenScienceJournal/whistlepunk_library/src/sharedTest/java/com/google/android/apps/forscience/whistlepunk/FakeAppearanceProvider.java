@@ -19,6 +19,16 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 
 public class FakeAppearanceProvider implements SensorAppearanceProvider {
+    private int mNameStringId;
+
+    public FakeAppearanceProvider() {
+        this(R.string.sensor_custom);
+    }
+
+    public FakeAppearanceProvider(int nameStringId) {
+        mNameStringId = nameStringId;
+    }
+
     @Override
     public void loadAppearances(MaybeConsumer<Success> onSuccess) {
 
@@ -26,6 +36,6 @@ public class FakeAppearanceProvider implements SensorAppearanceProvider {
 
     @Override
     public SensorAppearance getAppearance(String sensorId) {
-        return new BuiltInSensorAppearance(0, 0);
+        return new BuiltInSensorAppearance(mNameStringId, 0);
     }
 }

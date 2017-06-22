@@ -128,7 +128,7 @@ public class SensorCardPresenterTest extends AndroidTestCase {
     }
 
     private void setSensorId(SensorCardPresenter scp, String sensorId, String sensorDisplayName) {
-        scp.setAppearanceProvider(new MemoryAppearanceProvider());
+        scp.setAppearanceProvider(new FakeAppearanceProvider());
         scp.setUiForConnectingNewSensor(sensorId, sensorDisplayName, "units", false);
     }
 
@@ -150,7 +150,8 @@ public class SensorCardPresenterTest extends AndroidTestCase {
         if (mRecorderController == null) {
             mRecorderController = new RecorderControllerImpl(getContext(), getSensorRegistry(),
                     new MemorySensorEnvironment(null, null, null, null),
-                    new RecorderListenerRegistry(), null, null, new SystemScheduler(), Delay.ZERO) {
+                    new RecorderListenerRegistry(), null, null, new SystemScheduler(), Delay.ZERO,
+                    new FakeAppearanceProvider()) {
                 @Override
                 public void stopObserving(String sensorId, String observerId) {
                     mStoppedSensorIds.add(sensorId);

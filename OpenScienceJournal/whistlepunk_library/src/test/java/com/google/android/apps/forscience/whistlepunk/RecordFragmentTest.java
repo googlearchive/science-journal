@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -52,7 +53,8 @@ public class RecordFragmentTest {
 
         final RecorderControllerImpl rc =
                 new RecorderControllerImpl(null, reg, env,
-                        new RecorderListenerRegistry(), null, dc, null, Delay.ZERO);
+                        new RecorderListenerRegistry(), null, dc, null, Delay.ZERO,
+                        new FakeUnitAppearanceProvider());
 
         rc.startObserving("id", new ArrayList<SensorTrigger>(), new RecordingSensorObserver(),
                 new RecordingStatusListener(), null);

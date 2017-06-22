@@ -13,31 +13,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.google.android.apps.forscience.whistlepunk;
+package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class MemoryAppearanceProvider implements SensorAppearanceProvider {
-    private Map<String, SensorAppearance> mAppearances = new HashMap<>();
-
-    public void putAppearance(String sensorId, SensorAppearance appearance) {
-        mAppearances.put(sensorId, appearance);
-    }
-
+public class FakeUnitAppearanceProvider implements SensorAppearanceProvider {
     @Override
     public void loadAppearances(MaybeConsumer<Success> onSuccess) {
-        onSuccess.success(Success.SUCCESS);
+
     }
 
     @Override
     public SensorAppearance getAppearance(String sensorId) {
-        return mAppearances.get(sensorId);
+        return new EmptySensorAppearance();
     }
-
 }
