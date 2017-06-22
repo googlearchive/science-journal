@@ -22,6 +22,7 @@ option java_outer_classname = "GoosciTrial";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
+import "basic_sensor_appearance.proto";
 import "caption.proto";
 import "label.proto";
 import "sensor_layout.proto";
@@ -69,6 +70,20 @@ message Trial {
 
     // An optional user-added caption.
     optional Caption caption = 11;
+
+    // Version 1.2: Added
+    message AppearanceEntry {
+        // The sensor ID associated with this within this experiment.
+        // This has no global uniqueness or parseable meaning outside this experiment
+        optional string sensorId = 1;
+
+        // The appearance of the sensor with this id.
+        // contains all of the data necessary to display a sensor as part of this trial
+        optional BasicSensorAppearance rememberedAppearance = 2;
+    }
+
+    // Which sensors are shown, and how to show them.
+    repeated AppearanceEntry sensorAppearances = 12;
 };
 
 /*
@@ -86,7 +101,7 @@ message Range {
  * Trial stats for a single sensor. Each sensor may have multiple individual stats.
  */
 message SensorTrialStats {
-    // The sensor ID associated with this stat
+    // The sensor ID associated with this stat (to be looked up in sensorAppearances)
     optional string sensorId = 1;
 
     enum StatStatus {
