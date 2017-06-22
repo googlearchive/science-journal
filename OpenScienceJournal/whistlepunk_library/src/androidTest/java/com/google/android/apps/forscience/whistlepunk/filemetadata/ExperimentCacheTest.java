@@ -92,7 +92,7 @@ public class ExperimentCacheTest extends InstrumentationTestCase {
     }
 
     public void testExperimentWriteRead() {
-        Experiment experiment = Experiment.newExperiment(10, "exp_localId");
+        Experiment experiment = Experiment.newExperiment(10, "exp_localId", 0);
         ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
                 getFailureFailsListener(), 0);
         cache.createNewExperiment(experiment);
@@ -115,7 +115,7 @@ public class ExperimentCacheTest extends InstrumentationTestCase {
     }
 
     public void testExperimentWithChanges() {
-        Experiment experiment = Experiment.newExperiment(10, "exp_localId");
+        Experiment experiment = Experiment.newExperiment(10, "exp_localId", 0);
         ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
                 getFailureFailsListener(), 0);
         cache.createNewExperiment(experiment);
@@ -142,13 +142,13 @@ public class ExperimentCacheTest extends InstrumentationTestCase {
         ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
                 getFailureFailsListener(), 0);
 
-        Experiment experiment = Experiment.newExperiment(10, "exp_localId");
+        Experiment experiment = Experiment.newExperiment(10, "exp_localId", 0);
         cache.createNewExperiment(experiment);
         assertEquals(cache.getActiveExperimentForTests().getCreationTimeMs(), 10);
         experiment.setTitle("Title");
         cache.updateExperiment(experiment);
 
-        Experiment second = Experiment.newExperiment(20, "exp_secondId");
+        Experiment second = Experiment.newExperiment(20, "exp_secondId", 0);
         cache.createNewExperiment(second);
         assertEquals(cache.getActiveExperimentForTests().getCreationTimeMs(), 20);
 

@@ -465,7 +465,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     Experiment newDatabaseExperiment(String projectId) {
         String experimentId = newStableId(STABLE_EXPERIMENT_ID_LENGTH);
         long timestamp = getCurrentTime();
-        Experiment result = Experiment.newExperiment(timestamp, experimentId);
+        Experiment result = Experiment.newExperiment(timestamp, experimentId, 0);
         ContentValues values = new ContentValues();
         values.put(ExperimentColumns.EXPERIMENT_ID, experimentId);
         values.put(ExperimentColumns.PROJECT_ID, projectId);

@@ -91,6 +91,14 @@ public class FileMetadataManagerTest extends InstrumentationTestCase {
                 fmm.getLastUsedUnarchivedExperiment().getExperimentId());
         assertEquals(2, fmm.getExperimentOverviews(false).size());
 
+        // Doesn't re-use colors
+        assertTrue(first.getExperimentOverview().colorIndex !=
+                second.getExperimentOverview().colorIndex);
+        assertTrue(second.getExperimentOverview().colorIndex !=
+                third.getExperimentOverview().colorIndex);
+        assertTrue(first.getExperimentOverview().colorIndex !=
+                third.getExperimentOverview().colorIndex);
+
         // Clean up
         fmm.deleteExperiment(first);
         fmm.deleteExperiment(second);

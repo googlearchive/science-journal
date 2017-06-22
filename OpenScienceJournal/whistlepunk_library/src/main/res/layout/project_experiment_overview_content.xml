@@ -33,7 +33,6 @@
             android:scaleType="centerCrop"
             android:layout_alignParentTop="true"
             android:contentDescription="@null"
-            android:background="@color/color_primary"
             android:layout_above="@+id/experiment_title"
             />
 

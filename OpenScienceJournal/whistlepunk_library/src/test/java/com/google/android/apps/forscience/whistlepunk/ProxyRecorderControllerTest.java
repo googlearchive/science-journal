@@ -169,7 +169,7 @@ public class ProxyRecorderControllerTest {
         RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
         RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
-        Experiment experiment = Experiment.newExperiment(1618, "phi");
+        Experiment experiment = Experiment.newExperiment(1618, "phi", 0);
         experiment.setTitle("experimentName");
         rc.setSelectedExperiment(experiment);
 
@@ -208,7 +208,7 @@ public class ProxyRecorderControllerTest {
         RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
         RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
-        Experiment experiment = Experiment.newExperiment(1618, "phi");
+        Experiment experiment = Experiment.newExperiment(1618, "phi", 0);
         experiment.setTitle("experimentName");
         rc.setSelectedExperiment(experiment);
 
@@ -236,7 +236,7 @@ public class ProxyRecorderControllerTest {
         RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
         RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener);
-        Experiment experiment = Experiment.newExperiment(1618, "phi");
+        Experiment experiment = Experiment.newExperiment(1618, "phi", 0);
         experiment.setTitle("experimentName");
         rc.setSelectedExperiment(experiment);
 

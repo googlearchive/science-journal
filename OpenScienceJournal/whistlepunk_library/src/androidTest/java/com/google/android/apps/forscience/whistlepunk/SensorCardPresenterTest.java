@@ -113,7 +113,7 @@ public class SensorCardPresenterTest extends AndroidTestCase {
         SensorCardPresenter scp = createSCP();
         setSensorId(scp, "sensorId", "Sensor Name");
         scp.startObserving(sensor, sensor.createPresenter(null, null, null), null,
-                Experiment.newExperiment(10, "localExperimentId"));
+                Experiment.newExperiment(10, "localExperimentId", 0));
         sensor.simulateExternalEventPreventingObservation();
         assertFalse(sensor.isObserving());
         scp.retryConnection(getContext());

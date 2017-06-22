@@ -50,13 +50,14 @@ public class Experiment extends LabelListHolder {
     private List<SensorTrigger> mSensorTriggers;
     private List<Trial> mTrials;
 
-    public static Experiment newExperiment(long creationTime, String experimentId) {
+    public static Experiment newExperiment(long creationTime, String experimentId, int colorIndex) {
         GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
         GoosciUserMetadata.ExperimentOverview experimentOverview =
                 new GoosciUserMetadata.ExperimentOverview();
         experimentOverview.lastUsedTimeMs = creationTime;
         experimentOverview.isArchived = false;
         experimentOverview.experimentId = experimentId;
+        experimentOverview.colorIndex = colorIndex;
         proto.creationTimeMs = creationTime;
         // This experiment is being created with the latest VERSION available.
         proto.version = ExperimentCache.VERSION;

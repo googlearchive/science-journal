@@ -27,7 +27,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
@@ -67,7 +66,7 @@ public class MemoryMetadataManager implements MetaDataManager {
 
     @NonNull
     public Experiment newExperiment(long timestamp, String experimentId) {
-        Experiment experiment = Experiment.newExperiment(timestamp, experimentId);
+        Experiment experiment = Experiment.newExperiment(timestamp, experimentId, 0);
         mExperiments.add(0, experiment);
         return experiment;
     }

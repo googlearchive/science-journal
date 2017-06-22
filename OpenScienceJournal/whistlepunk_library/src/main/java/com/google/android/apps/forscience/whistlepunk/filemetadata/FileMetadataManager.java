@@ -21,7 +21,9 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
+import com.google.android.apps.forscience.whistlepunk.ColorAllocator;
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
@@ -47,6 +49,7 @@ public class FileMetadataManager {
 
     private ExperimentCache mActiveExperimentCache;
     private UserMetadataManager mUserMetadataManager;
+    private ColorAllocator mColorAllocator;
 
     public FileMetadataManager(Context applicationContext, Clock clock) {
         mClock = clock;
@@ -96,6 +99,8 @@ public class FileMetadataManager {
         mActiveExperimentCache = new ExperimentCache(applicationContext, failureListener);
         mUserMetadataManager = new UserMetadataManager(applicationContext,
                 userMetadataListener);
+        mColorAllocator = new ColorAllocator(applicationContext.getResources()
+                .getIntArray(R.array.experiment_colors_array).length);
     }
 
     /**
@@ -120,7 +125,14 @@ public class FileMetadataManager {
     public Experiment newExperiment() {
         long timestamp = mClock.getNow();
         String localExperimentId = UUID.randomUUID().toString();
-        Experiment experiment = Experiment.newExperiment(timestamp, localExperimentId);
+        List<GoosciUserMetadata.ExperimentOverview> overviews =
+                mUserMetadataManager.getExperimentOverviews(true);
+        int[] usedColors = new int[overviews.size()];
+        for (int i = 0; i < overviews.size(); i++) {
+            usedColors[i] = overviews.get(i).colorIndex;
+        }
+        int colorIndex = mColorAllocator.getNextColor(usedColors);
+        Experiment experiment = Experiment.newExperiment(timestamp, localExperimentId, colorIndex);
 
         addExperiment(experiment);
         return experiment;

@@ -431,6 +431,9 @@ public class ExperimentListFragment extends Fragment {
                 // Make sure the scale type is correct for the placeholder
                 holder.experimentImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 holder.experimentImage.setImageDrawable(mPlaceHolderImage);
+                holder.experimentImage.setBackgroundColor(holder.experimentImage.getContext()
+                        .getResources().getIntArray(R.array.experiment_colors_array)[
+                                item.experimentOverview.colorIndex]);
             }
         }
 

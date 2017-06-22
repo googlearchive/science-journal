@@ -18,9 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.test.AndroidTestCase;
 
-import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
@@ -35,8 +32,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Collections;
 
 /**
  * Tests for {@link CropHelper}
@@ -108,7 +103,7 @@ public class CropHelperTest extends AndroidTestCase {
         trialProto.recordingRange.endMs = 10;
         Trial trial = Trial.fromTrial(trialProto);
 
-        Experiment experiment = Experiment.newExperiment(10, "experimentId");
+        Experiment experiment = Experiment.newExperiment(10, "experimentId", 0);
         experiment.addTrial(trial);
 
         CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), mDataController);
