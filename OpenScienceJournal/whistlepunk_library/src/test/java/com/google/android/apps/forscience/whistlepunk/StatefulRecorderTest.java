@@ -59,7 +59,8 @@ public class StatefulRecorderTest {
         sr.startObserving();
         sr.startRecording("runId");
         sr.stopObserving();
-        sr.stopRecording(Trial.newTrial(100, new GoosciSensorLayout.SensorLayout[0]));
+        sr.stopRecording(Trial.newTrial(100, new GoosciSensorLayout.SensorLayout[0],
+                new FakeAppearanceProvider(), null));
         assertFalse(mSensor.isObserving());
     }
 }

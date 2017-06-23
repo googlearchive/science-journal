@@ -16,11 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import android.content.Context;
 import android.os.RemoteException;
 
@@ -30,9 +25,10 @@ import com.google.android.apps.forscience.javalib.FallibleConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
@@ -47,6 +43,11 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ProxyRecorderControllerTest {
     private static final TransportableSensorOptions BLANK_OPTIONS =
@@ -273,7 +274,7 @@ public class ProxyRecorderControllerTest {
     private class RecorderControllerTestImpl extends  RecorderControllerImpl {
         RecorderControllerTestImpl(RecorderListenerRegistry listenerRegistry) {
             super(null, mRegistry, mEnvironment, listenerRegistry, null, DATA_CONTROLLER, null,
-                    Delay.millis(0));
+                    Delay.millis(0), new FakeUnitAppearanceProvider());
             this.setRecordActivityInForeground(true);
         }
 

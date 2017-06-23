@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
@@ -54,7 +55,8 @@ public class RecorderControllerTest {
     @Test
     public void multipleObservers() {
         RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
-                new RecorderListenerRegistry(), null, null, null, Delay.ZERO);
+                new RecorderListenerRegistry(), null, null, null, Delay.ZERO,
+                new FakeUnitAppearanceProvider());
         RecordingSensorObserver observer1 = new RecordingSensorObserver();
         RecordingSensorObserver observer2 = new RecordingSensorObserver();
 
@@ -77,7 +79,8 @@ public class RecorderControllerTest {
     @Test
     public void layoutLogging() {
         RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
-                new RecorderListenerRegistry(), null, null, null, Delay.ZERO);
+                new RecorderListenerRegistry(), null, null, null, Delay.ZERO,
+                new FakeUnitAppearanceProvider());
 
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = "aa:bb:cc:dd";
@@ -103,7 +106,8 @@ public class RecorderControllerTest {
         TestTrigger trigger = new TestTrigger(mSensorId);
         ArrayList<SensorTrigger> triggerList = Lists.<SensorTrigger>newArrayList(trigger);
         RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
-                new RecorderListenerRegistry(), null, null, mScheduler, Delay.seconds(15));
+                new RecorderListenerRegistry(), null, null, mScheduler, Delay.seconds(15),
+                new FakeUnitAppearanceProvider());
         String observeId1 = rc.startObserving(mSensorId, Lists.<SensorTrigger>newArrayList(),
                 new RecordingSensorObserver(), new RecordingStatusListener(), null);
         rc.stopObserving(mSensorId, observeId1);
@@ -138,7 +142,8 @@ public class RecorderControllerTest {
     @Test
     public void dontScheduleIfDelayIs0() {
         RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
-                new RecorderListenerRegistry(), null, null, mScheduler, Delay.ZERO);
+                new RecorderListenerRegistry(), null, null, mScheduler, Delay.ZERO,
+                new FakeUnitAppearanceProvider());
         String observeId1 = rc.startObserving(mSensorId, null, new RecordingSensorObserver(),
                 new RecordingStatusListener(), null);
         rc.stopObserving(mSensorId, observeId1);
@@ -148,7 +153,8 @@ public class RecorderControllerTest {
     @Test
     public void reboot() {
         RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
-                new RecorderListenerRegistry(), null, null, mScheduler, Delay.ZERO);
+                new RecorderListenerRegistry(), null, null, mScheduler, Delay.ZERO,
+                new FakeUnitAppearanceProvider());
         rc.startObserving(mSensorId, null, new RecordingSensorObserver(),
                 new RecordingStatusListener(), null);
         mSensor.simulateExternalEventPreventingObservation();
@@ -162,7 +168,7 @@ public class RecorderControllerTest {
         final RecorderControllerImpl rc =
                 new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
                         new RecorderListenerRegistry(), null, mDataController, mScheduler,
-                        Delay.ZERO);
+                        Delay.ZERO, new FakeUnitAppearanceProvider());
 
         rc.startObserving(mSensorId, new ArrayList<SensorTrigger>(), new RecordingSensorObserver(),
                 new RecordingStatusListener(), null);
@@ -180,7 +186,7 @@ public class RecorderControllerTest {
         final RecorderControllerImpl rc =
                 new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
                         new RecorderListenerRegistry(), null, mDataController, mScheduler,
-                        Delay.ZERO);
+                        Delay.ZERO, new FakeUnitAppearanceProvider());
 
         Maybe<String> snapshot =
                 rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId), null);
@@ -195,7 +201,7 @@ public class RecorderControllerTest {
         final RecorderControllerImpl rc =
                 new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
                         new RecorderListenerRegistry(), null, mDataController, mScheduler,
-                        Delay.ZERO);
+                        Delay.ZERO, new FakeUnitAppearanceProvider());
 
         ArrayList<SensorTrigger> triggers = new ArrayList<>();
         rc.startObserving(mSensorId, triggers, new RecordingSensorObserver(),
@@ -224,7 +230,7 @@ public class RecorderControllerTest {
         final RecorderControllerImpl rc =
                 new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
                         new RecorderListenerRegistry(), null, mDataController, mScheduler,
-                        Delay.ZERO);
+                        Delay.ZERO, new FakeUnitAppearanceProvider());
 
         String observerId = rc.startObserving(mSensorId, new ArrayList<SensorTrigger>(),
                 new RecordingSensorObserver(), new RecordingStatusListener(), null);

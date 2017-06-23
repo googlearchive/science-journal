@@ -102,6 +102,7 @@ public class RecorderControllerImpl implements RecorderController {
     private final Scheduler mScheduler;
     private final Clock mClock;
     private final Delay mStopDelay;
+    private SensorAppearanceProvider mAppearanceProvider;
     private Map<String, StatefulRecorder> mRecorders = new LinkedHashMap<>();
     private final Context mContext;
     private SensorRegistry mSensors;
@@ -144,7 +145,8 @@ public class RecorderControllerImpl implements RecorderController {
         this(context, SensorRegistry.createWithBuiltinSensors(context),
                 AppSingleton.getInstance(context).getSensorEnvironment(),
                 new RecorderListenerRegistry(), productionConnectionSupplier(context),
-                dataController, new SystemScheduler(), DEFAULT_STOP_DELAY);
+                dataController, new SystemScheduler(), DEFAULT_STOP_DELAY,
+                AppSingleton.getInstance(context).getSensorAppearanceProvider());
     }
 
     // TODO: use builder?
@@ -156,7 +158,7 @@ public class RecorderControllerImpl implements RecorderController {
     public RecorderControllerImpl(final Context context, SensorRegistry registry,
             SensorEnvironment sensorEnvironment, RecorderListenerRegistry listenerRegistry,
             Supplier<RecorderServiceConnection> connectionSupplier, DataController dataController,
-            Scheduler scheduler, Delay stopDelay) {
+            Scheduler scheduler, Delay stopDelay, SensorAppearanceProvider appearanceProvider) {
         mContext = context;
         mSensors = registry;
         mSensorEnvironment = sensorEnvironment;
@@ -165,6 +167,7 @@ public class RecorderControllerImpl implements RecorderController {
         mDataController = dataController;
         mScheduler = scheduler;
         mStopDelay = stopDelay;
+        mAppearanceProvider = appearanceProvider;
         mClock = new CurrentTimeClock();
     }
 

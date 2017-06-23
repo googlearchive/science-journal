@@ -23,16 +23,15 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeAxisFormatter;
-import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
-import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.common.annotations.VisibleForTesting;
@@ -75,12 +74,19 @@ public class Trial extends LabelListHolder {
         return new Trial(trial);
     }
 
+    public static Trial newTrial(long startTimeMs,
+            GoosciSensorLayout.SensorLayout[] sensorLayouts) {
+        // TODO: remove and only use below once all uses are removed
+        return newTrial(startTimeMs, sensorLayouts, null, null);
+    }
+
     /**
-     * When recording starts on a trial, this is the bare minimum of information needed to save it.
+     * Invoked when recording begins to save the metadata about what's being recorded.
      */
-    public static Trial newTrial(long startTimeMs, GoosciSensorLayout.SensorLayout[] sensorLayouts) {
+    public static Trial newTrial(long startTimeMs, GoosciSensorLayout.SensorLayout[] sensorLayouts,
+            SensorAppearanceProvider provider, Context context) {
         String trialId = java.util.UUID.randomUUID().toString();
-        return new Trial(startTimeMs, sensorLayouts, trialId);
+        return new Trial(startTimeMs, sensorLayouts, trialId, provider, context);
     }
 
     private Trial(GoosciTrial.Trial trial) {
@@ -92,13 +98,31 @@ public class Trial extends LabelListHolder {
         }
     }
 
+    // TODO: eventually provider should go away, in favor of a different structure containing
+    // sensor_specs
     private Trial(long startTimeMs, GoosciSensorLayout.SensorLayout[] sensorLayouts,
-            String trialId) {
+            String trialId, SensorAppearanceProvider provider, Context context) {
         mTrial = new GoosciTrial.Trial();
         mTrial.recordingRange = new GoosciTrial.Range();
         mTrial.recordingRange.startMs = startTimeMs;
         mTrial.sensorLayouts = sensorLayouts;
         mTrial.trialId = trialId;
+
+        mTrial.sensorAppearances = new GoosciTrial.Trial.AppearanceEntry[sensorLayouts.length];
+
+        // TODO: remove this check, and always compute appearances, once all callers provide
+        // provider
+        if (provider != null) {
+            for (int i = 0; i < sensorLayouts.length; i++) {
+                GoosciTrial.Trial.AppearanceEntry entry = new GoosciTrial.Trial.AppearanceEntry();
+                GoosciSensorLayout.SensorLayout layout = sensorLayouts[i];
+                entry.sensorId = layout.sensorId;
+                entry.rememberedAppearance =
+                        SensorAppearance.toProto(provider.getAppearance(layout.sensorId), context);
+                mTrial.sensorAppearances[i] = entry;
+            }
+        }
+
         mLabels = new ArrayList<>();
         mTrialStats = new HashMap<>();
     }
@@ -318,5 +342,18 @@ public class Trial extends LabelListHolder {
         if (mOnLabelChangeListener != null) {
             mOnLabelChangeListener.beforeDeletingPictureLabel(label);
         }
+    }
+
+    /**
+     * @return a map of sensor ids (as returned from {@link #getSensorIds()}) to appearance
+     * protos.  This map should not be changed; changes have no effect.
+     */
+    public Map<String, GoosciSensorAppearance.BasicSensorAppearance> getAppearances() {
+        // TODO: need a putAppearance method for changes
+        HashMap<String, GoosciSensorAppearance.BasicSensorAppearance> appearances = new HashMap<>();
+        for (GoosciTrial.Trial.AppearanceEntry entry : mTrial.sensorAppearances) {
+            appearances.put(entry.sensorId, entry.rememberedAppearance);
+        }
+        return appearances;
     }
 }
