@@ -16,8 +16,11 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.content.Context;
+
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensors.AccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor;
@@ -42,6 +45,15 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
     private Map<String, SensorAppearance> mAppearances = new HashMap<>();
 
     private DataController mDataController;
+
+    public static GoosciSensorAppearance.BasicSensorAppearance toProto(
+            SensorAppearance appearance, Context context) {
+        // TODO: transfer other appearance fields
+        GoosciSensorAppearance.BasicSensorAppearance proto = new GoosciSensorAppearance
+                .BasicSensorAppearance();
+        proto.name = appearance.getName(context);
+        return proto;
+    }
 
     @Override
     public void loadAppearances(final MaybeConsumer<Success> onSuccess) {

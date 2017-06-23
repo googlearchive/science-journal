@@ -26,8 +26,8 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeAxisFormatter;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProviderImpl;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
@@ -118,7 +118,7 @@ public class Trial extends LabelListHolder {
                 GoosciSensorLayout.SensorLayout layout = sensorLayouts[i];
                 entry.sensorId = layout.sensorId;
                 entry.rememberedAppearance =
-                        SensorAppearance.toProto(provider.getAppearance(layout.sensorId), context);
+                        SensorAppearanceProviderImpl.toProto(provider.getAppearance(layout.sensorId), context);
                 mTrial.sensorAppearances[i] = entry;
             }
         }

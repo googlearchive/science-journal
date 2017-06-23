@@ -27,14 +27,6 @@ import java.text.NumberFormat;
  * How a sensor appears in the app
  */
 public interface SensorAppearance {
-    static GoosciSensorAppearance.BasicSensorAppearance toProto(
-            SensorAppearance appearance, Context context) {
-        // TODO: transfer other appearance fields
-        GoosciSensorAppearance.BasicSensorAppearance proto = new GoosciSensorAppearance
-                .BasicSensorAppearance();
-        proto.name = appearance.getName(context);
-        return proto;
-    }
 
     /**
      * The contents of the LEARN MORE screen
