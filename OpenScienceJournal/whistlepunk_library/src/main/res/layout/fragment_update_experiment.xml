@@ -42,19 +42,4 @@
         </EditText>
     </android.support.design.widget.TextInputLayout>
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/experiment_description_hint">
-        <EditText
-            android:id="@+id/experiment_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="@dimen/accessibility_touch_target_min_size"
-            android:imeOptions="actionDone"
-            android:inputType="textCapSentences"
-            android:contentDescription="@string/experiment_description_hint"
-            />
-    </android.support.design.widget.TextInputLayout>
-
 </LinearLayout>

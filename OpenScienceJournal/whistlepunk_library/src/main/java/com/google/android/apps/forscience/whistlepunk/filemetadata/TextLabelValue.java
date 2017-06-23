@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 /**
  * A label value which represents a piece of text.
  */
+@Deprecated
 public class TextLabelValue extends LabelValue {
     private static final int NUM_FIELDS = 1;
     private static final int INDEX_LABEL_TEXT = 0;

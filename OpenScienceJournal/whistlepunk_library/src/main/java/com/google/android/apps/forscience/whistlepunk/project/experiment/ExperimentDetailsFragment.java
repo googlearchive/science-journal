@@ -129,7 +129,6 @@ public class ExperimentDetailsFragment extends Fragment
     private String mExperimentId;
     private Experiment mExperiment;
     private ScalarDisplayOptions mScalarDisplayOptions;
-    private GraphOptionsController mGraphOptionsController;
     private boolean mIncludeArchived;
     private Toolbar mControlledToolbar;
     private BroadcastReceiver mBroadcastReceiver;
@@ -276,40 +275,6 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         mDetails = (RecyclerView) view.findViewById(R.id.details_list);
-        final int experimentDescriptionPadding = mDetails.getContext().getResources()
-                .getDimensionPixelSize(R.dimen.metadata_description_overlap_bottom);
-        mDetails.addItemDecoration(new RecyclerView.ItemDecoration() {
-            @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                    RecyclerView.State state) {
-                if (isDescriptionView(view)) {
-                    // Then it is the VIEW_TYPE_EXPERIMENT_DESCRIPTION, so we need to decrease
-                    // its bottom padding to let the next card overlap it to meet the UX spec.
-                    // Need to also check if this is an empty experiment before
-                    // deciding to set this.
-                    if (mAdapter.hasEmptyView()) {
-                        // Empty experiment view doesn't show as a card, so no overlap needed.
-                        super.getItemOffsets(outRect, view, parent, state);
-                    } else {
-                        outRect.set(0, 0, 0, experimentDescriptionPadding);
-                    }
-                } else {
-                    super.getItemOffsets(outRect, view, parent, state);
-                }
-            }
-
-            private boolean isDescriptionView(View view) {
-                if (mDetails.getChildAdapterPosition(view) != 0) {
-                    return false;
-                }
-                if (mExperiment != null && (mExperiment.isArchived() ||
-                        !TextUtils.isEmpty(mExperiment.getDescription()))) {
-                    // Then it is the VIEW_TYPE_EXPERIMENT_DESCRIPTION
-                    return true;
-                }
-                return false;
-            }
-        });
         mDetails.setLayoutManager(new LinearLayoutManager(view.getContext(),
                 LinearLayoutManager.VERTICAL, mOldestAtTop));
         mAdapter = new DetailsAdapter(this, savedInstanceState);
@@ -322,8 +287,8 @@ public class ExperimentDetailsFragment extends Fragment
         // hidden from non-userdebug users, and not shown in the ExperimentDetails menu even when
         // enabled, this is OK for now.
         mScalarDisplayOptions = new ScalarDisplayOptions();
-        mGraphOptionsController = new GraphOptionsController(getActivity());
-        mGraphOptionsController.loadIntoScalarDisplayOptions(mScalarDisplayOptions, view);
+        GraphOptionsController graphOptionsController = new GraphOptionsController(getActivity());
+        graphOptionsController.loadIntoScalarDisplayOptions(mScalarDisplayOptions, view);
 
         FeatureDiscoveryProvider provider = WhistlePunkApplication.getFeatureDiscoveryProvider(
                 getActivity());
@@ -405,13 +370,15 @@ public class ExperimentDetailsFragment extends Fragment
     public void onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_experiment_add_note).setVisible(mDisappearingActionBar);
         menu.findItem(R.id.action_archive_experiment).setVisible(mExperiment != null &&
-                                                                 !mExperiment.isArchived());
+                !mExperiment.isArchived());
         menu.findItem(R.id.action_unarchive_experiment).setVisible(mExperiment != null &&
-                                                                   mExperiment.isArchived());
+                mExperiment.isArchived());
         menu.findItem(R.id.action_delete_experiment).setEnabled(mExperiment != null
-                                                                && mExperiment.isArchived());
+                && mExperiment.isArchived());
         menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
         menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
+        menu.findItem(R.id.action_edit_experiment).setVisible(mExperiment != null &&
+                !mExperiment.isArchived());
     }
 
     @Override
@@ -704,7 +671,7 @@ public class ExperimentDetailsFragment extends Fragment
 
         private static final String KEY_SAVED_SENSOR_INDICES = "savedSensorIndices";
 
-        private static final int VIEW_TYPE_EXPERIMENT_DESCRIPTION = 0;
+        private static final int VIEW_TYPE_EXPERIMENT_ARCHIVED = 0;
         static final int VIEW_TYPE_EXPERIMENT_TEXT_LABEL = 1;
         static final int VIEW_TYPE_EXPERIMENT_PICTURE_LABEL = 2;
         static final int VIEW_TYPE_RUN_CARD = 3;
@@ -736,8 +703,8 @@ public class ExperimentDetailsFragment extends Fragment
                     viewType == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL) {
                 view = inflater.inflate(R.layout.exp_card_pinned_note, parent, false);
                 return new NoteViewHolder(view);
-            } else if (viewType == VIEW_TYPE_EXPERIMENT_DESCRIPTION) {
-                view = inflater.inflate(R.layout.metadata_description, parent, false);
+            } else if (viewType == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
+                view = inflater.inflate(R.layout.metadata_archived, parent, false);
             } else if (viewType == VIEW_TYPE_EMPTY) {
                 view = inflater.inflate(R.layout.empty_list, parent, false);
             } else {
@@ -781,17 +748,7 @@ public class ExperimentDetailsFragment extends Fragment
                     }
                 });
             }
-            if (type == VIEW_TYPE_EXPERIMENT_DESCRIPTION) {
-                TextView description = (TextView) holder.itemView.findViewById(
-                        R.id.metadata_description);
-                holder.itemView.findViewById(R.id.metadata_description_holder)
-                        .setBackgroundColor(holder.itemView.getContext().getResources()
-                                .getColor(R.color.color_primary_dark));
-                holder.itemView.findViewById(R.id.description_overlap_spacer).setVisibility(
-                        hasEmptyView() ? View.GONE : View.VISIBLE);
-                description.setText(mExperiment.getDescription());
-                description.setVisibility(TextUtils.isEmpty(
-                        mExperiment.getDescription()) ? View.GONE : View.VISIBLE);
+            if (type == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
                 View archivedIndicator = holder.itemView.findViewById(R.id.archived_indicator);
                 archivedIndicator.setVisibility(
                         mExperiment.isArchived() ? View.VISIBLE : View.GONE);
@@ -937,7 +894,7 @@ public class ExperimentDetailsFragment extends Fragment
             mHasRunsOrLabels = true;
             for (int i = 0; i < size; i++) {
                 ExperimentDetailItem item = mItems.get(i);
-                if (item.getViewType() == VIEW_TYPE_EXPERIMENT_DESCRIPTION) {
+                if (item.getViewType() == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
                     continue;
                 } else if (item.getViewType() == VIEW_TYPE_EMPTY) {
                     emptyIndex = i;
@@ -994,9 +951,8 @@ public class ExperimentDetailsFragment extends Fragment
             }
             sortItems();
 
-            if (!TextUtils.isEmpty(experiment.getDescription()) ||
-                    experiment.isArchived()) {
-                mItems.add(0, new ExperimentDetailItem(VIEW_TYPE_EXPERIMENT_DESCRIPTION));
+            if (experiment.isArchived()) {
+                mItems.add(0, new ExperimentDetailItem(VIEW_TYPE_EXPERIMENT_ARCHIVED));
             }
 
             if (!mHasRunsOrLabels) {
@@ -1053,8 +1009,7 @@ public class ExperimentDetailsFragment extends Fragment
             mItems.add(new ExperimentDetailItem(VIEW_TYPE_EMPTY));
             if (notifyAdd) {
                 notifyItemInserted(mItems.size() - 1);
-                if (mExperiment.isArchived() ||
-                        !TextUtils.isEmpty(mExperiment.getDescription())) {
+                if (mExperiment.isArchived()) {
                     notifyItemChanged(0);
                 }
             }
@@ -1067,8 +1022,7 @@ public class ExperimentDetailsFragment extends Fragment
             mItems.remove(location);
             if (notifyRemove) {
                 notifyItemRemoved(location);
-                if (mExperiment.isArchived() ||
-                        !TextUtils.isEmpty(mExperiment.getDescription())) {
+                if (mExperiment.isArchived()) {
                     notifyItemChanged(0);
                 }
             }

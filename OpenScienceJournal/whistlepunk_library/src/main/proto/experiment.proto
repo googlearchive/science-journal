@@ -40,7 +40,8 @@ message Experiment {
     optional string title = 2;
 
     // The user-entered description of this experiment.
-    optional string description = 3;
+    // This is deprecated in version 1.1, when old descriptions were turned into text notes.
+    optional string description = 3 [deprecated=true];
 
     // SensorLayouts associated with this experiment.  (That is, the sensors that are currently
     // shown in cards)
@@ -78,7 +79,7 @@ message Experiment {
     // Version 1.1: Initial version
     optional int32 minorVersion = 10 [default = 1];
 
-    // Version 1.2: Added
+    // Version 1.1: Added
     message SensorEntry {
       // The sensor ID associated with this within this experiment.
       // This has no global uniqueness or parseable meaning outside this experiment

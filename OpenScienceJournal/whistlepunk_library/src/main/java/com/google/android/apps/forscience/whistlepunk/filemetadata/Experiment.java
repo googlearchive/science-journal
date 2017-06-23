@@ -150,6 +150,7 @@ public class Experiment extends LabelListHolder {
                 R.string.default_experiment_name);
     }
 
+    @Deprecated
     public String getDescription() {
         return mProto.description;
     }
