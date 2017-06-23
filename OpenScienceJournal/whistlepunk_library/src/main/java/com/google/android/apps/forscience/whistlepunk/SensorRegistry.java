@@ -33,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.AmbientTemperature
 import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.CompassSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.LinearAccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
@@ -204,6 +205,12 @@ public class SensorRegistry {
             addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.X));
             addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.Y));
             addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.Z));
+        }
+
+        if (DevOptionsFragment.isLinearAccelerometerSensorEnabled(context)) {
+            if (LinearAccelerometerSensor.isLinearAccelerometerAvailable(available)) {
+                addBuiltInSensor(new LinearAccelerometerSensor());
+            }
         }
 
         if (BarometerSensor.isBarometerSensorAvailable(available)) {

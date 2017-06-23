@@ -17,6 +17,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <CheckBoxPreference
+        android:key="enable_linear_acceleration"
+        android:defaultValue="false"
+        android:title="@string/enable_linear_acceleration_sensor_title"
+        android:summary="@string/enable_linear_acceleration_sensor_summary"
+        />
+
+    <CheckBoxPreference
         android:key="enable_magnetometer_sensor"
         android:defaultValue="false"
         android:title="@string/enable_magnetometer_sensor_title"

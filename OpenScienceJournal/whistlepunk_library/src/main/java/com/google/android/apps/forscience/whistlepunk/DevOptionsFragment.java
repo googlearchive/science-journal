@@ -42,19 +42,12 @@ public class DevOptionsFragment extends PreferenceFragment {
     private static final String KEY_LEAK_CANARY = "leak_canary";
     private static final String KEY_STRICT_MODE = "strict_mode";
     public static final String KEY_DEV_SONIFICATION_TYPES = "enable_dev_sonification_types";
-    public static final String KEY_ENABLE_ZOOM_IN = "live_zoom_type";
-    public static final String KEY_BAROMETER_SENSOR = "enable_barometer_sensor";
+    public static final String KEY_LINEAR_ACCELERATION_SENSOR = "enable_linear_acceleration";
     public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
     private final SharedPreferences.OnSharedPreferenceChangeListener
-            mSensorsChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-                String key) {
-            AppSingleton.getInstance(
+            mSensorsChangedListener = (sharedPreferences, key) -> AppSingleton.getInstance(
                     getActivity()).getSensorRegistry().refreshBuiltinSensors(
                     getActivity());
-        }
-    };
 
     public static DevOptionsFragment newInstance() {
         return new DevOptionsFragment();
@@ -77,13 +70,10 @@ public class DevOptionsFragment extends PreferenceFragment {
         CheckBoxPreference leakPref = (CheckBoxPreference) findPreference(KEY_LEAK_CANARY);
         if (isDebugVersion(getActivity())) {
             leakPref.setChecked(isLeakCanaryEnabled(getActivity()));
-            leakPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    final SharedPreferences prefs = getPrefs(preference.getContext());
-                    prefs.edit().putBoolean(KEY_LEAK_CANARY, (Boolean) newValue).apply();
-                    return true;
-                }
+            leakPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                final SharedPreferences prefs = getPrefs(preference.getContext());
+                prefs.edit().putBoolean(KEY_LEAK_CANARY, (Boolean) newValue).apply();
+                return true;
             });
         } else {
             getPreferenceScreen().removePreference(leakPref);
@@ -146,12 +136,12 @@ public class DevOptionsFragment extends PreferenceFragment {
         return getBoolean(KEY_DEV_SONIFICATION_TYPES, false, context);
     }
 
-    public static boolean isBarometerEnabled(Context context) {
-        return getBoolean(KEY_BAROMETER_SENSOR, false, context);
-    }
-
     public static boolean isAmbientTemperatureSensorEnabled(Context context) {
         return getBoolean(KEY_AMBIENT_TEMPERATURE_SENSOR, false, context);
+    }
+
+    public static boolean isLinearAccelerometerSensorEnabled(Context context) {
+        return getBoolean(KEY_LINEAR_ACCELERATION_SENSOR, false, context);
     }
 
     private static boolean getBoolean(String key, boolean defaultBool, Context context) {

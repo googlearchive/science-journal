@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.AmbientTemperature
 import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.CompassSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.LinearAccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
@@ -96,6 +97,15 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 R.string.sensor_desc_second_paragraph_acc, R.drawable.learnmore_acc,
                 new SensorAnimationBehavior(R.drawable.accz_level_drawable,
                     SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE),
+                BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
+
+        putAppearance(LinearAccelerometerSensor.ID, BuiltInSensorAppearance.create(
+                R.string.linear_accelerometer, R.drawable.ic_check_white_24dp, // TODO: Icons
+                R.string.acc_units, R.string.sensor_desc_short_linear_acc,
+                R.string.sensor_desc_first_paragraph_linear_acc,
+                R.string.sensor_desc_second_paragraph_linear_acc, R.drawable.learnmore_acc,
+                new SensorAnimationBehavior(R.drawable.accz_level_drawable, // TODO: Drawable
+                        SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL));
 
         putAppearance(AmbientLightSensor.ID, BuiltInSensorAppearance.create(R.string.ambient_light,

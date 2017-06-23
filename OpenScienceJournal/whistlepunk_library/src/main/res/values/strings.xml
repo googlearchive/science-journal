@@ -1420,6 +1420,27 @@ Permissions notice:
     <!-- String to format a date to the nearest month and year. For example, "May 2015" or "September 2017". Use 4 'y' characters for the year and 4 'M' characters for the month. [CHAR_LIMIT=NONE] -->
     <string name="month_year_format">MMMM yyyy</string>
 
+    <!-- Title of developer option to display total magnitude of acceleration excluding gravity  [CHAR_LIMIT=35]-->
+    <string name="enable_linear_acceleration_sensor_title">Enable linear accelerometer</string>
+
+    <!-- Summary of developer option to display total magnitude of acceleration excluding gravity  [CHAR_LIMIT=none] -->
+    <string name="enable_linear_acceleration_sensor_summary">Enable experimental combined linear accelerometer sensor</string>
+
+    <!-- Displayed name of a sensor that shows total magnitude of acceleration excluding gravity [CHAR_LIMIT=25]  -->
+    <string name="linear_accelerometer">Linear accelerometer</string>
+
+    <!-- One-sentence description of the combined linear accelerometer sensor [CHAR_LIMIT=100] -->
+    <string name="sensor_desc_short_linear_acc">The total acceleration of the phone, excluding the force of gravity, in m/s\u00B2</string>
+
+    <!-- Long description of the combined linear accelerometer sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <string name="sensor_desc_first_paragraph_linear_acc">Objects have a tendency to stay put, or to keep moving if they\'re moving—we call this tendency inertia. Newton\'s First Law expresses this idea formally: An object continues in its state of motion or rest unless acted on by an unbalanced force.
+        \n\nWhen an unbalanced force does cause an object to budge, we say the object accelerates: its velocity, or speed, changes—either by speeding up, slowing down, or changing direction. Acceleration is measured as a change of velocity (meters per second) in time, or meters per second squared (m/s\u00B2).
+        \n\nYour phone has a device to measure these changes in motion—an accelerometer. Inside an accelerometer, small suspended masses are free to move. Changes in motion cause these masses to shift, much as your own head tends to flop forward when you\'re in a car that stops suddenly. Measuring these subtle inertial shifts, an accelerometer in a phone can detect changes in motion and orientation, useful for switching the screen from landscape to portrait mode, for playing games on your phone, and more.</string>
+
+    <!-- Long description of the combined linear accelerometer sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <string name="sensor_desc_second_paragraph_linear_acc">The combined linear accelerometer sensor records the total acceleration in all three axis of the phone, excluding gravity.</string>
+
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
