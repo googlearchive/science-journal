@@ -140,7 +140,7 @@ public class SensorCardPresenterTest extends AndroidTestCase {
     @NonNull
     private SensorCardPresenter createSCP(GoosciSensorLayout.SensorLayout layout) {
         return new SensorCardPresenter(
-                new DataViewOptions(0, new ScalarDisplayOptions()),
+                new DataViewOptions(0, getContext(), new ScalarDisplayOptions()),
                 new SensorSettingsControllerImpl(getContext()), getRecorderController(),
                 layout, "", null, null);
     }

@@ -134,7 +134,7 @@ public class EditTriggerFragment extends Fragment {
             if (Log.isLoggable(TAG, Log.ERROR)) {
                 Log.e(TAG, "Error parsing the SensorLayout", e);
             }
-            mSensorLayout = RecordFragment.defaultLayout();
+            mSensorLayout = RecordFragment.defaultLayout(0);
         }
         mSensorLayoutPosition = getArguments().getInt(ARG_LAYOUT_POSITION);
         getDataController().getExperimentById(mExperimentId,

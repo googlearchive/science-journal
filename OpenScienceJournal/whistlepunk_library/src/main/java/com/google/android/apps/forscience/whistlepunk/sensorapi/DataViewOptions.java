@@ -16,6 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
+import android.content.Context;
+import android.support.annotation.VisibleForTesting;
+
+import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 
 /**
@@ -27,15 +31,21 @@ public class DataViewOptions {
     private final ScalarDisplayOptions mOptions;
 
     /**
-     * @param graphColor "theme color" for this sensor data view, as built by android.graphics
-     *                   .Color.  For example, if this is a line graph, this is the color in
-     *                   which the line should be drawn. (This is currently customized per-graph)
+     * @param colorIndex index for "theme color" for this sensor data view. For example, if this is
+     *                   a line graph, this is the resource ID for the color in which the line
+     *                   should be drawn. (This is currently customized per-graph)
      * @param options    settings that affect other aspects of how the line should be drawn,
      *                   especially its shape.
      *                   (This is currently shared between all graphs)
      */
-    public DataViewOptions(int graphColor, ScalarDisplayOptions options) {
-        mGraphColor = graphColor;
+    public DataViewOptions(int colorIndex, Context context, ScalarDisplayOptions options) {
+        mGraphColor = context.getResources().getIntArray(R.array.graph_colors_array)[colorIndex];
+        mOptions = options;
+    }
+
+    @VisibleForTesting
+    public DataViewOptions(int color, ScalarDisplayOptions options) {
+        mGraphColor = color;
         mOptions = options;
     }
 

@@ -1128,7 +1128,8 @@ public class ExperimentDetailsFragment extends Fragment
             holder.sensorName.setText(Appearances.getSensorDisplayName(appearance, appContext));
             final GoosciSensorLayout.SensorLayout sensorLayout = item.getSelectedSensorLayout();
             Appearances.applyDrawableToImageView(appearance.getIconDrawable(appContext),
-                    holder.sensorImage, sensorLayout.color);
+                    holder.sensorImage, appContext.getResources().getIntArray(
+                            R.array.graph_colors_array)[sensorLayout.colorIndex]);
 
             boolean hasNextButton = item.getSensorTagIndex() < trial.getSensorIds().size() - 1;
             boolean hasPrevButton = item.getSensorTagIndex() > 0;
@@ -1176,7 +1177,7 @@ public class ExperimentDetailsFragment extends Fragment
                         public void onLoadAttemptStarted(boolean unused) {
 
                         }
-                    });
+                    }, holder.itemView.getContext());
         }
 
         void sortItems() {

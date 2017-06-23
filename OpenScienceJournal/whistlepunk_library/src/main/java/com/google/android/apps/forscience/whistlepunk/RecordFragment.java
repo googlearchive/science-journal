@@ -336,7 +336,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         }
 
         mColorAllocator = new ColorAllocator(getResources().getIntArray(
-                R.array.graph_colors_array));
+                R.array.graph_colors_array).length);
         mSensorRegistry = AppSingleton.getInstance(getActivity()).getSensorRegistry();
         mScalarDisplayOptions = new ScalarDisplayOptions();
 
@@ -857,7 +857,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private void setSensorPresenters(List<GoosciSensorLayout.SensorLayout> layouts,
             RecorderController rc, RecordingStatus status) {
         if (layouts == null || layouts.size() == 0) {
-            layouts = Lists.newArrayList(defaultLayout());
+            layouts = Lists.newArrayList(defaultLayout(mColorAllocator,
+                    mSensorCardAdapter == null ? null : mSensorCardAdapter.getUsedColors()));
         }
         int maxNumSources = getAllIncludedSources().size();
 
@@ -892,12 +893,18 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         }
     }
 
-    public static GoosciSensorLayout.SensorLayout defaultLayout() {
+    static GoosciSensorLayout.SensorLayout defaultLayout(ColorAllocator colorAllocator,
+            int[] usedColors) {
+        return defaultLayout(colorAllocator.getNextColor(usedColors));
+    }
+
+    public static GoosciSensorLayout.SensorLayout defaultLayout(int colorIndex) {
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = null;
         layout.cardView = DEFAULT_CARD_VIEW;
         layout.audioEnabled = DEFAULT_AUDIO_ENABLED;
         layout.showStatsOverlay = DEFAULT_SHOW_STATS_OVERLAY;
+        layout.colorIndex = colorIndex;
         return layout;
     }
 
@@ -908,7 +915,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         List<SensorCardPresenter> sensorCardPresenters = new ArrayList<>();
 
         if (layouts.isEmpty()) {
-            layouts = Lists.newArrayList(defaultLayout());
+            layouts = Lists.newArrayList(defaultLayout(mColorAllocator,
+                    mSensorCardAdapter.getUsedColors()));
         }
         // Create a sensorData card for each initial source tag, or at minimum one if no source
         // tags are saved in the bundle.
@@ -939,7 +947,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                         int numAvailableSources = getAvailableSources().size();
                         if (numAvailableSources != 0) {
                             SensorCardPresenter sensorCardPresenter = createSensorCardPresenter(
-                                    defaultLayout(), rc);
+                                    defaultLayout(mColorAllocator,
+                                            mSensorCardAdapter.getUsedColors()), rc);
                             sensorCardPresenter.setActive(true, /** force UI updates */true);
                             mSensorCardAdapter.addSensorCardPresenter(sensorCardPresenter);
                             updateAvailableSensors();
@@ -1087,15 +1096,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private SensorCardPresenter createSensorCardPresenter(GoosciSensorLayout.SensorLayout layout,
             final RecorderController rc) {
-        int nextSensorCardColor;
-        if (layout.color == Color.TRANSPARENT) {
-            nextSensorCardColor = mColorAllocator.getNextColor(mSensorCardAdapter != null ?
-                    mSensorCardAdapter.getColorArray() : null);
-        } else {
-            nextSensorCardColor = layout.color;
-        }
         final SensorCardPresenter sensorCardPresenter = new SensorCardPresenter(
-                new DataViewOptions(nextSensorCardColor, mScalarDisplayOptions),
+                new DataViewOptions(layout.colorIndex, getActivity(), mScalarDisplayOptions),
                 mSensorSettingsController, rc, layout, mSelectedExperiment.getExperimentId(),
                 mExternalAxis.getInteractionListener(), this);
 

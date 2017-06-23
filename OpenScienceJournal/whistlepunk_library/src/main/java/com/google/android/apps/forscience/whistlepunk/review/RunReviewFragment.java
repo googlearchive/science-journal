@@ -87,7 +87,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.review.EditLabelTimeDialog.EditTimeDialogListener;
@@ -1002,11 +1001,12 @@ public class RunReviewFragment extends Fragment implements
                         // because the underlying sensor being loaded may have
                         // changed since that final var was declared, in the case
                         // where the user switches sensors rapidly.
-                        mRunReviewOverlay.updateColor(getSensorLayout().color);
+                        mRunReviewOverlay.updateColor(getActivity().getResources().getIntArray(
+                                R.array.graph_colors_array)[getSensorLayout().colorIndex]);
                         mRunReviewPlaybackButton.setVisibility(View.INVISIBLE);
                         mRunReviewOverlay.setVisibility(View.INVISIBLE);
                     }
-                });
+                }, getActivity());
     }
 
     private void populateStats(TrialStats trialStats, StatsList statsList, String sensorId) {
@@ -1162,7 +1162,8 @@ public class RunReviewFragment extends Fragment implements
         final ImageView sensorIconImage = (ImageView) rootView.findViewById(
                 R.id.sensor_icon);
         Appearances.applyDrawableToImageView(appearance.getIconDrawable(context), sensorIconImage,
-                sensorLayout.color);
+                context.getResources().getIntArray(
+                        R.array.graph_colors_array)[sensorLayout.colorIndex]);
         mRunReviewOverlay.setUnits(appearance.getUnits(context));
     }
 
