@@ -74,4 +74,9 @@
         <resource>license_apache2</resource>
         <copyrightHeader>Copyright 2012 Netflix, Inc.</copyrightHeader>
     </license>
+    <license key="robolectric">
+        <title>Robolectric</title>
+        <resource>license_mit</resource>
+        <copyrightHeader>Copyright (c) 2010 Xtreme Labs, Pivotal Labs and Google Inc.</copyrightHeader>
+    </license>
 </licenses>

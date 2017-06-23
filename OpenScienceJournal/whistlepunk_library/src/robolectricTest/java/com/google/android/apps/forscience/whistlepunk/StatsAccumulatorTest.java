@@ -16,13 +16,20 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.test.AndroidTestCase;
-
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 
-public class StatsAccumulatorTest extends AndroidTestCase {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+
+import static org.junit.Assert.assertEquals;
+
+@RunWith(RobolectricTestRunner.class)
+@Config(constants = BuildConfig.class)
+public class StatsAccumulatorTest {
+    @Test
     public void testAllStats() {
         StatsAccumulator acc = new StatsAccumulator("sensorId");
         acc.updateRecordingStreamStats(0, 0);

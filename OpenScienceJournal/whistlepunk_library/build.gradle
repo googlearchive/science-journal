@@ -26,6 +26,7 @@ android {
         versionName buildVersionName()
         multiDexEnabled true
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -60,11 +61,13 @@ android {
         String sharedTestDir = 'src/sharedTest/java'
         test {
             java.srcDir sharedTestDir
+            java.srcDir 'src/robolectricTest/java'
         }
         androidTest {
             java.srcDir sharedTestDir
         }
     }
+
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
@@ -115,4 +118,8 @@ dependencies {
     compile 'com.google.dagger:dagger:2.5'
     provided 'javax.annotation:jsr250-api:1.0'
     compile 'com.bignerdranch.android:expandablerecyclerview:2.1.1'
+    testCompile('org.robolectric:robolectric:3.3.2') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
 }

@@ -17,14 +17,15 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import android.test.AndroidTestCase;
 
-public class DevOptionsTestCase extends AndroidTestCase {
+import org.junit.rules.ExternalResource;
+import org.robolectric.RuntimeEnvironment;
+
+public class DevOptionsResource extends ExternalResource{
     private boolean mRememberedPref;
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    public void before() throws Exception {
         mRememberedPref = getPrefs().getBoolean(getRememberedPrefKey(), false);
     }
 
@@ -34,9 +35,8 @@ public class DevOptionsTestCase extends AndroidTestCase {
     }
 
     @Override
-    protected void tearDown() throws Exception {
+    public void after() {
         setPrefValue(mRememberedPref);
-        super.tearDown();
     }
 
     protected void setPrefValue(boolean value) {
@@ -44,6 +44,7 @@ public class DevOptionsTestCase extends AndroidTestCase {
     }
 
     private SharedPreferences getPrefs() {
-        return DevOptionsFragment.getPrefs(getContext());
+        return DevOptionsFragment.getPrefs(RuntimeEnvironment.application.getApplicationContext());
     }
+
 }

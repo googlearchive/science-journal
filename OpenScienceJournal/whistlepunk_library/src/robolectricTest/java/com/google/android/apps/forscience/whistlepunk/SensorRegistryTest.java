@@ -15,6 +15,8 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.content.Context;
+
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
@@ -25,31 +27,65 @@ import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSens
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import org.junit.Assume;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-// TODO: make this a java-only unit test
-public class SensorRegistryTest extends DevOptionsTestCase {
-    public void testImmediatelyReset() {
-        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(getContext());
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-        setPrefValue(false);
-        reg.refreshBuiltinSensors(getContext());
+@RunWith(RobolectricTestRunner.class)
+public class SensorRegistryTest {
+
+    private final Context context = RuntimeEnvironment.application.getApplicationContext();
+
+    @Rule
+    public DevOptionsResource devOptions = new DevOptionsResource();
+
+    @Test
+    public void testImmediatelyReset() {
+        // Test relies on set DevOptions which are bypassed in Release builds
+        Assume.assumeTrue(DevOptionsFragment.isDebugVersion());
+
+        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
+
+        devOptions.setPrefValue(false);
+        reg.refreshBuiltinSensors(context);
         assertEquals(false, reg.getAllSources().contains(SineWavePseudoSensor.ID));
 
-        setPrefValue(true);
-        reg.refreshBuiltinSensors(getContext());
+        devOptions.setPrefValue(true);
+        reg.refreshBuiltinSensors(context);
         assertEquals(true, reg.getAllSources().contains(SineWavePseudoSensor.ID));
 
         // double-check removal
-        setPrefValue(false);
-        reg.refreshBuiltinSensors(getContext());
+        devOptions.setPrefValue(false);
+        reg.refreshBuiltinSensors(context);
         assertEquals(false, reg.getAllSources().contains(SineWavePseudoSensor.ID));
     }
 
+    @Test
+    public void testNoDevOptionsInReleaseBuild() {
+        Assume.assumeFalse(DevOptionsFragment.isDebugVersion());
+
+        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
+
+        devOptions.setPrefValue(true);
+        reg.refreshBuiltinSensors(context);
+        assertEquals(false, reg.getAllSources().contains(SineWavePseudoSensor.ID));
+    }
+
+    @Test
     public void testDontClearExternalSensors() {
-        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(getContext());
+        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
 
         List<ConnectableSensor> sensors = new ArrayList<>();
         String bleSensorId = "bleSensor1";
@@ -63,21 +99,23 @@ public class SensorRegistryTest extends DevOptionsTestCase {
 
         reg.updateExternalSensors(sensors, providers);
         assertEquals(true, reg.getAllSources().contains(bleSensorId));
-        reg.refreshBuiltinSensors(getContext());
+        reg.refreshBuiltinSensors(context);
         assertEquals(true, reg.getAllSources().contains(bleSensorId));
     }
 
+    @Test
     public void testNotifyListener() {
-        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(getContext());
+        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
         TestSensorRegistryListener listener = new TestSensorRegistryListener();
         assertEquals(0, listener.numRefreshes);
         reg.setSensorRegistryListener(listener);
-        reg.refreshBuiltinSensors(getContext());
+        reg.refreshBuiltinSensors(context);
         assertEquals(1, listener.numRefreshes);
     }
 
+    @Test
     public void testLoggingId() {
-        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(getContext());
+        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
 
         HashMap<String, ExternalSensorProvider> providers = new HashMap<>();
         providers.put(BleSensorSpec.TYPE, bleProvider());
@@ -94,8 +132,9 @@ public class SensorRegistryTest extends DevOptionsTestCase {
         assertEquals("bluetooth_le:raw", reg.getLoggingId(bleSensorId));
     }
 
+    @Test
     public void testDropWaitingOperations() {
-        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(getContext());
+        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
         StoringConsumer cyes = new StoringConsumer();
         String tagyes = "yes";
 
@@ -117,8 +156,9 @@ public class SensorRegistryTest extends DevOptionsTestCase {
         assertNotNull(cyes.latestChoice);
     }
 
+    @Test
     public void testExternalSensorOrder() {
-        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(getContext());
+        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
 
         List<ConnectableSensor> sensors = new ArrayList<>();
         HashMap<String, ExternalSensorProvider> providers = new HashMap<>();
@@ -144,7 +184,7 @@ public class SensorRegistryTest extends DevOptionsTestCase {
     }
 
     private ExternalSensorProvider bleProvider() {
-        return new NativeBleDiscoverer(getContext()).getProvider();
+        return new NativeBleDiscoverer(context).getProvider();
     }
 
     private static class TestSensorRegistryListener implements SensorRegistryListener {
