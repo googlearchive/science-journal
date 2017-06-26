@@ -17,6 +17,15 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/overview"
+        android:textSize="@dimen/info_paragraph_text_size"
+        android:lineSpacingMultiplier="1.1"
+        />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,6 +33,7 @@
         android:textColor="@color/text_color_black"
         android:text="@string/heading_info_section"
         android:textStyle="bold"
+        android:layout_marginTop="@dimen/info_paragraph_margin_top"
         />
 
     <TextView

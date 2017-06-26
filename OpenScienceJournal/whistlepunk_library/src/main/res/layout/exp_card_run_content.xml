@@ -79,6 +79,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/middle_divider"
             android:layout_marginBottom="8dp"
+            android:layout_margin="@dimen/run_review_section_margin"
             android:id="@+id/stats_view"
             />
 

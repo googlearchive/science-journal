@@ -26,7 +26,7 @@
     <dimen name="graph_line_width">2dp</dimen>
 
     <dimen name="stream_presenter_padding_sides">16dp</dimen>
-    <dimen name="stream_presenter_padding_top_bottom">24dp</dimen>
+    <dimen name="stream_presenter_padding_top_bottom">12dp</dimen>
     <dimen name="stream_presenter_padding_top">12dp</dimen>
     <dimen name="stream_presenter_margin_top">12dp</dimen>
 
@@ -84,15 +84,12 @@
     <dimen name="sensor_card_content_height_min">260dp</dimen>
 
     <dimen name="sensor_card_meter_units_text_size">14sp</dimen>
-    <!-- This text is sized relative to the large meter mode icon, and does not need to be
-         increased for accessibility "large text" mode since it is already huge. Therefore
-         it is specified in dp instead of sp. -->
-    <dimen name="sensor_card_live_value_text_size">64dp</dimen>
+    <dimen name="sensor_card_live_value_text_size">32sp</dimen>
     <dimen name="sensor_card_back_learn_more_text_size">14sp</dimen>
     <dimen name="sensor_card_back_info_text_size">13sp</dimen>
     <dimen name="sensor_card_back_text_margin_top">16dp</dimen>
     <dimen name="sensor_card_back_padding">24dp</dimen>
-    <dimen name="sensor_card_back_icon_size">110dp</dimen>
+    <dimen name="sensor_card_back_icon_size">64dp</dimen>
     <dimen name="sensor_card_back_info_section_margin_botton">6dp</dimen>
     <dimen name="meter_icon_value_spacing">72dp</dimen>
     <dimen name="meter_mode_layout_margin_bottom">0dp</dimen>
@@ -113,7 +110,7 @@
     <dimen name="stats_drawer_large_icon_padding">4dp</dimen>
     <dimen name="stats_drawer_item_width">42dp</dimen>
     <dimen name="stats_drawer_large_height">36dp</dimen>
-    <dimen name="stats_back_text_size">24sp</dimen>
+    <dimen name="stats_large_text_size">18sp</dimen>
     <dimen name="stats_view_small_text_size">12sp</dimen>
     <dimen name="small_stat_icon_size">12dp</dimen>
     <dimen name="stats_meter_view_margin_start">0dp</dimen>
@@ -157,7 +154,7 @@
     <dimen name="run_review_divider_thickness">1dp</dimen>
     <dimen name="run_review_run_name_text_size">24sp</dimen>
     <dimen name="run_review_label_text_size">14sp</dimen>
-    <dimen name="run_review_stat_size">34sp</dimen>
+    <dimen name="run_review_stat_size">18sp</dimen>
     <dimen name="run_review_sensor_name_text_size">16sp</dimen>
     <dimen name="run_review_chart_height">160dp</dimen>
     <dimen name="run_review_margin_sides">8dp</dimen>

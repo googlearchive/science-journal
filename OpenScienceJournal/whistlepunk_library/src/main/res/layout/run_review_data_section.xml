@@ -24,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/run_review_margin_sides"
         android:layout_marginStart="@dimen/run_review_margin_sides"
+        android:layout_margin="@dimen/run_review_section_margin"
         android:layout_width="match_parent"
         android:layout_below="@id/sensor_data_section_separator"
     />

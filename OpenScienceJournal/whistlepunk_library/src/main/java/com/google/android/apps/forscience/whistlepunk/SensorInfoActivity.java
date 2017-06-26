@@ -59,6 +59,7 @@ public class SensorInfoActivity extends AppCompatActivity {
         }
         */
 
+        final TextView overview = (TextView) findViewById(R.id.overview);
         final TextView firstParagraph = (TextView) findViewById(R.id.info_first_paragraph);
         final TextView secondParagraph = (TextView) findViewById(R.id.info_second_paragraph);
         final ImageView imageView = (ImageView) findViewById(R.id.info_image);
@@ -75,24 +76,30 @@ public class SensorInfoActivity extends AppCompatActivity {
                 getResources().getString(R.string.title_activity_sensor_info_format),
                 appearance.getName(this)));
 
+        overview.setText(appearance.getShortDescription(getApplicationContext()));
+
         // TODO: loading UX needed?  (b/31589508)
-        appearance.loadLearnMore(this, new Consumer<SensorAppearance.LearnMoreContents>() {
-            @Override
-            public void take(SensorAppearance.LearnMoreContents contents) {
-                firstParagraph.setText(contents.getFirstParagraph());
-                secondParagraph.setText(contents.getSecondParagraph());
-                Drawable drawable = contents.getDrawable();
-                if (drawable != null) {
-                    ViewGroup.LayoutParams params = imageView.getLayoutParams();
-                    params.width = drawable.getIntrinsicWidth();
-                    params.height = drawable.getIntrinsicHeight();
-                    imageView.setLayoutParams(params);
-                    imageView.setImageDrawable(drawable);
-                } else {
-                    imageView.setVisibility(View.GONE);
+        if (!appearance.hasLearnMore()) {
+            imageView.setVisibility(View.GONE);
+        } else {
+            appearance.loadLearnMore(this, new Consumer<SensorAppearance.LearnMoreContents>() {
+                @Override
+                public void take(SensorAppearance.LearnMoreContents contents) {
+                    firstParagraph.setText(contents.getFirstParagraph());
+                    secondParagraph.setText(contents.getSecondParagraph());
+                    Drawable drawable = contents.getDrawable();
+                    if (drawable != null) {
+                        ViewGroup.LayoutParams params = imageView.getLayoutParams();
+                        params.width = drawable.getIntrinsicWidth();
+                        params.height = drawable.getIntrinsicHeight();
+                        imageView.setLayoutParams(params);
+                        imageView.setImageDrawable(drawable);
+                    } else {
+                        imageView.setVisibility(View.GONE);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override

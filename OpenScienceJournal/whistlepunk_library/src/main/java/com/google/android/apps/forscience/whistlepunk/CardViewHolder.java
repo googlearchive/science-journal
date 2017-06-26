@@ -43,21 +43,15 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public View sensorSelectionArea;
     public TabLayout sensorTabLayout;
     public StatsList graphStatsList;
-    public StatsList meterStatsList;
     public SensorCardHeader header;
     public TextView headerText;
     public ToggleArrow toggleButton;
     public View toggleButtonSpacer;
-    public TextView meterViewDescription;
     public ViewGroup graphViewGroup;
-    public ViewGroup meterViewGroup;
-    public ImageButton flipButton;
     public ImageButton menuButton;
-    public Button infoButton;
+    public ImageButton infoButton;
     public ImageView meterSensorIcon;
     public SingleLineResizableTextView meterLiveData;
-    public TextView meterLiveDataUnits;
-    public LinearLayout infoSection;
     public ViewGroup statusViewGroup;
     public ProgressBar statusProgressBar;
     public TextView statusMessage;
@@ -76,21 +70,14 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         sensorTabLayout = (TabLayout) itemView.findViewById(R.id.sensor_selector_tab_layout);
         sensorTabHolder = (ViewGroup) itemView.findViewById(R.id.sensor_selection_tab_holder);
         graphStatsList = (StatsList) itemView.findViewById(R.id.stats_drawer);
-        meterStatsList = (StatsList) itemView.findViewById(R.id.stats_view_meter);
         header = (SensorCardHeader) itemView.findViewById(R.id.sensor_card_header);
         headerText = (TextView) itemView.findViewById(R.id.sensor_card_header_title);
         toggleButton = (ToggleArrow) itemView.findViewById(R.id.btn_sensor_card_toggle);
         toggleButtonSpacer = itemView.findViewById(R.id.sensor_card_toggle_spacer);
-        meterViewDescription = (TextView) itemView.findViewById(R.id.back_view_description);
-        flipButton = (ImageButton) itemView.findViewById(R.id.btn_sensor_card_flip);
         menuButton = (ImageButton) itemView.findViewById(R.id.btn_sensor_card_overflow_menu);
         graphViewGroup = (ViewGroup) itemView.findViewById(R.id.graph_view_content_group);
-        meterViewGroup = (ViewGroup) itemView.findViewById(R.id.back_view_content_group);
-        infoButton = (Button) itemView.findViewById(R.id.btn_sensor_learn_more);
         meterSensorIcon = (ImageView) itemView.findViewById(R.id.card_meter_sensor_icon);
         meterLiveData = (SingleLineResizableTextView) itemView.findViewById(R.id.live_sensor_value);
-        meterLiveDataUnits = (TextView) itemView.findViewById(R.id.live_sensor_units);
-        infoSection = (LinearLayout) itemView.findViewById(R.id.back_view_info_section);
         statusViewGroup = (ViewGroup) itemView.findViewById(R.id.status_view_content_group);
         statusProgressBar = (ProgressBar) itemView.findViewById(R.id.progress_bar);
         statusMessage = (TextView) itemView.findViewById(R.id.status_message);
@@ -102,6 +89,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         triggerFiredBackground = (TriggerBackgroundView) itemView.findViewById(
                 R.id.sensor_trigger_fired_background);
         triggerFiredText = (TextView) itemView.findViewById(R.id.trigger_fired_text);
+        infoButton = (ImageButton) itemView.findViewById(R.id.btn_info);
     }
 
     public Context getContext() {

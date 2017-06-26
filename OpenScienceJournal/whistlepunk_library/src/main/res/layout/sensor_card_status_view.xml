@@ -40,7 +40,7 @@
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
-            android:scaleType="center"
+            android:scaleType="fitCenter"
             android:id="@+id/error_icon"
             android:src="@drawable/sensorcard_error"
             android:tint="@color/text_color_dark_grey"

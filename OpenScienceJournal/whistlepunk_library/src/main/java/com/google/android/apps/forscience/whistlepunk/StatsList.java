@@ -144,16 +144,4 @@ public class StatsList extends FrameLayout {
         mMaxTextView.setTypeface(typeface);
         mAvgTextView.setTypeface(typeface);
     }
-
-    public void setTextDarkerColor(boolean darkerColor) {
-        int color;
-        if (darkerColor) {
-            color = mDarkerColor;
-        } else {
-            color = mLighterColor;
-        }
-        mMinTextView.setTextColor(color);
-        mMaxTextView.setTextColor(color);
-        mAvgTextView.setTextColor(color);
-    }
 }

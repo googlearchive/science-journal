@@ -16,32 +16,24 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.TabLayout;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.style.TtsSpan;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -201,7 +193,7 @@ public class SensorCardPresenter {
     private long mLastUpdatedIconTimestamp = -1;
     private long mLastUpdatedTextTimestamp = -1;
     private boolean mTextTimeHasElapsed = false;
-
+    private String mDataFormat;
     private NumberFormat mNumberFormat;
     private LocalSensorOptionsStorage mCardOptions = new LocalSensorOptionsStorage();
 
@@ -272,15 +264,8 @@ public class SensorCardPresenter {
             double value = ScalarSensor.getValue(bundle);
             if (mTextTimeHasElapsed) {
                 String valueString = mNumberFormat.format(value);
-                SpannableString spannable = new SpannableString(valueString);
-                // Use a TtsSpan to tell Screen Readers how to interpret the number.
-                // Note that this does fine if mUnits is empty -- it just reads the value.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    TtsSpan span = new TtsSpan.TextBuilder(valueString + " " + mUnits).build();
-                    spannable.setSpan(span, 0, valueString.length(),
-                            Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                }
-                mCardViewHolder.meterLiveData.setText(spannable, TextView.BufferType.SPANNABLE);
+                mCardViewHolder.meterLiveData.setText(String.format(mDataFormat, valueString,
+                        mUnits));
             }
             if (iconTimeHasElapsed && mSensorPresenter != null) {
                 mSensorAnimationBehavior.updateImageView(mCardViewHolder.meterSensorIcon,
@@ -343,19 +328,16 @@ public class SensorCardPresenter {
         updateCardMenu();
         if (mCardStatus.isConnected()) {
             // We are connected with no error! Set everything back to normal.
-            mCardViewHolder.flipButton.setVisibility(View.VISIBLE);
             mCardViewHolder.statusViewGroup.setVisibility(View.GONE);
-            updateContentView(false);
+            mCardViewHolder.graphViewGroup.setVisibility(View.VISIBLE);
             return;
         }
-        mCardViewHolder.flipButton.setVisibility(View.GONE);
         mCardViewHolder.statusViewGroup.bringToFront();
         mCardViewHolder.statusViewGroup.setVisibility(View.VISIBLE);
         mCardViewHolder.statusRetryButton.setVisibility(View.GONE);
 
-        // Make the meter and graph view groups not explorable in TalkBack, so the user can't find
+        // Make the graph view group not explorable in TalkBack, so the user can't find
         // those views underneath the error state view.
-        mCardViewHolder.meterViewGroup.setVisibility(View.GONE);
         mCardViewHolder.graphViewGroup.setVisibility(View.GONE);
 
         if (mCardStatus.shouldShowConnecting()) {
@@ -440,11 +422,7 @@ public class SensorCardPresenter {
         mCardStatus.setStatus(SensorStatusListener.STATUS_CONNECTING);
         if (mCardViewHolder != null) {
             mCardViewHolder.headerText.setText(mSensorDisplayName);
-            mCardViewHolder.meterLiveDataUnits.setText(mUnits);
             setMeterIcon();
-            mCardViewHolder.meterViewDescription.setText(
-                    mAppearanceProvider.getAppearance(mSensorId).getShortDescription(
-                            mCardViewHolder.getContext()));
             updateStatusUi();
         }
     }
@@ -453,25 +431,11 @@ public class SensorCardPresenter {
         mCardViewHolder = cardViewHolder;
         mCloseListener = closeListener;
         mCardTriggerPresenter.setViews(mCardViewHolder);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            // We can't set the Spannable with units in versions before lollipop, so the
-            // user needs to be able to find the units this way.
-            // Make them focusable so that they don't take up the whole screen's focus.
-            mCardViewHolder.meterLiveDataUnits.setFocusable(true);
-            mCardViewHolder.meterLiveDataUnits.setImportantForAccessibility(
-                    View.IMPORTANT_FOR_ACCESSIBILITY_YES);
-        }
+        mDataFormat = cardViewHolder.getContext().getResources().getString(R.string.data_with_units);
 
         updateRecordingUi();
 
         mCardViewHolder.headerText.setText(mSensorDisplayName);
-        mCardViewHolder.meterLiveDataUnits.setText(mUnits);
-        if (!TextUtils.isEmpty(mSensorId)) {
-            mCardViewHolder.meterViewDescription.setText(
-                    mAppearanceProvider.getAppearance(mSensorId).getShortDescription(
-                            mCardViewHolder.getContext()));
-        }
 
         if (mSensorAnimationBehavior != null) {
             setMeterIcon();
@@ -489,31 +453,13 @@ public class SensorCardPresenter {
             mSensorPresenter.startShowing(mCardViewHolder.chartView, mInteractionListener);
         }
 
-        updateContentView(false);
-        mCardViewHolder.flipButton.setVisibility(View.VISIBLE);
-        mCardViewHolder.flipButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mLayout.cardView = mLayout.cardView == GoosciSensorLayout.SensorLayout.GRAPH ?
-                        GoosciSensorLayout.SensorLayout.METER :
-                        GoosciSensorLayout.SensorLayout.GRAPH;
-                updateContentView(true);
-            }
-        });
-        mCardViewHolder.flipButton.setEnabled(true);
-
         updateLearnMoreButton();
 
         mCardViewHolder.graphStatsList.setTextBold(mLayout.showStatsOverlay);
-        mCardViewHolder.graphStatsList.setTextDarkerColor(mLayout.showStatsOverlay);
-        mCardViewHolder.graphStatsList.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mLayout.showStatsOverlay = !mLayout.showStatsOverlay;
-                mSensorPresenter.setShowStatsOverlay(mLayout.showStatsOverlay);
-                mCardViewHolder.graphStatsList.setTextBold(mLayout.showStatsOverlay);
-                mCardViewHolder.graphStatsList.setTextDarkerColor(mLayout.showStatsOverlay);
-            }
+        mCardViewHolder.graphStatsList.setOnClickListener(v -> {
+            mLayout.showStatsOverlay = !mLayout.showStatsOverlay;
+            mSensorPresenter.setShowStatsOverlay(mLayout.showStatsOverlay);
+            mCardViewHolder.graphStatsList.setTextBold(mLayout.showStatsOverlay);
         });
         updateStatusUi();
         updateAudioEnabledUi(mLayout.audioEnabled);
@@ -549,17 +495,14 @@ public class SensorCardPresenter {
     }
 
     private void updateLearnMoreButton() {
-        if (mAppearanceProvider.getAppearance(mSensorId).hasLearnMore()) {
-            mCardViewHolder.infoButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Context context = v.getContext();
-                    Intent intent = new Intent(context, SensorInfoActivity.class);
-                    intent.putExtra(SensorInfoActivity.EXTRA_SENSOR_ID, mSensorId);
-                    intent.putExtra(SensorInfoActivity.EXTRA_COLOR_ID,
-                            mDataViewOptions.getGraphColor());
-                    context.startActivity(intent);
-                }
+        if (shouldShowInfoButton()) {
+            mCardViewHolder.infoButton.setOnClickListener(v -> {
+                Context context = v.getContext();
+                Intent intent = new Intent(context, SensorInfoActivity.class);
+                intent.putExtra(SensorInfoActivity.EXTRA_SENSOR_ID, mSensorId);
+                intent.putExtra(SensorInfoActivity.EXTRA_COLOR_ID,
+                        mDataViewOptions.getGraphColor());
+                context.startActivity(intent);
             });
             mCardViewHolder.infoButton.setVisibility(View.VISIBLE);
         } else {
@@ -568,112 +511,18 @@ public class SensorCardPresenter {
         }
     }
 
-    private void updateContentView(boolean animate) {
-        boolean graphIsVisible = mLayout.cardView == GoosciSensorLayout.SensorLayout.GRAPH;
-        if (!animate) {
-            mCardViewHolder.graphViewGroup.setVisibility(
-                    graphIsVisible ? View.VISIBLE : View.GONE);
-            mCardViewHolder.meterViewGroup.setVisibility(
-                    graphIsVisible ? View.GONE : View.VISIBLE);
-        } else {
-            updateContentViewAnimated(graphIsVisible);
-        }
-        Resources res = mCardViewHolder.getContext().getResources();
-        mCardViewHolder.flipButton.setContentDescription(res.getString(graphIsVisible ?
-                R.string.btn_sensor_flip_info_content_description :
-                R.string.btn_sensor_flip_graph_content_description));
-        Drawable drawable = res.getDrawable(graphIsVisible ?
-                R.drawable.sensorcard_toggle_info_24 : R.drawable.sensorcard_toggle_graph_24);
-        mCardViewHolder.flipButton.setImageDrawable(drawable);
-    }
-
-    private void updateContentViewAnimated(boolean graphIsVisible) {
-        final View viewToShow;
-        final View viewToHide;
-        int centerX = (int) (mCardViewHolder.meterViewGroup.getWidth() * .8);
-        int centerY = 0;
-        int startRadius;
-        int endRadius;
-        if (graphIsVisible) {
-            viewToShow = mCardViewHolder.graphViewGroup;
-            viewToHide = mCardViewHolder.meterViewGroup;
-            startRadius = viewToHide.getWidth();
-            endRadius = 0;
-        } else {
-            viewToShow = mCardViewHolder.meterViewGroup;
-            viewToHide = mCardViewHolder.graphViewGroup;
-            startRadius = 0;
-            endRadius = viewToHide.getWidth();
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mCardViewHolder.meterViewGroup.bringToFront();
-            final Animator anim = ViewAnimationUtils.createCircularReveal(
-                    mCardViewHolder.meterViewGroup, centerX, centerY, startRadius, endRadius);
-            anim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    viewToShow.setVisibility(View.VISIBLE);
-                    mCardViewHolder.flipButton.setEnabled(false);
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    viewToHide.setVisibility(View.GONE);
-                    anim.removeAllListeners();
-                    // The card can get recycled mid-animation this NPEs
-                    if (mCardViewHolder != null) {
-                        mCardViewHolder.flipButton.setEnabled(true);
-                    }
-                }
-            });
-            anim.start();
-        } else {
-            viewToShow.animate()
-                    .alpha(1.0f)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                            viewToShow.setAlpha(0.0f);
-                            viewToShow.setVisibility(View.VISIBLE);
-                            mCardViewHolder.flipButton.setEnabled(false);
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            viewToHide.setVisibility(View.GONE);
-                            if (mCardViewHolder != null) {
-                                mCardViewHolder.flipButton.setEnabled(true);
-                            }
-                        }
-                    })
-                    .start();
-            viewToHide.animate()
-                    .alpha(0.0f)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                            viewToHide.setVisibility(View.VISIBLE);
-                            viewToHide.bringToFront();
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            viewToHide.setVisibility(View.GONE);
-                            viewToHide.setAlpha(1.0f);
-                        }
-                    })
-                    .start();
-        }
+    private boolean shouldShowInfoButton() {
+        return mAppearanceProvider.getAppearance(mSensorId).hasLearnMore() || !TextUtils.isEmpty(
+                mAppearanceProvider.getAppearance(mSensorId).getShortDescription(
+                        mCardViewHolder.getContext()));
     }
 
     public void onViewRecycled() {
         if (mCardViewHolder != null) {
             mCardViewHolder.sensorTabLayout.setOnTabSelectedListener(null);
-            mCardViewHolder.flipButton.setOnClickListener(null);
             mCardViewHolder.menuButton.setOnClickListener(null);
             mCardViewHolder.infoButton.setOnClickListener(null);
             mCardViewHolder.graphStatsList.setOnClickListener(null);
-            mCardViewHolder.meterStatsList.clearStats();
             mCardViewHolder.graphStatsList.clearStats();
             mCardViewHolder.meterLiveData.setText("");
             mCardViewHolder.meterLiveData.resetTextSize();
@@ -696,12 +545,7 @@ public class SensorCardPresenter {
         if (mCardViewHolder == null || mCardViewHolder.menuButton == null) {
             return;
         }
-        mCardViewHolder.menuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openCardMenu();
-            }
-        });
+        mCardViewHolder.menuButton.setOnClickListener(v -> openCardMenu());
     }
 
     private void openCardMenu() {
@@ -1076,11 +920,7 @@ public class SensorCardPresenter {
             return;
         }
         if (mCardViewHolder != null && mSensorPresenter != null && mTextTimeHasElapsed) {
-            if (mLayout.cardView == GoosciSensorLayout.SensorLayout.GRAPH) {
-                mCardViewHolder.graphStatsList.updateStats(stats);
-            } else {
-                mCardViewHolder.meterStatsList.updateStats(stats);
-            }
+            mCardViewHolder.graphStatsList.updateStats(stats);
             mSensorPresenter.updateStats(stats);
         }
     }
@@ -1166,14 +1006,6 @@ public class SensorCardPresenter {
         ViewGroup.LayoutParams params = mCardViewHolder.graphViewGroup.getLayoutParams();
         params.height = height;
         mCardViewHolder.graphViewGroup.setLayoutParams(params);
-
-        params = mCardViewHolder.meterViewGroup.getLayoutParams();
-        params.height = height;
-        mCardViewHolder.meterViewGroup.setLayoutParams(params);
-
-        params = mCardViewHolder.statusViewGroup.getLayoutParams();
-        params.height = height;
-        mCardViewHolder.meterViewGroup.setLayoutParams(params);
 
         if (mIsSingleCard != isSingleCard) {
             mIsSingleCard = isSingleCard;
@@ -1317,17 +1149,13 @@ public class SensorCardPresenter {
             int toggleButtonSpacerWidth = 0;
             if (isRecording()) {
                 mCardViewHolder.graphStatsList.setVisibility(View.VISIBLE);
-                mCardViewHolder.meterStatsList.setVisibility(View.VISIBLE);
                 // TODO: Animate this change.
                 mCardViewHolder.toggleButton.setVisibility(View.GONE);
-                mCardViewHolder.infoSection.setVisibility(View.GONE);
                 toggleButtonSpacerWidth = mCardViewHolder.getContext().getResources()
                         .getDimensionPixelSize(R.dimen.sensor_card_header_padding);
             } else {
                 mCardViewHolder.graphStatsList.setVisibility(View.GONE);
-                mCardViewHolder.meterStatsList.setVisibility(View.GONE);
                 mCardViewHolder.toggleButton.setVisibility(View.VISIBLE);
-                mCardViewHolder.infoSection.setVisibility(View.VISIBLE);
             }
             ViewGroup.LayoutParams params = mCardViewHolder.toggleButtonSpacer.getLayoutParams();
             params.width = toggleButtonSpacerWidth;
