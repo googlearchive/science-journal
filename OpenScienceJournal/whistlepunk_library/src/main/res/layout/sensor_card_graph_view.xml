@@ -107,7 +107,16 @@
         android:layout_alignParentBottom="true"
         app:statsLayout="@layout/stats_view_run_review"
         android:visibility="gone"
-        android:layout_marginBottom="@dimen/stream_presenter_padding_sides"
+        android:layout_marginBottom="12dp"
+        android:layout_marginTop="4dp"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/run_review_divider_color"
+        android:id="@+id/second_divider"
+        android:layout_above="@id/stats_drawer"
         />
 
 </RelativeLayout>

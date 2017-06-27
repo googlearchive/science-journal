@@ -245,6 +245,11 @@ public class ChartView extends View {
 
         mMinDrawable = res.getDrawable(R.drawable.ic_data_min_color_12dpm);
         mMaxDrawable = res.getDrawable(R.drawable.ic_data_max_color_12dpm);
+        // No need to mutate -- the color is always the same.
+        mMinDrawable.setColorFilter(getContext().getResources().getColor(R.color.stats_min_color),
+                PorterDuff.Mode.SRC_ATOP);
+        mMaxDrawable.setColorFilter(getContext().getResources().getColor(R.color.stats_max_color),
+                PorterDuff.Mode.SRC_ATOP);
         mAvgDrawable = res.getDrawable(R.drawable.ic_data_average_color_12dp);
         mStatDrawableWidth = res.getDimensionPixelSize(R.dimen.small_stat_icon_size);
 

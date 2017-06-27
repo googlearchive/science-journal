@@ -61,8 +61,8 @@
         android:background="@color/run_review_divider_color"
         android:layout_marginStart="@dimen/run_review_margin_sides"
         android:layout_marginEnd="@dimen/run_review_margin_sides"
-        android:layout_marginTop="@dimen/run_review_divider_margin"
-        android:layout_marginBottom="@dimen/run_review_divider_margin"
+        android:layout_marginTop="@dimen/stats_divider_margin"
+        android:layout_marginBottom="@dimen/stats_divider_margin"
         />
 
     <RelativeLayout
@@ -105,8 +105,8 @@
         android:background="@color/run_review_divider_color"
         android:layout_marginStart="@dimen/run_review_margin_sides"
         android:layout_marginEnd="@dimen/run_review_margin_sides"
-        android:layout_marginTop="@dimen/run_review_divider_margin"
-        android:layout_marginBottom="@dimen/run_review_divider_margin"
+        android:layout_marginTop="@dimen/stats_divider_margin"
+        android:layout_marginBottom="@dimen/stats_divider_margin"
         />
 
     <RelativeLayout

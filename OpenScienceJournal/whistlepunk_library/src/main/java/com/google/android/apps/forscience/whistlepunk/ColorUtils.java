@@ -16,6 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 
@@ -29,5 +30,12 @@ public class ColorUtils {
         Drawable result = drawable.mutate();
         result.setColorFilter(context.getResources().getColor(colorId), PorterDuff.Mode.MULTIPLY);
         return result;
+    }
+
+    static int getSlightlyDarkerColor(int color) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(color, hsv);
+        hsv[2] *= .90;
+        return Color.HSVToColor(hsv);
     }
 }
