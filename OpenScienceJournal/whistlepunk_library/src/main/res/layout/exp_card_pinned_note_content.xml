@@ -22,55 +22,7 @@
         android:orientation="vertical"
         >
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
-
-            <com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:id="@+id/duration_text"
-                android:textColor="@color/text_color_light_grey"
-                android:textSize="@dimen/run_review_notes_timestamp_text_size"
-                android:layout_marginStart="24dp"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@+id/edit_icon"
-                />
-
-            <ImageView
-                android:layout_width="@dimen/accessibility_touch_target_min_size"
-                android:layout_height="@dimen/accessibility_touch_target_min_size"
-                android:src="@drawable/ic_comment_white_24dp"
-                android:id="@id/edit_icon"
-                android:contentDescription="@null"
-                android:scaleType="center"
-                android:layout_toStartOf="@+id/note_menu_button"
-                android:layout_centerVertical="true"
-                android:layout_alignWithParentIfMissing="true"
-                />
-
-            <ImageButton
-                android:layout_width="@dimen/accessibility_touch_target_min_size"
-                android:layout_height="@dimen/accessibility_touch_target_min_size"
-                android:src="@drawable/ic_menu_moreoverflow_mtrl_alpha"
-                android:id="@id/note_menu_button"
-                android:contentDescription="@null"
-                android:scaleType="center"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                />
-
-        </RelativeLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/run_review_divider_color"
-            />
+        <include layout="@layout/exp_card_item_heading" />
 
         <FrameLayout
             android:layout_width="match_parent"

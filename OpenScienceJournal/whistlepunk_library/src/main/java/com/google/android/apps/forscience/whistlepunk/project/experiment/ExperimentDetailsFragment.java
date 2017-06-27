@@ -723,6 +723,8 @@ public class ExperimentDetailsFragment extends Fragment
             ExperimentDetailItem item = mItems.get(position);
             int type = item.getViewType();
             if (type == VIEW_TYPE_RUN_CARD) {
+                setupHeader(holder, item);
+                setupCaption(holder, item.getTrial().getCaptionText());
                 bindRun(holder, item);
             }
             boolean isPictureLabel = type == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
@@ -730,19 +732,17 @@ public class ExperimentDetailsFragment extends Fragment
             boolean isTriggerLabel = type == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
             // TODO: Add snapshot label.
             if (isPictureLabel || isTextLabel || isTriggerLabel) {
+                setupHeader(holder, item);
                 // TODO: Can this code be shared with PinnedNoteAdapter?
+                // TODO: Move all findViewById work into the ViewHolder.
                 TextView textView = (TextView) holder.itemView.findViewById(R.id.note_text);
                 TextView autoTextView = (TextView) holder.itemView.findViewById(
                         R.id.auto_note_text);
-                View captionView = holder.itemView.findViewById(R.id.caption_section);
-                ImageView captionIcon = (ImageView) holder.itemView.findViewById(R.id.edit_icon);
-                ImageButton menuButton = (ImageButton) holder.itemView.findViewById(
-                        R.id.note_menu_button);
                 final Label label = mItems.get(position).getLabel();
                 if (isTextLabel) {
                     // No caption, and no caption edit button.
                     textView.setVisibility(View.VISIBLE);
-                    captionView.setVisibility(View.GONE);
+                    holder.captionView.setVisibility(View.GONE);
                     String text = label.getTextLabelValue().text;
                     if (!TextUtils.isEmpty(text)) {
                         textView.setText(text);
@@ -754,21 +754,11 @@ public class ExperimentDetailsFragment extends Fragment
                         textView.setTextColor(
                                 textView.getResources().getColor(R.color.text_color_light_grey));
                     }
-                    captionIcon.setVisibility(View.GONE);
+                    holder.captionIcon.setVisibility(View.GONE);
                 } else {
-                    // Deal with the caption
                     textView.setVisibility(View.GONE);
-                    String caption = label.getCaptionText();
-                    if (!TextUtils.isEmpty(caption)) {
-                        captionView.setVisibility(View.VISIBLE);
-                        TextView captionTextView = (TextView) holder.itemView.findViewById(
-                                R.id.caption);
-                        captionTextView.setText(caption);
-                        captionIcon.setVisibility(View.GONE);
-                    } else {
-                        captionView.setVisibility(View.GONE);
-                        captionIcon.setVisibility(View.VISIBLE);
-                    }
+                    // Deal with the caption, which is applicable to everything but text labels.
+                    setupCaption(holder, label.getCaptionText());
                 }
 
                 ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.note_image);
@@ -789,28 +779,6 @@ public class ExperimentDetailsFragment extends Fragment
                     autoTextView.setVisibility(View.GONE);
                 }
 
-                // Common to all labels.
-                ((RelativeTimeTextView) holder.itemView.findViewById(R.id.duration_text)).setTime(
-                        label.getTimeStamp());
-                ColorUtils.colorDrawable(captionIcon.getContext(), captionIcon.getDrawable(),
-                        R.color.text_color_light_grey);
-                ColorUtils.colorDrawable(menuButton.getContext(), menuButton.getDrawable(),
-                        R.color.text_color_light_grey);
-                menuButton.setOnClickListener(view -> {
-                    Context context = menuButton.getContext();
-                    PopupMenu popup = new PopupMenu(context, menuButton);
-                    popup.getMenuInflater().inflate(R.menu.menu_experiment_note, popup.getMenu());
-                    popup.setOnMenuItemClickListener(menuItem -> {
-                        if (menuItem.getItemId() == R.id.btn_delete_note) {
-                            if (mParentReference.get() != null) {
-                                mParentReference.get().deleteLabel(label);
-                            }
-                            return true;
-                        }
-                        return false;
-                    });
-                    popup.show();
-                });
                 holder.itemView.setOnClickListener(view -> {
                     if (mParentReference.get() != null) {
                         LabelDetailsActivity.launch(holder.itemView.getContext(),
@@ -838,6 +806,49 @@ public class ExperimentDetailsFragment extends Fragment
                 view.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, null,
                         view.getResources().getDrawable(R.drawable.empty_run));
 
+            }
+        }
+
+        private void setupHeader(ViewHolder holder, final ExperimentDetailItem item) {
+            // Common to all labels and trials.
+            holder.durationHeader.setTime(item.getViewType() == VIEW_TYPE_RUN_CARD ?
+                    item.getTrial().getFirstTimestamp() : item.getLabel().getTimeStamp());
+
+            ColorUtils.colorDrawable(holder.captionIcon.getContext(),
+                    holder.captionIcon.getDrawable(), R.color.text_color_light_grey);
+            ColorUtils.colorDrawable(holder.menuButton.getContext(),
+                    holder.menuButton.getDrawable(), R.color.text_color_light_grey);
+
+            holder.menuButton.setOnClickListener(view -> {
+                Context context = holder.menuButton.getContext();
+                PopupMenu popup = new PopupMenu(context, holder.menuButton);
+                // TODO: Inflate different menu for trial card? What does the menu include?
+                popup.getMenuInflater().inflate(R.menu.menu_experiment_note, popup.getMenu());
+                popup.setOnMenuItemClickListener(menuItem -> {
+                    if (item.getViewType() == VIEW_TYPE_RUN_CARD) {
+                        // TODO: Menu actions for trial card?
+                    } else {
+                        if (menuItem.getItemId() == R.id.btn_delete_note) {
+                            if (mParentReference.get() != null) {
+                                mParentReference.get().deleteLabel(item.getLabel());
+                            }
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                popup.show();
+            });
+        }
+
+        private void setupCaption(ViewHolder holder, String caption) {
+            if (!TextUtils.isEmpty(caption)) {
+                holder.captionView.setVisibility(View.VISIBLE);
+                holder.captionTextView.setText(caption);
+                holder.captionIcon.setVisibility(View.GONE);
+            } else {
+                holder.captionView.setVisibility(View.GONE);
+                holder.captionIcon.setVisibility(View.VISIBLE);
             }
         }
 
@@ -1260,6 +1271,12 @@ public class ExperimentDetailsFragment extends Fragment
             ImageButton sensorNext;
             ProgressBar progressView;
 
+            ImageView captionIcon;
+            View captionView;
+            RelativeTimeTextView durationHeader;
+            ImageButton menuButton;
+            TextView captionTextView;
+
             public ViewHolder(View itemView, int viewType) {
                 super(itemView);
                 mViewType = viewType;
@@ -1287,6 +1304,18 @@ public class ExperimentDetailsFragment extends Fragment
                         mViewType == VIEW_TYPE_EXPERIMENT_TEXT_LABEL ||
                         mViewType == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL) {
                     cardView = itemView.findViewById(R.id.card_view);
+                }
+                // Common views
+                if (mViewType == VIEW_TYPE_RUN_CARD ||
+                        mViewType == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL ||
+                        mViewType == VIEW_TYPE_EXPERIMENT_TEXT_LABEL ||
+                        mViewType == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL) {
+                    captionIcon = (ImageView) itemView.findViewById(R.id.edit_icon);
+                    captionView = itemView.findViewById(R.id.caption_section);
+                    durationHeader = (RelativeTimeTextView) itemView.findViewById(
+                            R.id.duration_text);
+                    menuButton = (ImageButton) itemView.findViewById(R.id.note_menu_button);
+                    captionTextView = (TextView) itemView.findViewById(R.id.caption);
                 }
             }
 

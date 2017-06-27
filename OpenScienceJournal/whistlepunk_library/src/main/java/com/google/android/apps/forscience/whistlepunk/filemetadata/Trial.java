@@ -103,6 +103,7 @@ public class Trial extends LabelListHolder {
     private Trial(long startTimeMs, GoosciSensorLayout.SensorLayout[] sensorLayouts,
             String trialId, SensorAppearanceProvider provider, Context context) {
         mTrial = new GoosciTrial.Trial();
+        mTrial.creationTimeMs = startTimeMs;
         mTrial.recordingRange = new GoosciTrial.Range();
         mTrial.recordingRange.startMs = startTimeMs;
         mTrial.sensorLayouts = sensorLayouts;
