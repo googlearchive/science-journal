@@ -34,7 +34,7 @@ import java.util.Set;
 public class PermissionUtils {
     public static final String TAG = "PermissionUtils";
 
-    private static final String KEY_PERMISSIONS_REQUESTED_SET = "permissions_requested";
+    static final String KEY_PERMISSIONS_REQUESTED_SET = "permissions_requested";
     private static final Set<String> NO_STRINGS = Collections.emptySet();
 
     // Some things require explicit permission in Android M+. Check that we have permission.
