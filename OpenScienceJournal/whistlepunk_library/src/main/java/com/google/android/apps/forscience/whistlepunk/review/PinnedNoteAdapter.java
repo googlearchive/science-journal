@@ -24,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
@@ -35,11 +36,12 @@ import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
+import com.jakewharton.rxbinding2.widget.RxTextView;
 
 /**
  * Adapter for a recycler view of pinned notes.
@@ -52,21 +54,32 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_NO_NOTES = 2;
     private static final int TYPE_TRIGGER_NOTE = 3;
     private static final int TYPE_UNKNOWN = -1;
+    private static final int TYPE_ADD_LABEL = 4;
+    private static final int TYPE_CAPTION = 5;
 
     /**
      * An interface for listening to when a pinned note should be edited or deleted.
      */
     public interface ListItemEditListener {
+        // When the user wants to edit a particular label's timestamp.
         void onLabelEditTime(Label item);
-        void onListItemDelete(Label item);
+
+        // When a user deletes a particular label.
+        void onLabelDelete(Label item);
+
+        // When the user makes a change to the caption -- needs to be saved.
+        void onCaptionEdit(String updatedCaption);
     }
 
     /**
      * An interface for listening to when a pinned note is clicked.
      */
     public interface ListItemClickListener {
-        // Anywhere on the item was clicked.
-        void onListItemClicked(Label item);
+        // Anywhere on the label was clicked.
+        void onLabelClicked(Label item);
+
+        // The add label button was clicked.
+        void onAddLabelButtonClicked();
     }
 
     public class NoteHolder extends RecyclerView.ViewHolder {
@@ -86,22 +99,22 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public class NoNotesHolder extends RecyclerView.ViewHolder {
-        public NoNotesHolder(View v) {
+    public class BlankViewHolder extends RecyclerView.ViewHolder {
+        public BlankViewHolder(View v) {
             super(v);
         }
     }
 
-    private LabelListHolder mLabelListHolder;
+    private Trial mTrial;
     private long mStartTimestamp;
     private long mEndTimestamp;
     private String mExperimentId;
     private ListItemEditListener mEditListener;
     private ListItemClickListener mClickListener;
 
-    public PinnedNoteAdapter(LabelListHolder labelListHolder, long startTimestamp,
-            long endTimestamp, String experimentId) {
-        mLabelListHolder = labelListHolder;
+    public PinnedNoteAdapter(Trial trial, long startTimestamp, long endTimestamp,
+            String experimentId) {
+        mTrial = trial;
         mStartTimestamp = startTimestamp;
         mEndTimestamp = endTimestamp;
         mExperimentId = experimentId;
@@ -133,7 +146,15 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case TYPE_NO_NOTES:
                 v = LayoutInflater.from(parent.getContext()).inflate(
                         R.layout.no_pinned_notes_item, parent, false);
-                return new NoNotesHolder(v);
+                return new BlankViewHolder(v);
+            case TYPE_ADD_LABEL:
+                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.add_label_button_item,
+                        parent, false);
+                return new BlankViewHolder(v);
+            case TYPE_CAPTION:
+                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.caption_item,
+                        parent, false);
+                return new BlankViewHolder(v);
             default:
                 return null;
         }
@@ -141,12 +162,22 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (mLabelListHolder.getLabelCount() == 0) {
+        int viewType = getItemViewType(position);
+        if (viewType == TYPE_ADD_LABEL) {
+            holder.itemView.setOnClickListener(view -> mClickListener.onAddLabelButtonClicked());
+            return;
+        }
+
+        if (viewType == TYPE_CAPTION) {
+            EditText editText = (EditText) holder.itemView.findViewById(R.id.caption);
+            editText.setText(mTrial.getCaptionText());
+            RxTextView.afterTextChangeEvents(editText)
+                    .subscribe(event -> mEditListener.onCaptionEdit(editText.getText().toString()));
             return;
         }
 
         final NoteHolder noteHolder = (NoteHolder) holder;
-        final Label label = mLabelListHolder.getLabels().get(position);
+        final Label label = mTrial.getLabels().get(position - 1);
         noteHolder.mDurationText.setText(getNoteTimeText(label, mStartTimestamp));
         noteHolder.mDurationText.setContentDescription(getNoteTimeContentDescription(
                 label.getTimeStamp(), mStartTimestamp, noteHolder.mDurationText.getContext()));
@@ -203,7 +234,7 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                 mEditListener.onLabelEditTime(label);
                                 return true;
                             } else if (itemId == R.id.btn_delete_note) {
-                                mEditListener.onListItemDelete(label);
+                                mEditListener.onLabelDelete(label);
                                 return true;
                             }
                             return false;
@@ -218,7 +249,7 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             noteHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mClickListener.onListItemClicked(label);
+                    mClickListener.onLabelClicked(label);
                 }
             });
         }
@@ -226,24 +257,28 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        // If there are no notes, we show a "no notes" view, so the
-        // size is always at least 1.
-        return Math.max(1, mLabelListHolder.getLabelCount());
+        // We always show caption and add note button, making the size the labels + 2.
+        return mTrial.getLabelCount() + 2;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (mLabelListHolder.getLabelCount() == 0 && position == 0) {
-            return TYPE_NO_NOTES;
+        if (position == 0) {
+            // First item always add label
+            return TYPE_ADD_LABEL;
         }
-        if (mLabelListHolder.getLabels().get(position).getType() == GoosciLabel.Label.TEXT) {
+        if (position == mTrial.getLabelCount() + 1) {
+            // Last item always the caption
+            return TYPE_CAPTION;
+        }
+        int labelType = mTrial.getLabels().get(position - 1).getType();
+        if (labelType == GoosciLabel.Label.TEXT) {
             return TYPE_TEXT_NOTE;
         }
-        if (mLabelListHolder.getLabels().get(position).getType() == GoosciLabel.Label.PICTURE) {
+        if (labelType == GoosciLabel.Label.PICTURE) {
             return TYPE_PICTURE_NOTE;
         }
-        if (mLabelListHolder.getLabels().get(position).getType() ==
-                GoosciLabel.Label.SENSOR_TRIGGER) {
+        if (labelType == GoosciLabel.Label.SENSOR_TRIGGER) {
             return TYPE_TRIGGER_NOTE;
         }
         return TYPE_UNKNOWN;
@@ -257,7 +292,7 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void onLabelAdded(Label label) {
-        if (mLabelListHolder.getLabelCount() == 1) {
+        if (mTrial.getLabelCount() == 1) {
             notifyItemChanged(0);
         } else {
             int position = findLabelIndexById(label.getLabelId());
@@ -268,8 +303,8 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private int findLabelIndexById(String id) {
-        for (int i = 0; i < mLabelListHolder.getLabelCount(); i++) {
-            if (TextUtils.equals(mLabelListHolder.getLabels().get(i).getLabelId(), id)) {
+        for (int i = 0; i < mTrial.getLabelCount(); i++) {
+            if (TextUtils.equals(mTrial.getLabels().get(i).getLabelId(), id)) {
                 return i;
             }
         }

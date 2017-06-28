@@ -159,7 +159,7 @@
     <dimen name="run_review_sensor_name_text_size">16sp</dimen>
     <dimen name="run_review_chart_height">160dp</dimen>
     <dimen name="run_review_margin_sides">8dp</dimen>
-    <dimen name="run_review_pinned_note_item_margin">0dp</dimen>
+    <dimen name="run_review_pinned_note_item_margin">8dp</dimen>
     <dimen name="run_review_header_text_margin_top">8dp</dimen>
     <dimen name="run_review_external_axis_left_margin">48dp</dimen>
     <dimen name="run_review_external_axis_left_padding">4dp</dimen>

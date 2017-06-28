@@ -1446,6 +1446,12 @@ Permissions notice:
     <!-- Menu option to edit a note's timestamp [CHAR_LIMIT=30] -->
     <string name="edit_note_time_menu_item">Edit time</string>
 
+    <!-- Text button to add a note to the trial [CHAR_LIMIT=50] -->
+    <string name="add_note_button_text">Add note to timeline</string>
+
+    <!-- Hint text in a trial caption textfield [CHAR_LIMIT=50] -->
+    <string name="trial_caption_hint_text">Add description of recording here</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

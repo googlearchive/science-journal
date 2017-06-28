@@ -24,19 +24,10 @@
     android:background="@color/text_color_white"
     android:elevation="2dp"
     tools:ignore="unusedAttribute"
-    android:layout_marginStart="1dp"
+    android:layout_marginStart="@dimen/run_review_pinned_note_item_margin"
     android:layout_marginEnd="@dimen/run_review_pinned_note_item_margin"
+    android:layout_marginBottom="@dimen/run_review_pinned_note_item_margin"
     >
-
-    <View
-        android:layout_height="@dimen/run_review_divider_thickness"
-        android:layout_width="match_parent"
-        android:background="@color/run_review_divider_color"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:id="@+id/run_review_note_divider"
-        />
 
     <ImageView
         android:layout_width="@dimen/run_review_note_icon_size"
@@ -45,7 +36,7 @@
         android:src="@drawable/ic_notes_white_24dp"
         android:contentDescription="@null"
         android:layout_alignParentStart="true"
-        android:layout_below="@id/run_review_note_divider"
+        android:layout_alignParentTop="true"
         android:tint="@color/pinned_note_icon_color"
         android:layout_marginTop="@dimen/run_review_section_margin"
         android:layout_marginStart="@dimen/run_review_section_margin_notes"
@@ -124,7 +115,7 @@
         android:tint="@color/text_color_light_grey"
         android:contentDescription="@string/menu_btn_content_description"
         android:layout_alignParentEnd="true"
-        android:layout_below="@id/run_review_note_divider"
+        android:layout_alignParentTop="true"
         android:background="@color/text_color_white"
         android:scaleType="center"
         android:layout_marginEnd="@dimen/run_review_margin_sides"

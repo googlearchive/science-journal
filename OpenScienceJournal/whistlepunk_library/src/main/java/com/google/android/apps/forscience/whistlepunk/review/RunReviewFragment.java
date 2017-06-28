@@ -85,6 +85,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.review.EditLabelTimeDialog.EditTimeDialogListener;
@@ -516,11 +517,6 @@ public class RunReviewFragment extends Fragment implements
             if (mExperiment != null) {
                 launchCrop(getView());
             }
-        } else if (id == R.id.action_run_review_add_note) {
-            if (mExperiment != null && !mRunReviewOverlay.getIsCropping()) {
-                launchLabelAdd(null, Math.max(mRunReviewOverlay.getTimestamp(),
-                        getTrial().getFirstTimestamp()));
-            }
         } else if (id == R.id.action_run_review_delete) {
             if (mExperiment != null) {
                 deleteThisRun();
@@ -726,7 +722,7 @@ public class RunReviewFragment extends Fragment implements
             }
 
             @Override
-            public void onListItemDelete(final Label item) {
+            public void onLabelDelete(final Label item) {
                 final DataController dc = getDataController();
                 Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
                         getActivity().getResources().getString(R.string.snackbar_note_deleted),
@@ -796,14 +792,34 @@ public class RunReviewFragment extends Fragment implements
                 });
                 bar.show();
             }
+
+            @Override
+            public void onCaptionEdit(String updatedCaption) {
+                GoosciCaption.Caption caption = new GoosciCaption.Caption();
+                caption.text = updatedCaption;
+                caption.lastEditedTimestamp = System.currentTimeMillis();
+                getTrial().setCaption(caption);
+                getDataController().updateExperiment(mExperimentId, LoggingConsumer.expectSuccess(
+                        TAG, "update caption"));
+            }
         });
+
         mPinnedNoteAdapter.setListItemClickListener(new PinnedNoteAdapter.ListItemClickListener() {
             @Override
-            public void onListItemClicked(Label item) {
+            public void onLabelClicked(Label item) {
                 // TODO: Animate to the active timestamp.
                 mRunReviewOverlay.setActiveTimestamp(item.getTimeStamp());
             }
+
+            @Override
+            public void onAddLabelButtonClicked() {
+                if (mExperiment != null && !mRunReviewOverlay.getIsCropping()) {
+                    launchLabelAdd(null, Math.max(mRunReviewOverlay.getTimestamp(),
+                            getTrial().getFirstTimestamp()));
+                }
+            }
         });
+
         pinnedNoteList.setAdapter(mPinnedNoteAdapter);
 
         // Re-enable appropriate menu options.

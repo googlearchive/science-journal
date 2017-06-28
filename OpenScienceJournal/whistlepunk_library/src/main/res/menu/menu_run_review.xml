@@ -17,12 +17,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_run_review_add_note"
-        android:icon="@drawable/ic_notes_white_24dp"
-        android:title="@string/add_run_note"
-        app:showAsAction="always"
-        />
-    <item
         android:id="@+id/action_run_review_edit"
         android:icon="@drawable/ic_mode_edit_white_24dp"
         android:title="@string/title_edit_trial_activity"

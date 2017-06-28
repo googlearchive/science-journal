@@ -14,9 +14,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<resources>
-    <integer name="project_library_columns">2</integer>
-    <dimen name="run_review_pinned_note_item_margin">10dp</dimen>
-    <dimen name="project_list_padding_sides">24dp</dimen>
-    <dimen name="project_list_padding_top">24dp</dimen>
-</resources>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/accessibility_touch_target_min_size"
+    android:background="@android:color/transparent"
+    android:textColor="@color/color_accent"
+    android:textSize="16sp"
+    android:text="@string/add_note_button_text"
+    android:textAllCaps="true"
+    android:layout_marginStart="16dp"
+    >
+
+</Button>
