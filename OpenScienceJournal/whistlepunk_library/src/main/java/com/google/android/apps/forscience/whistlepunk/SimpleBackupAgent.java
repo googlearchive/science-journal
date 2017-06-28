@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.backup.BackupAgentHelper;
 import android.app.backup.BackupDataInput;
+import android.app.backup.BackupDataInputStream;
 import android.app.backup.BackupDataOutput;
 import android.app.backup.BackupManager;
 import android.app.backup.SharedPreferencesBackupHelper;
@@ -26,6 +27,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -47,7 +49,7 @@ public class SimpleBackupAgent extends BackupAgentHelper {
     @Override
     public void onCreate() {
         String prefsName = getDefaultStoredPreferencesName(getApplicationContext());
-        SharedPreferencesBackupHelper helper = new SharedPreferencesBackupHelper(this, prefsName);
+        SkipPermissionsHelper helper = new SkipPermissionsHelper(this, prefsName);
         addHelper(PREFS_BACKUP_KEY, helper);
     }
 
@@ -66,16 +68,32 @@ public class SimpleBackupAgent extends BackupAgentHelper {
      */
     public static SharedPreferences.OnSharedPreferenceChangeListener
                 registerOnSharedPreferencesChangeListener(Context applicationContext) {
-        SharedPreferences.OnSharedPreferenceChangeListener listener =
-                new SharedPreferences.OnSharedPreferenceChangeListener() {
-                    @Override
-                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-                            String s) {
-                        BackupManager.dataChanged("com.google.android.apps.forscience.whistlepunk");
-                    }
-                };
+        SharedPreferences.OnSharedPreferenceChangeListener listener = (sharedPreferences, s) ->
+                BackupManager.dataChanged("com.google.android.apps.forscience.whistlepunk");
         PreferenceManager.getDefaultSharedPreferences(applicationContext)
                 .registerOnSharedPreferenceChangeListener(listener);
         return listener;
+    }
+
+    @Override
+    public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState)
+            throws IOException {
+        super.onRestore(data, appVersionCode, newState);
+    }
+
+    private class SkipPermissionsHelper extends SharedPreferencesBackupHelper {
+
+        public SkipPermissionsHelper(Context context, String... prefGroups) {
+            super(context, prefGroups);
+        }
+
+        @Override
+        public void restoreEntity(BackupDataInputStream data) {
+            // We don't want to restore permissions info, because that's device specific.
+            if (TextUtils.equals(data.getKey(), PermissionUtils.KEY_PERMISSIONS_REQUESTED_SET)) {
+                return;
+            }
+            super.restoreEntity(data);
+        }
     }
 }
