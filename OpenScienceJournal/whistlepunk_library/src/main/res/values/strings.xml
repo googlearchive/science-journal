@@ -1443,6 +1443,9 @@ Permissions notice:
     <!-- String formatting string for a data value followed by units, i.e. 13 lux or 17.16 amps [CHAR_LIMIT=3] -->
     <string name="data_with_units"><xliff:g id="value">%1$s</xliff:g> <xliff:g id="units">%2$s</xliff:g></string>
 
+    <!-- Menu option to edit a note's timestamp [CHAR_LIMIT=30] -->
+    <string name="edit_note_time_menu_item">Edit time</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

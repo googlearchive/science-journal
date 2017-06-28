@@ -22,7 +22,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -51,6 +50,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
@@ -59,7 +59,6 @@ import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.EditNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
@@ -67,7 +66,6 @@ import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MultiWindowUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
-import com.google.android.apps.forscience.whistlepunk.PreviewNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
@@ -104,7 +102,7 @@ import java.util.List;
 
 public class RunReviewFragment extends Fragment implements
         AddNoteDialog.ListenerProvider,
-        EditNoteDialog.EditNoteDialogListener, EditTimeDialogListener,
+        EditTimeDialogListener,
         DeleteMetadataItemDialog.DeleteDialogListener,
         AudioSettingsDialog.AudioSettingsDialogListener,
         ChartController.ChartLoadingStatus {
@@ -723,9 +721,8 @@ public class RunReviewFragment extends Fragment implements
                 trial.getLastTimestamp(), mExperimentId);
         mPinnedNoteAdapter.setListItemModifyListener(new PinnedNoteAdapter.ListItemEditListener() {
             @Override
-            public void onListItemEdit(final Label item) {
-                // This assumes one value per label. Update when it is possible to have more.
-                launchLabelEdit(item, null, item.getTimeStamp());
+            public void onLabelEditTime(final Label item) {
+                onEditNoteTimestamp(item);
             }
 
             @Override
@@ -805,11 +802,6 @@ public class RunReviewFragment extends Fragment implements
             public void onListItemClicked(Label item) {
                 // TODO: Animate to the active timestamp.
                 mRunReviewOverlay.setActiveTimestamp(item.getTimeStamp());
-            }
-
-            @Override
-            public void onPictureItemClicked(Label item) {
-                launchPicturePreview(item);
             }
         });
         pinnedNoteList.setAdapter(mPinnedNoteAdapter);
@@ -1234,18 +1226,12 @@ public class RunReviewFragment extends Fragment implements
         }
     }
 
-    private void launchPicturePreview(Label label) {
-        PreviewNoteDialog dialog = PreviewNoteDialog.newInstance(label, mExperimentId);
-        dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
-    }
-
-    @Override
-    public MaybeConsumer<Success> onLabelEdit(final Label label) {
+    private MaybeConsumer<Success> onLabelEdit(final Label label) {
         return new LoggingConsumer<Success>(TAG, "edit label") {
             @Override
             public void success(Success value) {
                 mPinnedNoteAdapter.onLabelUpdated(label);
-                // The timestamp may have been edited, so also refresh the line graph presenter.
+                // The timestamp was edited, so also refresh the line graph presenter.
                 mChartController.setLabels(getTrial().getLabels());
                 WhistlePunkApplication.getUsageTracker(getActivity())
                         .trackEvent(TrackerConstants.CATEGORY_NOTES,
@@ -1256,24 +1242,15 @@ public class RunReviewFragment extends Fragment implements
         };
     }
 
-    @Override
-    public void onEditNoteTimestampClicked(Label label, Label selectedValue,
-            long labelTimestamp) {
-        // Dismiss the edit note dialog and show the timestamp dialog.
-        EditNoteDialog editDialog = (EditNoteDialog) getChildFragmentManager()
-                .findFragmentByTag(EditNoteDialog.TAG);
-        if (editDialog != null) {
-            editDialog.dismiss();
-        }
-
+    public void onEditNoteTimestamp(Label label) {
         // Show the timestamp edit window below the graph / over the notes
         getView().findViewById(R.id.embedded).setVisibility(View.VISIBLE);
-        EditLabelTimeDialog timeDialog = EditLabelTimeDialog.newInstance(label, selectedValue,
-                labelTimestamp, getTrial().getFirstTimestamp());
+        EditLabelTimeDialog timeDialog = EditLabelTimeDialog.newInstance(label,
+                getTrial().getFirstTimestamp());
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         ft.add(R.id.embedded, timeDialog, EditLabelTimeDialog.TAG);
         ft.commit();
-        mRunReviewOverlay.setActiveTimestamp(labelTimestamp);
+        mRunReviewOverlay.setActiveTimestamp(label.getTimeStamp());
         mRunReviewOverlay.setOnTimestampChangeListener(timeDialog);
         setTimepickerUi(getView(), true);
     }
@@ -1469,28 +1446,20 @@ public class RunReviewFragment extends Fragment implements
     }
 
     @Override
-    public void onEditTimeDialogDismissedEdit(Label originalLabel, Label editedLabel,
-            long selectedTimestamp) {
+    public void onEditTimeDialogDismissedEdit(Label label, long selectedTimestamp) {
         setTimepickerUi(getView(), false);
-        launchLabelEdit(originalLabel, editedLabel, selectedTimestamp);
+        label.setTimestamp(selectedTimestamp);
+        Trial trial = mExperiment.getTrial(mTrialId);
+        trial.updateLabel(label);
+        mExperiment.updateTrial(trial);
+        RxDataController.updateExperiment(getDataController(), mExperiment)
+                .subscribe(MaybeConsumers.toCompletableObserver(onLabelEdit(label)));
     }
 
     @Override
     public void onEditTimeDialogDismissedAdd(Label editedLabel, long selectedTimestamp) {
         setTimepickerUi(getView(), false);
         launchLabelAdd(editedLabel, selectedTimestamp);
-    }
-
-    private void launchLabelEdit(Label originalLabel, Label editedLabel,
-            long selectedTimestamp) {
-        String labelTimeText =
-                PinnedNoteAdapter.getNoteTimeText(selectedTimestamp,
-                        getTrial().getFirstTimestamp());
-        EditNoteDialog dialog = EditNoteDialog.newInstance(originalLabel, editedLabel,
-                labelTimeText, selectedTimestamp, PinnedNoteAdapter.getNoteTimeContentDescription(
-                        selectedTimestamp, getTrial().getFirstTimestamp(), getActivity()),
-                mExperimentId, getTrial().getTrialId());
-        dialog.show(getChildFragmentManager(), EditNoteDialog.TAG);
     }
 
     private void launchAudioSettings() {

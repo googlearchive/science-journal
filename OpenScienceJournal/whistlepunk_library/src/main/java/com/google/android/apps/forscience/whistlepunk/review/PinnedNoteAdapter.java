@@ -57,7 +57,7 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * An interface for listening to when a pinned note should be edited or deleted.
      */
     public interface ListItemEditListener {
-        void onListItemEdit(Label item);
+        void onLabelEditTime(Label item);
         void onListItemDelete(Label item);
     }
 
@@ -67,9 +67,6 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public interface ListItemClickListener {
         // Anywhere on the item was clicked.
         void onListItemClicked(Label item);
-
-        // The picture of a picture label was clicked
-        void onPictureItemClicked(Label item);
     }
 
     public class NoteHolder extends RecyclerView.ViewHolder {
@@ -165,12 +162,6 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             noteHolder.mAutoText.setVisibility(View.GONE);
             PictureUtils.loadExperimentImage(noteHolder.mImage.getContext(), noteHolder.mImage,
                     mExperimentId, labelValue.filePath);
-            noteHolder.mImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mClickListener.onPictureItemClicked(label);
-                }
-            });
         } else if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
             GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
                     label.getSensorTriggerLabelValue();
@@ -196,29 +187,20 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             AccessibilityUtils.setTouchDelegateToMinAccessibleSize(noteHolder.mText);
         }
         if (mEditListener != null) {
-            // Only allow editing of notes with empty text onclick.
-            if ((label.getType() == GoosciLabel.Label.PICTURE &&
-                    TextUtils.isEmpty(label.getCaptionText())) ||
-                    (label.getType() == GoosciLabel.Label.TEXT &&
-                            TextUtils.isEmpty(label.getTextLabelValue().text))) {
-                noteHolder.mText.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mEditListener.onListItemEdit(label);
-                    }
-                });
-            }
             noteHolder.mMenuButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Context context = noteHolder.mMenuButton.getContext();
                     PopupMenu popup = new PopupMenu(context, noteHolder.mMenuButton);
                     popup.getMenuInflater().inflate(R.menu.menu_note, popup.getMenu());
+                    if (!label.canEditTimestamp()) {
+                        popup.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
+                    }
                     popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         public boolean onMenuItemClick(MenuItem item) {
                             int itemId = item.getItemId();
-                            if (itemId == R.id.btn_edit_note) {
-                                mEditListener.onListItemEdit(label);
+                            if (itemId == R.id.btn_edit_note_time) {
+                                mEditListener.onLabelEditTime(label);
                                 return true;
                             } else if (itemId == R.id.btn_delete_note) {
                                 mEditListener.onListItemDelete(label);

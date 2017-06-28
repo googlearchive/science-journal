@@ -64,7 +64,6 @@ import io.reactivex.subjects.BehaviorSubject;
 /**
  * Dialog for adding new notes.
  */
-// TODO: Combine similar code with EditNoteDialog.
 public class AddNoteDialog extends DialogFragment {
     public static final String TAG = "add_note_dialog";
 

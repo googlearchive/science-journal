@@ -19,8 +19,8 @@
     >
 
     <item
-        android:title="@string/edit_note_menu_item"
-        android:id="@+id/btn_edit_note"
+        android:title="@string/edit_note_time_menu_item"
+        android:id="@+id/btn_edit_note_time"
         />
 
     <item

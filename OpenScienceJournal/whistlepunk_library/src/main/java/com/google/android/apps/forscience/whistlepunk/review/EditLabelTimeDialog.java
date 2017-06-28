@@ -46,8 +46,7 @@ public class EditLabelTimeDialog extends DialogFragment implements RunReviewOver
     public static final long NO_TIMESTAMP_SELECTED = -1;
 
     public interface EditTimeDialogListener {
-        void onEditTimeDialogDismissedEdit(Label originalLabel, Label editedLabel,
-                long selectedTimestamp);
+        void onEditTimeDialogDismissedEdit(Label originalLabel, long selectedTimestamp);
         void onEditTimeDialogDismissedAdd(Label label, long selectedTimestamp);
     }
 
@@ -65,15 +64,16 @@ public class EditLabelTimeDialog extends DialogFragment implements RunReviewOver
     private boolean timestampSelected = false;
     private boolean mDismissed = false;
 
+    // Edits an existing label.
     public static EditLabelTimeDialog newInstance(Label label,
-            Label editedLabel, long initialTimestamp,
             long runStartTimestamp) {
-        EditLabelTimeDialog dialog = newInstanceHelper(editedLabel, initialTimestamp,
+        EditLabelTimeDialog dialog = newInstanceHelper(label, label.getTimeStamp(),
                 runStartTimestamp);
         dialog.getArguments().putParcelable(KEY_LABEL, label);
         return dialog;
     }
 
+    // For adding a new label.
     public static EditLabelTimeDialog newInstance(Label editedLabel,
             long initialTimestamp, long runStartTimestamp) {
         EditLabelTimeDialog dialog = newInstanceHelper(editedLabel, initialTimestamp,
@@ -123,14 +123,14 @@ public class EditLabelTimeDialog extends DialogFragment implements RunReviewOver
         // Avoid double-callbacks by checking if this was already dismissed.
         if (!mDismissed) {
             mDismissed = true;
-            Label label = getArguments().getParcelable(KEY_EDITED_LABEL);
             if (getArguments().containsKey(KEY_LABEL)) {
                 // Then this came from editing an existing label.
                 ((EditTimeDialogListener) getParentFragment()).onEditTimeDialogDismissedEdit(
-                        getArguments().getParcelable(KEY_LABEL), label,
+                        getArguments().getParcelable(KEY_LABEL),
                         timestampSelected ? mCurrentTimestamp : mInitialTimestamp);
             } else {
                 // Then this came from adding a new label.
+                Label label = getArguments().getParcelable(KEY_EDITED_LABEL);
                 ((EditTimeDialogListener) getParentFragment()).onEditTimeDialogDismissedAdd(
                         label, timestampSelected ? mCurrentTimestamp : mInitialTimestamp);
             }
