@@ -25,20 +25,22 @@ import com.google.android.apps.forscience.whistlepunk.R;
 
 public class UpdateRunActivity extends AppCompatActivity {
 
+    private static final String FRAGMENT_TAG = "fragment";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_run);
 
-        if (savedInstanceState == null) {
+        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
             String runId = getIntent().getExtras().getString(
                     UpdateRunFragment.ARG_RUN_ID);
             String experimentId = getIntent().getExtras().getString(UpdateRunFragment.ARG_EXP_ID);
             UpdateRunFragment fragment = UpdateRunFragment.newInstance(runId, experimentId);
             fragment.setRetainInstance(true);
 
-            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment)
-                    .commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment,
+                    FRAGMENT_TAG).commit();
         }
     }
 

@@ -26,23 +26,24 @@ import com.google.android.apps.forscience.whistlepunk.R;
 
 public class UpdateExperimentActivity extends AppCompatActivity {
 
+    private static final String FRAGMENT_TAG = "fragment";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_experiment);
 
-        if (savedInstanceState == null) {
+        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
             String experimentId = getIntent().getExtras().getString(
                     UpdateExperimentFragment.ARG_EXPERIMENT_ID);
 
             UpdateExperimentFragment fragment = UpdateExperimentFragment.newInstance(experimentId,
                     getIntent().getBooleanExtra(UpdateExperimentFragment.ARG_NEW, false),
-                    (ComponentName) getIntent().getParcelableExtra(
-                            UpdateExperimentFragment.ARG_PARENT_COMPONENT));
+                    getIntent().getParcelableExtra(UpdateExperimentFragment.ARG_PARENT_COMPONENT));
             fragment.setRetainInstance(true);
 
-            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment)
-                    .commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment,
+                    FRAGMENT_TAG).commit();
         }
 
     }
