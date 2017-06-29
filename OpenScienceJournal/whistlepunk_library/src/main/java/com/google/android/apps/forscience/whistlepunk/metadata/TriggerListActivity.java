@@ -35,6 +35,7 @@ public class TriggerListActivity extends AppCompatActivity {
     public static final String EXTRA_EXPERIMENT_ID = "experiment_id";
     public static final String EXTRA_LAYOUT_POSITION = "sensor_layout_position";
     public static final String EXTRA_TRIGGER_ORDER = "trigger_order";
+    private static final String FRAGMENT_TAG = "fragment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +44,7 @@ public class TriggerListActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
 
-        if (extras != null && savedInstanceState == null) {
+        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null && extras != null) {
             String sensorId = extras.getString(EXTRA_SENSOR_ID, "");
             String experimentId = extras.getString(EXTRA_EXPERIMENT_ID, "");
             int position = extras.getInt(EXTRA_LAYOUT_POSITION);
@@ -51,7 +52,8 @@ public class TriggerListActivity extends AppCompatActivity {
             TriggerListFragment fragment = TriggerListFragment.newInstance(sensorId, experimentId,
                     position, triggerOrder);
             fragment.setRetainInstance(true);
-            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment,
+                    FRAGMENT_TAG).commit();
         }
     }
 }

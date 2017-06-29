@@ -33,6 +33,7 @@ public class LabelDetailsActivity extends AppCompatActivity {
 
     static final String ARG_EXPERIMENT_ID = "experiment_id";
     static final String ARG_LABEL = "label";
+    private static final String FRAGMENT_TAG = "fragment";
 
     public static void launch(Context context, String experimentId, Label label) {
         final Intent intent = new Intent(context, LabelDetailsActivity.class);
@@ -64,7 +65,7 @@ public class LabelDetailsActivity extends AppCompatActivity {
         // and these activities, similar to RunReview transition. This may involve
         // supportPostponeEnterTransition();?
 
-        if (savedInstanceState == null) {
+        if (getFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
             LabelDetailsFragment fragment;
             if (labelType == GoosciLabel.Label.TEXT) {
                 fragment = TextLabelDetailsFragment.newInstance(
@@ -83,8 +84,8 @@ public class LabelDetailsActivity extends AppCompatActivity {
                 finish();
                 return;
             }
-
-            getFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
+            getFragmentManager().beginTransaction().add(R.id.container, fragment, FRAGMENT_TAG)
+                    .commit();
         }
     }
 }

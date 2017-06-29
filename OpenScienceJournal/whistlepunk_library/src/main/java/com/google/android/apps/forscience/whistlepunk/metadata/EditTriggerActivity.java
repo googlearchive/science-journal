@@ -31,6 +31,7 @@ public class EditTriggerActivity extends AppCompatActivity {
     public static final String EXTRA_EXPERIMENT_ID = "experiment_id";
     public static final String EXTRA_SENSOR_LAYOUT_BLOB = "sensor_layout_blob";
     public static final String EXTRA_TRIGGER_ID = "trigger_id";
+    private static final String FRAGMENT_TAG = "fragment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +40,7 @@ public class EditTriggerActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
 
-        if (extras != null && savedInstanceState == null) {
+        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null && extras != null) {
             String sensorId = extras.getString(EXTRA_SENSOR_ID, "");
             String experimentId = extras.getString(EXTRA_EXPERIMENT_ID, "");
             String triggerId = extras.getString(EXTRA_TRIGGER_ID, "");
@@ -49,7 +50,8 @@ public class EditTriggerActivity extends AppCompatActivity {
                     TriggerListActivity.EXTRA_TRIGGER_ORDER);
             EditTriggerFragment fragment = EditTriggerFragment.newInstance(sensorId, experimentId,
                     triggerId, sensorLayoutBlob, position, triggerOrder);
-            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment,
+                    FRAGMENT_TAG).commit();
         }
     }
 }

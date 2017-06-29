@@ -29,6 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.project.MetadataActivity;
 public class RunReviewActivity extends MetadataActivity {
     public static final String EXTRA_FROM_RECORD = "from_record_activity";
     public static final String EXTRA_CREATE_TASK = "create_task";
+    private static final String FRAGMENT_TAG = "fragment";
     private boolean mFromRecord;
 
     /**
@@ -59,13 +60,13 @@ public class RunReviewActivity extends MetadataActivity {
         mFromRecord = getIntent().getExtras().getBoolean(EXTRA_FROM_RECORD, false);
         boolean createTask = getIntent().getExtras().getBoolean(EXTRA_CREATE_TASK, true);
         supportPostponeEnterTransition();
-        if (savedInstanceState == null) {
+        if (getFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
             RunReviewFragment fragment = RunReviewFragment.newInstance(
                     getIntent().getExtras().getString(RunReviewFragment.ARG_EXPERIMENT_ID),
                     getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID),
                     getIntent().getExtras().getInt(RunReviewFragment.ARG_SENSOR_INDEX),
                     createTask /* create a task when going up */);
-            getFragmentManager().beginTransaction().add(R.id.container, fragment)
+            getFragmentManager().beginTransaction().add(R.id.container, fragment, FRAGMENT_TAG)
                     .commit();
         }
     }
