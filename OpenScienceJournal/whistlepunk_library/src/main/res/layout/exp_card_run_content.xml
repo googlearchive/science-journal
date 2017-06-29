@@ -27,12 +27,19 @@
         android:id="@+id/content"
         >
 
+        <include layout="@layout/exp_card_item_heading"
+            android:layout_alignParentTop="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/heading"
+            />
+
         <include
             layout="@layout/run_review_overview"
             android:id="@+id/overview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
+            android:layout_below="@id/heading"
             android:paddingStart="@dimen/run_review_margin_sides"
             android:paddingEnd="@dimen/run_review_margin_sides"
             android:layout_margin="@dimen/run_review_section_margin"
@@ -83,27 +90,34 @@
             android:id="@+id/stats_view"
             />
 
-        <com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:id="@+id/chart_view"
-            android:paddingBottom="@dimen/run_review_section_margin"
-            android:layout_marginStart="@dimen/run_review_margin_sides"
-            android:layout_marginEnd="@dimen/run_review_margin_sides"
-            android:layout_marginBottom="@dimen/run_review_margin_sides"
+            android:layout_height="wrap_content"
+            android:id="@+id/chart_section"
             android:layout_below="@id/stats_view"
-            />
+            >
 
-        <ProgressBar
-            android:id="@+id/chart_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@id/stats_view"
-            android:visibility="gone"
-            android:contentDescription="@string/graph_loading"
-            />
+            <com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:id="@+id/chart_view"
+                android:paddingBottom="@dimen/run_review_section_margin"
+                android:layout_marginStart="@dimen/run_review_margin_sides"
+                android:layout_marginEnd="@dimen/run_review_margin_sides"
+                android:layout_marginBottom="@dimen/run_review_margin_sides"
+                />
+
+            <ProgressBar
+                android:id="@+id/chart_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:layout_centerHorizontal="true"
+                android:visibility="gone"
+                android:contentDescription="@string/graph_loading"
+                />
+
+        </FrameLayout>
 
         <include layout="@layout/archived_badge"
             android:layout_width="wrap_content"
@@ -113,6 +127,35 @@
             android:layout_marginEnd="@dimen/archive_badge_margin"
             android:layout_alignParentTop="true"
             />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/caption_section"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@id/chart_section"
+            >
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/run_review_divider_color"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:background="@color/caption_background_color"
+                android:textColor="@color/text_color_light_grey"
+                android:id="@+id/caption"
+                />
+
+        </LinearLayout>
 
     </RelativeLayout>
 </merge>
