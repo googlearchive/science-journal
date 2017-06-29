@@ -25,7 +25,6 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
@@ -198,98 +197,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private Experiment mSelectedExperiment;
     private BehaviorSubject<Experiment> mSelectedExperimentSubject = BehaviorSubject.create();
-
-    // TODO: RecorderController should own this state.
-    private static enum RecordingState {
-        //We are not yet connected to the RecorderController, and don't yet know the current state
-        UNCONNECTED,
-
-        // No current recording
-        INACTIVE {
-            @Override
-            public boolean shouldEnableRecordButton() {
-                return true;
-            }
-        },
-
-        // User has requested recording to start, but it hasn't yet
-        STARTING,
-
-        // Currently recording
-        ACTIVE {
-            @Override
-            public boolean shouldEnableRecordButton() {
-                return true;
-            }
-
-            @Override
-            public boolean shouldShowStopButton() {
-                return true;
-            }
-        },
-
-        // User has requested recording to stop, but it hasn't yet.
-        STOPPING {
-            @Override
-            public boolean shouldShowStopButton() {
-                return true;
-            }
-        };
-
-        public boolean shouldEnableRecordButton() {
-            return false;
-        }
-
-        public boolean shouldShowStopButton() {
-            return false;
-        }
-    }
-
-    private static class RecordingStatus {
-        public static final RecordingStatus UNCONNECTED =
-                new RecordingStatus(RecordingState.UNCONNECTED, null);
-        public final RecordingState state;
-        public final RecordingMetadata currentRecording;
-
-        public RecordingStatus(RecordingState state, RecordingMetadata metadata) {
-            this.state = state;
-            this.currentRecording = metadata;
-        }
-
-        public boolean isRecording() {
-            return currentRecording != null;
-        }
-
-        public String getCurrentRunId() {
-            return isRecording() ? currentRecording.getRunId() : RecorderController
-                    .NOT_RECORDING_RUN_ID;
-        }
-
-        public RecordingStatus withRecording(RecordingMetadata newRecording) {
-            return new RecordingStatus(state, newRecording);
-        }
-
-        public RecordingStatus withState(RecordingState newState) {
-            return new RecordingStatus(newState, currentRecording);
-        }
-
-        public RecordingStatus inStableRecordingState() {
-            return isRecording() ? withState(RecordingState.ACTIVE) : withState(
-                    RecordingState.INACTIVE);
-        }
-
-        public long getRecordingStartTime() {
-            return RecordingMetadata.getStartTime(currentRecording);
-        }
-
-        @Override
-        public String toString() {
-            return "RecordingStatus{" +
-                   "state=" + state +
-                   ", currentRecording=" + currentRecording +
-                   '}';
-        }
-    }
 
     // Subscribe to get whether we are currently recording, and future updates.
     private BehaviorSubject<RecordingStatus> mRecordingStatus = BehaviorSubject.create();
@@ -538,37 +445,31 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     @NonNull
     private RecorderController.RecordingStateListener createRecordingStateListener() {
         // TODO: extract as testable object
-        return new RecorderController.RecordingStateListener() {
-            @Override
-            public void onRecordingStateChanged(RecordingMetadata currentRecording) {
-                mRecordingStatus.firstElement().subscribe(status -> {
-                    // TODO: clean up the logic here
-                    RecordingMetadata prevRecording = status.currentRecording;
+        return currentRecording -> mRecordingStatus.firstElement().subscribe(status -> {
+            // TODO: clean up the logic here
+            RecordingMetadata prevRecording = status.currentRecording;
 
-                    RecordingStatus newStatus = status.withRecording(currentRecording);
-                    mRecordingStatus.onNext(newStatus);
+            RecordingStatus newStatus = status.withRecording(currentRecording);
+            mRecordingStatus.onNext(newStatus);
 
-                    onRecordingMetadataUpdated(newStatus);
-                    // If we have switched from a recording state to a not-recording
-                    // state, update the UI.
-                    if (prevRecording != null && !newStatus.isRecording()) {
-                        mExternalAxis.onStopRecording();
-                        AddNoteDialog dialog = (AddNoteDialog) getChildFragmentManager()
-                                .findFragmentByTag(AddNoteDialog.TAG);
-                        if (dialog != null) {
-                            dialog.dismiss();
-                        }
-                        updateRecordingState();
-                        if (!mRecordingWasCanceled) {
-                            mUICallbacks.onRecordingSaved(prevRecording.getRunId(),
-                                    mSelectedExperiment);
-                        }
-                    }
-                    mRecordingWasCanceled = false;
-                });
+            onRecordingMetadataUpdated(newStatus);
+            // If we have switched from a recording state to a not-recording
+            // state, update the UI.
+            if (prevRecording != null && !newStatus.isRecording()) {
+                mExternalAxis.onStopRecording();
+                AddNoteDialog dialog = (AddNoteDialog) getChildFragmentManager()
+                        .findFragmentByTag(AddNoteDialog.TAG);
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+                updateRecordingState();
+                if (!mRecordingWasCanceled) {
+                    mUICallbacks.onRecordingSaved(prevRecording.getRunId(),
+                            mSelectedExperiment);
+                }
             }
-
-        };
+            mRecordingWasCanceled = false;
+        });
     }
 
     private void updateRecordingState() {
