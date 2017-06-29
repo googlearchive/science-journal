@@ -75,16 +75,20 @@ public abstract class LabelListHolder {
      * Matches by Label ID.
      */
     public void deleteLabel(Label toDelete, Context context, String experimentId) {
-        if (toDelete.getType() == GoosciLabel.Label.PICTURE) {
-            beforeDeletingPictureLabel(toDelete);
-        }
-        toDelete.deleteAssets(context, experimentId);
+        deleteLabelAssets(toDelete, context, experimentId);
         for (Label label : mLabels) {
             if (TextUtils.equals(label.getLabelId(), toDelete.getLabelId())) {
                 mLabels.remove(label);
                 break;
             }
         }
+    }
+
+    protected void deleteLabelAssets(Label toDelete, Context context, String experimentId) {
+        if (toDelete.getType() == GoosciLabel.Label.PICTURE) {
+            beforeDeletingPictureLabel(toDelete);
+        }
+        toDelete.deleteAssets(context, experimentId);
     }
 
     private void sortLabels() {

@@ -175,6 +175,14 @@ class ExperimentCache {
     }
 
     /**
+     * Prepares an experiment for deletion by deleting all of its assets and contents, including
+     * trial data. This is not reversable.
+     */
+    public void prepareExperimentForDeletion(Experiment experiment) {
+        experiment.deleteContents(mContext);
+    }
+
+    /**
      * Used to set the active experiment when the experiment already exists, not when it's being
      * made for the first time.
      * Sets the dirty bit to true, then starts a timer if needed to make sure that the write happens

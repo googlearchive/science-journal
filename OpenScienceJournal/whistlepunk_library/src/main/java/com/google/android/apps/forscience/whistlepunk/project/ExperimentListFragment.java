@@ -57,7 +57,6 @@ import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateE
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 

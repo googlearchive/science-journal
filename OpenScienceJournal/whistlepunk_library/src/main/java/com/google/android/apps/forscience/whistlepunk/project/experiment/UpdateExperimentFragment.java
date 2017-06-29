@@ -34,7 +34,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
@@ -274,8 +273,8 @@ public class UpdateExperimentFragment extends Fragment {
     }
 
     private void deleteExperiment(Experiment experiment) {
-        getDataController().deleteExperiment(experiment, new LoggingConsumer<Success>(TAG,
-                "Deleting new experiment") {
+        getDataController().deleteExperiment(experiment,
+                new LoggingConsumer<Success>(TAG, "Deleting new experiment") {
             @Override
             public void success(Success value) {
                 if (mParentComponent != null) {

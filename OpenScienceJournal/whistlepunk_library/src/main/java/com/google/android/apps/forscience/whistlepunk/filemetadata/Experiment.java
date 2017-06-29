@@ -296,10 +296,10 @@ public class Experiment extends LabelListHolder {
      */
     public void deleteContents(Context context) {
         for (Label label : getLabels()) {
-            deleteLabel(label, context);
+            deleteLabelAssets(label, context, getExperimentId());
         }
         for (Trial trial : getTrials()) {
-            deleteTrial(trial, context);
+            trial.deleteContents(context, getExperimentId());
         }
     }
 

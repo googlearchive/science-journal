@@ -440,7 +440,7 @@ public class ExperimentDetailsFragment extends Fragment
             getActivity().invalidateOptionsMenu();
             return true;
         } else if (itemId == R.id.action_delete_experiment) {
-            confirmDelete();
+            confirmDeleteExperiment();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -604,6 +604,26 @@ public class ExperimentDetailsFragment extends Fragment
                         TrackerConstants.getLabelValueType(item));
     }
 
+    private void setTrialArchived(Trial trial, boolean toArchive) {
+        trial.setArchived(toArchive);
+        mExperiment.updateTrial(trial);
+        RxDataController.updateExperiment(getDataController(), mExperiment).subscribe(() -> {
+            mAdapter.onTrialArchivedStateChanged(trial, mIncludeArchived);
+            WhistlePunkApplication.getUsageTracker(getActivity())
+                    .trackEvent(TrackerConstants.CATEGORY_RUNS,
+                            toArchive ? TrackerConstants.ACTION_ARCHIVE :
+                                    TrackerConstants.ACTION_UNARCHIVE,
+                            null, 0);
+        });
+    }
+
+    private void deleteTrial(Trial trial) {
+        DeleteMetadataItemDialog dialog = DeleteMetadataItemDialog.newInstance(
+                R.string.delete_run_dialog_title, R.string.run_review_delete_confirm,
+                trial.getTrialId());
+        dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
+    }
+
     @Override
     public boolean handleMessage(Message msg) {
         if (msg.what == MSG_SHOW_FEATURE_DISCOVERY) {
@@ -634,7 +654,7 @@ public class ExperimentDetailsFragment extends Fragment
                 FeatureDiscoveryProvider.FEATURE_OBSERVE_FAB, TAG);
     }
 
-    private void confirmDelete() {
+    private void confirmDeleteExperiment() {
         DeleteMetadataItemDialog dialog = DeleteMetadataItemDialog.newInstance(
                 R.string.delete_experiment_dialog_title, R.string.delete_experiment_dialog_message);
         dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
@@ -642,13 +662,21 @@ public class ExperimentDetailsFragment extends Fragment
 
     @Override
     public void requestDelete(Bundle extras) {
-        getDataController().deleteExperiment(mExperiment, new LoggingConsumer<Success>(TAG,
-                "Delete experiment") {
-            @Override
-            public void success(Success value) {
-                getActivity().finish();
-            }
-        });
+        String trialId = extras.getString(DeleteMetadataItemDialog.KEY_TRIAL_ID);
+        if (!TextUtils.isEmpty(trialId)) {
+            // Then we were trying to delete a trial.
+            mExperiment.deleteTrial(mExperiment.getTrial(trialId), getActivity());
+            RxDataController.updateExperiment(getDataController(), mExperiment).subscribe(() ->
+                    mAdapter.onTrialDeleted(trialId));
+        } else {
+            getDataController().deleteExperiment(mExperiment,
+                    new LoggingConsumer<Success>(TAG, "Delete experiment") {
+                @Override
+                public void success(Success value) {
+                    getActivity().finish();
+                }
+            });
+        }
     }
 
     private void setToolbarScrollFlags(boolean emptyView) {
@@ -821,20 +849,11 @@ public class ExperimentDetailsFragment extends Fragment
                 Context context = holder.menuButton.getContext();
                 PopupMenu popup = new PopupMenu(context, holder.menuButton);
                 // TODO: Inflate different menu for trial card? What does the menu include?
-                popup.getMenuInflater().inflate(R.menu.menu_experiment_note, popup.getMenu());
-                popup.setOnMenuItemClickListener(menuItem -> {
-                    if (item.getViewType() == VIEW_TYPE_RUN_CARD) {
-                        // TODO: Menu actions for trial card?
-                    } else {
-                        if (menuItem.getItemId() == R.id.btn_delete_note) {
-                            if (mParentReference.get() != null) {
-                                mParentReference.get().deleteLabel(item.getLabel());
-                            }
-                            return true;
-                        }
-                    }
-                    return false;
-                });
+                if (item.getViewType() == VIEW_TYPE_RUN_CARD) {
+                     setupTrialMenu(item, popup);
+                } else {
+                    setupNoteMenu(item, popup);
+                }
                 popup.show();
             });
         }
@@ -848,6 +867,42 @@ public class ExperimentDetailsFragment extends Fragment
                 holder.captionView.setVisibility(View.GONE);
                 holder.captionIcon.setVisibility(View.VISIBLE);
             }
+        }
+
+        private void setupTrialMenu(ExperimentDetailItem item, PopupMenu popup) {
+            popup.getMenuInflater().inflate(R.menu.menu_experiment_trial, popup.getMenu());
+            boolean archived = item.getTrial().isArchived();
+            popup.getMenu().findItem(R.id.menu_item_archive).setVisible(!archived);
+            popup.getMenu().findItem(R.id.menu_item_unarchive).setVisible(archived);
+            popup.getMenu().findItem(R.id.menu_item_delete).setEnabled(archived);
+            popup.setOnMenuItemClickListener(menuItem -> {
+                if (menuItem.getItemId() == R.id.menu_item_archive) {
+                    mParentReference.get().setTrialArchived(item.getTrial(), true);
+                    return true;
+                } else if (menuItem.getItemId() == R.id.menu_item_unarchive) {
+                    mParentReference.get().setTrialArchived(item.getTrial(), false);
+                    return true;
+                } else if (menuItem.getItemId() == R.id.menu_item_delete) {
+                    if (mParentReference.get() != null) {
+                        mParentReference.get().deleteTrial(item.getTrial());
+                    }
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        private void setupNoteMenu(ExperimentDetailItem item, PopupMenu popup) {
+            popup.getMenuInflater().inflate(R.menu.menu_experiment_note, popup.getMenu());
+            popup.setOnMenuItemClickListener(menuItem -> {
+                if (menuItem.getItemId() == R.id.btn_delete_note) {
+                    if (mParentReference.get() != null) {
+                        mParentReference.get().deleteLabel(item.getLabel());
+                    }
+                    return true;
+                }
+                return false;
+            });
         }
 
         public void deleteNote(Label label) {
@@ -876,6 +931,39 @@ public class ExperimentDetailsFragment extends Fragment
                 }
             }
             return position;
+        }
+
+        public void onTrialArchivedStateChanged(Trial trial, boolean includeArchived) {
+            int position = findTrialIndex(trial.getTrialId());
+            if (position != -1) {
+                if (includeArchived) {
+                    notifyItemChanged(position);
+                } else {
+                    // It shouldn't be in the list any more.
+                    mItems.remove(position);
+                    notifyItemRemoved(position);
+                }
+            }
+        }
+
+        public void onTrialDeleted(String trialId) {
+            int position = findTrialIndex(trialId);
+            if (position != -1) {
+                mItems.remove(position);
+                notifyItemRemoved(position);
+            }
+        }
+
+        private int findTrialIndex(String trialId) {
+            for (int i = 0; i < mItems.size(); i++) {
+                ExperimentDetailItem item = mItems.get(i);
+                if (item.getViewType() == VIEW_TYPE_RUN_CARD) {
+                    if (TextUtils.equals(item.getTrial().getTrialId(), trialId)) {
+                        return i;
+                    }
+                }
+            }
+            return -1;
         }
 
         public void insertNote(Label label) {
@@ -1347,5 +1435,4 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
     }
-
 }

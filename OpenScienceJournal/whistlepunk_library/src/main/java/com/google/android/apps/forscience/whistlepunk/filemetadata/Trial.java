@@ -294,7 +294,7 @@ public class Trial extends LabelListHolder {
      */
     public void deleteContents(Context context, String experimentId) {
         for (Label label : mLabels) {
-            deleteLabel(label, context, experimentId);
+            deleteLabelAssets(label, context, experimentId);
         }
         AppSingleton.getInstance(context).getDataController().deleteTrialData(this,
                 MaybeConsumers.expectSuccess(new FailureListener() {
