@@ -16,29 +16,23 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
-import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
-import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.TestData;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ExplicitExecutor;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig
         .ScaleTransform;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.RunStats;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
@@ -51,6 +45,8 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
+
+import static org.junit.Assert.assertEquals;
 
 public class ScalarSensorTest {
     private final MemoryMetadataManager mMetadata = new MemoryMetadataManager();
@@ -327,7 +323,9 @@ public class ScalarSensorTest {
     public void testZoomUpTwoTiers() {
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = "test";
-        Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[]{layout});
+        Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[]{layout},
+                new FakeUnitAppearanceProvider(),
+                null);
 
         ManualSensor sensor = new ManualSensor("test", 1000, 5);
         SensorRecorder recorder = createRecorder(sensor);
@@ -349,7 +347,8 @@ public class ScalarSensorTest {
         assertEquals(3.0, stats.getStatValue(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, -1),
                 0.001);
 
-        Trial trial2 = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[]{layout});
+        Trial trial2 = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[]{layout},
+                new FakeUnitAppearanceProvider(), null);
 
         recorder.startRecording(trial2.getTrialId());
         sensor.pushValue(200, 0);

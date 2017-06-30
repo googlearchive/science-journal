@@ -18,12 +18,13 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.test.AndroidTestCase;
 
+import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.protobuf.nano.MessageNano;
 
 import java.util.Collections;
@@ -145,8 +146,11 @@ public class ExperimentTest extends AndroidTestCase {
                 new GoosciUserMetadata.ExperimentOverview());
 
         // New trials are invalid -- no end time.
-        experiment.addTrial(Trial.newTrial(10, null));
-        experiment.addTrial(Trial.newTrial(20, null));
+        GoosciSensorLayout.SensorLayout[] noLayouts = new GoosciSensorLayout.SensorLayout[0];
+        experiment.addTrial(
+                Trial.newTrial(10, noLayouts, new FakeAppearanceProvider(), getContext()));
+        experiment.addTrial(
+                Trial.newTrial(20, noLayouts, new FakeAppearanceProvider(), getContext()));
 
         assertEquals(experiment.getTrials().size(), 2);
         assertEquals(experiment.getTrials(true,  /* include invalid */ true).size(), 2);

@@ -17,11 +17,9 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.content.Context;
 
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
+import com.google.android.apps.forscience.whistlepunk.MemoryAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
@@ -29,32 +27,12 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInpu
 import org.junit.Test;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
 public class ConnectableSensorTest {
     private ConnectableSensor.Connector mConnector =
             new ConnectableSensor.Connector(new HashMap<>());
-
-    public static class MemoryAppearanceProvider implements SensorAppearanceProvider {
-        private Map<String, SensorAppearance> mAppearances = new HashMap<>();
-
-        public void putAppearance(String sensorId, SensorAppearance appearance) {
-            mAppearances.put(sensorId, appearance);
-        }
-
-        @Override
-        public void loadAppearances(MaybeConsumer<Success> onSuccess) {
-            onSuccess.success(Success.SUCCESS);
-        }
-
-        @Override
-        public SensorAppearance getAppearance(String sensorId) {
-            return mAppearances.get(sensorId);
-        }
-
-    }
 
     @Test
     public void getNameExternal() {
