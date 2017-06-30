@@ -38,7 +38,6 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -225,31 +224,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateRecorderControllerForResume() {
-        AppSingleton.getInstance(this).withRecorderController(TAG,
-                new Consumer<RecorderController>() {
-                    @Override
-                    public void take(RecorderController rc) {
-                        mRecordingStateListenerId =
-                                rc.addRecordingStateListener(mRecordingStateListener);
-                        rc.setRecordActivityInForeground(true);
-                    }
-                });
+        RecorderController rc = AppSingleton.getInstance(this).getRecorderController();
+        mRecordingStateListenerId = rc.addRecordingStateListener(mRecordingStateListener);
+        rc.setRecordActivityInForeground(true);
     }
 
     private void updateRecorderControllerForPause() {
         AppSingleton singleton = AppSingleton.getInstance(this);
-        singleton.withRecorderController(TAG,
-                new Consumer<RecorderController>() {
-                    @Override
-                    public void take(RecorderController rc) {
-                        if (mRecordingStateListenerId != RecorderController.NO_LISTENER_ID) {
-                            rc.removeRecordingStateListener(mRecordingStateListenerId);
-                            mRecordingStateListenerId = RecorderController.NO_LISTENER_ID;
-                        }
-                        rc.setRecordActivityInForeground(false);
-                    }
-                });
-        singleton.removeListeners(TAG);
+        RecorderController rc = singleton.getRecorderController();
+        if (mRecordingStateListenerId != RecorderController.NO_LISTENER_ID) {
+            rc.removeRecordingStateListener(mRecordingStateListenerId);
+            mRecordingStateListenerId = RecorderController.NO_LISTENER_ID;
+        }
+        rc.setRecordActivityInForeground(false);
     }
 
     /**
@@ -425,15 +412,9 @@ public class MainActivity extends AppCompatActivity
                                 grantResults[0] == PackageManager.PERMISSION_GRANTED;
         switch (requestCode) {
             case PERMISSIONS_AUDIO_RECORD_REQUEST:
-                AppSingleton.getInstance(this).withRecorderController(TAG,
-                        new Consumer<RecorderController>() {
-                            @Override
-                            public void take(RecorderController rc) {
-                                if (mRecordFragment != null) {
-                                    mRecordFragment.audioPermissionGranted(granted);
-                                }
-                            }
-                        });
+                if (mRecordFragment != null) {
+                    mRecordFragment.audioPermissionGranted(granted);
+                }
                 return;
             default:
                 PictureUtils.onRequestPermissionsResult(requestCode, permissions, grantResults,

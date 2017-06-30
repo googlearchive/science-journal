@@ -24,7 +24,6 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleClientImpl;
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
@@ -35,8 +34,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
-import io.reactivex.Single;
 
 public class AppSingleton {
     private static final String SENSOR_DATABASE_NAME = "sensors.db";
@@ -160,11 +157,6 @@ public class AppSingleton {
         }
     }
 
-    // TODO: proxy through service instead
-    // Right now, the main app thread owns the recorder controller, which is exposed to other apps
-    // through the RecorderService.  We want to eventually swap this, so that the service owns the
-    // controller, at which point the app thread will need to only get to the controller
-    // asynchronously through withRecorderController below.
     public RecorderController getRecorderController() {
         if (mRecorderController == null) {
             mRecorderController = new RecorderControllerImpl(mApplicationContext);
@@ -172,47 +164,10 @@ public class AppSingleton {
         return mRecorderController;
     }
 
-    /**
-     * Request action to be taken when the RecorderController is connected
-     *
-     * @param tag can be used to cancel the request using {@link #removeListeners(String)} below.
-     * @param c consumer that will have the RecorderController delivered, either immediately,
-     *          or on the main thread when it becomes available.
-     */
-    // TODO: prefer whenRecorderController everywhere
-    public void withRecorderController(String tag, Consumer<RecorderController> c) {
-        whenRecorderController().subscribe(rc -> c.take(rc));
-    }
-
-    /**
-     * Connect to and return the RecorderController {@see #getRecorderController}.
-     *
-     * Current code convention is to treat this as immediate, that is, no unsubscribe is needed.
-     */
-    public Single<RecorderController> whenRecorderController() {
-        return Single.just(getRecorderController());
-    }
-
-    /**
-     * Cancel all operations that were submitted with the given tag
-     *
-     * @param tag
-     */
-    public void removeListeners(String tag) {
-        // TODO: once we have asynchronous connection to the remote RecorderController, we may
-        // have fragments that come and go without ever seeing the RecorderController, which will
-        // need to be dropped here.
-    }
-
     public SensorRegistry getSensorRegistry() {
         if (mSensorRegistry == null) {
             mSensorRegistry = SensorRegistry.createWithBuiltinSensors(mApplicationContext);
-            withRecorderController(TAG, new Consumer<RecorderController>() {
-                @Override
-                public void take(RecorderController rc) {
-                    mSensorRegistry.setSensorRegistryListener(rc);
-                }
-            });
+            mSensorRegistry.setSensorRegistryListener(getRecorderController());
         }
         return mSensorRegistry;
     }

@@ -18,10 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.project;
 
 import android.support.v7.app.AppCompatActivity;
 
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
-import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
 /**
  * Activity which should not be usable if we are currently recording.
@@ -34,30 +32,21 @@ public class MetadataActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        AppSingleton.getInstance(this).withRecorderController(TAG,
-                new Consumer<RecorderController>() {
-                    @Override
-                    public void take(final RecorderController recorderController) {
-                        RecorderController.RecordingStateListener listener =
-                                new RecorderController.RecordingStateListener() {
-                                    @Override
-                                    public void onRecordingStateChanged(
-                                            RecordingMetadata currentRecording) {
-                                        if (mRecorderListenerId
-                                            != RecorderController.NO_LISTENER_ID) {
-                                            recorderController.removeRecordingStateListener(
-                                                    mRecorderListenerId);
-                                            mRecorderListenerId = RecorderController.NO_LISTENER_ID;
-                                        }
-                                        if (currentRecording != null) {
-                                            finish();
-                                        }
-                                    }
-                                };
+        final RecorderController recorderController =
+                AppSingleton.getInstance(this).getRecorderController();
 
-                        mRecorderListenerId =
-                                recorderController.addRecordingStateListener(listener);
-                    }
-                });
+        RecorderController.RecordingStateListener listener = currentRecording -> {
+            if (mRecorderListenerId
+                != RecorderController.NO_LISTENER_ID) {
+                recorderController.removeRecordingStateListener(
+                        mRecorderListenerId);
+                mRecorderListenerId = RecorderController.NO_LISTENER_ID;
+            }
+            if (currentRecording != null) {
+                finish();
+            }
+        };
+
+        mRecorderListenerId = recorderController.addRecordingStateListener(listener);
     }
 }
