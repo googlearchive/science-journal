@@ -37,6 +37,12 @@
                 android:icon="@drawable/ic_check_box_black_24dp"
                 app:showAsAction="ifRoom"
                 />
+            <item
+                android:id="@+id/action_launch_legacy"
+                android:orderInCategory="1000"
+                android:title="DEBUG: Legacy observe view"
+                app:showAsAction="never"
+                />
         </menu>
     </item>
 </menu>

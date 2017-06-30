@@ -104,7 +104,8 @@ public class MainActivity extends AppCompatActivity
         mFeedbackProvider = WhistlePunkApplication.getFeedbackProvider(this);
 
         Bundle extras = getIntent().getExtras();
-        int selectedNavItemId = R.id.navigation_item_observe;
+        int selectedNavItemId =
+                shouldUsePanes() ? R.id.navigation_item_experiments : R.id.navigation_item_observe;
 
         int savedItemId = getSavedItemId(savedInstanceState);
         if (savedItemId != NO_SELECTED_ITEM) {
@@ -121,14 +122,11 @@ public class MainActivity extends AppCompatActivity
         mNavigationView.setCheckedItem(selectedNavItemId);
         onNavigationItemSelected(item);
 
-        mRecordingStateListener = new RecorderController.RecordingStateListener() {
-            @Override
-            public void onRecordingStateChanged(RecordingMetadata recording) {
-                mNavigationView.getMenu().findItem(R.id.navigation_item_experiments).setEnabled(
-                        recording == null);
-                mIsRecording = recording != null;
-                exitMetadataIfNeeded();
-            }
+        mRecordingStateListener = recording -> {
+            mNavigationView.getMenu().findItem(R.id.navigation_item_experiments).setEnabled(
+                    recording == null);
+            mIsRecording = recording != null;
+            exitMetadataIfNeeded();
         };
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -375,7 +373,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private boolean shouldUsePanes() {
-        return getIntent().getBooleanExtra(ARG_USE_PANES, false);
+        return getIntent().getBooleanExtra(ARG_USE_PANES, true);
     }
 
     private void adjustActivityForSelectedItem(int itemId) {

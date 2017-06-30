@@ -86,14 +86,8 @@
             android:name=".PanesActivity"
             android:label="Panes Science Journal"
             android:theme="@style/AppTheme.Panes"
-            android:launchMode = "singleTop"
-            >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
+            android:launchMode="singleTop"
+            />
         <activity
             android:name=".RulerActivity"
             android:exported="false"

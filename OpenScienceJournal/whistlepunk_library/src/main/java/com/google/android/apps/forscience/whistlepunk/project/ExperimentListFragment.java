@@ -42,7 +42,9 @@ import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
+import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -152,7 +154,7 @@ public class ExperimentListFragment extends Fragment {
     }
 
     private boolean shouldUsePanes() {
-        return getArguments().getBoolean(ARG_USE_PANES, false);
+        return getArguments().getBoolean(ARG_USE_PANES, true);
     }
 
     private void loadExperiments() {
@@ -188,6 +190,8 @@ public class ExperimentListFragment extends Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
         menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
+        menu.findItem(R.id.action_launch_legacy)
+            .setVisible(DevOptionsFragment.isDevToolsEnabled(getActivity()));
     }
 
     @Override
@@ -203,6 +207,9 @@ public class ExperimentListFragment extends Fragment {
             loadExperiments();
             getActivity().invalidateOptionsMenu();
             return true;
+        } else if (id == R.id.action_launch_legacy) {
+            getActivity().startActivity(
+                    MainActivity.launchIntent(getActivity(), R.id.navigation_item_observe, false));
         }
         return super.onOptionsItemSelected(item);
     }
