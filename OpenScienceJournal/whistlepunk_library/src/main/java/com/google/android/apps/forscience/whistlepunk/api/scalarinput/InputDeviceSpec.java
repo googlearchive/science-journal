@@ -25,14 +25,18 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.InputDevice;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.html.HtmlEscapers;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -96,11 +100,14 @@ public class InputDeviceSpec extends ExternalSensorSpec {
     private String mName;
     private InputDevice.InputDeviceConfig mConfig;
 
-    // TODO: needs a proto to survive round-trip!
+    public static InputDeviceSpec fromProto(GoosciDeviceSpec.DeviceSpec proto) {
+        return new InputDeviceSpec(proto.info.providerId, proto.info.address, proto.name);
+    }
+
     public InputDeviceSpec(String providerType, String deviceAddress, String deviceName) {
         mConfig = new InputDevice.InputDeviceConfig();
         mConfig.providerId = providerType;
-        mConfig.deviceAddress = deviceAddress;
+        mConfig.deviceAddress = Preconditions.checkNotNull(deviceAddress);
         mName = deviceName;
     }
 
@@ -195,5 +202,20 @@ public class InputDeviceSpec extends ExternalSensorSpec {
     @Override
     public String getGlobalDeviceAddress() {
         return InputDeviceSpec.joinAddresses(getProviderType(), getDeviceAddress());
+    }
+
+    public GoosciDeviceSpec.DeviceSpec asDeviceSpec() {
+        GoosciDeviceSpec.DeviceSpec deviceSpec = new GoosciDeviceSpec.DeviceSpec();
+        deviceSpec.info = getGadgetInfo(getDeviceAddress());
+        deviceSpec.name = getName();
+        return deviceSpec;
+    }
+
+    public static List<InputDeviceSpec> fromProtos(List<GoosciDeviceSpec.DeviceSpec> protos) {
+        List<InputDeviceSpec> specs = new ArrayList<>(protos.size());
+        for (GoosciDeviceSpec.DeviceSpec proto : protos) {
+            specs.add(InputDeviceSpec.fromProto(proto));
+        }
+        return specs;
     }
 }

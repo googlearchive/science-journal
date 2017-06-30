@@ -22,12 +22,13 @@ import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.Clock;
-import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
@@ -66,7 +67,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         public void advanceClock() {
             testTime++;
         }
-    };
+    }
 
     public void setUp() {
         mMetaDataManager = makeMetaDataManager();
@@ -220,7 +221,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testAddRemoveExternalSensor() {
-        Map<String,SensorProvider> providerMap = getProviderMap();
+        Map<String, SensorProvider> providerMap = getProviderMap();
         Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExternalSensors(providerMap);
         assertEquals(0, sensors.size());
 
@@ -452,7 +453,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testExternalSensorOrder() {
-        Map<String,SensorProvider> providerMap = getProviderMap();
+        Map<String, SensorProvider> providerMap = getProviderMap();
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providerMap);
         String id1 = mMetaDataManager.addOrGetExternalSensor(new BleSensorSpec("address1", "name1"),
                 providerMap);
@@ -471,7 +472,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testExternalSensorDuplication() {
-        Map<String,SensorProvider> providerMap = getProviderMap();
+        Map<String, SensorProvider> providerMap = getProviderMap();
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providerMap);
         String id1 = mMetaDataManager.addOrGetExternalSensor(new BleSensorSpec("address1", "name1"),
                 providerMap);
@@ -498,14 +499,18 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         mMetaDataManager.addMyDevice(device2);
         assertEquals(2, mMetaDataManager.getMyDevices().size());
 
-        assertTrue(device1.isSameSensor(mMetaDataManager.getMyDevices().get(0)));
-        assertTrue(device2.isSameSensor(mMetaDataManager.getMyDevices().get(1)));
+        assertSameSensor(device1, mMetaDataManager.getMyDevices().get(0));
+        assertSameSensor(device2, mMetaDataManager.getMyDevices().get(1));
 
         mMetaDataManager.removeMyDevice(device1);
         assertEquals(1, mMetaDataManager.getMyDevices().size());
 
         mMetaDataManager.removeMyDevice(device2);
         assertEquals(0, mMetaDataManager.getMyDevices().size());
+    }
+
+    private void assertSameSensor(InputDeviceSpec expected, InputDeviceSpec actual) {
+        assertTrue(expected + " != " + actual, expected.isSameSensor(actual));
     }
 
     public void testNewProject() {
@@ -560,6 +565,20 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertTrue(secondExpResult.getDisplayTitle(getContext()).startsWith(
                 "Title"));
         assertTrue(secondExpResult.isArchived());
+    }
+
+    public void testMyDevicesMigrate() {
+        mMetaDataManager.databaseAddMyDevice(new InputDeviceSpec("provider", "address", "name"));
+        assertEquals(0, mMetaDataManager.fileGetMyDevices().size());
+        assertEquals(1, mMetaDataManager.databaseGetMyDevices().size());
+        mMetaDataManager.migrateMyDevices();
+
+        // none left in database
+        assertEquals(0, mMetaDataManager.databaseGetMyDevices().size());
+
+        List<GoosciDeviceSpec.DeviceSpec> myDevices = mMetaDataManager.fileGetMyDevices();
+        assertEquals(1, myDevices.size());
+        assertEquals("name", myDevices.get(0).name);
     }
 
     private List<String> getIds(List<GoosciSensorLayout.SensorLayout> layouts) {

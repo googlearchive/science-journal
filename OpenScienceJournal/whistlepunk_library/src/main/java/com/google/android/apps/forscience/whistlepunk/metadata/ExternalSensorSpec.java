@@ -16,10 +16,11 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
@@ -168,13 +169,25 @@ public abstract class ExternalSensorSpec {
     public GoosciSensorSpec.SensorSpec asGoosciSpec() {
         // TODO: fill in other fields here?  hostDescription?  hostId?
         GoosciSensorSpec.SensorSpec spec = new GoosciSensorSpec.SensorSpec();
-        spec.info = new GoosciGadgetInfo.GadgetInfo();
-        spec.info.providerId = getType();
-        spec.info.address = getAddress();
+        spec.info = getGadgetInfo(getAddress());
         spec.rememberedAppearance = new GoosciSensorAppearance.BasicSensorAppearance();
         spec.rememberedAppearance.name = getName();
         spec.config = getConfig();
         return spec;
+    }
+
+    /**
+     * @return a gadget info for the connected gadget.  To get complete info for the sensor this
+     * spec represents, pass in {@link #getAddress()}.  For the device, pass in
+     * {@link #getDeviceAddress()}.
+     */
+    @NonNull
+    public GoosciGadgetInfo.GadgetInfo getGadgetInfo(String address) {
+        // TODO: fill in other gadget info fields
+        GoosciGadgetInfo.GadgetInfo gadgetInfo = new GoosciGadgetInfo.GadgetInfo();
+        gadgetInfo.providerId = getType();
+        gadgetInfo.address = address;
+        return gadgetInfo;
     }
 
     public static ExternalSensorSpec fromGoosciSpec(GoosciSensorSpec.SensorSpec spec,

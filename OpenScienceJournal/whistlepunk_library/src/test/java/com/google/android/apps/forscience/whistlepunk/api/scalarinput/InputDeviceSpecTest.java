@@ -15,6 +15,10 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.data.InputDevice;
+
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -32,5 +36,14 @@ public class InputDeviceSpecTest {
         InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "serviceId_deviceId",
                 "Device Name");
         assertEquals("Device Name", spec.getSensorAppearance().getName(null));
+    }
+
+
+    @Test public void providerIdFromProto() {
+        GoosciDeviceSpec.DeviceSpec proto = new GoosciDeviceSpec.DeviceSpec();
+        proto.info = new GoosciGadgetInfo.GadgetInfo();
+        proto.info.providerId = "providerId";
+        InputDeviceSpec spec = InputDeviceSpec.fromProto(proto);
+        assertEquals("providerId", spec.getProviderType());
     }
 }

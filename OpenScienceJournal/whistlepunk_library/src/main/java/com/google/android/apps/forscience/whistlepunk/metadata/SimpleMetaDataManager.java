@@ -38,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -203,7 +204,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     private void migrateMyDevicesToProto(SQLiteDatabase db) {
-        // TODO: implement!
+        List<InputDeviceSpec> devices = databaseGetMyDevices(db);
+        for (InputDeviceSpec device : devices) {
+            String sensorId = getExternalSensorId(device, db);
+            if (sensorId != null) {
+                databaseRemoveMyDevice(sensorId, db);
+                mFileMetadataManager.addMyDevice(device.asDeviceSpec());
+            }
+        }
     }
 
     /**
@@ -1583,7 +1591,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         databaseAddMyDevice(deviceSpec);
     }
 
-    private void databaseAddMyDevice(InputDeviceSpec deviceSpec) {
+    @VisibleForTesting
+    public void databaseAddMyDevice(InputDeviceSpec deviceSpec) {
         String deviceId = addOrGetExternalSensor(deviceSpec, InputDeviceSpec.PROVIDER_MAP);
         ContentValues values = new ContentValues();
         values.put(MyDevicesColumns.DEVICE_ID, deviceId);
@@ -1599,7 +1608,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         databaseRemoveMyDevice(deviceSpec);
     }
 
-    private void databaseRemoveMyDevice(InputDeviceSpec deviceSpec) {
+    public void databaseRemoveMyDevice(InputDeviceSpec deviceSpec) {
         String deviceId = addOrGetExternalSensor(deviceSpec, InputDeviceSpec.PROVIDER_MAP);
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -1617,8 +1626,13 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return databaseGetMyDevices();
     }
 
+    @VisibleForTesting
+    public List<GoosciDeviceSpec.DeviceSpec> fileGetMyDevices() {
+        return mFileMetadataManager.getMyDevices();
+    }
+
     @NonNull
-    private List<InputDeviceSpec> databaseGetMyDevices() {
+    public List<InputDeviceSpec> databaseGetMyDevices() {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
             return databaseGetMyDevices(db);
