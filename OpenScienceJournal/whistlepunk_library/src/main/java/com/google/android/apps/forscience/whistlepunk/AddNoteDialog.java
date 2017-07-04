@@ -56,7 +56,6 @@ import java.io.File;
 import java.util.UUID;
 
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.BehaviorSubject;
@@ -81,7 +80,6 @@ public class AddNoteDialog extends DialogFragment {
             "keySavedTimeTextDescription";
 
     private String mUuid;
-    private DataService.FragmentBinder mDataBinder = new DataService.FragmentBinder();
 
     public static abstract class AddNoteDialogListener {
         static AddNoteDialogListener NULL = new AddNoteDialogListener() {
@@ -144,16 +142,6 @@ public class AddNoteDialog extends DialogFragment {
     private String mPictureLabelPath;
     private EditText mInput;
     private BehaviorSubject<String> mWhenExperimentId = BehaviorSubject.create();
-
-    private Observable<Experiment> mWhenExperiment =
-
-            // when the experiment id changes,
-            mWhenExperimentId
-                    // connect to datacontroller
-                    .flatMapSingle(id -> whenDataController()
-                            // and load experiment
-                            .flatMapSingle(dc -> RxDataController.getExperimentById(dc, id)))
-                    .doOnError(LoggingConsumer.complain(TAG, "get experiment"));
 
     CompositeDisposable mUntilDestroyed = new CompositeDisposable();
 
@@ -276,11 +264,18 @@ public class AddNoteDialog extends DialogFragment {
             dialog.getWindow().setSoftInputMode(
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
-        // Set the click listener for the postive button separately so we can control when the
-        // dialog closes. This allows us to not close the dialog in the case of an error.
-        dialog.setOnShowListener(
-                dialogInterface -> dialog.getButton(DialogInterface.BUTTON_POSITIVE)
-                        .setOnClickListener(view -> addLabel()));
+
+
+        Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        button.setEnabled(false);
+
+        whenExperiment(button.getContext()).subscribe(experiment ->
+                // Set the click listener for the postive button separately so we can control
+                // when the dialog closes. This allows us to not close the dialog in the case of
+                // an error.
+                dialog.setOnShowListener(
+                        dialogInterface -> button.setOnClickListener(
+                                view -> addLabel(getActivity(), experiment))));
         return dialog;
     }
 
@@ -309,7 +304,6 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     private void internalOnAttach(Context context) {
-        mDataBinder.onAttach(context);
         if (context instanceof ListenerProvider) {
             mListener = ((ListenerProvider) context).getAddNoteDialogListener();
         }
@@ -341,7 +335,7 @@ public class AddNoteDialog extends DialogFragment {
                 mListener.whenExperimentId().toObservable().subscribe(mWhenExperimentId);
             }
 
-            mUntilDestroyed.add(mWhenExperiment.subscribe(
+            mUntilDestroyed.add(whenExperiment(inflater.getContext()).subscribe(
                     exp -> updatePositiveButtonEnabled((AlertDialog) getDialog(), true)));
 
             if (getArguments().containsKey(KEY_SAVED_TIME_TEXT_DESCRIPTION)) {
@@ -373,11 +367,13 @@ public class AddNoteDialog extends DialogFragment {
 
         if (nativeSaveButton) {
             Button button = (Button) addNoteView.findViewById(R.id.create_note);
-            button.setVisibility(View.VISIBLE);
-            button.setOnClickListener(v -> {
-                addLabel();
-                hideKeyboard(v);
-            });
+            whenExperiment(button.getContext()).subscribe(experiment -> {
+                        button.setVisibility(View.VISIBLE);
+                        button.setOnClickListener(v -> {
+                            addLabel(button.getContext(), experiment);
+                            hideKeyboard(v);
+                        });
+                    });
         }
 
         return addNoteView;
@@ -411,8 +407,8 @@ public class AddNoteDialog extends DialogFragment {
                 timestampSection.setContentDescription(mLabelTimeTextDescription);
             }
             timestampSection.setOnClickListener(v -> {
-                getTimestamp().subscribe(
-                        t -> mListener.onAddNoteTimestampClicked(getCurrentValue(), t));
+                mListener.onAddNoteTimestampClicked(getCurrentValue(),
+                        getTimestamp(timestampSection.getContext()));
             });
         } else {
             rootView.findViewById(R.id.label_dialog_timestamp_section).setVisibility(View.GONE);
@@ -454,7 +450,7 @@ public class AddNoteDialog extends DialogFragment {
 
     private Label getCurrentValue() {
         long timestamp = AppSingleton.getInstance(getActivity())
-                .getSensorEnvironment().getDefaultClock().getNow();
+                                     .getSensorEnvironment().getDefaultClock().getNow();
         if (hasPicture()) {
             GoosciPictureLabelValue.PictureLabelValue labelValue =
                     new GoosciPictureLabelValue.PictureLabelValue();
@@ -483,27 +479,27 @@ public class AddNoteDialog extends DialogFragment {
                 View.VISIBLE : View.GONE);
     }
 
-    private void addLabel() {
-
+    private void addLabel(Context context, Experiment experiment) {
         // Save this as a picture label if it has a picture, otherwise just save it as a text
         // label.
-        getTimestamp().subscribe(t -> {
-            boolean success = false;
-            if (hasPicture()) {
-                success = addPictureLabel(t);
-            } else {
-                success = addTextLabel(t);
+        long t = getTimestamp(context);
+
+        boolean success = false;
+        if (hasPicture()) {
+            success = addPictureLabel(t, experiment);
+        } else {
+            success = addTextLabel(t, experiment);
+        }
+        if (success) {
+            Dialog dialog = getDialog();
+
+            if (dialog != null) {
+                dialog.dismiss();
             }
-            if (success) {
-                Dialog dialog = getDialog();
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-            }
-        });
+        }
     }
 
-    private boolean addTextLabel(long timestamp) {
+    private boolean addTextLabel(long timestamp, Experiment experiment) {
         String text = mInput.getText().toString();
         if (TextUtils.isEmpty(text)) {
             mInput.setError(getResources().getString(R.string.empty_text_note_error));
@@ -514,20 +510,27 @@ public class AddNoteDialog extends DialogFragment {
         mInput.setText("");
         Label label = Label.newLabelWithValue(timestamp, GoosciLabel.Label.TEXT,
                 labelValue, null);
-        addLabel(label);
+        addLabel(label, getDataController(mInput.getContext()), experiment);
         return true;
     }
 
-    private Maybe<Long> getTimestamp() {
+    private DataController getDataController(Context context) {
+        return AppSingleton.getInstance(context).getDataController();
+    }
+
+
+    private long getTimestamp(Context context) {
         if (mUseSavedTimestamp) {
-            return Maybe.just(mTimestamp);
+            return mTimestamp;
         } else {
-            Maybe<AppSingleton> data = mDataBinder.bind();
-            return data.map(s -> s.getSensorEnvironment().getDefaultClock().getNow());
+            return AppSingleton.getInstance(context)
+                               .getSensorEnvironment()
+                               .getDefaultClock()
+                               .getNow();
         }
     }
 
-    private boolean addPictureLabel(long timestamp) {
+    private boolean addPictureLabel(long timestamp, Experiment experiment) {
         GoosciPictureLabelValue.PictureLabelValue labelValue = new GoosciPictureLabelValue
                 .PictureLabelValue();
         labelValue.filePath = mPictureLabelPath;
@@ -537,26 +540,24 @@ public class AddNoteDialog extends DialogFragment {
         caption.text = mInput.getText().toString();
         caption.lastEditedTimestamp = label.getCreationTimeMs();
         label.setCaption(caption);
-        addLabel(label);
+        addLabel(label, getDataController(mInput.getContext()), experiment);
         PictureUtils.scanFile(mPictureLabelPath, getActivity());
         mPictureLabelPath = null;
         return true;
     }
 
-    private void addLabel(final Label label) {
+    private void addLabel(final Label label, DataController dc, Experiment experiment) {
         mListener.adjustLabelBeforeAdd(label);
 
-        mWhenExperiment.firstElement().subscribe(experiment -> {
-            // The listener may be cleared by onDetach() before the experiment/trial is written,
-            // so save the MaybeConsumer here as a final var.
-            if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
-                experiment.addLabel(label);
-            } else {
-                experiment.getTrial(mTrialId).addLabel(label);
-            }
-            whenDataController().flatMapSingle(dc -> saveExperiment(dc, experiment, label))
-                                .subscribe(MaybeConsumers.toSingleObserver(mListener.onLabelAdd()));
-        });
+        // The listener may be cleared by onDetach() before the experiment/trial is written,
+        // so save the MaybeConsumer here as a final var.
+        if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
+            experiment.addLabel(label);
+        } else {
+            experiment.getTrial(mTrialId).addLabel(label);
+        }
+        saveExperiment(dc, experiment, label).subscribe(
+                MaybeConsumers.toSingleObserver(mListener.onLabelAdd()));
     }
 
     /**
@@ -566,10 +567,6 @@ public class AddNoteDialog extends DialogFragment {
             final Label label) {
         return RxDataController.updateExperiment(dataController, experiment)
                                .andThen(Single.just(label));
-    }
-
-    private Maybe<DataController> whenDataController() {
-        return mDataBinder.bind().map(s -> s.getDataController());
     }
 
     @Override
@@ -615,5 +612,12 @@ public class AddNoteDialog extends DialogFragment {
             mPictureLabelPath = null;
         }
         super.onCancel(dialog);
+    }
+
+    private Single<Experiment> whenExperiment(Context context) {
+        return mWhenExperimentId.firstElement()
+                                .flatMapSingle(id -> RxDataController.getExperimentById(
+                                        getDataController(context), id))
+                                .doOnError(LoggingConsumer.complain(TAG, "get experiment"));
     }
 }
