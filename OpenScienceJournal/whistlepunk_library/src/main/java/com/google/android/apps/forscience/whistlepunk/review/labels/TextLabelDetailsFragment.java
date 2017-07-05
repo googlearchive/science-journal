@@ -44,10 +44,12 @@ import com.jakewharton.rxbinding2.widget.RxTextView;
 public class TextLabelDetailsFragment extends LabelDetailsFragment {
     private EditText mNoteText;
 
-    public static TextLabelDetailsFragment newInstance(String experimentId, Label originalLabel) {
+    public static TextLabelDetailsFragment newInstance(String experimentId,
+            String trialId, Label originalLabel) {
         TextLabelDetailsFragment result = new TextLabelDetailsFragment();
         Bundle args = new Bundle();
         args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
+        args.putString(LabelDetailsActivity.ARG_TRIAL_ID, trialId);
         args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
         result.setArguments(args);
         return result;

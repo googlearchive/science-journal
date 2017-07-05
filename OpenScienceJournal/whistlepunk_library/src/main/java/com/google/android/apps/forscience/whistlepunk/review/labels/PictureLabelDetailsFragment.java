@@ -42,10 +42,11 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 public class PictureLabelDetailsFragment extends LabelDetailsFragment {
 
     public static PictureLabelDetailsFragment newInstance(String experimentId,
-            Label originalLabel) {
+            String trialId, Label originalLabel) {
         PictureLabelDetailsFragment result = new PictureLabelDetailsFragment();
         Bundle args = new Bundle();
         args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
+        args.putString(LabelDetailsActivity.ARG_TRIAL_ID, trialId);
         args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
         result.setArguments(args);
         return result;

@@ -807,7 +807,7 @@ public class ExperimentDetailsFragment extends Fragment
 
                 holder.itemView.setOnClickListener(view -> {
                     if (mParentReference.get() != null) {
-                        LabelDetailsActivity.launch(holder.itemView.getContext(),
+                        LabelDetailsActivity.launchFromExpDetails(holder.itemView.getContext(),
                                 mExperiment.getExperimentId(), label);
                     }
                 });

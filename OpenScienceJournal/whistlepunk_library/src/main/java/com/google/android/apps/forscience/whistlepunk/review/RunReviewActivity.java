@@ -24,7 +24,9 @@ import android.os.Bundle;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderService;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.MetadataActivity;
+import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 
 public class RunReviewActivity extends MetadataActivity {
     public static final String EXTRA_FROM_RECORD = "from_record_activity";
@@ -65,7 +67,9 @@ public class RunReviewActivity extends MetadataActivity {
                     getIntent().getExtras().getString(RunReviewFragment.ARG_EXPERIMENT_ID),
                     getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID),
                     getIntent().getExtras().getInt(RunReviewFragment.ARG_SENSOR_INDEX),
-                    createTask /* create a task when going up */);
+                    createTask /* create a task when going up */,
+                    getIntent().getExtras().getParcelable(
+                            ExperimentDetailsFragment.ARG_DELETED_LABEL));
             getFragmentManager().beginTransaction().add(R.id.container, fragment, FRAGMENT_TAG)
                     .commit();
         }
