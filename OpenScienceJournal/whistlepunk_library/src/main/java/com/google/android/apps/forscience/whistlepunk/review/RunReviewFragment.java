@@ -730,6 +730,11 @@ public class RunReviewFragment extends Fragment implements
             }
 
             @Override
+            public void onLabelDelete(Label item) {
+                deleteLabel(item);
+            }
+
+            @Override
             public void onCaptionEdit(String updatedCaption) {
                 GoosciCaption.Caption caption = new GoosciCaption.Caption();
                 caption.text = updatedCaption;
@@ -809,6 +814,14 @@ public class RunReviewFragment extends Fragment implements
             onLabelDelete(mDeletedLabel);
             mDeletedLabel = null;
         }
+    }
+
+    private void deleteLabel(Label item) {
+        // Delete the item immediately.
+        // TODO: Deleting the assets makes undo not work on photo labels...
+        getTrial().deleteLabel(item, getActivity(), mExperimentId);
+        RxDataController.updateExperiment(getDataController(), mExperiment)
+                .subscribe(() -> onLabelDelete(item));
     }
 
     private void onLabelDelete(Label item) {

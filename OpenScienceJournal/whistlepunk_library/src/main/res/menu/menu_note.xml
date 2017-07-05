@@ -23,4 +23,9 @@
         android:id="@+id/btn_edit_note_time"
         />
 
+    <item
+        android:title="@string/delete_note_menu_item"
+        android:id="@+id/btn_delete_note"
+        />
+
 </menu>
