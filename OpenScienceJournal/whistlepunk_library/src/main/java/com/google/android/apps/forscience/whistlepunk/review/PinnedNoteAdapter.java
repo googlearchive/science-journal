@@ -64,9 +64,6 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // When the user wants to edit a particular label's timestamp.
         void onLabelEditTime(Label item);
 
-        // When a user deletes a particular label.
-        void onLabelDelete(Label item);
-
         // When the user makes a change to the caption -- needs to be saved.
         void onCaptionEdit(String updatedCaption);
     }
@@ -80,6 +77,9 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         // The add label button was clicked.
         void onAddLabelButtonClicked();
+
+        // The label's timestamp section was clicked.
+        void onLabelTimestampClicked(Label item);
     }
 
     public class NoteHolder extends RecyclerView.ViewHolder {
@@ -218,34 +218,39 @@ class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             AccessibilityUtils.setTouchDelegateToMinAccessibleSize(noteHolder.mText);
         }
         if (mEditListener != null) {
-            noteHolder.mMenuButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Context context = noteHolder.mMenuButton.getContext();
-                    PopupMenu popup = new PopupMenu(context, noteHolder.mMenuButton);
-                    popup.getMenuInflater().inflate(R.menu.menu_note, popup.getMenu());
-                    if (!label.canEditTimestamp()) {
-                        popup.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
-                    }
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        public boolean onMenuItemClick(MenuItem item) {
-                            int itemId = item.getItemId();
-                            if (itemId == R.id.btn_edit_note_time) {
-                                mEditListener.onLabelEditTime(label);
-                                return true;
-                            } else if (itemId == R.id.btn_delete_note) {
-                                mEditListener.onLabelDelete(label);
-                                return true;
+            if (!label.canEditTimestamp()) {
+                noteHolder.mMenuButton.setVisibility(View.GONE);
+            } else {
+                noteHolder.mMenuButton.setVisibility(View.VISIBLE);
+                noteHolder.mMenuButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = noteHolder.mMenuButton.getContext();
+                        PopupMenu popup = new PopupMenu(context, noteHolder.mMenuButton);
+                        popup.getMenuInflater().inflate(R.menu.menu_note, popup.getMenu());
+                        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                            public boolean onMenuItemClick(MenuItem item) {
+                                int itemId = item.getItemId();
+                                if (itemId == R.id.btn_edit_note_time) {
+                                    mEditListener.onLabelEditTime(label);
+                                    return true;
+                                }
+                                return false;
                             }
-                            return false;
-                        }
-                    });
-                    popup.show();
-                }
-            });
+                        });
+                        popup.show();
+                    }
+                });
+            }
         }
         // Notes out of range are not clickable.
         if (mStartTimestamp <= label.getTimeStamp() && label.getTimeStamp() < mEndTimestamp) {
+            noteHolder.mDurationText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mClickListener.onLabelTimestampClicked(label);
+                }
+            });
             noteHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

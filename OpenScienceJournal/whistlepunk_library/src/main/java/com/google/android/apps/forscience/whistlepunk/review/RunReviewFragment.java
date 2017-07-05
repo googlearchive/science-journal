@@ -89,6 +89,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.review.EditLabelTimeDialog.EditTimeDialogListener;
+
+import com.google.android.apps.forscience.whistlepunk.review.labels.LabelDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
@@ -158,6 +160,7 @@ public class RunReviewFragment extends Fragment implements
     // Save the savedInstanceState between onCreateView and loading the run data, in case
     // an onPause happens during that time.
     private Bundle mSavedInstanceStateForLoad;
+    private Label mDeletedLabel;
 
     /**
      * Use this factory method to create a new instance of
@@ -169,13 +172,14 @@ public class RunReviewFragment extends Fragment implements
      * @return A new instance of fragment RunReviewFragment.
      */
     public static RunReviewFragment newInstance(String experimentId, String startLabelId,
-            int sensorIndex, boolean createTask) {
+            int sensorIndex, boolean createTask, Label deletedLabel) {
         RunReviewFragment fragment = new RunReviewFragment();
         Bundle args = new Bundle();
         args.putString(ARG_EXPERIMENT_ID, experimentId);
         args.putString(ARG_START_LABEL_ID, startLabelId);
         args.putInt(ARG_SENSOR_INDEX, sensorIndex);
         args.putBoolean(ARG_CREATE_TASK, createTask);
+        args.putParcelable(ExperimentDetailsFragment.ARG_DELETED_LABEL, deletedLabel);
         fragment.setArguments(args);
         return fragment;
     }
@@ -236,6 +240,10 @@ public class RunReviewFragment extends Fragment implements
                 mSelectedSensorIndex = savedInstanceState.getInt(KEY_SELECTED_SENSOR_INDEX);
             }
             mShowStatsOverlay = savedInstanceState.getBoolean(KEY_STATS_OVERLAY_VISIBLE, false);
+        } else {
+            // Only try to restore a deleted label the first time.
+            mDeletedLabel = getArguments().getParcelable(
+                    ExperimentDetailsFragment.ARG_DELETED_LABEL);
         }
         mAudioPlaybackController = new AudioPlaybackController(
                 new AudioPlaybackController.AudioPlaybackListener() {
@@ -722,78 +730,6 @@ public class RunReviewFragment extends Fragment implements
             }
 
             @Override
-            public void onLabelDelete(final Label item) {
-                final DataController dc = getDataController();
-                Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
-                        getActivity().getResources().getString(R.string.snackbar_note_deleted),
-                        Snackbar.LENGTH_SHORT);
-
-                // On undo, re-add the item to the database and the pinned note list.
-                bar.setAction(R.string.snackbar_undo, new View.OnClickListener() {
-                    boolean mUndone = false;
-                    @Override
-                    public void onClick(View v) {
-                        if (mUndone) {
-                            return;
-                        }
-                        mUndone = true;
-                        final Label label = Label.copyOf(item);
-                        label.setTimestamp(item.getTimeStamp());
-                        getTrial().addLabel(label);
-                        dc.updateExperiment(mExperimentId, new MaybeConsumer<Success>() {
-                            @Override
-                            public void fail(Exception e) {
-                                if (Log.isLoggable(TAG, Log.ERROR)) {
-                                    Log.e(TAG, "Failed: re-add deleted label");
-                                }
-                                // It didn't work, so remove the label from the view again.
-                                getTrial().deleteLabel(label, getActivity(), mExperimentId);
-                            }
-
-                            @Override
-                            public void success(Success success) {
-                                // TODO: Somehow re-add the deleted picture here.
-                                mPinnedNoteAdapter.onLabelAdded(label);
-                                mChartController.setLabels(getTrial()
-                                        .getLabels());
-                                WhistlePunkApplication.getUsageTracker(getActivity())
-                                        .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                                TrackerConstants.ACTION_DELETE_UNDO,
-                                                TrackerConstants.LABEL_RUN_REVIEW,
-                                                TrackerConstants.getLabelValueType(item));
-                            }
-                        });
-                    }
-                });
-
-                // Delete the item immediately, and remove it from the pinned note list.
-                // TODO: Deleting the assets makes undo not work on photo labels...
-                getTrial().deleteLabel(item, getActivity(), mExperimentId);
-                dc.updateExperiment(mExperimentId, new MaybeConsumer<Success>() {
-                    @Override
-                    public void fail(Exception e) {
-                        if (Log.isLoggable(TAG, Log.ERROR)) {
-                            Log.e(TAG, "Failed: delete label failed");
-                        }
-                        // It didn't work, so add the label back.
-                        getTrial().addLabel(item);
-                    }
-
-                    @Override
-                    public void success(Success value) {
-                        mPinnedNoteAdapter.notifyDataSetChanged();
-                        mChartController.setLabels(getTrial().getLabels());
-                        WhistlePunkApplication.getUsageTracker(getActivity())
-                                .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                        TrackerConstants.ACTION_DELETED,
-                                        TrackerConstants.LABEL_RUN_REVIEW,
-                                        TrackerConstants.getLabelValueType(item));
-                    }
-                });
-                bar.show();
-            }
-
-            @Override
             public void onCaptionEdit(String updatedCaption) {
                 GoosciCaption.Caption caption = new GoosciCaption.Caption();
                 caption.text = updatedCaption;
@@ -807,8 +743,9 @@ public class RunReviewFragment extends Fragment implements
         mPinnedNoteAdapter.setListItemClickListener(new PinnedNoteAdapter.ListItemClickListener() {
             @Override
             public void onLabelClicked(Label item) {
-                // TODO: Animate to the active timestamp.
-                mRunReviewOverlay.setActiveTimestamp(item.getTimeStamp());
+                LabelDetailsActivity.launchFromRunReview(getActivity(), mExperimentId, mTrialId,
+                        mSelectedSensorIndex, item, getArguments().getBoolean(ARG_CREATE_TASK),
+                        getArguments().getBoolean(RunReviewActivity.EXTRA_FROM_RECORD));
             }
 
             @Override
@@ -817,6 +754,12 @@ public class RunReviewFragment extends Fragment implements
                     launchLabelAdd(null, Math.max(mRunReviewOverlay.getTimestamp(),
                             getTrial().getFirstTimestamp()));
                 }
+            }
+
+            @Override
+            public void onLabelTimestampClicked(Label item) {
+                // TODO: Animate to the active timestamp.
+                mRunReviewOverlay.setActiveTimestamp(item.getTimeStamp());
             }
         });
 
@@ -861,6 +804,66 @@ public class RunReviewFragment extends Fragment implements
         if (getActivity() != null) {
             ((AppCompatActivity) getActivity()).supportStartPostponedEnterTransition();
         }
+
+        if (mDeletedLabel != null) {
+            onLabelDelete(mDeletedLabel);
+            mDeletedLabel = null;
+        }
+    }
+
+    private void onLabelDelete(Label item) {
+        final DataController dc = getDataController();
+        Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
+                getActivity().getResources().getString(R.string.snackbar_note_deleted),
+                Snackbar.LENGTH_SHORT);
+
+        // On undo, re-add the item to the database and the pinned note list.
+        bar.setAction(R.string.snackbar_undo, new View.OnClickListener() {
+            boolean mUndone = false;
+            @Override
+            public void onClick(View v) {
+                if (mUndone) {
+                    return;
+                }
+                mUndone = true;
+                final Label label = Label.copyOf(item);
+                getTrial().addLabel(label);
+                dc.updateExperiment(mExperimentId, new MaybeConsumer<Success>() {
+                    @Override
+                    public void fail(Exception e) {
+                        if (Log.isLoggable(TAG, Log.ERROR)) {
+                            Log.e(TAG, "Failed: re-add deleted label");
+                        }
+                        // It didn't work, so remove the label from the view again.
+                        getTrial().deleteLabel(label, getActivity(), mExperimentId);
+                    }
+
+                    @Override
+                    public void success(Success success) {
+                        // TODO: Somehow re-add the deleted picture here.
+                        mPinnedNoteAdapter.onLabelAdded(label);
+                        mChartController.setLabels(getTrial()
+                                .getLabels());
+                        WhistlePunkApplication.getUsageTracker(getActivity())
+                                .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                        TrackerConstants.ACTION_DELETE_UNDO,
+                                        TrackerConstants.LABEL_RUN_REVIEW,
+                                        TrackerConstants.getLabelValueType(item));
+                    }
+                });
+            }
+        });
+
+        mPinnedNoteAdapter.onLabelUpdated(item);
+        mChartController.setLabels(getTrial().getLabels());
+
+        WhistlePunkApplication.getUsageTracker(getActivity())
+                .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                        TrackerConstants.ACTION_DELETED,
+                        TrackerConstants.LABEL_RUN_REVIEW,
+                        TrackerConstants.getLabelValueType(item));
+
+        bar.show();
     }
 
     private void setUpAxis(Bundle savedInstanceStateForLoad, View rootView) {

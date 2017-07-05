@@ -17,11 +17,10 @@
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
 import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -36,8 +35,8 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
-import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
 import io.reactivex.subjects.BehaviorSubject;
@@ -49,6 +48,7 @@ abstract class LabelDetailsFragment extends Fragment {
     private static final String KEY_SAVED_LABEL = "saved_label";
     private static final String TAG = "LabelDetails";
     protected String mExperimentId;
+    private String mTrialId = null;
     protected BehaviorSubject<Experiment> mExperiment = BehaviorSubject.create();
     protected Label mOriginalLabel;
 
@@ -60,6 +60,7 @@ abstract class LabelDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         mExperimentId = getArguments().getString(LabelDetailsActivity.ARG_EXPERIMENT_ID);
+        mTrialId = getArguments().getString(LabelDetailsActivity.ARG_TRIAL_ID);
         if (savedInstanceState == null) {
             mOriginalLabel = getArguments().getParcelable(LabelDetailsActivity.ARG_LABEL);
         } else {
@@ -111,8 +112,17 @@ abstract class LabelDetailsFragment extends Fragment {
 
     protected void saveUpdatedOriginalLabel(Experiment experiment) {
         // TODO: Log analytics here? That would send an event per keystroke.
-        RxDataController.updateLabel(getDataController(), experiment, mOriginalLabel, experiment)
-                        .subscribe(LoggingConsumer.observe(TAG, "update"));
+        if (TextUtils.isEmpty(mTrialId)) {
+            RxDataController.updateLabel(getDataController(), experiment, mOriginalLabel,
+                    experiment)
+                    .subscribe(LoggingConsumer.observe(TAG, "update"));
+        } else {
+            Trial trial = experiment.getTrial(mTrialId);
+            trial.updateLabel(mOriginalLabel);
+            experiment.updateTrial(trial);
+            RxDataController.updateExperiment(getDataController(), experiment)
+                    .subscribe(LoggingConsumer.observe(TAG, "update"));
+        }
     }
 
     private void attachExperiment(Experiment experiment) {
@@ -132,24 +142,18 @@ abstract class LabelDetailsFragment extends Fragment {
             getActivity().onBackPressed();
         }
         // Need to either fake a back button or send the right args
-        Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
-        upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, mExperimentId);
-        if (labelDeleted) {
-            // Add info to the intent so that the deleted label can have a snackbar undo action.
-            upIntent.putExtra(ExperimentDetailsFragment.ARG_DELETED_LABEL, mOriginalLabel);
-        }
-        // TODO: In the Panes world, do we still need to pass any other args?
-
-        // TODO: nice transition!
-
-        NavUtils.navigateUpTo(getActivity(), upIntent);
+        ((LabelDetailsActivity) getActivity()).returnToParent(labelDeleted, mOriginalLabel);
     }
 
     protected void deleteAndReturnToParent() {
-        // TODO: Log analytics here or on return to parent?
         mExperiment.firstElement()
                    .flatMapCompletable(experiment -> {
-                       experiment.deleteLabel(mOriginalLabel, getActivity());
+                       if (TextUtils.isEmpty(mTrialId)) {
+                           experiment.deleteLabel(mOriginalLabel, getActivity());
+                       } else {
+                           experiment.getTrial(mTrialId).deleteLabel(mOriginalLabel, getActivity(),
+                                   mExperimentId);
+                       }
                        return RxDataController.updateExperiment(getDataController(), experiment);
                    })
                    .subscribe(() -> returnToParent(/* label deleted */ true),

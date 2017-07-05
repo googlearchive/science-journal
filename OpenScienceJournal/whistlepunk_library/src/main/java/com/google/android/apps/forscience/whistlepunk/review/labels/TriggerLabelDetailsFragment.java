@@ -38,10 +38,11 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 public class TriggerLabelDetailsFragment extends LabelDetailsFragment {
 
     public static TriggerLabelDetailsFragment newInstance(String experimentId,
-            Label originalLabel) {
+            String trialId, Label originalLabel) {
         TriggerLabelDetailsFragment result = new TriggerLabelDetailsFragment();
         Bundle args = new Bundle();
         args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
+        args.putString(LabelDetailsActivity.ARG_TRIAL_ID, trialId);
         args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
         result.setArguments(args);
         return result;
