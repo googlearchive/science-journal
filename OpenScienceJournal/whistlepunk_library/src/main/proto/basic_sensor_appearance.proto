@@ -44,4 +44,7 @@ message BasicSensorAppearance {
 
     // Allows a sensor to specify that it should be rounded in a particular way
     optional int32 pointsAfterDecimal = 6 [default = -1];
+
+    // Asset path to the large icon (for display in snapshots)
+    optional string large_icon_path = 7;
 };
