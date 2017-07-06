@@ -28,15 +28,10 @@ import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.support.v4.widget.ExploreByTouchHelper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.accessibility.AccessibilityEvent;
 import android.widget.SeekBar;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
@@ -52,6 +47,8 @@ import java.util.List;
  * Draws the value over a RunReview chart.
  */
 public class RunReviewOverlay extends View implements ChartController.ChartDataLoadedCallback {
+
+    private static final String TAG = "RunReviewOverlay";
 
     public interface OnTimestampChangeListener {
         void onTimestampChanged(long timestamp);
@@ -557,8 +554,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                 if (mOnSeekbarTouchListener != null) {
                     mOnSeekbarTouchListener.onTouchStart();
                 }
-                mSeekbar.setThumb(mThumb); // Replace the thumb if it was missing after zoom/pan.
                 setVisibility(View.VISIBLE);
+                showThumb(); // Replace the thumb if it was missing after zoom/pan.
                 invalidate();
                 return false;
             }
@@ -908,12 +905,12 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         }
         mPointData.timestamp = timestamp;
         if (mExternalAxis.containsTimestamp(mPointData.timestamp) && shouldShowSeekbars()) {
-            mSeekbar.setThumb(mThumb);
             double progress = (int) ((GraphExploringSeekBar.SEEKBAR_MAX *
                     (timestamp - mExternalAxis.mXMin)) /
                     (mExternalAxis.mXMax - mExternalAxis.mXMin));
             setVisibility(View.VISIBLE);
             mSeekbar.setFullProgress((int) Math.round(progress));
+            showThumb();
             // Only back-update the seekbar if the selected timestamp is in range.
             return true;
         } else {
@@ -1026,7 +1023,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                     if (mPointData.timestamp < xMin || mPointData.timestamp > xMax) {
                         mSeekbar.setThumb(null);
                     } else {
-                        mSeekbar.setThumb(mThumb);
+                        showThumb();
                     }
                     redrawFromSeekbar(mSeekbar, mPointData, true);
                 }
@@ -1090,7 +1087,7 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         } else {
             setVisibility(View.VISIBLE);
             if (mExternalAxis.containsTimestamp(mPreviouslySelectedTimestamp)) {
-                mSeekbar.setThumb(mThumb);
+                showThumb();
             }
             if (mIsCropping) {
                 mCropSeekbarGroup.setVisibility(View.VISIBLE);
@@ -1109,5 +1106,13 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
         mPreviousCropStartTimestamp = mCropStartData.timestamp;
         mPreviousCropEndTimestamp = mCropEndData.timestamp;
         mChartIsLoading = true;
+    }
+
+    private void showThumb() {
+        if (mSeekbar.getThumb() == null) {
+            mSeekbar.setThumb(mThumb);
+            mThumb.setBounds(mThumb.getBounds().left, 0, mThumb.getBounds().right,
+                    mThumb.getIntrinsicHeight());
+        }
     }
 }

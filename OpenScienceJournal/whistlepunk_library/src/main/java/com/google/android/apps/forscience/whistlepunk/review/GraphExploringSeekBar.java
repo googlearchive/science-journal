@@ -33,6 +33,8 @@ import com.google.android.apps.forscience.whistlepunk.R;
  * (time, value) pairs for accessibility.
  */
 public class GraphExploringSeekBar extends AppCompatSeekBar {
+    private static final String TAG = "GraphExploringSeekBar";
+
     // The maximum range of the progress bar for a graph seekbar. Smaller values will have less
     // resolution, but very large ranges may have worse performance due to more calculations being
     // needed. This is applied to the seekbar using the setMax function.
@@ -119,8 +121,11 @@ public class GraphExploringSeekBar extends AppCompatSeekBar {
         setProgress(mFullProgress);
     }
 
-    // Updates the full progress without calling the setProgress function.
+    // Updates the full progress without calling the setProgress function unless it is necessary.
     public void updateFullProgress(int progress) {
         mFullProgress = progress;
+        if (getProgress() == 0 && progress != 0) {
+            setProgress(progress);
+        }
     }
 }
