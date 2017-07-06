@@ -81,12 +81,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
-                        return RecordFragment.newInstance(true, false);
+                        return getAddNoteDialog();
                     case 1:
+                        return RecordFragment.newInstance(true, false);
+                    case 2:
                         // TODO: b/62022245
                         return CameraFragment.newInstance();
-                    case 2:
-                        return getAddNoteDialog();
                 }
                 return null;
             }
@@ -244,7 +244,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 // Get the most recent experiment, or wait if none has been loaded yet.
                 Maybe<Experiment> experimentMaybe = mActiveExperiment.firstElement();
                 experimentMaybe.subscribe(e -> {
-                    // TODO: change this to lambda once we can use Java 8.
                     e.addLabel(label);
                     AddNoteDialog.saveExperiment(getDataController(), e, label)
                                  .subscribe(MaybeConsumers.toSingleObserver(
