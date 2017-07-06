@@ -55,7 +55,9 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
+import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -65,7 +67,8 @@ import java.util.List;
 /**
  * Experiment List Fragment lists all experiments.
  */
-public class ExperimentListFragment extends Fragment {
+public class ExperimentListFragment extends Fragment implements
+        DeleteMetadataItemDialog.DeleteDialogListener {
 
     private static final String TAG = "ExperimentListFragment";
 
@@ -124,7 +127,7 @@ public class ExperimentListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_experiment_list, container, false);
         final RecyclerView detailList = (RecyclerView) view.findViewById(R.id.details);
 
-        mExperimentListAdapter = new ExperimentListAdapter(getActivity(), getDataController(),
+        mExperimentListAdapter = new ExperimentListAdapter(this, getDataController(),
                 shouldUsePanes());
         // TODO: Adjust the column count based on breakpoint specs when available.
         int column_count = 2;
@@ -214,6 +217,28 @@ public class ExperimentListFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    private void confirmDelete(String experimentId) {
+        DeleteMetadataItemDialog dialog = DeleteMetadataItemDialog.newInstance(
+                R.string.delete_experiment_dialog_title, R.string.delete_experiment_dialog_message,
+                experimentId);
+        dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
+    }
+
+    @Override
+    public void requestDelete(Bundle extras) {
+        String experimentId = extras.getString(DeleteMetadataItemDialog.KEY_ITEM_ID);
+        RxDataController.getExperimentById(getDataController(), experimentId)
+                .subscribe(fullExperiment -> {
+                    getDataController().deleteExperiment(fullExperiment,
+                            new LoggingConsumer<Success>(TAG, "delete experiment") {
+                                @Override
+                                public void success(Success value) {
+                                    mExperimentListAdapter.onExperimentDeleted(experimentId);
+                                }
+                            });
+                });
+    }
+
     static class ExperimentListItem {
         public final int viewType;
         public final GoosciUserMetadata.ExperimentOverview experimentOverview;
@@ -246,16 +271,21 @@ public class ExperimentListFragment extends Fragment {
         private final int mCurrentYear;
         private final String mMonthYearFormat;
 
-        public ExperimentListAdapter(Context context, DataController dc, boolean shouldUsePanes) {
+        private final WeakReference<ExperimentListFragment> mParentReference;
+
+        public ExperimentListAdapter(ExperimentListFragment parent, DataController dc,
+                boolean shouldUsePanes) {
             mItems = new ArrayList<>();
-            mPlaceHolderImage = context.getResources().getDrawable(
+            mPlaceHolderImage = parent.getActivity().getResources().getDrawable(
                     R.drawable.experiment_card_placeholder);
             mDataController = dc;
             mShouldUsePanes = shouldUsePanes;
             mCalendar = Calendar.getInstance(
-                    context.getResources().getConfiguration().locale);
+                    parent.getActivity().getResources().getConfiguration().locale);
             mCurrentYear = mCalendar.get(Calendar.YEAR);
-            mMonthYearFormat = context.getResources().getString(R.string.month_year_format);
+            mMonthYearFormat = parent.getActivity().getResources().getString(
+                    R.string.month_year_format);
+            mParentReference = new WeakReference<>(parent);
         }
 
         void setData(List<GoosciUserMetadata.ExperimentOverview> experimentOverviews,
@@ -263,6 +293,7 @@ public class ExperimentListFragment extends Fragment {
             mIncludeArchived = includeArchived;
             mItems.clear();
             if (experimentOverviews.size() == 0) {
+                notifyDataSetChanged();
                 return;
             }
             // Sort most recent first
@@ -388,8 +419,7 @@ public class ExperimentListFragment extends Fragment {
                                                     } else {
                                                         // Remove archived experiment immediately.
                                                         int i = mItems.indexOf(item);
-                                                        mItems.remove(item);
-                                                        notifyItemRemoved(i);
+                                                        removeItem(i);
                                                     }
                                                 }
                                             });
@@ -411,19 +441,7 @@ public class ExperimentListFragment extends Fragment {
                                 });
                         return true;
                     } else if (menuItem.getItemId() == R.id.menu_item_delete) {
-                        // TODO: Show a confirmation dialog before deleting.
-                        RxDataController.getExperimentById(mDataController, overview.experimentId)
-                                .subscribe(fullExperiment -> {
-                                    mDataController.deleteExperiment(fullExperiment,
-                                            new LoggingConsumer<Success>(TAG, "delete experiment") {
-                                                @Override
-                                                public void success(Success value) {
-                                                    int i = mItems.indexOf(item);
-                                                    mItems.remove(item);
-                                                    notifyItemRemoved(i);
-                                                }
-                                            });
-                                });
+                        mParentReference.get().confirmDelete(item.experimentOverview.experimentId);
                         return true;
                     }
                     return false;
@@ -464,6 +482,33 @@ public class ExperimentListFragment extends Fragment {
 
         public boolean hasEmptyView() {
             return mItems.size() == 0;
+        }
+
+        public void onExperimentDeleted(String experimentId) {
+            int index = -1;
+            for (int i = 0; i < mItems.size(); i++) {
+                ExperimentListItem item = mItems.get(i);
+                if (item.viewType == VIEW_TYPE_EXPERIMENT &&
+                        TextUtils.equals(item.experimentOverview.experimentId, experimentId)) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index > 0) {
+                removeItem(index);
+            }
+        }
+
+        private void removeItem(int index) {
+            mItems.remove(index);
+            if (mItems.size() > 1) {
+                notifyItemRemoved(index);
+            } else {
+                // The last experiment was just removed.
+                // All that's left is one date! Remove it.
+                mItems.remove(0);
+                notifyDataSetChanged();
+            }
         }
     }
 

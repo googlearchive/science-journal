@@ -33,7 +33,7 @@ public class DeleteMetadataItemDialog extends DialogFragment {
     private static final String ARG_MESSAGE_ID = "message_id";
     private static final String ARG_EXTRAS = "extras";
 
-    public static final String KEY_TRIAL_ID = "trial_id";
+    public static final String KEY_ITEM_ID = "item_id";
 
     public interface DeleteDialogListener {
 
@@ -49,9 +49,9 @@ public class DeleteMetadataItemDialog extends DialogFragment {
         return newInstance(titleId, messageId, new Bundle());
     }
 
-    public static DeleteMetadataItemDialog newInstance(int titleId, int messageId, String trialId) {
+    public static DeleteMetadataItemDialog newInstance(int titleId, int messageId, String itemId) {
         Bundle extras = new Bundle();
-        extras.putString(KEY_TRIAL_ID, trialId);
+        extras.putString(KEY_ITEM_ID, itemId);
         return newInstance(titleId, messageId, extras);
     }
 

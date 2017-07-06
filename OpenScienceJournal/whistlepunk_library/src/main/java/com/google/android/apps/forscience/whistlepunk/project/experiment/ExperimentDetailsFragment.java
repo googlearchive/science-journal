@@ -21,7 +21,6 @@ import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -81,7 +80,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
@@ -630,7 +628,7 @@ public class ExperimentDetailsFragment extends Fragment
 
     @Override
     public void requestDelete(Bundle extras) {
-        String trialId = extras.getString(DeleteMetadataItemDialog.KEY_TRIAL_ID);
+        String trialId = extras.getString(DeleteMetadataItemDialog.KEY_ITEM_ID);
         if (!TextUtils.isEmpty(trialId)) {
             // Then we were trying to delete a trial.
             mExperiment.deleteTrial(mExperiment.getTrial(trialId), getActivity());
