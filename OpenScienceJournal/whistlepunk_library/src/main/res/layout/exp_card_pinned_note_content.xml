@@ -85,6 +85,7 @@
                 android:background="@color/caption_background_color"
                 android:textColor="@color/text_color_light_grey"
                 android:id="@+id/caption"
+                android:textSize="16sp"
                 />
 
         </LinearLayout>

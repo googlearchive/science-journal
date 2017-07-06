@@ -372,7 +372,7 @@
     <string name="btn_reset_description">Jump to now</string>
 
     <!-- Name of the menu item to data from graphs [CHAR_LIMIT=25] -->
-    <string name="export_action">Export</string>
+    <string name="export_action">Share</string>
 
     <!-- Dialog title for the chooser that pops up after exporting a run [CHAR_LIMIT=50]-->
     <string name="export_run_chooser_title">Save to\u2026</string>
@@ -857,7 +857,7 @@
     <string name="action_include_archived_projects">Include archived projects</string>
 
     <!-- Checkable menu item label for viewing all experiments, including the archived ones [CHAR_LIMIT=50]-->
-    <string name="action_include_archived_experiments">Include archived experiments</string>
+    <string name="action_include_archived_experiments">Show archived experiments</string>
 
     <!-- Title for alert asking for confirmation to delete a project [CHAR_LIMIT=30] -->
     <string name="delete_project_dialog_title">Delete this project?</string>
@@ -954,7 +954,7 @@
     <string name="edit_trial_title_hint">Trial title</string>
 
     <!-- Menu option to include archived trials when viewing a list of trials in an experiment [CHAR_LIMIT=30] -->
-    <string name="include_archived_trials">Include archived trials</string>
+    <string name="include_archived_trials">Show archived trials</string>
 
     <!-- Snackbar message shown to user if the export fails [CHAR_LIMIT=50]-->
     <string name="export_error">Export failed.</string>

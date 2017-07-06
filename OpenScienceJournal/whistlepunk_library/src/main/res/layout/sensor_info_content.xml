@@ -22,7 +22,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/overview"
-        android:textSize="@dimen/info_paragraph_text_size"
+        android:textColor="@color/text_color_dark_grey"
+        android:textSize="18sp"
         android:lineSpacingMultiplier="1.1"
         />
 

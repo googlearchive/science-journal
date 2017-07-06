@@ -21,7 +21,7 @@
     android:layout_gravity="center_horizontal"
     android:gravity="center_horizontal"
     android:padding="24dp"
-    android:drawablePadding="24dp"
+    android:drawablePadding="48dp"
     android:text="@string/empty_project"
     android:drawableBottom="@drawable/empty_experiment"
     android:textColor="@color/text_color_dark_grey"

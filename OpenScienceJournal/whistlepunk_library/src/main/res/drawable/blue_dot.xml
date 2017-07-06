@@ -18,21 +18,19 @@
     <item>
         <shape android:gravity="center">
             <size
-                android:height="24dp"
-                android:width="24dp"/>
+                android:height="28dp"
+                android:width="12dp"/>
             <solid android:color="@android:color/transparent"/>
         </shape>
     </item>
     <item
         android:top="8dp"
-        android:bottom="8dp"
-        android:right="8dp"
-        android:left="8dp">
+        android:bottom="8dp">
         <shape
             android:gravity="center" android:shape="oval">
             <size
-                android:height="8dp"
-                android:width="8dp"/>
+                android:height="12dp"
+                android:width="12dp"/>
             <solid android:color="@color/color_accent"/>
         </shape>
     </item>

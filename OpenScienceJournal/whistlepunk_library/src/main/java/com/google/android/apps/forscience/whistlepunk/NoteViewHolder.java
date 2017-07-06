@@ -62,7 +62,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
             String text = label.getTextLabelValue().text;
             image.setVisibility(View.GONE);
             // No caption, and no caption edit button.
-            captionIcon.setVisibility(View.VISIBLE);
+            captionIcon.setVisibility(View.GONE);
             captionView.setVisibility(View.GONE);
             if (!TextUtils.isEmpty(text)) {
                 this.text.setText(text);

@@ -142,6 +142,7 @@
 
     <dimen name="recording_overlay_bar_width">1dp</dimen>
     <dimen name="recording_overlay_dash_size">4dp</dimen>
+    <dimen name="recording_overlay_time_line_width">2dp</dimen>
 
     <dimen name="metadata_description_padding">16dp</dimen>
     <dimen name="metadata_description_padding_bottom">56dp</dimen>

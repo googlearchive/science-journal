@@ -255,7 +255,8 @@ public class ChartView extends View {
 
         mStatLineWidth = getResources().getDimensionPixelSize(R.dimen.recording_overlay_bar_width);
         mRecordingBackgroundPaint.setColor(res.getColor(R.color.recording_axis_overlay_color));
-        mRecordingTimePaint.setStrokeWidth(mStatLineWidth);
+        mRecordingTimePaint.setStrokeWidth(getResources().getDimensionPixelSize(
+                R.dimen.recording_overlay_time_line_width));
         mRecordingTimePaint.setColor(res.getColor(R.color.recording_axis_bar_color));
 
         float dashSize = res.getDimensionPixelSize(R.dimen.recording_overlay_dash_size);
