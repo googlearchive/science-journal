@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 
@@ -104,7 +105,7 @@ public interface MetaDataManager {
     void addMyDevice(InputDeviceSpec deviceSpec);
 
     /**
-     * Removes this device from "my devices"
+     * Removes this device from "my devices".
      */
     void removeMyDevice(InputDeviceSpec deviceSpec);
 

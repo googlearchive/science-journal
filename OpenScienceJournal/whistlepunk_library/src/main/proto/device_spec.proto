@@ -18,25 +18,26 @@ syntax = "proto2";
 
 package goosci;
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
-option java_outer_classname = "GoosciSensorSpec";
+option java_outer_classname = "GoosciDeviceSpec";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
-import "basic_sensor_appearance.proto";
 import "gadget_info.proto";
 
-// Specification of an observable sensor.
-// Added in V2
-message SensorSpec {
+// Proto containing information about a device that hosts sensors.  This may be
+// (a) the host device itself (phone or tablet) with internal sensors
+// (b) an Arduino running the Science Journal firmware
+// (c) an external piece of hardware (like Vernier sensor) discovered by a third-party app
+//     implementing the scalar API.
+//
+// Devices that host sensors that have been connected to are remembered as "My Devices", which
+// puts them in a special section of the Manage Sensors page to be easily found again later.
+//
+// Added in V2.
+message DeviceSpec {
     // Provider, address, hostid, etc.
     optional GadgetInfo info = 1;
 
-    // Opaque to Science Journal, but meaningful to each SensorDiscoverer.
-    // Each SensorDiscoverer can place whatever proto it wants here that contains all the
-    // information it needs, beyond the address, to connect to, configure,
-    // and relay data from a particular sensor in a particular configuration.
-    optional bytes config = 2;
-
-    // contains all of the data necessary to display a sensor as part of a trial
-    optional BasicSensorAppearance rememberedAppearance = 3;
+    // Display name
+    optional string name = 2;
 };

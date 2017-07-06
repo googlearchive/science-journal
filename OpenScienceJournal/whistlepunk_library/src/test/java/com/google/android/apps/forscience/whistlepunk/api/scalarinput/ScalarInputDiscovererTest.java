@@ -223,7 +223,7 @@ public class ScalarInputDiscovererTest {
                 sid.startScanning(new TestScanListener(c, onScanDone),
                         TestConsumers.expectingSuccess()));
         GoosciSensorSpec.SensorSpec sensor = c.getOnlySeen().getSensorSpec();
-        assertEquals(ScalarInputSpec.TYPE, sensor.providerId);
+        assertEquals(ScalarInputSpec.TYPE, sensor.info.providerId);
         assertEquals(s.getSensorName(), sensor.rememberedAppearance.name);
 
         assertFalse(onScanDone.hasRun);
