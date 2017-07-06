@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 /**
  * A Label which is represented by a set of pictures.
  */
+@Deprecated
 public class PictureLabelValue extends LabelValue {
     private static final int NUM_FIELDS = 2;
     private static final String KEY_FILE_PATH = "file_path";

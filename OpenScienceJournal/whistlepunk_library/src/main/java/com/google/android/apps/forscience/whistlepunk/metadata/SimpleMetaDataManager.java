@@ -60,6 +60,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -158,6 +159,17 @@ public class SimpleMetaDataManager implements MetaDataManager {
             // This prepares the file system for the new experiment.
             mFileMetadataManager.addExperiment(experiment);
 
+            // Remove experiment description, turn it into a text note.
+            if (!TextUtils.isEmpty(experiment.getDescription())) {
+                GoosciTextLabelValue.TextLabelValue descriptionValue = new GoosciTextLabelValue
+                        .TextLabelValue();
+                descriptionValue.text = experiment.getDescription();
+                Label descriptionLabel = Label.newLabelWithValue(
+                        experiment.getCreationTimeMs() - 500,
+                        GoosciLabel.Label.TEXT, descriptionValue, null);
+                experiment.setDescription("");
+                experiment.addLabel(descriptionLabel);
+            }
             // Migrate assets
             for (Label label : experiment.getLabels()) {
                 updateLabelPictureAssets(experiment, label);
@@ -283,6 +295,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 }
                 if (!TextUtils.isEmpty(project.getCoverPhoto())) {
                     // Create a label with the picture at the start of the experiment.
+                    // TODO: Copy the project photo for each note. This helps us upgrade later.
                     addDatabaseLabel(db, experiment.getExperimentId(),
                             RecorderController.NOT_RECORDING_RUN_ID,
                             Label.newLabel(experiment.getCreationTimeMs() - 1000,

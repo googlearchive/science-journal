@@ -133,11 +133,9 @@ public class UpdateExperimentFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_update_experiment, container, false);
         EditText title = (EditText) view.findViewById(R.id.experiment_title);
-        EditText description = (EditText) view.findViewById(R.id.experiment_description);
 
         mExperiment.subscribe(experiment -> {
             title.setText(experiment.getTitle());
-            description.setText(experiment.getDescription());
 
             title.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -149,26 +147,6 @@ public class UpdateExperimentFragment extends Fragment {
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (!s.toString().equals(experiment.getTitle())) {
                         experiment.setTitle(s.toString().trim());
-                        saveExperiment();
-                        mWasEdited = true;
-                    }
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-
-                }
-            });
-            description.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (!s.toString().equals(experiment.getDescription())) {
-                        experiment.setDescription(s.toString().trim());
                         saveExperiment();
                         mWasEdited = true;
                     }
