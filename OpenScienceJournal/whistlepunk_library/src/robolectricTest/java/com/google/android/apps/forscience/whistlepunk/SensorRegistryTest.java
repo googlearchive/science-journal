@@ -90,7 +90,7 @@ public class SensorRegistryTest {
         List<ConnectableSensor> sensors = new ArrayList<>();
         String bleSensorId = "bleSensor1";
 
-        HashMap<String, ExternalSensorProvider> providers = new HashMap<>();
+        HashMap<String, SensorProvider> providers = new HashMap<>();
         providers.put(BleSensorSpec.TYPE, bleProvider());
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providers);
 
@@ -117,7 +117,7 @@ public class SensorRegistryTest {
     public void testLoggingId() {
         SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
 
-        HashMap<String, ExternalSensorProvider> providers = new HashMap<>();
+        HashMap<String, SensorProvider> providers = new HashMap<>();
         providers.put(BleSensorSpec.TYPE, bleProvider());
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providers);
 
@@ -146,8 +146,8 @@ public class SensorRegistryTest {
         reg.withSensorChoice(tagno, newSensorId, cno);
         reg.removePendingOperations(tagno);
         ExternalSensorSpec spec = new BleSensorSpec("address", "name");
-        ImmutableMap<String, ExternalSensorProvider> providers =
-                ImmutableMap.<String, ExternalSensorProvider>of(BleSensorSpec.TYPE, bleProvider());
+        ImmutableMap<String, SensorProvider> providers =
+                ImmutableMap.<String, SensorProvider>of(BleSensorSpec.TYPE, bleProvider());
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providers);
         reg.updateExternalSensors(
                 Lists.newArrayList(connector.connected(spec.asGoosciSpec(), newSensorId)),
@@ -161,7 +161,7 @@ public class SensorRegistryTest {
         SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
 
         List<ConnectableSensor> sensors = new ArrayList<>();
-        HashMap<String, ExternalSensorProvider> providers = new HashMap<>();
+        HashMap<String, SensorProvider> providers = new HashMap<>();
         providers.put(BleSensorSpec.TYPE, bleProvider());
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providers);
 
@@ -183,7 +183,7 @@ public class SensorRegistryTest {
 
     }
 
-    private ExternalSensorProvider bleProvider() {
+    private SensorProvider bleProvider() {
         return new NativeBleDiscoverer(context).getProvider();
     }
 

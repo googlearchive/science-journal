@@ -16,23 +16,18 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
 import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.Clock;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
-import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
-import com.google.android.apps.forscience.whistlepunk.MemoryAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
@@ -225,7 +220,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testAddRemoveExternalSensor() {
-        Map<String,ExternalSensorProvider> providerMap = getProviderMap();
+        Map<String,SensorProvider> providerMap = getProviderMap();
         Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExternalSensors(providerMap);
         assertEquals(0, sensors.size());
 
@@ -250,8 +245,8 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         assertEquals(0, sensors.size());
     }
 
-    private Map<String, ExternalSensorProvider> getProviderMap() {
-        HashMap<String, ExternalSensorProvider> map = new HashMap<>();
+    private Map<String, SensorProvider> getProviderMap() {
+        HashMap<String, SensorProvider> map = new HashMap<>();
         map.put(BleSensorSpec.TYPE, new NativeBleDiscoverer(getContext()).getProvider());
         map.put(ScalarInputSpec.TYPE, new ScalarInputDiscoverer(null, null,
                 WhistlePunkApplication.getUsageTracker(null)).getProvider());
@@ -259,7 +254,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testSensorsDifferentTypes() {
-        Map<String, ExternalSensorProvider> providerMap = null;
+        Map<String, SensorProvider> providerMap = null;
         Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExternalSensors(providerMap);
         assertEquals(0, sensors.size());
 
@@ -306,7 +301,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testGetExternalSensorsWithScalarInput() {
-        Map<String, ExternalSensorProvider> providerMap = getProviderMap();
+        Map<String, SensorProvider> providerMap = getProviderMap();
         assertEquals(0, mMetaDataManager.getExternalSensors(providerMap).size());
         mMetaDataManager.addOrGetExternalSensor(
                 new ScalarInputSpec("name", "serviceId", "address", null, null, "deviceId"),
@@ -326,7 +321,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         String testAddress = "11:22:33:44:55";
         String testName = "testName";
         BleSensorSpec sensor = new BleSensorSpec(testAddress, testName);
-        Map<String, ExternalSensorProvider> providerMap = getProviderMap();
+        Map<String, SensorProvider> providerMap = getProviderMap();
         String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
         Experiment experiment = mMetaDataManager.newDatabaseExperiment();
@@ -352,7 +347,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         String testAddress = "11:22:33:44:55";
         String testName = "testName";
         BleSensorSpec sensor = new BleSensorSpec(testAddress, testName);
-        Map<String, ExternalSensorProvider> providerMap = getProviderMap();
+        Map<String, SensorProvider> providerMap = getProviderMap();
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providerMap);
         String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
@@ -457,7 +452,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testExternalSensorOrder() {
-        Map<String,ExternalSensorProvider> providerMap = getProviderMap();
+        Map<String,SensorProvider> providerMap = getProviderMap();
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providerMap);
         String id1 = mMetaDataManager.addOrGetExternalSensor(new BleSensorSpec("address1", "name1"),
                 providerMap);
@@ -476,7 +471,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
     }
 
     public void testExternalSensorDuplication() {
-        Map<String,ExternalSensorProvider> providerMap = getProviderMap();
+        Map<String,SensorProvider> providerMap = getProviderMap();
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providerMap);
         String id1 = mMetaDataManager.addOrGetExternalSensor(new BleSensorSpec("address1", "name1"),
                 providerMap);

@@ -252,7 +252,7 @@ public class SensorRegistry {
 
     @NonNull
     public List<String> updateExternalSensors(List<ConnectableSensor> sensors,
-            Map<String, ExternalSensorProvider> externalProviders) {
+            Map<String, SensorProvider> externalProviders) {
         mMostRecentExternalSensors = sensors;
 
         List<String> sensorsActuallyAdded = new ArrayList<>();
@@ -266,7 +266,7 @@ public class SensorRegistry {
                 if (!previousExternalSources.remove(externalSensorId)) {
                     // sensor is new
                     ExternalSensorSpec sensor = newSensor.getSpec();
-                    ExternalSensorProvider provider = externalProviders.get(sensor.getType());
+                    SensorProvider provider = externalProviders.get(sensor.getType());
                     if (provider != null) {
                         addSource(new SensorRegistryItem(provider.getProviderId(),
                                 provider.buildSensor(externalSensorId, sensor),

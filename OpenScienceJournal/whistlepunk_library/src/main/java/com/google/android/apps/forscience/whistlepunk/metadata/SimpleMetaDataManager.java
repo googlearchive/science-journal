@@ -30,7 +30,7 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -60,7 +60,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -985,7 +984,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public String addOrGetExternalSensor(ExternalSensorSpec sensor,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, SensorProvider> providerMap) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
             String sql = "SELECT IFNULL(MIN(" + SensorColumns.SENSOR_ID + "), '') FROM " + Tables
@@ -1404,7 +1403,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public Map<String, ExternalSensorSpec> getExternalSensors(
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, SensorProvider> providerMap) {
         Map<String, ExternalSensorSpec> sensors = new HashMap<>();
 
         synchronized (mLock) {
@@ -1432,7 +1431,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     // TODO: this should return SensorSpec instead of building it from providers right here.
     @Override
     public ExternalSensorSpec getExternalSensorById(String id,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, SensorProvider> providerMap) {
         ExternalSensorSpec sensor = null;
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -1453,13 +1452,13 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     private ExternalSensorSpec loadSensorFromDatabase(Cursor c,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, SensorProvider> providerMap) {
         String type = c.getString(SensorQuery.TYPE_INDEX);
-        ExternalSensorProvider externalSensorProvider = providerMap.get(type);
-        if (externalSensorProvider == null) {
+        SensorProvider sensorProvider = providerMap.get(type);
+        if (sensorProvider == null) {
             throw new IllegalArgumentException("No provider for sensor type: " + type);
         }
-        return externalSensorProvider.buildSensorSpec(c.getString(SensorQuery.NAME_INDEX),
+        return sensorProvider.buildSensorSpec(c.getString(SensorQuery.NAME_INDEX),
                 c.getBlob(SensorQuery.CONFIG_INDEX));
     }
 
@@ -1504,7 +1503,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public ExperimentSensors getExperimentExternalSensors(String experimentId,
-            Map<String, ExternalSensorProvider> providerMap,
+            Map<String, SensorProvider> providerMap,
             ConnectableSensor.Connector connector) {
         List<ConnectableSensor> includedSensors = new ArrayList<>();
         Set<String> excludedTags = new ArraySet<>();

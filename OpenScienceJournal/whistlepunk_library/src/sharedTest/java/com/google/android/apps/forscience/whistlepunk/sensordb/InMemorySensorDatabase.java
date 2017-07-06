@@ -20,7 +20,7 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
@@ -53,7 +53,7 @@ public class InMemorySensorDatabase implements SensorDatabase {
 
     @NonNull
     public DataControllerImpl makeSimpleController(MemoryMetadataManager manager,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, SensorProvider> providerMap) {
         return makeDataControllerImpl(manager, providerMap, new MonotonicClock());
     }
 
@@ -64,7 +64,7 @@ public class InMemorySensorDatabase implements SensorDatabase {
 
     @NonNull
     private DataControllerImpl makeDataControllerImpl(MemoryMetadataManager manager,
-            Map<String, ExternalSensorProvider> providerMap, Clock clock) {
+            Map<String, SensorProvider> providerMap, Clock clock) {
         return new DataControllerImpl(this, MoreExecutors.directExecutor(),
                 MoreExecutors.directExecutor(), MoreExecutors.directExecutor(), manager,
                 clock, providerMap, new ConnectableSensor.Connector(providerMap));

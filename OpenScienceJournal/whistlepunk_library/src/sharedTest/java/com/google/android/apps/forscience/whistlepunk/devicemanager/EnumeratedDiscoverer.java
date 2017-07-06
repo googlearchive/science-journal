@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
@@ -78,10 +78,10 @@ public class EnumeratedDiscoverer extends StubSensorDiscoverer {
      * For testing, generate a provider map that has providers that know how to generate exactly
      * the given set of specs.
      */
-    public static Map<String, ExternalSensorProvider> buildProviderMap(
+    public static Map<String, SensorProvider> buildProviderMap(
             ExternalSensorSpec... specs) {
         EnumeratedDiscoverer discoverer = new EnumeratedDiscoverer(specs);
-        Map<String, ExternalSensorProvider> providers = new HashMap<>();
+        Map<String, SensorProvider> providers = new HashMap<>();
         for (ExternalSensorSpec spec : specs) {
             providers.put(spec.getType(), discoverer.getProvider());
         }

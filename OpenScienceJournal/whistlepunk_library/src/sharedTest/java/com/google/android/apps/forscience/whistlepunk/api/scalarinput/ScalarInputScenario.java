@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 
@@ -96,7 +96,7 @@ public class ScalarInputScenario {
                 new SensorBehavior(), appearance, mDeviceId);
     }
 
-    public Map<String, ExternalSensorProvider> makeScalarInputProviders() {
+    public Map<String, SensorProvider> makeScalarInputProviders() {
         return makeTestSensorDiscoverer().makeProviderMap(getServiceId());
     }
 

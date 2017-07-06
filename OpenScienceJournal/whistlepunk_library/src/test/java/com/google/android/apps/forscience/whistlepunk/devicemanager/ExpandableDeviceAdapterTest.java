@@ -21,7 +21,7 @@ import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -58,7 +58,7 @@ public class ExpandableDeviceAdapterTest {
             mPairedDevices);
 
     private Scenario mScenario = new Scenario();
-    private Map<String, ExternalSensorProvider> mProviders = mScenario.providers;
+    private Map<String, SensorProvider> mProviders = mScenario.providers;
     private Map<String, SensorDiscoverer> mDiscoverers = mScenario.discoverers;
     private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector(mProviders);
     private ConnectableSensorRegistry mSensorRegistry =
@@ -72,7 +72,7 @@ public class ExpandableDeviceAdapterTest {
         private int mKeyCount = 0;
         private EnumeratedDiscoverer mDiscoverer = new EnumeratedDiscoverer();
 
-        public Map<String, ExternalSensorProvider> providers = new HashMap<>();
+        public Map<String, SensorProvider> providers = new HashMap<>();
         public Map<String, SensorDiscoverer> discoverers = new HashMap<>();
 
         public ScalarInputSpec makeSensorNewDevice() {
@@ -301,7 +301,7 @@ public class ExpandableDeviceAdapterTest {
         // Make sure the built-in sensor is added to the experiment
         ExperimentSensors sensors =
                 mMetadataManager.getExperimentExternalSensors(experiment.getExperimentId(),
-                        Maps.<String, ExternalSensorProvider>newHashMap(), mConnector);
+                        Maps.<String, SensorProvider>newHashMap(), mConnector);
         List<ConnectableSensor> included = sensors.getIncludedSensors();
         assertEquals(1, included.size());
         assertEquals("builtInId", included.get(0).getConnectedSensorId());

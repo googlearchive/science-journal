@@ -23,7 +23,7 @@ import android.support.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -38,7 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
  */
 public class NativeBleDiscoverer implements SensorDiscoverer {
 
-    private static final ExternalSensorProvider PROVIDER = new ExternalSensorProvider() {
+    private static final SensorProvider PROVIDER = new SensorProvider() {
         @Override
         public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
             return new BluetoothSensor(sensorId, (BleSensorSpec) spec,
@@ -66,7 +66,7 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
     }
 
     @Override
-    public ExternalSensorProvider getProvider() {
+    public SensorProvider getProvider() {
         return PROVIDER;
     }
 

@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -55,13 +55,13 @@ public interface MetaDataManager {
      * Gets all the external sensors previously saved.
      */
     Map<String, ExternalSensorSpec> getExternalSensors(
-            Map<String, ExternalSensorProvider> providerMap);
+            Map<String, SensorProvider> providerMap);
 
     /**
      * Gets the external sensor or {@null} if no sensor with that ID was added.
      */
     ExternalSensorSpec getExternalSensorById(String id,
-            Map<String, ExternalSensorProvider> providerMap);
+            Map<String, SensorProvider> providerMap);
 
     /**
      *
@@ -70,7 +70,7 @@ public interface MetaDataManager {
      * @return
      */
     String addOrGetExternalSensor(ExternalSensorSpec sensor,
-            Map<String, ExternalSensorProvider> providerMap);
+            Map<String, SensorProvider> providerMap);
 
     /**
      * Removes an external sensor from the database.
@@ -94,7 +94,7 @@ public interface MetaDataManager {
      * Gets all the external sensors which are linked to an experiment, in insertion order
      */
     ExperimentSensors getExperimentExternalSensors(String experimentId,
-            Map<String, ExternalSensorProvider> providerMap,
+            Map<String, SensorProvider> providerMap,
             ConnectableSensor.Connector connector);
 
     /**

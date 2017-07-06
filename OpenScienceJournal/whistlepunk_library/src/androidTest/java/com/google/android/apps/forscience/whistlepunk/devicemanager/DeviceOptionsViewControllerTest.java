@@ -20,7 +20,7 @@ import android.test.AndroidTestCase;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -36,7 +36,7 @@ import com.google.common.collect.Sets;
 
 public class DeviceOptionsViewControllerTest extends AndroidTestCase {
     public void testCommit() {
-        ImmutableMap<String, ExternalSensorProvider> providerMap =
+        ImmutableMap<String, SensorProvider> providerMap =
                 DataControllerTest.bleProviderMap(getContext());
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providerMap);
         DataController dc = new InMemorySensorDatabase().makeSimpleController(

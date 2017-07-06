@@ -25,7 +25,7 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
@@ -97,8 +97,8 @@ public class DataControllerTest extends AndroidTestCase {
     }
 
     @NonNull
-    public static ImmutableMap<String, ExternalSensorProvider> bleProviderMap(Context context) {
-        return ImmutableMap.<String, ExternalSensorProvider>of(BleSensorSpec.TYPE,
+    public static ImmutableMap<String, SensorProvider> bleProviderMap(Context context) {
+        return ImmutableMap.<String, SensorProvider>of(BleSensorSpec.TYPE,
                 new NativeBleDiscoverer(context).getProvider());
     }
 

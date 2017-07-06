@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.sensordb;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
@@ -94,13 +94,13 @@ public class MemoryMetadataManager implements MetaDataManager {
 
     @Override
     public Map<String, ExternalSensorSpec> getExternalSensors(
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, SensorProvider> providerMap) {
         return mExternalSensors;
     }
 
     @Override
     public ExternalSensorSpec getExternalSensorById(String id,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, SensorProvider> providerMap) {
         return mExternalSensors.get(id);
     }
 
@@ -112,7 +112,7 @@ public class MemoryMetadataManager implements MetaDataManager {
 
     @Override
     public String addOrGetExternalSensor(ExternalSensorSpec sensor,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, SensorProvider> providerMap) {
         for (Map.Entry<String, ExternalSensorSpec> entry : mExternalSensors.entrySet()) {
             if (sensor.isSameSensorAndSpec(entry.getValue())) {
                 return entry.getKey();
@@ -128,11 +128,11 @@ public class MemoryMetadataManager implements MetaDataManager {
     }
 
     private ExternalSensorSpec cloneSensor(ExternalSensorSpec sensor,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, SensorProvider> providerMap) {
         Preconditions.checkNotNull(sensor);
         Preconditions.checkNotNull(providerMap);
         String sensorType = sensor.getType();
-        ExternalSensorProvider provider = providerMap.get(sensorType);
+        SensorProvider provider = providerMap.get(sensorType);
         if (provider == null) {
             throw new IllegalArgumentException("No provider for sensor type " + sensorType);
         }
@@ -155,7 +155,7 @@ public class MemoryMetadataManager implements MetaDataManager {
 
     @Override
     public ExperimentSensors getExperimentExternalSensors(String experimentId,
-            Map<String, ExternalSensorProvider> providerMap,
+            Map<String, SensorProvider> providerMap,
             ConnectableSensor.Connector connector) {
         Preconditions.checkNotNull(connector);
         // TODO: doesn't deal with exclusions
