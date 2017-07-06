@@ -60,6 +60,7 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
+import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
@@ -699,7 +700,7 @@ public class ExperimentDetailsFragment extends Fragment
         return mExperimentId;
     }
 
-    public static class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.ViewHolder> {
+    public static class DetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private static final String KEY_SAVED_SENSOR_INDICES = "savedSensorIndices";
 
@@ -727,13 +728,14 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view;
             LayoutInflater inflater =  LayoutInflater.from(parent.getContext());
             if (viewType == VIEW_TYPE_EXPERIMENT_TEXT_LABEL ||
                     viewType == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL ||
                     viewType == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL) {
                 view = inflater.inflate(R.layout.exp_card_pinned_note, parent, false);
+                return new NoteViewHolder(view);
             } else if (viewType == VIEW_TYPE_EXPERIMENT_DESCRIPTION) {
                 view = inflater.inflate(R.layout.metadata_description, parent, false);
             } else if (viewType == VIEW_TYPE_EMPTY) {
@@ -741,70 +743,37 @@ public class ExperimentDetailsFragment extends Fragment
             } else {
                 view = inflater.inflate(R.layout.exp_card_run, parent, false);
             }
-            return new ViewHolder(view, viewType);
+            return new DetailsViewHolder(view, viewType);
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             ExperimentDetailItem item = mItems.get(position);
             int type = item.getViewType();
             if (type == VIEW_TYPE_RUN_CARD) {
-                setupHeader(holder, item);
-                setupCaption(holder, item.getTrial().getCaptionText());
-                bindRun(holder, item);
+                setupTrialHeader((DetailsViewHolder) holder, item);
+                setupCaption((DetailsViewHolder) holder, item.getTrial().getCaptionText());
+                bindRun((DetailsViewHolder) holder, item);
             }
             boolean isPictureLabel = type == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
             boolean isTextLabel = type == VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
             boolean isTriggerLabel = type == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
-            // TODO: Add snapshot label.
             if (isPictureLabel || isTextLabel || isTriggerLabel) {
-                setupHeader(holder, item);
-                // TODO: Can this code be shared with PinnedNoteAdapter?
-                // TODO: Move all findViewById work into the ViewHolder.
-                TextView textView = (TextView) holder.itemView.findViewById(R.id.note_text);
-                TextView autoTextView = (TextView) holder.itemView.findViewById(
-                        R.id.auto_note_text);
                 final Label label = mItems.get(position).getLabel();
-                if (isTextLabel) {
-                    // No caption, and no caption edit button.
-                    textView.setVisibility(View.VISIBLE);
-                    holder.captionView.setVisibility(View.GONE);
-                    String text = label.getTextLabelValue().text;
-                    if (!TextUtils.isEmpty(text)) {
-                        textView.setText(text);
-                        textView.setTextColor(textView.getResources().getColor(
-                                R.color.text_color_black));
-                    } else {
-                        textView.setText(textView.getResources().getString(
-                                R.string.pinned_note_placeholder_text));
-                        textView.setTextColor(
-                                textView.getResources().getColor(R.color.text_color_light_grey));
-                    }
-                    holder.captionIcon.setVisibility(View.GONE);
-                } else {
-                    textView.setVisibility(View.GONE);
-                    // Deal with the caption, which is applicable to everything but text labels.
-                    setupCaption(holder, label.getCaptionText());
-                }
 
-                ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.note_image);
-                if (isPictureLabel) {
-                    imageView.setVisibility(View.VISIBLE);
-                    PictureUtils.loadExperimentImage(imageView.getContext(), imageView,
-                            mExperiment.getExperimentId(), label.getPictureLabelValue().filePath);
-                } else {
-                    imageView.setVisibility(View.GONE);
-                }
+                NoteViewHolder noteViewHolder = (NoteViewHolder) holder;
+                noteViewHolder.setNote(label, mExperiment.getExperimentId());
 
-                if (isTriggerLabel) {
-                    autoTextView.setVisibility(View.VISIBLE);
-                    // TODO: Show new trigger labels.
-                    TriggerHelper.populateAutoTextViews(autoTextView, "TODO",
-                            R.drawable.ic_label_black_18dp, autoTextView.getResources());
-                } else {
-                    autoTextView.setVisibility(View.GONE);
-                }
+                // Work specific to ExperimentDetails
+                noteViewHolder.relativeTimeView.setTime(label.getTimeStamp());
+                noteViewHolder.durationText.setVisibility(View.GONE);
 
+                noteViewHolder.menuButton.setOnClickListener(view -> {
+                    Context context = noteViewHolder.menuButton.getContext();
+                    PopupMenu popup = new PopupMenu(context, noteViewHolder.menuButton);
+                    setupNoteMenu(item, popup);
+                    popup.show();
+                });
                 holder.itemView.setOnClickListener(view -> {
                     if (mParentReference.get() != null) {
                         LabelDetailsActivity.launchFromExpDetails(holder.itemView.getContext(),
@@ -835,9 +804,8 @@ public class ExperimentDetailsFragment extends Fragment
             }
         }
 
-        private void setupHeader(ViewHolder holder, final ExperimentDetailItem item) {
-            // Common to all labels and trials.
-            holder.durationHeader.setTime(item.getViewType() == VIEW_TYPE_RUN_CARD ?
+        private void setupTrialHeader(DetailsViewHolder holder, final ExperimentDetailItem item) {
+            holder.timeHeader.setTime(item.getViewType() == VIEW_TYPE_RUN_CARD ?
                     item.getTrial().getFirstTimestamp() : item.getLabel().getTimeStamp());
 
             ColorUtils.colorDrawable(holder.captionIcon.getContext(),
@@ -848,17 +816,12 @@ public class ExperimentDetailsFragment extends Fragment
             holder.menuButton.setOnClickListener(view -> {
                 Context context = holder.menuButton.getContext();
                 PopupMenu popup = new PopupMenu(context, holder.menuButton);
-                // TODO: Inflate different menu for trial card? What does the menu include?
-                if (item.getViewType() == VIEW_TYPE_RUN_CARD) {
-                     setupTrialMenu(item, popup);
-                } else {
-                    setupNoteMenu(item, popup);
-                }
+                setupTrialMenu(item, popup);
                 popup.show();
             });
         }
 
-        private void setupCaption(ViewHolder holder, String caption) {
+        private void setupCaption(DetailsViewHolder holder, String caption) {
             if (!TextUtils.isEmpty(caption)) {
                 holder.captionView.setVisibility(View.VISIBLE);
                 holder.captionTextView.setText(caption);
@@ -1118,7 +1081,7 @@ public class ExperimentDetailsFragment extends Fragment
             return !mHasRunsOrLabels;
         }
 
-        void bindRun(final ViewHolder holder, final ExperimentDetailItem item) {
+        void bindRun(final DetailsViewHolder holder, final ExperimentDetailItem item) {
             final Trial trial = item.getTrial();
             final Context applicationContext = holder.itemView.getContext().getApplicationContext();
             holder.setRunId(trial.getTrialId());
@@ -1188,7 +1151,7 @@ public class ExperimentDetailsFragment extends Fragment
             }
         }
 
-        private void removeSensorData(ViewHolder holder) {
+        private void removeSensorData(DetailsViewHolder holder) {
             holder.sensorName.setText("");
             holder.setSensorId(null);
             setIndeterminateSensorData(holder);
@@ -1208,12 +1171,12 @@ public class ExperimentDetailsFragment extends Fragment
             };
         }
 
-        private void setIndeterminateSensorData(ViewHolder holder) {
-            holder.statsLoadStatus = ViewHolder.STATS_LOAD_STATUS_LOADING;
+        private void setIndeterminateSensorData(DetailsViewHolder holder) {
+            holder.statsLoadStatus = DetailsViewHolder.STATS_LOAD_STATUS_LOADING;
             holder.statsList.clearStats();
         }
 
-        private void loadSensorData(Context appContext, final ViewHolder holder,
+        private void loadSensorData(Context appContext, final DetailsViewHolder holder,
                                     final ExperimentDetailItem item) {
             final Trial trial = item.getTrial();
             final String sensorId = trial.getSensorIds().get(item.getSensorTagIndex());
@@ -1321,7 +1284,7 @@ public class ExperimentDetailsFragment extends Fragment
             }
         }
 
-        public static class ViewHolder extends RecyclerView.ViewHolder implements
+        public static class DetailsViewHolder extends RecyclerView.ViewHolder implements
                 ChartController.ChartLoadingStatus {
 
             static final int STATS_LOAD_STATUS_IDLE = 0;
@@ -1359,11 +1322,11 @@ public class ExperimentDetailsFragment extends Fragment
 
             ImageView captionIcon;
             View captionView;
-            RelativeTimeTextView durationHeader;
+            RelativeTimeTextView timeHeader;
             ImageButton menuButton;
             TextView captionTextView;
 
-            public ViewHolder(View itemView, int viewType) {
+            public DetailsViewHolder(View itemView, int viewType) {
                 super(itemView);
                 mViewType = viewType;
                 if (mViewType == VIEW_TYPE_RUN_CARD) {
@@ -1386,22 +1349,15 @@ public class ExperimentDetailsFragment extends Fragment
                     chartView = (ChartView) itemView.findViewById(R.id.chart_view);
                     sensorImage = (ImageView) itemView.findViewById(R.id.sensor_icon);
                     progressView = (ProgressBar) itemView.findViewById(R.id.chart_progress);
-                } else if (mViewType == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL ||
-                        mViewType == VIEW_TYPE_EXPERIMENT_TEXT_LABEL ||
-                        mViewType == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL) {
-                    cardView = itemView.findViewById(R.id.card_view);
-                }
-                // Common views
-                if (mViewType == VIEW_TYPE_RUN_CARD ||
-                        mViewType == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL ||
-                        mViewType == VIEW_TYPE_EXPERIMENT_TEXT_LABEL ||
-                        mViewType == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL) {
                     captionIcon = (ImageView) itemView.findViewById(R.id.edit_icon);
                     captionView = itemView.findViewById(R.id.caption_section);
-                    durationHeader = (RelativeTimeTextView) itemView.findViewById(
-                            R.id.duration_text);
+                    timeHeader = (RelativeTimeTextView) itemView.findViewById(
+                            R.id.relative_time_text);
                     menuButton = (ImageButton) itemView.findViewById(R.id.note_menu_button);
                     captionTextView = (TextView) itemView.findViewById(R.id.caption);
+
+                    // Only used in RunReview
+                    itemView.findViewById(R.id.time_text).setVisibility(View.GONE);
                 }
             }
 

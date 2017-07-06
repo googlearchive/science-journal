@@ -18,19 +18,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:minHeight="@dimen/accessibility_touch_target_min_size"
     >
 
     <com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:id="@+id/duration_text"
+        android:id="@+id/relative_time_text"
         android:textColor="@color/text_color_light_grey"
         android:textSize="@dimen/run_review_notes_timestamp_text_size"
         android:layout_marginStart="24dp"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@+id/edit_icon" />
+        android:layout_toStartOf="@+id/edit_icon"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:id="@+id/time_text"
+        android:textColor="@color/text_color_light_grey"
+        android:textSize="@dimen/run_review_notes_timestamp_text_size"
+        android:layout_marginStart="24dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/edit_icon"
+        android:drawableStart="@drawable/blue_dot"
+        android:drawablePadding="@dimen/run_review_note_duration_drawable_padding"
+        android:clickable="true"
+        android:focusable="true"
+        />
 
     <ImageView
         android:layout_width="@dimen/accessibility_touch_target_min_size"
