@@ -24,23 +24,6 @@
     android:orientation="vertical"
     tools:context=".review.labels.LabelDetailsActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="140dp"
-            android:fitsSystemWindows="true"
-            android:background="@color/color_accent"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            android:subtitleTextAppearance="@style/NoBarTheme.ActionBar.SubtitleTextStyle"
-            />
-
-    </android.support.design.widget.AppBarLayout>
-
         <ListView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

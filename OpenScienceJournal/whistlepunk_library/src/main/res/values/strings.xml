@@ -1452,6 +1452,12 @@ Permissions notice:
     <!-- Hint text in a trial caption textfield [CHAR_LIMIT=50] -->
     <string name="trial_caption_hint_text">Add description of recording here</string>
 
+    <!-- Title of an activity to view details about a snapshot [CHAR_LIMIT=30] -->
+    <string name="snapshot_label_details_title">Snapshot details</string>
+
+    <!-- Title of an activity to view details about a trigger note [CHAR_LIMIT=30] -->
+    <string name="trigger_label_details_title">Triggered note details</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
