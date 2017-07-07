@@ -30,10 +30,9 @@
         android:layout_alignParentStart="true"
         android:layout_centerHorizontal="true"
         android:id="@+id/meter_section"
-        android:layout_marginStart="@dimen/stream_presenter_padding_sides"
-        android:layout_marginEnd="@dimen/stream_presenter_padding_sides"
-        android:layout_marginTop="@dimen/stream_presenter_padding_top_bottom"
-        android:layout_marginBottom="@dimen/stream_presenter_padding_top_bottom"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="4dp"
         >
 
         <ImageView
@@ -47,6 +46,7 @@
             android:layout_marginEnd="@dimen/meter_icon_value_spacing"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
+            android:layout_marginStart="@dimen/stream_presenter_padding_sides"
             />
 
         <!-- Use match_parent here or else every value change causes a full requestLayout -->
@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:minWidth="@dimen/sensor_card_back_icon_size"
             android:id="@+id/live_sensor_value"
-            android:textColor="@color/text_color_light_grey"
+            android:textColor="@color/text_color_dark_grey"
             android:textSize="@dimen/sensor_card_live_value_text_size"
             android:gravity="end"
             android:layout_centerVertical="true"
