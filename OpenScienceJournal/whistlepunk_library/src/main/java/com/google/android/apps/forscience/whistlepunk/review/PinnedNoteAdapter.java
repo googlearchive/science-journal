@@ -39,7 +39,7 @@ import com.jakewharton.rxbinding2.widget.RxTextView;
 /**
  * Adapter for a recycler view of pinned notes.
  */
-class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = "PinnedNoteAdapter";
     private static final int TYPE_TEXT_NOTE = 0;

@@ -14,82 +14,104 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+
+    <include layout="@layout/exp_card_item_heading" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <ImageView
+            android:id="@+id/note_image"
+            android:scaleType="fitCenter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/picture_note_preview_content_description"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/note_text"
+            android:textColor="@color/text_color_dark_grey"
+            android:textSize="@dimen/run_review_notes_text_size"
+            android:layout_margin="24dp"
+            android:text="@string/pinned_note_placeholder_text"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/auto_note_text"
+            android:textColor="@color/text_color_dark_grey"
+            android:textStyle="italic"
+            android:textSize="14sp"
+            android:layout_margin="24dp"
+            android:visibility="gone"
+            android:drawablePadding="@dimen/edit_note_time_drawable_padding"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_dark_grey"
+            android:textSize="12sp"
+            android:id="@+id/relative_run_time_text"
+            android:visibility="gone"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:shadowColor="@color/text_color_white"
+            android:shadowRadius="6"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:padding="12dp"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/run_review_divider_color"
+            android:layout_alignParentTop="true"
+            android:visibility="gone"
+            android:id="@+id/top_divider"
+            />
+
+    </RelativeLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:id="@+id/caption_section"
         >
 
-        <include layout="@layout/exp_card_item_heading" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/run_review_divider_color"
+            />
 
-        <FrameLayout
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            >
-
-            <ImageView
-                android:id="@+id/note_image"
-                android:scaleType="fitCenter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/picture_note_preview_content_description"
-                android:visibility="gone"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/note_text"
-                android:textColor="@color/text_color_dark_grey"
-                android:textSize="@dimen/run_review_notes_text_size"
-                android:layout_margin="24dp"
-                android:text="@string/pinned_note_placeholder_text"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/auto_note_text"
-                android:textColor="@color/text_color_dark_grey"
-                android:textStyle="italic"
-                android:textSize="14sp"
-                android:layout_margin="24dp"
-                android:visibility="gone"
-                android:drawablePadding="@dimen/edit_note_time_drawable_padding"
-                />
-
-        </FrameLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:id="@+id/caption_section"
-            >
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/run_review_divider_color"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="24dp"
-                android:paddingEnd="24dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
-                android:background="@color/caption_background_color"
-                android:textColor="@color/text_color_light_grey"
-                android:id="@+id/caption"
-                android:textSize="16sp"
-                />
-
-        </LinearLayout>
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:background="@color/caption_background_color"
+            android:textColor="@color/text_color_light_grey"
+            android:id="@+id/caption"
+            android:textSize="16sp"
+            />
 
     </LinearLayout>
 
-</merge>
+</LinearLayout>

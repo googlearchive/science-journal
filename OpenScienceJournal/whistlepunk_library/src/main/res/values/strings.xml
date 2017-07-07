@@ -1458,6 +1458,9 @@ Permissions notice:
     <!-- Title of an activity to view details about a trigger note [CHAR_LIMIT=30] -->
     <string name="trigger_label_details_title">Triggered note details</string>
 
+    <!-- Button to view more notes in a trial [CHAR_LIMIT=50] -->
+    <string name="load_more_notes_btn">View more notes</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

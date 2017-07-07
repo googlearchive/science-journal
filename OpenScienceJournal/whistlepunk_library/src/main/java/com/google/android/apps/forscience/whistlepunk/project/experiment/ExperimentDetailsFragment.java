@@ -79,8 +79,12 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
+import com.google.android.apps.forscience.whistlepunk.review.PinnedNoteAdapter;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.review.labels.LabelDetailsActivity;
@@ -1054,10 +1058,24 @@ public class ExperimentDetailsFragment extends Fragment
                         R.string.archived_content_description, title));
             }
 
-            ViewCompat.setTransitionName(holder.itemView, trial.getTrialId());
+            holder.noteHolder.removeAllViews();
+            if (trial.getLabelCount() > 0) {
+                // Load the first two labels
+                holder.noteHolder.setVisibility(View.VISIBLE);
+                loadLabelIntoHolder(trial.getLabels().get(0), trial.getFirstTimestamp(),
+                        holder.noteHolder);
+                if (trial.getLabelCount() > 1) {
+                    loadLabelIntoHolder(trial.getLabels().get(1), trial.getFirstTimestamp(),
+                            holder.noteHolder);
+                }
+                if (trial.getLabelCount() > 2) {
+                    // Show the "load more" link
+                    loadLearnMoreIntoHolder(holder.noteHolder, item.getTrial().getTrialId());
+                }
+            }
+
             if (!trial.isValid()) {
                 removeSensorData(holder);
-
             } else if (trial.getSensorIds().size() > 0) {
                 loadSensorData(applicationContext, holder, item);
                 holder.sensorNext.setOnClickListener(v -> {
@@ -1085,10 +1103,71 @@ public class ExperimentDetailsFragment extends Fragment
                             item.getSensorTagIndex()));
                     holder.setSensorId(layout.sensorId);
                 });
-
             } else {
                 removeSensorData(holder);
             }
+        }
+
+        private void loadLabelIntoHolder(Label label, long trialStartTime, ViewGroup noteHolder) {
+            // Add labels
+            // TODO: Combine with code in NoteViewHolder?
+            // most of this is not duplicated since NoteViewHolder also deals with menu / caption
+            // as well as click listeners.
+            ViewGroup noteView = (ViewGroup) LayoutInflater.from(noteHolder.getContext()).inflate(
+                    R.layout.exp_card_pinned_note_content, null, false);
+
+            // TODO: Is it more efficient for Android to have a second XML file so I don't have to
+            // show & hide all this stuff?
+            noteView.findViewById(R.id.relative_run_time_text).setVisibility(View.VISIBLE);
+            noteView.findViewById(R.id.top_divider).setVisibility(View.VISIBLE);
+            noteView.findViewById(R.id.heading_section).setVisibility(View.GONE);
+            ((TextView) noteView.findViewById(R.id.relative_run_time_text)).setText(
+                    PinnedNoteAdapter.getNoteTimeText(label.getTimeStamp(), trialStartTime));
+            String captionText = label.getCaptionText();
+            if (!TextUtils.isEmpty(captionText)) {
+                noteView.findViewById(R.id.caption_section).setVisibility(View.VISIBLE);
+                ((TextView) noteView.findViewById(R.id.caption)).setText(captionText);
+            } else {
+                noteView.findViewById(R.id.caption_section).setVisibility(View.GONE);
+            }
+
+            if (label.getType() == GoosciLabel.Label.TEXT) {
+                ((TextView) noteView.findViewById(R.id.note_text)).setText(
+                        label.getTextLabelValue().text);
+            } else {
+                noteView.findViewById(R.id.note_text).setVisibility(View.GONE);
+            }
+
+            if (label.getType() == GoosciLabel.Label.PICTURE) {
+                GoosciPictureLabelValue.PictureLabelValue labelValue = label.getPictureLabelValue();
+                noteView.findViewById(R.id.note_image).setVisibility(View.VISIBLE);
+                PictureUtils.loadExperimentImage(noteView.getContext(),
+                        (ImageView) noteView.findViewById(R.id.note_image),
+                        mExperiment.getExperimentId(), labelValue.filePath);
+            }
+
+            if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
+                noteView.findViewById(R.id.auto_note_text).setVisibility(View.VISIBLE);
+                GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
+                        label.getSensorTriggerLabelValue();
+                // TODO: Load triggers correctly.
+                TriggerHelper.populateAutoTextViews(
+                        (TextView) noteView.findViewById(R.id.auto_note_text), "TODO",
+                        R.drawable.ic_label_black_18dp, noteHolder.getResources());
+            }
+
+            noteHolder.addView(noteView);
+        }
+
+        private void loadLearnMoreIntoHolder(ViewGroup noteHolder, String runId) {
+            LayoutInflater.from(noteHolder.getContext()).inflate(R.layout.load_more_notes_button,
+                    noteHolder);
+            // TODO: Jump straight to the notes section.
+            noteHolder.findViewById(R.id.load_more_btn).setOnClickListener(
+                    view -> RunReviewActivity.launch(noteHolder.getContext(), runId,
+                            mExperiment.getExperimentId(), 0 /* sensor index deprecated */,
+                            false /* from record */, false /* create task */, null)
+            );
         }
 
         private void removeSensorData(DetailsViewHolder holder) {
@@ -1099,15 +1178,10 @@ public class ExperimentDetailsFragment extends Fragment
 
         private View.OnClickListener createRunClickListener(final int selectedSensorIndex) {
             return v -> {
-                AppCompatActivity activity = (AppCompatActivity) v.getContext();
                 String runId = (String) v.getTag(R.id.run_title_text);
-
-                ActivityOptionsCompat options = ActivityOptionsCompat
-                        .makeSceneTransitionAnimation(activity, TransitionUtils
-                                .getTransitionPairs(activity, v, runId));
                 RunReviewActivity.launch(v.getContext(), runId, mExperiment.getExperimentId(),
                         selectedSensorIndex, false /* from record */, false /* create task */,
-                        options.toBundle());
+                        null);
             };
         }
 
@@ -1263,6 +1337,7 @@ public class ExperimentDetailsFragment extends Fragment
             RelativeTimeTextView timeHeader;
             ImageButton menuButton;
             TextView captionTextView;
+            ViewGroup noteHolder;
 
             public DetailsViewHolder(View itemView, int viewType) {
                 super(itemView);
@@ -1285,6 +1360,7 @@ public class ExperimentDetailsFragment extends Fragment
                             R.id.relative_time_text);
                     menuButton = (ImageButton) itemView.findViewById(R.id.note_menu_button);
                     captionTextView = (TextView) itemView.findViewById(R.id.caption);
+                    noteHolder = (ViewGroup) itemView.findViewById(R.id.notes_holder);
 
                     // Only used in RunReview
                     itemView.findViewById(R.id.time_text).setVisibility(View.GONE);

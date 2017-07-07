@@ -310,7 +310,6 @@ public class RunReviewFragment extends Fragment implements
         mSavedInstanceStateForLoad = savedInstanceState;
         final View rootView = inflater.inflate(R.layout.fragment_run_review, container, false);
         AppBarLayout appBarLayout = (AppBarLayout) rootView.findViewById(R.id.app_bar_layout);
-        ViewCompat.setTransitionName(appBarLayout, mTrialId);
         ExternalAxisView externalAxisView =
                 (ExternalAxisView) rootView.findViewById(R.id.external_x_axis);
         mExternalAxis = new ExternalAxisController(externalAxisView,
@@ -504,10 +503,7 @@ public class RunReviewFragment extends Fragment implements
                 upIntent.putExtra(ExperimentDetailsFragment.ARG_CREATE_TASK,
                         getArguments().getBoolean(ARG_CREATE_TASK, false));
                 upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        getActivity(), getView().getRootView().findViewById(R.id.app_bar_layout),
-                        mTrialId);
-                getActivity().startActivity(upIntent, options.toBundle());
+                getActivity().startActivity(upIntent, null);
             } else if (getActivity() != null) {
                 // This is a weird error situation: we didn't load the experiment run at all.
                 // In this case, just finish.

@@ -61,7 +61,6 @@ public class RunReviewActivity extends MetadataActivity {
         setContentView(R.layout.activity_run_review);
         mFromRecord = getIntent().getExtras().getBoolean(EXTRA_FROM_RECORD, false);
         boolean createTask = getIntent().getExtras().getBoolean(EXTRA_CREATE_TASK, true);
-        supportPostponeEnterTransition();
         if (getFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
             RunReviewFragment fragment = RunReviewFragment.newInstance(
                     getIntent().getExtras().getString(RunReviewFragment.ARG_EXPERIMENT_ID),
