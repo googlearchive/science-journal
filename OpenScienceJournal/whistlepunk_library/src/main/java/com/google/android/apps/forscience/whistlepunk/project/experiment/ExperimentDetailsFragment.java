@@ -531,7 +531,7 @@ public class ExperimentDetailsFragment extends Fragment
         final DataController dc = getDataController();
         Snackbar bar = AccessibilityUtils.makeSnackbar(getView(), getActivity().getResources()
                 .getString(R.string.snackbar_note_deleted),
-                Snackbar.LENGTH_SHORT);
+                Snackbar.LENGTH_LONG);
 
         // On undo, re-add the item to the database and the pinned note list.
         bar.setAction(R.string.snackbar_undo, new View.OnClickListener() {
@@ -1039,18 +1039,6 @@ public class ExperimentDetailsFragment extends Fragment
             holder.setRunId(trial.getTrialId());
             String title = trial.getTitle(applicationContext);
             holder.runTitle.setText(title);
-            holder.date.setTime(trial.getFirstTimestamp());
-            ElapsedTimeFormatter formatter = ElapsedTimeFormatter.getInstance(applicationContext);
-            holder.duration.setText(formatter.format(trial.elapsedSeconds()));
-            holder.duration.setContentDescription(
-                    formatter.formatForAccessibility(trial.elapsedSeconds()));
-            if (trial.getLabelCount() > 0) {
-                holder.noteCount.setVisibility(View.VISIBLE);
-                holder.noteCount.setText(applicationContext.getResources().getQuantityString(
-                        R.plurals.notes_count, trial.getLabelCount(), trial.getLabelCount()));
-            } else {
-                holder.noteCount.setVisibility(View.GONE);
-            }
             holder.cardView.setOnClickListener(createRunClickListener(item.getSensorTagIndex()));
             holder.cardView.setTag(R.id.run_title_text, trial.getTrialId());
 
@@ -1179,7 +1167,8 @@ public class ExperimentDetailsFragment extends Fragment
                         public void onChartDataLoaded(long firstTimestamp,
                                 long lastTimestamp) {
                             // Display the graph.
-                            chartController.setXAxisWithBuffer(firstTimestamp, lastTimestamp);
+                            chartController.setLabels(trial.getLabels());
+                            chartController.setXAxis(firstTimestamp, lastTimestamp);
                             chartController.setReviewYAxis(
                                     stats.getStatValue(GoosciTrial.SensorStat.MINIMUM, 0),
                                     stats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, 0), true);
@@ -1258,9 +1247,6 @@ public class ExperimentDetailsFragment extends Fragment
 
             // Run members.
             TextView runTitle;
-            RelativeTimeTextView date;
-            TextView duration;
-            TextView noteCount;
             ChartView chartView;
 
             // Stats members.
@@ -1284,14 +1270,6 @@ public class ExperimentDetailsFragment extends Fragment
                 if (mViewType == VIEW_TYPE_RUN_CARD) {
                     cardView = itemView.findViewById(R.id.card_view);
                     runTitle = (TextView) itemView.findViewById(R.id.run_title_text);
-                    date = (RelativeTimeTextView) itemView.findViewById(R.id.run_details_text);
-                    noteCount = (TextView) itemView.findViewById(R.id.notes_count);
-                    // Set color programatically because this is a compound drawable and
-                    // android:drawableTint starts in API 23.
-                    ColorUtils.colorDrawable(noteCount.getContext(),
-                            noteCount.getCompoundDrawablesRelative()[0],
-                            R.color.text_color_light_grey);
-                    duration = (TextView) itemView.findViewById(R.id.run_review_duration);
                     statsList = (StatsList) itemView.findViewById(R.id.stats_view);
                     sensorName = (TextView) itemView.findViewById(R.id.run_review_sensor_name);
                     sensorPrev = (ImageButton) itemView.findViewById(

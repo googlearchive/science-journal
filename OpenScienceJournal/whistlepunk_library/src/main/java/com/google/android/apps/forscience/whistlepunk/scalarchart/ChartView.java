@@ -708,7 +708,9 @@ public class ChartView extends View {
             return;
         }
 
-        updateYAxisPoints();
+        if (mChartOptions.showYGrid()) {
+            updateYAxisPoints();
+        }
 
         // Draw the Y label lines under the path.
         drawYAxis(canvas);
@@ -738,8 +740,10 @@ public class ChartView extends View {
 
         drawTriggers(canvas);
 
-        // Draw the Y label text above the rect that whites out the Y label axis.
-        drawYAxisText(canvas);
+        if (mChartOptions.showYGrid()) {
+            // Draw the Y label text above the rect that whites out the Y label axis.
+            drawYAxisText(canvas);
+        }
 
         mIsDrawn = true;
     }

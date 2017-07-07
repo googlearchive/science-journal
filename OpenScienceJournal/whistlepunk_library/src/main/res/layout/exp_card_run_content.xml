@@ -34,33 +34,26 @@
             android:id="@+id/heading"
             />
 
-        <include
-            layout="@layout/run_review_overview"
-            android:id="@+id/overview"
+        <TextView
+            android:id="@+id/run_title_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/accessibility_touch_target_min_size"
             android:layout_below="@id/heading"
-            android:paddingStart="@dimen/run_review_margin_sides"
-            android:paddingEnd="@dimen/run_review_margin_sides"
-            android:layout_margin="@dimen/run_review_section_margin"
-            />
-
-        <!-- TODO: refactor this horizontal divider -->
-        <View
-            android:id="@+id/top_divider"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/run_review_divider_thickness"
-            android:layout_marginStart="@dimen/run_review_margin_sides"
-            android:layout_marginEnd="@dimen/run_review_margin_sides"
-            android:layout_marginBottom="@dimen/run_review_divider_margin"
-            android:layout_below="@id/overview"
-            android:background="@color/run_review_divider_color"
+            android:layout_marginTop="-1dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:background="@color/color_accent"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textColor="@color/text_color_white"
+            android:textSize="18sp"
+            android:ellipsize="middle"
             />
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/top_divider"
+            android:layout_below="@id/run_title_text"
             android:id="@+id/sensor_name_section"
             >
 
@@ -68,49 +61,24 @@
 
         </RelativeLayout>
 
-        <View
-            android:id="@+id/middle_divider"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/run_review_divider_thickness"
-            android:layout_below="@id/sensor_name_section"
-            android:background="@color/run_review_divider_color"
-            android:layout_marginStart="@dimen/run_review_margin_sides"
-            android:layout_marginEnd="@dimen/run_review_margin_sides"
-            android:layout_marginTop="@dimen/run_review_divider_margin"
-            android:layout_marginBottom="@dimen/run_review_divider_margin"
-            />
-
-        <com.google.android.apps.forscience.whistlepunk.StatsList
-            app:statsLayout="@layout/stats_view_run_review"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/middle_divider"
-            android:layout_marginBottom="8dp"
-            android:layout_margin="@dimen/run_review_section_margin"
-            android:id="@+id/stats_view"
-            />
-
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/chart_section"
-            android:layout_below="@id/stats_view"
+            android:layout_below="@id/sensor_name_section"
             >
 
             <com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="64dp"
                 android:id="@+id/chart_view"
-                android:paddingBottom="@dimen/run_review_section_margin"
-                android:layout_marginStart="@dimen/run_review_margin_sides"
-                android:layout_marginEnd="@dimen/run_review_margin_sides"
-                android:layout_marginBottom="@dimen/run_review_margin_sides"
+                android:layout_marginRight="12dp"
                 />
 
             <ProgressBar
                 android:id="@+id/chart_progress"
                 android:layout_width="wrap_content"
-                android:layout_height="100dp"
+                android:layout_height="64dp"
                 android:layout_gravity="center"
                 android:layout_centerHorizontal="true"
                 android:visibility="gone"
@@ -119,11 +87,22 @@
 
         </FrameLayout>
 
+        <com.google.android.apps.forscience.whistlepunk.StatsList
+            app:statsLayout="@layout/stats_view_run_review"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/chart_section"
+            android:layout_marginBottom="16dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:id="@+id/stats_view"
+            />
+
         <include layout="@layout/archived_badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="53dp"
             android:layout_marginEnd="@dimen/archive_badge_margin"
             android:layout_alignParentTop="true"
             />
@@ -134,7 +113,7 @@
             android:orientation="vertical"
             android:id="@+id/caption_section"
             android:layout_alignParentBottom="true"
-            android:layout_below="@id/chart_section"
+            android:layout_below="@id/stats_view"
             >
 
             <View
