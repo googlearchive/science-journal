@@ -56,14 +56,14 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     private MetaDataManager mMetaDataManager;
     private Clock mClock;
     private Map<String, FailureListener> mSensorFailureListeners = new HashMap<>();
-    private final Map<String, ExternalSensorProvider> mProviderMap;
+    private final Map<String, SensorProvider> mProviderMap;
     private long mPrevLabelTimestamp = 0;
     private Map<String, WeakReference<Experiment>> mCachedExperiments = new HashMap<>();
     private ConnectableSensor.Connector mConnector;
 
     public DataControllerImpl(SensorDatabase sensorDatabase, Executor uiThread,
             Executor metaDataThread, Executor sensorDataThread, MetaDataManager metaDataManager,
-            Clock clock, Map<String, ExternalSensorProvider> providerMap,
+            Clock clock, Map<String, SensorProvider> providerMap,
             ConnectableSensor.Connector connector) {
         mSensorDatabase = sensorDatabase;
         mUiThread = uiThread;

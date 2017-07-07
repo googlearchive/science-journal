@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
@@ -37,20 +37,20 @@ public class ConnectableSensor {
 
     private String mConnectedSensorId;
     private boolean mIncluded;
-    private final Map<String, ExternalSensorProvider> mProviderMap;
+    private final Map<String, SensorProvider> mProviderMap;
 
     /**
      * Manages creating representations of connected and disconnected sensors from stored
      * configurations.
      */
     public static class Connector {
-        private final Map<String, ExternalSensorProvider> mProviders;
+        private final Map<String, SensorProvider> mProviders;
 
         public static Connector fromDiscoverers(Map<String, SensorDiscoverer> discoverers) {
             return new Connector(AppSingleton.buildProviderMap(discoverers));
         }
 
-        public Connector(Map<String, ExternalSensorProvider> providers) {
+        public Connector(Map<String, SensorProvider> providers) {
             mProviders = providers;
         }
 
@@ -101,7 +101,7 @@ public class ConnectableSensor {
      */
     private ConnectableSensor(GoosciSensorSpec.SensorSpec spec, String connectedSensorId,
             boolean included,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, SensorProvider> providerMap) {
         // TODO: handle built-in sensors as SensorSpec, too.
         mSpec = spec;
         mConnectedSensorId = connectedSensorId;

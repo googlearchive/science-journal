@@ -18,8 +18,13 @@ package com.google.android.apps.forscience.whistlepunk;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 
-// TODO: clarify why this is a different interface from SensorDiscoverer
-public interface ExternalSensorProvider {
+/**
+ * Builds observable SensorChoice implementations from configurations loaded from the database.
+ *
+ * Has different implementations depending on whether the sensor is a built-in sensor, a bluetooth-
+ * connected arduino, or discovered via the scalar API.
+ */
+public interface SensorProvider {
     public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec);
 
     String getProviderId();

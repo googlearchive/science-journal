@@ -27,7 +27,7 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
@@ -69,7 +69,7 @@ public class ConnectableSensorRegistry {
     private final Map<String, SensorDiscoverer.SettingsInterface>
             mSettingsIntents = new ArrayMap<>();
     private final Scheduler mScheduler;
-    private final Map<String, ExternalSensorProvider> mProviders;
+    private final Map<String, SensorProvider> mProviders;
     private boolean mScanning = false;
     private int mScanCount = 0;
 
@@ -260,7 +260,7 @@ public class ConnectableSensorRegistry {
 
     private void startScanning(final String providerKey, SensorDiscoverer discoverer,
             final TaskPool pool, final Set<String> keysSeen, final boolean startSpinners) {
-        ExternalSensorProvider provider = discoverer.getProvider();
+        SensorProvider provider = discoverer.getProvider();
         final String providerId = provider.getProviderId();
         pool.addTask(providerId);
 

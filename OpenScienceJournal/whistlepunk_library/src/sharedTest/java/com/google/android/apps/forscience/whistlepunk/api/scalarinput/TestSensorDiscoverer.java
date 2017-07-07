@@ -19,7 +19,7 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.common.collect.HashMultimap;
@@ -157,8 +157,8 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
     }
 
     @NonNull
-    public Map<String, ExternalSensorProvider> makeProviderMap(String serviceId) {
-        Map<String, ExternalSensorProvider> providers = new HashMap<>();
+    public Map<String, SensorProvider> makeProviderMap(String serviceId) {
+        Map<String, SensorProvider> providers = new HashMap<>();
         Map<String, SensorDiscoverer> discoverers = makeDiscovererMap(serviceId);
         for (Map.Entry<String, SensorDiscoverer> entry : discoverers.entrySet()) {
             providers.put(entry.getKey(), entry.getValue().getProvider());

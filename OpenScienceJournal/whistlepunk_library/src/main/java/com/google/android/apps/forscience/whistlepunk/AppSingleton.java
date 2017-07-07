@@ -23,7 +23,6 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleClientImpl;
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
@@ -49,7 +48,7 @@ public class AppSingleton {
     private RecorderController mRecorderController;
     private SensorRegistry mSensorRegistry;
     private PrefsSensorHistoryStorage mPrefsSensorHistoryStorage;
-    private Map<String, ExternalSensorProvider> mExternalSensorProviders;
+    private Map<String, SensorProvider> mExternalSensorProviders;
     private ConnectableSensor.Connector mSensorConnector;
 
     private SensorEnvironment mSensorEnvironment = new SensorEnvironment() {
@@ -172,7 +171,7 @@ public class AppSingleton {
         return mSensorRegistry;
     }
 
-    public Map<String,ExternalSensorProvider> getExternalSensorProviders() {
+    public Map<String,SensorProvider> getExternalSensorProviders() {
         if (mExternalSensorProviders == null) {
             mExternalSensorProviders = buildProviderMap(
                     WhistlePunkApplication.getExternalSensorDiscoverers(mApplicationContext));
@@ -181,9 +180,9 @@ public class AppSingleton {
     }
 
     @NonNull
-    public static Map<String, ExternalSensorProvider> buildProviderMap(
+    public static Map<String, SensorProvider> buildProviderMap(
             Map<String, SensorDiscoverer> discoverers) {
-        Map<String, ExternalSensorProvider> providers = new HashMap<>();
+        Map<String, SensorProvider> providers = new HashMap<>();
         for (Map.Entry<String, SensorDiscoverer> entry : discoverers.entrySet()) {
             providers.put(entry.getKey(), entry.getValue().getProvider());
         }

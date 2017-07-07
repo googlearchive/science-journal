@@ -16,7 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 
@@ -32,8 +32,8 @@ class StubSensorDiscoverer implements SensorDiscoverer {
     }
 
     @Override
-    public ExternalSensorProvider getProvider() {
-        return new ExternalSensorProvider() {
+    public SensorProvider getProvider() {
+        return new SensorProvider() {
             @Override
             public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
                 return null;

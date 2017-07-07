@@ -48,8 +48,8 @@ public class SensorRegistryUnitTest {
         assertEquals(Lists.newArrayList(), registry.updateExternalSensors(sensors, getProviders()));
     }
 
-    private Map<String, ExternalSensorProvider> getProviders() {
-        Map<String, ExternalSensorProvider> providers = new HashMap<>();
+    private Map<String, SensorProvider> getProviders() {
+        Map<String, SensorProvider> providers = new HashMap<>();
 
         providers.put(ScalarInputSpec.TYPE,
                 new ScalarInputDiscoverer(null, null, MoreExecutors.directExecutor(),

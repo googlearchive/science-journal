@@ -29,7 +29,7 @@ import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
@@ -98,7 +98,7 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
     }
 
     @Override
-    public ExternalSensorProvider getProvider() {
+    public SensorProvider getProvider() {
         return new ScalarInputProvider(mServiceFinder, mStringSource, mUiThreadExecutor,
                 mScheduler);
     }

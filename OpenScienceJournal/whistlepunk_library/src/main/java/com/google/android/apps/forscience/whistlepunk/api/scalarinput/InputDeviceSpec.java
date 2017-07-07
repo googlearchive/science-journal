@@ -22,7 +22,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.InputDevice;
@@ -45,7 +45,7 @@ import java.util.Map;
  * sensor specs.
  */
 public class InputDeviceSpec extends ExternalSensorSpec {
-    public static ExternalSensorProvider PROVIDER = new ExternalSensorProvider() {
+    public static SensorProvider PROVIDER = new SensorProvider() {
         @Override
         public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
             // device entries are never actual streaming sensors
@@ -76,7 +76,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
         }
 
         @Override
-        public ExternalSensorProvider getProvider() {
+        public SensorProvider getProvider() {
             return PROVIDER;
         }
     };
@@ -85,7 +85,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
     private static final String TAG = "InputDeviceSpec";
     private static final String PROVIDER_ID =
             "com.google.android.apps.forscience.whistlepunk.device";
-    public static Map<String, ExternalSensorProvider> PROVIDER_MAP = ImmutableMap.of(TYPE,
+    public static Map<String, SensorProvider> PROVIDER_MAP = ImmutableMap.of(TYPE,
             PROVIDER);
 
     /**

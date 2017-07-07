@@ -23,7 +23,7 @@ import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.TestData;
@@ -62,7 +62,7 @@ public class ScalarInputProviderTest {
                                 new TestDiscoverer(new TestConnector(dataToSend, sensorAddress)));
                     }
                 };
-        ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor,
+        SensorProvider provider = new ScalarInputProvider(finder, null, mExecutor,
                 new MockScheduler());
 
         SensorChoice sensor = provider.buildSensor(sensorId, makeSpec(sensorAddress, serviceId));
@@ -108,7 +108,7 @@ public class ScalarInputProviderTest {
                     }
                 };
 
-        ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor,
+        SensorProvider provider = new ScalarInputProvider(finder, null, mExecutor,
                 new MockScheduler());
         SensorChoice sensor = provider.buildSensor(sensorId, makeSpec(sensorAddress, serviceId));
         SensorRecorder recorder = createRecorder(sensor);
@@ -133,7 +133,7 @@ public class ScalarInputProviderTest {
                     }
                 };
 
-        ExternalSensorProvider provider = new ScalarInputProvider(finder,
+        SensorProvider provider = new ScalarInputProvider(finder,
                 new ScalarInputStringSource() {
                     @Override
                     public String generateCouldNotFindServiceErrorMessage(String serviceId) {
@@ -177,7 +177,7 @@ public class ScalarInputProviderTest {
                     }
                 };
 
-        ExternalSensorProvider provider = new ScalarInputProvider(finder, null, mExecutor,
+        SensorProvider provider = new ScalarInputProvider(finder, null, mExecutor,
                 new MockScheduler());
         SensorChoice sensor = provider.buildSensor(sensorId,
                 new ScalarInputSpec("sensorName", serviceId, sensorAddress, null, null, "devId"));

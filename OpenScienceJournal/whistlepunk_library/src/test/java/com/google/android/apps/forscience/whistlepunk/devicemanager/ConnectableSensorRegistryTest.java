@@ -23,7 +23,7 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -63,7 +63,7 @@ public class ConnectableSensorRegistryTest {
             mMetadataManager = new MemoryMetadataManager();
     private final DeviceOptionsDialog.DeviceOptionsListener
             mOptionsListener = DeviceOptionsDialog.NULL_LISTENER;
-    private final Map<String, ExternalSensorProvider> mProviderMap = new HashMap<>();
+    private final Map<String, SensorProvider> mProviderMap = new HashMap<>();
     private DeviceRegistry mDeviceRegistry = new DeviceRegistry(null);
     private MemorySensorGroup mAvailableDevices = new MemorySensorGroup(mDeviceRegistry);
     private MemorySensorGroup mPairedDevices = new MemorySensorGroup(mDeviceRegistry);

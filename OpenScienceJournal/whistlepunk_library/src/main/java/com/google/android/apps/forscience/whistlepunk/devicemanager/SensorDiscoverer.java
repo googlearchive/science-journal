@@ -21,10 +21,9 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 /**
  * One way of discovering additional sensors that can be added to an experiment
@@ -129,5 +128,5 @@ public interface SensorDiscoverer {
     /**
      * @return the provider that can be used to generate a SensorChoice from the stored spec.
      */
-    ExternalSensorProvider getProvider();
+    SensorProvider getProvider();
 }

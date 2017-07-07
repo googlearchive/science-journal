@@ -17,7 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Scheduler;
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 
@@ -26,7 +26,7 @@ import java.util.concurrent.Executor;
 /**
  * Generates ScalarInputSensors from ScalarInputSpecs
  */
-class ScalarInputProvider implements ExternalSensorProvider {
+class ScalarInputProvider implements SensorProvider {
     private final Scheduler mScheduler;
     private Consumer<AppDiscoveryCallbacks> mServiceFinder;
     private ScalarInputStringSource mStringSource;

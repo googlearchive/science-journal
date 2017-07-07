@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.util.Log;
 
-import com.google.android.apps.forscience.whistlepunk.ExternalSensorProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
@@ -176,20 +176,20 @@ public abstract class ExternalSensorSpec {
     }
 
     public static ExternalSensorSpec fromGoosciSpec(GoosciSensorSpec.SensorSpec spec,
-            Map<String, ExternalSensorProvider> providerMap) {
+            Map<String, SensorProvider> providerMap) {
         Preconditions.checkNotNull(providerMap);
         if (spec == null) {
             return null;
         }
-        ExternalSensorProvider externalSensorProvider = providerMap.get(spec.providerId);
-        if (externalSensorProvider == null) {
+        SensorProvider sensorProvider = providerMap.get(spec.providerId);
+        if (sensorProvider == null) {
             throw new IllegalArgumentException("No provider for sensor type: "
                                                + spec.providerId
                                                + ". Options: "
                                                + providerMap.keySet());
         }
 
-        return externalSensorProvider.buildSensorSpec(spec.rememberedAppearance.name, spec.config);
+        return sensorProvider.buildSensorSpec(spec.rememberedAppearance.name, spec.config);
     }
 
     public static GoosciSensorSpec.SensorSpec toGoosciSpec(ExternalSensorSpec spec) {
