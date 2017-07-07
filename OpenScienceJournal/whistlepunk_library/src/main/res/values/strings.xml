@@ -457,18 +457,18 @@
     <string name="unarchived_experiment_message">Experiment moved out of archive.</string>
 
     <!-- Message of alert when a run is successfully archived [CHAR_LIMIT=100] -->
-    <string name="archived_run_message">Trial archived.</string>
+    <string name="archived_run_message">Recording archived.</string>
 
     <!-- Message of alert when a run moves out of archive [CHAR_LIMIT=100] -->
-    <string name="unarchived_run_message">Trial moved out of archive.</string>
+    <string name="unarchived_run_message">Recording moved out of archive.</string>
 
-    <!-- Replacement content description used for archived trials, projects and experiments [CHAR_LIMIT=NONE]-->
+    <!-- Replacement content description used for archived recordings, projects and experiments [CHAR_LIMIT=NONE]-->
     <string name="archived_content_description"><xliff:g id="item">%1s</xliff:g> (archived)</string>
 
     <!-- Label displaying number of runs in an experiment [CHAR_LIMIT=20] -->
     <plurals name="experiment_run_count">
-        <item quantity="one"><xliff:g id="number">%1d</xliff:g> trial</item>
-        <item quantity="other"><xliff:g id="number">%1d</xliff:g> trials</item>
+        <item quantity="one"><xliff:g id="number">%1d</xliff:g> recording</item>
+        <item quantity="other"><xliff:g id="number">%1d</xliff:g> recordings</item>
     </plurals>
 
     <!-- Label displaying number of notes in a run [CHAR_LIMIT=20] -->
@@ -594,8 +594,8 @@
     <!-- Window title label for the experiment details activity [CHAR_LIMIT=25] -->
     <string name="title_activity_experiment_details">Experiment Details</string>
 
-    <!-- Message shown to user if they have no trials or notes yet. [CHAR_LIMIT=60]-->
-    <string name="empty_experiment">This experiment has no trials or notes.</string>
+    <!-- Message shown to user if they have no recordings or notes yet. [CHAR_LIMIT=60]-->
+    <string name="empty_experiment">This experiment has no recordings or notes.</string>
 
     <!-- Alert message when user deny access to external storage [CHAR_LIMIT=100] -->
     <string name="permission_request_write">Permission needed to write to external storage.</string>
@@ -805,7 +805,7 @@
     <!-- Experiment Details menu option to add a note to an experiment [CHAR_LIMIT=25] -->
     <string name="add_experiment_note">Add note</string>
 
-    <!-- Title for a trial which doesn't have a user-set name, "Date (duration)" [CHAR_LIMIT=10]-->
+    <!-- Title for a recording which doesn't have a user-set name, "Date (duration)" [CHAR_LIMIT=10]-->
     <string name="default_trial_title"><xliff:g id="date">%1$s</xliff:g> (<xliff:g id="duration">%2$s</xliff:g>)</string>
 
     <!-- Content description for the arrow button to move to a previous sensor in RunReview [CHAR_LIMIT=none] -->
@@ -815,7 +815,7 @@
     <string name="run_review_switch_sensor_btn_next">next sensor: <xliff:g id="sensor_name">%s</xliff:g></string>
 
     <!-- Hint text for editing a run text note [CHAR_LIMIT=100] -->
-    <string name="edit_note_hint_text">Edit trial note</string>
+    <string name="edit_note_hint_text">Edit recording note</string>
 
     <!-- Hint text for adding a run text note [CHAR_LIMIT=100] -->
     <string name="add_note_hint_text">Add a new note</string>
@@ -827,7 +827,7 @@
     <string name="snackbar_undo">Undo</string>
 
     <!-- Text placeholder for adding a run note [CHAR_LIMIT=NONE] -->
-    <string name="add_run_note_placeholder_text">Add note to this trial</string>
+    <string name="add_run_note_placeholder_text">Add note to this recording</string>
 
     <!-- Text placeholder for adding an experiment note [CHAR_LIMIT=NONE] -->
     <string name="add_experiment_note_placeholder_text">Add experiment note</string>
@@ -863,22 +863,22 @@
     <string name="delete_project_dialog_title">Delete this project?</string>
 
     <!-- Alert content to confirm that a project should really be deleted and that this action is final [CHAR_LIMIT=NONE] -->
-    <string name="delete_project_dialog_message">Are you sure you want to delete this project? All its experiments, trials and notes will be deleted. This action cannot be undone.</string>
+    <string name="delete_project_dialog_message">Are you sure you want to delete this project? All its experiments, recordings and notes will be deleted. This action cannot be undone.</string>
 
     <!-- Dialog title for deleting an experiment [CHAR_LIMIT=30]-->
     <string name="delete_experiment_dialog_title">Delete this experiment?</string>
 
     <!-- Dialog message for deleting an experiment, which can't be undone [CHAR_LIMIT=NONE]-->
-    <string name="delete_experiment_dialog_message">Are you sure you want to delete this experiment? All its trials and notes will be deleted. This action cannot be undone.</string>
+    <string name="delete_experiment_dialog_message">Are you sure you want to delete this experiment? All its recordings and notes will be deleted. This action cannot be undone.</string>
 
     <!-- Menu item label that creates a new experiment in a popup menu for a project [CHAR_LIMIT=50]-->
     <string name="action_new_experiment">New experiment</string>
 
     <!-- Title for alert asking for confirmation to delete a run [CHAR_LIMIT=30] -->
-    <string name="delete_run_dialog_title">Delete this trial?</string>
+    <string name="delete_run_dialog_title">Delete this recording?</string>
 
     <!-- Alert content to confirm that a run should really be deleted and that this action is final [CHAR_LIMIT=NONE] -->
-    <string name="run_review_delete_confirm">Are you sure you want to delete this trial? The recorded data and notes will be deleted. This action cannot be undone.</string>
+    <string name="run_review_delete_confirm">Are you sure you want to delete this recording? The recorded data and notes will be deleted. This action cannot be undone.</string>
 
     <!-- Content description for a generic menu button [CHAR_LIMIT=NONE] -->
     <string name="menu_btn_content_description">menu</string>
@@ -947,14 +947,14 @@
     <!-- Title for developer option to enable additional sonification types [CHAR_LIMIT=35] -->
     <string name="dev_sonification_types_title">Enable dev sonification types</string>
 
-    <!-- Title for edit trial activity [CHAR_LIMIT=30] -->
-    <string name="title_edit_trial_activity">Edit Trial</string>
+    <!-- Title for edit recording activity [CHAR_LIMIT=30] -->
+    <string name="title_edit_trial_activity">Edit Recording</string>
 
-    <!-- Hint text for edit trial title text input [CHAR_LIMIT=30] -->
-    <string name="edit_trial_title_hint">Trial title</string>
+    <!-- Hint text for edit recording title text input [CHAR_LIMIT=30] -->
+    <string name="edit_trial_title_hint">Recording title</string>
 
-    <!-- Menu option to include archived trials when viewing a list of trials in an experiment [CHAR_LIMIT=30] -->
-    <string name="include_archived_trials">Show archived trials</string>
+    <!-- Menu option to include archived recordings when viewing a list of recordings in an experiment [CHAR_LIMIT=30] -->
+    <string name="include_archived_trials">Show archived recordings</string>
 
     <!-- Snackbar message shown to user if the export fails [CHAR_LIMIT=50]-->
     <string name="export_error">Export failed.</string>
@@ -984,7 +984,7 @@
     <!-- Description text shown in the Play Store for this app. Ensure a space
          remains before and after urls. [CHAR LIMIT=4000]-->
     <string name="listing__description">Science Journal is a tool for doing science with your phone, tablet, or Chromebook supporting Android apps.  You can use the sensors in your phone or connect to external sensors to conduct experiments on the world around you.
-        Organize your ideas into projects, make predictions, take notes and collect data in multiple trials, then annotate and explore your results. It\'s the lab notebook you always have with you.
+        Organize your ideas into projects, make predictions, take notes and collect data in multiple recordings, then annotate and explore your results. It\'s the lab notebook you always have with you.
 \n\n
 \nGet activity ideas to use with the app here: https://makingscience.withgoogle.com/science-journal/activities
 \nLearn more about Making &amp; Science: https://makingscience.withgoogle.com
@@ -1345,7 +1345,7 @@ Permissions notice:
     <string name="timestamp_picker_range_error">The time must be within the trial</string>
 
     <!-- Error text for the manual crop timestamp entry field when the timestamp would result in an invalid crop range of less than one second [CHAR_LIMIT=59] -->
-    <string name="timestamp_picker_crop_range_error">Trials cannot be cropped to less than one second long</string>
+    <string name="timestamp_picker_crop_range_error">Recordings cannot be cropped to less than one second long</string>
 
     <!-- Label for the timestamp picker text field, where the user enters a time in a certain format like h:mm:ss.SSS (milliseconds) [CHAR_LIMIT=80]-->
     <string name="timestamp_picker_prompt">New time (h:mm:ss.SSS)</string>
