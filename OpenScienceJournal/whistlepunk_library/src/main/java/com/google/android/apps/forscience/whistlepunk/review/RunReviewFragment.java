@@ -828,7 +828,7 @@ public class RunReviewFragment extends Fragment implements
         final DataController dc = getDataController();
         Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
                 getActivity().getResources().getString(R.string.snackbar_note_deleted),
-                Snackbar.LENGTH_SHORT);
+                Snackbar.LENGTH_LONG);
 
         // On undo, re-add the item to the database and the pinned note list.
         bar.setAction(R.string.snackbar_undo, new View.OnClickListener() {

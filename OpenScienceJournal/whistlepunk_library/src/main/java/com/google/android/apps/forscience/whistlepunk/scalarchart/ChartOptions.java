@@ -35,7 +35,7 @@ public class ChartOptions {
     }
 
     // Factor by which to scale the Y axis range so that all the points fit snugly.
-    private static final double BUFFER_SCALE = .085;
+    private static final double BUFFER_SCALE = .09;
 
     // The minimum spread between the minimum and maximum y values shown on the graph.
     static final double MINIMUM_Y_SPREAD = 1;
@@ -440,5 +440,9 @@ public class ChartOptions {
 
     public List<Double> getTriggerValues() {
         return mTriggerValues;
+    }
+
+    public boolean showYGrid() {
+        return getChartPlacementType() != ChartOptions.ChartPlacementType.TYPE_PREVIEW_REVIEW;
     }
 }
