@@ -232,9 +232,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     experimentId, newFile);
             try (FileChannel input = new FileInputStream(oldFile).getChannel();
                  FileChannel output = new FileOutputStream(newFile).getChannel()) {
-                // We can't do a simple rename because we used to store photos on external storage
-                // and we are moving them to internal storage
-                // Instead we have to copy the file contents over.
+                // Copy the file contents over to internal storage from external.
                 input.transferTo(0, input.size(), output);
                 success = true;
             }
@@ -244,7 +242,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
             }
         }
         if (success) {
-            oldFile.delete();
+            // Even though we are successful, we will not delete the old photo on upgrade.
+            // Upgrade is a copy, not a move.
             label.setLabelProtoData(pictureLabelValue);
             return true;
         } else {
