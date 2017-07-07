@@ -20,6 +20,12 @@ import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 public class RecordingStatus {
     public static final RecordingStatus UNCONNECTED =
             new RecordingStatus(RecordingState.UNCONNECTED, null);
+    public static final RecordingStatus INACTIVE =
+            new RecordingStatus(RecordingState.INACTIVE, null);
+    public static RecordingStatus active(RecordingMetadata recording) {
+        return new RecordingStatus(RecordingState.ACTIVE, recording);
+    }
+
     public final RecordingState state;
     public final RecordingMetadata currentRecording;
 
@@ -35,10 +41,6 @@ public class RecordingStatus {
     public String getCurrentRunId() {
         return isRecording() ? currentRecording.getRunId() : RecorderController
                 .NOT_RECORDING_RUN_ID;
-    }
-
-    public RecordingStatus withRecording(RecordingMetadata newRecording) {
-        return new RecordingStatus(state, newRecording);
     }
 
     public RecordingStatus withState(RecordingState newState) {

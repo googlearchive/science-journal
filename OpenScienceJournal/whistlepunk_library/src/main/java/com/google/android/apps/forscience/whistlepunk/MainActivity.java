@@ -45,7 +45,8 @@ import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.intro.TutorialActivity;
 import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
-import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+
+import io.reactivex.subjects.PublishSubject;
 
 
 public class MainActivity extends AppCompatActivity
@@ -67,9 +68,10 @@ public class MainActivity extends AppCompatActivity
     private MultiTouchDrawerLayout mDrawerLayout;
     private RecordFragment mRecordFragment;
     private int mSelectedItemId = NO_SELECTED_ITEM;
-    private RecorderController.RecordingStateListener mRecordingStateListener;
     private boolean mIsRecording = false;
-    private int mRecordingStateListenerId = RecorderController.NO_LISTENER_ID;
+
+    /** Receives an event every time the activity pauses */
+    RxEvent mPause = new RxEvent();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,13 +122,6 @@ public class MainActivity extends AppCompatActivity
         }
         mNavigationView.setCheckedItem(selectedNavItemId);
         onNavigationItemSelected(item);
-
-        mRecordingStateListener = recording -> {
-            mNavigationView.getMenu().findItem(R.id.navigation_item_experiments).setEnabled(
-                    recording == null);
-            mIsRecording = recording != null;
-            exitMetadataIfNeeded();
-        };
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
@@ -223,17 +218,21 @@ public class MainActivity extends AppCompatActivity
 
     private void updateRecorderControllerForResume() {
         RecorderController rc = AppSingleton.getInstance(this).getRecorderController();
-        mRecordingStateListenerId = rc.addRecordingStateListener(mRecordingStateListener);
+
+        // TODO: extract and test
+        rc.watchRecordingStatus().takeUntil(mPause.happens()).subscribe(status -> {
+            mIsRecording = status.isRecording();
+            mNavigationView.getMenu().findItem(R.id.navigation_item_experiments).setEnabled(
+                    !mIsRecording);
+            exitMetadataIfNeeded();
+        });
         rc.setRecordActivityInForeground(true);
     }
 
     private void updateRecorderControllerForPause() {
+        mPause.onHappened();
         AppSingleton singleton = AppSingleton.getInstance(this);
         RecorderController rc = singleton.getRecorderController();
-        if (mRecordingStateListenerId != RecorderController.NO_LISTENER_ID) {
-            rc.removeRecordingStateListener(mRecordingStateListenerId);
-            mRecordingStateListenerId = RecorderController.NO_LISTENER_ID;
-        }
         rc.setRecordActivityInForeground(false);
     }
 

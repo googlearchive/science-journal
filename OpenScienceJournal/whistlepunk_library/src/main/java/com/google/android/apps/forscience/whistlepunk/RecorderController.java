@@ -25,7 +25,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
-import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
 import com.google.common.base.Supplier;
 
@@ -145,19 +144,13 @@ public interface RecorderController extends SensorRegistryListener {
      */
     List<String> getMostRecentObservedSensorIds();
 
-    interface RecordingStateListener {
-        void onRecordingStateChanged(RecordingMetadata currentRecording);
-    }
-
     public static int NO_LISTENER_ID = -1;
 
     /**
-     * @return an integer id that should be passed to {@link #removeRecordingStateListener(int)} to
-     *         stop listening.  Guaranteed to be >= 0.
+     * @return an observable that publishes the current recording status, and all future updates to
+     * it.
      */
-    int addRecordingStateListener(RecordingStateListener listener);
-
-    void removeRecordingStateListener(int listenerId);
+    Observable<RecordingStatus> watchRecordingStatus();
 
     interface TriggerFiredListener {
         /**

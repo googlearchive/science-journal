@@ -26,7 +26,6 @@ import com.google.android.apps.forscience.whistlepunk.RecorderController;
  */
 public class MetadataActivity extends AppCompatActivity {
     private static final String TAG = "MetadataActivity";
-    private int mRecorderListenerId = RecorderController.NO_LISTENER_ID;
 
     @Override
     protected void onResume() {
@@ -35,18 +34,11 @@ public class MetadataActivity extends AppCompatActivity {
         final RecorderController recorderController =
                 AppSingleton.getInstance(this).getRecorderController();
 
-        RecorderController.RecordingStateListener listener = currentRecording -> {
-            if (mRecorderListenerId
-                != RecorderController.NO_LISTENER_ID) {
-                recorderController.removeRecordingStateListener(
-                        mRecorderListenerId);
-                mRecorderListenerId = RecorderController.NO_LISTENER_ID;
-            }
-            if (currentRecording != null) {
+        recorderController.watchRecordingStatus().firstElement().subscribe(status -> {
+            boolean recording = status.isRecording();
+            if (recording) {
                 finish();
             }
-        };
-
-        mRecorderListenerId = recorderController.addRecordingStateListener(listener);
+        });
     }
 }
