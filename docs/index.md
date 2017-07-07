@@ -19,16 +19,17 @@ running our open source Science Journal firmware.
 Science Journal has an open API which allows other Android apps to advertise sensors and publish data to the app.
 Several companies have used this API to work with external sensors.
 
-* Vernier Technology
-* PocketLab
+* [Vernier Technology](http://www.vernier.com/products/software/science-journal/)
+* [PocketLab](http://thepocketlab.com)
+* [Attys](http://www.attys.tech/)
 
 If you are use this API in your own app, please let us know so we can link to you here!
 
 Science Journal also works out of the box with our open source Science Journal sensor firmware. It runs on 2 models of BLE 
 equipped Arduinos.
 
-* Arduino 101 from Intel
-* BLEND board from RedBear
+* [Arduino 101 from Intel](https://software.intel.com/en-us/iot/hardware/curie/dev-kit)
+* [BLEND board from RedBear](http://redbearlab.com/blend/)
 
 ## Where is the code?
 
