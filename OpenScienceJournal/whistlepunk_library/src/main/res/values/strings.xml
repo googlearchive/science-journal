@@ -1461,6 +1461,12 @@ Permissions notice:
     <!-- Button to view more notes in a trial [CHAR_LIMIT=50] -->
     <string name="load_more_notes_btn">View more notes</string>
 
+    <!-- Title of a dialog to name an experiment that is not yet named [CHAR_LIMIT=50] -->
+    <string name="name_experiment_dialog_title">Name this experiment</string>
+
+    <!-- Error text that an experiment title cannot be empty [CHAR_LIMIT=50] -->
+    <string name="empty_experiment_title_error">Name cannot be empty</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

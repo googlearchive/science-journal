@@ -148,8 +148,12 @@ public class ExperimentListFragment extends Fragment implements
                 new LoggingConsumer<Experiment>(TAG, "Create a new experiment") {
                     @Override
                     public void success(final Experiment experiment) {
-                        UpdateExperimentActivity.launch(getActivity(),
-                                experiment.getExperimentId(), true /* is new */);
+                        if (shouldUsePanes()) {
+                            PanesActivity.launch(v.getContext(), experiment.getExperimentId());
+                        } else {
+                            ExperimentDetailsActivity.launch(v.getContext(),
+                                    experiment.getExperimentId());
+                        }
                     }
                 }));
 

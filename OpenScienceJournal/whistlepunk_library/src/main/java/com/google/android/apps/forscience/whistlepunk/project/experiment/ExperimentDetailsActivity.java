@@ -116,4 +116,12 @@ public class ExperimentDetailsActivity extends MetadataActivity {
         ExperimentDetailsFragment fragment = getFragment();
         return fragment != null ? fragment.getExperimentId() : null;
     }
+
+    @Override
+    public void onBackPressed() {
+        if (getFragment().handleOnBackPressed()) {
+            return;
+        }
+        super.onBackPressed();
+    }
 }

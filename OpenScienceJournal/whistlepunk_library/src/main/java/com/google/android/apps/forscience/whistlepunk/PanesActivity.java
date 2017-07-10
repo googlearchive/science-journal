@@ -40,7 +40,6 @@ import com.jakewharton.rxbinding2.view.RxView;
 
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -202,6 +201,14 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     protected void onDestroy() {
         mUntilDestroyed.dispose();
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mExperimentFragment.handleOnBackPressed()) {
+            return;
+        }
+        super.onBackPressed();
     }
 
     @Override
