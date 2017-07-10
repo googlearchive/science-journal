@@ -103,6 +103,8 @@ import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.List;
 
+import io.reactivex.Single;
+
 public class RunReviewFragment extends Fragment implements
         AddNoteDialog.ListenerProvider,
         EditTimeDialogListener,
@@ -1236,6 +1238,11 @@ public class RunReviewFragment extends Fragment implements
                 mRunReviewOverlay.setActiveTimestamp(selectedTimestamp);
                 mRunReviewOverlay.setOnTimestampChangeListener(timeDialog);
                 setTimepickerUi(getView(), true);
+            }
+
+            @Override
+            public Single<String> whenExperimentId() {
+                return Single.just(mExperimentId);
             }
         };
     }

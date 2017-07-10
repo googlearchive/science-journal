@@ -86,6 +86,11 @@ public class AddNoteDialog extends DialogFragment {
     public static abstract class AddNoteDialogListener {
         static AddNoteDialogListener NULL = new AddNoteDialogListener() {
             @Override
+            public Single<String> whenExperimentId() {
+                return Single.never();
+            }
+
+            @Override
             public String toString() {
                 return "AddNoteDialogListener.NULL";
             }
@@ -116,6 +121,12 @@ public class AddNoteDialog extends DialogFragment {
         public void onAddNoteTimestampClicked(Label editedLabel, long selectedTimestamp) {
 
         }
+
+        /**
+         * @return If the experiment id is not known at creation time, subscribe to this to
+         *         get it when set.
+         */
+        public abstract Single<String> whenExperimentId();
     }
 
     public interface ListenerProvider {
@@ -230,10 +241,6 @@ public class AddNoteDialog extends DialogFragment {
     public AddNoteDialog() {
     }
 
-    public void setExperimentId(String experimentId) {
-        mWhenExperimentId.onNext(experimentId);
-    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -325,8 +332,14 @@ public class AddNoteDialog extends DialogFragment {
             mPictureLabelPath = getArguments().getString(KEY_SAVED_PICTURE_PATH, null);
             mTrialId = getArguments().getString(KEY_SAVED_RUN_ID);
             String experimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
+
             if (experimentId != null) {
+                // If already supplied, set it
                 mWhenExperimentId.onNext(experimentId);
+            } else {
+                // Otherwise, wait for it.
+                // TODO: be sure to unsubscribe once FragmentBinder CL is in.
+                mListener.whenExperimentId().toObservable().subscribe(mWhenExperimentId);
             }
 
             mUntilDestroyed.add(mWhenExperiment.subscribe(
@@ -480,7 +493,10 @@ public class AddNoteDialog extends DialogFragment {
                 success = addTextLabel(t);
             }
             if (success) {
-                getDialog().dismiss();
+                Dialog dialog = getDialog();
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
             }
         });
     }

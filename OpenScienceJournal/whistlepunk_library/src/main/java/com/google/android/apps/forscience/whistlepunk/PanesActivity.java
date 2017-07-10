@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -49,6 +50,45 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private static final String TAG = "PanesActivity";
     private static final String EXTRA_EXPERIMENT_ID = "experimentId";
 
+    private static enum ToolTab {
+        NOTES(R.string.tab_description_add_note, R.drawable.ic_notes_white_24dp) {
+            @Override
+            public Fragment createFragment() {
+                return AddNoteDialog.createWithNoExperimentYet(
+                        R.string.add_experiment_note_placeholder_text);
+            }
+        }, OBSERVE(R.string.tab_description_observe, R.drawable.ic_observe_white_24dp) {
+            @Override
+            public Fragment createFragment() {
+                return RecordFragment.newInstance(true, false);
+            }
+        }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp) {
+            @Override
+            public Fragment createFragment() {
+                // TODO: b/62022245
+                return CameraFragment.newInstance();
+            }
+        };
+
+        private final int mContentDescriptionId;
+        private final int mIconId;
+
+        ToolTab(int contentDescriptionId, int iconId) {
+            mContentDescriptionId = contentDescriptionId;
+            mIconId = iconId;
+        }
+
+        public abstract Fragment createFragment();
+
+        public int getContentDescriptionId() {
+            return mContentDescriptionId;
+        }
+
+        public int getIconId() {
+            return mIconId;
+        }
+    }
+
     public static void launch(Context context, String experimentId) {
         Intent intent = new Intent(context, PanesActivity.class);
         intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
@@ -56,16 +96,15 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private ExperimentDetailsFragment mExperimentFragment = null;
-    private AddNoteDialog mAddNoteDialog = null;
     private CompositeDisposable mUntilDestroyed = new CompositeDisposable();
 
     /**
      * BehaviorSubject remembers the last loaded value (if any) and delivers it, and all subsequent
      * values, to any observers.
-     *
+     * <p>
      * TODO: use mActiveExperiment for other places that need an experiment in this class and
-     *       fragments.
-     *
+     * fragments.
+     * <p>
      * (First use of RxJava.)
      */
     private BehaviorSubject<Experiment> mActiveExperiment = BehaviorSubject.create();
@@ -79,16 +118,10 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         final FragmentPagerAdapter adapter = new FragmentPagerAdapter(getFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
-                switch (position) {
-                    case 0:
-                        return getAddNoteDialog();
-                    case 1:
-                        return RecordFragment.newInstance(true, false);
-                    case 2:
-                        // TODO: b/62022245
-                        return CameraFragment.newInstance();
+                if (position >= ToolTab.values().length) {
+                    return null;
                 }
-                return null;
+                return ToolTab.values()[position].createFragment();
             }
 
             @Override
@@ -99,21 +132,46 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         pager.setAdapter(adapter);
 
         View bottomSheet = findViewById(R.id.bottom);
+        TabLayout toolPicker = (TabLayout) findViewById(R.id.tool_picker);
         RxView.globalLayouts(bottomSheet).firstElement().subscribe(o -> {
             // After first layout, height is valid
 
             BottomSheetBehavior<View> bottom = BottomSheetBehavior.from(bottomSheet);
             bottom.setBottomSheetCallback(
                     new TriStateCallback(bottom, true, getWindow().getDecorView().getHeight(),
-                            findViewById(R.id.tool_picker)));
+                            toolPicker));
+        });
+
+        for (ToolTab tab : ToolTab.values()) {
+            TabLayout.Tab layoutTab = toolPicker.newTab();
+            layoutTab.setContentDescription(tab.getContentDescriptionId());
+            layoutTab.setIcon(tab.getIconId());
+            layoutTab.setTag(tab);
+            toolPicker.addTab(layoutTab);
+        }
+
+        toolPicker.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                ToolTab toolTab = (ToolTab) tab.getTag();
+                pager.setCurrentItem(toolTab.ordinal(), true);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
         });
 
         // By adding the subscription to mUntilDestroyed, we make sure that we can disconnect from
         // the experiment stream when this activity is destroyed.
         mUntilDestroyed.add(mActiveExperiment.subscribe(experiment -> {
-            String experimentId = experiment.getExperimentId();
-            setExperimentFragmentId(experimentId);
-            setNoteFragmentId(experimentId);
+            setExperimentFragmentId(experiment.getExperimentId());
         }));
 
         // TODO: can I do this without a behavior subject?
@@ -194,10 +252,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         }
     }
 
-    private void setNoteFragmentId(String experimentId) {
-        getAddNoteDialog().setExperimentId(experimentId);
-    }
-
     @Override
     protected void onDestroy() {
         mUntilDestroyed.dispose();
@@ -233,6 +287,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     }
                 };
             }
+
+            @Override
+            public Single<String> whenExperimentId() {
+                return mActiveExperiment.firstElement().toSingle().map(e -> e.getExperimentId());
+            }
         };
     }
 
@@ -260,14 +319,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     private DataController getDataController() {
         return AppSingleton.getInstance(PanesActivity.this).getDataController();
-    }
-
-    public AddNoteDialog getAddNoteDialog() {
-        if (mAddNoteDialog == null) {
-            mAddNoteDialog = AddNoteDialog.createWithNoExperimentYet(
-                    R.string.add_experiment_note_placeholder_text);
-        }
-        return mAddNoteDialog;
     }
 
     // TODO: this is acceptable, but still a bit wonky.  For example, it's hard to get from bottom

@@ -22,11 +22,15 @@
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
         >
 
-        <View
+        <android.support.design.widget.TabLayout
             android:id="@+id/tool_picker"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@color/text_color_dark_grey"
+            android:contentDescription="@string/tool_picker_tab_layout_description"
+            app:tabIndicatorColor="@color/sensor_tab_indicator_color"
+            app:tabIndicatorHeight="@dimen/sensor_tab_indicator_height"
+            app:tabMode="scrollable"
             />
 
         <android.support.v4.view.ViewPager

@@ -101,6 +101,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import io.reactivex.Single;
+
 /**
  * A fragment to handle displaying Experiment details, runs and labels.
  */
@@ -521,6 +523,11 @@ public class ExperimentDetailsFragment extends Fragment
             @Override
             public void onAddNoteTimestampClicked(Label label, long selectedTimestamp) {
                 // No timestamp editing available in Experiments.
+            }
+
+            @Override
+            public Single<String> whenExperimentId() {
+                return Single.just(mExperimentId);
             }
         };
     }

@@ -1121,6 +1121,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                     }
                 };
             }
+
+            @Override
+            public Single<String> whenExperimentId() {
+                return Single.just(mSelectedExperiment.getExperimentId());
+            }
         };
     }
 

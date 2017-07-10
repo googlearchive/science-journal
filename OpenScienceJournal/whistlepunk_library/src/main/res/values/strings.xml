@@ -1458,6 +1458,18 @@ Permissions notice:
     <!-- Title of an activity to view details about a trigger note [CHAR_LIMIT=30] -->
     <string name="trigger_label_details_title">Triggered note details</string>
 
+    <!-- Content description of draggable bar with icons for note tools [CHAR_LIMIT=none] -->
+    <string name="tool_picker_tab_layout_description">Available tools</string>
+
+    <!-- Content description for tab icon to add a text note [CHAR_LIMIT=none] -->
+    <string name="tab_description_add_note">Add note</string>
+
+    <!-- Content description for tab icon to observe sensors [CHAR_LIMIT=none] -->
+    <string name="tab_description_observe">Observe sensors</string>
+
+    <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
+    <string name="tab_description_camera">Take picture</string>
+
     <!-- Button to view more notes in a trial [CHAR_LIMIT=50] -->
     <string name="load_more_notes_btn">View more notes</string>
 
