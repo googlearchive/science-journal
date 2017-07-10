@@ -131,7 +131,7 @@
         <activity
             android:name=".review.labels.LabelDetailsActivity"
             android:exported="false"
-            android:theme="@style/NoBarTheme.Review"
+            android:theme="@style/AppTheme.Triggers"
             android:windowSoftInputMode="adjustResize"
             >
         </activity>

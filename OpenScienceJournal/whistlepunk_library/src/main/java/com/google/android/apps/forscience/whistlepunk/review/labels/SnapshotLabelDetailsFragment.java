@@ -59,17 +59,6 @@ public class SnapshotLabelDetailsFragment extends LabelDetailsFragment {
         View rootView = inflater.inflate(R.layout.sensor_readings_label_details_fragment, container,
                 false);
 
-        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeButtonEnabled(true);
-            // TODO: replace these once the sensor trigger detail page is in spec.
-            actionBar.setTitle("Time...");
-            actionBar.setSubtitle("Date...");
-        }
-
         // TODO: Populate the list with snapshot values.
 
         setupCaption(rootView);
@@ -81,6 +70,11 @@ public class SnapshotLabelDetailsFragment extends LabelDetailsFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_sensor_item_label_details, menu);
+
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        actionBar.setTitle(getActivity().getResources().getString(
+                R.string.snapshot_label_details_title));
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
