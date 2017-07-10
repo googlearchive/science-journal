@@ -35,6 +35,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.disposables.Disposable;
+
 public class ProxyRecorderController extends IRecorderController.Stub {
     public static interface BindingPolicy {
         public void checkBinderAllowed();
@@ -45,7 +47,7 @@ public class ProxyRecorderController extends IRecorderController.Stub {
     private final FailureListener mFailureListener;
     private String mSensorId = null;
     private String mObserverId = null;
-    private Map<String, Integer> mRecorderListenerIds = new ArrayMap<>();
+    private Map<String, Disposable> mRecordListeners = new ArrayMap<>();
 
     public ProxyRecorderController(RecorderController delegate, BindingPolicy bindingPolicy,
             FailureListener failureListener) {
@@ -145,29 +147,19 @@ public class ProxyRecorderController extends IRecorderController.Stub {
     @Override
     public void addRecordingStateListener(String listenerId, IRecordingStateListener listener)
             throws RemoteException {
-        if (mRecorderListenerIds.containsKey(listenerId)) {
+        if (mRecordListeners.containsKey(listenerId)) {
             throw new IllegalStateException("Already listening to id: " + listenerId);
         }
-        mRecorderListenerIds.put(listenerId,
-                mDelegate.addRecordingStateListener(
-                        proxyRecordingStateListener(listener, mFailureListener)));
+        mRecordListeners.put(listenerId,
+                mDelegate.watchRecordingStatus().subscribe(currentRecording -> {
+                    try {
+                        listener.onRecordingStateChanged(currentRecording.isRecording());
+                    } catch (RemoteException e) {
+                        mFailureListener.fail(e);
+                    }
+                }));
         mDelegate.addObservedIdsListener(listenerId,
                 proxyObservedIdsListener(listener, mFailureListener));
-    }
-
-    private RecorderController.RecordingStateListener proxyRecordingStateListener(
-            final IRecordingStateListener listener,
-            final FailureListener failureListener) {
-        return new RecorderController.RecordingStateListener() {
-            @Override
-            public void onRecordingStateChanged(RecordingMetadata currentRecording) {
-                try {
-                    listener.onRecordingStateChanged(currentRecording != null);
-                } catch (RemoteException e) {
-                    failureListener.fail(e);
-                }
-            }
-        };
     }
 
     private RecorderController.ObservedIdsListener proxyObservedIdsListener(
@@ -185,12 +177,11 @@ public class ProxyRecorderController extends IRecorderController.Stub {
         };
     }
 
-
     @Override
     public void removeRecordingStateListener(String listenerId) throws RemoteException {
-        if (mRecorderListenerIds.containsKey(listenerId)) {
-            mDelegate.removeRecordingStateListener(mRecorderListenerIds.get(listenerId));
-            mRecorderListenerIds.remove(listenerId);
+        if (mRecordListeners.containsKey(listenerId)) {
+            mRecordListeners.get(listenerId).dispose();
+            mRecordListeners.remove(listenerId);
         }
         mDelegate.removeObservedIdsListener(listenerId);
     }

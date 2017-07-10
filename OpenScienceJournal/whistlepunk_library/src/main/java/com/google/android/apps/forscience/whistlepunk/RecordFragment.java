@@ -198,8 +198,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private Experiment mSelectedExperiment;
     private BehaviorSubject<Experiment> mSelectedExperimentSubject = BehaviorSubject.create();
 
+    // TODO: update RecorderController.watchRecordingStatus to replace the fine-grained status
+    //       updates currently recorded here.
     // Subscribe to get whether we are currently recording, and future updates.
-    private BehaviorSubject<RecordingStatus> mRecordingStatus = BehaviorSubject.create();
+    private BehaviorSubject<RecordingStatus> mRecordingStatus =
+            BehaviorSubject.createDefault(RecordingStatus.UNCONNECTED);
 
     // A temporary variable to store a sensor card presenter that wants to use
     // the decibel sensor before the permission to use microphone is granted
@@ -216,8 +219,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private String mRecorderPauseId;
     private boolean mRecordingWasCanceled;
     private Set<String> mExcludedSensorIds = Sets.newHashSet();
-    private int mRecorderStateListenerId = RecorderController.NO_LISTENER_ID;
     private int mTriggerFiredListenerId = RecorderController.NO_LISTENER_ID;
+
+    RxEvent mUiStop = new RxEvent();
 
     public static RecordFragment newInstance(boolean showSnapshot, boolean inflateMenu) {
         RecordFragment fragment = new RecordFragment();
@@ -326,10 +330,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         }
         RecorderController rc = getRecorderController();
         mRecorderPauseId = rc.pauseObservingAll();
-        if (mRecorderStateListenerId != RecorderController.NO_LISTENER_ID) {
-            rc.removeRecordingStateListener(mRecorderStateListenerId);
-            mRecorderStateListenerId = RecorderController.NO_LISTENER_ID;
-        }
+        mUiStop.onHappened();
         if (mTriggerFiredListenerId != RecorderController.NO_LISTENER_ID) {
             rc.removeTriggerFiredListener(mTriggerFiredListenerId);
             mTriggerFiredListenerId = RecorderController.NO_LISTENER_ID;
@@ -363,12 +364,14 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void startUI() {
-        mRecordingStatus.onNext(RecordingStatus.UNCONNECTED);
         mExternalAxis.onResumeLiveAxis();
 
+        mRecordingStatus.onNext(RecordingStatus.UNCONNECTED);
+
         RecorderController rc = getRecorderController();
-        mRecorderStateListenerId = rc.addRecordingStateListener(
-                createRecordingStateListener());
+        rc.watchRecordingStatus()
+          .takeUntil(mUiStop.happens())
+          .subscribe(this::onNewRecordingStatus);
 
         RecorderController.TriggerFiredListener tlistener =
                 new RecorderController.TriggerFiredListener() {
@@ -412,9 +415,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                             onSelectedExperimentChanged(selectedExperiment, rc, status);
                         }
                         mUICallbacks.onSelectedExperimentChanged(mSelectedExperiment);
-                        // The recording UI shows the current experiment in the toolbar,
-                        // so it cannot be set up until experiments are loaded.
-                        onRecordingMetadataUpdated(status);
                     });
                 });
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
@@ -439,34 +439,31 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         return true;
     }
 
-    @NonNull
-    private RecorderController.RecordingStateListener createRecordingStateListener() {
-        // TODO: extract as testable object
-        return currentRecording -> mRecordingStatus.firstElement().subscribe(status -> {
-            // TODO: clean up the logic here
-            RecordingMetadata prevRecording = status.currentRecording;
+    private void onNewRecordingStatus(RecordingStatus newStatus) {
+        RecordingStatus oldStatus = mRecordingStatus.getValue();
 
-            RecordingStatus newStatus = status.withRecording(currentRecording);
-            mRecordingStatus.onNext(newStatus);
+        // TODO: clean up the logic here.  Can we insert a new "STOP_SUCCEEDED" status so we
+        // don't have to track old values?
+        RecordingMetadata prevRecording = oldStatus.currentRecording;
+        mRecordingStatus.onNext(newStatus);
 
-            onRecordingMetadataUpdated(newStatus);
-            // If we have switched from a recording state to a not-recording
-            // state, update the UI.
-            if (prevRecording != null && !newStatus.isRecording()) {
-                mExternalAxis.onStopRecording();
-                AddNoteDialog dialog = (AddNoteDialog) getChildFragmentManager()
-                        .findFragmentByTag(AddNoteDialog.TAG);
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-                updateRecordingState();
-                if (!mRecordingWasCanceled) {
-                    mUICallbacks.onRecordingSaved(prevRecording.getRunId(),
-                            mSelectedExperiment);
-                }
+        onRecordingMetadataUpdated(newStatus);
+        // If we have switched from a recording state to a not-recording
+        // state, update the UI.
+        if (prevRecording != null && !newStatus.isRecording()) {
+            mExternalAxis.onStopRecording();
+            AddNoteDialog dialog = (AddNoteDialog) getChildFragmentManager()
+                    .findFragmentByTag(AddNoteDialog.TAG);
+            if (dialog != null) {
+                dialog.dismiss();
             }
-            mRecordingWasCanceled = false;
-        });
+            updateRecordingState();
+            if (!mRecordingWasCanceled) {
+                mUICallbacks.onRecordingSaved(prevRecording.getRunId(),
+                        mSelectedExperiment);
+            }
+        }
+        mRecordingWasCanceled = false;
     }
 
     private void updateRecordingState() {
@@ -631,12 +628,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         recordButton.setOnClickListener(v -> {
             mRecordingStatus.firstElement().subscribe(status -> {
                 if (status.isRecording()) {
-                    // Disable the record button to stop double-clicks.
-                    mRecordingStatus.onNext(status.withState(RecordingState.STOPPING));
                     tryStopRecording(rc);
                 } else {
-                    // Disable the record button to stop double-clicks.
-                    mRecordingStatus.onNext(status.withState(RecordingState.STARTING));
                     lockUiForRecording();
                     tryStartRecording(rc);
                 }
@@ -1357,6 +1350,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (mSelectedExperiment == null) {
             return;
         }
+
+        // Disable the record button to stop double-clicks.
+        mRecordingStatus.onNext(mRecordingStatus.getValue().withState(RecordingState.STARTING));
 
         boolean usePanes = false;
         Intent mLaunchIntent =

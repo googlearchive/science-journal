@@ -115,18 +115,14 @@ public class RecorderControllerImpl implements RecorderController {
     private boolean mActivityInForeground = false;
     private final Supplier<RecorderServiceConnection> mConnectionSupplier;
 
-    private int mNextRecorderStateListenerId = 0;
-    private Map<Integer, RecordingStateListener> mRecordingStateListeners = new ArrayMap<>();
-
     private int mNextTriggerListenerId = 0;
     private Map<Integer, TriggerFiredListener> mTriggerListeners = new HashMap<>();
 
     private Map<String, ObservedIdsListener> mObservedIdListeners = new ArrayMap<>();
 
-    /**
-     * Label for the start of the current recording session, or null if not recording
-     */
-    private RecordingMetadata mRecording = null;
+    private BehaviorSubject<RecordingStatus> mRecordingStatus =
+            BehaviorSubject.createDefault(RecordingStatus.INACTIVE);
+
     private Supplier<List<GoosciSensorLayout.SensorLayout>> mLayoutSupplier;
 
     /**
@@ -440,6 +436,11 @@ public class RecorderControllerImpl implements RecorderController {
         }
     }
 
+    @Override
+    public Observable<RecordingStatus> watchRecordingStatus() {
+        return mRecordingStatus;
+    }
+
     private List<String> getCurrentObservedSensorIds() {
         return Lists.newArrayList(mRecorders.keySet());
     }
@@ -490,7 +491,7 @@ public class RecorderControllerImpl implements RecorderController {
 
     @Override
     public Completable startRecording(final Intent resumeIntent) {
-        if (mRecording != null || mRecordingStateChangeInProgress) {
+        if (isRecording() || mRecordingStateChangeInProgress) {
             return Completable.complete();
         }
         if (mRecorders.size() == 0) {
@@ -526,18 +527,20 @@ public class RecorderControllerImpl implements RecorderController {
                                 new LoggingConsumer<Success>(TAG, "start trial") {
                                     @Override
                                     public void success(Success success) {
-                                        mRecording = new RecordingMetadata(creationTimeMs,
-                                                mCurrentTrialId,
-                                                getSelectedExperiment().getDisplayTitle(mContext));
+                                        RecordingMetadata recording =
+                                                new RecordingMetadata(creationTimeMs,
+                                                        mCurrentTrialId,
+                                                        getSelectedExperiment().getDisplayTitle(
+                                                                mContext));
 
                                         ensureUnarchived(getSelectedExperiment(), dataController);
                                         recorderService.beginServiceRecording(
-                                                mRecording.getExperimentName(), resumeIntent);
+                                                recording.getExperimentName(), resumeIntent);
 
                                         for (StatefulRecorder recorder : mRecorders.values()) {
-                                            recorder.startRecording(mRecording.getRunId());
+                                            recorder.startRecording(recording.getRunId());
                                         }
-                                        updateRecordingListeners();
+                                        setRecording(recording);
                                         mRecordingStateChangeInProgress = false;
                                         emitter.onComplete();
                                     }
@@ -556,13 +559,25 @@ public class RecorderControllerImpl implements RecorderController {
         );
     }
 
+    private RecordingMetadata getRecording() {
+        return mRecordingStatus.getValue().currentRecording;
+    }
+
+    private void setRecording(RecordingMetadata recording) {
+        mRecordingStatus.onNext(
+                recording == null ? RecordingStatus.INACTIVE : RecordingStatus.active(recording));
+    }
+
     @Override
     public Completable stopRecording() {
-        if (mRecording == null
+        if (!isRecording()
             || getSelectedExperiment() == null
             || mRecordingStateChangeInProgress) {
             return Completable.complete();
         }
+
+        // Disable the record button to stop double-clicks.
+        mRecordingStatus.onNext(mRecordingStatus.getValue().withState(RecordingState.STOPPING));
 
         // TODO: What happens when recording stop fails and the app is in the background?
 
@@ -622,10 +637,9 @@ public class RecorderControllerImpl implements RecorderController {
                                                 });
 
                                         // Now actually stop the recording.
-                                        mRecording = null;
                                         mCurrentTrialId = "";
                                         cleanUpUnusedRecorders();
-                                        updateRecordingListeners();
+                                        setRecording(null);
                                         mRecordingStateChangeInProgress = false;
                                         emitter.onComplete();
                                     }
@@ -679,10 +693,9 @@ public class RecorderControllerImpl implements RecorderController {
     @Override
     public void stopRecordingWithoutSaving() {
         // TODO: Delete partially recorded data and trial?
-        if (mRecording == null || mRecordingStateChangeInProgress) {
+        if (!isRecording() || mRecordingStateChangeInProgress) {
             return;
         }
-        mRecording = null;
         mCurrentTrialId = "";
         for (StatefulRecorder recorder : mRecorders.values()) {
             // No trial to update, since we are not saving this.
@@ -695,7 +708,7 @@ public class RecorderControllerImpl implements RecorderController {
             mRecordingStateChangeInProgress = false;
         });
         cleanUpUnusedRecorders();
-        updateRecordingListeners();
+        setRecording(null);
     }
 
     @VisibleForTesting
@@ -704,7 +717,7 @@ public class RecorderControllerImpl implements RecorderController {
         // Record how long this session was.
         WhistlePunkApplication.getUsageTracker(context)
                 .trackEvent(TrackerConstants.CATEGORY_RUNS, TrackerConstants.ACTION_CREATE, null,
-                        completeTrial.getOriginalLastTimestamp() - mRecording.getStartTime());
+                        completeTrial.getOriginalLastTimestamp() - getRecording().getStartTime());
 
         // Record which sensors were recorded and information about their layouts.
         List<String> sensorLogs = new ArrayList<>();
@@ -730,16 +743,6 @@ public class RecorderControllerImpl implements RecorderController {
         return builder.toString();
     }
 
-    private void updateRecordingListeners() {
-        for (RecordingStateListener listener : mRecordingStateListeners.values()) {
-            // TODO: this is needed because MetadataActivity calls removeRecordingStateListener from
-            //       its implementation of onRecordingStateChanged.  Consider changing that.
-            if (listener != null) {
-                listener.onRecordingStateChanged(mRecording);
-            }
-        }
-    }
-
     /**
      * Convenience function for asynchronously binding to the service and doing something with it.
      *
@@ -751,20 +754,6 @@ public class RecorderControllerImpl implements RecorderController {
             mServiceConnection = mConnectionSupplier.get();
         }
         mServiceConnection.runWithService(c);
-    }
-
-    @Override
-    public int addRecordingStateListener(RecordingStateListener listener) {
-        Preconditions.checkNotNull(listener);
-        int listenerId = mNextRecorderStateListenerId++;
-        mRecordingStateListeners.put(listenerId, listener);
-        listener.onRecordingStateChanged(mRecording);
-        return listenerId;
-    }
-
-    @Override
-    public void removeRecordingStateListener(int listenerId) {
-        mRecordingStateListeners.remove(listenerId);
     }
 
     public int addTriggerFiredListener(TriggerFiredListener listener) {
@@ -797,7 +786,7 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     private boolean isRecording() {
-        return mRecording != null;
+        return getRecording() != null;
     }
 
     @Override

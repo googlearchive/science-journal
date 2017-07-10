@@ -35,6 +35,7 @@ import java.util.Map;
 
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.functions.Function;
 
 class MemoryRecorderController implements RecorderController {
@@ -104,13 +105,8 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public int addRecordingStateListener(RecordingStateListener listener) {
-        return 0;
-    }
-
-    @Override
-    public void removeRecordingStateListener(int listenerId) {
-
+    public Observable<RecordingStatus> watchRecordingStatus() {
+        return null;
     }
 
     @Override
