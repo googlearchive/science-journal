@@ -105,8 +105,8 @@ public class NativeBleDiscovererTest extends AndroidTestCase {
         assertEquals(1, sensorsSeen.seen.size());
         GoosciSensorSpec.SensorSpec sensor = sensorsSeen.seen.get(0).getSensorSpec();
         assertEquals(name, sensor.rememberedAppearance.name);
-        assertEquals(address, sensor.address);
-        assertEquals(BleSensorSpec.TYPE, sensor.providerId);
+        assertEquals(address, sensor.info.address);
+        assertEquals(BleSensorSpec.TYPE, sensor.info.providerId);
         assertFalse(onScanDone.hasRun);
         discoverer.stopScanning();
         assertTrue(onScanDone.hasRun);

@@ -21,6 +21,7 @@ import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
@@ -167,11 +168,12 @@ public abstract class ExternalSensorSpec {
     public GoosciSensorSpec.SensorSpec asGoosciSpec() {
         // TODO: fill in other fields here?  hostDescription?  hostId?
         GoosciSensorSpec.SensorSpec spec = new GoosciSensorSpec.SensorSpec();
-        spec.providerId = getType();
+        spec.info = new GoosciGadgetInfo.GadgetInfo();
+        spec.info.providerId = getType();
+        spec.info.address = getAddress();
         spec.rememberedAppearance = new GoosciSensorAppearance.BasicSensorAppearance();
         spec.rememberedAppearance.name = getName();
         spec.config = getConfig();
-        spec.address = getAddress();
         return spec;
     }
 
@@ -181,10 +183,10 @@ public abstract class ExternalSensorSpec {
         if (spec == null) {
             return null;
         }
-        SensorProvider sensorProvider = providerMap.get(spec.providerId);
+        SensorProvider sensorProvider = providerMap.get(spec.info.providerId);
         if (sensorProvider == null) {
             throw new IllegalArgumentException("No provider for sensor type: "
-                                               + spec.providerId
+                                               + spec.info.providerId
                                                + ". Options: "
                                                + providerMap.keySet());
         }

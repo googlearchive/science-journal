@@ -119,7 +119,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         experiment.addLabel(textLabel);
         File tmpFile;
         try {
-             tmpFile = File.createTempFile("testfile_" + experiment.getExperimentId(), "png");
+            tmpFile = File.createTempFile("testfile_" + experiment.getExperimentId(), "png");
         } catch (IOException e) {
             e.printStackTrace();
             fail("Could not create temp file" + e.getMessage());
@@ -144,7 +144,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         mMetaDataManager.updateExperiment(experiment);
 
         List<Label> labels = mMetaDataManager.getExperimentById(experiment.getExperimentId())
-                .getLabels();
+                                             .getLabels();
         assertEquals(2, labels.size());
 
         boolean foundText = false;
@@ -314,7 +314,7 @@ public class SimpleMetaDataManagerTest extends AndroidTestCase {
         ExternalSensorSpec spec = newSensors.get(id);
         assertEquals(ScalarInputSpec.TYPE, spec.getType());
         assertEquals("name", spec.getName());
-        assertEquals("address", ((ScalarInputSpec)spec).getSensorAddressInService());
+        assertEquals("address", ((ScalarInputSpec) spec).getSensorAddressInService());
     }
 
     public void testSensorToExperiment() {

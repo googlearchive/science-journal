@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.ArraySet;
 import android.text.TextUtils;
 import android.util.Log;
@@ -79,7 +80,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     private static final String PICTURE_LABEL_TAG = "picture";
     private static final String SENSOR_TRIGGER_LABEL_TAG = "sensorTriggerLabel";
     private static final String UNKNOWN_LABEL_TAG = "label";
-    public static final String DEFAULT_PROJECT_ID = "defaultProjectId";
+    private static final String DEFAULT_PROJECT_ID = "defaultProjectId";
 
     private DatabaseHelper mDbHelper;
     private Context mContext;
@@ -133,6 +134,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     public void onMigrateExperimentsToFiles(SQLiteDatabase db) {
                         migrateExperimentsToFiles(db);
                     }
+
+                    @Override
+                    public void onMigrateMyDevicesToProto(SQLiteDatabase db) {
+                        migrateMyDevicesToProto(db);
+                    }
                 });
     }
 
@@ -185,6 +191,19 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
             deleteDatabaseExperiment(db, experiment, mContext);
         }
+    }
+
+    @VisibleForTesting
+    public void migrateMyDevices() {
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            migrateMyDevicesToProto(db);
+        }
+
+    }
+
+    private void migrateMyDevicesToProto(SQLiteDatabase db) {
+        // TODO: implement!
     }
 
     /**
@@ -986,14 +1005,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
             Map<String, SensorProvider> providerMap) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            String sql = "SELECT IFNULL(MIN(" + SensorColumns.SENSOR_ID + "), '') FROM " + Tables
-                    .EXTERNAL_SENSORS + " WHERE " + SensorColumns.CONFIG + "=? AND " +
-                    SensorColumns.TYPE + "=?";
-            SQLiteStatement statement = db.compileStatement(sql);
-            statement.bindBlob(1, sensor.getConfig());
-            statement.bindString(2, sensor.getType());
-            String sensorId = statement.simpleQueryForString();
-            if (!sensorId.isEmpty()) {
+            String sensorId = getExternalSensorId(sensor, db);
+            if (sensorId != null) {
                 return sensorId;
             }
         }
@@ -1012,6 +1025,21 @@ public class SimpleMetaDataManager implements MetaDataManager {
             db.insert(Tables.EXTERNAL_SENSORS, null, values);
         }
         return sensorId;
+    }
+
+    @Nullable
+    private String getExternalSensorId(ExternalSensorSpec sensor, SQLiteDatabase db) {
+        String sql = "SELECT IFNULL(MIN(" + SensorColumns.SENSOR_ID + "), '') FROM " + Tables
+                .EXTERNAL_SENSORS + " WHERE " + SensorColumns.CONFIG + "=? AND " +
+                     SensorColumns.TYPE + "=?";
+        SQLiteStatement statement = db.compileStatement(sql);
+        statement.bindBlob(1, sensor.getConfig());
+        statement.bindString(2, sensor.getType());
+        String sensorId = statement.simpleQueryForString();
+        if (!sensorId.isEmpty()) {
+            return sensorId;
+        }
+        return null;
     }
 
     private void addDatabaseLabel(String experimentId, String trialId, Label label,
@@ -1551,6 +1579,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void addMyDevice(InputDeviceSpec deviceSpec) {
+        // TODO: don't use this, use mFileMetadataManager version instead
+        databaseAddMyDevice(deviceSpec);
+    }
+
+    private void databaseAddMyDevice(InputDeviceSpec deviceSpec) {
         String deviceId = addOrGetExternalSensor(deviceSpec, InputDeviceSpec.PROVIDER_MAP);
         ContentValues values = new ContentValues();
         values.put(MyDevicesColumns.DEVICE_ID, deviceId);
@@ -1562,76 +1595,58 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     @Override
     public void removeMyDevice(InputDeviceSpec deviceSpec) {
+        // TODO: don't use this, use mFileMetadataManager version instead
+        databaseRemoveMyDevice(deviceSpec);
+    }
+
+    private void databaseRemoveMyDevice(InputDeviceSpec deviceSpec) {
         String deviceId = addOrGetExternalSensor(deviceSpec, InputDeviceSpec.PROVIDER_MAP);
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            db.delete(Tables.MY_DEVICES, MyDevicesColumns.DEVICE_ID + "=?", new String[]{deviceId});
+            databaseRemoveMyDevice(deviceId, db);
         }
+    }
+
+    private void databaseRemoveMyDevice(String deviceId, SQLiteDatabase db) {
+        db.delete(Tables.MY_DEVICES, MyDevicesColumns.DEVICE_ID + "=?", new String[]{deviceId});
     }
 
     @Override
     public List<InputDeviceSpec> getMyDevices() {
-        ArrayList<InputDeviceSpec> myDevices = Lists.newArrayList();
+        // TODO: don't use this, use mFileMetadataManager version instead
+        return databaseGetMyDevices();
+    }
 
+    @NonNull
+    private List<InputDeviceSpec> databaseGetMyDevices() {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            Cursor c = null;
-            try {
-                c = db.query(Tables.MY_DEVICES, new String[]{MyDevicesColumns.DEVICE_ID},
-                        null, null, null, null, BaseColumns._ID + " ASC");
-                while (c.moveToNext()) {
-                    InputDeviceSpec spec = (InputDeviceSpec) getExternalSensorById(c.getString(0),
-                            InputDeviceSpec.PROVIDER_MAP);
+            return databaseGetMyDevices(db);
+        }
+    }
 
-                    // I _think_ this data state is only possible when debugging puts the data in
-                    // weird states, but just to be safe...
-                    if (spec != null) {
-                        myDevices.add(spec);
-                    }
-                }
-            } finally {
-                if (c != null) {
-                    c.close();
+    @NonNull
+    private List<InputDeviceSpec> databaseGetMyDevices(SQLiteDatabase db) {
+        ArrayList<InputDeviceSpec> myDevices = Lists.newArrayList();
+        Cursor c = null;
+        try {
+            c = db.query(Tables.MY_DEVICES, new String[]{MyDevicesColumns.DEVICE_ID},
+                    null, null, null, null, BaseColumns._ID + " ASC");
+            while (c.moveToNext()) {
+                InputDeviceSpec spec = (InputDeviceSpec) getExternalSensorById(c.getString(0),
+                        InputDeviceSpec.PROVIDER_MAP);
+
+                // I _think_ this data state is only possible when debugging puts the data in
+                // weird states, but just to be safe...
+                if (spec != null) {
+                    myDevices.add(spec);
                 }
             }
-        }
-        return myDevices;
-    }
-
-    /**
-     * Adds a new trigger.
-     * @param trigger
-     * @param experimentId The experiment active when the trigger was first added.
-     */
-    private void addSensorTrigger(SensorTrigger trigger, String experimentId) {
-        ContentValues values = new ContentValues();
-        values.put(SensorTriggerColumns.EXPERIMENT_ID, experimentId);
-        values.put(SensorTriggerColumns.TRIGGER_ID, trigger.getTriggerId());
-        values.put(SensorTriggerColumns.LAST_USED_TIMESTAMP_MS, trigger.getLastUsed());
-        values.put(SensorTriggerColumns.SENSOR_ID, trigger.getSensorId());
-        values.put(SensorTriggerColumns.TRIGGER_INFORMATION,
-                ProtoUtils.makeBlob(trigger.getTriggerProto().triggerInformation));
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            db.insert(Tables.SENSOR_TRIGGERS, null, values);
-        }
-    }
-
-    /**
-     * Updates an existing SensorTrigger. note that only the last used timestamp and
-     * TriggerInformation can be mutated.
-     * @param trigger
-     */
-    private void updateSensorTrigger(SensorTrigger trigger) {
-        // Only the LastUsedTimestamp and TriggerInformation can be updated.
-        ContentValues values = new ContentValues();
-        values.put(SensorTriggerColumns.LAST_USED_TIMESTAMP_MS, trigger.getLastUsed());
-        values.put(SensorTriggerColumns.TRIGGER_INFORMATION,
-                ProtoUtils.makeBlob(trigger.getTriggerProto().triggerInformation));
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            db.update(Tables.SENSOR_TRIGGERS, values, SensorTriggerColumns.TRIGGER_ID + "=?",
-                    new String[]{trigger.getTriggerId()});
+            return myDevices;
+        } finally {
+            if (c != null) {
+                c.close();
+            }
         }
     }
 
@@ -2004,6 +2019,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
             // Called when experiment data needs to be migrated.
             void onMigrateExperimentsToFiles(SQLiteDatabase db);
+
+            void onMigrateMyDevicesToProto(SQLiteDatabase db);
         }
         private MetadataDatabaseUpgradeCallback mUpgradeCallback;
 
@@ -2204,6 +2221,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 mUpgradeCallback.onMigrateExperimentsToFiles(db);
                 version = 22;
             }
+
+            // TODO: upgrade my devices (once device spec population is complete and tested).
         }
 
         private void createProjectsTable(SQLiteDatabase db) {
