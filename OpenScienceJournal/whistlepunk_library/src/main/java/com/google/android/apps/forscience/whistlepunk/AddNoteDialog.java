@@ -55,7 +55,6 @@ import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import java.io.File;
 import java.util.UUID;
 
-import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.BehaviorSubject;
@@ -82,18 +81,6 @@ public class AddNoteDialog extends DialogFragment {
     private String mUuid;
 
     public static abstract class AddNoteDialogListener {
-        static AddNoteDialogListener NULL = new AddNoteDialogListener() {
-            @Override
-            public Single<String> whenExperimentId() {
-                return Single.never();
-            }
-
-            @Override
-            public String toString() {
-                return "AddNoteDialogListener.NULL";
-            }
-        };
-
         /**
          * Called with a label that's about to be added.  Listener can adjust the label by, for
          * example, changing the timestamp
@@ -131,7 +118,7 @@ public class AddNoteDialog extends DialogFragment {
         AddNoteDialogListener getAddNoteDialogListener();
     }
 
-    private AddNoteDialogListener mListener = AddNoteDialogListener.NULL;
+    private AddNoteDialogListener mListener = null;
     private long mTimestamp;
     private boolean mUseSavedTimestamp;
     private boolean mShowTimestampSection;
@@ -286,31 +273,23 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        internalOnAttach(context);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        internalOnAttach(activity);
-    }
-
-    @Override
     public void onDetach() {
-        mListener = AddNoteDialogListener.NULL;
+        mListener = null;
         super.onDetach();
     }
 
-    private void internalOnAttach(Context context) {
-        if (context instanceof ListenerProvider) {
-            mListener = ((ListenerProvider) context).getAddNoteDialogListener();
+    private AddNoteDialogListener getListener(Context context) {
+        if (mListener == null) {
+            if (context instanceof ListenerProvider) {
+                mListener = ((ListenerProvider) context).getAddNoteDialogListener();
+            } else {
+                Fragment parentFragment = getParentFragment();
+                if (parentFragment instanceof ListenerProvider) {
+                    mListener = ((ListenerProvider) parentFragment).getAddNoteDialogListener();
+                }
+            }
         }
-        Fragment parentFragment = getParentFragment();
-        if (parentFragment instanceof ListenerProvider) {
-            mListener = ((ListenerProvider) parentFragment).getAddNoteDialogListener();
-        }
+        return mListener;
     }
 
     @NonNull
@@ -332,7 +311,9 @@ public class AddNoteDialog extends DialogFragment {
             } else {
                 // Otherwise, wait for it.
                 // TODO: be sure to unsubscribe once FragmentBinder CL is in.
-                mListener.whenExperimentId().toObservable().subscribe(mWhenExperimentId);
+                getListener(inflater.getContext()).whenExperimentId()
+                                                  .toObservable()
+                                                  .subscribe(mWhenExperimentId);
             }
 
             mUntilDestroyed.add(whenExperiment(inflater.getContext()).subscribe(
@@ -407,7 +388,7 @@ public class AddNoteDialog extends DialogFragment {
                 timestampSection.setContentDescription(mLabelTimeTextDescription);
             }
             timestampSection.setOnClickListener(v -> {
-                mListener.onAddNoteTimestampClicked(getCurrentValue(),
+                getListener(v.getContext()).onAddNoteTimestampClicked(getCurrentValue(),
                         getTimestamp(timestampSection.getContext()));
             });
         } else {
@@ -510,7 +491,7 @@ public class AddNoteDialog extends DialogFragment {
         mInput.setText("");
         Label label = Label.newLabelWithValue(timestamp, GoosciLabel.Label.TEXT,
                 labelValue, null);
-        addLabel(label, getDataController(mInput.getContext()), experiment);
+        addLabel(label, getDataController(mInput.getContext()), experiment, mInput.getContext());
         return true;
     }
 
@@ -540,14 +521,16 @@ public class AddNoteDialog extends DialogFragment {
         caption.text = mInput.getText().toString();
         caption.lastEditedTimestamp = label.getCreationTimeMs();
         label.setCaption(caption);
-        addLabel(label, getDataController(mInput.getContext()), experiment);
+        addLabel(label, getDataController(mInput.getContext()), experiment, mInput.getContext());
         PictureUtils.scanFile(mPictureLabelPath, getActivity());
         mPictureLabelPath = null;
         return true;
     }
 
-    private void addLabel(final Label label, DataController dc, Experiment experiment) {
-        mListener.adjustLabelBeforeAdd(label);
+    private void addLabel(final Label label, DataController dc, Experiment experiment,
+            Context context) {
+        AddNoteDialogListener listener = getListener(context);
+        listener.adjustLabelBeforeAdd(label);
 
         // The listener may be cleared by onDetach() before the experiment/trial is written,
         // so save the MaybeConsumer here as a final var.
@@ -557,7 +540,7 @@ public class AddNoteDialog extends DialogFragment {
             experiment.getTrial(mTrialId).addLabel(label);
         }
         saveExperiment(dc, experiment, label).subscribe(
-                MaybeConsumers.toSingleObserver(mListener.onLabelAdd()));
+                MaybeConsumers.toSingleObserver(listener.onLabelAdd()));
     }
 
     /**

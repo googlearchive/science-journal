@@ -1385,7 +1385,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private void tryStopRecording(final RecorderController rc) {
         mUICallbacks.onRecordStopRequested();
-        rc.stopRecording().subscribe(() -> {}, error -> {
+        rc.stopRecording(mSensorRegistry).subscribe(() -> {}, error -> {
             if (error instanceof RecorderController.RecordingStopFailedException) {
                 RecorderController.RecordingStopFailedException e =
                         (RecorderController.RecordingStopFailedException) error;
@@ -1438,7 +1438,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 sensorPresenter.getOptionsPresenter().applyOptions(readOptions);
 
                 sensorCardPresenter.startObserving(sensorChoice, sensorPresenter, readOptions,
-                        mSelectedExperiment);
+                        mSelectedExperiment, mSensorRegistry);
                 mRecordingStatus.firstElement().subscribe(status -> refreshLabels(status));
             }
 
@@ -1459,7 +1459,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 new LoggingConsumer<Success>(TAG, "disable sensor triggers") {
                     @Override
                     public void success(Success value) {
-                        getRecorderController().clearSensorTriggers(layout.sensorId);
+                        getRecorderController().clearSensorTriggers(layout.sensorId,
+                                mSensorRegistry);
                         presenter.onSensorTriggersCleared();
                     }
                 });

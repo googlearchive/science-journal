@@ -45,15 +45,17 @@ public class ProxyRecorderController extends IRecorderController.Stub {
     private final BindingPolicy mBindingPolicy;
     private final RecorderController mDelegate;
     private final FailureListener mFailureListener;
+    private SensorRegistry mRegistry;
     private String mSensorId = null;
     private String mObserverId = null;
     private Map<String, Disposable> mRecordListeners = new ArrayMap<>();
 
     public ProxyRecorderController(RecorderController delegate, BindingPolicy bindingPolicy,
-            FailureListener failureListener) {
+            FailureListener failureListener, SensorRegistry registry) {
         mBindingPolicy = bindingPolicy;
         mDelegate = delegate;
         mFailureListener = failureListener;
+        mRegistry = registry;
     }
 
     @Override
@@ -69,7 +71,7 @@ public class ProxyRecorderController extends IRecorderController.Stub {
         // TODO: enable more than one observer through the service
         mObserverId = mDelegate.startObserving(sensorId, Collections.EMPTY_LIST,
                 proxyObserver(observer), proxyStatusListener(listener, mFailureListener), 
-                initialOptions);
+                initialOptions, mRegistry);
     }
 
     @Override

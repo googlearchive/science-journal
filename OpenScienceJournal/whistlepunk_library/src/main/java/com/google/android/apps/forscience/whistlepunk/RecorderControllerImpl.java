@@ -32,7 +32,6 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -102,7 +101,6 @@ public class RecorderControllerImpl implements RecorderController {
     private SensorAppearanceProvider mAppearanceProvider;
     private Map<String, StatefulRecorder> mRecorders = new LinkedHashMap<>();
     private final Context mContext;
-    private SensorRegistry mSensors;
     private final RecorderListenerRegistry mRegistry;
     private Map<String, String> mServiceObservers = new HashMap<>();
     private RecorderServiceConnection mServiceConnection = null;
@@ -135,7 +133,7 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     private RecorderControllerImpl(Context context, DataController dataController) {
-        this(context, SensorRegistry.createWithBuiltinSensors(context),
+        this(context,
                 AppSingleton.getInstance(context).getSensorEnvironment(),
                 new RecorderListenerRegistry(), productionConnectionSupplier(context),
                 dataController, new SystemScheduler(), DEFAULT_STOP_DELAY,
@@ -148,12 +146,11 @@ public class RecorderControllerImpl implements RecorderController {
      * @param stopDelay how long to wait before stopping sensors.
      */
     @VisibleForTesting
-    public RecorderControllerImpl(final Context context, SensorRegistry registry,
-            SensorEnvironment sensorEnvironment, RecorderListenerRegistry listenerRegistry,
+    public RecorderControllerImpl(final Context context, SensorEnvironment sensorEnvironment,
+            RecorderListenerRegistry listenerRegistry,
             Supplier<RecorderServiceConnection> connectionSupplier, DataController dataController,
             Scheduler scheduler, Delay stopDelay, SensorAppearanceProvider appearanceProvider) {
         mContext = context;
-        mSensors = registry;
         mSensorEnvironment = sensorEnvironment;
         mRegistry = listenerRegistry;
         mConnectionSupplier = connectionSupplier;
@@ -176,15 +173,15 @@ public class RecorderControllerImpl implements RecorderController {
     @Override
     public String startObserving(final String sensorId, final List<SensorTrigger> activeTriggers,
             SensorObserver observer, SensorStatusListener listener,
-            final TransportableSensorOptions initialOptions) {
+            final TransportableSensorOptions initialOptions, SensorRegistry sensorRegistry) {
         // Put the observer and listener in the registry by sensorId.
         String observerId = mRegistry.putListeners(sensorId, observer, listener);
         StatefulRecorder sr = mRecorders.get(sensorId);
         if (sr != null) {
             RecorderControllerImpl.this.startObserving(sr);
-            addServiceObserverIfNeeded(sensorId, activeTriggers);
+            addServiceObserverIfNeeded(sensorId, activeTriggers, sensorRegistry);
         } else {
-            mSensors.withSensorChoice(TAG, sensorId, new Consumer<SensorChoice>() {
+            sensorRegistry.withSensorChoice(TAG, sensorId, new Consumer<SensorChoice>() {
                 @Override
                 public void take(SensorChoice sensor) {
                     final SensorRecorder recorder = sensor.createRecorder(mContext,
@@ -194,7 +191,9 @@ public class RecorderControllerImpl implements RecorderController {
                     StatefulRecorder newStatefulRecorder = new StatefulRecorder(recorder,
                             mScheduler, mStopDelay);
                     mRecorders.put(sensorId, newStatefulRecorder);
-                    addServiceObserverIfNeeded(sensorId, activeTriggers);
+
+                    // TODO: can we avoid passing sensorRegistry so deep?
+                    addServiceObserverIfNeeded(sensorId, activeTriggers, sensorRegistry);
                     RecorderControllerImpl.this.startObserving(newStatefulRecorder);
                 }
             });
@@ -211,7 +210,7 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     private void addServiceObserverIfNeeded(final String sensorId,
-            final List<SensorTrigger> activeTriggers) {
+            final List<SensorTrigger> activeTriggers, SensorRegistry sensorRegistry) {
         if (!mLatestValues.containsKey(sensorId)) {
             mLatestValues.put(sensorId, BehaviorSubject.<Double>create());
         }
@@ -233,7 +232,7 @@ public class RecorderControllerImpl implements RecorderController {
                                 continue;
                             }
                             if (trigger.isTriggered(value)) {
-                                fireSensorTrigger(trigger, timestamp);
+                                fireSensorTrigger(trigger, timestamp, sensorRegistry);
                             }
                         }
                     }, null);
@@ -246,7 +245,8 @@ public class RecorderControllerImpl implements RecorderController {
                 Collections.<GoosciSensorLayout.SensorLayout>emptyList() : mLayoutSupplier.get();
     }
 
-    private void fireSensorTrigger(SensorTrigger trigger, long timestamp) {
+    private void fireSensorTrigger(SensorTrigger trigger, long timestamp,
+            SensorRegistry sensorRegistry) {
         // TODO: Think about behavior for triggers firing near the same time, especially
         // regarding start/stop recording and notes. Right now behavior may not seem repeatable
         // depending on timing of callbacks and order of triggers. b/
@@ -272,7 +272,7 @@ public class RecorderControllerImpl implements RecorderController {
                 for (TriggerFiredListener listener : mTriggerListeners.values()) {
                     listener.onRequestStopRecording(this);
                 }
-                stopRecording().subscribe(
+                stopRecording(sensorRegistry).subscribe(
                         LoggingConsumer.observe(TAG, "stop recording with trigger"));
                 WhistlePunkApplication.getUsageTracker(mContext).trackEvent(
                         TrackerConstants.CATEGORY_RUNS,
@@ -368,13 +368,14 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @Override
-    public void clearSensorTriggers(String sensorId) {
+    public void clearSensorTriggers(String sensorId, SensorRegistry sensorRegistry) {
         String observerId = mServiceObservers.get(sensorId);
         if (!TextUtils.isEmpty(observerId)) {
             // Remove the old serviceObserver and add a new one with no triggers.
             mServiceObservers.remove(sensorId);
             mRegistry.remove(sensorId, observerId);
-            addServiceObserverIfNeeded(sensorId, Collections.<SensorTrigger>emptyList());
+            addServiceObserverIfNeeded(sensorId, Collections.<SensorTrigger>emptyList(),
+                    sensorRegistry);
         }
     }
 
@@ -569,7 +570,7 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @Override
-    public Completable stopRecording() {
+    public Completable stopRecording(final SensorRegistry sensorRegistry) {
         if (!isRecording()
             || getSelectedExperiment() == null
             || mRecordingStateChangeInProgress) {
@@ -617,7 +618,7 @@ public class RecorderControllerImpl implements RecorderController {
                                             recorder.stopRecording(trial);
                                         }
                                         trackStopRecording(recorderService.getApplicationContext(),
-                                                trial, sensorLayoutsAtStop);
+                                                trial, sensorLayoutsAtStop, sensorRegistry);
                                         mDataController.updateExperiment(
                                                 getSelectedExperiment().getExperimentId(),
                                                 new LoggingConsumer<Success>(TAG, "update stats") {
@@ -713,7 +714,7 @@ public class RecorderControllerImpl implements RecorderController {
 
     @VisibleForTesting
     void trackStopRecording(Context context, Trial completeTrial,
-            List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+            List<GoosciSensorLayout.SensorLayout> sensorLayouts, SensorRegistry sensorRegistry) {
         // Record how long this session was.
         WhistlePunkApplication.getUsageTracker(context)
                 .trackEvent(TrackerConstants.CATEGORY_RUNS, TrackerConstants.ACTION_CREATE, null,
@@ -722,7 +723,7 @@ public class RecorderControllerImpl implements RecorderController {
         // Record which sensors were recorded and information about their layouts.
         List<String> sensorLogs = new ArrayList<>();
         for (GoosciSensorLayout.SensorLayout layout : sensorLayouts) {
-            String loggingId = TrackerConstants.getLoggingId(layout.sensorId, context);
+            String loggingId = sensorRegistry.getLoggingId(layout.sensorId);
             sensorLogs.add(getLayoutLoggingString(loggingId, layout));
         }
         WhistlePunkApplication.getUsageTracker(context)
@@ -787,17 +788,6 @@ public class RecorderControllerImpl implements RecorderController {
 
     private boolean isRecording() {
         return getRecording() != null;
-    }
-
-    @Override
-    public void updateExternalSensors(List<ConnectableSensor> sensors) {
-        mSensors.updateExternalSensors(sensors,
-                AppSingleton.getInstance(mContext).getExternalSensorProviders());
-    }
-
-    @Override
-    public void refreshBuiltinSensors() {
-        mSensors.refreshBuiltinSensors(mContext);
     }
 
     @VisibleForTesting

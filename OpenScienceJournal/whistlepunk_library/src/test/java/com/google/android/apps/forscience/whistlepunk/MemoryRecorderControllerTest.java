@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import static org.junit.Assert.assertEquals;
-
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.BlankReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
@@ -28,12 +26,15 @@ import org.junit.Test;
 
 import java.util.Collections;
 
+import static org.junit.Assert.assertEquals;
+
 public class MemoryRecorderControllerTest {
     @Test public void basicMemoryRecorderControllerTest() {
         MemoryRecorderController rc = new MemoryRecorderController();
         String observerId = rc.startObserving("sensorId", Collections.<SensorTrigger>emptyList(),
                 new RecordingSensorObserver(), new StubStatusListener(),
-                AbstractReadableSensorOptions.makeTransportable(new BlankReadableSensorOptions()));
+                AbstractReadableSensorOptions.makeTransportable(new BlankReadableSensorOptions()),
+                null);
         assertEquals(Lists.newArrayList("sensorId"), rc.getCurrentObservedIds());
         rc.stopObserving("sensorId", observerId);
         assertEquals(Lists.newArrayList(), rc.getCurrentObservedIds());

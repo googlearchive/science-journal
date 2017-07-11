@@ -16,12 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk.analytics;
 
-import android.content.Context;
-
-import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 
 /**
  * Constants for usage tracking.
@@ -110,9 +107,5 @@ public final class TrackerConstants {
         } else {
             throw new IllegalArgumentException("Label type is not supported for logging.");
         }
-    }
-
-    public static String getLoggingId(String sensorId, Context context) {
-        return AppSingleton.getInstance(context).getSensorRegistry().getLoggingId(sensorId);
     }
 }

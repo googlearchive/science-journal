@@ -113,7 +113,7 @@ public class SensorCardPresenterTest extends AndroidTestCase {
         SensorCardPresenter scp = createSCP();
         setSensorId(scp, "sensorId", "Sensor Name");
         scp.startObserving(sensor, sensor.createPresenter(null, null, null), null,
-                Experiment.newExperiment(10, "localExperimentId", 0));
+                Experiment.newExperiment(10, "localExperimentId", 0), getSensorRegistry());
         sensor.simulateExternalEventPreventingObservation();
         assertFalse(sensor.isObserving());
         scp.retryConnection(getContext());
@@ -148,7 +148,7 @@ public class SensorCardPresenterTest extends AndroidTestCase {
     @NonNull
     private RecorderControllerImpl getRecorderController() {
         if (mRecorderController == null) {
-            mRecorderController = new RecorderControllerImpl(getContext(), getSensorRegistry(),
+            mRecorderController = new RecorderControllerImpl(getContext(),
                     new MemorySensorEnvironment(null, null, null, null),
                     new RecorderListenerRegistry(), null, null, new SystemScheduler(), Delay.ZERO,
                     new FakeAppearanceProvider()) {

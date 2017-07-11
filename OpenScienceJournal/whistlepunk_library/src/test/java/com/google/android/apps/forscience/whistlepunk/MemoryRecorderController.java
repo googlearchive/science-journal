@@ -19,9 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Intent;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
@@ -45,7 +43,7 @@ class MemoryRecorderController implements RecorderController {
     @Override
     public String startObserving(String sensorId, List<SensorTrigger> activeTriggers,
             SensorObserver observer, SensorStatusListener listener,
-            TransportableSensorOptions initialOptions) {
+            TransportableSensorOptions initialOptions, SensorRegistry sensorRegistry) {
         String observerId = String.valueOf(++mObserverCount);
         mCurrentObserverIds.put(sensorId, observerId);
         return observerId;
@@ -79,7 +77,7 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public Completable stopRecording() {
+    public Completable stopRecording(final SensorRegistry sensorRegistry) {
         return Completable.complete();
     }
 
@@ -149,17 +147,7 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public void clearSensorTriggers(String sensorId) {
-
-    }
-
-    @Override
-    public void updateExternalSensors(List<ConnectableSensor> sensors) {
-
-    }
-
-    @Override
-    public void refreshBuiltinSensors() {
+    public void clearSensorTriggers(String sensorId, SensorRegistry sensorRegistry) {
 
     }
 

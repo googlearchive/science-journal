@@ -16,9 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -49,6 +46,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class SensorCardPresenterUnitTest {
     @Test public void rememberIdPassToStop() {
         DataViewOptions dataViewOptions = new DataViewOptions(Color.BLACK,
@@ -70,7 +70,7 @@ public class SensorCardPresenterUnitTest {
         MemoryMetadataManager manager = new MemoryMetadataManager();
         final DataController dc = db.makeSimpleController(manager);
         scp.startObserving(ds, presenter, new BlankReadableSensorOptions(),
-                Experiment.newExperiment(10, "localId", 0));
+                Experiment.newExperiment(10, "localId", 0), null);
         scp.setAppearanceProvider(new FakeAppearanceProvider(0));
         scp.setUiForConnectingNewSensor(ds.getId(), "Display Name", "units", false);
         assertEquals(Arrays.asList(ds.getId()), rc.getCurrentObservedIds());

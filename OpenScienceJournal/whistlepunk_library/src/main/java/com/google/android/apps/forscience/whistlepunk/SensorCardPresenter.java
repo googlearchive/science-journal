@@ -359,7 +359,8 @@ public class SensorCardPresenter {
     }
 
     public void startObserving(SensorChoice sensorChoice, SensorPresenter sensorPresenter,
-            ReadableSensorOptions readOptions, Experiment experiment) {
+            ReadableSensorOptions readOptions, Experiment experiment,
+            SensorRegistry sensorRegistry) {
         final ReadableSensorOptions nonNullOptions = BlankReadableSensorOptions.blankIfNull(
                 readOptions);
         mCurrentSource = sensorChoice;
@@ -379,7 +380,7 @@ public class SensorCardPresenter {
                         SensorCardPresenter.this.onNewData(timestamp, value);
                     }
                 }, getSensorStatusListener(),
-                AbstractReadableSensorOptions.makeTransportable(nonNullOptions));
+                AbstractReadableSensorOptions.makeTransportable(nonNullOptions), sensorRegistry);
         if (mCardStatus.isConnected() && mParentFragment != null) {
             updateAudio(mLayout.audioEnabled, getSonificationType(mParentFragment.getActivity()));
         }

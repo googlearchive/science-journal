@@ -44,10 +44,6 @@ public class DevOptionsFragment extends PreferenceFragment {
     public static final String KEY_DEV_SONIFICATION_TYPES = "enable_dev_sonification_types";
     public static final String KEY_LINEAR_ACCELERATION_SENSOR = "enable_linear_acceleration";
     public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
-    private final SharedPreferences.OnSharedPreferenceChangeListener
-            mSensorsChangedListener = (sharedPreferences, key) -> AppSingleton.getInstance(
-                    getActivity()).getSensorRegistry().refreshBuiltinSensors(
-                    getActivity());
 
     public static DevOptionsFragment newInstance() {
         return new DevOptionsFragment();
@@ -83,14 +79,10 @@ public class DevOptionsFragment extends PreferenceFragment {
     @Override
     public void onResume() {
         super.onResume();
-        getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(
-                mSensorsChangedListener);
     }
 
     @Override
     public void onPause() {
-        getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(
-                mSensorsChangedListener);
         super.onPause();
     }
 
