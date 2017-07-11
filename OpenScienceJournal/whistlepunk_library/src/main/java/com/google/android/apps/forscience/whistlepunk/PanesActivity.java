@@ -31,6 +31,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
@@ -49,6 +50,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         AddNoteDialog.ListenerProvider, CameraFragment.ListenerProvider {
     private static final String TAG = "PanesActivity";
     private static final String EXTRA_EXPERIMENT_ID = "experimentId";
+    private ProgressBar mRecordingBar;
 
     private static enum ToolTab {
         NOTES(R.string.tab_description_add_note, R.drawable.ic_notes_white_24dp) {
@@ -133,13 +135,24 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
         View bottomSheet = findViewById(R.id.bottom);
         TabLayout toolPicker = (TabLayout) findViewById(R.id.tool_picker);
+        View toolPickerHolder = findViewById(R.id.tool_picker_holder);
+        mRecordingBar = (ProgressBar) findViewById(R.id.recording_progress_bar);
+        AppSingleton.getInstance(this).getRecorderController().watchRecordingStatus().firstElement()
+                .subscribe(status -> {
+                    if (status.state == RecordingState.ACTIVE) {
+                        mRecordingBar.setVisibility(View.VISIBLE);
+                    } else {
+                        mRecordingBar.setVisibility(View.GONE);
+                    }
+                });
+
         RxView.globalLayouts(bottomSheet).firstElement().subscribe(o -> {
             // After first layout, height is valid
 
             BottomSheetBehavior<View> bottom = BottomSheetBehavior.from(bottomSheet);
             bottom.setBottomSheetCallback(
                     new TriStateCallback(bottom, true, getWindow().getDecorView().getHeight(),
-                            toolPicker));
+                            toolPickerHolder));
         });
 
         for (ToolTab tab : ToolTab.values()) {
@@ -278,6 +291,20 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             public void onLabelAdded(Label label) {
                 // TODO: is this expensive?  Should we trigger a more incremental update?
                 mExperimentFragment.loadExperiment();
+            }
+
+            @Override
+            void onRecordingStart(String experimentName) {
+                if (mRecordingBar != null) {
+                    mRecordingBar.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            void onRecordingStopped() {
+                if (mRecordingBar != null) {
+                    mRecordingBar.setVisibility(View.GONE);
+                }
             }
         };
     }
