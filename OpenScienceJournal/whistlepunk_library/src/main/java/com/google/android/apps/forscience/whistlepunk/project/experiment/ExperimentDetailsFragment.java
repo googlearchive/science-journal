@@ -27,9 +27,7 @@ import android.os.Message;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.NavUtils;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -56,7 +54,6 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
@@ -68,7 +65,6 @@ import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
-import com.google.android.apps.forscience.whistlepunk.TransitionUtils;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -108,7 +104,8 @@ import io.reactivex.Single;
  */
 public class ExperimentDetailsFragment extends Fragment
         implements AddNoteDialog.ListenerProvider, Handler.Callback,
-        DeleteMetadataItemDialog.DeleteDialogListener {
+        DeleteMetadataItemDialog.DeleteDialogListener,
+        NameExperimentDialog.OnExperimentTitleChangeListener {
 
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
     public static final String ARG_OLDEST_AT_TOP = "oldest_at_top";
@@ -389,7 +386,7 @@ public class ExperimentDetailsFragment extends Fragment
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == android.R.id.home) {
-            goToExperimentList();
+            displayNamePromptOrGoUp();
             return true;
         } else if (itemId == R.id.action_edit_experiment) {
             UpdateExperimentActivity.launch(getActivity(), mExperimentId, false /* not new */);
@@ -415,6 +412,37 @@ public class ExperimentDetailsFragment extends Fragment
             confirmDeleteExperiment();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    // Prompt the user to name the experiment if they haven't yet.
+    private void displayNamePromptOrGoUp() {
+        if (!TextUtils.isEmpty(mExperiment.getTitle())) {
+            goToExperimentList();
+            return;
+        }
+        displayNamePrompt();
+    }
+
+    private void displayNamePrompt() {
+        // The experiment needs a title still.
+        NameExperimentDialog dialog = NameExperimentDialog.newInstance(mExperimentId);
+        dialog.show(getChildFragmentManager(), NameExperimentDialog.TAG);
+    }
+
+    @Override
+    public void onTitleChangedFromDialog() {
+        // If it was saved successfully, we can just go up to the parent.
+        goToExperimentList();
+    }
+
+    public boolean handleOnBackPressed() {
+        if (TextUtils.isEmpty(mExperiment.getTitle())) {
+            displayNamePrompt();
+            // We are handling this.
+            return true;
+        }
+        // The activity can handle it normally.
+        return false;
     }
 
     private void goToExperimentList() {
