@@ -329,7 +329,6 @@ public class AddNoteDialog extends DialogFragment {
             mShowTimestampSection = getArguments().getBoolean(KEY_SHOW_TIMESTAMP_SECTION, false);
             mHintTextId = getArguments().getInt(KEY_HINT_TEXT_ID, mHintTextId);
             mLabelTimeText = getArguments().getString(KEY_LABEL_TIME_TEXT, "");
-            mPictureLabelPath = getArguments().getString(KEY_SAVED_PICTURE_PATH, null);
             mTrialId = getArguments().getString(KEY_SAVED_RUN_ID);
             String experimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
 
@@ -357,6 +356,9 @@ public class AddNoteDialog extends DialogFragment {
                         text = savedLabel.getTextLabelValue().text;
                     } else {
                         text = savedLabel.getCaptionText();
+                    }
+                    if (savedLabel.getType() == GoosciLabel.Label.PICTURE) {
+                        mPictureLabelPath = savedLabel.getPictureLabelValue().filePath;
                     }
                 }
             }
