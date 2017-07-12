@@ -32,6 +32,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 
 /**
+ * This is deprecated; we will be using an application-global AppState class instead.
+ *
  * A main-process service that provides global data connectivity to any activity
  *
  * Over time, using this should replace AppSingleton, so that eventually Android can better
@@ -49,25 +51,6 @@ import io.reactivex.subjects.BehaviorSubject;
  * }
  * </pre>
  *
- * Fragments are trickier, since they only sometimes have an attached activity that can bind to
- * the data service.  So the FragmentBinder helper class is provided:
- *
- * <pre>
- * Class MyFragment extends Fragment {
- *     DataService FragmentBinder mDataBinder = new DataService.FragmentBinder();
- *
- *     @Override public void onAttach(Context context) {
- *         mDataBinder.onAttach(context);
- *     }
- *
- *     public void scanForDevicesOnce() {
- *         mDataBinder.bind().subscribe(appSingleton ->
- *             appSingleton.getBleClient().scanForDevices(...);
- *         );
- *     }
- * }
- * </pre>
- *
  * Following the RxJava style, this separates the users of a stream from how it is produced.
  * The current implementation binds to the service just long enough to satisfy the immediate
  * subscriber, and then unbinds again.  If this turns out to have a poor performance impact, we
@@ -75,27 +58,6 @@ import io.reactivex.subjects.BehaviorSubject;
  * interface.
  */
 public class DataService extends Service {
-    /**
-     * See top-level commends on {@link DataService}
-     */
-    public static class FragmentBinder {
-        private BehaviorSubject<Context> mApplicationContext = BehaviorSubject.create();
-
-        private Observable<AppSingleton> mBound =
-                mApplicationContext.flatMapSingle(ac -> DataService.bind(ac));
-
-        // TODO: can we use RxLifecycle for this?
-        public void onAttach(Context context) {
-            if (! mApplicationContext.hasValue()) {
-                mApplicationContext.onNext(context.getApplicationContext());
-            }
-        }
-
-        public Maybe<AppSingleton> bind() {
-            return mBound.firstElement();
-        }
-    }
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
