@@ -159,12 +159,12 @@
             android:name=".metadata.TriggerListActivity"
             android:exported="false"
             android:label="@string/title_activity_trigger_list"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".PanesActivity"
             android:theme="@style/AppTheme.Triggers"
             >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
+                android:value="com.google.android.apps.forscience.whistlepunk.PanesActivity"/>
         </activity>
         <!-- Hide the keyboard by default in the EditTriggerActivity so a11y users don't get stuck
              in the keyboard when starting the activity -->
