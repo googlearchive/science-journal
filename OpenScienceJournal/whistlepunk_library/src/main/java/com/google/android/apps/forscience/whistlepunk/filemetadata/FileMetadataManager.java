@@ -23,6 +23,7 @@ import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ColorAllocator;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 
 import java.io.File;
@@ -244,4 +245,17 @@ public class FileMetadataManager {
     public static String getRelativePathInFilesDir(String experimentId, String relativePath) {
         return "experiments/" + experimentId + "/" + relativePath;
     }
+
+    public void addMyDevice(GoosciDeviceSpec.DeviceSpec device) {
+        mUserMetadataManager.addMyDevice(device);
+    }
+
+    public void removeMyDevice(GoosciDeviceSpec.DeviceSpec device) {
+        mUserMetadataManager.removeMyDevice(device);
+    }
+
+    public List<GoosciDeviceSpec.DeviceSpec> getMyDevices() {
+        return mUserMetadataManager.getMyDevices();
+    }
+
 }

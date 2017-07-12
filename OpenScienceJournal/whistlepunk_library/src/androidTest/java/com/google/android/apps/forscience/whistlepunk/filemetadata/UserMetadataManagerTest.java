@@ -18,6 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.test.InstrumentationTestCase;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 
@@ -188,5 +190,22 @@ public class UserMetadataManagerTest extends InstrumentationTestCase {
         GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
         smm.upgradeUserMetadataVersionIfNeeded(proto, 100, 0);
         assertEquals(1, mFailureCount);
+    }
+
+    public void testAddAndRemoveMyDevice() {
+        UserMetadataManager smm = new UserMetadataManager(getInstrumentation().getContext(),
+                getFailureExpectedListener());
+        GoosciDeviceSpec.DeviceSpec device = new GoosciDeviceSpec.DeviceSpec();
+        device.info = new GoosciGadgetInfo.GadgetInfo();
+        device.name = "Name";
+        assertEquals(0, smm.getMyDevices().size());
+        smm.addMyDevice(device);
+        assertEquals(1, smm.getMyDevices().size());
+        smm.addMyDevice(device);
+        assertEquals(1, smm.getMyDevices().size());
+        smm.removeMyDevice(device);
+        assertEquals(0, smm.getMyDevices().size());
+        smm.removeMyDevice(device);
+        assertEquals(0, smm.getMyDevices().size());
     }
 }

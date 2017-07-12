@@ -19,8 +19,14 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import com.google.protobuf.nano.MessageNano;
 
 import java.io.File;
 import java.io.IOException;
@@ -149,8 +155,7 @@ public class UserMetadataManager {
      * Gets all the experiment overviews
      * @param includeArchived Whether to include the archived experiments.
      */
-    List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(
-            boolean includeArchived) {
+    List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(boolean includeArchived) {
         GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
         if (userMetadata == null) {
             return null;
@@ -166,6 +171,67 @@ public class UserMetadataManager {
             }
             return result;
         }
+    }
+
+    /**
+     * Adds a device to the user's list of devices if it is not yet added.
+     */
+    public void addMyDevice(GoosciDeviceSpec.DeviceSpec device) {
+        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+
+        if (userMetadata == null) {
+            return;
+        }
+
+        GoosciDeviceSpec.DeviceSpec[] myDevices = userMetadata.myDevices;
+        for (GoosciDeviceSpec.DeviceSpec myDevice : myDevices) {
+            if (MessageNano.messageNanoEquals(myDevice, device)) {
+                return;
+            }
+        }
+
+        GoosciDeviceSpec.DeviceSpec[] newSpecs = Arrays.copyOf(myDevices, myDevices.length + 1);
+        newSpecs[newSpecs.length - 1] = device;
+        userMetadata.myDevices = newSpecs;
+
+        // TODO: capture this pattern (read, null check, write) in a helper method?
+        writeUserMetadata(userMetadata);
+    }
+
+    public void removeMyDevice(GoosciDeviceSpec.DeviceSpec device) {
+        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+
+        if (userMetadata == null) {
+            return;
+        }
+
+        GoosciDeviceSpec.DeviceSpec[] myDevices = userMetadata.myDevices;
+        for (int i = 0; i < myDevices.length; i++) {
+            if (MessageNano.messageNanoEquals(myDevices[i], device)) {
+                removeMyDeviceAtIndex(userMetadata, i);
+                return;
+            }
+        }
+    }
+
+    private void removeMyDeviceAtIndex(GoosciUserMetadata.UserMetadata userMetadata, int i) {
+        GoosciDeviceSpec.DeviceSpec[] myDevices = userMetadata.myDevices;
+        GoosciDeviceSpec.DeviceSpec[] newSpecs = Arrays.copyOf(myDevices, myDevices.length - 1);
+        System.arraycopy(myDevices, 0, newSpecs, 0, i);
+        System.arraycopy(myDevices, i + 1, newSpecs, i, myDevices.length - 1);
+        userMetadata.myDevices = newSpecs;
+
+        // TODO: capture this pattern (read, null check, write) in a helper method?
+        writeUserMetadata(userMetadata);
+    }
+
+    public List<GoosciDeviceSpec.DeviceSpec> getMyDevices() {
+        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        if (userMetadata == null) {
+            return Lists.newArrayList();
+        }
+
+        return Lists.newArrayList(userMetadata.myDevices);
     }
 
     /**
