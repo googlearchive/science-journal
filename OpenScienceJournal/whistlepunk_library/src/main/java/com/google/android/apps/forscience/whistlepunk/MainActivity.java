@@ -21,7 +21,6 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
@@ -46,16 +45,14 @@ import com.google.android.apps.forscience.whistlepunk.intro.TutorialActivity;
 import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 
-import io.reactivex.subjects.PublishSubject;
+import io.reactivex.Observable;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        RecordFragment.CallbacksProvider {
+        implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity";
     public static final String ARG_SELECTED_NAV_ITEM_ID = "selected_nav_item_id";
     public static final String ARG_USE_PANES = "use_panes";
-    public static final int PERMISSIONS_AUDIO_RECORD_REQUEST = 1;
     protected static final int NO_SELECTED_ITEM = -1;
 
     /**
@@ -66,7 +63,6 @@ public class MainActivity extends AppCompatActivity
     private FeedbackProvider mFeedbackProvider;
     private NavigationView mNavigationView;
     private MultiTouchDrawerLayout mDrawerLayout;
-    private RecordFragment mRecordFragment;
     private int mSelectedItemId = NO_SELECTED_ITEM;
     private boolean mIsRecording = false;
 
@@ -105,19 +101,18 @@ public class MainActivity extends AppCompatActivity
         mFeedbackProvider = WhistlePunkApplication.getFeedbackProvider(this);
 
         Bundle extras = getIntent().getExtras();
-        int selectedNavItemId =
-                shouldUsePanes() ? R.id.navigation_item_experiments : R.id.navigation_item_observe;
+        int selectedNavItemId = R.id.navigation_item_experiments;
 
         int savedItemId = getSavedItemId(savedInstanceState);
         if (savedItemId != NO_SELECTED_ITEM) {
             selectedNavItemId = savedItemId;
         } else if (extras != null) {
-            selectedNavItemId = extras.getInt(
-                    ARG_SELECTED_NAV_ITEM_ID, R.id.navigation_item_observe);
+            selectedNavItemId =
+                    extras.getInt(ARG_SELECTED_NAV_ITEM_ID, R.id.navigation_item_experiments);
         }
         MenuItem item = mNavigationView.getMenu().findItem(selectedNavItemId);
         if (item == null) {
-            selectedNavItemId = R.id.navigation_item_observe;
+            selectedNavItemId = R.id.navigation_item_experiments;
             item = mNavigationView.getMenu().findItem(selectedNavItemId);
         }
         mNavigationView.setCheckedItem(selectedNavItemId);
@@ -157,8 +152,6 @@ public class MainActivity extends AppCompatActivity
         if (!isMultiWindowEnabled()) {
             updateRecorderControllerForResume();
         }
-        mRecordFragment = (RecordFragment) getFragmentManager().findFragmentByTag(
-                String.valueOf(R.id.navigation_item_observe));
         // If we get to here, it's safe to log the mode we are in: user has completed age
         // verification.
         WhistlePunkApplication.getUsageTracker(this).trackEvent(TrackerConstants.CATEGORY_APP,
@@ -270,8 +263,7 @@ public class MainActivity extends AppCompatActivity
         if (menuItem == null) {
             return false;
         }
-        if (menuItem.getItemId() == R.id.navigation_item_observe ||
-                menuItem.getItemId() == R.id.navigation_item_experiments) {
+        if (menuItem.getItemId() == R.id.navigation_item_experiments) {
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             Fragment fragment;
@@ -280,7 +272,7 @@ public class MainActivity extends AppCompatActivity
             final String tag = String.valueOf(itemId);
             fragment = getFragmentManager().findFragmentByTag(tag);
             if (fragment == null) {
-                fragment = createNewFragment(itemId);
+                fragment = ExperimentListFragment.newInstance(shouldUsePanes());
             }
             adjustActivityForSelectedItem(itemId);
 
@@ -336,25 +328,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     private CharSequence getTitleToRestore(MenuItem menuItem) {
-        if (menuItem.getItemId() == R.id.navigation_item_observe) {
-            return null;
-        } else if (menuItem.getItemId() == R.id.navigation_item_experiments) {
+        if (menuItem.getItemId() == R.id.navigation_item_experiments) {
             return getResources().getString(R.string.app_name);
         } else {
             return menuItem.getTitle();
-        }
-    }
-
-    private Fragment createNewFragment(int itemId) {
-        if (itemId == R.id.navigation_item_observe) {
-            boolean showSnapshot = false;
-            boolean inflateMenu = true;
-            mRecordFragment = RecordFragment.newInstance(showSnapshot, inflateMenu);
-            return mRecordFragment;
-        } else if (itemId == R.id.navigation_item_experiments) {
-            return ExperimentListFragment.newInstance(shouldUsePanes());
-        } else {
-            throw new IllegalArgumentException("Unknown menu item " + itemId);
         }
     }
 
@@ -405,19 +382,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[],
             int[] grantResults) {
-        final boolean granted = grantResults.length > 0 &&
-                                grantResults[0] == PackageManager.PERMISSION_GRANTED;
-        switch (requestCode) {
-            case PERMISSIONS_AUDIO_RECORD_REQUEST:
-                if (mRecordFragment != null) {
-                    mRecordFragment.audioPermissionGranted(granted);
-                }
-                return;
-            default:
-                PictureUtils.onRequestPermissionsResult(requestCode, permissions, grantResults,
-                        this);
-                return;
-        }
+        // TODO: is this ever used?
+        PictureUtils.onRequestPermissionsResult(requestCode, permissions, grantResults,
+                this);
+        return;
     }
 
     /**
@@ -438,23 +406,15 @@ public class MainActivity extends AppCompatActivity
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // TODO: Do this for all possible IDs in case others have activity results.
         Fragment fragment = getFragmentManager().findFragmentByTag(
-                String.valueOf(R.id.navigation_item_observe));
+                String.valueOf(R.id.navigation_item_experiments));
         if (fragment != null) {
             fragment.onActivityResult(requestCode, resultCode, data);
         }
     }
 
-    @Override
+    // TODO: this is unused now.  Does any of this need to go into PanesActivity?
     public RecordFragment.UICallbacks getRecordFragmentCallbacks() {
         return new RecordFragment.UICallbacks() {
-
-            @Override
-            public void onSelectedExperimentChanged(Experiment selectedExperiment) {
-                ActionBar actionBar = getSupportActionBar();
-                actionBar.setTitle(selectedExperiment.getDisplayTitle(
-                        getApplicationContext()));
-            }
-
             @Override
             public void onRecordingStart(String experimentName) {
                 ActionBar actionBar = getSupportActionBar();
@@ -484,14 +444,13 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void onRecordStopRequested() {
-                // When using (V1) MainActivity, stop observing the sensors right before recording
-                // stops.  This will stop triggers from re-starting a recording in the few seconds
-                // while the run is saved and RunReviewFragment is brought up.
+            Observable<Boolean> watchAudioPermissionsGranted() {
+                return Observable.empty();
+            }
 
-                if (mRecordFragment != null) {
-                    mRecordFragment.stopObservingCurrentSensors();
-                }
+            @Override
+            public void onRecordStopRequested() {
+                // do nothing
             }
 
             private void updateToolbarColors(int toolbarColorResource, int statusBarColorResource) {

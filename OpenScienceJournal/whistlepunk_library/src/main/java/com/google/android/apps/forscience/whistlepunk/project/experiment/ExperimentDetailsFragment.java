@@ -103,7 +103,7 @@ import io.reactivex.Single;
  * A fragment to handle displaying Experiment details, runs and labels.
  */
 public class ExperimentDetailsFragment extends Fragment
-        implements AddNoteDialog.ListenerProvider, Handler.Callback,
+        implements AddNoteDialog.ListenerProvider,
         DeleteMetadataItemDialog.DeleteDialogListener,
         NameExperimentDialog.OnExperimentTitleChangeListener {
 
@@ -113,7 +113,6 @@ public class ExperimentDetailsFragment extends Fragment
     public static final String ARG_DELETED_LABEL = "deleted_label";
     public static final String ARG_CREATE_TASK = "create_task";
     private static final String TAG = "ExperimentDetails";
-    private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
 
     /**
      * Boolen extra for savedInstanceState with the state of includeArchived experiments.
@@ -123,9 +122,6 @@ public class ExperimentDetailsFragment extends Fragment
 
     private RecyclerView mDetails;
     private DetailsAdapter mAdapter;
-    FloatingActionButton mObserveButton;
-
-    private Handler mHandler;
 
     private String mExperimentId;
     private Experiment mExperiment;
@@ -175,7 +171,6 @@ public class ExperimentDetailsFragment extends Fragment
             // Only try to restore a deleted label the first time.
             mDeletedLabel = getArguments().getParcelable(ARG_DELETED_LABEL);
         }
-        mHandler = new Handler(this);
         setHasOptionsMenu(true);
     }
 
@@ -235,14 +230,7 @@ public class ExperimentDetailsFragment extends Fragment
                     mBroadcastReceiver);
             mBroadcastReceiver = null;
         }
-        clearDiscovery();
         super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        mHandler = null;
-        super.onDestroy();
     }
 
     @Override
@@ -281,8 +269,6 @@ public class ExperimentDetailsFragment extends Fragment
         mAdapter = new DetailsAdapter(this, savedInstanceState);
         mDetails.setAdapter(mAdapter);
 
-        mObserveButton = (FloatingActionButton) view.findViewById(R.id.observe);
-
         // TODO: Because mScalarDisplayOptions are static, if the options are changed during the
         // time we are on this page it probably won't have an effect. Since graph options are
         // hidden from non-userdebug users, and not shown in the ExperimentDetails menu even when
@@ -290,12 +276,6 @@ public class ExperimentDetailsFragment extends Fragment
         mScalarDisplayOptions = new ScalarDisplayOptions();
         GraphOptionsController graphOptionsController = new GraphOptionsController(getActivity());
         graphOptionsController.loadIntoScalarDisplayOptions(mScalarDisplayOptions, view);
-
-        FeatureDiscoveryProvider provider = WhistlePunkApplication.getFeatureDiscoveryProvider(
-                getActivity());
-        if (provider.isEnabled(getActivity(), FeatureDiscoveryProvider.FEATURE_OBSERVE_FAB)) {
-            scheduleDiscovery();
-        }
 
         if (savedInstanceState != null) {
             mIncludeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
@@ -314,27 +294,9 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void loadExperimentData(final Experiment experiment) {
-        adjustObserveButton(experiment);
-
         boolean includeInvalidRuns = false;
         mAdapter.setData(experiment, experiment.getTrials(mIncludeArchived, includeInvalidRuns),
                 mScalarDisplayOptions);
-    }
-
-    private void adjustObserveButton(Experiment experiment) {
-        if (mObserveButton == null) {
-            return;
-        }
-
-        // If we don't have the disappearing action bar, we're in V2 UI, and shouldn't have a FAB,
-        // either.
-        if (experiment.isArchived() || !mDisappearingActionBar) {
-            mObserveButton.setVisibility(View.GONE);
-            mObserveButton.setOnClickListener(null);
-        } else {
-            mObserveButton.setVisibility(View.VISIBLE);
-            mObserveButton.setOnClickListener(v -> launchObserve());
-        }
     }
 
     private void attachExperimentDetails(Experiment experiment) {
@@ -498,19 +460,6 @@ public class ExperimentDetailsFragment extends Fragment
                         null, 0);
     }
 
-    /**
-     * Sets this as the active experiment and launches observe when done.
-     */
-    private void launchObserve() {
-        if (mExperiment == null) {
-            return;
-        }
-        Context context = getActivity();
-        boolean usePanes = false;
-        context.startActivity(MainActivity.launchIntent(context, R.id.navigation_item_observe,
-                usePanes));
-    }
-
     private void launchLabelAdd() {
         long now = AppSingleton.getInstance(getActivity()).getSensorEnvironment()
                 .getDefaultClock().getNow();
@@ -627,36 +576,6 @@ public class ExperimentDetailsFragment extends Fragment
                 R.string.delete_run_dialog_title, R.string.run_review_delete_confirm,
                 trial.getTrialId());
         dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
-    }
-
-    @Override
-    public boolean handleMessage(Message msg) {
-        if (msg.what == MSG_SHOW_FEATURE_DISCOVERY) {
-            showFeatureDiscovery();
-        }
-        return false;
-    }
-
-    private void scheduleDiscovery() {
-        mHandler.sendEmptyMessageDelayed(MSG_SHOW_FEATURE_DISCOVERY,
-                FeatureDiscoveryProvider.FEATURE_DISCOVERY_SHOW_DELAY_MS);
-    }
-
-    private void clearDiscovery() {
-        mHandler.removeMessages(MSG_SHOW_FEATURE_DISCOVERY);
-    }
-
-    private void showFeatureDiscovery() {
-        if (getActivity() == null) {
-            return;
-        }
-        FeatureDiscoveryProvider provider = WhistlePunkApplication.getFeatureDiscoveryProvider(
-                getActivity());
-        if (mObserveButton != null) {
-            mObserveButton.setTag(TAG);
-        }
-        provider.show(((AppCompatActivity) getActivity()),
-                FeatureDiscoveryProvider.FEATURE_OBSERVE_FAB, TAG);
     }
 
     private void confirmDeleteExperiment() {
@@ -1066,10 +985,6 @@ public class ExperimentDetailsFragment extends Fragment
             if (mParentReference.get() != null) {
                 mParentReference.get().setToolbarScrollFlags(false /* has an empty view*/);
             }
-        }
-
-        boolean hasEmptyView() {
-            return !mHasRunsOrLabels;
         }
 
         void bindRun(final DetailsViewHolder holder, final ExperimentDetailItem item) {

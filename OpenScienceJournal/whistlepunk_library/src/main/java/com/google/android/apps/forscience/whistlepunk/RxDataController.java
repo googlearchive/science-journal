@@ -21,7 +21,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
 
 import io.reactivex.Completable;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
 
 /**
@@ -46,18 +45,7 @@ public class RxDataController {
         return MaybeConsumers.buildSingle(mc -> dc.getExperimentById(experimentId, mc));
     }
 
-    public static Single<Experiment> loadOrCreateRecentExperiment(DataController dc) {
-        // The toMaybe/toSingle is a weird dance required by Rx, which doesn't have a direct
-        // switchIfEmpty(Single) (https://github.com/ReactiveX/RxJava/issues/4544)
-        return getLastUsedUnarchivedExperiment(dc).switchIfEmpty(createExperiment(dc).toMaybe())
-                                                  .toSingle();
-    }
-
     public static Single<Experiment> createExperiment(DataController dc) {
         return MaybeConsumers.buildSingle(mc -> dc.createExperiment(mc));
-    }
-
-    public static Maybe<Experiment> getLastUsedUnarchivedExperiment(DataController dc) {
-        return MaybeConsumers.buildMaybe(mc -> dc.getLastUsedUnarchivedExperiment(mc));
     }
 }

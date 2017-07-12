@@ -197,8 +197,6 @@ public class ExperimentListFragment extends Fragment implements
     public void onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
         menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
-        menu.findItem(R.id.action_launch_legacy)
-            .setVisible(DevOptionsFragment.isDevToolsEnabled(getActivity()));
     }
 
     @Override
@@ -214,9 +212,6 @@ public class ExperimentListFragment extends Fragment implements
             loadExperiments();
             getActivity().invalidateOptionsMenu();
             return true;
-        } else if (id == R.id.action_launch_legacy) {
-            getActivity().startActivity(
-                    MainActivity.launchIntent(getActivity(), R.id.navigation_item_observe, false));
         }
         return super.onOptionsItemSelected(item);
     }
@@ -482,10 +477,6 @@ public class ExperimentListFragment extends Fragment implements
                     .load(PictureUtils.getExperimentOverviewFullImagePath(
                             holder.experimentImage.getContext(),
                             experimentOverviewFilePath)).into(holder.experimentImage);
-        }
-
-        public boolean hasEmptyView() {
-            return mItems.size() == 0;
         }
 
         public void onExperimentDeleted(String experimentId) {

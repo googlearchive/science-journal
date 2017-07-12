@@ -18,11 +18,6 @@
     <group
         android:checkableBehavior="single">
         <item
-            android:id="@+id/navigation_item_observe"
-            android:checked="true"
-            android:icon="@drawable/ic_observe_white_24dp"
-            android:title="@string/navigation_item_observe"/>
-        <item
             android:id="@+id/navigation_item_experiments"
             android:icon="@drawable/ic_navlibrary_black_24dp"
             android:title="@string/navigation_item_experiments"/>

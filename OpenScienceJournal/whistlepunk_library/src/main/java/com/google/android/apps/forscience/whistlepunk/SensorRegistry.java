@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.util.ArraySet;
 import android.util.Pair;
 
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -43,7 +44,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -86,6 +86,11 @@ public class SensorRegistry {
      * Remember insertion order in order to display sensors in order added.
      */
     private Map<String, SensorRegistryItem> mSensorRegistry = new LinkedHashMap<>();
+
+    /**
+     * Which ids that would otherwise be available has the user explicitly excluded?
+     */
+    private Set<String> mExcludedIds = new ArraySet<>();
 
     // sensorId -> (tag, op)
     private Multimap<String, Pair<String, Consumer<SensorChoice>>> mWaitingSensorChoiceOperations =
@@ -300,11 +305,15 @@ public class SensorRegistry {
         }
     }
 
-    @NonNull
-    List<String> getAllSourcesExcept(Set<String> excluded, String... sensorTags) {
-        List<String> allSensorIds = Lists.newArrayList(getAllSources());
-        allSensorIds.removeAll(Arrays.asList(sensorTags));
-        allSensorIds.removeAll(excluded);
+    // TODO: test this?
+    public List<String> getIncludedSources() {
+        List<String> allSensorIds = getAllSources();
+        allSensorIds.removeAll(mExcludedIds);
         return allSensorIds;
+    }
+
+    public void setExcludedIds(Set<String> excludedSensorIds) {
+        mExcludedIds.clear();
+        mExcludedIds.addAll(excludedSensorIds);
     }
 }

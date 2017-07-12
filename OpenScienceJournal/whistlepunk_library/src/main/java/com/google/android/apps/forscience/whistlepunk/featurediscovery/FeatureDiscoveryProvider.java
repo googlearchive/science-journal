@@ -25,7 +25,6 @@ import android.support.v4.app.FragmentActivity;
 public interface FeatureDiscoveryProvider {
 
     public static final String FEATURE_NEW_EXTERNAL_SENSOR = "fd_new_external_sensor";
-    public static final String FEATURE_OBSERVE_FAB = "fd_observe_fab";
 
     /**
      * Amount of time in ms to delay showing the feature discovery dialog.

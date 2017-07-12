@@ -37,16 +37,4 @@ public class PanesActivityTest {
                      .assertValue(
                              actual -> actual.getExperimentId().equals(expected.getExperimentId()));
     }
-
-    @Test
-    public void selectedExperimentCreate() {
-        MemoryMetadataManager mmm = new MemoryMetadataManager();
-        DataController dc =
-                new InMemorySensorDatabase().makeSimpleController(mmm);
-        List<Experiment> exps = PanesActivity.whenSelectedExperiment(null, dc).test().values();
-        assertEquals(1, exps.size());
-        Experiment returned = exps.get(0);
-        Experiment added = mmm.getExperimentById(returned.getExperimentId());
-        assertEquals(returned.getExperimentId(), added.getExperimentId());
-    }
 }

@@ -82,7 +82,6 @@ import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.jakewharton.rxbinding2.view.RxView;
 
 import java.io.File;
@@ -91,10 +90,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import io.reactivex.subjects.BehaviorSubject;
@@ -107,6 +106,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private static final String KEY_SAVED_ACTIVE_SENSOR_CARD = "savedActiveCardIndex";
     private static final String KEY_SAVED_RECYCLER_LAYOUT = "savedRecyclerLayout";
     private static final String KEY_SHOW_SNAPSHOT = "showSnapshot";
+    private static final String KEY_EXPERIMENT_ID = "experimentId";
     private static final String KEY_INFLATE_MENU = "inflateMenu";
 
     private static final int DEFAULT_CARD_VIEW = GoosciSensorLayout.SensorLayout.METER;
@@ -121,16 +121,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
 
     public static abstract class UICallbacks {
-        public static UICallbacks NULL = new UICallbacks() {};
-
-        /**
-         * Called when an experiment is selected
-         *
-         * @param selectedExperiment the experiment that has been selected
-         */
-        void onSelectedExperimentChanged(Experiment selectedExperiment) {
-
-        }
+        public static UICallbacks NULL = new UICallbacks() {
+            @Override
+            io.reactivex.Observable<Boolean> watchAudioPermissionsGranted() {
+                return Observable.empty();
+            }
+        };
 
         /**
          * Called when recording starts
@@ -172,6 +168,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         public void onLabelAdded(Label label) {
 
         }
+
+        abstract Observable<Boolean> watchAudioPermissionsGranted();
     }
 
     public interface CallbacksProvider {
@@ -218,16 +216,18 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
      */
     private String mRecorderPauseId;
     private boolean mRecordingWasCanceled;
-    private Set<String> mExcludedSensorIds = Sets.newHashSet();
     private int mTriggerFiredListenerId = RecorderController.NO_LISTENER_ID;
 
     RxEvent mUiStop = new RxEvent();
+    RxEvent mContextDetach = new RxEvent();
 
-    public static RecordFragment newInstance(boolean showSnapshot, boolean inflateMenu) {
+    public static RecordFragment newInstance(String experimentId, boolean showSnapshot,
+            boolean inflateMenu) {
         RecordFragment fragment = new RecordFragment();
         Bundle args = new Bundle();
         args.putBoolean(KEY_SHOW_SNAPSHOT, showSnapshot);
         args.putBoolean(KEY_INFLATE_MENU, inflateMenu);
+        args.putString(KEY_EXPERIMENT_ID, experimentId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -235,6 +235,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     @Override
     public void onDetach() {
         mUICallbacks = UICallbacks.NULL;
+        mContextDetach.onHappened();
         super.onDetach();
     }
 
@@ -407,14 +408,13 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             }
         }
 
-        RxDataController.loadOrCreateRecentExperiment(getDataController()).subscribe(
+        RxDataController.getExperimentById(getDataController(), getExperimentId()).subscribe(
                 selectedExperiment -> {
                     mRecordingStatus.firstElement().subscribe(status -> {
                         if (!readSensorsFromExtras(rc)) {
                             // By spec, newExperiments should always be non-zero
                             onSelectedExperimentChanged(selectedExperiment, rc, status);
                         }
-                        mUICallbacks.onSelectedExperimentChanged(mSelectedExperiment);
                     });
                 });
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
@@ -677,6 +677,10 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         return getArguments().getBoolean(KEY_INFLATE_MENU, true);
     }
 
+    private String getExperimentId() {
+        return getArguments().getString(KEY_EXPERIMENT_ID);
+    }
+
     private void activateSensorCardPresenter(SensorCardPresenter sensorCardPresenter,
             boolean setActive) {
         sensorCardPresenter.setActive(setActive, /* force */ false);
@@ -933,12 +937,14 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private List<String> getAllIncludedSources() {
         return nonEmptySensorList(
-                Lists.newArrayList(mSensorRegistry.getAllSourcesExcept(mExcludedSensorIds)));
+                Lists.newArrayList(mSensorRegistry.getIncludedSources()));
     }
 
     private List<String> getAvailableSources() {
+        // TODO: test this?
         String[] selected = mSensorCardAdapter.getSensorTags();
-        List<String> sources = mSensorRegistry.getAllSourcesExcept(mExcludedSensorIds, selected);
+        List<String> sources = mSensorRegistry.getIncludedSources();
+        sources.removeAll(Lists.newArrayList(selected));
         if (!hasGoodSensorId(selected)) {
             // If nothing is selected, at least one must be avaiable (see notes on
             // #nonEmptySensorList)
@@ -1036,7 +1042,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (TextUtils.equals(sensorId, DecibelSensor.ID) && mDecibelSensorCardPresenter == null &&
                 !PermissionUtils.tryRequestingPermission(getActivity(),
                         Manifest.permission.RECORD_AUDIO,
-                        MainActivity.PERMISSIONS_AUDIO_RECORD_REQUEST, /* force retry */ retry)) {
+                        PanesActivity.PERMISSIONS_AUDIO_RECORD_REQUEST, /* force retry */ retry)) {
             // If we did actually try to request the permission, save this sensorCardPresenter.
             // for when the permission is granted.
             if (PermissionUtils.canRequestAgain(getActivity(), Manifest.permission.RECORD_AUDIO)) {
@@ -1219,6 +1225,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         mGraphOptionsController = new GraphOptionsController(activity);
         mSensorSettingsController = new SensorSettingsControllerImpl(activity);
         mUICallbacks = getUiCallbacks(activity);
+        mUICallbacks.watchAudioPermissionsGranted()
+                    .takeUntil(mContextDetach.happens())
+                    .subscribe(granted -> audioPermissionGranted(granted));
     }
 
     private UICallbacks getUiCallbacks(Activity activity) {
@@ -1361,7 +1370,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
         boolean usePanes = false;
         Intent mLaunchIntent =
-                MainActivity.launchIntent(getActivity(), R.id.navigation_item_observe, usePanes);
+                PanesActivity.launchIntent(getActivity(), mSelectedExperiment.getExperimentId());
 
         // This isn't currently used, but does ensure this intent doesn't match any other intent.
         // See b/31616891
@@ -1520,8 +1529,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                             "add external sensors") {
                         @Override
                         public void success(ExperimentSensors sensors) {
-                            mExcludedSensorIds.clear();
-                            mExcludedSensorIds.addAll(sensors.getExcludedSensorIds());
+                            mSensorRegistry.setExcludedIds(sensors.getExcludedSensorIds());
                             updateExternalSensors(sensors.getIncludedSensors());
                             setSensorPresenters(layouts, rc, status);
                         }

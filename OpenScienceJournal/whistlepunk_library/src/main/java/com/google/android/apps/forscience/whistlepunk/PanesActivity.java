@@ -19,6 +19,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -43,29 +44,33 @@ import com.jakewharton.rxbinding2.view.RxView;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
         AddNoteDialog.ListenerProvider, CameraFragment.ListenerProvider {
+    public static final int PERMISSIONS_AUDIO_RECORD_REQUEST = 1;
     private static final String TAG = "PanesActivity";
     private static final String EXTRA_EXPERIMENT_ID = "experimentId";
     private ProgressBar mRecordingBar;
+    private BehaviorSubject<Boolean> mAudioPermissionsGranted = BehaviorSubject.create();
 
     private static enum ToolTab {
         NOTES(R.string.tab_description_add_note, R.drawable.ic_notes_white_24dp) {
             @Override
-            public Fragment createFragment() {
-                return AddNoteDialog.createWithNoExperimentYet(
+            public Fragment createFragment(String experimentId) {
+                return AddNoteDialog.createWithDynamicTimestamp(
+                        RecorderController.NOT_RECORDING_RUN_ID, experimentId,
                         R.string.add_experiment_note_placeholder_text);
             }
         }, OBSERVE(R.string.tab_description_observe, R.drawable.ic_observe_white_24dp) {
             @Override
-            public Fragment createFragment() {
-                return RecordFragment.newInstance(true, false);
+            public Fragment createFragment(String experimentId) {
+                return RecordFragment.newInstance(experimentId, true, false);
             }
         }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp) {
             @Override
-            public Fragment createFragment() {
+            public Fragment createFragment(String experimentId) {
                 // TODO: b/62022245
                 return CameraFragment.newInstance();
             }
@@ -79,7 +84,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             mIconId = iconId;
         }
 
-        public abstract Fragment createFragment();
+        public abstract Fragment createFragment(String experimentId);
 
         public int getContentDescriptionId() {
             return mContentDescriptionId;
@@ -91,9 +96,15 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     public static void launch(Context context, String experimentId) {
+        Intent intent = launchIntent(context, experimentId);
+        context.startActivity(intent);
+    }
+
+    @NonNull
+    public static Intent launchIntent(Context context, String experimentId) {
         Intent intent = new Intent(context, PanesActivity.class);
         intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
-        context.startActivity(intent);
+        return intent;
     }
 
     private ExperimentDetailsFragment mExperimentFragment = null;
@@ -112,6 +123,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.panes_layout);
 
+        String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
+
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
         final FragmentPagerAdapter adapter = new FragmentPagerAdapter(getFragmentManager()) {
             @Override
@@ -119,7 +132,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 if (position >= ToolTab.values().length) {
                     return null;
                 }
-                return ToolTab.values()[position].createFragment();
+                return ToolTab.values()[position].createFragment(experimentId);
             }
 
             @Override
@@ -183,8 +196,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             setExperimentFragmentId(experiment.getExperimentId());
         });
 
-        String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
-
         Single<Experiment> exp = whenSelectedExperiment(experimentId, getDataController());
         exp.takeUntil(mDestroyed.happensNext()).subscribe(mActiveExperiment);
 
@@ -223,17 +234,10 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     @VisibleForTesting
     public static Single<Experiment> whenSelectedExperiment(String experimentId,
             DataController dataController) {
-        if (experimentId == null) {
-            if (Log.isLoggable(TAG, Log.INFO)) {
-                Log.i(TAG, "Launching most recent experiment");
-            }
-            return RxDataController.loadOrCreateRecentExperiment(dataController);
-        } else {
-            if (Log.isLoggable(TAG, Log.INFO)) {
-                Log.i(TAG, "Launching specified experiment id: " + experimentId);
-            }
-            return RxDataController.getExperimentById(dataController, experimentId);
+        if (Log.isLoggable(TAG, Log.INFO)) {
+            Log.i(TAG, "Launching specified experiment id: " + experimentId);
         }
+        return RxDataController.getExperimentById(dataController, experimentId);
     }
 
     private void setExperimentFragmentId(String experimentId) {
@@ -290,6 +294,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             public void onLabelAdded(Label label) {
                 // TODO: is this expensive?  Should we trigger a more incremental update?
                 mExperimentFragment.loadExperiment();
+            }
+
+            @Override
+            Observable<Boolean> watchAudioPermissionsGranted() {
+                return mAudioPermissionsGranted;
             }
 
             @Override
@@ -352,6 +361,22 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     private DataController getDataController() {
         return AppSingleton.getInstance(PanesActivity.this).getDataController();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[],
+            int[] grantResults) {
+        final boolean granted = grantResults.length > 0 &&
+                                grantResults[0] == PackageManager.PERMISSION_GRANTED;
+        switch (requestCode) {
+            case PERMISSIONS_AUDIO_RECORD_REQUEST:
+                mAudioPermissionsGranted.onNext(granted);
+                return;
+            default:
+                PictureUtils.onRequestPermissionsResult(requestCode, permissions, grantResults,
+                        this);
+                return;
+        }
     }
 
     // TODO: this is acceptable, but still a bit wonky.  For example, it's hard to get from bottom
