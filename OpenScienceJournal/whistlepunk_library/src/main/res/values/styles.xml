@@ -120,4 +120,16 @@
         <item name="colorPrimary">#000</item>
     </style>
 
+    <style name="RecordingProgressBarColor" parent="AppTheme">
+        <item name="colorAccent">@color/recording_axis_bar_color</item>
+        <item name="colorPrimary">@color/recording_axis_bar_color</item>
+    </style>
+
+    <style name="RecordingProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <!-- Scale up the drawable so we can shrink the margin down to just the drawable and still
+             have a 4dp sized throbber -->
+        <item name="android:minHeight">26dip</item>
+        <item name="android:maxHeight">26dip</item>
+    </style>
+
 </resources>
