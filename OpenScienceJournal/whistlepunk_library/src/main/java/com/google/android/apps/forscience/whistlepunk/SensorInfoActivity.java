@@ -46,7 +46,9 @@ public class SensorInfoActivity extends AppCompatActivity {
         WhistlePunkApplication.getUsageTracker(this)
                               .trackEvent(TrackerConstants.CATEGORY_INFO,
                                       TrackerConstants.ACTION_INFO,
-                                      TrackerConstants.getLoggingId(sensorId, this), 0);
+                                      AppSingleton.getInstance(this)
+                                                  .getSensorRegistry()
+                                                  .getLoggingId(sensorId), 0);
 
         // TODO: Set the action bar and window status bar colors. Need to get the darker color
         // for the window status bar first (b/26827677)

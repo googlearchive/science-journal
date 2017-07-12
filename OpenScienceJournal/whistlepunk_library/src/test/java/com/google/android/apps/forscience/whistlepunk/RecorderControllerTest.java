@@ -54,7 +54,7 @@ public class RecorderControllerTest {
 
     @Test
     public void multipleObservers() {
-        RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+        RecorderControllerImpl rc = new RecorderControllerImpl(null, mEnvironment,
                 new RecorderListenerRegistry(), null, null, null, Delay.ZERO,
                 new FakeUnitAppearanceProvider());
         RecordingSensorObserver observer1 = new RecordingSensorObserver();
@@ -62,10 +62,10 @@ public class RecorderControllerTest {
 
         mSensor.pushValue(0, 0);
         String id1 = rc.startObserving(mSensorId, Collections.<SensorTrigger>emptyList(), observer1,
-                new StubStatusListener(), null);
+                new StubStatusListener(), null, mSensorRegistry);
         mSensor.pushValue(1, 1);
         String id2 = rc.startObserving(mSensorId, Collections.<SensorTrigger>emptyList(), observer2,
-                new StubStatusListener(), null);
+                new StubStatusListener(), null, mSensorRegistry);
         mSensor.pushValue(2, 2);
         rc.stopObserving(mSensorId, id1);
         mSensor.pushValue(3, 3);
@@ -78,7 +78,7 @@ public class RecorderControllerTest {
 
     @Test
     public void layoutLogging() {
-        RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+        RecorderControllerImpl rc = new RecorderControllerImpl(null, mEnvironment,
                 new RecorderListenerRegistry(), null, null, null, Delay.ZERO,
                 new FakeUnitAppearanceProvider());
 
@@ -105,11 +105,12 @@ public class RecorderControllerTest {
     public void delayStopObserving() {
         TestTrigger trigger = new TestTrigger(mSensorId);
         ArrayList<SensorTrigger> triggerList = Lists.<SensorTrigger>newArrayList(trigger);
-        RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+        RecorderControllerImpl rc = new RecorderControllerImpl(null, mEnvironment,
                 new RecorderListenerRegistry(), null, null, mScheduler, Delay.seconds(15),
                 new FakeUnitAppearanceProvider());
         String observeId1 = rc.startObserving(mSensorId, Lists.<SensorTrigger>newArrayList(),
-                new RecordingSensorObserver(), new RecordingStatusListener(), null);
+                new RecordingSensorObserver(), new RecordingStatusListener(), null,
+                mSensorRegistry);
         rc.stopObserving(mSensorId, observeId1);
 
         // Redundant call should have no effect.
@@ -121,7 +122,7 @@ public class RecorderControllerTest {
 
         // Start observing again before the delay is hit
         String observeId2 = rc.startObserving(mSensorId, triggerList, new RecordingSensorObserver(),
-                new RecordingStatusListener(), null);
+                new RecordingStatusListener(), null, mSensorRegistry);
 
         // Make sure there's no delayed stop commands waiting to strike
         mScheduler.incrementTime(30000);
@@ -141,22 +142,22 @@ public class RecorderControllerTest {
 
     @Test
     public void dontScheduleIfDelayIs0() {
-        RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+        RecorderControllerImpl rc = new RecorderControllerImpl(null, mEnvironment,
                 new RecorderListenerRegistry(), null, null, mScheduler, Delay.ZERO,
                 new FakeUnitAppearanceProvider());
         String observeId1 = rc.startObserving(mSensorId, null, new RecordingSensorObserver(),
-                new RecordingStatusListener(), null);
+                new RecordingStatusListener(), null, mSensorRegistry);
         rc.stopObserving(mSensorId, observeId1);
         assertEquals(0, mScheduler.getScheduleCount());
     }
 
     @Test
     public void reboot() {
-        RecorderControllerImpl rc = new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+        RecorderControllerImpl rc = new RecorderControllerImpl(null, mEnvironment,
                 new RecorderListenerRegistry(), null, null, mScheduler, Delay.ZERO,
                 new FakeUnitAppearanceProvider());
         rc.startObserving(mSensorId, null, new RecordingSensorObserver(),
-                new RecordingStatusListener(), null);
+                new RecordingStatusListener(), null, mSensorRegistry);
         mSensor.simulateExternalEventPreventingObservation();
         assertFalse(mSensor.isObserving());
         rc.reboot(mSensorId);
@@ -166,12 +167,12 @@ public class RecorderControllerTest {
     @Test
     public void takeSnapshot() {
         final RecorderControllerImpl rc =
-                new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+                new RecorderControllerImpl(null, mEnvironment,
                         new RecorderListenerRegistry(), null, mDataController, mScheduler,
                         Delay.ZERO, new FakeUnitAppearanceProvider());
 
         rc.startObserving(mSensorId, new ArrayList<SensorTrigger>(), new RecordingSensorObserver(),
-                new RecordingStatusListener(), null);
+                new RecordingStatusListener(), null, mSensorRegistry);
 
         Maybe<String> snapshot =
                 rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId),
@@ -184,7 +185,7 @@ public class RecorderControllerTest {
     @Test
     public void snapshotWithNoSensors() {
         final RecorderControllerImpl rc =
-                new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+                new RecorderControllerImpl(null, mEnvironment,
                         new RecorderListenerRegistry(), null, mDataController, mScheduler,
                         Delay.ZERO, new FakeUnitAppearanceProvider());
 
@@ -199,17 +200,17 @@ public class RecorderControllerTest {
         ManualSensor s3 = mSensorRegistry.addSensor("s3");
 
         final RecorderControllerImpl rc =
-                new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+                new RecorderControllerImpl(null, mEnvironment,
                         new RecorderListenerRegistry(), null, mDataController, mScheduler,
                         Delay.ZERO, new FakeUnitAppearanceProvider());
 
         ArrayList<SensorTrigger> triggers = new ArrayList<>();
         rc.startObserving(mSensorId, triggers, new RecordingSensorObserver(),
-                new RecordingStatusListener(), null);
+                new RecordingStatusListener(), null, mSensorRegistry);
         rc.startObserving(s2.getId(), triggers, new RecordingSensorObserver(),
-                new RecordingStatusListener(), null);
+                new RecordingStatusListener(), null, mSensorRegistry);
         rc.startObserving(s3.getId(), triggers, new RecordingSensorObserver(),
-                new RecordingStatusListener(), null);
+                new RecordingStatusListener(), null, mSensorRegistry);
 
         // Some sensors may publish earlier
         s2.pushValue(12, 52);
@@ -228,12 +229,13 @@ public class RecorderControllerTest {
     @Test
     public void dontCacheSensorValuesBetweenObservation() {
         final RecorderControllerImpl rc =
-                new RecorderControllerImpl(null, mSensorRegistry, mEnvironment,
+                new RecorderControllerImpl(null, mEnvironment,
                         new RecorderListenerRegistry(), null, mDataController, mScheduler,
                         Delay.ZERO, new FakeUnitAppearanceProvider());
 
         String observerId = rc.startObserving(mSensorId, new ArrayList<SensorTrigger>(),
-                new RecordingSensorObserver(), new RecordingStatusListener(), null);
+                new RecordingSensorObserver(), new RecordingStatusListener(), null,
+                mSensorRegistry);
         mSensor.pushValue(10, 50);
 
         // This should clear the latest value
@@ -241,7 +243,7 @@ public class RecorderControllerTest {
 
         // Restart observing
         rc.startObserving(mSensorId, new ArrayList<SensorTrigger>(), new RecordingSensorObserver(),
-                new RecordingStatusListener(), null);
+                new RecordingStatusListener(), null, mSensorRegistry);
 
         Maybe<String> snapshot = rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId),
                 s -> "sensor");

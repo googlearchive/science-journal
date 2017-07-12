@@ -52,12 +52,12 @@ public class RecordFragmentTest {
                         new FakeBleClient(null), new MemorySensorHistoryStorage(), () -> now);
 
         final RecorderControllerImpl rc =
-                new RecorderControllerImpl(null, reg, env,
+                new RecorderControllerImpl(null, env,
                         new RecorderListenerRegistry(), null, dc, null, Delay.ZERO,
                         new FakeUnitAppearanceProvider());
 
         rc.startObserving("id", new ArrayList<SensorTrigger>(), new RecordingSensorObserver(),
-                new RecordingStatusListener(), null);
+                new RecordingStatusListener(), null, reg);
         sensor.pushValue(now - 10, 55);
 
         StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();

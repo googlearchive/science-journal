@@ -104,16 +104,6 @@ public class SensorRegistryTest {
     }
 
     @Test
-    public void testNotifyListener() {
-        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
-        TestSensorRegistryListener listener = new TestSensorRegistryListener();
-        assertEquals(0, listener.numRefreshes);
-        reg.setSensorRegistryListener(listener);
-        reg.refreshBuiltinSensors(context);
-        assertEquals(1, listener.numRefreshes);
-    }
-
-    @Test
     public void testLoggingId() {
         SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
 
@@ -185,20 +175,6 @@ public class SensorRegistryTest {
 
     private SensorProvider bleProvider() {
         return new NativeBleDiscoverer(context).getProvider();
-    }
-
-    private static class TestSensorRegistryListener implements SensorRegistryListener {
-        public int numRefreshes = 0;
-
-        @Override
-        public void updateExternalSensors(List<ConnectableSensor> sensors) {
-
-        }
-
-        @Override
-        public void refreshBuiltinSensors() {
-            numRefreshes++;
-        }
     }
 
     private static class StoringConsumer extends Consumer<SensorChoice> {

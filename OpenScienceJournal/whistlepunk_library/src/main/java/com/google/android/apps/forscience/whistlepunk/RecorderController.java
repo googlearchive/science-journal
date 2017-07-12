@@ -37,7 +37,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.functions.Function;
 
-public interface RecorderController extends SensorRegistryListener {
+public interface RecorderController {
     /**
      * Used as the Run ID for labels that are created when no run is being recorded.
      */
@@ -84,7 +84,7 @@ public interface RecorderController extends SensorRegistryListener {
      */
     String startObserving(String sensorId, List<SensorTrigger> activeTriggers,
             SensorObserver observer, SensorStatusListener listener,
-            TransportableSensorOptions initialOptions);
+            TransportableSensorOptions initialOptions, SensorRegistry sensorRegistry);
 
     /**
      * @param observerId the observerId returned from the corresponding call to startObserving
@@ -117,8 +117,9 @@ public interface RecorderController extends SensorRegistryListener {
     /**
      * @return a Completable that can be watched for success or errors.  Errors will, whenever
      *         possible, be flagged by an instance of {@link RecordingStopFailedException}
+     * @param sensorRegistry
      */
-    Completable stopRecording();
+    Completable stopRecording(final SensorRegistry sensorRegistry);
 
     /**
      * @return a maybe of a string that will contain (a) for any sensor that has already had an
@@ -198,7 +199,7 @@ public interface RecorderController extends SensorRegistryListener {
 
     void setRecordActivityInForeground(boolean isInForeground);
 
-    void clearSensorTriggers(String sensorId);
+    void clearSensorTriggers(String sensorId, SensorRegistry sensorRegistry);
 
     /**
      * @param supplier can be called to get the current sensor layouts, for

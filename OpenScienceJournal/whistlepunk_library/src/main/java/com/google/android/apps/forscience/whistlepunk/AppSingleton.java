@@ -17,8 +17,10 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.ble.BleClient;
@@ -163,10 +165,14 @@ public class AppSingleton {
         return mRecorderController;
     }
 
+    // TODO: stop depending on this.  Each experiment should have its own registry
     public SensorRegistry getSensorRegistry() {
         if (mSensorRegistry == null) {
             mSensorRegistry = SensorRegistry.createWithBuiltinSensors(mApplicationContext);
-            mSensorRegistry.setSensorRegistryListener(getRecorderController());
+            SharedPreferences prefs =
+                    PreferenceManager.getDefaultSharedPreferences(mApplicationContext);
+            prefs.registerOnSharedPreferenceChangeListener(
+                    (sprefs, key) -> mSensorRegistry.refreshBuiltinSensors(mApplicationContext));
         }
         return mSensorRegistry;
     }

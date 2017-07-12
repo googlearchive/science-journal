@@ -54,7 +54,8 @@ public class PublicRecorderService extends Service implements FailureListener,
     // TODO: unit tests for this behavior
     private IRecorderController.Stub createController() {
         final RecorderController rc = AppSingleton.getInstance(this).getRecorderController();
-        return new ProxyRecorderController(rc, this, this);
+        final SensorRegistry registry = AppSingleton.getInstance(this).getSensorRegistry();
+        return new ProxyRecorderController(rc, this, this, registry);
     }
 
     /**

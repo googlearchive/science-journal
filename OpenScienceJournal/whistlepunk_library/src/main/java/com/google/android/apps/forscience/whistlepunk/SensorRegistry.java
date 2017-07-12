@@ -55,6 +55,10 @@ import java.util.Set;
 /**
  * All UI elements that want to observe what's being sensed or change the state of the sensors
  * should go through this class.
+ *
+ * Note that when first written, this class assumed that there was only one registry for the
+ * entire platform, and therefore sensorIds were global.  As we move forward, sensorIds will be
+ * associated directly with experiments.
  */
 // TODO: Move more functionality into SensorCardPresenter.
 public class SensorRegistry {
@@ -86,8 +90,6 @@ public class SensorRegistry {
     // sensorId -> (tag, op)
     private Multimap<String, Pair<String, Consumer<SensorChoice>>> mWaitingSensorChoiceOperations =
             HashMultimap.create();
-    private SensorRegistryListener mSensorRegistryListener;
-    private List<ConnectableSensor> mMostRecentExternalSensors;
 
     public static SensorRegistry createWithBuiltinSensors(final Context context) {
         final SensorRegistry sc = new SensorRegistry();
@@ -98,10 +100,6 @@ public class SensorRegistry {
     public void refreshBuiltinSensors(Context context) {
         removeBuiltInSensors();
         addAvailableBuiltinSensors(context);
-
-        if (mSensorRegistryListener != null) {
-            mSensorRegistryListener.refreshBuiltinSensors();
-        }
     }
 
     private void removeBuiltInSensors() {
@@ -253,8 +251,6 @@ public class SensorRegistry {
     @NonNull
     public List<String> updateExternalSensors(List<ConnectableSensor> sensors,
             Map<String, SensorProvider> externalProviders) {
-        mMostRecentExternalSensors = sensors;
-
         List<String> sensorsActuallyAdded = new ArrayList<>();
 
         Set<String> previousExternalSources = getAllExternalSources();
@@ -283,20 +279,7 @@ public class SensorRegistry {
             mSensorRegistry.remove(externalSensorId);
         }
 
-        if (mSensorRegistryListener != null) {
-            mSensorRegistryListener.updateExternalSensors(sensors);
-        }
-
         return sensorsActuallyAdded;
-    }
-
-    public void setSensorRegistryListener(SensorRegistryListener listener) {
-        mSensorRegistryListener = listener;
-
-        if (mMostRecentExternalSensors != null) {
-            // TODO: write test for this behavior
-            mSensorRegistryListener.updateExternalSensors(mMostRecentExternalSensors);
-        }
     }
 
     public String getLoggingId(String sensorId) {
