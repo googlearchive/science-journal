@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -57,7 +58,7 @@ import java.util.UUID;
 
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.SingleSubject;
 
 /**
  * Dialog for adding new notes.
@@ -128,7 +129,7 @@ public class AddNoteDialog extends DialogFragment {
     private int mHintTextId = R.string.add_run_note_placeholder_text;
     private String mPictureLabelPath;
     private EditText mInput;
-    private BehaviorSubject<String> mWhenExperimentId = BehaviorSubject.create();
+    private SingleSubject<String> mWhenExperimentId = SingleSubject.create();
 
     CompositeDisposable mUntilDestroyed = new CompositeDisposable();
 
@@ -305,18 +306,10 @@ public class AddNoteDialog extends DialogFragment {
             mTrialId = getArguments().getString(KEY_SAVED_RUN_ID);
             String experimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
 
-            if (experimentId != null) {
-                // If already supplied, set it
-                mWhenExperimentId.onNext(experimentId);
-            } else {
-                // Otherwise, wait for it.
-                // TODO: be sure to unsubscribe once FragmentBinder CL is in.
-                getListener(inflater.getContext()).whenExperimentId()
-                                                  .toObservable()
-                                                  .subscribe(mWhenExperimentId);
-            }
+            Context context = inflater.getContext();
+            whenExperimentId(experimentId, getListener(context)).subscribe(mWhenExperimentId);
 
-            mUntilDestroyed.add(whenExperiment(inflater.getContext()).subscribe(
+            mUntilDestroyed.add(whenExperiment(context).subscribe(
                     exp -> updatePositiveButtonEnabled((AlertDialog) getDialog(), true)));
 
             if (getArguments().containsKey(KEY_SAVED_TIME_TEXT_DESCRIPTION)) {
@@ -360,6 +353,18 @@ public class AddNoteDialog extends DialogFragment {
         return addNoteView;
     }
 
+    @VisibleForTesting
+    public static Single<String> whenExperimentId(String experimentId,
+            AddNoteDialogListener listener) {
+        if (experimentId != null) {
+            // If already supplied, return it
+            return Single.just(experimentId);
+        } else {
+            // Otherwise, wait for it.
+            return listener.whenExperimentId();
+        }
+    }
+
     private void hideKeyboard(View v) {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                 Context.INPUT_METHOD_SERVICE);
@@ -397,8 +402,7 @@ public class AddNoteDialog extends DialogFragment {
 
         setViewVisibilities(takePictureBtn, imageView, !hasPicture());
         if (mPictureLabelPath != null) {
-            mWhenExperimentId.firstElement()
-                             .subscribe(id -> PictureUtils.loadExperimentImage(getActivity(),
+            mWhenExperimentId.subscribe(id -> PictureUtils.loadExperimentImage(getActivity(),
                                      imageView, id, mPictureLabelPath));
         }
 
@@ -418,7 +422,7 @@ public class AddNoteDialog extends DialogFragment {
                     // TODO: Error states if these are not granted (b/24303452)
                     mUuid = UUID.randomUUID().toString();
 
-                    mWhenExperimentId.firstElement().subscribe(id -> {
+                    mWhenExperimentId.subscribe(id -> {
                         mPictureLabelPath =
                                 PictureUtils.capturePictureLabel(getActivity(), id, mUuid);
                     });
@@ -558,7 +562,7 @@ public class AddNoteDialog extends DialogFragment {
             Dialog dialog = getDialog();
             ImageView imageView = (ImageView) dialog.findViewById(R.id.picture_note_preview_image);
             if (resultCode == Activity.RESULT_OK) {
-                mWhenExperimentId.firstElement().subscribe(
+                mWhenExperimentId.subscribe(
                         id -> PictureUtils.loadExperimentImage(getActivity(), imageView, id,
                                 mPictureLabelPath));
             } else {
@@ -598,9 +602,8 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     private Single<Experiment> whenExperiment(Context context) {
-        return mWhenExperimentId.firstElement()
-                                .flatMapSingle(id -> RxDataController.getExperimentById(
-                                        getDataController(context), id))
+        return mWhenExperimentId.flatMap(
+                id -> RxDataController.getExperimentById(getDataController(context), id))
                                 .doOnError(LoggingConsumer.complain(TAG, "get experiment"));
     }
 }

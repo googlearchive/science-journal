@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.project.experiment;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -90,7 +91,8 @@ public class NameExperimentDialog extends DialogFragment {
 
         alertDialog.setTitle(R.string.name_experiment_dialog_title);
         alertDialog.setCancelable(true);
-        alertDialog.setPositiveButton(android.R.string.ok, (dialogInterface, i) -> saveNewTitle());
+        alertDialog.setPositiveButton(android.R.string.ok,
+                (dialogInterface, i) -> saveNewTitle(alertDialog.getContext()));
         AlertDialog result = alertDialog.create();
         RxTextView.afterTextChangeEvents(mInput).subscribe(event -> {
             Button button = result.getButton(DialogInterface.BUTTON_POSITIVE);
@@ -128,8 +130,8 @@ public class NameExperimentDialog extends DialogFragment {
                 });
     }
 
-    private void saveNewTitle() {
-        DataController dc = AppSingleton.getInstance(getContext()).getDataController();
+    private void saveNewTitle(Context context) {
+        DataController dc = AppSingleton.getInstance(context).getDataController();
         RxDataController.getExperimentById(dc, mExperimentId)
                 .subscribe(experiment -> {
                     String title = mInput.getText().toString().trim();

@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
@@ -40,11 +41,9 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.jakewharton.rxbinding2.view.RxView;
 
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.SingleSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
         AddNoteDialog.ListenerProvider, CameraFragment.ListenerProvider {
@@ -98,18 +97,15 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private ExperimentDetailsFragment mExperimentFragment = null;
-    private CompositeDisposable mUntilDestroyed = new CompositeDisposable();
 
     /**
-     * BehaviorSubject remembers the last loaded value (if any) and delivers it, and all subsequent
-     * values, to any observers.
+     * SingleSubject remembers the loaded value (if any) and delivers it to any observers.
      * <p>
      * TODO: use mActiveExperiment for other places that need an experiment in this class and
      * fragments.
-     * <p>
-     * (First use of RxJava.)
      */
-    private BehaviorSubject<Experiment> mActiveExperiment = BehaviorSubject.create();
+    private SingleSubject<Experiment> mActiveExperiment = SingleSubject.create();
+    private RxEvent mDestroyed = new RxEvent();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -183,27 +179,14 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
         // By adding the subscription to mUntilDestroyed, we make sure that we can disconnect from
         // the experiment stream when this activity is destroyed.
-        mUntilDestroyed.add(mActiveExperiment.subscribe(experiment -> {
+        mActiveExperiment.subscribe(experiment -> {
             setExperimentFragmentId(experiment.getExperimentId());
-        }));
+        });
 
-        // TODO: can I do this without a behavior subject?
         String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
 
-        if (experimentId == null) {
-            if (Log.isLoggable(TAG, Log.INFO)) {
-                Log.i(TAG, "Launching most recent experiment");
-            }
-            RxDataController.loadOrCreateRecentExperiment(getDataController())
-                            .toObservable()
-                            .subscribe(mActiveExperiment);
-        } else {
-            if (Log.isLoggable(TAG, Log.INFO)) {
-                Log.i(TAG, "Launching specified experiment id: " + experimentId);
-            }
-            getDataController().getExperimentById(experimentId,
-                    MaybeConsumers.fromObserver(mActiveExperiment));
-        }
+        Single<Experiment> exp = whenSelectedExperiment(experimentId, getDataController());
+        exp.takeUntil(mDestroyed.happensNext()).subscribe(mActiveExperiment);
 
         View experimentPane = findViewById(R.id.experiment_pane);
         CoordinatorLayout.LayoutParams params =
@@ -237,6 +220,22 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         experimentPane.setLayoutParams(params);
     }
 
+    @VisibleForTesting
+    public static Single<Experiment> whenSelectedExperiment(String experimentId,
+            DataController dataController) {
+        if (experimentId == null) {
+            if (Log.isLoggable(TAG, Log.INFO)) {
+                Log.i(TAG, "Launching most recent experiment");
+            }
+            return RxDataController.loadOrCreateRecentExperiment(dataController);
+        } else {
+            if (Log.isLoggable(TAG, Log.INFO)) {
+                Log.i(TAG, "Launching specified experiment id: " + experimentId);
+            }
+            return RxDataController.getExperimentById(dataController, experimentId);
+        }
+    }
+
     private void setExperimentFragmentId(String experimentId) {
         if (mExperimentFragment == null) {
             boolean createTaskStack = false;
@@ -267,7 +266,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     @Override
     protected void onDestroy() {
-        mUntilDestroyed.dispose();
+        mDestroyed.onHappened();
         super.onDestroy();
     }
 
@@ -325,7 +324,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
             @Override
             public Single<String> whenExperimentId() {
-                return mActiveExperiment.firstElement().toSingle().map(e -> e.getExperimentId());
+                return mActiveExperiment.map(e -> e.getExperimentId());
             }
         };
     }
@@ -336,8 +335,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             @Override
             public void onPictureLabelTaken(final Label label) {
                 // Get the most recent experiment, or wait if none has been loaded yet.
-                Maybe<Experiment> experimentMaybe = mActiveExperiment.firstElement();
-                experimentMaybe.subscribe(e -> {
+                mActiveExperiment.subscribe(e -> {
                     e.addLabel(label);
                     AddNoteDialog.saveExperiment(getDataController(), e, label)
                                  .subscribe(MaybeConsumers.toSingleObserver(
@@ -347,7 +345,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
             @Override
             public Observable<String> getActiveExperimentId() {
-                return mActiveExperiment.map(e -> e.getExperimentId());
+                return mActiveExperiment.map(e -> e.getExperimentId()).toObservable();
             }
         };
     }
