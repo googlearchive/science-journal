@@ -28,7 +28,6 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.SettingsActivity.SettingsType;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
-import com.google.android.apps.forscience.whistlepunk.intro.TutorialActivity;
 
 /**
  * Holder for Settings, About, etc.
@@ -60,12 +59,6 @@ public class SettingsFragment extends PreferenceFragment {
         int type = getArguments().getInt(KEY_TYPE);
         if (type == SettingsActivity.TYPE_ABOUT) {
             addPreferencesFromResource(R.xml.about);
-            Preference tutorialPreference = findPreference(KEY_REPLAY_TUTORIAL);
-            // Set the intent explicitly so that we know we are targeting the right package.
-            // Add an action so the tutorial activity knows whether we are in intro or not.
-            tutorialPreference.setIntent(new Intent(getActivity().getApplicationContext(),
-                    TutorialActivity.class)
-                    .setAction(KEY_REPLAY_TUTORIAL));
 
             Preference licensePreference = findPreference(KEY_OPEN_SOURCE);
             licensePreference.setIntent(new Intent(getActivity().getApplicationContext(),

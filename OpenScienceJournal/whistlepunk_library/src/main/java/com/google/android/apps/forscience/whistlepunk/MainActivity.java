@@ -42,7 +42,6 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
-import com.google.android.apps.forscience.whistlepunk.intro.TutorialActivity;
 import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 
@@ -243,12 +242,7 @@ public class MainActivity extends AppCompatActivity
      * @return true iff the activity has been finished
      */
     private boolean showRequiredScreensIfNeeded() {
-        if (TutorialActivity.shouldShowTutorial(this)) {
-            Intent intent = new Intent(this, TutorialActivity.class);
-            startActivity(intent);
-            finish();
-            return true;
-        } else if (AgeVerifier.shouldShowUserAge(this)) {
+        if (AgeVerifier.shouldShowUserAge(this)) {
             Intent intent = new Intent(this, AgeVerifier.class);
             startActivity(intent);
             finish();

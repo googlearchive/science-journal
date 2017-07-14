@@ -70,10 +70,6 @@
     <color name="pinned_note_icon_color">@color/text_color_light_grey</color>
     <color name="add_note_image_button_tint">#727272</color>
     <color name="age_verifier_header_background">#bbdefb</color>
-    <color name="tutorial_background_welcome">#039BE5</color>
-    <color name="tutorial_background_setup">#E64A19</color>
-    <color name="tutorial_background_observe_record">#7B1FA2</color>
-    <color name="tutorial_background_take_notes">#C2185B</color>
     <color name="thumb_color_transparent">#57000000</color>
     <color name="snackbar_action_color">#f8f081</color>
     <color name="picture_background_color">#262626</color>
