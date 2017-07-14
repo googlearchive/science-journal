@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.javalib.FallibleConsumer;
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -41,6 +42,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
@@ -48,6 +50,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironmen
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
+import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
@@ -69,6 +72,7 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -126,7 +130,7 @@ public class RecorderControllerImpl implements RecorderController {
     /**
      * The latest recorded value for each sensor
      */
-    private Map<String, BehaviorSubject<Double>> mLatestValues = new HashMap<>();
+    private Map<String, BehaviorSubject<ScalarReading>> mLatestValues = new HashMap<>();
 
     public RecorderControllerImpl(Context context) {
         this(context, AppSingleton.getInstance(context).getDataController());
@@ -212,7 +216,7 @@ public class RecorderControllerImpl implements RecorderController {
     private void addServiceObserverIfNeeded(final String sensorId,
             final List<SensorTrigger> activeTriggers, SensorRegistry sensorRegistry) {
         if (!mLatestValues.containsKey(sensorId)) {
-            mLatestValues.put(sensorId, BehaviorSubject.<Double>create());
+            mLatestValues.put(sensorId, BehaviorSubject.<ScalarReading>create());
         }
 
         if (!mServiceObservers.containsKey(sensorId)) {
@@ -224,7 +228,7 @@ public class RecorderControllerImpl implements RecorderController {
                         double value = ScalarSensor.getValue(data);
 
                         // Remember latest value
-                        mLatestValues.get(sensorId).onNext(value);
+                        mLatestValues.get(sensorId).onNext(new ScalarReading(timestamp, value));
 
                         // Fire triggers.
                         for (SensorTrigger trigger : activeTriggers) {
@@ -658,37 +662,86 @@ public class RecorderControllerImpl implements RecorderController {
         );
     }
 
+    // TODO: stop using this in production; only use for tests.
     @Override
     public Maybe<String> generateSnapshotText(List<String> sensorIds,
             final Function<String, String> idToName) {
         // TODO: we probably want to do something more structured eventually;
         // this is a placeholder, so we're not doing internationalization, etc.
 
-        // for each sensorId
-        return Observable.fromIterable(sensorIds)
+        return generateSnapshotLabelValue(sensorIds, idToName)
 
-                         // make a string from the latest value*
-                         .flatMapMaybe(sensorId -> getSnapshotText(sensorId, idToName))
+                         // turn the snapshots into strings
+                         .flatMapObservable(this::textsForSnapshotLabelValue)
 
                          // join them with commas
                          .reduce((a, b) -> a + ", " + b)
 
                          // or return a default if there are none
                          .defaultIfEmpty("No sensors observed");
+    }
+
+    @Override
+    public Single<GoosciSnapshotValue.SnapshotLabelValue> generateSnapshotLabelValue(
+            List<String> sensorIds, Function<String, String> idToName) {
+        // for each sensorId
+        return Observable.fromIterable(sensorIds)
+
+                         // get a snapshot from the latest value*
+                         .flatMapMaybe(sensorId -> makeSnapshot(sensorId, idToName))
+
+                         // gather those into a list
+                         .toList()
+
+                         // And build them into the appropriate proto value
+                         .map(this::buildSnapshotLabelValue);
 
         // * The "flat" in flatMapMaybe meands that we're taking a stream of Maybes (one for each
         //   sensorId), and "flattening" them into a stream of Strings (that is, we're waiting for
         //   each Maybe to be resolved to its actual snapshotText).
     }
 
-    private MaybeSource<String> getSnapshotText(String sensorId,
-            Function<String, String> idToName) throws Exception {
-        BehaviorSubject<Double> subject = mLatestValues.get(sensorId);
+    private MaybeSource<GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot> makeSnapshot(
+            String sensorId, Function<String, String> idToName) throws Exception {
+        BehaviorSubject<ScalarReading> subject = mLatestValues.get(sensorId);
         if (subject == null) {
             return Maybe.empty();
         }
         final String name = idToName.apply(sensorId);
-        return subject.firstElement().map(value -> name + " has value " + value);
+        return subject.firstElement().map(value -> generateSnapshot(name, value));
+    }
+
+    private GoosciSnapshotValue.SnapshotLabelValue buildSnapshotLabelValue(
+            List<GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot> snapshots) {
+        GoosciSnapshotValue.SnapshotLabelValue value = new GoosciSnapshotValue.SnapshotLabelValue();
+        value.snapshots = snapshots.toArray(
+                new GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot[snapshots.size()]);
+        return value;
+    }
+
+    private Observable<String> textsForSnapshotLabelValue(
+            GoosciSnapshotValue.SnapshotLabelValue value) {
+        return Observable.fromArray(value.snapshots).map(this::textForSnapshot);
+    }
+
+    @NonNull
+    private String textForSnapshot(GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot) {
+        return snapshot.sensor.rememberedAppearance.name + " has value " + snapshot.value;
+    }
+
+    @NonNull
+    private GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot generateSnapshot(String name,
+            ScalarReading reading) {
+        GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot =
+                new GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot();
+        // TODO: fill in rest of proto.
+        snapshot.sensor = new GoosciSensorSpec.SensorSpec();
+        snapshot.sensor.rememberedAppearance =
+                new GoosciSensorAppearance.BasicSensorAppearance();
+        snapshot.sensor.rememberedAppearance.name = name;
+        snapshot.value = reading.getValue();
+        snapshot.timestampMs = reading.getCollectedTimeMillis();
+        return snapshot;
     }
 
     @Override
