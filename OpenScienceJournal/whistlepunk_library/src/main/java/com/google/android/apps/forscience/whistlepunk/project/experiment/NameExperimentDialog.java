@@ -97,8 +97,10 @@ public class NameExperimentDialog extends DialogFragment {
         RxTextView.afterTextChangeEvents(mInput).subscribe(event -> {
             Button button = result.getButton(DialogInterface.BUTTON_POSITIVE);
             if (mInput.getText().toString().length() == 0) {
-                mInput.setError(getContext().getResources().getString(
-                        R.string.empty_experiment_title_error));
+                if (getActivity() != null) {
+                    mInput.setError(getActivity().getResources().getString(
+                            R.string.empty_experiment_title_error));
+                }
                 if (button != null) {
                     button.setEnabled(false);
                 }
@@ -118,7 +120,10 @@ public class NameExperimentDialog extends DialogFragment {
 
     @Override
     public void onCancel(DialogInterface dialog) {
-        DataController dc = AppSingleton.getInstance(getContext()).getDataController();
+        if (getActivity() == null) {
+            return;
+        }
+        DataController dc = AppSingleton.getInstance(getActivity()).getDataController();
         RxDataController.getExperimentById(dc, mExperimentId)
                 .subscribe(experiment -> {
                     // Set the title to something so that we don't try to save it again later.
@@ -139,9 +144,9 @@ public class NameExperimentDialog extends DialogFragment {
                         title = getResources().getString(R.string.default_experiment_name);
                     }
                     experiment.setTitle(title);
-                    RxDataController.updateExperiment(dc, experiment).subscribe(() -> {
-                        ((OnExperimentTitleChangeListener) getParentFragment()).onTitleChangedFromDialog();
-                    });
+                    RxDataController.updateExperiment(dc, experiment).subscribe(() ->
+                            ((OnExperimentTitleChangeListener) getParentFragment())
+                                    .onTitleChangedFromDialog());
                 });
     }
 }

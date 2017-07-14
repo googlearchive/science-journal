@@ -32,10 +32,10 @@ public class ColorUtils {
         return result;
     }
 
-    static int getSlightlyDarkerColor(int color) {
+    static int getSlightlyLighterColor(int color) {
         float[] hsv = new float[3];
         Color.colorToHSV(color, hsv);
-        hsv[2] *= .90;
+        hsv[2] *= 1.2;
         return Color.HSVToColor(hsv);
     }
 }
