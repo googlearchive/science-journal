@@ -514,6 +514,9 @@ public class RecorderControllerImpl implements RecorderController {
                                 RecorderController.ERROR_START_FAILED_DISCONNECTED, null));
             }
         }
+
+        mRecordingStatus.onNext(mRecordingStatus.getValue().withState(RecordingState.STARTING));
+
         mRecordingStateChangeInProgress = true;
         return Completable.create(emitter ->
                 withBoundRecorderService(new FallibleConsumer<RecorderService>() {
@@ -555,6 +558,7 @@ public class RecorderControllerImpl implements RecorderController {
                                         super.fail(e);
                                         mRecordingStateChangeInProgress = false;
                                         mCurrentTrialId = "";
+                                        mRecordingStatus.onNext(RecordingStatus.INACTIVE);
                                         emitter.onError(new RecordingStartFailedException(
                                                 RecorderController.ERROR_START_FAILED, e));
                                     }
@@ -653,6 +657,7 @@ public class RecorderControllerImpl implements RecorderController {
                                     public void fail(Exception e) {
                                         super.fail(e);
                                         mRecordingStateChangeInProgress = false;
+                                        setRecording(null);
                                         emitter.onError(new RecordingStopFailedException(
                                                 RecorderController.ERROR_FAILED_SAVE_RECORDING));
                                     }
