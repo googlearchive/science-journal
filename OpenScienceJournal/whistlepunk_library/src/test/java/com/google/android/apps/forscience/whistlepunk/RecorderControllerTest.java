@@ -21,6 +21,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -165,7 +167,7 @@ public class RecorderControllerTest {
     }
 
     @Test
-    public void takeSnapshot() {
+    public void takeSnapshotText() {
         final RecorderControllerImpl rc =
                 new RecorderControllerImpl(null, mEnvironment,
                         new RecorderListenerRegistry(), null, mDataController, mScheduler,
@@ -180,6 +182,32 @@ public class RecorderControllerTest {
         mSensor.pushValue(10, 50);
         assertEquals("[sensor has value 50.0]",
                 snapshot.test().assertNoErrors().values().toString());
+    }
+
+    @Test
+    public void takeSnapshot() {
+        // TODO: produce framework to cut down on test duplication here?
+        final RecorderControllerImpl rc =
+                new RecorderControllerImpl(null, mEnvironment,
+                        new RecorderListenerRegistry(), null, mDataController, mScheduler,
+                        Delay.ZERO, new FakeUnitAppearanceProvider());
+
+        rc.startObserving(mSensorId, new ArrayList<SensorTrigger>(), new RecordingSensorObserver(),
+                new RecordingStatusListener(), null, mSensorRegistry);
+
+        Single<GoosciSnapshotValue.SnapshotLabelValue> snapshot =
+                rc.generateSnapshotLabelValue(Lists.<String>newArrayList(mSensorId), s -> "sensor");
+        mSensor.pushValue(10, 50);
+
+        GoosciSnapshotValue.SnapshotLabelValue value =
+                snapshot.test().assertNoErrors().assertValueCount(1).values().get(0);
+
+        GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot shot = value.snapshots[0];
+        assertEquals("sensor", shot.sensor.rememberedAppearance.name);
+        assertEquals(50.0, shot.value, 0.01);
+        assertEquals(10, shot.timestampMs);
+
+        // TODO: test other values (other appearance values and timestamp)
     }
 
     @Test

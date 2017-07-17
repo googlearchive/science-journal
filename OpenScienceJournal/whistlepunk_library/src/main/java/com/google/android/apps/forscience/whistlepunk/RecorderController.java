@@ -23,6 +23,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
@@ -35,6 +36,7 @@ import java.util.List;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.functions.Function;
 
 public interface RecorderController {
@@ -125,8 +127,19 @@ public interface RecorderController {
      * @return a maybe of a string that will contain (a) for any sensor that has already had an
      * observed value, the most recent value, and (b) for any sensor that has not yet had an
      * observed value, the first value observed.
+     *
+     * @deprecated we should be using #generateSnapshot to create snapshot protos for labels
      */
-    Maybe<String> generateSnapshotText(List<String> sensorIds,
+    @Deprecated
+    Maybe<String> generateSnapshotText(List<String> sensorIds, Function<String, String> idToName);
+
+    /**
+     * @param sensorIds the ids of sensors in the snapshot
+     * @param idToName  a function from sensorId to name that should be used in the sensor
+     *                  appearance.
+     * @return a Single that will eventually emit a snapshot proto to be stored in a label.
+     */
+    Single<GoosciSnapshotValue.SnapshotLabelValue> generateSnapshotLabelValue(List<String> sensorIds,
             Function<String, String> idToName);
 
     /**
