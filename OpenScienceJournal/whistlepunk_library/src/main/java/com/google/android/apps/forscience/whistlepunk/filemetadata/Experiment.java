@@ -520,4 +520,16 @@ public class Experiment extends LabelListHolder {
     int getMinorVersion() {
         return mProto.minorVersion;
     }
+
+    /**
+     * Gets the index of a particular trial in an experiment. Returns -1 if not found.
+     */
+    public int getTrialIndex(String trialId) {
+        for (int i = 0; i < mTrials.size(); i++) {
+            if (TextUtils.equals(mTrials.get(i).getTrialId(), trialId)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }

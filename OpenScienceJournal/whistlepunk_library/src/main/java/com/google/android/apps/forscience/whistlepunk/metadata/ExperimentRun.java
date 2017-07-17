@@ -19,8 +19,6 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 
 
@@ -30,37 +28,10 @@ import java.util.List;
 public class ExperimentRun {
     private Trial mTrial;
     private String mExperimentId;
-    private CropHelper.CropLabels mCropLabels; // Need these around for writing to the DB
 
-    public static ExperimentRun fromLabels(Trial trial, String experimentId,
-            List<ApplicationLabel> applicationLabels) {
-        CropHelper.CropLabels cropLabels = new CropHelper.CropLabels();
-        for (ApplicationLabel label : applicationLabels) {
-            if (label.getType() == ApplicationLabel.TYPE_CROP_START) {
-                cropLabels.cropStartLabel = label;
-            } else if (label.getType() == ApplicationLabel.TYPE_CROP_END) {
-                cropLabels.cropEndLabel = label;
-            }
-        }
-        return new ExperimentRun(trial, experimentId, cropLabels);
-    }
-
-    private ExperimentRun(Trial trial, String experimentId, CropHelper.CropLabels cropLabels) {
+    private ExperimentRun(Trial trial, String experimentId, CropHelper.CropLabels unused) {
         mTrial = trial;
         mExperimentId = experimentId;
-        mCropLabels = cropLabels;
-    }
-
-    public int getNoteCount() {
-        return mTrial.getLabelCount();
-    }
-
-    public List<Label> getPinnedNotes() {
-        return mTrial.getLabels();
-    }
-
-    public GoosciPictureLabelValue.PictureLabelValue getCoverPictureLabelValue() {
-        return mTrial.getCoverPictureLabelValue();
     }
 
     public String getExperimentId() {
@@ -71,53 +42,12 @@ public class ExperimentRun {
         return mTrial.getFirstTimestamp();
     }
 
-    public long getLastTimestamp() {
-        return mTrial.getLastTimestamp();
-    }
-
-    public long getOriginalFirstTimestamp() {
-        return mTrial.getOriginalFirstTimestamp();
-    }
-
-    public long getOriginalLastTimestamp() {
-        return mTrial.getOriginalLastTimestamp();
-    }
-
-    public CropHelper.CropLabels getCropLabels() {
-        // TODO: Delete crop labels and use trial crop range during DB to File upgrade.
-        return mCropLabels;
-    }
-
-    public void setCropLabels(CropHelper.CropLabels cropLabels) {
-        mCropLabels = cropLabels;
-        GoosciTrial.Range cropRange = new GoosciTrial.Range();
-        cropRange.startMs = cropLabels.cropStartLabel.getTimeStamp();
-        cropRange.endMs = cropLabels.cropEndLabel.getTimeStamp();
-        mTrial.setCropRange(cropRange);
-    }
-
     public List<String> getSensorIds() {
         return mTrial.getSensorIds();
     }
 
-    public long elapsedSeconds() {
-        return mTrial.elapsedSeconds();
-    }
-
     public String getTrialId() {
         return mTrial.getTrialId();
-    }
-
-    public boolean isValidRun() {
-        return mTrial.isValid();
-    }
-
-    public String getRunTitle(Context context) {
-        return mTrial.getTitle(context);
-    }
-
-    public void setRunTitle(String title) {
-        mTrial.setTitle(title);
     }
 
     public boolean isArchived() {
@@ -134,13 +64,5 @@ public class ExperimentRun {
 
     public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
         return mTrial.getSensorLayouts();
-    }
-
-    public boolean getAutoZoomEnabled() {
-        return mTrial.getAutoZoomEnabled();
-    }
-
-    public void setAutoZoomEnabled(boolean enableAutoZoom) {
-        mTrial.setAutoZoomEnabled(enableAutoZoom);
     }
 }
