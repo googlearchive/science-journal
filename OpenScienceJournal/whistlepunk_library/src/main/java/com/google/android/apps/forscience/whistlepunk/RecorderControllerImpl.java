@@ -30,7 +30,6 @@ import com.google.android.apps.forscience.javalib.FallibleConsumer;
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -667,14 +666,16 @@ public class RecorderControllerImpl implements RecorderController {
         );
     }
 
-    // TODO: stop using this in production; only use for tests.
-    @Override
+    /**
+     * This is a convenience function for testing.
+     */
+    @VisibleForTesting
     public Maybe<String> generateSnapshotText(List<String> sensorIds,
-            final Function<String, String> idToName) {
+            final Function<String, GoosciSensorSpec.SensorSpec> idToSpec) {
         // TODO: we probably want to do something more structured eventually;
         // this is a placeholder, so we're not doing internationalization, etc.
 
-        return generateSnapshotLabelValue(sensorIds, idToName)
+        return generateSnapshotLabelValue(sensorIds, idToSpec)
 
                          // turn the snapshots into strings
                          .flatMapObservable(this::textsForSnapshotLabelValue)
@@ -688,12 +689,12 @@ public class RecorderControllerImpl implements RecorderController {
 
     @Override
     public Single<GoosciSnapshotValue.SnapshotLabelValue> generateSnapshotLabelValue(
-            List<String> sensorIds, Function<String, String> idToName) {
+            List<String> sensorIds, Function<String, GoosciSensorSpec.SensorSpec> idToSpec) {
         // for each sensorId
         return Observable.fromIterable(sensorIds)
 
                          // get a snapshot from the latest value*
-                         .flatMapMaybe(sensorId -> makeSnapshot(sensorId, idToName))
+                         .flatMapMaybe(sensorId -> makeSnapshot(sensorId, idToSpec))
 
                          // gather those into a list
                          .toList()
@@ -707,13 +708,14 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     private MaybeSource<GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot> makeSnapshot(
-            String sensorId, Function<String, String> idToName) throws Exception {
+            String sensorId,
+            Function<String, GoosciSensorSpec.SensorSpec> idToSpec) throws Exception {
         BehaviorSubject<ScalarReading> subject = mLatestValues.get(sensorId);
         if (subject == null) {
             return Maybe.empty();
         }
-        final String name = idToName.apply(sensorId);
-        return subject.firstElement().map(value -> generateSnapshot(name, value));
+        final GoosciSensorSpec.SensorSpec spec = idToSpec.apply(sensorId);
+        return subject.firstElement().map(value -> generateSnapshot(spec, value));
     }
 
     private GoosciSnapshotValue.SnapshotLabelValue buildSnapshotLabelValue(
@@ -735,15 +737,11 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @NonNull
-    private GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot generateSnapshot(String name,
-            ScalarReading reading) {
+    private GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot generateSnapshot(
+            GoosciSensorSpec.SensorSpec spec, ScalarReading reading) {
         GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot =
                 new GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot();
-        // TODO: fill in rest of proto.
-        snapshot.sensor = new GoosciSensorSpec.SensorSpec();
-        snapshot.sensor.rememberedAppearance =
-                new GoosciSensorAppearance.BasicSensorAppearance();
-        snapshot.sensor.rememberedAppearance.name = name;
+        snapshot.sensor = spec;
         snapshot.value = reading.getValue();
         snapshot.timestampMs = reading.getCollectedTimeMillis();
         return snapshot;
