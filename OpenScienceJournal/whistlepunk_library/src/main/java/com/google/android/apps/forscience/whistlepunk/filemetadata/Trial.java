@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeAxisFormatter;
+import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProviderImpl;
@@ -185,15 +186,11 @@ public class Trial extends LabelListHolder {
                 getOriginalFirstTimestamp();
     }
 
-    public String getTitle(Context context) {
+    public String getTitle(Context context, Experiment experiment) {
         if (TextUtils.isEmpty(mTrial.title)) {
-            // Rounded interval, but formatted like the axis labels.
-            String elapsedTime = ElapsedTimeAxisFormatter.getInstance(context).format(
-                    elapsedSeconds() * 1000);
             return context.getString(R.string.default_trial_title,
-                    DateUtils.formatDateTime(context, getOriginalFirstTimestamp(),
-                            DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME |
-                                    DateUtils.FORMAT_ABBREV_ALL), elapsedTime);
+                    experiment.getTrialIndex(mTrial.trialId),
+                    ElapsedTimeFormatter.getInstance(context).format(elapsedSeconds()));
         } else {
             return mTrial.title;
         }

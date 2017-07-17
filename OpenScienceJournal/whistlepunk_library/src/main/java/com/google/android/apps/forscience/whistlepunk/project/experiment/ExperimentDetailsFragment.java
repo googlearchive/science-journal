@@ -991,7 +991,7 @@ public class ExperimentDetailsFragment extends Fragment
             final Trial trial = item.getTrial();
             final Context applicationContext = holder.itemView.getContext().getApplicationContext();
             holder.setRunId(trial.getTrialId());
-            String title = trial.getTitle(applicationContext);
+            String title = trial.getTitle(applicationContext, mExperiment);
             holder.runTitle.setText(title);
             holder.cardView.setOnClickListener(createRunClickListener(item.getSensorTagIndex()));
             holder.cardView.setTag(R.id.run_title_text, trial.getTrialId());

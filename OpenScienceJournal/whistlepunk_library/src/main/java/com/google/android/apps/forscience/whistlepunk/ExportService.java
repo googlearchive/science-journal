@@ -288,7 +288,7 @@ public class ExportService extends Service {
         Trial trial = experiment.getTrial(trialId);
 
         String fileName = makeExportFilename(experiment.getDisplayTitle(this),
-                trial.getTitle(this));
+                trial.getTitle(this, experiment));
         // Start observing sensor data from here, while grouping them into timestamp equal rows.
         // Then write the rows out.
         Range<Long> range = Range.closed(trial.getFirstTimestamp(), trial.getLastTimestamp());
