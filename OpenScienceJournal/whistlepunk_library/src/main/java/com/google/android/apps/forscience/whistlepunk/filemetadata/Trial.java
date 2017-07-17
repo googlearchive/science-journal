@@ -186,11 +186,15 @@ public class Trial extends LabelListHolder {
                 getOriginalFirstTimestamp();
     }
 
+    public String getTitleWithDuration(Context context, Experiment experiment) {
+        return context.getString(R.string.title_with_duration, getTitle(context, experiment),
+                ElapsedTimeFormatter.getInstance(context).format(elapsedSeconds()));
+    }
+
     public String getTitle(Context context, Experiment experiment) {
         if (TextUtils.isEmpty(mTrial.title)) {
             return context.getString(R.string.default_trial_title,
-                    experiment.getTrialIndex(mTrial.trialId),
-                    ElapsedTimeFormatter.getInstance(context).format(elapsedSeconds()));
+                    experiment.getTrialIndex(mTrial.trialId));
         } else {
             return mTrial.title;
         }
