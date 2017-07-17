@@ -48,9 +48,9 @@
                 android:id="@+id/tool_picker"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:background="@color/text_color_dark_grey"
+                android:background="@color/capture_bottom_panel"
                 android:contentDescription="@string/tool_picker_tab_layout_description"
-                app:tabIndicatorColor="@color/sensor_tab_indicator_color"
+                app:tabIndicatorColor="@color/text_color_white"
                 app:tabIndicatorHeight="@dimen/sensor_tab_indicator_height"
                 app:tabMode="scrollable"
                 />

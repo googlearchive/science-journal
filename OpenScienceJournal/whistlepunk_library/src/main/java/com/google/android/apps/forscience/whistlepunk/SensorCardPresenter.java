@@ -443,9 +443,9 @@ public class SensorCardPresenter {
         }
 
         int color = mDataViewOptions.getGraphColor();
-        int slightlyDarker = ColorUtils.getSlightlyDarkerColor(color);
-        mCardViewHolder.header.setBackgroundColor(slightlyDarker);
-        mCardViewHolder.sensorSelectionArea.setBackgroundColor(color);
+        int slightlyLighter = ColorUtils.getSlightlyLighterColor(color);
+        mCardViewHolder.header.setBackgroundColor(color);
+        mCardViewHolder.sensorSelectionArea.setBackgroundColor(slightlyLighter);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mCardViewHolder.statusProgressBar.setIndeterminateTintList(
                     ColorStateList.valueOf(color));
