@@ -14,9 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingStart="@dimen/run_review_margin_sides"
@@ -26,11 +25,6 @@
     android:layout_margin="@dimen/run_review_section_margin"
     app:layout_scrollFlags="scroll"
     >
-
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content">
 
             <include layout="@layout/archived_badge"
                 android:layout_width="wrap_content"
@@ -43,7 +37,7 @@
                 />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/run_title_text"
                 android:textSize="@dimen/run_review_run_name_text_size"
@@ -51,6 +45,9 @@
                 android:singleLine="true"
                 android:layout_below="@id/light_archived_indicator"
                 android:layout_alignWithParentIfMissing="true"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/run_review_duration_label"
+                android:layout_marginEnd="48dp"
                 />
 
             <com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView
@@ -60,61 +57,35 @@
                 android:layout_below="@id/run_title_text"
                 android:textSize="@dimen/run_review_label_text_size"
                 android:layout_marginTop="@dimen/run_review_header_text_margin_top"
-                android:textColor="@color/text_color_light_grey"
+                android:textColor="@color/text_color_dark_grey"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentBottom="true"
                 />
-
-            <TextView
-                android:id="@+id/notes_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/run_details_text"
-                android:textSize="@dimen/run_review_label_text_size"
-                android:layout_marginTop="@dimen/run_review_header_text_margin_top"
-                android:textColor="@color/text_color_light_grey"
-                android:gravity="center_vertical"
-                android:drawableStart="@drawable/ic_notes_white_24dp"
-                android:drawablePadding="8dp"
-                android:visibility="gone"
-                />
-        </RelativeLayout>
-
-        <View
-            android:layout_width="@dimen/run_review_divider_thickness"
-            android:layout_height="match_parent"
-            android:background="@color/run_review_divider_color"
-            android:layout_marginStart="@dimen/run_review_section_margin"
-            android:layout_marginEnd="@dimen/run_review_section_margin"
-            />
-
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/run_review_duration_text_height"
-                android:textColor="@color/text_color_light_grey"
+                android:textColor="@color/text_color_dark_grey"
                 android:text="@string/run_review_duration"
-                android:id="@+id/run_review_duration_label"
+                android:id="@id/run_review_duration_label"
                 android:textSize="@dimen/run_review_label_text_size"
-                android:layout_alignStart="@+id/run_review_duration"
-                android:fontFamily="sans-serif-medium"
-                android:gravity="bottom"
+                android:gravity="end"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@id/run_title_text"
+                android:layout_marginTop="4dp"
                 />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/run_review_stat_size"
-                android:textColor="@color/run_review_duration_text_color"
-                android:id="@id/run_review_duration"
+                android:textSize="@dimen/run_review_run_name_text_size"
+                android:textColor="@color/color_accent"
+                android:id="@+id/run_review_duration"
                 android:layout_centerHorizontal="true"
                 android:layout_below="@id/run_review_duration_label"
-                android:fontFamily="sans-serif-light"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:gravity="end"
                 />
 
-        </RelativeLayout>
-
-</LinearLayout>
+</RelativeLayout>

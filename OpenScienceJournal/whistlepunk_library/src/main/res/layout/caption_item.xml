@@ -32,6 +32,7 @@
         android:id="@+id/caption"
         android:hint="@string/trial_caption_hint_text"
         android:inputType="textMultiLine"
+        android:textColorHint="@color/text_color_light_grey"
         />
 
 </FrameLayout>

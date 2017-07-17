@@ -19,6 +19,7 @@
     android:layout_height="wrap_content"
     android:id="@+id/note_text"
     android:layout_margin="24dp"
+    android:minHeight="@dimen/accessibility_touch_target_min_size"
     >
 
 </EditText>

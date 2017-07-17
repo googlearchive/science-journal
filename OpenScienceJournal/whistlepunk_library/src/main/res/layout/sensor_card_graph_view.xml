@@ -107,7 +107,6 @@
         android:layout_alignParentBottom="true"
         app:statsLayout="@layout/stats_view_run_review"
         android:visibility="gone"
-        android:layout_marginBottom="12dp"
         android:layout_marginTop="4dp"
         />
 

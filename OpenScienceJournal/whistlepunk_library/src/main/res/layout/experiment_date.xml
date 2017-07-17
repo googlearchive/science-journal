@@ -22,6 +22,7 @@
     android:textColor="@color/text_color_light_grey"
     android:textStyle="bold"
     android:layout_margin="8dp"
+    android:textSize="16sp"
     >
 
 </TextView>

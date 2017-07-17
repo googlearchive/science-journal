@@ -111,8 +111,8 @@
     </style>
 
     <style name="text_label_details" parent="AppTheme">
-        <item name="colorPrimaryDark">#5E5E5E</item>
-        <item name="colorPrimary">#9A9A9A</item>
+        <item name="colorPrimaryDark">#494949</item>
+        <item name="colorPrimary">#757575</item>
     </style>
 
     <style name="picture_label_details" parent="AppTheme">

@@ -37,7 +37,7 @@
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="@dimen/accessibility_touch_target_min_size"
         android:layout_gravity="center_vertical"
         android:id="@+id/time_text"
         android:textColor="@color/text_color_light_grey"
@@ -69,7 +69,7 @@
         android:layout_height="@dimen/accessibility_touch_target_min_size"
         android:src="@drawable/ic_menu_moreoverflow_mtrl_alpha"
         android:id="@id/note_menu_button"
-        android:contentDescription="@null"
+        android:contentDescription="@string/edit_note_menu_item"
         android:scaleType="center"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
