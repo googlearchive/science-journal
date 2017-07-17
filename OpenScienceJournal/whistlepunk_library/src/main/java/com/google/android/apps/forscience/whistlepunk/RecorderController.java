@@ -139,8 +139,8 @@ public interface RecorderController {
      *                  appearance.
      * @return a Single that will eventually emit a snapshot proto to be stored in a label.
      */
-    Single<GoosciSnapshotValue.SnapshotLabelValue> generateSnapshotLabelValue(List<String> sensorIds,
-            Function<String, String> idToName);
+    Single<GoosciSnapshotValue.SnapshotLabelValue> generateSnapshotLabelValue(
+            List<String> sensorIds, Function<String, String> idToName);
 
     /**
      * Retry connecting to the given sensor, which is currently in an error state.

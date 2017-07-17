@@ -39,8 +39,10 @@ public class ExperimentDetailItem {
             mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
         } else if (label.getType() == GoosciLabel.Label.PICTURE) {
             mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
-        } else if (label.getType() ==(GoosciLabel.Label.SENSOR_TRIGGER)) {
+        } else if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
             mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
+        } else if (label.getType() == GoosciLabel.Label.SNAPSHOT) {
+            mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_SNAPSHOT_LABEL;
         } else {
             mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_UNKNOWN_LABEL;
         }

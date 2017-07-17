@@ -87,9 +87,10 @@ public final class TrackerConstants {
     public static final String LABEL_MODE_NONCHILD = "nonchild";
 
     // Values
-    public static final long VALUE_TYPE_TEXT = 0;
-    public static final long VALUE_TYPE_PICTURE = 1;
-    public static final long VALUE_TYPE_SENSOR_TRIGGER = 2;
+    private static final long VALUE_TYPE_TEXT = 0;
+    private static final long VALUE_TYPE_PICTURE = 1;
+    private static final long VALUE_TYPE_SENSOR_TRIGGER = 2;
+    private static final long VALUE_TYPE_SNAPSHOT = 3;
 
     private TrackerConstants() {}
 
@@ -104,6 +105,8 @@ public final class TrackerConstants {
             return TrackerConstants.VALUE_TYPE_TEXT;
         } else if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
             return TrackerConstants.VALUE_TYPE_SENSOR_TRIGGER;
+        } else if (label.getType() == GoosciLabel.Label.SNAPSHOT) {
+            return TrackerConstants.VALUE_TYPE_SNAPSHOT;
         } else {
             throw new IllegalArgumentException("Label type is not supported for logging.");
         }

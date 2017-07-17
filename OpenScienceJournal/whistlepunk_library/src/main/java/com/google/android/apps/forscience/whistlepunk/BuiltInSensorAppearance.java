@@ -104,29 +104,7 @@ public class BuiltInSensorAppearance implements SensorAppearance {
         mSecondParagraphStringId = secondParagraphStringId;
         mLearnMoreDrawableId = infoDrawableId;
         mSensorAnimationBehavior = sensorAnimationBehavior;
-        if (pointsAfterDecimalInNumberFormat <= DEFAULT_POINTS_AFTER_DECIMAL) {
-            mNumberFormat = new AxisNumberFormat();
-        } else {
-            pointsAfterDecimalInNumberFormat = Math.min(pointsAfterDecimalInNumberFormat,
-                    MAX_POINTS_AFTER_DECIMAL);
-            final String format = "%." + pointsAfterDecimalInNumberFormat + "f";
-            mNumberFormat = new NumberFormat() {
-                @Override
-                public StringBuffer format(double value, StringBuffer buffer, FieldPosition field) {
-                    return buffer.append(String.format(format, value));
-                }
-
-                @Override
-                public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
-                    return format((double) value, buffer, field);
-                }
-
-                @Override
-                public Number parse(String string, ParsePosition position) {
-                    return null;
-                }
-            };
-        }
+        mNumberFormat = createNumberFormat(pointsAfterDecimalInNumberFormat);
     }
 
     @Override
@@ -192,5 +170,37 @@ public class BuiltInSensorAppearance implements SensorAppearance {
     @Override
     public NumberFormat getNumberFormat() {
         return mNumberFormat;
+    }
+
+    private static NumberFormat createNumberFormat(int pointsAfterDecimalInNumberFormat) {
+        if (pointsAfterDecimalInNumberFormat <= DEFAULT_POINTS_AFTER_DECIMAL) {
+            return new AxisNumberFormat();
+        } else {
+            pointsAfterDecimalInNumberFormat = Math.min(pointsAfterDecimalInNumberFormat,
+                    MAX_POINTS_AFTER_DECIMAL);
+            final String format = "%." + pointsAfterDecimalInNumberFormat + "f";
+            return new NumberFormat() {
+                @Override
+                public StringBuffer format(double value, StringBuffer buffer, FieldPosition field) {
+                    return buffer.append(String.format(format, value));
+                }
+
+                @Override
+                public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
+                    return format((double) value, buffer, field);
+                }
+
+                @Override
+                public Number parse(String string, ParsePosition position) {
+                    return null;
+                }
+            };
+        }
+    }
+
+    // TODO: Is there a way to cache this instead of re-constructing it each time it is needed?
+    public static String formatValue(double value, int pointsAfterDecimal) {
+        NumberFormat format = createNumberFormat(pointsAfterDecimal);
+        return format.format(value);
     }
 }

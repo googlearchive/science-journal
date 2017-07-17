@@ -69,11 +69,13 @@ public class RecordFragmentTest {
         exp.getSensorLayouts().add(layout);
 
         TestObserver<Label> test =
-                RecordFragment.addSnapshotLabelToExperiment(exp, rc, dc, sensorId -> sensorId)
+                RecordFragment.addSnapshotLabelToHolder(exp, exp, rc, dc, sensorId -> sensorId)
                               .test();
         assertTrue(test.await(2, TimeUnit.SECONDS));
         test.assertComplete();
 
-        assertEquals("id has value 55.0", exp.getLabels().get(0).getTextLabelValue().text);
+        assertEquals(55, exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0].value, .00001);
+        assertEquals("id", exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0]
+                .sensor.rememberedAppearance.name);
     }
 }

@@ -58,6 +58,7 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevice
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
@@ -65,6 +66,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
@@ -1315,19 +1317,25 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private void takeSnapshot(RecordingStatus status) {
         // Add new snapshot label
-        addSnapshotLabelToExperiment(getRecorderController()).subscribe(label -> {
+        addSnapshotLabel(getRecorderController(), status).subscribe(label -> {
             // Then process the added label, or complain.
             processAddedLabel(label, status);
             mUICallbacks.onLabelAdded(label);
         }, LoggingConsumer.complain(TAG, "take snapshot"));
     }
 
-    private Single<Label> addSnapshotLabelToExperiment(RecorderController rc) {
+    private Single<Label> addSnapshotLabel(RecorderController rc, RecordingStatus status) {
         Maybe<Experiment> experimentMaybe = mSelectedExperimentSubject.firstElement();
 
         // When experiment is loaded, add label
-        return experimentMaybe.flatMapSingle(
-                e -> addSnapshotLabelToExperiment(e, rc, getDataController(), this::getNameForId));
+        return experimentMaybe.flatMapSingle(e ->  {
+            if (status.isRecording()) {
+                return addSnapshotLabelToHolder(e, e.getTrial(status.getCurrentRunId()), rc,
+                        getDataController(), this::getNameForId);
+            } else {
+                return addSnapshotLabelToHolder(e, e, rc, getDataController(), this::getNameForId);
+            }
+        });
     }
 
     private String getNameForId(String sensorId) {
@@ -1335,25 +1343,21 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     @VisibleForTesting
-    public static Single<Label> addSnapshotLabelToExperiment(final Experiment selectedExperiment,
-            final RecorderController rc, final DataController dc,
-            Function<String, String> idToName) {
+    public static Single<Label> addSnapshotLabelToHolder(final Experiment selectedExperiment,
+            final LabelListHolder labelListHolder, final RecorderController rc,
+            final DataController dc, Function<String, String> idToName) {
         // get text
-        return rc.generateSnapshotText(selectedExperiment.getSensorIds(), idToName)
+        return rc.generateSnapshotLabelValue(selectedExperiment.getSensorIds(), idToName)
 
                 // Make it into a label
-                // TODO: This should be a snapshot label, not a text label.
-                .map(text -> {
-                        GoosciTextLabelValue.TextLabelValue labelValue =
-                                new GoosciTextLabelValue.TextLabelValue();
-                        labelValue.text = text;
-                        return Label.newLabelWithValue(rc.getNow(), GoosciLabel.Label.TEXT,
-                                labelValue, null);
-                })
+                .map(snapshotValue ->
+                    Label.newLabelWithValue(rc.getNow(), GoosciLabel.Label.SNAPSHOT,
+                            snapshotValue, null)
+                )
 
                 // Make sure it's successfully added
-                .flatMapSingle(label -> {
-                    selectedExperiment.addLabel(label);
+                .flatMap(label -> {
+                    labelListHolder.addLabel(label);
                     return RxDataController.updateExperiment(dc, selectedExperiment)
                             .andThen(Single.just(label));
                 });

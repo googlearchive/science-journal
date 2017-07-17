@@ -14,9 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -24,20 +23,35 @@
     android:orientation="vertical"
     tools:context=".review.labels.LabelDetailsActivity">
 
-        <ListView
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/content_list"
-            />
+            >
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="@dimen/accessibility_touch_target_min_size"
-            android:maxLines="5"
-            android:id="@+id/caption"
-            android:hint="@string/note_caption_hint"
-            android:layout_margin="8dp"
-            />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:id="@+id/snapshot_values_list"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    android:layout_alignParentTop="true"
+                    />
 
-</LinearLayout>
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/accessibility_touch_target_min_size"
+                    android:maxLines="5"
+                    android:id="@+id/caption"
+                    android:hint="@string/note_caption_hint"
+                    android:layout_margin="8dp"
+                    android:layout_below="@id/snapshot_values_list"
+                    android:layout_alignParentBottom="true"
+                    />
+
+        </RelativeLayout>
+
+</ScrollView>

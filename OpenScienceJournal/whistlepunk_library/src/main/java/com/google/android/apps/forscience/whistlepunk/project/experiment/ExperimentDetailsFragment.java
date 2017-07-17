@@ -633,7 +633,8 @@ public class ExperimentDetailsFragment extends Fragment
         static final int VIEW_TYPE_RUN_CARD = 3;
         private static final int VIEW_TYPE_EMPTY = 4;
         static final int VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL = 5;
-        static final int VIEW_TYPE_UNKNOWN_LABEL = 6;
+        static final int VIEW_TYPE_SNAPSHOT_LABEL = 6;
+        static final int VIEW_TYPE_UNKNOWN_LABEL = 7;
 
         private final WeakReference<ExperimentDetailsFragment> mParentReference;
         private Experiment mExperiment;
@@ -656,7 +657,8 @@ public class ExperimentDetailsFragment extends Fragment
             LayoutInflater inflater =  LayoutInflater.from(parent.getContext());
             if (viewType == VIEW_TYPE_EXPERIMENT_TEXT_LABEL ||
                     viewType == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL ||
-                    viewType == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL) {
+                    viewType == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL ||
+                    viewType == VIEW_TYPE_SNAPSHOT_LABEL) {
                 view = inflater.inflate(R.layout.exp_card_pinned_note, parent, false);
                 return new NoteViewHolder(view);
             } else if (viewType == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
@@ -681,7 +683,8 @@ public class ExperimentDetailsFragment extends Fragment
             boolean isPictureLabel = type == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
             boolean isTextLabel = type == VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
             boolean isTriggerLabel = type == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
-            if (isPictureLabel || isTextLabel || isTriggerLabel) {
+            boolean isSnapshotLabel = type == VIEW_TYPE_SNAPSHOT_LABEL;
+            if (isPictureLabel || isTextLabel || isTriggerLabel || isSnapshotLabel) {
                 final Label label = mItems.get(position).getLabel();
 
                 NoteViewHolder noteViewHolder = (NoteViewHolder) holder;
@@ -794,7 +797,9 @@ public class ExperimentDetailsFragment extends Fragment
         private int findLabelIndex(Label label) {
             int expectedViewType = label.getType() == GoosciLabel.Label.TEXT ?
                     VIEW_TYPE_EXPERIMENT_TEXT_LABEL : label.getType() == GoosciLabel.Label.PICTURE ?
-                    VIEW_TYPE_EXPERIMENT_PICTURE_LABEL : VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
+                    VIEW_TYPE_EXPERIMENT_PICTURE_LABEL :
+                    label.getType() == GoosciLabel.Label.SNAPSHOT ? VIEW_TYPE_SNAPSHOT_LABEL :
+                            VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
             int position = -1;
             int size = mItems.size();
             for (int i = 0; i < size; i++) {
@@ -940,6 +945,7 @@ public class ExperimentDetailsFragment extends Fragment
                     case VIEW_TYPE_RUN_CARD:
                     case VIEW_TYPE_EXPERIMENT_PICTURE_LABEL:
                     case VIEW_TYPE_EXPERIMENT_TEXT_LABEL:
+                    case VIEW_TYPE_SNAPSHOT_LABEL:
                     case VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL:
                         hasRunsOrLabels = true;
                         break;
@@ -1104,6 +1110,11 @@ public class ExperimentDetailsFragment extends Fragment
                 TriggerHelper.populateAutoTextViews(
                         (TextView) noteView.findViewById(R.id.auto_note_text), "TODO",
                         R.drawable.ic_label_black_18dp, noteHolder.getResources());
+            }
+
+            if (label.getType() == GoosciLabel.Label.SNAPSHOT) {
+                NoteViewHolder.loadSnapshotsIntoList((ViewGroup)
+                        noteView.findViewById(R.id.snapshot_values_list), label);
             }
 
             noteHolder.addView(noteView);

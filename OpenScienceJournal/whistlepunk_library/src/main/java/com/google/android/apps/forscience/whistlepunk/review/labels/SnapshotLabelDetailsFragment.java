@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 
@@ -59,8 +60,9 @@ public class SnapshotLabelDetailsFragment extends LabelDetailsFragment {
         View rootView = inflater.inflate(R.layout.sensor_readings_label_details_fragment, container,
                 false);
 
-        // TODO: Populate the list with snapshot values.
-
+        // TODO: Consider using a ListView instead of inflating each view?
+        NoteViewHolder.loadSnapshotsIntoList(
+                (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), mOriginalLabel);
         setupCaption(rootView);
 
         return rootView;

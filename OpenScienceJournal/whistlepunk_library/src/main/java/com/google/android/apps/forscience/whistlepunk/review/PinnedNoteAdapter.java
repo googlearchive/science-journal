@@ -45,9 +45,10 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int TYPE_TEXT_NOTE = 0;
     private static final int TYPE_PICTURE_NOTE = 1;
     private static final int TYPE_TRIGGER_NOTE = 2;
+    private static final int TYPE_SNAPSHOT_NOTE = 3;
     private static final int TYPE_UNKNOWN = -1;
-    private static final int TYPE_ADD_LABEL = 3;
-    private static final int TYPE_CAPTION = 4;
+    private static final int TYPE_ADD_LABEL = 4;
+    private static final int TYPE_CAPTION = 5;
 
     /**
      * An interface for listening to when a pinned note should be edited or deleted.
@@ -118,6 +119,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case TYPE_TEXT_NOTE:
             case TYPE_PICTURE_NOTE:
             case TYPE_TRIGGER_NOTE:
+            case TYPE_SNAPSHOT_NOTE:
                 View v = LayoutInflater.from(parent.getContext()).inflate(
                         R.layout.exp_card_pinned_note, parent, false);
                 return new NoteViewHolder(v);
@@ -230,6 +232,9 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
         if (labelType == GoosciLabel.Label.SENSOR_TRIGGER) {
             return TYPE_TRIGGER_NOTE;
+        }
+        if (labelType == GoosciLabel.Label.SNAPSHOT) {
+            return TYPE_SNAPSHOT_NOTE;
         }
         return TYPE_UNKNOWN;
     }

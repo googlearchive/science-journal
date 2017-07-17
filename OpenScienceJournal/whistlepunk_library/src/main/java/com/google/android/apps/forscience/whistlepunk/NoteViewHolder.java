@@ -18,15 +18,19 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 
 /**
@@ -41,6 +45,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     public TextView text;
     public ImageView image;
     public TextView autoText;
+    public ViewGroup valuesList;
     public RelativeTimeTextView relativeTimeView;
 
     public NoteViewHolder(View v) {
@@ -53,7 +58,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
         captionIcon = (ImageView) v.findViewById(R.id.edit_icon);
         captionView = itemView.findViewById(R.id.caption_section);
         captionTextView = (TextView) itemView.findViewById(R.id.caption);
-
+        valuesList = (ViewGroup) itemView.findViewById(R.id.snapshot_values_list);
         relativeTimeView = (RelativeTimeTextView) itemView.findViewById(R.id.relative_time_text);
     }
 
@@ -99,6 +104,13 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
             autoText.setVisibility(View.GONE);
         }
 
+        if (label.getType() == GoosciLabel.Label.SNAPSHOT) {
+            // Add items to valuesList
+            loadSnapshotsIntoList(valuesList, label);
+        } else {
+            valuesList.setVisibility(View.GONE);
+        }
+
         ColorUtils.colorDrawable(captionIcon.getContext(),
                 captionIcon.getDrawable(), R.color.text_color_light_grey);
         ColorUtils.colorDrawable(menuButton.getContext(),
@@ -114,6 +126,33 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
         } else {
             captionView.setVisibility(View.GONE);
             captionIcon.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public static void loadSnapshotsIntoList(ViewGroup valuesList, Label label) {
+        valuesList.setVisibility(View.VISIBLE);
+        valuesList.removeAllViews();
+        GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot[] snapshots =
+                label.getSnapshotLabelValue().snapshots;
+        String valueFormat = valuesList.getContext().getResources().getString(
+                R.string.data_with_units);
+        for (GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot : snapshots) {
+            ViewGroup snapshotLayout = (ViewGroup) LayoutInflater.from(valuesList.getContext())
+                    .inflate(R.layout.snapshot_value_details, null);
+            ((TextView) snapshotLayout.findViewById(R.id.sensor_name)).setText(
+                    snapshot.sensor.rememberedAppearance.name);
+            String value = BuiltInSensorAppearance.formatValue(snapshot.value,
+                    snapshot.sensor.rememberedAppearance.pointsAfterDecimal);
+            ((TextView) snapshotLayout.findViewById(R.id.sensor_value)).setText(
+                    String.format(valueFormat, value,
+                            snapshot.sensor.rememberedAppearance.units));
+
+            // TODO: Show the large icon. What is the construction of the path?
+            //String largeIconPath = snapshot.sensor.rememberedAppearance.largeIconPath;
+            //((ImageView) snapshotLayout.findViewById(R.id.large_icon)).setImageDrawable(...)
+            snapshotLayout.findViewById(R.id.large_icon).setVisibility(View.GONE);
+
+            valuesList.addView(snapshotLayout);
         }
     }
 }
