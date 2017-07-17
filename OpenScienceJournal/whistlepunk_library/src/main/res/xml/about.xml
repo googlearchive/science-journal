@@ -17,11 +17,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <Preference
-        android:key="replay_tutorial"
-        android:title="@string/settings_replay_tutorial_title"
-        />
-
-    <Preference
         android:key="website"
         android:title="@string/navigation_item_web_link"
         android:summary="@string/website_url"

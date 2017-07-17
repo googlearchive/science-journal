@@ -208,13 +208,6 @@
             android:theme="@style/AppTheme.AgeVerifier">
         </activity>
         <activity
-            android:name=".intro.TutorialActivity"
-            android:exported="false"
-            android:label="@string/title_activity_tutorial"
-            android:theme="@style/NoBarTheme.Review"
-            android:launchMode="singleTop">
-        </activity>
-        <activity
             android:name=".SettingsActivity"
             android:exported="false"
             android:label="@string/navigation_item_settings"/>
