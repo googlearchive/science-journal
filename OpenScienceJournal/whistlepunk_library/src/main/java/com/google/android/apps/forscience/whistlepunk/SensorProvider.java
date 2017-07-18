@@ -25,9 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
  * connected arduino, or discovered via the scalar API.
  */
 public interface SensorProvider {
-    public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec);
-
-    String getProviderId();
-
     ExternalSensorSpec buildSensorSpec(String name, byte[] config);
+
+    public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec);
 }

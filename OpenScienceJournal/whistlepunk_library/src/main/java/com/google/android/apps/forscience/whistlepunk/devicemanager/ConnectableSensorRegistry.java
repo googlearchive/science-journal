@@ -261,11 +261,10 @@ public class ConnectableSensorRegistry {
     private void startScanning(final String providerKey, SensorDiscoverer discoverer,
             final TaskPool pool, final Set<String> keysSeen, final boolean startSpinners) {
         SensorProvider provider = discoverer.getProvider();
-        final String providerId = provider.getProviderId();
-        pool.addTask(providerId);
+        pool.addTask(providerKey);
 
         mUsageTracker.trackEvent(TrackerConstants.CATEGORY_SENSOR_MANAGEMENT,
-                TrackerConstants.ACTION_SCAN, providerId, 0);
+                TrackerConstants.ACTION_SCAN, providerKey, 0);
 
         SensorDiscoverer.ScanListener listener =
                 new SensorDiscoverer.ScanListener() {
@@ -295,7 +294,7 @@ public class ConnectableSensorRegistry {
 
                     @Override
                     public void onScanDone() {
-                        pool.taskDone(providerId);
+                        pool.taskDone(providerKey);
                     }
                 };
         if (discoverer.startScanning(listener,

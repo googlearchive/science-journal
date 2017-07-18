@@ -46,16 +46,12 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
         }
 
         @Override
-        public String getProviderId() {
-            return SensorRegistry.WP_NATIVE_BLE_PROVIDER_ID;
-        }
-
-        @Override
         public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
             return new BleSensorSpec(name, config);
         }
     };
-    private static final String SERVICE_ID = SensorRegistry.WP_NATIVE_BLE_PROVIDER_ID;
+
+    private static final String SERVICE_ID = "com.google.android.apps.forscience.whistlepunk.ble";
 
     private DeviceDiscoverer mDeviceDiscoverer;
     private Runnable mOnScanDone;

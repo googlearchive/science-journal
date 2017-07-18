@@ -37,6 +37,7 @@ import android.widget.PopupMenu;
 
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesActivity;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -62,6 +63,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.LinearAcceleromete
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.collect.Lists;
+import com.jakewharton.rxbinding2.view.RxView;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -478,6 +480,10 @@ public class SensorCardPresenter {
             initializeSensorTabs(mSensorId);
         }
         refreshTabLayout();
+
+        RxView.clicks(mCardViewHolder.sensorSettingsGear).subscribe(click -> {
+            ManageDevicesActivity.launch(mCardViewHolder.getContext(), mExperimentId);
+        });
 
         // Force setActive whenever the views are reset, as previously used views might be already
         // View.GONE.

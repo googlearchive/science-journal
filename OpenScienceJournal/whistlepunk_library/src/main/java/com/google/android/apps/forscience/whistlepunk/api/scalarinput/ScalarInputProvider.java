@@ -48,11 +48,6 @@ class ScalarInputProvider implements SensorProvider {
     }
 
     @Override
-    public String getProviderId() {
-        return ScalarInputDiscoverer.SCALAR_INPUT_PROVIDER_ID;
-    }
-
-    @Override
     public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
         return new ScalarInputSpec(name, config);
     }

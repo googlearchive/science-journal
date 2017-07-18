@@ -66,8 +66,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
@@ -1632,13 +1630,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         if (id == R.id.action_graph_options) {
             mGraphOptionsController.launchOptionsDialog(mScalarDisplayOptions,
                     new NewOptionsStorage.SnackbarFailureListener(getView()));
-        } else if (id == R.id.btn_add_sensors) {
-            Intent intent = new Intent(getActivity(), ManageDevicesActivity.class);
-            if (mSelectedExperiment != null) {
-                intent.putExtra(ManageDevicesActivity.EXTRA_EXPERIMENT_ID,
-                        mSelectedExperiment.getExperimentId());
-            }
-            getActivity().startActivity(intent);
         } else if (id == R.id.btn_experiment_details) {
             if (mSelectedExperiment != null) {
                 ExperimentDetailsActivity.launch(getActivity(),

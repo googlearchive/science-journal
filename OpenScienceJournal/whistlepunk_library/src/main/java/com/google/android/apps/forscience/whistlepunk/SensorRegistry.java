@@ -62,9 +62,6 @@ import java.util.Set;
  */
 // TODO: Move more functionality into SensorCardPresenter.
 public class SensorRegistry {
-    public static final String WP_NATIVE_BLE_PROVIDER_ID =
-            "com.google.android.apps.forscience.whistlepunk.ble";
-
     protected static final String WP_HARDWARE_PROVIDER_ID =
             "com.google.android.apps.forscience.whistlepunk.hardware";
 
@@ -267,9 +264,10 @@ public class SensorRegistry {
                 if (!previousExternalSources.remove(externalSensorId)) {
                     // sensor is new
                     ExternalSensorSpec sensor = newSensor.getSpec();
-                    SensorProvider provider = externalProviders.get(sensor.getType());
+                    String type = sensor.getType();
+                    SensorProvider provider = externalProviders.get(type);
                     if (provider != null) {
-                        addSource(new SensorRegistryItem(provider.getProviderId(),
+                        addSource(new SensorRegistryItem(type,
                                 provider.buildSensor(externalSensorId, sensor),
                                 sensor.getLoggingId()));
                         sensorsActuallyAdded.add(externalSensorId);
