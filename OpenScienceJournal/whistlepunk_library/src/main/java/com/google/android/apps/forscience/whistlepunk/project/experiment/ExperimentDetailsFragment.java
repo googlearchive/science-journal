@@ -302,20 +302,20 @@ public class ExperimentDetailsFragment extends Fragment
     public void onStartRecording(String trialId) {
         mActiveTrialId = trialId;
         if (mAdapter != null) {
-            RxDataController.getExperimentById(getDataController(), mExperimentId).subscribe(
-                    experiment -> mAdapter.addActiveRecording(experiment.getTrial(trialId)));
+            RxDataController.getTrial(getDataController(), mExperimentId, trialId)
+                    .subscribe(t -> mAdapter.addActiveRecording(t));
         }
     }
 
     public void onRecordingTrialUpdated(String trialId) {
-        RxDataController.getExperimentById(getDataController(), mExperimentId).subscribe(
-                experiment -> mAdapter.updateActiveRecording(experiment.getTrial(trialId)));
+        RxDataController.getTrial(getDataController(), mExperimentId, trialId)
+                .subscribe(t -> mAdapter.updateActiveRecording(t));
     }
 
     public void onStopRecording() {
         if (mActiveTrialId != null) {
-            RxDataController.getExperimentById(getDataController(), mExperimentId).subscribe(
-                    experiment -> mAdapter.onRecordingEnded(experiment.getTrial(mActiveTrialId)));
+            RxDataController.getTrial(getDataController(), mExperimentId, mActiveTrialId)
+                    .subscribe(t -> mAdapter.onRecordingEnded(t));
             mActiveTrialId = null;
         }
     }

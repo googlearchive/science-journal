@@ -19,6 +19,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -47,5 +48,9 @@ public class RxDataController {
 
     public static Single<Experiment> createExperiment(DataController dc) {
         return MaybeConsumers.buildSingle(mc -> dc.createExperiment(mc));
+    }
+
+    public static Single<Trial> getTrial(DataController dc, String experimentId, String trialId) {
+        return getExperimentById(dc, experimentId).map(experiment -> experiment.getTrial(trialId));
     }
 }
