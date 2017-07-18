@@ -37,7 +37,8 @@
             android:singleLine="true"
             android:inputType="textCapSentences"
             android:contentDescription="@string/edit_trial_title_hint"
-        >
+            android:imeOptions="actionDone"
+            >
             <requestFocus />
         </EditText>
     </android.support.design.widget.TextInputLayout>

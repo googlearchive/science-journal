@@ -18,12 +18,14 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 
@@ -147,6 +149,8 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if (viewType == TYPE_CAPTION) {
             EditText editText = (EditText) holder.itemView.findViewById(R.id.caption);
             editText.setText(mTrial.getCaptionText());
+            editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            editText.setRawInputType(InputType.TYPE_CLASS_TEXT);
             RxTextView.afterTextChangeEvents(editText)
                     .subscribe(event -> mEditListener.onCaptionEdit(editText.getText().toString()));
             return;

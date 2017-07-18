@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:minHeight="@dimen/accessibility_touch_target_min_size"
             android:singleLine="true"
-            android:imeOptions="actionNext"
+            android:imeOptions="actionDone"
             android:inputType="textCapSentences"
             android:contentDescription="@string/experiment_title_hint"
             >

@@ -31,6 +31,7 @@
         android:minHeight="@dimen/accessibility_touch_target_min_size"
         android:id="@+id/caption"
         android:hint="@string/trial_caption_hint_text"
+        android:inputType="textMultiLine"
         />
 
 </FrameLayout>
