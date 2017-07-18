@@ -41,7 +41,6 @@
     <color name="recording_axis_overlay_color">#2edb4437</color>
     <color name="note_overlay_line_color">#9E9E9E</color>
     <color name="run_review_divider_color">#E0E0E0</color>
-    <color name="run_review_duration_text_color">@color/color_primary</color>
     <color name="run_review_background_color">@color/background_color</color>
     <color name="run_review_graph_label_fill_color">#9E9E9E</color>
     <color name="run_review_notes_overlay">#77000000</color>
@@ -64,10 +63,8 @@
     <color name="nav_item_background_color">#e0e0e0</color>
     <color name="caption_background_color">#f7f7f7</color>
     <color name="sensor_tab_indicator_color">#fff8f081</color>
-    <color name="sensor_card_meter_view_color">#f0f0f0</color>
     <color name="recording_toolbar_color">#d9453d</color>
     <color name="recording_status_bar_color">#b73328</color>
-    <color name="pinned_note_icon_color">@color/text_color_light_grey</color>
     <color name="add_note_image_button_tint">#727272</color>
     <color name="age_verifier_header_background">#bbdefb</color>
     <color name="thumb_color_transparent">#57000000</color>

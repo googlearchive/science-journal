@@ -68,8 +68,6 @@
     <item name="metadata_card_alpha" type="fraction">100%</item>
     <item name="metadata_card_archived_alpha" type="fraction">60%</item>
 
-    <dimen name="experiment_overview_image_size">48dp</dimen>
-
     <dimen name="sensor_card_header_padding">16dp</dimen>
     <dimen name="sensor_card_header_text_size">16sp</dimen>
     <dimen name="sensor_card_header_text_padding">16dp</dimen>
@@ -83,16 +81,10 @@
     <dimen name="sensor_card_header_height">84dp</dimen>
     <dimen name="sensor_card_content_height_min">222dp</dimen>
 
-    <dimen name="sensor_card_meter_units_text_size">14sp</dimen>
     <dimen name="sensor_card_live_value_text_size">24sp</dimen>
-    <dimen name="sensor_card_back_learn_more_text_size">14sp</dimen>
-    <dimen name="sensor_card_back_info_text_size">13sp</dimen>
-    <dimen name="sensor_card_back_text_margin_top">16dp</dimen>
     <dimen name="sensor_card_back_padding">24dp</dimen>
     <dimen name="sensor_card_back_icon_size">72dp</dimen>
-    <dimen name="sensor_card_back_info_section_margin_botton">6dp</dimen>
     <dimen name="meter_icon_value_spacing">72dp</dimen>
-    <dimen name="meter_mode_layout_margin_bottom">0dp</dimen>
 
     <dimen name="sensor_tablayout_height">48dp</dimen>
     <dimen name="sensor_tablayout_margin_side">16dp</dimen>
@@ -101,19 +93,10 @@
     <dimen name="sensor_tab_padding_bottom">10dp</dimen>
     <dimen name="sensor_tab_width">52dp</dimen>
 
-    <dimen name="title_spinner_text_size">20sp</dimen>
-    <dimen name="title_spinner_padding">16dp</dimen>
-    <dimen name="title_spinner_arrow_padding">8dp</dimen>
-
-    <dimen name="stats_drawer_margin">4dp</dimen>
     <dimen name="stats_drawer_small_icon_padding">4dp</dimen>
-    <dimen name="stats_drawer_large_icon_padding">4dp</dimen>
     <dimen name="stats_drawer_item_width">42dp</dimen>
-    <dimen name="stats_drawer_large_height">36dp</dimen>
-    <dimen name="stats_large_text_size">18sp</dimen>
     <dimen name="stats_view_small_text_size">12sp</dimen>
     <dimen name="small_stat_icon_size">12dp</dimen>
-    <dimen name="stats_meter_view_margin_start">0dp</dimen>
     <dimen name="stats_divider_margin">4dp</dimen>
 
     <dimen name="observe_control_panel_bottom_height">62dp</dimen>
@@ -144,10 +127,6 @@
     <dimen name="recording_overlay_dash_size">4dp</dimen>
     <dimen name="recording_overlay_time_line_width">2dp</dimen>
 
-    <dimen name="metadata_description_padding">16dp</dimen>
-    <dimen name="metadata_description_padding_bottom">56dp</dimen>
-    <dimen name="metadata_description_overlap_bottom">-56dp</dimen>
-
     <item name="icon_active_alpha" format="float" type="dimen">.87</item>
 
     <item name="btn_add_sensor_card_alpha" format="float" type="dimen">.55</item>
@@ -160,23 +139,16 @@
     <dimen name="run_review_sensor_name_text_size">16sp</dimen>
     <dimen name="run_review_chart_height">160dp</dimen>
     <dimen name="run_review_margin_sides">8dp</dimen>
-    <dimen name="run_review_pinned_note_item_margin">8dp</dimen>
     <dimen name="run_review_header_text_margin_top">8dp</dimen>
     <dimen name="run_review_external_axis_left_margin">48dp</dimen>
     <dimen name="run_review_external_axis_left_padding">4dp</dimen>
     <dimen name="run_review_external_axis_right_padding">16dp</dimen>
-    <dimen name="run_review_divider_margin">8dp</dimen>
     <dimen name="run_review_sensor_section_margin_top_bottom">4dp</dimen>
     <dimen name="run_review_duration_text_height">30dp</dimen>
 
     <dimen name="run_review_notes_text_size">16sp</dimen>
     <dimen name="run_review_notes_timestamp_text_size">14sp</dimen>
-    <dimen name="run_review_note_content_margin_start">80dp</dimen>
-    <dimen name="run_review_note_icon_size">24dp</dimen>
     <dimen name="run_review_note_duration_drawable_padding">8dp</dimen>
-    <dimen name="run_review_image_note_preview_size">100dp</dimen>
-    <dimen name="run_review_duration_text_margin_top">8dp</dimen>
-    <dimen name="run_review_section_margin_notes">24dp</dimen>
 
     <dimen name="run_review_seekbar_holder_padding_bottom">18dp</dimen>
     <dimen name="external_axis_seekbar_size">48dp</dimen>

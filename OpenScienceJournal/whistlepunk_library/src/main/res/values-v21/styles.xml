@@ -25,10 +25,4 @@
              TODO: Use background color in themes across the whole app. -->
         <item name="android:windowBackground">@color/background_color</item>
     </style>
-
-    <style name="NoBarTheme.ProjectDetails" parent="NoBarTheme">
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowTranslucentStatus">true</item>
-    </style>
 </resources>

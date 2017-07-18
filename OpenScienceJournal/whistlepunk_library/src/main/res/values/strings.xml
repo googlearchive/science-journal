@@ -33,12 +33,6 @@
     <string name="action_edit">Edit</string>
 
     <!-- Menu option for archiving a project [CHAR_LIMIT=30] -->
-    <string name="action_archive_project">Archive project</string>
-
-    <!-- Menu option for unarchiving a project [CHAR_LIMIT=30] -->
-    <string name="action_unarchive_project">Unarchive project</string>
-
-    <!-- Menu option for archiving a project [CHAR_LIMIT=30] -->
     <string name="action_archive_experiment">Archive experiment</string>
 
     <!-- Menu option for unarchiving a project [CHAR_LIMIT=30] -->
@@ -303,9 +297,6 @@
     <!-- Prompt to edit video stream FPS [CHAR_LIMIT=none] -->
     <string name="video_stream_fps_option">Set video stream recording rate in frames per second:</string>
 
-    <!-- User-visible activity title of project details activity [CHAR_LIMIT=25] -->
-    <string name="title_activity_project_details">Project Experiments</string>
-
     <!-- Name of the chart or graph, for displaying in no_options_title or no_options_message
          [CHAR_LIMIT=25] -->
     <string name="graph_name">the graph</string>
@@ -351,12 +342,6 @@
 
     <!-- Content description for the average stat icon [CHAR_LIMIT=none] -->
     <string name="stat_average">Average</string>
-
-    <!-- Label for the minimum stat [CHAR_LIMIT=10] -->
-    <string name="stat_min_label">Min</string>
-
-    <!-- Label for the maximum stat [CHAR_LIMIT=10] -->
-    <string name="stat_max_label">Max</string>
 
     <!-- Label for the average stat [CHAR_LIMIT=10] -->
     <string name="stat_average_label">Average</string>
@@ -405,47 +390,11 @@
     <!-- Button which launches the Bluetooth enable dialog [CHAR_LIMIT=40] -->
     <string name="btn_enable_bluetooth">Turn on Bluetooth</string>
 
-    <!-- Content description for button which makes a new project [CHAR_LIMIT=50]-->
-    <string name="btn_new_project_content_description">New project</string>
-
-    <!-- New project activity title [CHAR_LIMIT=25]-->
-    <string name="title_activity_new_project">New project</string>
-
-    <!-- Update project activity title [CHAR_LIMIT=25] -->
-    <string name="title_activity_update_project">Update project</string>
-
-    <!-- Message of alert when the project fails to save [CHAR_LIMIT=100] -->
-    <string name="project_save_failed">Could not save the project. Please try again.</string>
-
-    <!-- Message of alert when the project is successfully archived [CHAR_LIMIT=100] -->
-    <string name="archived_project_message">Project archived.</string>
-
-    <!-- Message of alert when the project moves out of archive [CHAR_LIMIT=100] -->
-    <string name="unarchived_project_message">Project moved out of archive.</string>
-
     <!-- Undo action in the snackbar. [CHAR_LIMIT=15] -->
     <string name="action_undo">Undo</string>
 
-    <!-- Message of alert when the project is deleted [CHAR_LIMIT=100] -->
-    <string name="deleted_project_message">Project deleted.</string>
-
-    <!-- Hint (aka. placeholder) for project title input field [CHAR_LIMIT=50] -->
-    <string name="project_title_hint">Project title</string>
-
-    <!-- Hint (aka. placeholder) for project problem input field [CHAR_LIMIT=50] -->
-    <string name="project_problem_hint">Description</string>
-
-    <!-- Content description for choosing a photo for a project [CHAR_LIMIT=50] -->
-    <string name="project_cover_description">Choose a project photo</string>
-
     <!-- Button text for choosing a photo for a project [CHAR_LIMIT=50] -->
     <string name="choose_photo_button_text">Choose a photo</string>
-
-    <!-- Label displaying number of experiments in a project [CHAR_LIMIT=20] -->
-    <plurals name="project_experiments_count">
-        <item quantity="one"><xliff:g id="number">%1d</xliff:g> experiment</item>
-        <item quantity="other"><xliff:g id="number">%1d</xliff:g> experiments</item>
-    </plurals>
 
     <!-- Context description for button which makes a new experiment [CHAR_LIMIT=50]-->
     <string name="btn_new_experiment_content_description">New experiment</string>
@@ -518,15 +467,6 @@
 
     <!-- Default experiment name [CHAR_LIMIT=25] -->
     <string name="default_experiment_name">Untitled Experiment</string>
-
-    <!-- Default project name [CHAR_LIMIT=25] -->
-    <string name="default_project_name">Untitled Project</string>
-
-    <!-- Message shown to the user when they have no projects [CHAR_LIMIT=100]-->
-    <string name="empty_project_library">You have no projects</string>
-
-    <!-- Message shown to the user when they have no experiments [CHAR_LIMIT=100]-->
-    <string name="empty_project">You have no experiments</string>
 
     <!-- Size of window for computing frequency (in milliseconds) [CHAR_LIMIT=35] -->
     <string name="frequency_window_option_label">Frequency window (in millis)</string>
@@ -841,41 +781,20 @@
     <!-- Text shown in a textnote when that note has no text set yet [CHAR_LIMIT=NONE] -->
     <string name="pinned_note_placeholder_text">Add note</string>
 
-    <!-- Text shown in the list of pinned notes as a placeholder when there are no pinned notes [CHAR_LIMIT=50] -->
-    <string name="no_notes_text">No notes</string>
-
     <!-- Text shown as a value for a number when the value hasn't loaded yet or is indeterminate [CHAR_LIMIT=4]-->
     <string name="indeterminate_value">--</string>
-
-    <!-- Content description for project card overflow menu [CHAR_LIMIT=30]-->
-    <string name="project_card_overflow_menu_content_description">Project options</string>
-
-    <!-- Label for a project which is active. This displays over the top of the project card so must be short [CHAR_LIMIT=20]-->
-    <string name="project_active_badge">Active</string>
 
     <!-- Label for an item which is archived. This displays over the top of the other elements so must be short [CHAR_LIMIT=20]-->
     <string name="archived_badge">Archived</string>
 
-    <!-- Checkable menu item label for viewing all projects, including the archived ones [CHAR_LIMIT=50]-->
-    <string name="action_include_archived_projects">Include archived projects</string>
-
     <!-- Checkable menu item label for viewing all experiments, including the archived ones [CHAR_LIMIT=50]-->
     <string name="action_include_archived_experiments">Show archived experiments</string>
-
-    <!-- Title for alert asking for confirmation to delete a project [CHAR_LIMIT=30] -->
-    <string name="delete_project_dialog_title">Delete this project?</string>
-
-    <!-- Alert content to confirm that a project should really be deleted and that this action is final [CHAR_LIMIT=NONE] -->
-    <string name="delete_project_dialog_message">Are you sure you want to delete this project? All its experiments, recordings and notes will be deleted. This action cannot be undone.</string>
 
     <!-- Dialog title for deleting an experiment [CHAR_LIMIT=30]-->
     <string name="delete_experiment_dialog_title">Delete this experiment?</string>
 
     <!-- Dialog message for deleting an experiment, which can't be undone [CHAR_LIMIT=NONE]-->
     <string name="delete_experiment_dialog_message">Are you sure you want to delete this experiment? All its recordings and notes will be deleted. This action cannot be undone.</string>
-
-    <!-- Menu item label that creates a new experiment in a popup menu for a project [CHAR_LIMIT=50]-->
-    <string name="action_new_experiment">New experiment</string>
 
     <!-- Title for alert asking for confirmation to delete a run [CHAR_LIMIT=30] -->
     <string name="delete_run_dialog_title">Delete this recording?</string>
@@ -897,31 +816,6 @@
 
     <!-- Button on age verifier screen which launches the app [CHAR_LIMIT=20]-->
     <string name="age_verifier_get_started">Get started</string>
-
-    <!-- Tutorial strings -->
-    <skip/>
-    <!-- Tutorial header introducing the app [CHAR_LIMIT=60] -->
-    <string name="tutorial_welcome_header">Explore your world</string>
-    <!-- Tutorial body text introducing the app [CHAR_LIMIT=NONE] -->
-    <string name="tutorial_welcome_body">"Use the sensors in your Android phone to measure sound, light and more!"</string>
-    <!-- Tutorial header describing project organization [CHAR_LIMIT=60] -->
-    <string name="tutorial_setup_header">Organize projects</string>
-    <!-- Tutorial body text describing project organization [CHAR_LIMIT=NONE] -->
-    <string name="tutorial_setup_body">"Set up projects and experiments to organize your data and compare your results."</string>
-    <!-- Tutorial header describing recording  [CHAR_LIMIT=60] -->
-    <string name="tutorial_observe_record_header">Record in real-time</string>
-    <!-- Tutorial body text describing recording  [CHAR_LIMIT=NONE] -->
-    <string name="tutorial_observe_record_body">"See something you want to measure? Record your observations in real-time at the press of a button!"</string>
-    <!-- Tutorial header describing note taking [CHAR_LIMIT=60] -->
-    <string name="tutorial_take_notes_header">Add observational notes</string>
-    <!-- Tutorial body text describing note taking  [CHAR_LIMIT=NONE] -->
-    <string name="tutorial_take_notes_body">"While you\'re recording, you can add notes and pictures to give more context to the data."</string>
-    <!-- Button label to go to the previous screen in the tutorial [CHAR_LIMIT=10]-->
-    <string name="btn_previous_label">Prev</string>
-    <!-- Button label to go to the next screen in the tutorial [CHAR_LIMIT=10]-->
-    <string name="btn_next_label">Next</string>
-    <!-- Button label to skip the tutorial completely [CHAR_LIMIT=10] -->
-    <string name="btn_skip_label">Skip</string>
 
     <!-- Message to display to the user when a sensor card failed to load data [CHAR_LIMIT=100] -->
     <string name="sensor_card_error_text">Failed to load sensor data</string>
