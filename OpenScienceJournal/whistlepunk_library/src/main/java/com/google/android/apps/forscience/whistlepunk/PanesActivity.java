@@ -30,6 +30,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -146,15 +147,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         TabLayout toolPicker = (TabLayout) findViewById(R.id.tool_picker);
         View toolPickerHolder = findViewById(R.id.tool_picker_holder);
         mRecordingBar = (ProgressBar) findViewById(R.id.recording_progress_bar);
-        AppSingleton.getInstance(this).getRecorderController().watchRecordingStatus().firstElement()
-                .subscribe(status -> {
-                    if (status.state == RecordingState.ACTIVE) {
-                        mRecordingBar.setVisibility(View.VISIBLE);
-                    } else {
-                        mRecordingBar.setVisibility(View.GONE);
-                    }
-                });
-
         RxView.globalLayouts(bottomSheet).firstElement().subscribe(o -> {
             // After first layout, height is valid
 
@@ -194,6 +186,17 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         // the experiment stream when this activity is destroyed.
         mActiveExperiment.subscribe(experiment -> {
             setExperimentFragmentId(experiment.getExperimentId());
+            AppSingleton.getInstance(this).getRecorderController().watchRecordingStatus()
+                    .firstElement().subscribe(status -> {
+                        if (status.state == RecordingState.ACTIVE) {
+                            mRecordingBar.setVisibility(View.VISIBLE);
+                            Log.d(TAG, "start recording");
+                            mExperimentFragment.onStartRecording(
+                                    status.currentRecording.getRunId());
+                        } else {
+                            mRecordingBar.setVisibility(View.GONE);
+                        }
+                    });
         });
 
         Single<Experiment> exp = whenSelectedExperiment(experimentId, getDataController());
@@ -291,9 +294,13 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void onLabelAdded(Label label) {
-                // TODO: is this expensive?  Should we trigger a more incremental update?
-                mExperimentFragment.loadExperiment();
+            public void onLabelAdded(Label label, String trialId) {
+                if (TextUtils.isEmpty(trialId)) {
+                    // TODO: is this expensive?  Should we trigger a more incremental update?
+                    mExperimentFragment.loadExperiment();
+                } else {
+                    mExperimentFragment.onRecordingTrialUpdated(trialId);
+                }
             }
 
             @Override
@@ -302,9 +309,16 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            void onRecordingStart(String experimentName) {
+            public void onRecordingRequested(String experimentName) {
                 if (mRecordingBar != null) {
                     mRecordingBar.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            void onRecordingStart(String trialId) {
+                if (!TextUtils.isEmpty(trialId)) {
+                    mExperimentFragment.onStartRecording(trialId);
                 }
             }
 
@@ -313,6 +327,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 if (mRecordingBar != null) {
                     mRecordingBar.setVisibility(View.GONE);
                 }
+                mExperimentFragment.onStopRecording();
             }
         };
     }

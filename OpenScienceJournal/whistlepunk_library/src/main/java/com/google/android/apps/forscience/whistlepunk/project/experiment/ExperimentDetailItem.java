@@ -2,10 +2,8 @@ package com.google.android.apps.forscience.whistlepunk.project.experiment;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
@@ -23,14 +21,21 @@ public class ExperimentDetailItem {
     private long mTimestamp;
     private ChartController mChartController;
 
-    ExperimentDetailItem(Trial trial, ScalarDisplayOptions scalarDisplayOptions) {
+    ExperimentDetailItem(Trial trial, ScalarDisplayOptions scalarDisplayOptions,
+            boolean isRecording) {
         mTrial = trial;
         mTimestamp = mTrial.getFirstTimestamp();
-        mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_RUN_CARD;
+        if (isRecording) {
+            mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_RECORDING;
+        } else {
+            mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_RUN_CARD;
+        }
         mSensorTagIndex = mTrial.getSensorIds().size() > 0 ? 0 : -1;
-        mChartController = new ChartController(
-                ChartOptions.ChartPlacementType.TYPE_PREVIEW_REVIEW,
-                scalarDisplayOptions);
+        if (trial.isValid()) {
+            mChartController = new ChartController(
+                    ChartOptions.ChartPlacementType.TYPE_PREVIEW_REVIEW,
+                    scalarDisplayOptions);
+        }
     }
 
     ExperimentDetailItem(Label label) {

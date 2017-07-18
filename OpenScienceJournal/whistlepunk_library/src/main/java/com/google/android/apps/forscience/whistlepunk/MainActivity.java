@@ -410,7 +410,7 @@ public class MainActivity extends AppCompatActivity
     public RecordFragment.UICallbacks getRecordFragmentCallbacks() {
         return new RecordFragment.UICallbacks() {
             @Override
-            public void onRecordingStart(String experimentName) {
+            public void onRecordingRequested(String experimentName) {
                 ActionBar actionBar = getSupportActionBar();
                 supportInvalidateOptionsMenu();
                 int toolbarColorResource = R.color.recording_toolbar_color;

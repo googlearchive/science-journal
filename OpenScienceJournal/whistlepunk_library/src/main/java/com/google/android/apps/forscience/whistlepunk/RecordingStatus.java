@@ -63,4 +63,8 @@ public class RecordingStatus {
                ", currentRecording=" + currentRecording +
                '}';
     }
+
+    public String getTrialId() {
+        return currentRecording != null ? currentRecording.getRunId() : null;
+    }
 }

@@ -127,6 +127,7 @@ public class ExperimentDetailsFragment extends Fragment
     private BroadcastReceiver mBroadcastReceiver;
     private boolean mDisappearingActionBar;
     private Label mDeletedLabel;
+    private String mActiveTrialId;
 
     /**
      * Creates a new instance of this fragment.
@@ -291,8 +292,36 @@ public class ExperimentDetailsFragment extends Fragment
 
     public void loadExperimentData(final Experiment experiment) {
         boolean includeInvalidRuns = false;
-        mAdapter.setData(experiment, experiment.getTrials(mIncludeArchived, includeInvalidRuns),
-                mScalarDisplayOptions);
+        mAdapter.setScalarDisplayOptions(mScalarDisplayOptions);
+        mAdapter.setData(experiment, experiment.getTrials(mIncludeArchived, includeInvalidRuns));
+        if (mActiveTrialId != null) {
+            mAdapter.addActiveRecording(experiment.getTrial(mActiveTrialId));
+        }
+    }
+
+    public void onStartRecording(String trialId) {
+        mActiveTrialId = trialId;
+        if (mAdapter != null) {
+            RxDataController.getExperimentById(getDataController(), mExperimentId).subscribe(
+                    experiment -> mAdapter.addActiveRecording(experiment.getTrial(trialId)));
+        }
+    }
+
+    public void onRecordingTrialUpdated(String trialId) {
+        RxDataController.getExperimentById(getDataController(), mExperimentId).subscribe(
+                experiment -> mAdapter.updateActiveRecording(experiment.getTrial(trialId)));
+    }
+
+    public void onStopRecording() {
+        if (mActiveTrialId != null) {
+            RxDataController.getExperimentById(getDataController(), mExperimentId).subscribe(
+                    experiment -> mAdapter.onRecordingEnded(experiment.getTrial(mActiveTrialId)));
+            mActiveTrialId = null;
+        }
+    }
+
+    public String getActiveRecordingId() {
+        return mActiveTrialId;
     }
 
     private void attachExperimentDetails(Experiment experiment) {
@@ -631,12 +660,14 @@ public class ExperimentDetailsFragment extends Fragment
         static final int VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL = 5;
         static final int VIEW_TYPE_SNAPSHOT_LABEL = 6;
         static final int VIEW_TYPE_UNKNOWN_LABEL = 7;
+        static final int VIEW_TYPE_RECORDING = 8;
 
         private final WeakReference<ExperimentDetailsFragment> mParentReference;
         private Experiment mExperiment;
         private List<ExperimentDetailItem> mItems;
         private List<Integer> mSensorIndices = null;
         private boolean mHasRunsOrLabels;
+        private ScalarDisplayOptions mScalarDisplayOptions;
 
         DetailsAdapter(ExperimentDetailsFragment parent, Bundle savedInstanceState) {
             mItems = new ArrayList<>();
@@ -657,6 +688,9 @@ public class ExperimentDetailsFragment extends Fragment
                     viewType == VIEW_TYPE_SNAPSHOT_LABEL) {
                 view = inflater.inflate(R.layout.exp_card_pinned_note, parent, false);
                 return new NoteViewHolder(view);
+            } else if (viewType == VIEW_TYPE_RECORDING) {
+                view = inflater.inflate(R.layout.exp_card_recording, parent, false);
+                return new RecordingViewHolder(view);
             } else if (viewType == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
                 view = inflater.inflate(R.layout.metadata_archived, parent, false);
             } else if (viewType == VIEW_TYPE_EMPTY) {
@@ -675,6 +709,10 @@ public class ExperimentDetailsFragment extends Fragment
                 setupTrialHeader((DetailsViewHolder) holder, item);
                 setupCaption((DetailsViewHolder) holder, item.getTrial().getCaptionText());
                 bindRun((DetailsViewHolder) holder, item);
+                return;
+            } else if (type == VIEW_TYPE_RECORDING) {
+                bindRecording((RecordingViewHolder) holder, item);
+                return;
             }
             boolean isPictureLabel = type == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
             boolean isTextLabel = type == VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
@@ -834,7 +872,8 @@ public class ExperimentDetailsFragment extends Fragment
         private int findTrialIndex(String trialId) {
             for (int i = 0; i < mItems.size(); i++) {
                 ExperimentDetailItem item = mItems.get(i);
-                if (item.getViewType() == VIEW_TYPE_RUN_CARD) {
+                if (item.getViewType() == VIEW_TYPE_RUN_CARD ||
+                        item.getViewType() == VIEW_TYPE_RECORDING) {
                     if (TextUtils.equals(item.getTrial().getTrialId(), trialId)) {
                         return i;
                     }
@@ -884,8 +923,11 @@ public class ExperimentDetailsFragment extends Fragment
             return mItems.get(position).getViewType();
         }
 
-        public void setData(Experiment experiment, List<Trial> trials,
-                ScalarDisplayOptions scalarDisplayOptions) {
+        public void setScalarDisplayOptions(ScalarDisplayOptions scalarDisplayOptions) {
+            mScalarDisplayOptions = scalarDisplayOptions;
+        }
+
+        public void setData(Experiment experiment, List<Trial> trials) {
             mHasRunsOrLabels = false;
             mExperiment = experiment;
             // TODO: compare data and see if anything has changed. If so, don't reload at all.
@@ -896,8 +938,10 @@ public class ExperimentDetailsFragment extends Fragment
                 mSensorIndices = null;
             }
             int i = 0;
+            String activeTrialId = mParentReference.get().getActiveRecordingId();
             for (Trial trial : trials) {
-                ExperimentDetailItem item = new ExperimentDetailItem(trial, scalarDisplayOptions);
+                ExperimentDetailItem item = new ExperimentDetailItem(trial, mScalarDisplayOptions,
+                        TextUtils.equals(activeTrialId, trial.getTrialId()));
                 item.setSensorTagIndex(mSensorIndices != null ? mSensorIndices.get(i++) : 0);
                 mItems.add(item);
                 mHasRunsOrLabels = true;
@@ -995,7 +1039,6 @@ public class ExperimentDetailsFragment extends Fragment
             holder.setRunId(trial.getTrialId());
             String title = trial.getTitleWithDuration(applicationContext, mExperiment);
             holder.runTitle.setText(title);
-            holder.cardView.setOnClickListener(createRunClickListener(item.getSensorTagIndex()));
             holder.cardView.setTag(R.id.run_title_text, trial.getTrialId());
 
             holder.itemView.findViewById(R.id.content).setAlpha(
@@ -1025,10 +1068,11 @@ public class ExperimentDetailsFragment extends Fragment
                     loadLearnMoreIntoHolder(holder.noteHolder, item.getTrial().getTrialId());
                 }
             }
-
             if (!trial.isValid()) {
                 removeSensorData(holder);
             } else if (trial.getSensorIds().size() > 0) {
+                holder.cardView.setOnClickListener(createRunClickListener(
+                        item.getSensorTagIndex()));
                 loadSensorData(applicationContext, holder, item);
                 holder.sensorNext.setOnClickListener(v -> {
                     //Sometimes we tap the button before it can disable so return if the button
@@ -1057,6 +1101,18 @@ public class ExperimentDetailsFragment extends Fragment
                 });
             } else {
                 removeSensorData(holder);
+            }
+        }
+
+        private void bindRecording(RecordingViewHolder holder, ExperimentDetailItem item) {
+            Context context = holder.cardView.getContext();
+            holder.title.setText(context.getResources().getString(R.string.card_recording_title,
+                    item.getTrial().getTitle(context, mExperiment)));
+            if (item.getTrial().getLabelCount() > 0) {
+                for (int i = 0; i < item.getTrial().getLabelCount(); i++) {
+                    loadLabelIntoHolder(item.getTrial().getLabels().get(i),
+                            item.getTrial().getFirstTimestamp(), holder.noteHolder);
+                }
             }
         }
 
@@ -1256,6 +1312,40 @@ public class ExperimentDetailsFragment extends Fragment
             }
         }
 
+        public void addActiveRecording(Trial trial) {
+            if (findTrialIndex(trial.getTrialId()) == -1) {
+                mItems.add(0, new ExperimentDetailItem(trial, mScalarDisplayOptions, true));
+                notifyItemInserted(0);
+                updateEmptyView();
+            }
+        }
+
+        public void updateActiveRecording(Trial trial) {
+            int position = findTrialIndex(trial.getTrialId());
+            if (position == -1) {
+                addActiveRecording(trial);
+            } else {
+                mItems.get(position).setTrial(trial);
+                notifyItemChanged(position);
+            }
+        }
+
+        public void onRecordingEnded(Trial trial) {
+            int position = findTrialIndex(trial.getTrialId());
+            if (position == -1) {
+                return;
+            }
+            if (!trial.isValid()) {
+                // Remove it if it is invalid
+                // TODO: Ask the parent fragment if we are including invalid runs.
+                mItems.remove(position);
+                notifyItemRemoved(position);
+            } else {
+                mItems.set(position, new ExperimentDetailItem(trial, mScalarDisplayOptions, false));
+                notifyItemChanged(position);
+            }
+        }
+
         public static class DetailsViewHolder extends RecyclerView.ViewHolder implements
                 ChartController.ChartLoadingStatus {
 
@@ -1350,6 +1440,19 @@ public class ExperimentDetailsFragment extends Fragment
             @Override
             public String getSensorId() {
                 return mSensorId;
+            }
+        }
+
+        public static class RecordingViewHolder extends RecyclerView.ViewHolder {
+            View cardView;
+            ViewGroup noteHolder;
+            TextView title;
+
+            public RecordingViewHolder(View itemView) {
+                super(itemView);
+                cardView = itemView.findViewById(R.id.card_view);
+                noteHolder = (ViewGroup) itemView.findViewById(R.id.notes_holder);
+                title = (TextView) itemView.findViewById(R.id.title);
             }
         }
 

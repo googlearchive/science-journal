@@ -128,11 +128,19 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         };
 
         /**
-         * Called when recording starts
+         * Called when recording is about to start
          *
          * @param experimentName the name of the experiment we're recording in.
          */
-        void onRecordingStart(String experimentName) {
+        void onRecordingRequested(String experimentName) {
+
+        }
+
+        /**
+         * Called when recording starts
+         * @param trialId the ID of the trial currently being recorded.
+         */
+        void onRecordingStart(String trialId) {
 
         }
 
@@ -153,9 +161,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
         /**
          * Called when a label is added from the RecordFragment (for example, a snapshot)
-         * @param label
+         * @param trialId the ID of the trial if it is recording, null otherwise.
          */
-        public void onLabelAdded(Label label) {
+        public void onLabelAdded(Label label, String trialId) {
 
         }
 
@@ -1245,7 +1253,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void lockUiForRecording() {
-        mUICallbacks.onRecordingStart(getExperimentName());
+        mUICallbacks.onRecordingRequested(getExperimentName());
 
         // Lock the sensor cards and add button
         if (mSensorCardAdapter != null) {
@@ -1260,6 +1268,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
         if (status.isRecording()) {
             lockUiForRecording();
+            mUICallbacks.onRecordingStart(status.currentRecording.getRunId());
         } else {
             mUICallbacks.onRecordingStopped();
             if (mSensorCardAdapter != null) {
@@ -1298,7 +1307,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         addSnapshotLabel(getRecorderController(), status).subscribe(label -> {
             // Then process the added label, or complain.
             processAddedLabel(label, status);
-            mUICallbacks.onLabelAdded(label);
+            mUICallbacks.onLabelAdded(label, status.getTrialId());
         }, LoggingConsumer.complain(TAG, "take snapshot"));
     }
 

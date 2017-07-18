@@ -1482,6 +1482,9 @@ Permissions notice:
     <!-- Error text that an experiment title cannot be empty [CHAR_LIMIT=50] -->
     <string name="empty_experiment_title_error">Name cannot be empty</string>
 
+    <!-- Title of a in-progress recording card in the experiment list, i.e. "Recording 3..." [CHAR_LIMIT=50] -->
+    <string name="card_recording_title"><xliff:g id="title">%1$s</xliff:g>…</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
