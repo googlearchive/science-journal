@@ -62,12 +62,14 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public TextSwitcher triggerTextSwitcher;
     public TriggerBackgroundView triggerFiredBackground;
     public TextView triggerFiredText;
+    public ImageButton sensorSettingsGear;
 
     public CardViewHolder(CardView itemView) {
         super(itemView);
         chartView = (ChartView) itemView.findViewById(R.id.chart_view);
         sensorSelectionArea = itemView.findViewById(R.id.sensor_selection_area);
         sensorTabLayout = (TabLayout) itemView.findViewById(R.id.sensor_selector_tab_layout);
+        sensorSettingsGear = (ImageButton) itemView.findViewById(R.id.settings_gear);
         sensorTabHolder = (ViewGroup) itemView.findViewById(R.id.sensor_selection_tab_holder);
         graphStatsList = (StatsList) itemView.findViewById(R.id.stats_drawer);
         header = (SensorCardHeader) itemView.findViewById(R.id.sensor_card_header);

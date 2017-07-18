@@ -57,11 +57,6 @@ public class InputDeviceSpec extends ExternalSensorSpec {
         }
 
         @Override
-        public String getProviderId() {
-            return PROVIDER_ID;
-        }
-
-        @Override
         public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
             return new InputDeviceSpec(name, config);
         }
@@ -87,8 +82,6 @@ public class InputDeviceSpec extends ExternalSensorSpec {
 
     public static final String TYPE = "InputDevice";
     private static final String TAG = "InputDeviceSpec";
-    private static final String PROVIDER_ID =
-            "com.google.android.apps.forscience.whistlepunk.device";
     public static Map<String, SensorProvider> PROVIDER_MAP = ImmutableMap.of(TYPE,
             PROVIDER);
 

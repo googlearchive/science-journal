@@ -36,20 +36,22 @@
         android:layout_height="wrap_content"
         >
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/sensor_selection_area"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/sensor_card_header"
             android:paddingStart="@dimen/sensor_card_header_padding"
             android:paddingEnd="@dimen/sensor_card_header_padding"
+            android:orientation="horizontal"
             >
 
             <!-- The TabLayout twitches when switching tabs unless wrapped in another view.
                  See b/24580903. -->
             <FrameLayout
                 android:id="@+id/sensor_selection_tab_holder"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:scrollbars="none"
                 tools:ignore="UselessParent">
@@ -58,7 +60,15 @@
 
             </FrameLayout>
 
-        </RelativeLayout>
+            <ImageButton
+                android:layout_width="@dimen/accessibility_touch_target_min_size"
+                android:layout_height="@dimen/accessibility_touch_target_min_size"
+                android:id="@+id/settings_gear"
+                android:src="@drawable/ic_settings_white_24dp"
+                android:contentDescription="@string/add_sensor"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                />
+        </LinearLayout>
 
         <com.google.android.apps.forscience.whistlepunk.SensorCardHeader
             android:id="@id/sensor_card_header"

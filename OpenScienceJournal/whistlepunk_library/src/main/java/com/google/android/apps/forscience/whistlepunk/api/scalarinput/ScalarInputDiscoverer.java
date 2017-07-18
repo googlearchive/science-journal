@@ -45,8 +45,6 @@ import java.util.concurrent.Executor;
 public class ScalarInputDiscoverer implements SensorDiscoverer {
     private static final long DEFAULT_SCAN_TIMEOUT_MILLIS = 10_000;
     private static String TAG = "SIDiscoverer";
-    public static final String SCALAR_INPUT_PROVIDER_ID =
-            "com.google.android.apps.forscience.whistlepunk.scalarinput";
 
     private final Consumer<AppDiscoveryCallbacks> mServiceFinder;
     private final ScalarInputStringSource mStringSource;

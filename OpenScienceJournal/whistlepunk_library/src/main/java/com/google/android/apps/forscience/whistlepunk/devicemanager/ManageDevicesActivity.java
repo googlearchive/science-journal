@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 
@@ -60,6 +61,19 @@ public class ManageDevicesActivity extends AppCompatActivity implements
         } else {
             return DeviceOptionsDialog.NULL_LISTENER;
         }
+    }
+
+    public static void launch(Context context, String experimentId) {
+        context.startActivity(launchIntent(context, experimentId));
+    }
+
+    @NonNull
+    public static Intent launchIntent(Context context, String experimentId) {
+        Intent intent = new Intent(context, ManageDevicesActivity.class);
+        if (experimentId != null) {
+            intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
+        }
+        return intent;
     }
 
     @Override
