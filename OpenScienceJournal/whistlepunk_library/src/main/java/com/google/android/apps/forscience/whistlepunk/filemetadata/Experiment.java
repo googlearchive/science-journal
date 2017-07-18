@@ -21,12 +21,14 @@ import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
@@ -59,9 +61,14 @@ public class Experiment extends LabelListHolder {
         experimentOverview.experimentId = experimentId;
         experimentOverview.colorIndex = colorIndex;
         proto.creationTimeMs = creationTime;
+
         // This experiment is being created with the latest VERSION available.
-        proto.version = ExperimentCache.VERSION;
-        proto.minorVersion = ExperimentCache.MINOR_VERSION;
+        proto.fileVersion = new Version.FileVersion();
+        proto.fileVersion.version = ExperimentCache.VERSION;
+        proto.fileVersion.minorVersion = ExperimentCache.MINOR_VERSION;
+        proto.fileVersion.platformVersion = ExperimentCache.PLATFORM_VERSION;
+        proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.ANDROID;
+
         return new Experiment(proto, experimentOverview);
     }
 
@@ -513,12 +520,13 @@ public class Experiment extends LabelListHolder {
         deleteLabel(item, context, getExperimentId());
     }
 
-    int getVersion() {
-        return mProto.version;
+    @VisibleForTesting
+    public int getVersion() {
+        return mProto.fileVersion.version;
     }
 
     int getMinorVersion() {
-        return mProto.minorVersion;
+        return mProto.fileVersion.minorVersion;
     }
 
     /**
