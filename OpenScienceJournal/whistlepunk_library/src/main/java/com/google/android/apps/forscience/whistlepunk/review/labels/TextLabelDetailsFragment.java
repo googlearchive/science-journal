@@ -66,16 +66,7 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
         mNoteText = (EditText) inflater.inflate(R.layout.text_label_details_fragment,
                 container, false);
         mNoteText.setText(mOriginalLabel.getTextLabelValue().text);
-        mNoteText.setEnabled(false);
-
-        mExperiment.firstElement().subscribe(experiment -> {
-            mNoteText.setEnabled(true);
-            // Move the cursor to the end
-            mNoteText.post(() -> mNoteText.setSelection(mNoteText.getText().toString().length()));
-            RxTextView.afterTextChangeEvents(mNoteText)
-                      .subscribe(
-                              event -> saveTextChanges(mNoteText.getText().toString(), experiment));
-        });
+        mNoteText.post(() -> mNoteText.setSelection(mNoteText.getText().toString().length()));
 
         // TODO: Transition
 
@@ -89,7 +80,8 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setTitle(getActivity().getResources().getString(
                 R.string.text_label_details_title));
-
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+        actionBar.setHomeActionContentDescription(android.R.string.cancel);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -100,10 +92,24 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
         super.onPrepareOptionsMenu(menu);
     }
 
-    private void saveTextChanges(String newText, Experiment experiment) {
-        if (!verifyInput(newText)) {
-            return;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_save) {
+            mExperiment.firstElement().subscribe(experiment -> {
+                String newText = mNoteText.getText().toString();
+                if (!verifyInput(newText)) {
+                    // No-op. Shows an error, doesn't exit.
+                    return;
+                }
+                saveTextChanges(newText, experiment);
+                returnToParent(false);
+            });
+            return true;
         }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void saveTextChanges(String newText, Experiment experiment) {
         GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
         labelValue.text = newText;
         mOriginalLabel.setLabelProtoData(labelValue);
