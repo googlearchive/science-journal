@@ -1271,21 +1271,27 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void refreshLabels(RecordingStatus status) {
-        if (mSensorCardAdapter == null || !status.isRecording() || mExternalAxis == null) {
+        if (mSensorCardAdapter == null || mExternalAxis == null) {
             return;
         }
-        Trial trial = mSelectedExperiment.getTrial(status.currentRecording.getRunId());
-        if (trial == null) {
-            return;
+        List<Label> labels;
+        if (!status.isRecording()) {
+            labels = Collections.emptyList();
+        } else {
+            Trial trial = mSelectedExperiment.getTrial(status.currentRecording.getRunId());
+            if (trial == null) {
+                return;
+            }
+            labels = trial.getLabels();
         }
         if (mSensorCardAdapter != null) {
             for (SensorCardPresenter p :
                     mSensorCardAdapter.getSensorCardPresenters()) {
-                p.refreshLabels(trial.getLabels());
+                p.refreshLabels(labels);
             }
         }
         if (mExternalAxis != null) {
-            mExternalAxis.onLabelsChanged(trial.getLabels());
+            mExternalAxis.onLabelsChanged(labels);
         }
     }
 
