@@ -119,8 +119,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private static final String EXTRA_SENSOR_IDS = "sensorIds";
 
     private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
-
-
+    private final SnackbarManager mSnackbarManager = new SnackbarManager();
 
     public static abstract class UICallbacks {
         public static UICallbacks NULL = new UICallbacks() {
@@ -136,15 +135,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
          * @param experimentName the name of the experiment we're recording in.
          */
         void onRecordingStart(String experimentName) {
-
-        }
-
-        /**
-         * Called when we first know that we're supposed to stop recording.  This allows us, for
-         * example, to know not to allow additional recordings to start if we plan to display
-         * a full-screen review once the recording is saved.
-         */
-        void onRecordStopRequested() {
 
         }
 
@@ -180,7 +170,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private UICallbacks mUICallbacks = UICallbacks.NULL;
     private SensorRegistry mSensorRegistry;
-    private Snackbar mVisibleSnackbar;
 
     private SensorSettingsController mSensorSettingsController;
     private GraphOptionsController mGraphOptionsController;
@@ -450,6 +439,8 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         mRecordingStatus.onNext(newStatus);
 
         onRecordingMetadataUpdated(newStatus);
+        updateRecordingUIState(newStatus);
+
         // If we have switched from a recording state to a not-recording
         // state, update the UI.
         if (prevRecording != null && !newStatus.isRecording()) {
@@ -459,7 +450,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             if (dialog != null) {
                 dialog.dismiss();
             }
-            updateRecordingState();
             if (!mRecordingWasCanceled) {
                 mUICallbacks.onRecordingSaved(prevRecording.getRunId(),
                         mSelectedExperiment);
@@ -468,31 +458,29 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         mRecordingWasCanceled = false;
     }
 
-    private void updateRecordingState() {
-        mRecordingStatus.firstElement().subscribe(status -> updateRecordingUIState(status));
-    }
-
-    private void onRecordingStartFailed(@RecorderController.RecordingStartErrorType int errorType,
-            Throwable e) {
+    // TODO: create a ControlBarFragment, move this here.
+    private static void onRecordingStartFailed(Fragment fragment,
+            @RecorderController.RecordingStartErrorType int errorType,
+            SnackbarManager snackbarManager) {
         if (errorType == RecorderController.ERROR_START_FAILED) {
-            failedStartRecording(R.string.recording_start_failed);
+            failedStartRecording(fragment, R.string.recording_start_failed, snackbarManager);
         } else if (errorType == RecorderController.ERROR_START_FAILED_DISCONNECTED) {
-            failedStartRecording(R.string.recording_start_failed_disconnected);
+            failedStartRecording(fragment, R.string.recording_start_failed_disconnected,
+                    snackbarManager);
         }
-        updateRecordingState();
     }
 
-    private void onRecordingStopFailed(@RecorderController.RecordingStopErrorType int errorType) {
+    private static void onRecordingStopFailed(Fragment fragment,
+            @RecorderController.RecordingStopErrorType int errorType) {
         if (errorType == RecorderController.ERROR_STOP_FAILED_DISCONNECTED) {
-            failedStopRecording(R.string.recording_stop_failed_disconnected);
+            failedStopRecording(fragment, R.string.recording_stop_failed_disconnected);
         } else if (errorType == RecorderController.ERROR_STOP_FAILED_NO_DATA) {
-            failedStopRecording(R.string.recording_stop_failed_no_data);
+            failedStopRecording(fragment, R.string.recording_stop_failed_no_data);
         } else if (errorType == RecorderController.ERROR_FAILED_SAVE_RECORDING) {
-            AccessibilityUtils.makeSnackbar(getView(),
-                    getActivity().getResources().getString(R.string.recording_stop_failed_save),
+            AccessibilityUtils.makeSnackbar(fragment.getView(),
+                    fragment.getResources().getString(R.string.recording_stop_failed_save),
                     Snackbar.LENGTH_LONG).show();
         }
-        updateRecordingState();
     }
 
     @Override
@@ -530,9 +518,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             }
         });
         stopObservingCurrentSensors();
-        if (mVisibleSnackbar != null) {
-            mVisibleSnackbar.dismiss();
-        }
+        mSnackbarManager.onDestroy();
         mHandler = null;
         mSensorSettingsController = null;
         mGraphOptionsController = null;
@@ -623,20 +609,16 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void attachRecordButton(ImageButton recordButton, RecorderController rc) {
-
-        // Hide the record button until we have a RecorderController instance it can use.
-        recordButton.setVisibility(View.INVISIBLE);
         recordButton.setVisibility(View.VISIBLE);
-        recordButton.setOnClickListener(v -> {
-            mRecordingStatus.firstElement().subscribe(status -> {
-                if (status.isRecording()) {
-                    tryStopRecording(rc);
-                } else {
-                    lockUiForRecording();
-                    tryStartRecording(rc);
-                }
-            });
-        });
+        RxView.clicks(recordButton)
+              .flatMapMaybe(click -> mRecordingStatus.firstElement())
+              .subscribe(status -> {
+                  if (status.isRecording()) {
+                      tryStopRecording(this, rc, mSensorRegistry);
+                  } else {
+                      tryStartRecording(this, rc, mSelectedExperiment, mSnackbarManager);
+                  }
+              });
 
         mRecordingStatus.takeUntil(RxView.detaches(recordButton)).subscribe(status -> {
             recordButton.setEnabled(status.state.shouldEnableRecordButton());
@@ -706,8 +688,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         mSelectedExperimentSubject.onNext(selectedExperiment);
         loadIncludedSensors(mSelectedExperiment.getSensorLayouts(), rc, status);
         rc.setSelectedExperiment(mSelectedExperiment);
-
-        enterStableRecordingState(status);
     }
 
     private void updateSensorLayout(GoosciSensorLayout.SensorLayout sensorLayout) {
@@ -1010,7 +990,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                         Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
                                 getString(R.string.snackbar_source_error, errorMessage),
                                 Snackbar.LENGTH_LONG);
-                        showSnackbar(bar);
+                        mSnackbarManager.showSnackbar(bar);
                     }
                 }
             }
@@ -1276,8 +1256,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void updateRecordingUIState(RecordingStatus status) {
-        enterStableRecordingState(status);
-
         if (mSelectedExperiment == null) {
             return;
         }
@@ -1290,10 +1268,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 mSensorCardAdapter.setUiLockedForRecording(false);
             }
         }
-    }
-
-    private void enterStableRecordingState(RecordingStatus status) {
-        mRecordingStatus.onNext(status.inStableRecordingState());
     }
 
     private void refreshLabels(RecordingStatus status) {
@@ -1364,66 +1338,57 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
 
-    private void tryStartRecording(final RecorderController rc) {
-        if (mSelectedExperiment == null) {
+    private static void tryStartRecording(Fragment fragment, final RecorderController rc,
+            Experiment experiment, SnackbarManager snackbarManager) {
+        if (experiment == null) {
             return;
         }
 
-        // Disable the record button to stop double-clicks.
-        mRecordingStatus.onNext(mRecordingStatus.getValue().withState(RecordingState.STARTING));
-
-        boolean usePanes = false;
-        Intent mLaunchIntent =
-                PanesActivity.launchIntent(getActivity(), mSelectedExperiment.getExperimentId());
+        Intent launchIntent =
+                PanesActivity.launchIntent(fragment.getActivity(), experiment.getExperimentId());
 
         // This isn't currently used, but does ensure this intent doesn't match any other intent.
         // See b/31616891
-        mLaunchIntent.setData(
-                Uri.fromParts("observe", "experiment=" + mSelectedExperiment.getExperimentId(),
+        launchIntent.setData(
+                Uri.fromParts("observe", "experiment=" + experiment.getExperimentId(),
                         null));
-        rc.startRecording(mLaunchIntent).subscribe(() -> {}, error -> {
+        rc.startRecording(launchIntent).subscribe(() -> {}, error -> {
             if (error instanceof RecorderController.RecordingStartFailedException) {
                 RecorderController.RecordingStartFailedException e =
                         (RecorderController.RecordingStartFailedException) error;
-                onRecordingStartFailed(e.errorType, e.getCause());
+                onRecordingStartFailed(fragment, e.errorType, snackbarManager);
             }
         });
     }
 
-    private void failedStartRecording(int stringId) {
-        Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
-                getActivity().getResources().getString(stringId), Snackbar.LENGTH_LONG);
-        showSnackbar(bar);
+    private static void failedStartRecording(Fragment fragment, int stringId,
+            SnackbarManager snackbarManager) {
+        Snackbar bar = AccessibilityUtils.makeSnackbar(fragment.getView(),
+                fragment.getActivity().getResources().getString(stringId), Snackbar.LENGTH_LONG);
+        snackbarManager.showSnackbar(bar);
     }
 
-    private void tryStopRecording(final RecorderController rc) {
-        mUICallbacks.onRecordStopRequested();
-        rc.stopRecording(mSensorRegistry).subscribe(() -> {}, error -> {
+    private static void tryStopRecording(Fragment fragment, final RecorderController rc,
+            SensorRegistry sensorRegistry) {
+        rc.stopRecording(sensorRegistry).subscribe(() -> {}, error -> {
             if (error instanceof RecorderController.RecordingStopFailedException) {
                 RecorderController.RecordingStopFailedException e =
                         (RecorderController.RecordingStopFailedException) error;
-                onRecordingStopFailed(e.errorType);
+                onRecordingStopFailed(fragment, e.errorType);
             }
         });
     }
 
-    private void failedStopRecording(int stringId) {
+    private static void failedStopRecording(Fragment fragment, int stringId) {
         StopRecordingNoDataDialog dialog = StopRecordingNoDataDialog.newInstance(
-                getResources().getString(stringId));
-        dialog.show(getChildFragmentManager(), StopRecordingNoDataDialog.TAG);
+                fragment.getResources().getString(stringId));
+        dialog.show(fragment.getChildFragmentManager(), StopRecordingNoDataDialog.TAG);
     }
 
     @Override
     public void requestCancelRecording() {
         mRecordingWasCanceled = true;
         getRecorderController().stopRecordingWithoutSaving();
-    }
-
-    @Override
-    public void continueRecording() {
-        mRecordingStatus.firstElement().subscribe(status -> {
-            enterStableRecordingState(status);
-        });
     }
 
     private DataController getDataController() {
@@ -1493,7 +1458,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             return;
         }
         // If a snackbar is already being shown, don't show a new one.
-        if (mVisibleSnackbar != null) {
+        if (mSnackbarManager.snackbarIsVisible()) {
             return;
         }
 
@@ -1517,7 +1482,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             bar.setAction(R.string.scroll_to_card,
                     v -> mSensorCardLayoutManager.scrollToPosition(
                             getPositionOfPresenter(presenter)));
-            showSnackbar(bar);
+            mSnackbarManager.showSnackbar(bar);
         }
     }
 
@@ -1780,24 +1745,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             }
         }
         return null;
-    }
-
-    private void showSnackbar(Snackbar bar) {
-        // TODO: UX asks for the Snackbar to be shown above the external axis...
-        // may need to do a custom snackbar class.
-        bar.setCallback(new Snackbar.Callback() {
-
-            @Override
-            public void onDismissed(Snackbar snackbar, int event) {
-                mVisibleSnackbar = null;
-            }
-
-            @Override
-            public void onShown(Snackbar snackbar) {
-            }
-        });
-        bar.show();
-        mVisibleSnackbar = bar;
     }
 
 }

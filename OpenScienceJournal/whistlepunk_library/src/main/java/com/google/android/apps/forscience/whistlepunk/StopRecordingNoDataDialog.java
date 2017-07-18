@@ -31,8 +31,6 @@ public class StopRecordingNoDataDialog extends DialogFragment {
 
     public interface StopRecordingDialogListener {
         public void requestCancelRecording();
-
-        public void continueRecording();
     }
 
     public static StopRecordingNoDataDialog newInstance(String text) {
@@ -57,12 +55,8 @@ public class StopRecordingNoDataDialog extends DialogFragment {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
         alertDialog.setTitle(getResources().getString(R.string.recording_stop_failed_no_data_title));
         alertDialog.setMessage(text);
-        alertDialog.setNegativeButton(R.string.recording_stop_failed_continue,
-                new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                ((StopRecordingDialogListener) getParentFragment()).continueRecording();
-            }
+        alertDialog.setNegativeButton(R.string.recording_stop_failed_continue, (dialog, which) -> {
+            // do nothing, we'll continue recording
         });
         alertDialog.setPositiveButton(R.string.recording_stop_failed_cancel,
                 new DialogInterface.OnClickListener() {
@@ -74,11 +68,5 @@ public class StopRecordingNoDataDialog extends DialogFragment {
 
         alertDialog.setCancelable(true);
         return alertDialog.create();
-    }
-
-    @Override
-    public void onCancel(DialogInterface dialog) {
-        super.onCancel(dialog);
-        ((StopRecordingDialogListener) getParentFragment()).continueRecording();
     }
 }

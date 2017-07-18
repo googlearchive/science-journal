@@ -442,11 +442,6 @@ public class MainActivity extends AppCompatActivity
                 return Observable.empty();
             }
 
-            @Override
-            public void onRecordStopRequested() {
-                // do nothing
-            }
-
             private void updateToolbarColors(int toolbarColorResource, int statusBarColorResource) {
                 Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
