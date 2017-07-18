@@ -15,6 +15,4 @@
   limitations under the License.
  -->
 <resources>
-    <dimen name="project_list_padding_sides">72dp</dimen>
-    <dimen name="project_list_padding_top">40dp</dimen>
 </resources>

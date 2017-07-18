@@ -86,18 +86,6 @@
         <item name="tabMinWidth">@dimen/sensor_tab_width</item>
     </style>
 
-    <!-- Buttons -->
-    <style name="ExperimentButton" parent="@style/Widget.AppCompat.Button.Colored">
-    </style>
-
-    <style name="ExperimentButton.EditInfo">
-        <item name="colorButtonNormal">@color/color_accent</item>
-    </style>
-
-    <style name="ExperimentButton.RecordPrompt">
-        <item name="colorButtonNormal">@color/color_accent</item>
-    </style>
-
     <!-- Age verifier -->
     <style name="AppTheme.AgeVerifier" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimaryDark">@color/color_accent_dark</item>
