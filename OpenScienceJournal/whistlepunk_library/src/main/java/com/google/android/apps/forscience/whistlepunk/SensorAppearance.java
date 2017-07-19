@@ -19,9 +19,11 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 
 import java.text.NumberFormat;
+
+import io.reactivex.Single;
 
 /**
  * How a sensor appears in the app
@@ -80,5 +82,21 @@ public interface SensorAppearance {
 
     boolean hasLearnMore();
 
-    void loadLearnMore(Context context, Consumer<LearnMoreContents> onLoad);
+    Single<LearnMoreContents> loadLearnMore(Context context);
+
+    /**
+     * @return the tab-sized icon path proto to store for runs, snapshots, and trigger notes
+     * containing this sensor.
+     *
+     * See icon_path.proto for the semantics of the returned proto.
+     */
+    GoosciIcon.IconPath getSmallIconPath();
+
+    /**
+     * @return the large detail-view icon path proto to store for runs, snapshots, and trigger
+     * notes containing this sensor.
+     *
+     * See icon_path.proto for the semantics of the returned proto.
+     */
+    GoosciIcon.IconPath getLargeIconPath();
 }

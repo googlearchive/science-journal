@@ -36,6 +36,6 @@ public class FakeAppearanceProvider implements SensorAppearanceProvider {
 
     @Override
     public SensorAppearance getAppearance(String sensorId) {
-        return new BuiltInSensorAppearance(mNameStringId, 0);
+        return new BuiltInSensorAppearance(mNameStringId, 0, "sensorId");
     }
 }

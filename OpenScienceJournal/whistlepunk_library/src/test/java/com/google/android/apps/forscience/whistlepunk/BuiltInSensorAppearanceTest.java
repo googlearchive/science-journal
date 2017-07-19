@@ -19,6 +19,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -33,6 +35,7 @@ public class BuiltInSensorAppearanceTest {
         int firstParagraphStringId = Arbitrary.integer();
         int secondParagraphStringId = Arbitrary.integer();
         int infoDrawableId = Arbitrary.integer();
+        String sensorId = Arbitrary.string();
 
         SensorAnimationBehavior behavior = SensorAnimationBehavior.createDefault();
 
@@ -41,7 +44,7 @@ public class BuiltInSensorAppearanceTest {
                 BuiltInSensorAppearance.create(nameStringId, drawableId, unitsStringId,
                         shortDescriptionId,
                         firstParagraphStringId, secondParagraphStringId, infoDrawableId, behavior,
-                        pointsAfterDecimalInNumberFormat);
+                        pointsAfterDecimalInNumberFormat, sensorId);
 
         Context context = new StubContext() {
             @Override
@@ -57,6 +60,12 @@ public class BuiltInSensorAppearanceTest {
         };
 
         assertEquals(nameStringId, (int) Integer.valueOf(appearance.getName(context)));
+        assertEquals(firstParagraphStringId, (int) Integer.valueOf(
+                appearance.loadLearnMore(context).test().values().get(0).getFirstParagraph()));
+        assertEquals(GoosciIcon.IconPath.BUILTIN, appearance.getSmallIconPath().type);
+        assertEquals(sensorId, appearance.getSmallIconPath().pathString);
+        assertEquals(GoosciIcon.IconPath.BUILTIN, appearance.getLargeIconPath().type);
+        assertEquals(sensorId, appearance.getLargeIconPath().pathString);
         // TODO(saff): test all the other fields as well
     }
 

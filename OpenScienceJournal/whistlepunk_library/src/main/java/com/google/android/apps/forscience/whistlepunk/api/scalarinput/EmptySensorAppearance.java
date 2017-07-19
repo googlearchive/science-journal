@@ -23,8 +23,11 @@ import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 
 import java.text.NumberFormat;
+
+import io.reactivex.Single;
 
 /**
  * Provides sensible "blank" values for all methods of {@link SensorAppearance}.
@@ -62,8 +65,18 @@ public class EmptySensorAppearance implements SensorAppearance {
     }
 
     @Override
-    public void loadLearnMore(Context context, Consumer<LearnMoreContents> onLoad) {
-        throw new UnsupportedOperationException("I told you I don't have learnMore");
+    public Single<LearnMoreContents> loadLearnMore(Context context) {
+        return Single.error(new UnsupportedOperationException("I told you I don't have learnMore"));
+    }
+
+    @Override
+    public GoosciIcon.IconPath getSmallIconPath() {
+        return null;
+    }
+
+    @Override
+    public GoosciIcon.IconPath getLargeIconPath() {
+        return null;
     }
 
     @Override

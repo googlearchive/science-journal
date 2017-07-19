@@ -25,7 +25,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 
 /**
@@ -84,21 +83,18 @@ public class SensorInfoActivity extends AppCompatActivity {
         if (!appearance.hasLearnMore()) {
             imageView.setVisibility(View.GONE);
         } else {
-            appearance.loadLearnMore(this, new Consumer<SensorAppearance.LearnMoreContents>() {
-                @Override
-                public void take(SensorAppearance.LearnMoreContents contents) {
-                    firstParagraph.setText(contents.getFirstParagraph());
-                    secondParagraph.setText(contents.getSecondParagraph());
-                    Drawable drawable = contents.getDrawable();
-                    if (drawable != null) {
-                        ViewGroup.LayoutParams params = imageView.getLayoutParams();
-                        params.width = drawable.getIntrinsicWidth();
-                        params.height = drawable.getIntrinsicHeight();
-                        imageView.setLayoutParams(params);
-                        imageView.setImageDrawable(drawable);
-                    } else {
-                        imageView.setVisibility(View.GONE);
-                    }
+            appearance.loadLearnMore(this).subscribe(contents -> {
+                firstParagraph.setText(contents.getFirstParagraph());
+                secondParagraph.setText(contents.getSecondParagraph());
+                Drawable drawable = contents.getDrawable();
+                if (drawable != null) {
+                    ViewGroup.LayoutParams params = imageView.getLayoutParams();
+                    params.width = drawable.getIntrinsicWidth();
+                    params.height = drawable.getIntrinsicHeight();
+                    imageView.setLayoutParams(params);
+                    imageView.setImageDrawable(drawable);
+                } else {
+                    imageView.setVisibility(View.GONE);
                 }
             });
         }
