@@ -17,7 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.Delay;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -178,7 +180,7 @@ public class RecorderControllerTest {
 
         Maybe<String> snapshot =
                 rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId),
-                        s -> "sensor");
+                        s -> makeSensorProto("sensor"));
         mSensor.pushValue(10, 50);
         assertEquals("[sensor has value 50.0]",
                 snapshot.test().assertNoErrors().values().toString());
@@ -196,7 +198,8 @@ public class RecorderControllerTest {
                 new RecordingStatusListener(), null, mSensorRegistry);
 
         Single<GoosciSnapshotValue.SnapshotLabelValue> snapshot =
-                rc.generateSnapshotLabelValue(Lists.<String>newArrayList(mSensorId), s -> "sensor");
+                rc.generateSnapshotLabelValue(Lists.<String>newArrayList(mSensorId),
+                        s -> makeSensorProto("sensor"));
         mSensor.pushValue(10, 50);
 
         GoosciSnapshotValue.SnapshotLabelValue value =
@@ -247,7 +250,7 @@ public class RecorderControllerTest {
                 ImmutableMap.of(mSensorId, "A1", s2.getId(), "B2", s3.getId(), "C3");
         Maybe<String> snapshot =
                 rc.generateSnapshotText(Lists.newArrayList(mSensorId, s2.getId(), s3.getId()),
-                        s -> names.get(s));
+                        s -> makeSensorProto(names.get(s)));
         // Some may publish later
         mSensor.pushValue(11, 51);
         assertEquals("[A1 has value 51.0, B2 has value 52.0, C3 has value 53.0]",
@@ -274,11 +277,18 @@ public class RecorderControllerTest {
                 new RecordingStatusListener(), null, mSensorRegistry);
 
         Maybe<String> snapshot = rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId),
-                s -> "sensor");
+                s -> makeSensorProto("sensor"));
         snapshot.test().assertNotComplete();
         mSensor.pushValue(20, 60);
         assertEquals("[sensor has value 60.0]",
                 snapshot.test().assertNoErrors().values().toString());
+    }
+
+    public static GoosciSensorSpec.SensorSpec makeSensorProto(String name) {
+        GoosciSensorSpec.SensorSpec spec = new GoosciSensorSpec.SensorSpec();
+        spec.rememberedAppearance = new GoosciSensorAppearance.BasicSensorAppearance();
+        spec.rememberedAppearance.name = name;
+        return spec;
     }
 
     private class TestTrigger extends SensorTrigger {

@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Intent;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
@@ -33,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Completable;
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
@@ -84,19 +84,13 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public Maybe<String> generateSnapshotText(List<String> sensorIds,
-            Function<String, String> idToName) {
-        return Maybe.empty();
-    }
-
-    @Override
     public void reboot(String sensorId) {
 
     }
 
     @Override
-    public Single<GoosciSnapshotValue.SnapshotLabelValue> generateSnapshotLabelValue(List<String> sensorIds,
-            Function<String, String> idToName) {
+    public Single<GoosciSnapshotValue.SnapshotLabelValue> generateSnapshotLabelValue(
+            List<String> sensorIds, Function<String, GoosciSensorSpec.SensorSpec> idToName) {
         return null;
     }
 

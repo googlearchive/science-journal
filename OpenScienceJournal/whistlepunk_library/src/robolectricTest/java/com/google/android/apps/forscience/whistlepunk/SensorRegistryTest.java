@@ -16,13 +16,16 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
+import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -90,8 +93,7 @@ public class SensorRegistryTest {
         List<ConnectableSensor> sensors = new ArrayList<>();
         String bleSensorId = "bleSensor1";
 
-        HashMap<String, SensorProvider> providers = new HashMap<>();
-        providers.put(BleSensorSpec.TYPE, bleProvider());
+        HashMap<String, SensorProvider> providers = bleProviderMap();
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providers);
 
         sensors.add(connector.connected(new BleSensorSpec("address", "name").asGoosciSpec(),
@@ -107,8 +109,7 @@ public class SensorRegistryTest {
     public void testLoggingId() {
         SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
 
-        HashMap<String, SensorProvider> providers = new HashMap<>();
-        providers.put(BleSensorSpec.TYPE, bleProvider());
+        HashMap<String, SensorProvider> providers = bleProviderMap();
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providers);
 
         List<ConnectableSensor> sensors = new ArrayList<>();
@@ -151,8 +152,7 @@ public class SensorRegistryTest {
         SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
 
         List<ConnectableSensor> sensors = new ArrayList<>();
-        HashMap<String, SensorProvider> providers = new HashMap<>();
-        providers.put(BleSensorSpec.TYPE, bleProvider());
+        HashMap<String, SensorProvider> providers = bleProviderMap();
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providers);
 
         sensors.add(connector.connected(new BleSensorSpec("aa:bb:cc:aa", "name4").asGoosciSpec(),
@@ -171,6 +171,48 @@ public class SensorRegistryTest {
         assertTrue(allSources.indexOf("id3") < allSources.indexOf("id2"));
         assertTrue(allSources.indexOf("id2") < allSources.indexOf("id1"));
 
+    }
+
+    @Test public void roundtripThroughSpecProto() {
+        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
+
+        List<ConnectableSensor> sensors = new ArrayList<>();
+        HashMap<String, SensorProvider> providers = bleProviderMap();
+        ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providers);
+
+        BleSensorSpec bleSpec = new BleSensorSpec("aa:bb:cc:aa", "name4");
+        String id = "id4";
+        sensors.add(connector.connected(bleSpec.asGoosciSpec(), id));
+        reg.updateExternalSensors(sensors, providers);
+
+        GoosciSensorSpec.SensorSpec specProto =
+                reg.getSpecForId(id, buildAppearanceProvider(), context);
+        assertEquals(bleSpec.getAddress(), specProto.info.address);
+
+        ExternalSensorSpec afterRoundTrip = ExternalSensorSpec.fromGoosciSpec(specProto, providers);
+
+        assertEquals(bleSpec.toString(), afterRoundTrip.toString());
+    }
+
+    @NonNull
+    private HashMap<String, SensorProvider> bleProviderMap() {
+        HashMap<String, SensorProvider> providers = new HashMap<>();
+        providers.put(BleSensorSpec.TYPE, bleProvider());
+        return providers;
+    }
+
+    @Test public void addressForBuiltIn() {
+        SensorRegistry reg = SensorRegistry.createWithBuiltinSensors(context);
+
+        GoosciSensorSpec.SensorSpec spec =
+                reg.getSpecForId(DecibelSensor.ID, buildAppearanceProvider(), context);
+        assertEquals(SensorRegistry.WP_HARDWARE_PROVIDER_ID, spec.info.providerId);
+        assertEquals(DecibelSensor.ID, spec.info.address);
+    }
+
+    @NonNull
+    private FakeAppearanceProvider buildAppearanceProvider() {
+        return new FakeAppearanceProvider(android.R.string.ok);
     }
 
     private SensorProvider bleProvider() {

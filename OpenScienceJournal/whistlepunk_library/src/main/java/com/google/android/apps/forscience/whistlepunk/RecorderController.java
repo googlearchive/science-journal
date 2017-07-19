@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.support.annotation.IntDef;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -34,7 +35,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 import io.reactivex.Completable;
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
@@ -124,23 +124,13 @@ public interface RecorderController {
     Completable stopRecording(final SensorRegistry sensorRegistry);
 
     /**
-     * @return a maybe of a string that will contain (a) for any sensor that has already had an
-     * observed value, the most recent value, and (b) for any sensor that has not yet had an
-     * observed value, the first value observed.
-     *
-     * @deprecated we should be using #generateSnapshot to create snapshot protos for labels
-     */
-    @Deprecated
-    Maybe<String> generateSnapshotText(List<String> sensorIds, Function<String, String> idToName);
-
-    /**
      * @param sensorIds the ids of sensors in the snapshot
      * @param idToName  a function from sensorId to name that should be used in the sensor
      *                  appearance.
      * @return a Single that will eventually emit a snapshot proto to be stored in a label.
      */
     Single<GoosciSnapshotValue.SnapshotLabelValue> generateSnapshotLabelValue(
-            List<String> sensorIds, Function<String, String> idToName);
+            List<String> sensorIds, Function<String, GoosciSensorSpec.SensorSpec> idToName);
 
     /**
      * Retry connecting to the given sensor, which is currently in an error state.

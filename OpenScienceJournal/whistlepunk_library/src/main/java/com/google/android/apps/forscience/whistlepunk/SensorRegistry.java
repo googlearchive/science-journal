@@ -23,6 +23,9 @@ import android.support.v4.util.ArraySet;
 import android.util.Pair;
 
 import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
@@ -62,7 +65,8 @@ import java.util.Set;
  */
 // TODO: Move more functionality into SensorCardPresenter.
 public class SensorRegistry {
-    protected static final String WP_HARDWARE_PROVIDER_ID =
+    @VisibleForTesting
+    public static final String WP_HARDWARE_PROVIDER_ID =
             "com.google.android.apps.forscience.whistlepunk.hardware";
 
     private static final String TAG = "SensorRegistry";
@@ -70,10 +74,13 @@ public class SensorRegistry {
     private static class SensorRegistryItem {
         public String providerId;
         public String loggingId;
+        public ExternalSensorSpec externalSpec;
         public SensorChoice choice;
 
-        public SensorRegistryItem(String providerId, SensorChoice choice, String loggingId) {
+        public SensorRegistryItem(String providerId, ExternalSensorSpec externalSpec,
+                SensorChoice choice, String loggingId) {
             this.providerId = providerId;
+            this.externalSpec = externalSpec;
             this.choice = Preconditions.checkNotNull(choice);
             this.loggingId = loggingId;
         }
@@ -247,7 +254,8 @@ public class SensorRegistry {
     }
 
     protected void addBuiltInSensor(SensorChoice source) {
-        addSource(new SensorRegistryItem(WP_HARDWARE_PROVIDER_ID, source, source.getId()));
+        String id = source.getId();
+        addSource(new SensorRegistryItem(WP_HARDWARE_PROVIDER_ID, null, source, id));
     }
 
     @NonNull
@@ -267,7 +275,7 @@ public class SensorRegistry {
                     String type = sensor.getType();
                     SensorProvider provider = externalProviders.get(type);
                     if (provider != null) {
-                        addSource(new SensorRegistryItem(type,
+                        addSource(new SensorRegistryItem(type, sensor,
                                 provider.buildSensor(externalSensorId, sensor),
                                 sensor.getLoggingId()));
                         sensorsActuallyAdded.add(externalSensorId);
@@ -313,5 +321,36 @@ public class SensorRegistry {
     public void setExcludedIds(Set<String> excludedSensorIds) {
         mExcludedIds.clear();
         mExcludedIds.addAll(excludedSensorIds);
+    }
+
+    public GoosciSensorSpec.SensorSpec getSpecForId(String sensorId,
+            SensorAppearanceProvider appearanceProvider, Context context) {
+        GoosciSensorAppearance.BasicSensorAppearance appearance =
+                SensorAppearanceProviderImpl.toProto(
+                        appearanceProvider.getAppearance(sensorId), context);
+        SensorRegistryItem item = mSensorRegistry.get(sensorId);
+        GoosciSensorSpec.SensorSpec spec = new GoosciSensorSpec.SensorSpec();
+
+        // TODO: fill in rest of proto (hostId, hostDescription)
+        spec.rememberedAppearance = appearance;
+        spec.info = new GoosciGadgetInfo.GadgetInfo();
+        spec.info.providerId = item.providerId;
+
+        spec.info.address = getAddress(item);
+
+        if (item.externalSpec != null) {
+            spec.config = item.externalSpec.getConfig();
+        }
+
+        return spec;
+    }
+
+    private String getAddress(SensorRegistryItem item) {
+        if (item.externalSpec != null) {
+            return item.externalSpec.getAddress();
+        } else {
+            // For internal sensors, the id is the only address we need.
+            return item.choice.getId();
+        }
     }
 }

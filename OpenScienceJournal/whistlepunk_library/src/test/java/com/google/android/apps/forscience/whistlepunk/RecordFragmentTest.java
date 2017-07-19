@@ -68,9 +68,8 @@ public class RecordFragmentTest {
         layout.sensorId = "id";
         exp.getSensorLayouts().add(layout);
 
-        TestObserver<Label> test =
-                RecordFragment.addSnapshotLabelToHolder(exp, exp, rc, dc, sensorId -> sensorId)
-                              .test();
+        TestObserver<Label> test = RecordFragment.addSnapshotLabelToHolder(exp, exp, rc, dc,
+                sensorId -> RecorderControllerTest.makeSensorProto(sensorId)).test();
         assertTrue(test.await(2, TimeUnit.SECONDS));
         test.assertComplete();
 

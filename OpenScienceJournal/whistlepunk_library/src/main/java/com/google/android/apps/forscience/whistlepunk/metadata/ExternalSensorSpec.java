@@ -196,10 +196,11 @@ public abstract class ExternalSensorSpec {
         if (spec == null) {
             return null;
         }
-        SensorProvider sensorProvider = providerMap.get(spec.info.providerId);
+        GoosciGadgetInfo.GadgetInfo info = Preconditions.checkNotNull(spec.info);
+        SensorProvider sensorProvider = providerMap.get(info.providerId);
         if (sensorProvider == null) {
             throw new IllegalArgumentException("No provider for sensor type: "
-                                               + spec.info.providerId
+                                               + info.providerId
                                                + ". Options: "
                                                + providerMap.keySet());
         }

@@ -53,6 +53,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesActivity;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
@@ -1316,25 +1317,22 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
         // When experiment is loaded, add label
         return experimentMaybe.flatMapSingle(e ->  {
-            if (status.isRecording()) {
-                return addSnapshotLabelToHolder(e, e.getTrial(status.getCurrentRunId()), rc,
-                        getDataController(), this::getNameForId);
-            } else {
-                return addSnapshotLabelToHolder(e, e, rc, getDataController(), this::getNameForId);
-            }
+            LabelListHolder holder =
+                    status.isRecording() ? e.getTrial(status.getCurrentRunId()) : e;
+            return addSnapshotLabelToHolder(e, holder, rc, getDataController(), this::getSpecForId);
         });
     }
 
-    private String getNameForId(String sensorId) {
-        return getSensorAppearanceProvider().getAppearance(sensorId).getName(getActivity());
+    private GoosciSensorSpec.SensorSpec getSpecForId(String id) {
+        return mSensorRegistry.getSpecForId(id, getSensorAppearanceProvider(), getActivity());
     }
 
     @VisibleForTesting
     public static Single<Label> addSnapshotLabelToHolder(final Experiment selectedExperiment,
             final LabelListHolder labelListHolder, final RecorderController rc,
-            final DataController dc, Function<String, String> idToName) {
+            final DataController dc, Function<String, GoosciSensorSpec.SensorSpec> idToSpec) {
         // get text
-        return rc.generateSnapshotLabelValue(selectedExperiment.getSensorIds(), idToName)
+        return rc.generateSnapshotLabelValue(selectedExperiment.getSensorIds(), idToSpec)
 
                 // Make it into a label
                 .map(snapshotValue ->
