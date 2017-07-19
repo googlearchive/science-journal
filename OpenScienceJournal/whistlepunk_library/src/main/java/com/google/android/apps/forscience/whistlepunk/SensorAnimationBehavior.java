@@ -66,8 +66,6 @@ public class SensorAnimationBehavior {
 
     public void updateImageView(ImageView view, double newValue, double yMin, double yMax) {
         if (mBehaviorType == TYPE_ROTATION) {
-            int screenOrientation = ((WindowManager) view.getContext().getSystemService(
-                    Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
             float delta = getScreenRotationDelta(view.getContext());
             view.setRotation((float) (-1.0 * (newValue + delta)));
             view.setImageLevel(0);

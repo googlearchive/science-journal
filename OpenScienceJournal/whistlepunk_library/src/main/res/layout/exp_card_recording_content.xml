@@ -34,16 +34,14 @@
         android:gravity="center_vertical"
         />
 
-    <!-- TODO: Replace with custom throbber view -->
-    <TextView
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+    <com.google.android.apps.forscience.whistlepunk.project.experiment.RecordingThrobberView
+        android:layout_width="64dp"
+        android:layout_height="56dp"
+        android:layout_margin="8dp"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/title"
         android:id="@+id/throbber"
-        android:background="@color/recording_axis_overlay_color"
-        android:contentDescription="@null"
-        android:text="TODO!"
+        android:contentDescription="@string/throbber_content_description"
         />
 
     <LinearLayout
