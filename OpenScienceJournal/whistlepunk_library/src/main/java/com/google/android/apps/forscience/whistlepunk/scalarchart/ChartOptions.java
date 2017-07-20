@@ -419,7 +419,8 @@ public class ChartOptions {
     //   - We are not recording
     public static boolean isDisplayable(Label label, long recordingStartTime,
             ChartPlacementType chartPlacementType) {
-        if (chartPlacementType == ChartPlacementType.TYPE_RUN_REVIEW) {
+        if (chartPlacementType == ChartPlacementType.TYPE_RUN_REVIEW ||
+                chartPlacementType == ChartPlacementType.TYPE_PREVIEW_REVIEW) {
             return true;
         }
         return recordingStartTime != RecordingMetadata.NOT_RECORDING &&
