@@ -58,7 +58,6 @@ import java.util.UUID;
 
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.subjects.SingleSubject;
 
 /**
  * Dialog for adding new notes.
@@ -129,7 +128,7 @@ public class AddNoteDialog extends DialogFragment {
     private int mHintTextId = R.string.add_run_note_placeholder_text;
     private String mPictureLabelPath;
     private EditText mInput;
-    private SingleSubject<String> mWhenExperimentId = SingleSubject.create();
+    private String mExperimentId;
 
     CompositeDisposable mUntilDestroyed = new CompositeDisposable();
 
@@ -151,14 +150,6 @@ public class AddNoteDialog extends DialogFragment {
     public static AddNoteDialog createWithDynamicTimestamp(String currentRunId, String experimentId,
             int hintTextId) {
         return AddNoteDialog.newInstance(-1, currentRunId, experimentId, hintTextId, false);
-    }
-
-    /**
-     * Create an AddNoteDialog that will wait to be told what the current experiment is
-     */
-    public static AddNoteDialog createWithNoExperimentYet(int hintTextId) {
-        return createWithDynamicTimestamp(RecorderController.NOT_RECORDING_RUN_ID, null,
-                hintTextId);
     }
 
     /**
@@ -304,10 +295,9 @@ public class AddNoteDialog extends DialogFragment {
             mHintTextId = getArguments().getInt(KEY_HINT_TEXT_ID, mHintTextId);
             mLabelTimeText = getArguments().getString(KEY_LABEL_TIME_TEXT, "");
             mTrialId = getArguments().getString(KEY_SAVED_RUN_ID);
-            String experimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
+            mExperimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
 
             Context context = inflater.getContext();
-            whenExperimentId(experimentId, getListener(context)).subscribe(mWhenExperimentId);
 
             mUntilDestroyed.add(whenExperiment(context).subscribe(
                     exp -> updatePositiveButtonEnabled((AlertDialog) getDialog(), true)));
@@ -402,8 +392,8 @@ public class AddNoteDialog extends DialogFragment {
 
         setViewVisibilities(takePictureBtn, imageView, !hasPicture());
         if (mPictureLabelPath != null) {
-            mWhenExperimentId.subscribe(id -> PictureUtils.loadExperimentImage(getActivity(),
-                                     imageView, id, mPictureLabelPath));
+            PictureUtils.loadExperimentImage(getActivity(), imageView, mExperimentId,
+                    mPictureLabelPath);
         }
 
         takePictureBtn.setOnClickListener(v -> {
@@ -421,11 +411,8 @@ public class AddNoteDialog extends DialogFragment {
                 if (grantedStorage) {
                     // TODO: Error states if these are not granted (b/24303452)
                     mUuid = UUID.randomUUID().toString();
-
-                    mWhenExperimentId.subscribe(id -> {
-                        mPictureLabelPath =
-                                PictureUtils.capturePictureLabel(getActivity(), id, mUuid);
-                    });
+                    mPictureLabelPath =
+                            PictureUtils.capturePictureLabel(getActivity(), mExperimentId, mUuid);
                 }
             }
         });
@@ -562,9 +549,8 @@ public class AddNoteDialog extends DialogFragment {
             Dialog dialog = getDialog();
             ImageView imageView = (ImageView) dialog.findViewById(R.id.picture_note_preview_image);
             if (resultCode == Activity.RESULT_OK) {
-                mWhenExperimentId.subscribe(
-                        id -> PictureUtils.loadExperimentImage(getActivity(), imageView, id,
-                                mPictureLabelPath));
+                PictureUtils.loadExperimentImage(getActivity(), imageView, mExperimentId,
+                        mPictureLabelPath);
             } else {
                 mPictureLabelPath = null;
             }
@@ -602,8 +588,7 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     private Single<Experiment> whenExperiment(Context context) {
-        return mWhenExperimentId.flatMap(
-                id -> RxDataController.getExperimentById(getDataController(context), id))
-                                .doOnError(LoggingConsumer.complain(TAG, "get experiment"));
+        return RxDataController.getExperimentById(getDataController(context), mExperimentId)
+                               .doOnError(LoggingConsumer.complain(TAG, "get experiment"));
     }
 }
