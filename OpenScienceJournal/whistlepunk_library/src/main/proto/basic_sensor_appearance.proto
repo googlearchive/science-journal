@@ -22,6 +22,8 @@ option java_outer_classname = "GoosciSensorAppearance";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
+import "icon_path.proto";
+
 message BasicSensorAppearance {
     // An experiment may be recorded in one locale and displayed in another locale.
     // We will not attempt to store all possible translations of a sensor’s name just in case
@@ -37,7 +39,7 @@ message BasicSensorAppearance {
     optional string units = 3;
 
     // Asset path to the small icon (for tab display)
-    optional string icon_path = 4;
+    optional IconPath icon_path = 4;
 
     // Short description that is shown on meter-mode card
     optional string short_description = 5;
@@ -46,5 +48,5 @@ message BasicSensorAppearance {
     optional int32 pointsAfterDecimal = 6 [default = -1];
 
     // Asset path to the large icon (for display in snapshots)
-    optional string large_icon_path = 7;
+    optional IconPath large_icon_path = 7;
 };

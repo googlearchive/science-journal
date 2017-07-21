@@ -19,11 +19,14 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-import com.google.android.apps.forscience.javalib.Consumer;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
+
+import io.reactivex.Single;
 
 public class BuiltInSensorAppearance implements SensorAppearance {
     public static final int DEFAULT_POINTS_AFTER_DECIMAL = -1;
@@ -53,6 +56,7 @@ public class BuiltInSensorAppearance implements SensorAppearance {
      * The number format to use for this sensor everywhere but the graph Y axis.
      */
     private NumberFormat mNumberFormat;
+    private final String mBuiltInSensorId;
 
     /**
      * The ID of the string that has a short description of this sensor.
@@ -72,30 +76,35 @@ public class BuiltInSensorAppearance implements SensorAppearance {
     private int mSecondParagraphStringId;
     private int mLearnMoreDrawableId;
 
+    /**
+     * @param builtInSensorId string id of built-in sensor.  This should be the same as the result
+     *                        of {@link SensorChoice#getId()}
+     */
     public static BuiltInSensorAppearance create(int nameStringId, int drawableId,
             int unitsStringId,
             int shortDescriptionId, int firstParagraphStringId, int secondParagraphStringId,
             int infoDrawableId, SensorAnimationBehavior sensorAnimationBehavior,
-            int pointsAfterDecimalInNumberFormat) {
+            int pointsAfterDecimalInNumberFormat, String builtInSensorId) {
         return new BuiltInSensorAppearance(nameStringId, drawableId, unitsStringId,
                 shortDescriptionId, firstParagraphStringId, secondParagraphStringId, infoDrawableId,
-                sensorAnimationBehavior, pointsAfterDecimalInNumberFormat);
+                sensorAnimationBehavior, pointsAfterDecimalInNumberFormat, builtInSensorId);
     }
 
-    public BuiltInSensorAppearance(int nameStringId, int drawableId) {
-        this(nameStringId, drawableId, 0, SensorAnimationBehavior.createDefault());
+    public BuiltInSensorAppearance(int nameStringId, int drawableId,
+            String builtInSensorId) {
+        this(nameStringId, drawableId, 0, SensorAnimationBehavior.createDefault(), builtInSensorId);
     }
 
     public BuiltInSensorAppearance(int nameStringId, int drawableId, int shortDescriptionId,
-            SensorAnimationBehavior sensorAnimationBehavior) {
+            SensorAnimationBehavior sensorAnimationBehavior, String builtInSensorId) {
         this(nameStringId, drawableId, 0, shortDescriptionId, 0, 0, 0, sensorAnimationBehavior,
-                DEFAULT_POINTS_AFTER_DECIMAL);
+                DEFAULT_POINTS_AFTER_DECIMAL, builtInSensorId);
     }
 
     BuiltInSensorAppearance(int nameStringId, int drawableId, int unitsStringId,
             int shortDescriptionId, int firstParagraphStringId, int secondParagraphStringId,
             int infoDrawableId, SensorAnimationBehavior sensorAnimationBehavior,
-            int pointsAfterDecimalInNumberFormat) {
+            int pointsAfterDecimalInNumberFormat, String builtInSensorId) {
         mNameStringId = nameStringId;
         mDrawableId = drawableId;
         mUnitsStringId = unitsStringId;
@@ -105,6 +114,7 @@ public class BuiltInSensorAppearance implements SensorAppearance {
         mLearnMoreDrawableId = infoDrawableId;
         mSensorAnimationBehavior = sensorAnimationBehavior;
         mNumberFormat = createNumberFormat(pointsAfterDecimalInNumberFormat);
+        mBuiltInSensorId = builtInSensorId;
     }
 
     @Override
@@ -133,8 +143,8 @@ public class BuiltInSensorAppearance implements SensorAppearance {
     }
 
     @Override
-    public void loadLearnMore(final Context context, Consumer<LearnMoreContents> onLoad) {
-        onLoad.take(new LearnMoreContents() {
+    public Single<LearnMoreContents> loadLearnMore(final Context context) {
+        return Single.just(new LearnMoreContents() {
             @Override
             public String getFirstParagraph() {
                 return getString(context, mFirstParagraphStringId);
@@ -153,6 +163,22 @@ public class BuiltInSensorAppearance implements SensorAppearance {
                 return getString(context, mSecondParagraphStringId);
             }
         });
+    }
+
+    @Override
+    public GoosciIcon.IconPath getSmallIconPath() {
+        GoosciIcon.IconPath path = new GoosciIcon.IconPath();
+        path.type = GoosciIcon.IconPath.BUILTIN;
+        path.pathString = mBuiltInSensorId;
+        return path;
+    }
+
+    @Override
+    public GoosciIcon.IconPath getLargeIconPath() {
+        GoosciIcon.IconPath path = new GoosciIcon.IconPath();
+        path.type = GoosciIcon.IconPath.BUILTIN;
+        path.pathString = mBuiltInSensorId;
+        return path;
     }
 
     @Override

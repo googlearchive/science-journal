@@ -30,9 +30,10 @@ public class ExternalSensorAppearance extends BuiltInSensorAppearance {
             int shortDescriptionId, int firstParagraphStringId, int secondParagraphStringId,
             int infoDrawableId, SensorAnimationBehavior sensorAnimationBehavior,
             String deviceName) {
+        // TODO: handle icons for external sensors
         super(nameStringId, drawableId, unitsStringId, shortDescriptionId, firstParagraphStringId,
                 secondParagraphStringId, infoDrawableId, sensorAnimationBehavior,
-                BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL);
+                BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL, null);
         mDeviceName = deviceName;
     }
 
