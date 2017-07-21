@@ -23,6 +23,7 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 import "device_spec.proto";
+import "version.proto";
 
 /*
  * Represents metadata shared across the whole Science Journal app for one user.
@@ -32,28 +33,19 @@ message UserMetadata {
     // Experiment state that is per-user, such as whether the experiment is archived.
     repeated ExperimentOverview experiments = 1;
 
-    // The main version code of this proto. Devices may use this to understand what version of data
-    // they are working with, and to perform upgrades.
-    // A combination of the major and minor versions is used to understand what is available in this
-    // proto. Major version numbers represent large, non-backwards-compatable changes.
-    // See UserMetadataManager#upgradeUserMetadataVersionIfNeeded for more on versions.
-    // Version 1.1: Initial version
-    optional int32 version = 2 [default = 1];
+    // Deprecated, use fileVersion below
+    optional int32 version = 2 [default = 1, deprecated=true];
 
-    // The minor verion code of this proto. Devices may use this to understand what version of data
-    // they are working with, and to perform upgrades.
-    // A combination of the major and minor versions is used to understand what is available in this
-    // proto. Minor version numbers represent small, non-breaking changes. A device running an older
-    // version of Science Journal should be able to parse a proto with a newer minorVersion so long
-    // as the version is the same. However, that device should only *read* and not *write* older
-    // version protos because data would be lost in the write.
-    // See UserMetadataManager#upgradeUserMetadataVersionIfNeeded for more on versions.
-    // Version 1.1: Initial version
-    optional int32 minorVersion = 3 [default = 1];
+    // Deprecated, use fileVersion below
+    optional int32 minorVersion = 3 [default = 1, deprecated=true];
 
     // "My Devices" are added to when a user connects to an external sensor, and are shown in a
     // special section of the Manage Sensors screen.  See device_spec.proto for details.
     repeated DeviceSpec myDevices = 4;
+
+    // Identifies the intended format version of this file, and the app that wrote it.
+    // See version.proto for details.
+    optional FileVersion fileVersion = 5;
 }
 
 /*

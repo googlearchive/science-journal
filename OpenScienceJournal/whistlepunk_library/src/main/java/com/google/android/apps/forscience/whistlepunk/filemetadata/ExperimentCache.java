@@ -21,8 +21,10 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -44,6 +46,13 @@ class ExperimentCache {
     // The current minor version number we expect from experiments.
     // See upgradeExperimentVersionIfNeeded for the meaning of version numbers.
     protected static final int MINOR_VERSION = 1;
+
+    // The current platform version number for experiments we write.
+    // This is implementation-specific; it _shouldn't_ affect future readers of the data, but it
+    // will allow us to detect files written by buggy versions if needed.
+    //
+    // Increment this each time the file-writing logic changes.
+    protected static final int PLATFORM_VERSION = 1;
 
     // Write the experiment file no more than once per every WRITE_DELAY_MS.
     private static final long WRITE_DELAY_MS = 1000;
@@ -252,6 +261,14 @@ class ExperimentCache {
             // The timer is already running.
             return;
         }
+
+        // TODO: I think this can only be null during tests.  Can we rewrite the tests to remove
+        //       this possibility?
+        if (mActiveExperiment != null) {
+            // We're going to write a new file, so rev the platform version
+            setPlatformVersion(mActiveExperiment.getExperimentProto(), PLATFORM_VERSION);
+        }
+
         mActiveExperimentNeedsWrite = true;
         mHandler.postDelayed(mWriteRunnable, mWriteDelayMs);
     }
@@ -283,6 +300,7 @@ class ExperimentCache {
             // TODO: Or should this throw onWriteFailed?
             mFailureListener.onNewerVersionDetected(mActiveExperiment.getExperimentOverview());
         }
+
         File experimentFile = getExperimentFile(mActiveExperiment.getExperimentOverview());
         boolean success = mExperimentProtoFileHelper.writeToFile(experimentFile,
                 mActiveExperiment.getExperimentProto());
@@ -310,7 +328,8 @@ class ExperimentCache {
 
     private void upgradeExperimentVersionIfNeeded(GoosciExperiment.Experiment proto,
             GoosciUserMetadata.ExperimentOverview experimentOverview) {
-        upgradeExperimentVersionIfNeeded(proto, experimentOverview, VERSION, MINOR_VERSION);
+        upgradeExperimentVersionIfNeeded(proto, experimentOverview, VERSION, MINOR_VERSION,
+                PLATFORM_VERSION);
     }
 
     /**
@@ -318,56 +337,75 @@ class ExperimentCache {
      * @param proto The experiment to upgrade if necessary
      * @param newMajorVersion The major version to upgrade to, available for testing
      * @param newMinorVersion The minor version to upgrade to, available for testing
+     * @param newPlatformVersion The platform version to upgrade to, available for testing
      */
     @VisibleForTesting
     void upgradeExperimentVersionIfNeeded(GoosciExperiment.Experiment proto,
             GoosciUserMetadata.ExperimentOverview experimentOverview, int newMajorVersion,
-            int newMinorVersion) {
-        if (proto.version == newMajorVersion && proto.minorVersion == newMinorVersion) {
+            int newMinorVersion, int newPlatformVersion) {
+        Version.FileVersion fileVersion = proto.fileVersion;
+        if (fileVersion.version == newMajorVersion
+            && fileVersion.minorVersion == newMinorVersion
+            && fileVersion.platformVersion == newPlatformVersion) {
             // No upgrade needed, this is running the same version as us.
             return;
         }
-        if (proto.version > newMajorVersion) {
+        if (fileVersion.version > newMajorVersion) {
             // It is too new for us to read -- the major version is later than ours.
             mFailureListener.onNewerVersionDetected(experimentOverview);
             return;
         }
         // Try to upgrade the major version
-        if (proto.version == 0) {
+        if (fileVersion.version == 0) {
             // Do any work to increment the minor version.
 
-            if (proto.version < newMajorVersion) {
+            if (fileVersion.version < newMajorVersion) {
                 // Upgrade from 0 to 1, for example: Increment the major version and reset the minor
                 // version.
                 // Other work could be done here first like populating protos.
                 revMajorVersionTo(proto, 1);
             }
         }
-        if (proto.version == 1) {
+        if (fileVersion.version == 1) {
             // Minor version upgrades are done within the if statement
             // for their major version counterparts.
-            if (proto.minorVersion == 0 && proto.minorVersion < newMinorVersion) {
+            if (fileVersion.minorVersion == 0 && fileVersion.minorVersion < newMinorVersion) {
                 // Upgrade minor version from 0 to 1, within in major version 1, for example.
-                proto.minorVersion = 1;
+                fileVersion.minorVersion = 1;
             }
             // More minor version upgrades for major version 1 could be done here.
 
+            // Also, update any data from incomplete or buggy platformVersions here.
+            // See go/platform-version
+            // TODO: create open-sourceable version of this doc
+            if (fileVersion.platformVersion == 0
+                && fileVersion.platformVersion < newPlatformVersion) {
+                // Any further upgrades may do work in logic below
+                setPlatformVersion(proto, 1);
+            }
+
             // When we are ready for version 2.0, we would do work in the following if statement
             // and then call incrementMajorVersion.
-            if (proto.version < newMajorVersion) {
+            if (fileVersion.version < newMajorVersion) {
                 // Do any work to upgrade version, then increment the version when we are
                 // ready to go to 2.0 or above.
                 revMajorVersionTo(proto, 2);
 
             }
         }
+
         // We've made changes we need to save.
         startWriteTimer();
     }
 
     private void revMajorVersionTo(GoosciExperiment.Experiment proto, int majorVersion) {
-        proto.version = majorVersion;
-        proto.minorVersion = 0;
+        proto.fileVersion.version = majorVersion;
+        proto.fileVersion.minorVersion = 0;
+    }
+
+    private void setPlatformVersion(GoosciExperiment.Experiment proto, int platformVersion) {
+        proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.ANDROID;
+        proto.fileVersion.platformVersion = platformVersion;
     }
 
     private File getExperimentFile(GoosciUserMetadata.ExperimentOverview experimentOverview) {
