@@ -343,7 +343,16 @@ class ExperimentCache {
     void upgradeExperimentVersionIfNeeded(GoosciExperiment.Experiment proto,
             GoosciUserMetadata.ExperimentOverview experimentOverview, int newMajorVersion,
             int newMinorVersion, int newPlatformVersion) {
+
+        if (proto.fileVersion == null) {
+            proto.fileVersion = new Version.FileVersion();
+            proto.fileVersion.version = 0;
+            proto.fileVersion.minorVersion = 0;
+            proto.fileVersion.platformVersion = 0;
+        }
+
         Version.FileVersion fileVersion = proto.fileVersion;
+
         if (fileVersion.version == newMajorVersion
             && fileVersion.minorVersion == newMinorVersion
             && fileVersion.platformVersion == newPlatformVersion) {
