@@ -176,6 +176,19 @@ public class ExperimentCacheTest extends InstrumentationTestCase {
         assertTrue(cache.needsWrite());
     }
 
+    public void testUpgradeWhenVersionMissing() {
+        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
+                getFailureFailsListener(), 0);
+        GoosciExperiment.Experiment proto = createExperimentProto();
+        proto.fileVersion = null;
+        cache.upgradeExperimentVersionIfNeeded(proto, new GoosciUserMetadata.ExperimentOverview(),
+                1, 1, 1);
+        assertEquals(1, proto.fileVersion.version);
+        assertEquals(1, proto.fileVersion.minorVersion);
+        assertEquals(1, proto.fileVersion.platformVersion);
+        assertEquals(GoosciGadgetInfo.GadgetInfo.ANDROID, proto.fileVersion.platform);
+    }
+
     public void testNoUpgradeDoesNotStartWriteTimer() {
         ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
                 getFailureFailsListener(), 0);
