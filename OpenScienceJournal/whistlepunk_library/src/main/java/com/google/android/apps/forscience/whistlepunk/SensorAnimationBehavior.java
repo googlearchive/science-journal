@@ -26,8 +26,6 @@ import android.widget.ImageView;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Defines sensor animation behavior for sensor cards.
@@ -38,7 +36,8 @@ public class SensorAnimationBehavior {
     @IntDef({TYPE_STATIC_ICON, TYPE_ACCELEROMETER_SCALE, TYPE_RELATIVE_SCALE,
             TYPE_POSITIVE_RELATIVE_SCALE, TYPE_ROTATION, TYPE_ACCELEROMETER_SCALE_ROTATES})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface BehaviorType {}
+    public @interface BehaviorType {
+    }
 
     public static final int TYPE_STATIC_ICON = 1;
     public static final int TYPE_ACCELEROMETER_SCALE = 2;
@@ -49,7 +48,6 @@ public class SensorAnimationBehavior {
 
     private final int mBehaviorType;
     private int mLevelDrawableId;
-    private LevelListDrawable mLevelDrawable;
 
     public static SensorAnimationBehavior createDefault() {
         // TODO: Replace bluetooth_level_drawable with a default sensor icon from UX.
@@ -82,7 +80,7 @@ public class SensorAnimationBehavior {
         }
     }
 
-    public void resetImageView(ImageView view) {
+    private void resetImageView(ImageView view) {
         view.setImageLevel(0);
         view.setRotation(0.0f);
     }
@@ -92,7 +90,7 @@ public class SensorAnimationBehavior {
         if (mBehaviorType == TYPE_STATIC_ICON) {
             index = 0;
         } else if (mBehaviorType == TYPE_ACCELEROMETER_SCALE ||
-                mBehaviorType == TYPE_ACCELEROMETER_SCALE_ROTATES) {
+                   mBehaviorType == TYPE_ACCELEROMETER_SCALE_ROTATES) {
             if (newValue > 3.0) {
                 index = 4;
             } else if (newValue > 0.5) {
@@ -145,12 +143,15 @@ public class SensorAnimationBehavior {
         return delta;
     }
 
-    public Drawable getLevelDrawable(Context context) {
-        if (mLevelDrawable == null) {
-            mLevelDrawable = (LevelListDrawable)
-                    context.getResources().getDrawable(mLevelDrawableId);
-            mLevelDrawable.setLevel(0);
-        }
-        return mLevelDrawable;
+    private Drawable getLevelDrawable(Context context) {
+        LevelListDrawable drawable =
+                (LevelListDrawable) context.getResources().getDrawable(mLevelDrawableId);
+        drawable.setLevel(0);
+        return drawable;
+    }
+
+    void initializeLargeIcon(ImageView largeIcon) {
+        largeIcon.setImageDrawable(getLevelDrawable(largeIcon.getContext()));
+        resetImageView(largeIcon);
     }
 }

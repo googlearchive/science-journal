@@ -544,9 +544,7 @@ public class SensorCardPresenter {
     }
 
     private void setMeterIcon() {
-        mCardViewHolder.meterSensorIcon.setImageDrawable(
-                mSensorAnimationBehavior.getLevelDrawable(mCardViewHolder.getContext()));
-        mSensorAnimationBehavior.resetImageView(mCardViewHolder.meterSensorIcon);
+        mSensorAnimationBehavior.initializeLargeIcon(mCardViewHolder.meterSensorIcon);
     }
 
     private void updateCardMenu() {

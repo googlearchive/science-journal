@@ -30,6 +30,7 @@ message BasicSensorAppearance {
     // it is displayed in a different locale.
     // However, we may wish at some point to have a UI element change
     // if we know we’re showing a foreign language.
+    // The format is a BCP 47 language tag, like "en-US"
     optional string locale = 1;
 
     // Display name
