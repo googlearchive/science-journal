@@ -16,7 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
@@ -35,6 +37,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.common.base.Preconditions;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
@@ -54,7 +57,28 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
         GoosciSensorAppearance.BasicSensorAppearance proto = new GoosciSensorAppearance
                 .BasicSensorAppearance();
         proto.name = appearance.getName(context);
+        proto.locale = getLanguageTag(context);
+        proto.iconPath = appearance.getSmallIconPath();
+        proto.largeIconPath = appearance.getLargeIconPath();
         return proto;
+    }
+
+    private static String getLanguageTag(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return getCurrentLocale(context).toLanguageTag();
+        } else {
+            // TODO: implement getLanguageTag pre-lollipop!  (b/63933068)
+            return "";
+        }
+    }
+
+    private static Locale getCurrentLocale(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            return context.getResources().getConfiguration().getLocales().get(0);
+        } else {
+            //noinspection deprecation
+            return context.getResources().getConfiguration().locale;
+        }
     }
 
     @Override

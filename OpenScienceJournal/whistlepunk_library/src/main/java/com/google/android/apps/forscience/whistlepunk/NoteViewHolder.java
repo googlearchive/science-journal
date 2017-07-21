@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -23,9 +24,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
@@ -130,27 +132,38 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     }
 
     public static void loadSnapshotsIntoList(ViewGroup valuesList, Label label) {
+        Context context = valuesList.getContext();
+        SensorAppearanceProvider appearanceProvider =
+                AppSingleton.getInstance(context).getSensorAppearanceProvider();
+
         valuesList.setVisibility(View.VISIBLE);
         valuesList.removeAllViews();
         GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot[] snapshots =
                 label.getSnapshotLabelValue().snapshots;
-        String valueFormat = valuesList.getContext().getResources().getString(
+        String valueFormat = context.getResources().getString(
                 R.string.data_with_units);
         for (GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot : snapshots) {
-            ViewGroup snapshotLayout = (ViewGroup) LayoutInflater.from(valuesList.getContext())
+            ViewGroup snapshotLayout = (ViewGroup) LayoutInflater.from(context)
                     .inflate(R.layout.snapshot_value_details, null);
-            ((TextView) snapshotLayout.findViewById(R.id.sensor_name)).setText(
-                    snapshot.sensor.rememberedAppearance.name);
+            GoosciSensorAppearance.BasicSensorAppearance appearance =
+                    snapshot.sensor.rememberedAppearance;
+            ((TextView) snapshotLayout.findViewById(R.id.sensor_name)).setText(appearance.name);
             String value = BuiltInSensorAppearance.formatValue(snapshot.value,
-                    snapshot.sensor.rememberedAppearance.pointsAfterDecimal);
+                    appearance.pointsAfterDecimal);
             ((TextView) snapshotLayout.findViewById(R.id.sensor_value)).setText(
-                    String.format(valueFormat, value,
-                            snapshot.sensor.rememberedAppearance.units));
+                    String.format(valueFormat, value, appearance.units));
 
-            // TODO: Show the large icon. What is the construction of the path?
-            //String largeIconPath = snapshot.sensor.rememberedAppearance.largeIconPath;
-            //((ImageView) snapshotLayout.findViewById(R.id.large_icon)).setImageDrawable(...)
-            snapshotLayout.findViewById(R.id.large_icon).setVisibility(View.GONE);
+            GoosciIcon.IconPath iconPath = appearance.largeIconPath;
+            if (iconPath != null) {
+                if (iconPath.type == GoosciIcon.IconPath.BUILTIN) {
+                    SensorAppearance sa = appearanceProvider.getAppearance(iconPath.pathString);
+                    if (sa != null) {
+                        SensorAnimationBehavior behavior = sa.getSensorAnimationBehavior();
+                        behavior.initializeLargeIcon(
+                                ((ImageView) snapshotLayout.findViewById(R.id.large_icon)));
+                    }
+                }
+            }
 
             valuesList.addView(snapshotLayout);
         }
