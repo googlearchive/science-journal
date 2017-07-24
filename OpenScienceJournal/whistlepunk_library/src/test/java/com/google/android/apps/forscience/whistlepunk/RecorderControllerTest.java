@@ -48,8 +48,9 @@ import static org.junit.Assert.assertTrue;
 public class RecorderControllerTest {
     private final MockScheduler mScheduler = new MockScheduler();
     private String mSensorId = "sensorId";
+    private String mSensorName = "sensor";
     private final ManualSensorRegistry mSensorRegistry = new ManualSensorRegistry();
-    private final ManualSensor mSensor = mSensorRegistry.addSensor(mSensorId);
+    private final ManualSensor mSensor = mSensorRegistry.addSensor(mSensorId, mSensorName);
     private final InMemorySensorDatabase mDatabase = new InMemorySensorDatabase();
     private final DataControllerImpl mDataController = mDatabase.makeSimpleController();
     private final MemorySensorEnvironment mEnvironment = new MemorySensorEnvironment(
@@ -179,8 +180,7 @@ public class RecorderControllerTest {
                 new RecordingStatusListener(), null, mSensorRegistry);
 
         Maybe<String> snapshot =
-                rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId),
-                        s -> makeSensorProto("sensor"));
+                rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId), mSensorRegistry);
         mSensor.pushValue(10, 50);
         assertEquals("[sensor has value 50.0]",
                 snapshot.test().assertNoErrors().values().toString());
@@ -199,14 +199,14 @@ public class RecorderControllerTest {
 
         Single<GoosciSnapshotValue.SnapshotLabelValue> snapshot =
                 rc.generateSnapshotLabelValue(Lists.<String>newArrayList(mSensorId),
-                        s -> makeSensorProto("sensor"));
+                        mSensorRegistry);
         mSensor.pushValue(10, 50);
 
         GoosciSnapshotValue.SnapshotLabelValue value =
                 snapshot.test().assertNoErrors().assertValueCount(1).values().get(0);
 
         GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot shot = value.snapshots[0];
-        assertEquals("sensor", shot.sensor.rememberedAppearance.name);
+        assertEquals(mSensorName, shot.sensor.rememberedAppearance.name);
         assertEquals(50.0, shot.value, 0.01);
         assertEquals(10, shot.timestampMs);
 
@@ -221,14 +221,14 @@ public class RecorderControllerTest {
                         Delay.ZERO, new FakeUnitAppearanceProvider());
 
         Maybe<String> snapshot =
-                rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId), null);
+                rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId), mSensorRegistry);
         assertEquals("[No sensors observed]", snapshot.test().values().toString());
     }
 
     @Test
     public void snapshotWithThreeSensors() {
-        ManualSensor s2 = mSensorRegistry.addSensor("s2");
-        ManualSensor s3 = mSensorRegistry.addSensor("s3");
+        ManualSensor s2 = mSensorRegistry.addSensor("s2", "B2");
+        ManualSensor s3 = mSensorRegistry.addSensor("s3", "C3");
 
         final RecorderControllerImpl rc =
                 new RecorderControllerImpl(null, mEnvironment,
@@ -246,14 +246,12 @@ public class RecorderControllerTest {
         // Some sensors may publish earlier
         s2.pushValue(12, 52);
         s3.pushValue(13, 53);
-        final ImmutableMap<String, String> names =
-                ImmutableMap.of(mSensorId, "A1", s2.getId(), "B2", s3.getId(), "C3");
         Maybe<String> snapshot =
                 rc.generateSnapshotText(Lists.newArrayList(mSensorId, s2.getId(), s3.getId()),
-                        s -> makeSensorProto(names.get(s)));
+                        mSensorRegistry);
         // Some may publish later
         mSensor.pushValue(11, 51);
-        assertEquals("[A1 has value 51.0, B2 has value 52.0, C3 has value 53.0]",
+        assertEquals("[" + mSensorName +" has value 51.0, B2 has value 52.0, C3 has value 53.0]",
                 snapshot.test().assertNoErrors().values().toString());
     }
 
@@ -277,7 +275,7 @@ public class RecorderControllerTest {
                 new RecordingStatusListener(), null, mSensorRegistry);
 
         Maybe<String> snapshot = rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId),
-                s -> makeSensorProto("sensor"));
+                mSensorRegistry);
         snapshot.test().assertNotComplete();
         mSensor.pushValue(20, 60);
         assertEquals("[sensor has value 60.0]",

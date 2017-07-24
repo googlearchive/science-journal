@@ -1222,20 +1222,16 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         return experimentMaybe.flatMapSingle(e ->  {
             LabelListHolder holder =
                     status.isRecording() ? e.getTrial(status.getCurrentRunId()) : e;
-            return addSnapshotLabelToHolder(e, holder, rc, getDataController(), this::getSpecForId);
+            return addSnapshotLabelToHolder(e, holder, rc, getDataController(), mSensorRegistry);
         });
-    }
-
-    private GoosciSensorSpec.SensorSpec getSpecForId(String id) {
-        return mSensorRegistry.getSpecForId(id, getSensorAppearanceProvider(), getActivity());
     }
 
     @VisibleForTesting
     public static Single<Label> addSnapshotLabelToHolder(final Experiment selectedExperiment,
             final LabelListHolder labelListHolder, final RecorderController rc,
-            final DataController dc, Function<String, GoosciSensorSpec.SensorSpec> idToSpec) {
+            final DataController dc, SensorRegistry sensorRegistry) {
         // get text
-        return rc.generateSnapshotLabelValue(selectedExperiment.getSensorIds(), idToSpec)
+        return rc.generateSnapshotLabelValue(selectedExperiment.getSensorIds(), sensorRegistry)
 
                 // Make it into a label
                 .map(snapshotValue ->

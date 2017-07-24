@@ -44,7 +44,7 @@ public class RecordFragmentTest {
         InMemorySensorDatabase db = new InMemorySensorDatabase();
         ManualSensorRegistry reg = new ManualSensorRegistry();
         DataControllerImpl dc = db.makeSimpleController();
-        ManualSensor sensor = reg.addSensor("id");
+        ManualSensor sensor = reg.addSensor("id", "name");
         final long now = Math.abs(Arbitrary.longInteger());
 
         MemorySensorEnvironment env =
@@ -68,13 +68,13 @@ public class RecordFragmentTest {
         layout.sensorId = "id";
         exp.getSensorLayouts().add(layout);
 
-        TestObserver<Label> test = RecordFragment.addSnapshotLabelToHolder(exp, exp, rc, dc,
-                sensorId -> RecorderControllerTest.makeSensorProto(sensorId)).test();
+        TestObserver<Label> test =
+                RecordFragment.addSnapshotLabelToHolder(exp, exp, rc, dc, reg).test();
         assertTrue(test.await(2, TimeUnit.SECONDS));
         test.assertComplete();
 
         assertEquals(55, exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0].value, .00001);
-        assertEquals("id", exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0]
+        assertEquals("name", exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0]
                 .sensor.rememberedAppearance.name);
     }
 }

@@ -90,7 +90,7 @@ class MemoryRecorderController implements RecorderController {
 
     @Override
     public Single<GoosciSnapshotValue.SnapshotLabelValue> generateSnapshotLabelValue(
-            List<String> sensorIds, Function<String, GoosciSensorSpec.SensorSpec> idToName) {
+            List<String> sensorIds, SensorRegistry sensorRegistry) {
         return null;
     }
 
