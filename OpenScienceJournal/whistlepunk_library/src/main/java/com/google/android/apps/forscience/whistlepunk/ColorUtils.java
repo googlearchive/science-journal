@@ -26,9 +26,22 @@ import android.graphics.drawable.Drawable;
 public class ColorUtils {
 
     // TODO: Find all setColorFilter methods and update them to use this utility function.
+
+    /**
+     * Copies and colors a white drawable with the color ID specified.
+     */
     public static Drawable colorDrawable(Context context, Drawable drawable, int colorId) {
         Drawable result = drawable.mutate();
         result.setColorFilter(context.getResources().getColor(colorId), PorterDuff.Mode.MULTIPLY);
+        return result;
+    }
+
+    /**
+     * Copies and colors a black drawable with the color ID specified.
+     */
+    public static Drawable colorBlackDrawable(Context context, Drawable drawable, int colorId) {
+        Drawable result = drawable.mutate();
+        result.setColorFilter(context.getResources().getColor(colorId), PorterDuff.Mode.SRC_IN);
         return result;
     }
 

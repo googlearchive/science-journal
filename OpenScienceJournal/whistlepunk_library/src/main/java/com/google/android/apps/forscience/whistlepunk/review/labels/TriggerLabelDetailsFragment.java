@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 
@@ -59,7 +60,8 @@ public class TriggerLabelDetailsFragment extends LabelDetailsFragment {
         View rootView = inflater.inflate(R.layout.sensor_readings_label_details_fragment, container,
                 false);
 
-        // TODO: Populate the list with trigger values.
+        NoteViewHolder.loadTriggerIntoList(
+                (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), mOriginalLabel);
 
         setupCaption(rootView);
 

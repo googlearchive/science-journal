@@ -21,7 +21,6 @@ import android.support.v4.util.ArrayMap;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 
-import java.util.HashMap;
 import java.util.Map;
 
 class ManualSensorRegistry extends SensorRegistry {

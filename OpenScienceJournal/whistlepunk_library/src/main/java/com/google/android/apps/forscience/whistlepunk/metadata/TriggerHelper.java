@@ -174,15 +174,4 @@ public class TriggerHelper {
         }
         return result;
     }
-
-    public static void populateAutoTextViews(TextView autoTextView, String autoText,
-            int drawableId, Resources res) {
-        autoTextView.setText(autoText);
-        autoTextView.setContentDescription(res.getString(
-                R.string.trigger_label_icon_content_description, autoText));
-        Drawable drawable = ColorUtils.colorDrawable(autoTextView.getContext(),
-                res.getDrawable(drawableId), R.color.text_color_light_grey);
-        autoTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null,
-                null);
-    }
 }

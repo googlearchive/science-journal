@@ -31,6 +31,8 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:contentDescription="@null"
+        android:layout_marginEnd="8dp"
+        android:scaleType="fitCenter"
         />
 
     <TextView
@@ -42,6 +44,7 @@
         android:layout_toEndOf="@id/large_icon"
         android:textColor="@color/text_color_light_grey"
         android:textSize="16sp"
+        android:drawablePadding="4dp"
         />
 
     <TextView

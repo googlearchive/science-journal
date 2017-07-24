@@ -1094,7 +1094,7 @@ Permissions notice:
     <!-- The option to only use the trigger while the app is recording, instead of all the time [CHAR_LIMIT=30] -->
     <string name="trigger_only_when_recording">Trigger only when recording</string>
 
-    <!-- The auto-generated note text for a note type trigger. For example,this might say, "Ambinet light rose above 3.0 lux". [CHAR_LIMIT=200]-->
+    <!-- The auto-generated note text for a note type trigger. For example,this might say, "Ambient light rose above 3.0 lux". [CHAR_LIMIT=200]-->
     <string name="trigger_label_auto_text"><xliff:g id="sensor_name">%1$s</xliff:g> <xliff:g id="trigger_when">%2$s</xliff:g> <xliff:g id="trigger_value">%3$.2f</xliff:g> <xliff:g id="sensor_units">%4$s</xliff:g></string>
 
     <!-- The content description for the auto generated text on a note from a trigger [CHAR_LIMIT=NONE] -->
@@ -1384,6 +1384,10 @@ Permissions notice:
 
     <!-- Content description for a graphic representing an in-progress recording [CHAR_LIMIT=NONE] -->
     <string name="throbber_content_description">Recording in progress</string>
+
+    <!-- String which says the sensor name and how it changed for a note trigger. For example, this might say, "Ambient light rose above". [CHAR_LIMIT=50]-->
+    <string name="trigger_label_name_header"><xliff:g id="sensor_name">%1$s</xliff:g> <xliff:g id="trigger_when">%2$s</xliff:g></string>
+
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
