@@ -15,12 +15,31 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.content.Context;
+import android.support.v4.util.ArrayMap;
+
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class ManualSensorRegistry extends SensorRegistry {
-    public ManualSensor addSensor(String id) {
+    private Map<String, String> sensorNames = new ArrayMap<>();
+
+    public ManualSensor addSensor(String id, String name) {
         ManualSensor sensor = new ManualSensor(id, 100, 100);
         addBuiltInSensor(sensor);
+        sensorNames.put(id, name);
         return sensor;
+    }
+
+    @Override
+    public GoosciSensorSpec.SensorSpec getSpecForId(String sensorId,
+            SensorAppearanceProvider appearanceProvider, Context context) {
+        GoosciSensorSpec.SensorSpec result =
+                super.getSpecForId(sensorId, appearanceProvider, context);
+        result.rememberedAppearance.name = sensorNames.get(sensorId);
+        return result;
     }
 }

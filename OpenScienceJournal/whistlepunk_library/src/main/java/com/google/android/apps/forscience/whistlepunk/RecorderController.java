@@ -125,12 +125,11 @@ public interface RecorderController {
 
     /**
      * @param sensorIds the ids of sensors in the snapshot
-     * @param idToName  a function from sensorId to name that should be used in the sensor
-     *                  appearance.
+     * @param sensorRegistry The sensor registry about current sensors
      * @return a Single that will eventually emit a snapshot proto to be stored in a label.
      */
     Single<GoosciSnapshotValue.SnapshotLabelValue> generateSnapshotLabelValue(
-            List<String> sensorIds, Function<String, GoosciSensorSpec.SensorSpec> idToName);
+            List<String> sensorIds, SensorRegistry sensorRegistry);
 
     /**
      * Retry connecting to the given sensor, which is currently in an error state.

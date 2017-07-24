@@ -283,7 +283,7 @@ public class RecorderControllerImpl implements RecorderController {
             }
         } else if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_NOTE) {
             triggerWasFired = true;
-            addTriggerLabel(timestamp, trigger);
+            addTriggerLabel(timestamp, trigger, sensorRegistry);
         } else if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_ALERT) {
             if (trigger.getAlertTypes().length > 0) {
                 triggerWasFired = true;
@@ -313,7 +313,8 @@ public class RecorderControllerImpl implements RecorderController {
         return mTriggerHelper;
     }
 
-    private void addTriggerLabel(long timestamp, SensorTrigger trigger) {
+    private void addTriggerLabel(long timestamp, SensorTrigger trigger,
+            SensorRegistry sensorRegistry) {
         if (getSelectedExperiment() == null) {
             return;
         }
@@ -326,8 +327,7 @@ public class RecorderControllerImpl implements RecorderController {
             caption.lastEditedTimestamp = timestamp;
             caption.text = trigger.getNoteText();
         }
-        labelValue.sensor = new GoosciSensorSpec.SensorSpec();
-        // TODO: Get the sensor spec and fill in labelValue.sensor.
+        labelValue.sensor = getSensorSpec(trigger.getSensorId(), sensorRegistry);
         final Label triggerLabel = Label.newLabelWithValue(timestamp,
                 GoosciLabel.Label.SENSOR_TRIGGER, labelValue, caption);
         if (isRecording()) {
@@ -345,6 +345,11 @@ public class RecorderControllerImpl implements RecorderController {
                     }
                 });
 
+    }
+
+    private GoosciSensorSpec.SensorSpec getSensorSpec(String sensorId,
+            SensorRegistry sensorRegistry) {
+        return sensorRegistry.getSpecForId(sensorId, mAppearanceProvider, mContext);
     }
 
     private Experiment getSelectedExperiment() {
@@ -671,11 +676,11 @@ public class RecorderControllerImpl implements RecorderController {
      */
     @VisibleForTesting
     public Maybe<String> generateSnapshotText(List<String> sensorIds,
-            final Function<String, GoosciSensorSpec.SensorSpec> idToSpec) {
+            SensorRegistry sensorRegistry) {
         // TODO: we probably want to do something more structured eventually;
         // this is a placeholder, so we're not doing internationalization, etc.
 
-        return generateSnapshotLabelValue(sensorIds, idToSpec)
+        return generateSnapshotLabelValue(sensorIds, sensorRegistry)
 
                          // turn the snapshots into strings
                          .flatMapObservable(this::textsForSnapshotLabelValue)
@@ -689,12 +694,12 @@ public class RecorderControllerImpl implements RecorderController {
 
     @Override
     public Single<GoosciSnapshotValue.SnapshotLabelValue> generateSnapshotLabelValue(
-            List<String> sensorIds, Function<String, GoosciSensorSpec.SensorSpec> idToSpec) {
+            List<String> sensorIds, SensorRegistry sensorRegistry) {
         // for each sensorId
         return Observable.fromIterable(sensorIds)
 
                          // get a snapshot from the latest value*
-                         .flatMapMaybe(sensorId -> makeSnapshot(sensorId, idToSpec))
+                         .flatMapMaybe(sensorId -> makeSnapshot(sensorId, sensorRegistry))
 
                          // gather those into a list
                          .toList()
@@ -702,19 +707,18 @@ public class RecorderControllerImpl implements RecorderController {
                          // And build them into the appropriate proto value
                          .map(this::buildSnapshotLabelValue);
 
-        // * The "flat" in flatMapMaybe meands that we're taking a stream of Maybes (one for each
+        // * The "flat" in flatMapMaybe means that we're taking a stream of Maybes (one for each
         //   sensorId), and "flattening" them into a stream of Strings (that is, we're waiting for
         //   each Maybe to be resolved to its actual snapshotText).
     }
 
     private MaybeSource<GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot> makeSnapshot(
-            String sensorId,
-            Function<String, GoosciSensorSpec.SensorSpec> idToSpec) throws Exception {
+            String sensorId, SensorRegistry sensorRegistry) throws Exception {
         BehaviorSubject<ScalarReading> subject = mLatestValues.get(sensorId);
         if (subject == null) {
             return Maybe.empty();
         }
-        final GoosciSensorSpec.SensorSpec spec = idToSpec.apply(sensorId);
+        final GoosciSensorSpec.SensorSpec spec = getSensorSpec(sensorId, sensorRegistry);
         return subject.firstElement().map(value -> generateSnapshot(spec, value));
     }
 
