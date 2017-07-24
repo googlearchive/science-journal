@@ -1382,6 +1382,9 @@ Permissions notice:
     <!-- Title of a in-progress recording card in the experiment list, i.e. "Recording 3..." [CHAR_LIMIT=50] -->
     <string name="card_recording_title"><xliff:g id="title">%1$s</xliff:g>…</string>
 
+    <!-- Content description for a graphic representing an in-progress recording [CHAR_LIMIT=NONE] -->
+    <string name="throbber_content_description">Recording in progress</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
