@@ -28,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
@@ -40,6 +41,9 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.jakewharton.rxbinding2.widget.RxTextView;
+
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -187,5 +191,16 @@ abstract class LabelDetailsFragment extends Fragment {
         caption.lastEditedTimestamp = mClock.getNow();
         mOriginalLabel.setCaption(caption);
         saveUpdatedOriginalLabel(experiment);
+    }
+
+    // This should only be called by subclasses that have date and time views in their XML.
+    protected void setupDetails(View rootView) {
+        Locale locale = getContext().getResources().getConfiguration().locale;
+        TextView date = (TextView) rootView.findViewById(R.id.date);
+        TextView time = (TextView) rootView.findViewById(R.id.time);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", locale);
+        SimpleDateFormat timeFormat = new SimpleDateFormat("EEEE h:mm a", locale);
+        date.setText(dateFormat.format(mOriginalLabel.getTimeStamp()));
+        time.setText(timeFormat.format(mOriginalLabel.getTimeStamp()));
     }
 }

@@ -1388,6 +1388,11 @@ Permissions notice:
     <!-- String which says the sensor name and how it changed for a note trigger. For example, this might say, "Ambient light rose above". [CHAR_LIMIT=50]-->
     <string name="trigger_label_name_header"><xliff:g id="sensor_name">%1$s</xliff:g> <xliff:g id="trigger_when">%2$s</xliff:g></string>
 
+    <!-- Hint text for a description text field on trigger and snapshot notes [CHAR_LIMIT=50] -->
+    <string name="description_hint">Description</string>
+
+    <!-- Heading for a section that has details about a snapshot or trigger note [CHAR_LIMIT=50] -->
+    <string name="details_header">Details</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

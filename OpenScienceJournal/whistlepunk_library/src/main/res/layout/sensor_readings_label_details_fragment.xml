@@ -44,17 +44,70 @@
 
         </LinearLayout>
 
-        <EditText
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="@dimen/accessibility_touch_target_min_size"
-            android:maxLines="5"
-            android:id="@+id/caption"
-            android:hint="@string/note_caption_hint"
-            android:layout_margin="8dp"
+            android:hint="@string/description_hint"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
             android:layout_below="@id/snapshot_values_list"
+            android:id="@+id/caption_wrapper"
+            >
+
+            <EditText
+                android:id="@+id/caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/accessibility_touch_target_min_size"
+                android:singleLine="true"
+                android:imeOptions="actionDone"
+                android:inputType="textCapSentences"
+                android:contentDescription="@string/experiment_title_hint"
+                android:maxLines="5"
+                >
+            </EditText>
+
+        </android.support.design.widget.TextInputLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_margin="12dp"
+            android:layout_below="@id/caption_wrapper"
             android:layout_alignParentBottom="true"
-            />
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_color_light_grey"
+                android:textSize="14sp"
+                android:text="@string/details_header"
+                android:layout_marginBottom="16sp"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/text_color_dark_grey"
+                android:id="@+id/date"
+                android:layout_marginStart="24sp"
+                android:layout_marginBottom="4sp"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/text_color_light_grey"
+                android:id="@+id/time"
+                android:layout_marginStart="24sp"
+                android:layout_marginBottom="16sp"
+                />
+
+        </LinearLayout>
 
     </RelativeLayout>
 

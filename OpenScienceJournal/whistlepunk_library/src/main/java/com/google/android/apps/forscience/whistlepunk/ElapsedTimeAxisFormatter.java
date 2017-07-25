@@ -23,7 +23,7 @@ import android.content.res.Resources;
  * Formats elapsed time (in ms) to a short m:ss or h:mm:ss format.
  * Can also format to tenths of a second using formatToTenths.
  */
-// TODO: Switch to using JodaTime library?
+// TODO: Switch to using JodaTime library or DateUtils.formatElapsedTime.
 public class ElapsedTimeAxisFormatter {
 
     private static ElapsedTimeAxisFormatter sInstance;
