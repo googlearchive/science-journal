@@ -384,6 +384,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                     public void onLabelAdded(Label label) {
                         mRecordingStatus.firstElement().subscribe(status -> {
                             processAddedLabel(label, status);
+                            mUICallbacks.onLabelAdded(label, status.getTrialId());
                         });
                     }
 
