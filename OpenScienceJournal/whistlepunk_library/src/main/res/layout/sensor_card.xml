@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/sensor_card_header"
             android:paddingStart="@dimen/sensor_card_header_padding"
-            android:paddingEnd="@dimen/sensor_card_header_padding"
+            android:paddingEnd="8dp"
             android:orientation="horizontal"
             >
 
@@ -60,13 +60,16 @@
 
             </FrameLayout>
 
+            <!-- TODO: Add the ripple effect to this button -->
+            <!-- Set the background separately from the source so the background can be tinted. -->
             <ImageButton
                 android:layout_width="@dimen/accessibility_touch_target_min_size"
                 android:layout_height="@dimen/accessibility_touch_target_min_size"
+                android:layout_weight="0"
                 android:id="@+id/settings_gear"
                 android:src="@drawable/ic_settings_white_24dp"
                 android:contentDescription="@string/add_sensor"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@drawable/sensor_card_settings_btn"
                 />
         </LinearLayout>
 
