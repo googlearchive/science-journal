@@ -64,6 +64,7 @@ public class SnapshotLabelDetailsFragment extends LabelDetailsFragment {
         NoteViewHolder.loadSnapshotsIntoList(
                 (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), mOriginalLabel);
         setupCaption(rootView);
+        setupDetails(rootView);
 
         return rootView;
     }

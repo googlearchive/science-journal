@@ -64,6 +64,7 @@ public class TriggerLabelDetailsFragment extends LabelDetailsFragment {
                 (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), mOriginalLabel);
 
         setupCaption(rootView);
+        setupDetails(rootView);
 
         return rootView;
     }
