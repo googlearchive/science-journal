@@ -253,7 +253,7 @@ public class AddNoteDialog extends DialogFragment {
             whenExperiment(getActivity()).subscribe(experiment -> {
                 button.setOnClickListener(view -> addLabel(getActivity(), experiment));
                 updatePositiveButtonEnabled((AlertDialog) getDialog(), true);
-                });
+            });
         });
         return dialog;
     }

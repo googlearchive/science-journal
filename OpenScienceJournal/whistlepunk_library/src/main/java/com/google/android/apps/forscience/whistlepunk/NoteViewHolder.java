@@ -192,7 +192,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
 
         String valueFormat = context.getResources().getString(R.string.data_with_units);
         String value = BuiltInSensorAppearance.formatValue(
-                labelValue.triggerInformation.triggerWhen,
+                labelValue.triggerInformation.valueToTrigger,
                 labelValue.sensor.rememberedAppearance.pointsAfterDecimal);
         ((TextView) valuesList.findViewById(R.id.sensor_value)).setText(
                 String.format(valueFormat, value,
