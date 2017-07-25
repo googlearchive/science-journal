@@ -51,4 +51,14 @@ public class ColorUtils {
         hsv[2] *= 1.2;
         return Color.HSVToColor(hsv);
     }
+
+    /**
+     * Copies and colors a white drawable with the color specified. Note that this is not the
+     * color ID, it should be the real color.
+     */
+    public static Drawable colorDrawableWithActual(Drawable drawable, int color) {
+        Drawable result = drawable.mutate();
+        result.setColorFilter(color, PorterDuff.Mode.MULTIPLY);
+        return result;
+    }
 }
