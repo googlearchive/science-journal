@@ -244,17 +244,17 @@ public class AddNoteDialog extends DialogFragment {
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
 
-
-        Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        button.setEnabled(false);
-
-        whenExperiment(button.getContext()).subscribe(experiment ->
-                // Set the click listener for the postive button separately so we can control
-                // when the dialog closes. This allows us to not close the dialog in the case of
-                // an error.
-                dialog.setOnShowListener(
-                        dialogInterface -> button.setOnClickListener(
-                                view -> addLabel(getActivity(), experiment))));
+        // Set the click listener for the positive button separately so we can control
+        // when the dialog closes. This allows us to not close the dialog in the case of
+        // an error.
+        dialog.setOnShowListener(dialogInterface -> {
+            Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            button.setEnabled(false);
+            whenExperiment(getActivity()).subscribe(experiment -> {
+                button.setOnClickListener(view -> addLabel(getActivity(), experiment));
+                updatePositiveButtonEnabled((AlertDialog) getDialog(), true);
+                });
+        });
         return dialog;
     }
 
@@ -298,9 +298,6 @@ public class AddNoteDialog extends DialogFragment {
             mExperimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
 
             Context context = inflater.getContext();
-
-            mUntilDestroyed.add(whenExperiment(context).subscribe(
-                    exp -> updatePositiveButtonEnabled((AlertDialog) getDialog(), true)));
 
             if (getArguments().containsKey(KEY_SAVED_TIME_TEXT_DESCRIPTION)) {
                 mLabelTimeTextDescription =
