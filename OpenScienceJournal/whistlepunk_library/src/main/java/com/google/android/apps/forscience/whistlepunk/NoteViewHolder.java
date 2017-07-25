@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -28,7 +29,9 @@ import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
@@ -46,7 +49,6 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     public TextView captionTextView;
     public TextView text;
     public ImageView image;
-    public TextView autoText;
     public ViewGroup valuesList;
     public RelativeTimeTextView relativeTimeView;
 
@@ -56,7 +58,6 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
         menuButton = (ImageButton) v.findViewById(R.id.note_menu_button);
         text = (TextView) v.findViewById(R.id.note_text);
         image = (ImageView) v.findViewById(R.id.note_image);
-        autoText = (TextView) v.findViewById(R.id.auto_note_text);
         captionIcon = (ImageView) v.findViewById(R.id.edit_icon);
         captionView = itemView.findViewById(R.id.caption_section);
         captionTextView = (TextView) itemView.findViewById(R.id.caption);
@@ -95,22 +96,16 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
             image.setVisibility(View.GONE);
         }
 
-        if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
-            autoText.setVisibility(View.VISIBLE);
-            GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
-                    label.getSensorTriggerLabelValue();
-            // TODO: Load triggers correctly.
-            TriggerHelper.populateAutoTextViews(autoText, "TODO", R.drawable.ic_label_black_18dp,
-                    autoText.getResources());
-        } else {
-            autoText.setVisibility(View.GONE);
-        }
-
-        if (label.getType() == GoosciLabel.Label.SNAPSHOT) {
-            // Add items to valuesList
-            loadSnapshotsIntoList(valuesList, label);
-        } else {
+        if (label.getType() != GoosciLabel.Label.SENSOR_TRIGGER &&
+                label.getType() != GoosciLabel.Label.SNAPSHOT) {
             valuesList.setVisibility(View.GONE);
+        } else {
+            if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
+               loadTriggerIntoList(valuesList, label);
+            }
+            if (label.getType() == GoosciLabel.Label.SNAPSHOT) {
+                loadSnapshotsIntoList(valuesList, label);
+            }
         }
 
         ColorUtils.colorDrawable(captionIcon.getContext(),
@@ -133,39 +128,91 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
 
     public static void loadSnapshotsIntoList(ViewGroup valuesList, Label label) {
         Context context = valuesList.getContext();
-        SensorAppearanceProvider appearanceProvider =
-                AppSingleton.getInstance(context).getSensorAppearanceProvider();
-
-        valuesList.setVisibility(View.VISIBLE);
-        valuesList.removeAllViews();
         GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot[] snapshots =
                 label.getSnapshotLabelValue().snapshots;
+
+        valuesList.setVisibility(View.VISIBLE);
+        // Make sure it has the correct number of views, re-using as many as possible.
+        int childCount = valuesList.getChildCount();
+        if (childCount < snapshots.length) {
+            for (int i = 0; i < snapshots.length - childCount; i++) {
+                LayoutInflater.from(context).inflate(R.layout.snapshot_value_details, valuesList);
+            }
+        } else if (childCount > snapshots.length) {
+            valuesList.removeViews(0, childCount - snapshots.length);
+        }
+
         String valueFormat = context.getResources().getString(
                 R.string.data_with_units);
-        for (GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot : snapshots) {
-            ViewGroup snapshotLayout = (ViewGroup) LayoutInflater.from(context)
-                    .inflate(R.layout.snapshot_value_details, null);
+        for (int i = 0; i < snapshots.length; i++) {
+            GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot = snapshots[i];
+            ViewGroup snapshotLayout = (ViewGroup) valuesList.getChildAt(i);
+
             GoosciSensorAppearance.BasicSensorAppearance appearance =
                     snapshot.sensor.rememberedAppearance;
-            ((TextView) snapshotLayout.findViewById(R.id.sensor_name)).setText(appearance.name);
+            TextView sensorName = (TextView) snapshotLayout.findViewById(R.id.sensor_name);
+            sensorName.setCompoundDrawablesRelative(null, null, null, null);
+            sensorName.setText(appearance.name);
             String value = BuiltInSensorAppearance.formatValue(snapshot.value,
                     appearance.pointsAfterDecimal);
             ((TextView) snapshotLayout.findViewById(R.id.sensor_value)).setText(
                     String.format(valueFormat, value, appearance.units));
 
-            GoosciIcon.IconPath iconPath = appearance.largeIconPath;
-            if (iconPath != null) {
-                if (iconPath.type == GoosciIcon.IconPath.BUILTIN) {
-                    SensorAppearance sa = appearanceProvider.getAppearance(iconPath.pathString);
-                    if (sa != null) {
-                        SensorAnimationBehavior behavior = sa.getSensorAnimationBehavior();
-                        behavior.initializeLargeIcon(
-                                ((ImageView) snapshotLayout.findViewById(R.id.large_icon)));
-                    }
+            loadLargeDrawable(appearance,
+                    AppSingleton.getInstance(context).getSensorAppearanceProvider(),
+                    snapshotLayout);
+        }
+    }
+
+    public static void loadTriggerIntoList(ViewGroup valuesList, Label label) {
+        Context context = valuesList.getContext();
+
+        valuesList.setVisibility(View.VISIBLE);
+        GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
+                label.getSensorTriggerLabelValue();
+
+        // Make sure there is exactly 1 view in the list for a trigger note.
+        // This is necessary because valuesList is also used for snapshots, which may have multiple
+        // views in the list.
+        if (valuesList.getChildCount() == 0) {
+            LayoutInflater.from(context).inflate(R.layout.snapshot_value_details, valuesList);
+        } else if (valuesList.getChildCount() > 1) {
+            valuesList.removeViews(1, valuesList.getChildCount() - 1);
+        }
+
+        TextView sensorName = (TextView) valuesList.findViewById(R.id.sensor_name);
+        Drawable drawable =
+                ColorUtils.colorBlackDrawable(valuesList.getContext(), context.getResources()
+                        .getDrawable(R.drawable.ic_label_black_18dp), R.color.color_accent);
+        sensorName.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null);
+        String triggerWhenText = context.getResources().getStringArray(
+                R.array.trigger_when_list_note_text)[labelValue.triggerInformation.triggerWhen];
+        sensorName.setText(context.getResources().getString(R.string.trigger_label_name_header,
+                labelValue.sensor.rememberedAppearance.name, triggerWhenText));
+
+        String valueFormat = context.getResources().getString(R.string.data_with_units);
+        String value = BuiltInSensorAppearance.formatValue(
+                labelValue.triggerInformation.triggerWhen,
+                labelValue.sensor.rememberedAppearance.pointsAfterDecimal);
+        ((TextView) valuesList.findViewById(R.id.sensor_value)).setText(
+                String.format(valueFormat, value,
+                        labelValue.sensor.rememberedAppearance.units));
+        loadLargeDrawable(labelValue.sensor.rememberedAppearance,
+                AppSingleton.getInstance(context).getSensorAppearanceProvider(), valuesList);
+    }
+
+    private static void loadLargeDrawable(GoosciSensorAppearance.BasicSensorAppearance appearance,
+            SensorAppearanceProvider appearanceProvider, ViewGroup layout) {
+        GoosciIcon.IconPath iconPath = appearance.largeIconPath;
+        if (iconPath != null) {
+            if (iconPath.type == GoosciIcon.IconPath.BUILTIN) {
+                SensorAppearance sa = appearanceProvider.getAppearance(iconPath.pathString);
+                if (sa != null) {
+                    SensorAnimationBehavior behavior = sa.getSensorAnimationBehavior();
+                    behavior.initializeLargeIcon(
+                            ((ImageView) layout.findViewById(R.id.large_icon)));
                 }
             }
-
-            valuesList.addView(snapshotLayout);
         }
     }
 }

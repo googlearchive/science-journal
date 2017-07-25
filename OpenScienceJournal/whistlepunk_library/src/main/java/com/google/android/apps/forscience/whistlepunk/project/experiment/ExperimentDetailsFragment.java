@@ -1154,19 +1154,19 @@ public class ExperimentDetailsFragment extends Fragment
                         mExperiment.getExperimentId(), labelValue.filePath);
             }
 
-            if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
-                noteView.findViewById(R.id.auto_note_text).setVisibility(View.VISIBLE);
-                GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
-                        label.getSensorTriggerLabelValue();
-                // TODO: Load triggers correctly.
-                TriggerHelper.populateAutoTextViews(
-                        (TextView) noteView.findViewById(R.id.auto_note_text), "TODO",
-                        R.drawable.ic_label_black_18dp, noteHolder.getResources());
-            }
+            if (label.getType() != GoosciLabel.Label.SENSOR_TRIGGER &&
+                    label.getType() != GoosciLabel.Label.SNAPSHOT) {
+                noteView.findViewById(R.id.snapshot_values_list).setVisibility(View.GONE);
+            } else {
+                if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
+                    NoteViewHolder.loadTriggerIntoList((ViewGroup)
+                            noteView.findViewById(R.id.snapshot_values_list), label);
+                }
 
-            if (label.getType() == GoosciLabel.Label.SNAPSHOT) {
-                NoteViewHolder.loadSnapshotsIntoList((ViewGroup)
-                        noteView.findViewById(R.id.snapshot_values_list), label);
+                if (label.getType() == GoosciLabel.Label.SNAPSHOT) {
+                    NoteViewHolder.loadSnapshotsIntoList((ViewGroup)
+                            noteView.findViewById(R.id.snapshot_values_list), label);
+                }
             }
 
             noteHolder.addView(noteView);
