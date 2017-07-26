@@ -18,28 +18,27 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.common.collect.Lists;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+
+import java.util.ArrayList;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
-public class StatsAccumulatorTest {
+public class AppSingletonTest {
     @Test
-    public void testAllStats() {
-        StatsAccumulator acc = new StatsAccumulator("sensorId");
-        acc.updateRecordingStreamStats(0, 0);
-        acc.updateRecordingStreamStats(1, 1);
-        acc.updateRecordingStreamStats(2, 2);
-        TrialStats stats = acc.makeSaveableStats();
-        assertEquals(0.0, stats.getStatValue(GoosciTrial.SensorStat.MINIMUM, -1), 0.001);
-        assertEquals(1.0, stats.getStatValue(GoosciTrial.SensorStat.AVERAGE, -1), 0.001);
-        assertEquals(2.0, stats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, -1), 0.001);
-        assertEquals(3.0, stats.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1), 0.001);
-        assertEquals(2.0, stats.getStatValue(GoosciTrial.SensorStat.TOTAL_DURATION, -1), 0.001);
+    public void testHistoryStorage() {
+        SensorHistoryStorage storage = AppSingleton
+                .getInstance(RuntimeEnvironment.application.getApplicationContext())
+                .getSensorEnvironment()
+                .getSensorHistoryStorage();
+        ArrayList<String> ids = Lists.newArrayList(Arbitrary.string());
+        storage.setMostRecentSensorIds(ids);
+        assertEquals(ids, storage.getMostRecentSensorIds());
     }
 }
