@@ -150,6 +150,16 @@ public class SensorAnimationBehavior {
 
     void initializeLargeIcon(ImageView largeIcon) {
         largeIcon.setImageDrawable(getLevelDrawable(largeIcon.getContext()));
-        resetImageView(largeIcon);
+        largeIcon.setRotation(0.0f);
+        // Icon level depends on type -- we want to pick something in the middle to look reasonable.
+        if (mBehaviorType == TYPE_ACCELEROMETER_SCALE ||
+                mBehaviorType == TYPE_ACCELEROMETER_SCALE_ROTATES) {
+            // Pick the middle icon
+            largeIcon.setImageLevel(2);
+        } else if (mBehaviorType == TYPE_POSITIVE_RELATIVE_SCALE ||
+                mBehaviorType == TYPE_RELATIVE_SCALE) {
+            // Pick the most exciting icon (the biggest value represented)
+            largeIcon.setImageLevel(3);
+        }
     }
 }
