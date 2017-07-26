@@ -67,12 +67,10 @@ public class AddNoteDialog extends DialogFragment {
 
     private static final String KEY_SAVED_INPUT_TEXT = "savedInputText";
     private static final String KEY_SAVED_PICTURE_PATH = "savedPicturePath";
-    private static final String KEY_SHOULD_USE_SAVED_TIMESTAMP = "shouldUseSavedTimestamp";
     private static final String KEY_SAVED_TIMESTAMP = "savedTimestamp";
     private static final String KEY_SAVED_RUN_ID = "savedRunId";
     private static final String KEY_SAVED_EXPERIMENT_ID = "savedExperimentId";
     private static final String KEY_HINT_TEXT_ID = "savedHintTextId";
-    private static final String KEY_SHOW_TIMESTAMP_SECTION = "savedShowTimestampSection";
     private static final String KEY_LABEL_TIME_TEXT = "savedLabelTimeText";
     private static final String KEY_SAVED_VALUE = "savedLabelValue";
     private static final java.lang.String KEY_SAVED_TIME_TEXT_DESCRIPTION =
@@ -120,8 +118,6 @@ public class AddNoteDialog extends DialogFragment {
 
     private AddNoteDialogListener mListener = null;
     private long mTimestamp;
-    private boolean mUseSavedTimestamp;
-    private boolean mShowTimestampSection;
     private String mLabelTimeText;
     private String mLabelTimeTextDescription = "";
     private String mTrialId;
@@ -132,52 +128,16 @@ public class AddNoteDialog extends DialogFragment {
 
     CompositeDisposable mUntilDestroyed = new CompositeDisposable();
 
-    /**
-     * Create an AddNoteDialog that does not show the timestamp section, and where the note
-     * has no previous value, with a timestamp that will be used as the current time when
-     * the note is created
-     */
-    public static AddNoteDialog createWithSavedTimestamp(long timestamp, String currentRunId,
-            String experimentId, int hintTextId) {
-        return AddNoteDialog.newInstance(timestamp, currentRunId, experimentId, hintTextId, true);
-    }
-
-    /**
-     * Create an AddNoteDialog that does not show the timestamp section, and where the note
-     * has no previous value, which will create notes that reference the time whenever the form is
-     * submitted
-     */
-    public static AddNoteDialog createWithDynamicTimestamp(String currentRunId, String experimentId,
-            int hintTextId) {
-        return AddNoteDialog.newInstance(-1, currentRunId, experimentId, hintTextId, false);
-    }
-
-    /**
-     * Create an AddNoteDialog that does not show the timestamp section, and where the note
-     * has no previous value.
-     *
-     * @param shouldUseSavedTimestamp if true, use the timestamp provided when creating a note.
-     *                                otherwise, use the current time when the form is submitted.
-     */
-    private static AddNoteDialog newInstance(long timestamp, String currentRunId,
-            String experimentId, int hintTextId, boolean shouldUseSavedTimestamp) {
-        return AddNoteDialog.newInstance(timestamp, currentRunId, experimentId,
-                hintTextId, false, "", "",
-                shouldUseSavedTimestamp);
-    }
-
     public static AddNoteDialog newInstance(long timestamp, String currentRunId,
-            String experimentId, int hintTextId, boolean showTimestampSection, String labelTimeText,
-            String labelTimeTextDescription, boolean shouldUseSavedTimestamp) {
+            String experimentId, int hintTextId, String labelTimeText,
+            String labelTimeTextDescription) {
         AddNoteDialog dialog = new AddNoteDialog();
 
         Bundle args = new Bundle();
         args.putLong(KEY_SAVED_TIMESTAMP, timestamp);
-        args.putBoolean(KEY_SHOULD_USE_SAVED_TIMESTAMP, shouldUseSavedTimestamp);
         args.putString(KEY_SAVED_RUN_ID, currentRunId);
         args.putString(KEY_SAVED_EXPERIMENT_ID, experimentId);
         args.putInt(KEY_HINT_TEXT_ID, hintTextId);
-        args.putBoolean(KEY_SHOW_TIMESTAMP_SECTION, showTimestampSection);
         args.putString(KEY_LABEL_TIME_TEXT, labelTimeText);
         args.putString(KEY_SAVED_TIME_TEXT_DESCRIPTION, labelTimeTextDescription);
         dialog.setArguments(args);
@@ -186,12 +146,10 @@ public class AddNoteDialog extends DialogFragment {
     }
 
     public static AddNoteDialog newInstance(long timestamp, String currentRunId,
-            String experimentId, int hintTextId, boolean showTimestampSection,
-            String labelTimeText, Label editedLabel,
-            String labelTimeTextDescription, boolean shouldUseSavedTimestamp) {
+            String experimentId, int hintTextId, String labelTimeText, Label editedLabel,
+            String labelTimeTextDescription) {
         AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, currentRunId, experimentId,
-                hintTextId, showTimestampSection, labelTimeText, labelTimeTextDescription,
-                shouldUseSavedTimestamp);
+                hintTextId, labelTimeText, labelTimeTextDescription);
 
         if (editedLabel == null) {
             // no user added value yet, so no need to store anything else.
@@ -290,14 +248,10 @@ public class AddNoteDialog extends DialogFragment {
         String text = "";
         if (getArguments() != null) {
             mTimestamp = getArguments().getLong(KEY_SAVED_TIMESTAMP, -1);
-            mUseSavedTimestamp = getArguments().getBoolean(KEY_SHOULD_USE_SAVED_TIMESTAMP, true);
-            mShowTimestampSection = getArguments().getBoolean(KEY_SHOW_TIMESTAMP_SECTION, false);
             mHintTextId = getArguments().getInt(KEY_HINT_TEXT_ID, mHintTextId);
             mLabelTimeText = getArguments().getString(KEY_LABEL_TIME_TEXT, "");
             mTrialId = getArguments().getString(KEY_SAVED_RUN_ID);
             mExperimentId = getArguments().getString(KEY_SAVED_EXPERIMENT_ID);
-
-            Context context = inflater.getContext();
 
             if (getArguments().containsKey(KEY_SAVED_TIME_TEXT_DESCRIPTION)) {
                 mLabelTimeTextDescription =
@@ -372,20 +326,16 @@ public class AddNoteDialog extends DialogFragment {
         mInput.setHint(mInput.getResources().getText(mHintTextId));
         mInput.setText(text);
 
-        if (mShowTimestampSection) {
-            rootView.findViewById(R.id.label_dialog_timestamp_section).setVisibility(View.VISIBLE);
-            TextView timestampSection = (TextView) rootView.findViewById(R.id.edit_note_time);
-            timestampSection.setText(mLabelTimeText);
-            if (!TextUtils.isEmpty(mLabelTimeTextDescription)) {
-                timestampSection.setContentDescription(mLabelTimeTextDescription);
-            }
-            timestampSection.setOnClickListener(v -> {
-                getListener(v.getContext()).onAddNoteTimestampClicked(getCurrentValue(),
-                        getTimestamp(timestampSection.getContext()));
-            });
-        } else {
-            rootView.findViewById(R.id.label_dialog_timestamp_section).setVisibility(View.GONE);
+        rootView.findViewById(R.id.label_dialog_timestamp_section).setVisibility(View.VISIBLE);
+        TextView timestampSection = (TextView) rootView.findViewById(R.id.edit_note_time);
+        timestampSection.setText(mLabelTimeText);
+        if (!TextUtils.isEmpty(mLabelTimeTextDescription)) {
+            timestampSection.setContentDescription(mLabelTimeTextDescription);
         }
+        timestampSection.setOnClickListener(v -> {
+            getListener(v.getContext()).onAddNoteTimestampClicked(getCurrentValue(),
+                    getTimestamp(timestampSection.getContext()));
+        });
 
         setViewVisibilities(takePictureBtn, imageView, !hasPicture());
         if (mPictureLabelPath != null) {
@@ -489,14 +439,7 @@ public class AddNoteDialog extends DialogFragment {
 
 
     private long getTimestamp(Context context) {
-        if (mUseSavedTimestamp) {
-            return mTimestamp;
-        } else {
-            return AppSingleton.getInstance(context)
-                               .getSensorEnvironment()
-                               .getDefaultClock()
-                               .getNow();
-        }
+        return mTimestamp;
     }
 
     private boolean addPictureLabel(long timestamp, Experiment experiment) {
@@ -522,11 +465,7 @@ public class AddNoteDialog extends DialogFragment {
 
         // The listener may be cleared by onDetach() before the experiment/trial is written,
         // so save the MaybeConsumer here as a final var.
-        if (TextUtils.equals(mTrialId, RecorderController.NOT_RECORDING_RUN_ID)) {
-            experiment.addLabel(label);
-        } else {
-            experiment.getTrial(mTrialId).addLabel(label);
-        }
+        experiment.getTrial(mTrialId).addLabel(label);
         saveExperiment(dc, experiment, label).subscribe(
                 MaybeConsumers.toSingleObserver(listener.onLabelAdd()));
     }

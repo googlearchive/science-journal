@@ -1192,9 +1192,8 @@ public class RunReviewFragment extends Fragment implements
                 getTrial().getFirstTimestamp());
         AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, getTrial().getTrialId(),
                 mExperiment.getExperimentId(), R.string.add_note_hint_text,
-                /* show timestamp section */ true, labelTimeText, editedLabel,
-                PinnedNoteAdapter.getNoteTimeContentDescription(timestamp,
-                        getTrial().getFirstTimestamp(), getActivity()), true);
+                labelTimeText, editedLabel, PinnedNoteAdapter.getNoteTimeContentDescription(
+                        timestamp, getTrial().getFirstTimestamp(), getActivity()));
         dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
     }
 

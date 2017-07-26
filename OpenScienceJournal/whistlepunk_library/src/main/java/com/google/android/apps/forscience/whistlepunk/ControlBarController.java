@@ -91,11 +91,7 @@ class ControlBarController {
 
     private void launchLabelAdd(long timestamp, String currentRunId) {
         boolean isRecording = currentRunId != RecorderController.NOT_RECORDING_RUN_ID;
-        final AddNoteDialog dialog = AddNoteDialog.createWithSavedTimestamp(timestamp, currentRunId,
-                mExperimentId, isRecording ? R.string.add_run_note_placeholder_text : R.string
-                        .add_experiment_note_placeholder_text);
-
-        dialog.show(mFragmentManager, AddNoteDialog.TAG);
+        // TODO: Use TextLabeLFragment. This doesn't appear to be hooked up to anything yet, though.
     }
 
     public void attachRecordButton(ImageButton recordButton) {

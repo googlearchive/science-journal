@@ -36,8 +36,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
@@ -49,7 +47,7 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
-        AddNoteDialog.ListenerProvider, CameraFragment.ListenerProvider {
+        CameraFragment.ListenerProvider, TextToolFragment.ListenerProvider {
     public static final int PERMISSIONS_AUDIO_RECORD_REQUEST = 1;
     private static final String TAG = "PanesActivity";
     private static final String EXTRA_EXPERIMENT_ID = "experimentId";
@@ -60,9 +58,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         NOTES(R.string.tab_description_add_note, R.drawable.ic_notes_white_24dp) {
             @Override
             public Fragment createFragment(String experimentId) {
-                return AddNoteDialog.createWithDynamicTimestamp(
-                        RecorderController.NOT_RECORDING_RUN_ID, experimentId,
-                        R.string.add_experiment_note_placeholder_text);
+                return TextToolFragment.newInstance();
             }
         }, OBSERVE(R.string.tab_description_observe, R.drawable.ic_observe_white_24dp) {
             @Override
@@ -295,12 +291,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
             @Override
             public void onLabelAdded(Label label, String trialId) {
-                if (TextUtils.isEmpty(trialId)) {
-                    // TODO: is this expensive?  Should we trigger a more incremental update?
-                    mExperimentFragment.loadExperiment();
-                } else {
-                    mExperimentFragment.onRecordingTrialUpdated(trialId);
-                }
+                PanesActivity.this.onLabelAdded(label, trialId);
             }
 
             @Override
@@ -333,38 +324,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     @Override
-    public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
-        return new AddNoteDialog.AddNoteDialogListener() {
-            @Override
-            public MaybeConsumer<Label> onLabelAdd() {
-                return new LoggingConsumer<Label>(TAG, "refresh with added label") {
-                    @Override
-                    public void success(Label value) {
-                        // TODO: avoid database round-trip?
-                        mExperimentFragment.loadExperiment();
-                    }
-                };
-            }
-
-            @Override
-            public Single<String> whenExperimentId() {
-                return mActiveExperiment.map(e -> e.getExperimentId());
-            }
-        };
-    }
-
-    @Override
     public CameraFragment.CameraFragmentListener getCameraFragmentListener() {
         return new CameraFragment.CameraFragmentListener() {
             @Override
             public void onPictureLabelTaken(final Label label) {
-                // Get the most recent experiment, or wait if none has been loaded yet.
-                mActiveExperiment.subscribe(e -> {
-                    e.addLabel(label);
-                    AddNoteDialog.saveExperiment(getDataController(), e, label)
-                                 .subscribe(MaybeConsumers.toSingleObserver(
-                                         getAddNoteDialogListener().onLabelAdd()));
-                });
+                addNewLabel(label);
             }
 
             @Override
@@ -372,6 +336,40 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 return mActiveExperiment.map(e -> e.getExperimentId()).toObservable();
             }
         };
+    }
+
+    @Override
+    public TextToolFragment.TextLabelFragmentListener getTextLabelFragmentListener() {
+        return new TextToolFragment.TextLabelFragmentListener() {
+            @Override
+            public void onTextLabelTaken(Label result) {
+                addNewLabel(result);
+            }
+        };
+    }
+
+    private void addNewLabel(Label label) {
+        // Get the most recent experiment, or wait if none has been loaded yet.
+        mActiveExperiment.subscribe(e -> {
+            // if it is recording, add it to the recorded trial instead!
+            String trialId = mExperimentFragment.getActiveRecordingId();
+            if (TextUtils.isEmpty(trialId)) {
+                e.addLabel(label);
+            } else {
+                e.getTrial(trialId).addLabel(label);
+            }
+            RxDataController.updateExperiment(getDataController(), e)
+                    .subscribe(() -> onLabelAdded(label, trialId));
+        });
+    }
+
+    private void onLabelAdded(Label label, String trialId) {
+        if (TextUtils.isEmpty(trialId)) {
+            // TODO: is this expensive?  Should we trigger a more incremental update?
+            mExperimentFragment.loadExperiment();
+        } else {
+            mExperimentFragment.onRecordingTrialUpdated(trialId);
+        }
     }
 
     private DataController getDataController() {

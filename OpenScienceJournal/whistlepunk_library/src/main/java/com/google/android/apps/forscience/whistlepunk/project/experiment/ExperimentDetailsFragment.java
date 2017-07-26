@@ -356,7 +356,6 @@ public class ExperimentDetailsFragment extends Fragment
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_experiment_add_note).setVisible(mDisappearingActionBar);
         menu.findItem(R.id.action_archive_experiment).setVisible(mExperiment != null &&
                 !mExperiment.isArchived());
         menu.findItem(R.id.action_unarchive_experiment).setVisible(mExperiment != null &&
@@ -381,9 +380,6 @@ public class ExperimentDetailsFragment extends Fragment
         } else if (itemId == R.id.action_archive_experiment
                 || itemId == R.id.action_unarchive_experiment) {
             setExperimentArchived(item.getItemId() == R.id.action_archive_experiment);
-            return true;
-        } else if (itemId == R.id.action_experiment_add_note) {
-            launchLabelAdd();
             return true;
         } else if (itemId == R.id.action_include_archived) {
             mIncludeArchived = true;
@@ -483,15 +479,6 @@ public class ExperimentDetailsFragment extends Fragment
                         archived ? TrackerConstants.ACTION_ARCHIVE :
                                 TrackerConstants.ACTION_UNARCHIVE,
                         null, 0);
-    }
-
-    private void launchLabelAdd() {
-        long now = AppSingleton.getInstance(getActivity()).getSensorEnvironment()
-                .getDefaultClock().getNow();
-        AddNoteDialog dialog =
-                AddNoteDialog.createWithSavedTimestamp(now, RecorderController.NOT_RECORDING_RUN_ID,
-                        mExperimentId, R.string.add_experiment_note_placeholder_text);
-        dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
     }
 
     @Override

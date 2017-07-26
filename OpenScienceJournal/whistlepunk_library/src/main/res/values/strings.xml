@@ -1394,6 +1394,9 @@ Permissions notice:
     <!-- Heading for a section that has details about a snapshot or trigger note [CHAR_LIMIT=50] -->
     <string name="details_header">Details</string>
 
+    <!-- Hint text for adding a text note from the observe fragment [CHAR_LIMIT=100] -->
+    <string name="text_label_hint">Add an observation</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

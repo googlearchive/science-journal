@@ -18,12 +18,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity">
     <item
-        android:id="@+id/action_experiment_add_note"
-        android:icon="@drawable/ic_notes_white_24dp"
-        android:title="@string/add_experiment_note"
-        app:showAsAction="always"
-        />
-    <item
         android:id="@+id/action_edit_experiment"
         android:icon="@drawable/ic_mode_edit_white_24dp"
         android:title="@string/action_edit"
