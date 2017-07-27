@@ -35,7 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 public class RecordingThrobberView extends View {
     private static final String TAG = "RecordingThrobber";
     private static final int NUMBER_BARS = 5;
-    private static final int MS_PER_CYCLE = 400;
+    private static final int MS_PER_CYCLE = 500;
 
     private Paint mPaint;
     private float mWidth;

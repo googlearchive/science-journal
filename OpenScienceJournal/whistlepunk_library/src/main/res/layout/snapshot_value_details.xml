@@ -45,6 +45,7 @@
         android:textColor="@color/text_color_light_grey"
         android:textSize="16sp"
         android:drawablePadding="4dp"
+        android:layout_marginTop="4dp"
         />
 
     <TextView
@@ -58,6 +59,7 @@
         android:textColor="@color/text_color_dark_grey"
         android:textSize="32sp"
         android:textStyle="bold"
+        android:layout_margin="0dp"
         />
 
 </RelativeLayout>
