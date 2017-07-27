@@ -52,13 +52,6 @@
     />
 
     <CheckBoxPreference
-        android:key="enable_video_sensor"
-        android:defaultValue="false"
-        android:title="@string/enable_video_sensor_title"
-        android:summary="@string/enable_video_sensor_summary"
-    />
-
-    <CheckBoxPreference
         android:key="dev_tools"
         android:defaultValue="false"
         android:title="@string/dev_tools_title"

@@ -37,7 +37,6 @@ public class DevOptionsFragment extends PreferenceFragment {
 
     private static final String KEY_MAGNETOMETER = "enable_magnetometer_sensor";
     private static final String KEY_COMPASS = "enable_compass_sensor";
-    private static final String KEY_VIDEO_SENSOR = "enable_video_sensor";
     private static final String KEY_DEV_TOOLS = "dev_tools";
     private static final String KEY_LEAK_CANARY = "leak_canary";
     private static final String KEY_STRICT_MODE = "strict_mode";
@@ -101,10 +100,6 @@ public class DevOptionsFragment extends PreferenceFragment {
 
     public static boolean isSineWaveEnabled(Context context) {
         return getBoolean(KEY_SINE_WAVE_SENSOR, false, context);
-    }
-
-    public static boolean isVideoSensorEnabled(Context context) {
-        return getBoolean(KEY_VIDEO_SENSOR, false, context);
     }
 
     public static boolean isDevToolsEnabled(Context context) {

@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 
@@ -33,7 +32,6 @@ import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.LinearAccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.common.base.Preconditions;
 
 import java.util.HashMap;
@@ -188,9 +186,6 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
 
         putAppearance(SineWavePseudoSensor.ID, new BuiltInSensorAppearance(R.string.sine_wave,
                 R.drawable.ic_sensors_white_24dp, SineWavePseudoSensor.ID));
-
-        putAppearance(VideoSensor.ID, new BuiltInSensorAppearance(R.string.video_stream,
-                R.drawable.ic_sensor_video_white_24dp, VideoSensor.ID));
     }
 
     private void putExternalSensorAppearance(String sensorId, ExternalSensorSpec sensor) {

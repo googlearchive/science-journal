@@ -250,25 +250,18 @@ public class CameraPreview extends SurfaceView {
     }
 
     private void takePicture(String experimentId, String uuid, MaybeConsumer<String> onSuccess) {
-        try {
-            final File photoFile =
-                    PictureUtils.createImageFile(getContext(), uuid, experimentId);
-            final FileOutputStream out = new FileOutputStream(photoFile);
+        final File photoFile = PictureUtils.createImageFile(getContext(), experimentId, uuid);
 
-            mCamera.takePicture(null, null, null, (data, camera) -> {
-                try {
-                    out.write(data);
-                    out.close();
-                    // Pass back the relative path for saving in the label.
-                    onSuccess.success(FileMetadataManager.getRelativePathInExperiment(experimentId,
-                            photoFile));
-                    mCamera.startPreview();
-                } catch (IOException e) {
-                    onSuccess.fail(e);
-                }
-            });
-        } catch (IOException e) {
-            onSuccess.fail(e);
-        }
+        mCamera.takePicture(null, null, null, (data, camera) -> {
+            try (FileOutputStream out = new FileOutputStream(photoFile)) {
+                out.write(data);
+                // Pass back the relative path for saving in the label.
+                onSuccess.success(FileMetadataManager.getRelativePathInExperiment(experimentId,
+                        photoFile));
+                mCamera.startPreview();
+            } catch (IOException e) {
+                onSuccess.fail(e);
+            }
+        });
     }
 }

@@ -24,6 +24,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -51,7 +52,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 
 import java.io.File;
 import java.util.UUID;
@@ -393,7 +393,7 @@ public class AddNoteDialog extends DialogFragment {
         // Show the picture note button if the camera is available and the user
         // hasn't already taken a picture.
         imageButton.setVisibility(textSideVisible &&
-                                  VideoSensor.isCameraAvailable(
+                                  isCameraAvailable(
                                           getActivity().getApplicationContext()) ?
                 View.VISIBLE : View.GONE);
     }
@@ -526,5 +526,9 @@ public class AddNoteDialog extends DialogFragment {
     private Single<Experiment> whenExperiment(Context context) {
         return RxDataController.getExperimentById(getDataController(context), mExperimentId)
                                .doOnError(LoggingConsumer.complain(TAG, "get experiment"));
+    }
+
+    public static boolean isCameraAvailable(Context context) {
+        return (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY));
     }
 }
