@@ -15,19 +15,17 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import static org.junit.Assert.assertEquals;
+
 import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
 public class SensorAppearanceProviderImplTest {

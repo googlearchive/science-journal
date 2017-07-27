@@ -122,4 +122,5 @@ dependencies {
         exclude group: 'commons-logging', module: 'commons-logging'
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
+    testCompile 'org.robolectric:shadows-core:3.3.2'
 }
