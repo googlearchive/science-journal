@@ -55,12 +55,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private BehaviorSubject<Boolean> mAudioPermissionsGranted = BehaviorSubject.create();
 
     private static enum ToolTab {
-        NOTES(R.string.tab_description_add_note, R.drawable.ic_notes_white_24dp) {
+        NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp) {
             @Override
             public Fragment createFragment(String experimentId) {
                 return TextToolFragment.newInstance();
             }
-        }, OBSERVE(R.string.tab_description_observe, R.drawable.ic_observe_white_24dp) {
+        }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp) {
             @Override
             public Fragment createFragment(String experimentId) {
                 return RecordFragment.newInstance(experimentId, true, false);
