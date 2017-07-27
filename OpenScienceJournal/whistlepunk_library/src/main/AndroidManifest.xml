@@ -122,11 +122,11 @@
             android:exported="false"
             android:label="@string/run_review_activity_label"
             android:theme="@style/AppTheme.RunReview"
-            android:parentActivityName=".project.experiment.ExperimentDetailsActivity"
+            android:parentActivityName=".PanesActivity"
             >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity"/>
+                android:value="com.google.android.apps.forscience.whistlepunk.PanesActivity"/>
         </activity>
         <activity
             android:name=".review.labels.LabelDetailsActivity"
