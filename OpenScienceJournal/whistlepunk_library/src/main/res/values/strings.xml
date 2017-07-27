@@ -1397,6 +1397,18 @@ Permissions notice:
     <!-- Hint text for adding a text note from the observe fragment [CHAR_LIMIT=100] -->
     <string name="text_label_hint">Add an observation</string>
 
+    <!-- Experiment name for first (comes with install) experiment [CHAR_LIMIT=100] -->
+    <string name="first_experiment_title">Welcome to Science Journal</string>
+
+    <!-- Text note contents for first note in first experiment [CHAR_LIMIT=NONE] -->
+    <string name="first_experiment_text_note">Take notes and record data using tools from the drawer below.</string>
+
+    <!-- Text note contents for first note in first experiment [CHAR_LIMIT=NONE] -->
+    <string name="first_experiment_picture_note_caption">Find activities to try at g.co/sciencejournalactivities</string>
+
+    <!-- Text note contents for first note in the first trial in the first experiment [CHAR_LIMIT=NONE] -->
+    <string name="first_experiment_trial_text_note">Record data from the sensor tab and mark important points on the graph.</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
