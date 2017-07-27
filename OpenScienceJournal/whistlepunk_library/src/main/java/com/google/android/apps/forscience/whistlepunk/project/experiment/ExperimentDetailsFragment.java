@@ -722,7 +722,8 @@ public class ExperimentDetailsFragment extends Fragment
                     popup.show();
                 });
                 holder.itemView.setOnClickListener(view -> {
-                    if (mParentReference.get() != null) {
+                    if (!isRecording()) {
+                        // Can't click into details pages when recording.
                         LabelDetailsActivity.launchFromExpDetails(holder.itemView.getContext(),
                                 mExperiment.getExperimentId(), label);
                     }
@@ -739,6 +740,11 @@ public class ExperimentDetailsFragment extends Fragment
                         view.getResources().getDrawable(R.drawable.empty_run));
 
             }
+        }
+
+        private boolean isRecording() {
+            return mParentReference.get() != null &&
+                    mParentReference.get().getActiveRecordingId() != null;
         }
 
         private void setupTrialHeader(DetailsViewHolder holder, final ExperimentDetailItem item) {
@@ -1179,10 +1185,13 @@ public class ExperimentDetailsFragment extends Fragment
 
         private View.OnClickListener createRunClickListener(final int selectedSensorIndex) {
             return v -> {
-                String runId = (String) v.getTag(R.id.run_title_text);
-                RunReviewActivity.launch(v.getContext(), runId, mExperiment.getExperimentId(),
-                        selectedSensorIndex, false /* from record */, false /* create task */,
-                        null);
+                if (!isRecording()) {
+                    // Can't click into details pages when recording.
+                    String runId = (String) v.getTag(R.id.run_title_text);
+                    RunReviewActivity.launch(v.getContext(), runId, mExperiment.getExperimentId(),
+                            selectedSensorIndex, false /* from record */, false /* create task */,
+                            null);
+                }
             };
         }
 
