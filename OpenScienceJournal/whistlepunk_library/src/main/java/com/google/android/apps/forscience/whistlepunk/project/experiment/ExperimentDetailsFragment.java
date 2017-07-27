@@ -1095,6 +1095,7 @@ public class ExperimentDetailsFragment extends Fragment
             Context context = holder.cardView.getContext();
             holder.title.setText(context.getResources().getString(R.string.card_recording_title,
                     item.getTrial().getTitle(context, mExperiment)));
+            holder.noteHolder.removeAllViews();
             if (item.getTrial().getLabelCount() > 0) {
                 for (int i = 0; i < item.getTrial().getLabelCount(); i++) {
                     loadLabelIntoHolder(item.getTrial().getLabels().get(i),
