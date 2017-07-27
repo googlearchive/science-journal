@@ -140,7 +140,13 @@ public class CameraFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        mPreview.setCamera(Camera.open());
+        Camera camera = Camera.open();
+        if (camera == null) {
+            // For some reason using the 0 index lets us properly open the default (front-facing)
+            // camera on devices without back-facing cameras.
+            camera = Camera.open(0);
+        }
+        mPreview.setCamera(camera);
     }
 
     @Override
