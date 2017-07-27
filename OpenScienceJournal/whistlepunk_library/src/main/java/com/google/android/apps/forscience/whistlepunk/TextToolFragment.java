@@ -86,7 +86,9 @@ public class TextToolFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putString(KEY_TEXT, mTextView.getText().toString());
+        if (mTextView != null && mTextView.getText() != null) {
+            outState.putString(KEY_TEXT, mTextView.getText().toString());
+        }
         super.onSaveInstanceState(outState);
     }
 
