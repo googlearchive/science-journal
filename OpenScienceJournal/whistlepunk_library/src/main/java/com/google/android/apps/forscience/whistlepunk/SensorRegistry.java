@@ -40,7 +40,6 @@ import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.LinearAccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.VideoSensor;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -244,12 +243,6 @@ public class SensorRegistry {
 
         if (DevOptionsFragment.isSineWaveEnabled(context)) {
             addBuiltInSensor(new SineWavePseudoSensor());
-        }
-
-        if (DevOptionsFragment.isVideoSensorEnabled(context)) {
-            if (VideoSensor.isCameraAvailable(context.getApplicationContext())) {
-                addBuiltInSensor(new VideoSensor(context.getApplicationContext()));
-            }
         }
     }
 

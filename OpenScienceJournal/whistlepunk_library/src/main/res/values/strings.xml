@@ -930,12 +930,6 @@ Permissions notice:
     <!-- Summary of developer option to display a synthetic sine wave [CHAR_LIMIT=none] -->
     <string name="enable_sine_wave_sensor_summary">Enable experimental synthetic sine wave sensor</string>
 
-    <!-- Title of developer option to display a video sensor [CHAR_LIMIT=35]-->
-    <string name="enable_video_sensor_title">Enable video sensor</string>
-
-    <!-- Summary of developer option to display a video sensor [CHAR_LIMIT=none] -->
-    <string name="enable_video_sensor_summary">Enable video sensor</string>
-
     <!-- Menu option to change the audio settings [CHAR_LIMIT=25] -->
     <string name="menu_item_audio_settings">Audio settings</string>
 

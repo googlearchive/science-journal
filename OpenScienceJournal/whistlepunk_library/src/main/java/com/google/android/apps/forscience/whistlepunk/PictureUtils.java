@@ -57,8 +57,7 @@ public class PictureUtils {
     private static final String PICTURE_NAME_TEMPLATE = "%s.jpg";
 
     // From http://developer.android.com/training/camera/photobasics.html.
-    public static File createImageFile(Context context, String experimentId, String uuid)
-            throws IOException {
+    public static File createImageFile(Context context, String experimentId, String uuid) {
         // Create an image file name using the uuid of the item it is attached to.
         String imageFileName = String.format(PICTURE_NAME_TEMPLATE, uuid);
         File storageDir = FileMetadataManager.getAssetsDirectory(context, experimentId);
@@ -103,13 +102,7 @@ public class PictureUtils {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
             File photoFile = null;
-            try {
-                photoFile = PictureUtils.createImageFile(context, experimentId, uuid);
-            } catch (IOException ex) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, ex.getMessage());
-                }
-            }
+            photoFile = PictureUtils.createImageFile(context, experimentId, uuid);
             if (photoFile != null) {
                 Uri contentUri = FileProvider.getUriForFile(context,
                         "com.google.android.apps.forscience.whistlepunk", photoFile);
