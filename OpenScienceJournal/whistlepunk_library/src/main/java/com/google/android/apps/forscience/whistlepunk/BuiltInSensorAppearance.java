@@ -52,6 +52,8 @@ public class BuiltInSensorAppearance implements SensorAppearance {
      */
     private final int mUnitsStringId;
 
+    private final int mPointsAfterDecimal;
+
     /**
      * The number format to use for this sensor everywhere but the graph Y axis.
      */
@@ -113,6 +115,7 @@ public class BuiltInSensorAppearance implements SensorAppearance {
         mSecondParagraphStringId = secondParagraphStringId;
         mLearnMoreDrawableId = infoDrawableId;
         mSensorAnimationBehavior = sensorAnimationBehavior;
+        mPointsAfterDecimal = pointsAfterDecimalInNumberFormat;
         mNumberFormat = createNumberFormat(pointsAfterDecimalInNumberFormat);
         mBuiltInSensorId = builtInSensorId;
     }
@@ -196,6 +199,11 @@ public class BuiltInSensorAppearance implements SensorAppearance {
     @Override
     public NumberFormat getNumberFormat() {
         return mNumberFormat;
+    }
+
+    @Override
+    public int getPointsAfterDecimal() {
+        return mPointsAfterDecimal;
     }
 
     private static NumberFormat createNumberFormat(int pointsAfterDecimalInNumberFormat) {
