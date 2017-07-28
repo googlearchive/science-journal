@@ -274,6 +274,53 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (!isMultiWindowEnabled()) {
+            updateRecorderControllerForResume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (!isMultiWindowEnabled()) {
+            updateRecorderControllerForPause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (isMultiWindowEnabled()) {
+            updateRecorderControllerForResume();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        if (isMultiWindowEnabled()) {
+            updateRecorderControllerForPause();
+        }
+        super.onStop();
+    }
+
+    private boolean isMultiWindowEnabled() {
+        return MultiWindowUtils.isMultiWindowEnabled(getApplicationContext());
+    }
+
+    private void updateRecorderControllerForResume() {
+        RecorderController rc = AppSingleton.getInstance(this).getRecorderController();
+        rc.setRecordActivityInForeground(true);
+    }
+
+    private void updateRecorderControllerForPause() {
+        RecorderController rc = AppSingleton.getInstance(this).getRecorderController();
+        rc.setRecordActivityInForeground(false);
+    }
+
+
+    @Override
     public void onBackPressed() {
         if (mExperimentFragment.handleOnBackPressed()) {
             return;

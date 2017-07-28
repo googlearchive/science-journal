@@ -219,4 +219,9 @@ public class MemoryMetadataManager implements MetaDataManager {
     public void close() {
 
     }
+
+    @Override
+    public void saveImmediately() {
+
+    }
 }

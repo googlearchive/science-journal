@@ -218,14 +218,10 @@ public class MainActivity extends AppCompatActivity
                     !mIsRecording);
             exitMetadataIfNeeded();
         });
-        rc.setRecordActivityInForeground(true);
     }
 
     private void updateRecorderControllerForPause() {
         mPause.onHappened();
-        AppSingleton singleton = AppSingleton.getInstance(this);
-        RecorderController rc = singleton.getRecorderController();
-        rc.setRecordActivityInForeground(false);
     }
 
     /**

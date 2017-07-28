@@ -27,6 +27,7 @@ import android.util.ArrayMap;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
@@ -609,7 +610,7 @@ public class RecorderControllerImpl implements RecorderController {
             }
         }
         mRecordingStateChangeInProgress = true;
-        final boolean activityInForground = mActivityInForeground;
+        final boolean activityInForeground = mActivityInForeground;
 
         return Completable.create(emitter ->
                 withBoundRecorderService(new FallibleConsumer<RecorderService>() {
@@ -633,21 +634,8 @@ public class RecorderControllerImpl implements RecorderController {
                                                 trial, sensorLayoutsAtStop, sensorRegistry);
                                         mDataController.updateExperiment(
                                                 getSelectedExperiment().getExperimentId(),
-                                                new LoggingConsumer<Success>(TAG, "update stats") {
-                                                    @Override
-                                                    public void success(Success value) {
-                                                        // Close the service. When the service is
-                                                        // closed, if the app is in the background,
-                                                        // all processes will stop -- so this needs
-                                                        // to be the last thing to happen!
-                                                        Experiment exp = getSelectedExperiment();
-                                                        recorderService.endServiceRecording(
-                                                                !activityInForground,
-                                                                mCurrentTrialId,
-                                                                exp.getExperimentId(),
-                                                                exp.getDisplayTitle(mContext));
-                                                    }
-                                                });
+                                                endRecordingConsumer(recorderService,
+                                                        activityInForeground, mCurrentTrialId));
 
                                         // Now actually stop the recording.
                                         mCurrentTrialId = "";
@@ -863,5 +851,31 @@ public class RecorderControllerImpl implements RecorderController {
     @Override
     public void setRecordActivityInForeground(boolean isInForeground) {
         mActivityInForeground = isInForeground;
+    }
+
+    private MaybeConsumer<Success> endRecordingConsumer(RecorderService recorderService,
+            boolean activityInForeground, String trialId) {
+        return new LoggingConsumer<Success>(TAG, "update completed trial") {
+            @Override
+            public void success(Success value) {
+                // TODO: Can we use SimpleMetadataManager#close instead?
+                mDataController.saveImmediately(
+                        new LoggingConsumer<Success>(TAG, "save immediately") {
+                            @Override
+                            public void success(Success value) {
+                                // Close the service. When the service is
+                                // closed, if the app is in the background,
+                                // all processes will stop -- so this needs
+                                // to be the last thing to happen!
+                                Experiment exp = getSelectedExperiment();
+                                recorderService.endServiceRecording(
+                                        !activityInForeground,
+                                        trialId,
+                                        exp.getExperimentId(),
+                                        exp.getDisplayTitle(mContext));
+                            }
+                        });
+            }
+        };
     }
 }

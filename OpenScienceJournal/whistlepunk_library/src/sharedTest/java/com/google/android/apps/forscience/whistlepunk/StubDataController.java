@@ -80,6 +80,11 @@ public class StubDataController implements DataController {
     }
 
     @Override
+    public void saveImmediately(MaybeConsumer<Success> onSuccess) {
+
+    }
+
+    @Override
     public String generateNewLabelId() {
         return null;
     }

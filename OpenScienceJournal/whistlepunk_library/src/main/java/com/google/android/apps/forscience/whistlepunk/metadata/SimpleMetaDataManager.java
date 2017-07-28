@@ -566,6 +566,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
         getFileMetadataManager().updateExperiment(experiment);
     }
 
+    @Override
+    public void saveImmediately() {
+        getFileMetadataManager().saveImmediately();
+    }
+
     private static void updateDatabaseExperiment(SQLiteDatabase db, Experiment experiment) {
         final ContentValues values = new ContentValues();
         values.put(ExperimentColumns.TITLE, experiment.getTitle());

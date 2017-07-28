@@ -58,6 +58,8 @@ public interface DataController {
 
     void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
+    void saveImmediately(MaybeConsumer<Success> onSuccess);
+
     String generateNewLabelId();
 
     /**

@@ -266,6 +266,14 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
+    public void saveImmediately(MaybeConsumer<Success> onSuccess) {
+        background(mMetaDataThread, onSuccess, () -> {
+            mMetaDataManager.saveImmediately();
+            return Success.SUCCESS;
+        });
+    }
+
+    @Override
     public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
         if (!mCachedExperiments.containsKey(experiment.getExperimentId())) {
             throw new IllegalArgumentException(

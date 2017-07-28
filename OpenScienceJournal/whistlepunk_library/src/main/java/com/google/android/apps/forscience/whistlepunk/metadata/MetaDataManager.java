@@ -129,4 +129,9 @@ public interface MetaDataManager {
     void setLastUsedExperiment(Experiment experiment);
 
     void close();
+
+    /**
+     * Any unsaved or cached data should be saved immediately.
+     */
+    void saveImmediately();
 }
