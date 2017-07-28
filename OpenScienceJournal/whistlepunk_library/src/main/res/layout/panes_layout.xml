@@ -28,6 +28,13 @@
         android:layout_gravity="top"
         />
 
+    <View
+        android:id="@+id/shadow"
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:background="@drawable/top_shadow"
+        app:layout_anchor="@id/bottom" />
+
     <LinearLayout
         android:id="@+id/bottom"
         android:layout_width="match_parent"
