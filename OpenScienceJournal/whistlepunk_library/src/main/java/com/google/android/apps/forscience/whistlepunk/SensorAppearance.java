@@ -80,6 +80,11 @@ public interface SensorAppearance {
      */
     NumberFormat getNumberFormat();
 
+    /**
+     * Get the raw number of recommended points to be displayed after the decimal.
+     */
+    int getPointsAfterDecimal();
+
     boolean hasLearnMore();
 
     Single<LearnMoreContents> loadLearnMore(Context context);

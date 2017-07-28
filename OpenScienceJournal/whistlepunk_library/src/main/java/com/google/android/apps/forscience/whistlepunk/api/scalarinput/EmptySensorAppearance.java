@@ -20,6 +20,7 @@ import android.graphics.drawable.Drawable;
 
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
+import com.google.android.apps.forscience.whistlepunk.BuiltInSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
@@ -56,7 +57,7 @@ public class EmptySensorAppearance implements SensorAppearance {
 
     @Override
     public String getShortDescription(Context context) {
-        return null;
+        return "";
     }
 
     @Override
@@ -87,5 +88,10 @@ public class EmptySensorAppearance implements SensorAppearance {
     @Override
     public NumberFormat getNumberFormat() {
         return new AxisNumberFormat();
+    }
+
+    @Override
+    public int getPointsAfterDecimal() {
+        return BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL;
     }
 }

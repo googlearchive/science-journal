@@ -58,6 +58,9 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
         proto.locale = getLanguageTag(context);
         proto.iconPath = appearance.getSmallIconPath();
         proto.largeIconPath = appearance.getLargeIconPath();
+        proto.units = appearance.getUnits(context);
+        proto.shortDescription = appearance.getShortDescription(context);
+        proto.pointsAfterDecimal = appearance.getPointsAfterDecimal();
         return proto;
     }
 
