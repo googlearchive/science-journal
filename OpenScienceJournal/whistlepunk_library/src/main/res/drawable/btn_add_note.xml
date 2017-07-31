@@ -20,16 +20,16 @@
             <item>
                 <shape android:gravity="center" android:shape="oval">
                     <size
-                        android:height="56dp"
-                        android:width="56dp"/>
-                    <solid android:color="#9A9A9A"/>
+                        android:height="48dp"
+                        android:width="48dp"/>
+                    <solid android:color="@color/note_overlay_line_color"/>
                 </shape>
             </item>
             <item
-                android:left="16dp"
-                android:right="16dp"
-                android:top="16dp"
-                android:bottom="16dp"
+                android:left="13dp"
+                android:right="9dp"
+                android:top="12dp"
+                android:bottom="12dp"
                 android:drawable="@drawable/ic_send_white_24dp"
                 >
             </item>
@@ -40,16 +40,16 @@
             <item>
                 <shape android:gravity="center" android:shape="oval">
                     <size
-                        android:height="56dp"
-                        android:width="56dp"/>
+                        android:height="48dp"
+                        android:width="48dp"/>
                     <solid android:color="@color/color_accent"/>
                 </shape>
             </item>
             <item
-                android:left="16dp"
-                android:right="16dp"
-                android:top="16dp"
-                android:bottom="16dp"
+                android:left="13dp"
+                android:right="9dp"
+                android:top="12dp"
+                android:bottom="12dp"
                 android:drawable="@drawable/ic_send_white_24dp"
                 >
             </item>
