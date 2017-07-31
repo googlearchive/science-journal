@@ -139,10 +139,10 @@
             android:name=".devicemanager.ManageDevicesActivity"
             android:exported="false"
             android:label="@string/title_activity_sensor_settings"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".PanesActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
+                android:value="com.google.android.apps.forscience.whistlepunk.PanesActivity"/>
         </activity>
         <activity
             android:name=".project.experiment.UpdateExperimentActivity"
