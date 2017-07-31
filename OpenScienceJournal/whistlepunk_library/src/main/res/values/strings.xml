@@ -538,7 +538,7 @@
     <string name="title_activity_experiment_details">Experiment Details</string>
 
     <!-- Message shown to user if they have no recordings or notes yet. [CHAR_LIMIT=60]-->
-    <string name="empty_experiment">This experiment has no recordings or notes.</string>
+    <string name="empty_experiment">You have no observations yet</string>
 
     <!-- Alert message when user deny access to external storage [CHAR_LIMIT=100] -->
     <string name="permission_request_write">Permission needed to write to external storage.</string>

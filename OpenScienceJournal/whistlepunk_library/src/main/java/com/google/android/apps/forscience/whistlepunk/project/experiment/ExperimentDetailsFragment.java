@@ -128,6 +128,7 @@ public class ExperimentDetailsFragment extends Fragment
     private boolean mDisappearingActionBar;
     private Label mDeletedLabel;
     private String mActiveTrialId;
+    private TextView mEmptyView;
 
     /**
      * Creates a new instance of this fragment.
@@ -265,6 +266,11 @@ public class ExperimentDetailsFragment extends Fragment
                 LinearLayoutManager.VERTICAL, mOldestAtTop));
         mAdapter = new DetailsAdapter(this, savedInstanceState);
         mDetails.setAdapter(mAdapter);
+
+        mEmptyView = (TextView) view.findViewById(R.id.empty_list);
+        mEmptyView.setText(R.string.empty_experiment);
+        mEmptyView.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, null,
+                view.getResources().getDrawable(R.drawable.empty_run));
 
         // TODO: Because mScalarDisplayOptions are static, if the options are changed during the
         // time we are on this page it probably won't have an effect. Since graph options are
@@ -643,11 +649,10 @@ public class ExperimentDetailsFragment extends Fragment
         static final int VIEW_TYPE_EXPERIMENT_TEXT_LABEL = 1;
         static final int VIEW_TYPE_EXPERIMENT_PICTURE_LABEL = 2;
         static final int VIEW_TYPE_RUN_CARD = 3;
-        private static final int VIEW_TYPE_EMPTY = 4;
-        static final int VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL = 5;
-        static final int VIEW_TYPE_SNAPSHOT_LABEL = 6;
-        static final int VIEW_TYPE_UNKNOWN_LABEL = 7;
-        static final int VIEW_TYPE_RECORDING = 8;
+        static final int VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL = 4;
+        static final int VIEW_TYPE_SNAPSHOT_LABEL = 5;
+        static final int VIEW_TYPE_UNKNOWN_LABEL = 6;
+        static final int VIEW_TYPE_RECORDING = 7;
 
         private final WeakReference<ExperimentDetailsFragment> mParentReference;
         private Experiment mExperiment;
@@ -680,8 +685,6 @@ public class ExperimentDetailsFragment extends Fragment
                 return new RecordingViewHolder(view);
             } else if (viewType == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
                 view = inflater.inflate(R.layout.metadata_archived, parent, false);
-            } else if (viewType == VIEW_TYPE_EMPTY) {
-                view = inflater.inflate(R.layout.empty_list, parent, false);
             } else {
                 view = inflater.inflate(R.layout.exp_card_run, parent, false);
             }
@@ -733,12 +736,6 @@ public class ExperimentDetailsFragment extends Fragment
                 View archivedIndicator = holder.itemView.findViewById(R.id.archived_indicator);
                 archivedIndicator.setVisibility(
                         mExperiment.isArchived() ? View.VISIBLE : View.GONE);
-            } else if (type == VIEW_TYPE_EMPTY) {
-                TextView view = (TextView) holder.itemView;
-                view.setText(R.string.empty_experiment);
-                view.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, null,
-                        view.getResources().getDrawable(R.drawable.empty_run));
-
             }
         }
 
@@ -850,6 +847,7 @@ public class ExperimentDetailsFragment extends Fragment
                     // It shouldn't be in the list any more.
                     mItems.remove(position);
                     notifyItemRemoved(position);
+                    updateEmptyView();
                 }
             }
         }
@@ -879,14 +877,10 @@ public class ExperimentDetailsFragment extends Fragment
             int size = mItems.size();
             long timestamp = label.getTimeStamp();
             boolean inserted = false;
-            int emptyIndex = -1;
             mHasRunsOrLabels = true;
             for (int i = 0; i < size; i++) {
                 ExperimentDetailItem item = mItems.get(i);
                 if (item.getViewType() == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
-                    continue;
-                } else if (item.getViewType() == VIEW_TYPE_EMPTY) {
-                    emptyIndex = i;
                     continue;
                 }
                 if (timestamp > item.getTimestamp()) {
@@ -900,10 +894,7 @@ public class ExperimentDetailsFragment extends Fragment
                 mItems.add(size, new ExperimentDetailItem(label));
                 notifyItemInserted(size);
             }
-            // Remove the empty type if necessary.
-            if (emptyIndex > -1) {
-                removeEmptyView(emptyIndex, true);
-            }
+            mParentReference.get().mEmptyView.setVisibility(View.GONE);
         }
 
         @Override
@@ -949,13 +940,8 @@ public class ExperimentDetailsFragment extends Fragment
                 mItems.add(0, new ExperimentDetailItem(VIEW_TYPE_EXPERIMENT_ARCHIVED));
             }
 
-            if (!mHasRunsOrLabels) {
-                addEmptyView(false /* don't notify */);
-            }
-
-            if (mParentReference.get() != null) {
-                mParentReference.get().setToolbarScrollFlags(!mHasRunsOrLabels);
-            }
+            mParentReference.get().mEmptyView.setVisibility(mHasRunsOrLabels ?
+                    View.GONE : View.VISIBLE);
 
             notifyDataSetChanged();
         }
@@ -966,19 +952,18 @@ public class ExperimentDetailsFragment extends Fragment
          */
         private void updateEmptyView() {
             boolean hasRunsOrLabels = false;
-            int emptyIndex = -1;
 
             final int count = mItems.size();
             for (int index = 0; index < count; ++index) {
                 int viewType = mItems.get(index).getViewType();
                 switch (viewType) {
-                    case VIEW_TYPE_EMPTY:
-                        emptyIndex = index;
-                        break;
+                    // Most view types count as runs or labels.
+                    // However, the archived view type does not.
                     case VIEW_TYPE_RUN_CARD:
                     case VIEW_TYPE_EXPERIMENT_PICTURE_LABEL:
                     case VIEW_TYPE_EXPERIMENT_TEXT_LABEL:
                     case VIEW_TYPE_SNAPSHOT_LABEL:
+                    case VIEW_TYPE_RECORDING:
                     case VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL:
                         hasRunsOrLabels = true;
                         break;
@@ -991,39 +976,9 @@ public class ExperimentDetailsFragment extends Fragment
             }
 
             mHasRunsOrLabels = hasRunsOrLabels;
-            if (hasRunsOrLabels && emptyIndex != -1) {
-                // We have runs but there is an empty item. Remove it.
-                removeEmptyView(emptyIndex, true);
-            } else if (!hasRunsOrLabels && emptyIndex == -1) {
-                // We have no runs or labels and no empty item. Add it to the end.
-                addEmptyView(true);
-            }
-        }
+            mParentReference.get().mEmptyView.setVisibility(hasRunsOrLabels ? View.GONE :
+                    View.VISIBLE);
 
-        void addEmptyView(boolean notifyAdd) {
-            mItems.add(new ExperimentDetailItem(VIEW_TYPE_EMPTY));
-            if (notifyAdd) {
-                notifyItemInserted(mItems.size() - 1);
-                if (mExperiment.isArchived()) {
-                    notifyItemChanged(0);
-                }
-            }
-            if (mParentReference.get() != null) {
-                mParentReference.get().setToolbarScrollFlags(true /* has an empty view*/);
-            }
-        }
-
-        void removeEmptyView(int location, boolean notifyRemove) {
-            mItems.remove(location);
-            if (notifyRemove) {
-                notifyItemRemoved(location);
-                if (mExperiment.isArchived()) {
-                    notifyItemChanged(0);
-                }
-            }
-            if (mParentReference.get() != null) {
-                mParentReference.get().setToolbarScrollFlags(false /* has an empty view*/);
-            }
         }
 
         void bindRun(final DetailsViewHolder holder, final ExperimentDetailItem item) {
