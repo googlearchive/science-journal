@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -40,6 +41,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
@@ -402,42 +404,11 @@ public class ExperimentListFragment extends Fragment implements
                 popup.getMenu().findItem(R.id.menu_item_delete).setEnabled(
                         item.experimentOverview.isArchived);
                 popup.setOnMenuItemClickListener(menuItem -> {
-                    GoosciUserMetadata.ExperimentOverview overview = item.experimentOverview;
                     if (menuItem.getItemId() == R.id.menu_item_archive) {
-                        item.experimentOverview.isArchived = true;
-                        RxDataController.getExperimentById(mDataController, overview.experimentId)
-                                .subscribe(fullExperiment -> {
-                                    fullExperiment.setArchived(true);
-                                    mDataController.updateExperiment(overview.experimentId,
-                                            new LoggingConsumer<Success>(TAG, "set archived bit") {
-                                                @Override
-                                                public void success(Success value) {
-                                                    if (mIncludeArchived) {
-                                                        notifyItemChanged(
-                                                                mItems.indexOf(item));
-                                                    } else {
-                                                        // Remove archived experiment immediately.
-                                                        int i = mItems.indexOf(item);
-                                                        removeItem(i);
-                                                    }
-                                                }
-                                            });
-                                });
+                        setExperimentArchived(item, true);
                         return true;
                     } else if (menuItem.getItemId() == R.id.menu_item_unarchive) {
-                        overview.isArchived = false;
-                        RxDataController.getExperimentById(mDataController, overview.experimentId)
-                                .subscribe(fullExperiment -> {
-                                    fullExperiment.setArchived(false);
-                                    mDataController.updateExperiment(overview.experimentId,
-                                            new LoggingConsumer<Success>(TAG, "set archived bit") {
-                                                @Override
-                                                public void success(Success value) {
-                                                    notifyItemChanged(
-                                                            mItems.indexOf(item));
-                                                }
-                                            });
-                                });
+                        setExperimentArchived(item, false);
                         return true;
                     } else if (menuItem.getItemId() == R.id.menu_item_delete) {
                         mParentReference.get().confirmDelete(item.experimentOverview.experimentId);
@@ -458,6 +429,53 @@ public class ExperimentListFragment extends Fragment implements
                         .getResources().getIntArray(R.array.experiment_colors_array)[
                                 item.experimentOverview.colorIndex]);
             }
+        }
+
+        private void setExperimentArchived(ExperimentListItem item, boolean archived) {
+            item.experimentOverview.isArchived = archived;
+            RxDataController.getExperimentById(mDataController, item.experimentOverview.experimentId)
+                    .subscribe(fullExperiment -> {
+                        fullExperiment.setArchived(archived);
+                        mDataController.updateExperiment(item.experimentOverview.experimentId,
+                                new LoggingConsumer<Success>(TAG, "set archived bit") {
+                                    @Override
+                                    public void success(Success value) {
+                                        updateArchivedState(item, archived);
+                                        showArchivedSnackbar(archived, item);
+                                    }
+                                });
+                    });
+        }
+
+        private void updateArchivedState(ExperimentListItem item, boolean archived) {
+            if (mIncludeArchived) {
+                notifyItemChanged(mItems.indexOf(item));
+            } else if (archived) {
+                // Remove archived experiment immediately.
+                int i = mItems.indexOf(item);
+                removeItem(i);
+            } else {
+                // It could be added back anywhere.
+                if (mParentReference.get() != null) {
+                    mParentReference.get().loadExperiments();
+                }
+            }
+        }
+
+        private void showArchivedSnackbar(boolean archived, ExperimentListItem item) {
+            if (mParentReference.get() == null) {
+                return;
+            }
+            Snackbar bar = AccessibilityUtils.makeSnackbar(mParentReference.get().getView(),
+                    mParentReference.get().getResources().getString(archived ?
+                            R.string.archived_experiment_message :
+                            R.string.unarchived_experiment_message),
+                    Snackbar.LENGTH_LONG);
+            if (archived) {
+                // We only seem to show "undo" for archiving items, not unarchiving them.
+                bar.setAction(R.string.action_undo, view -> setExperimentArchived(item, !archived));
+            }
+            bar.show();
         }
 
         private void setCardColor(ViewHolder holder, int color) {
