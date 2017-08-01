@@ -49,6 +49,8 @@
             style="@style/TextAppearance.AppCompat.Medium"
             />
 
+        <!-- Pushes the icon towards the edge to match spec with paddingStart while maintaining
+             the touch target size -->
         <ImageButton
             android:layout_width="@dimen/accessibility_touch_target_min_size"
             android:layout_height="@dimen/accessibility_touch_target_min_size"
@@ -60,6 +62,7 @@
             android:contentDescription="@string/menu_btn_content_description"
             android:layout_alignParentEnd="true"
             android:layout_alignTop="@id/experiment_title"
+            android:paddingStart="24dp"
             />
 
         <include layout="@layout/archived_badge"
