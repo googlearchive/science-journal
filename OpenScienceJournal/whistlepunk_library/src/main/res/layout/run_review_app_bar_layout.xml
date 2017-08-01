@@ -46,8 +46,6 @@
             android:layout_marginRight="@dimen/run_review_section_margin"
             android:layout_marginTop="@dimen/run_review_sensor_section_margin_top_bottom"
             android:layout_marginBottom="@dimen/run_review_sensor_section_margin_top_bottom"
-            android:paddingStart="@dimen/run_review_margin_sides"
-            android:paddingEnd="@dimen/run_review_margin_sides"
             android:layout_alignParentTop="true"
             android:id="@+id/sensor_selector_section_holder"
             >
