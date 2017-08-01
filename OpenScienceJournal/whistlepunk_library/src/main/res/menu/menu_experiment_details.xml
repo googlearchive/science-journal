@@ -45,7 +45,7 @@
                 />
             <item
                 android:id="@+id/action_archive_experiment"
-                android:icon="@drawable/ic_archive_black_24dp"
+                android:icon="@drawable/menu_archive"
                 android:orderInCategory="102"
                 android:title="@string/action_archive_experiment"
                 app:showAsAction="never"
@@ -54,7 +54,7 @@
                 android:id="@+id/action_unarchive_experiment"
                 android:orderInCategory="102"
                 android:title="@string/action_unarchive_experiment"
-                android:icon="@drawable/ic_unarchive_black_24dp"
+                android:icon="@drawable/menu_unarchive"
                 app:showAsAction="never"
                 />
             <item
