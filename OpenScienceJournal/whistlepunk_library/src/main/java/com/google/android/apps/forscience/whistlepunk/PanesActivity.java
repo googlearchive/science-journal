@@ -120,68 +120,15 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.panes_layout);
 
-        String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
-
-        ViewPager pager = (ViewPager) findViewById(R.id.pager);
-        final FragmentPagerAdapter adapter = new FragmentPagerAdapter(getFragmentManager()) {
-            @Override
-            public Fragment getItem(int position) {
-                if (position >= ToolTab.values().length) {
-                    return null;
-                }
-                return ToolTab.values()[position].createFragment(experimentId);
-            }
-
-            @Override
-            public int getCount() {
-                return 3;
-            }
-        };
-        pager.setAdapter(adapter);
-
-        View bottomSheet = findViewById(R.id.bottom);
-        TabLayout toolPicker = (TabLayout) findViewById(R.id.tool_picker);
-        View toolPickerHolder = findViewById(R.id.tool_picker_holder);
         mRecordingBar = (ProgressBar) findViewById(R.id.recording_progress_bar);
-        RxView.globalLayouts(bottomSheet).firstElement().subscribe(o -> {
-            // After first layout, height is valid
 
-            BottomSheetBehavior<View> bottom = BottomSheetBehavior.from(bottomSheet);
-            bottom.setBottomSheetCallback(
-                    new TriStateCallback(bottom, true, getWindow().getDecorView().getHeight(),
-                            toolPickerHolder));
-        });
-
-        for (ToolTab tab : ToolTab.values()) {
-            TabLayout.Tab layoutTab = toolPicker.newTab();
-            layoutTab.setContentDescription(tab.getContentDescriptionId());
-            layoutTab.setIcon(tab.getIconId());
-            layoutTab.setTag(tab);
-            toolPicker.addTab(layoutTab);
-        }
-
-        toolPicker.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                ToolTab toolTab = (ToolTab) tab.getTag();
-                pager.setCurrentItem(toolTab.ordinal(), true);
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
+        String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
 
         // By adding the subscription to mUntilDestroyed, we make sure that we can disconnect from
         // the experiment stream when this activity is destroyed.
         mActiveExperiment.subscribe(experiment -> {
-            setExperimentFragmentId(experiment.getExperimentId());
+            setupViews(experiment);
+            setExperimentFragmentId(experiment);
             AppSingleton.getInstance(this).getRecorderController().watchRecordingStatus()
                     .firstElement().subscribe(status -> {
                         if (status.state == RecordingState.ACTIVE) {
@@ -197,14 +144,36 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
         Single<Experiment> exp = whenSelectedExperiment(experimentId, getDataController());
         exp.takeUntil(mDestroyed.happensNext()).subscribe(mActiveExperiment);
+    }
 
+    @VisibleForTesting
+    public static Single<Experiment> whenSelectedExperiment(String experimentId,
+            DataController dataController) {
+        if (Log.isLoggable(TAG, Log.INFO)) {
+            Log.i(TAG, "Launching specified experiment id: " + experimentId);
+        }
+        return RxDataController.getExperimentById(dataController, experimentId);
+    }
+
+    public void onArchivedStateChanged(Experiment experiment) {
+        setupViews(experiment);
+        findViewById(R.id.container).requestLayout();
+    }
+
+    private void setupViews(Experiment experiment) {
+        ViewPager pager = (ViewPager) findViewById(R.id.pager);
+        View bottomSheet = findViewById(R.id.bottom);
+        TabLayout toolPicker = (TabLayout) findViewById(R.id.tool_picker);
+        View toolPickerHolder = findViewById(R.id.tool_picker_holder);
         View experimentPane = findViewById(R.id.experiment_pane);
         CoordinatorLayout.LayoutParams params =
                 (CoordinatorLayout.LayoutParams) experimentPane.getLayoutParams();
         params.setBehavior(new CoordinatorLayout.Behavior() {
             @Override
-            public boolean layoutDependsOn(CoordinatorLayout parent, View child, View dependency) {
-                if (dependency.getId() == R.id.bottom) {
+            public boolean layoutDependsOn(CoordinatorLayout parent, View child,
+                    View dependency) {
+                if (dependency.getId() == R.id.bottom &&
+                        dependency.getVisibility() != View.GONE) {
                     return true;
                 } else {
                     return super.layoutDependsOn(parent, child, dependency);
@@ -217,7 +186,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 int desiredBottom = dependency.getTop();
                 int currentBottom = child.getBottom();
 
-                if (desiredBottom != currentBottom) {
+                if (desiredBottom != currentBottom && dependency.getVisibility() != View.GONE
+                        && dependency.getId() == R.id.bottom) {
                     ViewGroup.LayoutParams layoutParams = child.getLayoutParams();
                     layoutParams.height = desiredBottom - child.getTop();
                     child.setLayoutParams(layoutParams);
@@ -228,33 +198,95 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
         });
         experimentPane.setLayoutParams(params);
-    }
 
-    @VisibleForTesting
-    public static Single<Experiment> whenSelectedExperiment(String experimentId,
-            DataController dataController) {
-        if (Log.isLoggable(TAG, Log.INFO)) {
-            Log.i(TAG, "Launching specified experiment id: " + experimentId);
+        if (!experiment.isArchived()) {
+            bottomSheet.setVisibility(View.VISIBLE);
+            findViewById(R.id.shadow).setVisibility(View.VISIBLE);
+
+            final FragmentPagerAdapter adapter = new FragmentPagerAdapter(getFragmentManager()) {
+                @Override
+                public Fragment getItem(int position) {
+                    if (position >= ToolTab.values().length) {
+                        return null;
+                    }
+                    return ToolTab.values()[position].createFragment(experiment.getExperimentId());
+                }
+
+                @Override
+                public int getCount() {
+                    return 3;
+                }
+            };
+            pager.setAdapter(adapter);
+
+            if (toolPicker.getTabCount() > 0) {
+                experimentPane.getLayoutParams().height = bottomSheet.getTop();
+                experimentPane.setLayoutParams(params);
+                toolPicker.getTabAt(0).select();
+
+                // It's already initialized. Don't do it again!
+                return;
+            }
+
+            RxView.globalLayouts(bottomSheet).firstElement().subscribe(o -> {
+                // After first layout, height is valid
+
+                BottomSheetBehavior<View> bottom = BottomSheetBehavior.from(bottomSheet);
+                bottom.setBottomSheetCallback(
+                        new TriStateCallback(bottom, true, getWindow().getDecorView().getHeight(),
+                                toolPickerHolder));
+            });
+
+            for (ToolTab tab : ToolTab.values()) {
+                TabLayout.Tab layoutTab = toolPicker.newTab();
+                layoutTab.setContentDescription(tab.getContentDescriptionId());
+                layoutTab.setIcon(tab.getIconId());
+                layoutTab.setTag(tab);
+                toolPicker.addTab(layoutTab);
+            }
+
+            toolPicker.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    ToolTab toolTab = (ToolTab) tab.getTag();
+                    pager.setCurrentItem(toolTab.ordinal(), true);
+                }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
+
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+
+                }
+            });
+        } else {
+            bottomSheet.setVisibility(View.GONE);
+            findViewById(R.id.shadow).setVisibility(View.GONE);
+            params.height = ((ViewGroup) experimentPane.getParent()).getHeight();
+            experimentPane.setLayoutParams(params);
+
+            // Clear the tabs, which releases all cameras and removes all triggers etc.
+            pager.setAdapter(null);
         }
-        return RxDataController.getExperimentById(dataController, experimentId);
     }
 
-    private void setExperimentFragmentId(String experimentId) {
+    private void setExperimentFragmentId(Experiment experiment) {
         if (mExperimentFragment == null) {
             boolean createTaskStack = false;
-            boolean oldestAtTop = true;
-            boolean disappearingActionBar = false;
             Label deletedLabel = getDeletedLabel();
             mExperimentFragment =
-                    ExperimentDetailsFragment.newInstance(experimentId,
-                            createTaskStack, oldestAtTop, disappearingActionBar, deletedLabel);
+                    ExperimentDetailsFragment.newInstance(experiment.getExperimentId(),
+                            createTaskStack, deletedLabel);
 
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                            .replace(R.id.experiment_pane, mExperimentFragment)
                            .commit();
         } else {
-            mExperimentFragment.setExperimentId(experimentId);
+            mExperimentFragment.setExperimentId(experiment.getExperimentId());
         }
     }
 

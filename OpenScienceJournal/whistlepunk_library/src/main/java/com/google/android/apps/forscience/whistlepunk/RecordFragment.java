@@ -50,7 +50,6 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -63,7 +62,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
@@ -1476,6 +1474,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // TODO: This whole menu is never shown. Delete this code.
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -1487,8 +1486,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                     new NewOptionsStorage.SnackbarFailureListener(getView()));
         } else if (id == R.id.btn_experiment_details) {
             if (mSelectedExperiment != null) {
-                ExperimentDetailsActivity.launch(getActivity(),
-                        mSelectedExperiment.getExperimentId(), true /* need a task stack*/);
+                PanesActivity.launch(getActivity(), mSelectedExperiment.getExperimentId());
             }
         } else if (id == R.id.action_ruler) {
             Intent intent = new Intent(getActivity(), RulerActivity.class);

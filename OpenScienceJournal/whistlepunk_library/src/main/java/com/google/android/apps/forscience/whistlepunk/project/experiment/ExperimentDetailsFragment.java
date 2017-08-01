@@ -54,6 +54,7 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
+import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
@@ -104,8 +105,6 @@ public class ExperimentDetailsFragment extends Fragment
         NameExperimentDialog.OnExperimentTitleChangeListener {
 
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
-    public static final String ARG_OLDEST_AT_TOP = "oldest_at_top";
-    public static final String ARG_DISAPPEARING_ACTION_BAR = "disappearing_action_bar";
     public static final String ARG_DELETED_LABEL = "deleted_label";
     public static final String ARG_CREATE_TASK = "create_task";
     private static final String TAG = "ExperimentDetails";
@@ -114,7 +113,6 @@ public class ExperimentDetailsFragment extends Fragment
      * Boolen extra for savedInstanceState with the state of includeArchived experiments.
      */
     private static final String EXTRA_INCLUDE_ARCHIVED = "includeArchived";
-    private boolean mOldestAtTop = false;
 
     private RecyclerView mDetails;
     private DetailsAdapter mAdapter;
@@ -123,9 +121,7 @@ public class ExperimentDetailsFragment extends Fragment
     private Experiment mExperiment;
     private ScalarDisplayOptions mScalarDisplayOptions;
     private boolean mIncludeArchived;
-    private Toolbar mControlledToolbar;
     private BroadcastReceiver mBroadcastReceiver;
-    private boolean mDisappearingActionBar;
     private Label mDeletedLabel;
     private String mActiveTrialId;
     private TextView mEmptyView;
@@ -137,20 +133,13 @@ public class ExperimentDetailsFragment extends Fragment
      * @param createTaskStack   If {@code true}, then navigating home requires building a task stack
      *                          up to the experiment list. If {@code false}, use the default
      *                          navigation.
-     * @param oldestAtTop       If {@code true}, then the oldest cards should be at the _top_ of
-     *                          the list, otherwise the newest are at the top.
-     * @param disappearingActionBar If {@code true}, then this fragment contains and controls the
-     *                              action bar, which should disappear when the items scroll up.
      */
     public static ExperimentDetailsFragment newInstance(String experimentId,
-            boolean createTaskStack, boolean oldestAtTop, boolean disappearingActionBar,
-            Label deletedLabel) {
+            boolean createTaskStack, Label deletedLabel) {
         ExperimentDetailsFragment fragment = new ExperimentDetailsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_EXPERIMENT_ID, experimentId);
         args.putBoolean(ARG_CREATE_TASK, createTaskStack);
-        args.putBoolean(ARG_OLDEST_AT_TOP, oldestAtTop);
-        args.putBoolean(ARG_DISAPPEARING_ACTION_BAR, disappearingActionBar);
         args.putParcelable(ARG_DELETED_LABEL, deletedLabel);
         fragment.setArguments(args);
         return fragment;
@@ -163,8 +152,6 @@ public class ExperimentDetailsFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
-        mOldestAtTop = getArguments().getBoolean(ARG_OLDEST_AT_TOP, false);
-        mDisappearingActionBar = getArguments().getBoolean(ARG_DISAPPEARING_ACTION_BAR, true);
         if (savedInstanceState == null) {
             // Only try to restore a deleted label the first time.
             mDeletedLabel = getArguments().getParcelable(ARG_DELETED_LABEL);
@@ -244,17 +231,6 @@ public class ExperimentDetailsFragment extends Fragment
         View view = inflater.inflate(computeFragmentLayoutId(), container, false);
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
-
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            if (mDisappearingActionBar) {
-                mControlledToolbar = toolbar;
-                activity.setSupportActionBar(mControlledToolbar);
-            } else {
-                toolbar.setVisibility(View.GONE);
-            }
-        }
-
         ActionBar actionBar = activity.getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -263,7 +239,7 @@ public class ExperimentDetailsFragment extends Fragment
 
         mDetails = (RecyclerView) view.findViewById(R.id.details_list);
         mDetails.setLayoutManager(new LinearLayoutManager(view.getContext(),
-                LinearLayoutManager.VERTICAL, mOldestAtTop));
+                LinearLayoutManager.VERTICAL, true));
         mAdapter = new DetailsAdapter(this, savedInstanceState);
         mDetails.setAdapter(mAdapter);
 
@@ -289,11 +265,7 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     private int computeFragmentLayoutId() {
-        if (mDisappearingActionBar) {
-            return R.layout.fragment_experiment_details;
-        } else {
-            return R.layout.fragment_panes_experiment_details;
-        }
+        return R.layout.fragment_panes_experiment_details;
     }
 
     public void loadExperimentData(final Experiment experiment) {
@@ -336,6 +308,8 @@ public class ExperimentDetailsFragment extends Fragment
         if (rootView == null) {
             return;
         }
+
+        setExperimentItemsOrder(experiment);
 
         if (mDeletedLabel != null) {
             onLabelDelete(mDeletedLabel);
@@ -465,6 +439,16 @@ public class ExperimentDetailsFragment extends Fragment
                 TAG, "Editing experiment") {
             @Override
             public void success(Success value) {
+                setExperimentItemsOrder(mExperiment);
+                ((PanesActivity) getActivity()).onArchivedStateChanged(mExperiment);
+                // Reload the data to refresh experiment item and insert it if necessary.
+                loadExperimentData(mExperiment);
+                WhistlePunkApplication.getUsageTracker(getActivity())
+                        .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
+                                archived ? TrackerConstants.ACTION_ARCHIVE :
+                                        TrackerConstants.ACTION_UNARCHIVE,
+                                null, 0);
+
                 Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
                         getActivity().getResources().getString(
                                 archived ? R.string.archived_experiment_message : R.string
@@ -478,13 +462,11 @@ public class ExperimentDetailsFragment extends Fragment
                 getActivity().invalidateOptionsMenu();
             }
         });
-        // Reload the data to refresh experiment item and insert it if necessary.
-        loadExperimentData(mExperiment);
-        WhistlePunkApplication.getUsageTracker(getActivity())
-                .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
-                        archived ? TrackerConstants.ACTION_ARCHIVE :
-                                TrackerConstants.ACTION_UNARCHIVE,
-                        null, 0);
+    }
+
+    private void setExperimentItemsOrder(Experiment experiment) {
+        ((LinearLayoutManager) mDetails.getLayoutManager()).setReverseLayout(
+                !experiment.isArchived());
     }
 
     @Override
@@ -619,22 +601,6 @@ public class ExperimentDetailsFragment extends Fragment
                 }
             });
         }
-    }
-
-    private void setToolbarScrollFlags(boolean emptyView) {
-        if (mControlledToolbar == null) {
-            return;
-        }
-        AppBarLayout.LayoutParams params =
-                (AppBarLayout.LayoutParams) mControlledToolbar.getLayoutParams();
-        if (emptyView) {
-            // Don't scroll the toolbar if empty view is showing.
-            params.setScrollFlags(0);
-        } else {
-            params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-                    | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
-        }
-        mControlledToolbar.setLayoutParams(params);
     }
 
     public String getExperimentId() {

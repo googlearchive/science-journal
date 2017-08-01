@@ -23,10 +23,10 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
@@ -120,7 +120,7 @@ public class LabelDetailsActivity extends AppCompatActivity {
         // re-creating it.
         Intent upIntent;
         if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_EXP_DETAILS)) {
-            upIntent = new Intent(this, ExperimentDetailsActivity.class);
+            upIntent = new Intent(this, PanesActivity.class);
             upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, getExperimentId());
         } else if (getIntent().getExtras().getBoolean(
                 LabelDetailsActivity.ARG_PARENT_RUN_REVIEW)) {
