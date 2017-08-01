@@ -195,7 +195,7 @@ abstract class LabelDetailsFragment extends Fragment {
 
     // This should only be called by subclasses that have date and time views in their XML.
     protected void setupDetails(View rootView) {
-        Locale locale = getContext().getResources().getConfiguration().locale;
+        Locale locale = getActivity().getResources().getConfiguration().locale;
         TextView date = (TextView) rootView.findViewById(R.id.date);
         TextView time = (TextView) rootView.findViewById(R.id.time);
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", locale);
