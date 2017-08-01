@@ -21,10 +21,13 @@ import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -57,7 +60,6 @@ import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
@@ -73,9 +75,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import com.google.android.apps.forscience.whistlepunk.review.PinnedNoteAdapter;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
@@ -283,6 +283,7 @@ public class ExperimentDetailsFragment extends Fragment
             RxDataController.getTrial(getDataController(), mExperimentId, trialId)
                     .subscribe(t -> mAdapter.addActiveRecording(t));
         }
+        setHomeButtonState(true);
     }
 
     public void onRecordingTrialUpdated(String trialId) {
@@ -295,6 +296,30 @@ public class ExperimentDetailsFragment extends Fragment
             RxDataController.getTrial(getDataController(), mExperimentId, mActiveTrialId)
                     .subscribe(t -> mAdapter.onRecordingEnded(t));
             mActiveTrialId = null;
+        }
+        setHomeButtonState(false);
+    }
+
+    // Sets the actionBar home button to opaque to indicate it is disabled.
+    // Behavior is intercepted in onOptionsItemSelected when a recording is in progress
+    private void setHomeButtonState(boolean disabled) {
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        if (activity != null) {
+            ActionBar actionBar = activity.getSupportActionBar();
+            if (actionBar != null) {
+                final Drawable upArrow = ContextCompat.getDrawable(activity,
+                        R.drawable.abc_ic_ab_back_material);
+                DrawableCompat.setTint(upArrow,
+                        ContextCompat.getColor(activity, android.R.color.white));
+                if (disabled) {
+                    upArrow.setAlpha(
+                            getResources().getInteger(R.integer.home_disabled_drawable_alpha));
+                } else {
+                    upArrow.setAlpha(
+                            getResources().getInteger(R.integer.home_enabled_drawable_alpha));
+                }
+                actionBar.setHomeAsUpIndicator(upArrow);
+            }
         }
     }
 
@@ -352,6 +377,11 @@ public class ExperimentDetailsFragment extends Fragment
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == android.R.id.home) {
+            // Disable the home button functionality when recording is active
+            // Set with appearance in setHomeButtonState
+            if (isRecording()) {
+                return true;
+            }
             displayNamePromptOrGoUp();
             return true;
         } else if (itemId == R.id.action_edit_experiment) {
@@ -399,6 +429,13 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public boolean handleOnBackPressed() {
+        if (isRecording()) {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return true;
+        }
         if (TextUtils.isEmpty(mExperiment.getTitle())) {
             displayNamePrompt();
             // We are handling this.
@@ -406,6 +443,10 @@ public class ExperimentDetailsFragment extends Fragment
         }
         // The activity can handle it normally.
         return false;
+    }
+
+    private boolean isRecording() {
+        return mActiveTrialId != null;
     }
 
     private void goToExperimentList() {

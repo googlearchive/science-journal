@@ -72,4 +72,6 @@
     <color name="picture_background_color">#262626</color>
 
     <integer name="trigger_drawable_alpha">192</integer>
+    <integer name="home_disabled_drawable_alpha">127</integer>
+    <integer name="home_enabled_drawable_alpha">255</integer>
 </resources>
