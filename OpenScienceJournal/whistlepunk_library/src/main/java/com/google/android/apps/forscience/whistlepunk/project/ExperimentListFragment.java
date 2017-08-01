@@ -44,9 +44,7 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
-import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -55,8 +53,6 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity;
-import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 
 import java.lang.ref.WeakReference;
@@ -129,8 +125,7 @@ public class ExperimentListFragment extends Fragment implements
         View view = inflater.inflate(R.layout.fragment_experiment_list, container, false);
         final RecyclerView detailList = (RecyclerView) view.findViewById(R.id.details);
 
-        mExperimentListAdapter = new ExperimentListAdapter(this, getDataController(),
-                shouldUsePanes());
+        mExperimentListAdapter = new ExperimentListAdapter(this, getDataController());
         // TODO: Adjust the column count based on breakpoint specs when available.
         int column_count = 2;
         GridLayoutManager manager = new GridLayoutManager(getActivity(), column_count);
@@ -150,12 +145,7 @@ public class ExperimentListFragment extends Fragment implements
                 new LoggingConsumer<Experiment>(TAG, "Create a new experiment") {
                     @Override
                     public void success(final Experiment experiment) {
-                        if (shouldUsePanes()) {
-                            PanesActivity.launch(v.getContext(), experiment.getExperimentId());
-                        } else {
-                            ExperimentDetailsActivity.launch(v.getContext(),
-                                    experiment.getExperimentId());
-                        }
+                        PanesActivity.launch(v.getContext(), experiment.getExperimentId());
                     }
                 }));
 
@@ -266,7 +256,6 @@ public class ExperimentListFragment extends Fragment implements
         private DataController mDataController;
 
         private List<ExperimentListItem> mItems;
-        private boolean mShouldUsePanes;
         private boolean mIncludeArchived;
         private final Calendar mCalendar;
         private final int mCurrentYear;
@@ -274,13 +263,11 @@ public class ExperimentListFragment extends Fragment implements
 
         private final WeakReference<ExperimentListFragment> mParentReference;
 
-        public ExperimentListAdapter(ExperimentListFragment parent, DataController dc,
-                boolean shouldUsePanes) {
+        public ExperimentListAdapter(ExperimentListFragment parent, DataController dc) {
             mItems = new ArrayList<>();
             mPlaceHolderImage = parent.getActivity().getResources().getDrawable(
                     R.drawable.experiment_card_placeholder);
             mDataController = dc;
-            mShouldUsePanes = shouldUsePanes;
             mCalendar = Calendar.getInstance(
                     parent.getActivity().getResources().getConfiguration().locale);
             mCurrentYear = mCalendar.get(Calendar.YEAR);
@@ -385,12 +372,7 @@ public class ExperimentListFragment extends Fragment implements
             holder.itemView.setTag(R.id.experiment_title, item.experimentOverview.experimentId);
 
             holder.cardView.setOnClickListener(v -> {
-                if (mShouldUsePanes) {
-                    PanesActivity.launch(v.getContext(), item.experimentOverview.experimentId);
-                } else {
-                    ExperimentDetailsActivity.launch(v.getContext(),
-                            item.experimentOverview.experimentId);
-                }
+                PanesActivity.launch(v.getContext(), item.experimentOverview.experimentId);
             });
 
             holder.menuButton.setOnClickListener(v -> {

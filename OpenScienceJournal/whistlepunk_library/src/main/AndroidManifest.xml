@@ -148,12 +148,12 @@
             android:name=".project.experiment.UpdateExperimentActivity"
             android:exported="false"
             android:label="@string/title_activity_update_experiment"
-            android:parentActivityName=".project.experiment.ExperimentDetailsActivity"
+            android:parentActivityName=".PanesActivity"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateVisible|adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsActivity"/>
+                android:value="com.google.android.apps.forscience.whistlepunk.PanesActivity"/>
         </activity>
         <activity
             android:name=".metadata.TriggerListActivity"
@@ -190,16 +190,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity"/>
-        </activity>
-        <activity
-            android:name=".project.experiment.ExperimentDetailsActivity"
-            android:exported="false"
-            android:label="@string/title_activity_experiment_details"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/NoBarTheme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
         </activity>
         <activity
             android:name=".intro.AgeVerifier"
