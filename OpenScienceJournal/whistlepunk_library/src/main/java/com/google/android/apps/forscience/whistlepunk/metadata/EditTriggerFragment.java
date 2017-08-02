@@ -211,12 +211,7 @@ public class EditTriggerFragment extends Fragment {
         mAudioAlert = (SwitchCompat) view.findViewById(R.id.alert_type_audio_selector);
         mVisualAlert = (SwitchCompat) view.findViewById(R.id.alert_type_visual_selector);
         mHapticAlert = (SwitchCompat) view.findViewById(R.id.alert_type_haptic_selector);
-        if (!TriggerHelper.hasVibrator(getActivity())) {
-            mHapticAlert.setEnabled(false);
-        } else if (!PermissionUtils.permissionIsGranted(getActivity(), Manifest.permission.VIBRATE)) {
-            mHapticAlert.setEnabled(PermissionUtils.canRequestAgain(getActivity(),
-                    Manifest.permission.VIBRATE));
-        };
+        mHapticAlert.setEnabled(TriggerHelper.hasVibrator(getActivity()));
         mOnlyWhenRecording = (SwitchCompat) view.findViewById(R.id.trigger_only_when_recording);
 
         TextView unitsTextView = (TextView) view.findViewById(R.id.units);
@@ -346,13 +341,6 @@ public class EditTriggerFragment extends Fragment {
         mHapticAlert.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    // Don't let them check this switch if they deny the vibrate permission.
-                    if (!PermissionUtils.tryRequestingPermission(getActivity(),
-                            Manifest.permission.VIBRATE, PERMISSION_VIBRATE, true)) {
-                        mHapticAlert.setChecked(false);
-                    };
-                }
                 if (!isNewTrigger()) {
                     saveTrigger();
                 }

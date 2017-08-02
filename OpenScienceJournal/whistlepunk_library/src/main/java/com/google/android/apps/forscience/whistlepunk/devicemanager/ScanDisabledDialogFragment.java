@@ -52,32 +52,35 @@ public class ScanDisabledDialogFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.fragment_scan_disabled_dialog, container, false);
         Button button = (Button) view.findViewById(R.id.btn_enable_scan);
 
-        final boolean hasPermission = hasScanPermission(getActivity());
+        final boolean hasPermission = PermissionUtils.hasPermission(getActivity(),
+                PermissionUtils.REQUEST_ACCESS_COARSE_LOCATION);
         if (!hasPermission) {
             // Update the text of the button.
             button.setText(R.string.btn_request_location);
         }
 
-        button.setOnClickListener(new View.OnClickListener() {
+        button.setOnClickListener(v -> {
+            PermissionUtils.tryRequestingPermission(getActivity(),
+                    PermissionUtils.REQUEST_ACCESS_COARSE_LOCATION,
+                    new PermissionUtils.PermissionListener() {
+                        @Override
+                        public void onPermissionGranted() {
+                            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                            getActivity().startActivity(intent);
+                        }
 
-            @Override
-            public void onClick(View v) {
-                if (!hasPermission) {
-                    // TODO: is this doing the right thing if user says "never ask again"?
-                    PermissionUtils.tryRequestingPermission(getActivity(),
-                            Manifest.permission.ACCESS_COARSE_LOCATION, REQUEST_FROM_BUTTON, true);
-                } else {
-                    Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    getActivity().startActivity(intent);
-                }
-                dismiss();
-            }
+                        @Override
+                        public void onPermissionDenied() {
+
+                        }
+
+                        @Override
+                        public void onPermissionPermanentlyDenied() {
+
+                        }
+                    });
+            dismiss();
         });
         return view;
-    }
-
-    /*package */ static boolean hasScanPermission(Context context) {
-        return ContextCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 }

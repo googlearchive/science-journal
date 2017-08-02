@@ -140,13 +140,26 @@ public class CameraFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Camera camera = Camera.open();
-        if (camera == null) {
-            // For some reason using the 0 index lets us properly open the default (front-facing)
-            // camera on devices without back-facing cameras.
-            camera = Camera.open(0);
-        }
-        mPreview.setCamera(camera);
+        PermissionUtils.tryRequestingPermission(getActivity(),
+                PermissionUtils.REQUEST_CAMERA, new PermissionUtils.PermissionListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        Camera camera = Camera.open(0);
+                        if(camera != null) {
+                            mPreview.setCamera(camera);
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+
+                    }
+
+                    @Override
+                    public void onPermissionPermanentlyDenied() {
+
+                    }
+                });
     }
 
     @Override

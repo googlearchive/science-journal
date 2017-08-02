@@ -49,7 +49,7 @@ public class SimpleBackupAgent extends BackupAgentHelper {
     @Override
     public void onCreate() {
         String prefsName = getDefaultStoredPreferencesName(getApplicationContext());
-        SkipPermissionsHelper helper = new SkipPermissionsHelper(this, prefsName);
+        SharedPreferencesBackupHelper helper = new SharedPreferencesBackupHelper(this, prefsName);
         addHelper(PREFS_BACKUP_KEY, helper);
     }
 
@@ -79,21 +79,5 @@ public class SimpleBackupAgent extends BackupAgentHelper {
     public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState)
             throws IOException {
         super.onRestore(data, appVersionCode, newState);
-    }
-
-    private class SkipPermissionsHelper extends SharedPreferencesBackupHelper {
-
-        public SkipPermissionsHelper(Context context, String... prefGroups) {
-            super(context, prefGroups);
-        }
-
-        @Override
-        public void restoreEntity(BackupDataInputStream data) {
-            // We don't want to restore permissions info, because that's device specific.
-            if (TextUtils.equals(data.getKey(), PermissionUtils.KEY_PERMISSIONS_REQUESTED_SET)) {
-                return;
-            }
-            super.restoreEntity(data);
-        }
     }
 }

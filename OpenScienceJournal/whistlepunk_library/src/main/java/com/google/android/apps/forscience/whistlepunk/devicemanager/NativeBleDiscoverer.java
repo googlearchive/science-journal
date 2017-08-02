@@ -23,9 +23,9 @@ import android.support.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -148,7 +148,8 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
 
     @VisibleForTesting
     protected boolean hasScanPermission() {
-        return ScanDisabledDialogFragment.hasScanPermission(mContext);
+        return PermissionUtils.hasPermission(mContext,
+                PermissionUtils.REQUEST_ACCESS_COARSE_LOCATION);
     }
 
     protected DeviceDiscoverer createDiscoverer(Context context) {

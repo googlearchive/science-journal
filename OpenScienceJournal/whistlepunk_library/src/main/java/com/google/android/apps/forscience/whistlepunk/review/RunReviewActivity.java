@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderService;
@@ -83,7 +84,8 @@ public class RunReviewActivity extends MetadataActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[],
                                            int[] grantResults) {
-        PictureUtils.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        PermissionUtils.onRequestPermissionsResult(this, requestCode, permissions,
+                grantResults);
     }
 
     @Override
