@@ -1059,6 +1059,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void playAddNoteAnimation() {
+        if (getActivity() == null) {
+            return;
+        }
         final View addNoteIndicator = LayoutInflater.from(getActivity()).inflate(
                 R.layout.note_indicator, (ViewGroup) getView(), false);
         ((ViewGroup) getView()).addView(addNoteIndicator);
