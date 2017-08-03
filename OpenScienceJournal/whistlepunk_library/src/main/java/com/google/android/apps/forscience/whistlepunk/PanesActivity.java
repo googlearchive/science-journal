@@ -51,8 +51,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     public static final int PERMISSIONS_AUDIO_RECORD_REQUEST = 1;
     private static final String TAG = "PanesActivity";
     private static final String EXTRA_EXPERIMENT_ID = "experimentId";
+    private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
+
     private ProgressBar mRecordingBar;
     private BehaviorSubject<Boolean> mAudioPermissionsGranted = BehaviorSubject.create();
+    private int mSelectedTabIndex;
 
     private static enum ToolTab {
         NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp) {
@@ -124,6 +127,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
         String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
 
+        mSelectedTabIndex = 0;
+        if (savedInstanceState != null) {
+            mSelectedTabIndex = savedInstanceState.getInt(KEY_SELECTED_TAB_INDEX);
+        }
+
         // By adding the subscription to mUntilDestroyed, we make sure that we can disconnect from
         // the experiment stream when this activity is destroyed.
         mActiveExperiment.subscribe(experiment -> {
@@ -144,6 +152,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
         Single<Experiment> exp = whenSelectedExperiment(experimentId, getDataController());
         exp.takeUntil(mDestroyed.happensNext()).subscribe(mActiveExperiment);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt(KEY_SELECTED_TAB_INDEX, mSelectedTabIndex);
+        super.onSaveInstanceState(outState);
     }
 
     @VisibleForTesting
@@ -222,7 +236,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             if (toolPicker.getTabCount() > 0) {
                 experimentPane.getLayoutParams().height = bottomSheet.getTop();
                 experimentPane.setLayoutParams(params);
-                toolPicker.getTabAt(0).select();
+                toolPicker.getTabAt(mSelectedTabIndex).select();
 
                 // It's already initialized. Don't do it again!
                 return;
@@ -249,7 +263,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
                     ToolTab toolTab = (ToolTab) tab.getTag();
-                    pager.setCurrentItem(toolTab.ordinal(), true);
+                    mSelectedTabIndex = toolTab.ordinal();
+                    pager.setCurrentItem(mSelectedTabIndex, true);
                 }
 
                 @Override
@@ -259,9 +274,15 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
                 @Override
                 public void onTabReselected(TabLayout.Tab tab) {
-
+                    if (pager.getCurrentItem() != mSelectedTabIndex) {
+                        // After archive/unarchive we can get a state where the tab is technically
+                        // selected but the pager has not updated properly. This forces the
+                        // update to the pager fragment.
+                        onTabSelected(tab);
+                    }
                 }
             });
+            toolPicker.getTabAt(mSelectedTabIndex).select();
         } else {
             bottomSheet.setVisibility(View.GONE);
             findViewById(R.id.shadow).setVisibility(View.GONE);
@@ -533,7 +554,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 }
             } else {
                 // If we're currently settling to bottom, but we've slid such that more than a
-                // fourth of the height is taken up by bottom panel, shift to settlingt to middle.
+                // fourth of the height is taken up by bottom panel, shift to settling to middle.
                 if (slideOffset > 0.25) {
                     setSettlingToMiddle(true);
                 }
