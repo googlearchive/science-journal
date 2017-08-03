@@ -290,17 +290,18 @@ public class ChartData {
             return false;
         }
         int indexPrev = exactBinarySearch(timestamp, 0);
-        int indexEnd = exactBinarySearch(timestamp, indexPrev);
         DataPoint start = mData.get(indexPrev);
-        DataPoint end = mData.get(indexEnd);
-        if (start.getX() == end.getX()) {
+        if (timestamp == start.getX()) {
             mLabels.add(start);
-        } else {
-            double weight = (timestamp - start.getX()) / (end.getX() - start.getX()) * 1.0;
+            return true;
+        } else if (indexPrev < mData.size() - 2) {
+            DataPoint end = mData.get(indexPrev + 1);
+            double weight = (timestamp - start.getX()) / (1.0 * end.getX() - start.getX());
             mLabels.add(
                     new DataPoint(timestamp, start.getY() * weight + end.getY() * (1 - weight)));
+            return true;
         }
-        return true;
+        return false;
     }
 
     public List<DataPoint> getLabelPoints() {

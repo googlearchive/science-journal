@@ -170,6 +170,22 @@ public class ChartDataTest {
         assertEquals(labelPoints.size(), 1);
     }
 
+    @Test public void testTryAddingLabel_betweenPoints() {
+        ChartData chartData = new ChartData();
+        List<ChartData.DataPoint> data = new ArrayList<>();
+        for (int i = 0; i < 6; i+= 2) {
+            data.add(new ChartData.DataPoint(i, i / 10.0));
+        }
+        chartData.setPoints(data);
+
+        Label label = Label.newLabel(1, GoosciLabel.Label.TEXT);
+        assertTrue(chartData.tryAddingLabel(label));
+        List<ChartData.DataPoint> labelPoints = chartData.getLabelPoints();
+        assertEquals(labelPoints.size(), 1);
+        assertEquals(labelPoints.get(0).getX(), 1);
+        assertEquals(labelPoints.get(0).getY(), .1, .00001);
+    }
+
     @Test public void exactBinarySearchWithNoExactHit() {
         ChartData chartData = new ChartData();
         List<ChartData.DataPoint> data = new ArrayList<>();
