@@ -327,6 +327,11 @@ public class Experiment extends LabelListHolder {
     }
 
     public void updateSensorLayout(int layoutPosition, GoosciSensorLayout.SensorLayout layout) {
+        if (layoutPosition == 0 && mSensorLayouts.size() == 0) {
+            // First one! RecordFragment calls this function when first observing;
+            // make sure to handle the empty state correctly by doing this.
+            mSensorLayouts.add(layout);
+        }
         if (layoutPosition < mSensorLayouts.size()) {
             mSensorLayouts.set(layoutPosition, layout);
         }

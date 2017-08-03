@@ -78,6 +78,20 @@ public class ExperimentUnitTest {
     }
 
     @Test
+    public void testLayoutsWithUpdate() {
+        // No layouts on creation
+        Experiment experiment = Experiment.newExperiment(10, "localId", 0);
+        assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
+
+        GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
+        sensorLayout.sensorId = "sensorId";
+        experiment.updateSensorLayout(0, sensorLayout);
+
+        assertEquals(experiment.getSensorLayouts().size(), 1);
+        assertEquals(experiment.getExperimentProto().sensorLayouts.length, 1);
+    }
+
+    @Test
     public void testExperimentSensors() {
         // No sensors on creation
         Experiment experiment = Experiment.newExperiment(10, "localId", 0);
