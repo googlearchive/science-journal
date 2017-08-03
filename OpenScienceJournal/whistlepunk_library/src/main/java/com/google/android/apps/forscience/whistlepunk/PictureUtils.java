@@ -123,31 +123,6 @@ public class PictureUtils {
         void startActivityForResult(Intent intent, int requestCode);
     }
 
-    // Assumes that the Camera permission always requires external storage.
-    private static void cameraPermissionGranted(Activity activity, boolean granted) {
-        // Try to get the storage permission granted if it is not yet, so that all the
-        // camera-related permissions requests happen at once.
-        if (granted) {
-            PermissionUtils.tryRequestingPermission(activity,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE, PERMISSIONS_WRITE_EXTERNAL_STORAGE,
-                    true);
-        }
-    }
-
-    public static void onRequestPermissionsResult(int requestCode, String permissions[],
-            int[] grantResults, Activity activity) {
-        boolean granted = grantResults.length > 0 &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED;
-        switch (requestCode) {
-            case PERMISSIONS_CAMERA:
-                cameraPermissionGranted(activity, granted);
-                return;
-            case PERMISSIONS_WRITE_EXTERNAL_STORAGE:
-                // Do nothing for now
-                return;
-        }
-    }
-
     public static void launchExternalViewer(Activity activity, String experimentId,
             String relativeFilePath) {
         Intent intent = new Intent(Intent.ACTION_VIEW);

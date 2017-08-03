@@ -344,24 +344,26 @@ public class AddNoteDialog extends DialogFragment {
         }
 
         takePictureBtn.setOnClickListener(v -> {
-            boolean grantedCamera = PermissionUtils.tryRequestingPermission(getActivity(),
-                    Manifest.permission.CAMERA,
-                    PictureUtils.PERMISSIONS_CAMERA, /* force retry */ true);
-            // If camera permission was not granted, on permission result we try requesting
-            // storage. If it was granted, then check storage separately here.
-            if (grantedCamera) {
-                boolean grantedStorage = PermissionUtils.tryRequestingPermission(
-                        getActivity(),
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        PictureUtils.PERMISSIONS_WRITE_EXTERNAL_STORAGE,
-                            /* force retry */ true);
-                if (grantedStorage) {
-                    // TODO: Error states if these are not granted (b/24303452)
-                    mUuid = UUID.randomUUID().toString();
-                    mPictureLabelPath =
-                            PictureUtils.capturePictureLabel(getActivity(), mExperimentId, mUuid);
-                }
-            }
+            PermissionUtils.tryRequestingPermission(getActivity(),
+                    PermissionUtils.REQUEST_CAMERA,
+                    new PermissionUtils.PermissionListener() {
+                        @Override
+                        public void onPermissionGranted() {
+                            mUuid = UUID.randomUUID().toString();
+                            mPictureLabelPath = PictureUtils.capturePictureLabel(getActivity(),
+                                    mExperimentId, mUuid);
+                        }
+
+                        @Override
+                        public void onPermissionDenied() {
+
+                        }
+
+                        @Override
+                        public void onPermissionPermanentlyDenied() {
+
+                        }
+                    });
         });
 
         return rootView;

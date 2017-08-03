@@ -54,7 +54,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
 
     private ProgressBar mRecordingBar;
-    private BehaviorSubject<Boolean> mAudioPermissionsGranted = BehaviorSubject.create();
     private int mSelectedTabIndex;
 
     private static enum ToolTab {
@@ -395,11 +394,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            Observable<Boolean> watchAudioPermissionsGranted() {
-                return mAudioPermissionsGranted;
-            }
-
-            @Override
             public void onRecordingRequested(String experimentName) {
                 if (mRecordingBar != null) {
                     mRecordingBar.setVisibility(View.VISIBLE);
@@ -479,17 +473,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[],
             int[] grantResults) {
-        final boolean granted = grantResults.length > 0 &&
-                                grantResults[0] == PackageManager.PERMISSION_GRANTED;
-        switch (requestCode) {
-            case PERMISSIONS_AUDIO_RECORD_REQUEST:
-                mAudioPermissionsGranted.onNext(granted);
-                return;
-            default:
-                PictureUtils.onRequestPermissionsResult(requestCode, permissions, grantResults,
-                        this);
-                return;
-        }
+        PermissionUtils.onRequestPermissionsResult(this, requestCode, permissions,
+                grantResults);
     }
 
     // TODO: this is acceptable, but still a bit wonky.  For example, it's hard to get from bottom

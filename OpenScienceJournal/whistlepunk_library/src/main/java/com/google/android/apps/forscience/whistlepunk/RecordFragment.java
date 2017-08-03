@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
@@ -88,9 +87,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.functions.Function;
 import io.reactivex.subjects.BehaviorSubject;
 
 public class RecordFragment extends Fragment implements AddNoteDialog.ListenerProvider,
@@ -115,12 +112,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private final SnackbarManager mSnackbarManager = new SnackbarManager();
 
     public static abstract class UICallbacks {
-        public static UICallbacks NULL = new UICallbacks() {
-            @Override
-            io.reactivex.Observable<Boolean> watchAudioPermissionsGranted() {
-                return Observable.empty();
-            }
-        };
+        public static UICallbacks NULL = new UICallbacks() {};
 
         /**
          * Called when recording is about to start
@@ -161,8 +153,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         public void onLabelAdded(Label label, String trialId) {
 
         }
-
-        abstract Observable<Boolean> watchAudioPermissionsGranted();
     }
 
     public interface CallbacksProvider {
@@ -255,17 +245,21 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         AppSingleton.getInstance(getActivity()).getBleClient();
     }
 
-    public void audioPermissionGranted(boolean granted) {
+    private void onAudioPermissionChanged(@PermissionUtils.PermissionState int newState) {
         if (mDecibelSensorCardPresenter == null) {
             return;
         }
-        if (granted) {
-            startObserving(DecibelSensor.ID, mDecibelSensorCardPresenter);
-        } else {
+        if (newState == PermissionUtils.GRANTED) {
+            startSensorCardObserving(mDecibelSensorCardPresenter, DecibelSensor.ID,
+                    mRecordingStatus.getValue());
+        } else if (newState == PermissionUtils.DENIED) {
             // If the sensor can't be loaded, still show it as selected on the card
             // so the user understands that they wanted this sensor but can't use it.
             mDecibelSensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
                     getActivity().getApplicationContext(), true);
+        } else {
+            mDecibelSensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
+                    getActivity().getApplicationContext(), false);
         }
         // in either case, we have our answer.  Stop waiting for it.
         mDecibelSensorCardPresenter = null;
@@ -716,7 +710,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             final SensorCardPresenter sensorCardPresenter = createSensorCardPresenter(layout, rc);
             sensorCardPresenter.setInitialSourceTagToSelect(layout.sensorId);
             sensorCardPresenters.add(sensorCardPresenter);
-            tryStartObserving(sensorCardPresenter, layout.sensorId, false, status);
+            tryStartObserving(sensorCardPresenter, layout.sensorId, status);
         }
 
         int activeCardIndex = 0;
@@ -930,7 +924,7 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                 sensorId -> {
                     sensorCardPresenter.stopObserving();
                     mRecordingStatus.firstElement().subscribe(status -> {
-                        tryStartObserving(sensorCardPresenter, sensorId, true, status);
+                        tryStartObserving(sensorCardPresenter, sensorId, status);
                     });
                 });
         sensorCardPresenter.setAppearanceProvider(getSensorAppearanceProvider());
@@ -939,34 +933,34 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     }
 
     private void tryStartObserving(SensorCardPresenter sensorCardPresenter, String sensorId,
-            boolean retry, RecordingStatus status) {
+            RecordingStatus status) {
         if (TextUtils.equals(sensorId, DecibelSensor.ID) && mDecibelSensorCardPresenter == null &&
-                !PermissionUtils.tryRequestingPermission(getActivity(),
-                        Manifest.permission.RECORD_AUDIO,
-                        PanesActivity.PERMISSIONS_AUDIO_RECORD_REQUEST, /* force retry */ retry)) {
-            // If we did actually try to request the permission, save this sensorCardPresenter.
-            // for when the permission is granted.
-            if (PermissionUtils.canRequestAgain(getActivity(), Manifest.permission.RECORD_AUDIO)) {
-                if (retry) {
-                    // In this case, we had tried requesting permissions, so save this presenter.
-                    mDecibelSensorCardPresenter = sensorCardPresenter;
-                }
-                // If the sensor can't be loaded, still show it as selected on the card so the user
-                // understands that they wanted this sensor but can't use it.
-                sensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
-                        getActivity().getApplicationContext(), true);
-            } else {
-                // Then the user has selected "never ask again".
-                sensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
-                        getActivity().getApplicationContext(),
-                        /* don't show the retry button */ false);
-            }
+                !PermissionUtils.hasPermission(getActivity(),
+                        PermissionUtils.REQUEST_RECORD_AUDIO)) {
+            mDecibelSensorCardPresenter = sensorCardPresenter;
+            sensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
+                    getActivity().getApplicationContext(), true);
+            PermissionUtils.tryRequestingPermission(getActivity(),
+                    PermissionUtils.REQUEST_RECORD_AUDIO,
+                    new PermissionUtils.PermissionListener() {
+                        @Override
+                        public void onPermissionGranted() {
+                            onAudioPermissionChanged(PermissionUtils.GRANTED);
+                        }
+
+                        @Override
+                        public void onPermissionDenied() {
+                            onAudioPermissionChanged(PermissionUtils.DENIED);
+                        }
+
+                        @Override
+                        public void onPermissionPermanentlyDenied() {
+                            onAudioPermissionChanged(PermissionUtils.PERMANENTLY_DENIED);
+                        }
+                    });
+            return;
         }
-        startObserving(sensorId, sensorCardPresenter);
-        sensorCardPresenter.setRecording(status.getRecordingStartTime());
-        mExternalAxis.resetAxes();
-        updateSensorLayout(sensorCardPresenter.buildLayout());
-        updateAvailableSensors();
+        startSensorCardObserving(sensorCardPresenter, sensorId, status);
     }
 
     // TODO: pull out somewhere testable?
@@ -1119,9 +1113,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         mGraphOptionsController = new GraphOptionsController(activity);
         mSensorSettingsController = new SensorSettingsControllerImpl(activity);
         mUICallbacks = getUiCallbacks(activity);
-        mUICallbacks.watchAudioPermissionsGranted()
-                    .takeUntil(mContextDetach.happens())
-                    .subscribe(granted -> audioPermissionGranted(granted));
     }
 
     private UICallbacks getUiCallbacks(Activity activity) {
@@ -1257,6 +1248,15 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
 
     private DataController getDataController() {
         return AppSingleton.getInstance(getActivity()).getDataController();
+    }
+
+    private void startSensorCardObserving(SensorCardPresenter sensorCardPresenter, String sensorId,
+            RecordingStatus status) {
+        startObserving(sensorId, sensorCardPresenter);
+        sensorCardPresenter.setRecording(status.getRecordingStartTime());
+        mExternalAxis.resetAxes();
+        updateSensorLayout(sensorCardPresenter.buildLayout());
+        updateAvailableSensors();
     }
 
     public void startObserving(final String sensorId,

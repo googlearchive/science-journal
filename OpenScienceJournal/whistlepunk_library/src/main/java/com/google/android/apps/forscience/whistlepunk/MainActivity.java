@@ -373,8 +373,8 @@ public class MainActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, String permissions[],
             int[] grantResults) {
         // TODO: is this ever used?
-        PictureUtils.onRequestPermissionsResult(requestCode, permissions, grantResults,
-                this);
+        PermissionUtils.onRequestPermissionsResult(this, requestCode, permissions,
+                grantResults);
         return;
     }
 
@@ -431,11 +431,6 @@ public class MainActivity extends AppCompatActivity
                 boolean createTask = true;
                 RunReviewActivity.launch(MainActivity.this, runId, experiment.getExperimentId(), 0,
                         fromRecord, createTask, null);
-            }
-
-            @Override
-            Observable<Boolean> watchAudioPermissionsGranted() {
-                return Observable.empty();
             }
 
             private void updateToolbarColors(int toolbarColorResource, int statusBarColorResource) {
