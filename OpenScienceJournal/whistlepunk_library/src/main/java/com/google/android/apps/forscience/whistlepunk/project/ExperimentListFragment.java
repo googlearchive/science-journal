@@ -402,7 +402,8 @@ public class ExperimentListFragment extends Fragment implements
             });
 
             if (!TextUtils.isEmpty(item.experimentOverview.imagePath)) {
-                loadPhoto(holder, item.experimentOverview.imagePath);
+                PictureUtils.loadExperimentOverviewImage(holder.experimentImage,
+                        item.experimentOverview.imagePath);
             } else {
                 // Make sure the scale type is correct for the placeholder
                 holder.experimentImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -469,14 +470,6 @@ public class ExperimentListFragment extends Fragment implements
                 // of the content of the card, which looks almost as good. And has UX approval.
                 holder.cardView.findViewById(R.id.content).setBackgroundColor(color);
             }
-        }
-
-        private void loadPhoto(final ViewHolder holder, String experimentOverviewFilePath) {
-            holder.experimentImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            Glide.with(holder.experimentImage.getContext())
-                    .load(PictureUtils.getExperimentOverviewFullImagePath(
-                            holder.experimentImage.getContext(),
-                            experimentOverviewFilePath)).into(holder.experimentImage);
         }
 
         public void onExperimentDeleted(String experimentId) {

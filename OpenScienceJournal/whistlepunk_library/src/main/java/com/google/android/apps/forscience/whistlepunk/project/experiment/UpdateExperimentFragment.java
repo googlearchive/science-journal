@@ -16,8 +16,11 @@
 
 package com.google.android.apps.forscience.whistlepunk.project.experiment;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.graphics.Picture;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -25,6 +28,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
@@ -41,15 +46,23 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.common.io.ByteStreams;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import io.reactivex.subjects.BehaviorSubject;
 
 /**
- * Fragment for saving/updating experiment detials (title, description...etc).
+ * Fragment for saving/updating experiment details (title, description...etc).
  */
 public class UpdateExperimentFragment extends Fragment {
 
@@ -75,6 +88,7 @@ public class UpdateExperimentFragment extends Fragment {
     private BehaviorSubject<Experiment> mExperiment = BehaviorSubject.create();
     private ComponentName mParentComponent;
     private boolean mWasEdited;
+    private ImageButton mPhotoButton;
 
     public UpdateExperimentFragment() {
     }
@@ -133,10 +147,10 @@ public class UpdateExperimentFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_update_experiment, container, false);
         EditText title = (EditText) view.findViewById(R.id.experiment_title);
+        mPhotoButton = (ImageButton) view.findViewById(R.id.experiment_cover);
 
         mExperiment.subscribe(experiment -> {
             title.setText(experiment.getTitle());
-
             title.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -155,6 +169,18 @@ public class UpdateExperimentFragment extends Fragment {
                 @Override
                 public void afterTextChanged(Editable s) {
 
+                }
+            });
+
+            if (!TextUtils.isEmpty(experiment.getExperimentOverview().imagePath)) {
+                // Load the current experiment photo
+                PictureUtils.loadExperimentOverviewImage(mPhotoButton,
+                        experiment.getExperimentOverview().imagePath);
+            }
+            mPhotoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PictureUtils.launchPhotoPicker(UpdateExperimentFragment.this);
                 }
             });
         });
@@ -203,6 +229,55 @@ public class UpdateExperimentFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PictureUtils.REQUEST_SELECT_PHOTO && resultCode == Activity.RESULT_OK
+                && data.getData() != null) {
+            boolean success = false;
+            File imageFile = null;
+            // Check for non-null Uri here because of b/27899888
+            try {
+                // The ACTION_GET_CONTENT intent give temporary access to the
+                // selected photo. We need to copy the selected photo to
+                // to another file to get the real absolute path and store
+                // that file's path into the experiment.
+
+                // Use the experiment ID to name the project image.
+                imageFile = PictureUtils.createImageFile(getActivity(), mExperimentId,
+                        mExperimentId);
+                copyUriToFile(data.getData(), imageFile);
+                success = true;
+            } catch (IOException e) {
+                Log.e(TAG, "Could not save file", e);
+            }
+            if (success) {
+                String relativePathInExperiment =
+                        FileMetadataManager.getRelativePathInExperiment(mExperimentId, imageFile);
+                String overviewPath =
+                        PictureUtils.getExperimentOverviewRelativeImagePath(mExperimentId,
+                                relativePathInExperiment);
+                mExperiment.getValue().getExperimentOverview().imagePath = overviewPath;
+                saveExperiment();
+                PictureUtils.loadExperimentOverviewImage(mPhotoButton, overviewPath);
+            }
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    /**
+     * Copies a content URI returned from ACTION_GET_CONTENT intent to another file.
+     * @param uri A content URI to get the content from using content resolver.
+     * @param destFile A destination file to store the copy into.
+     * @throws IOException
+     */
+    private void copyUriToFile(Uri uri, File destFile) throws IOException {
+        try (InputStream source = getActivity().getContentResolver().openInputStream(uri);
+             FileOutputStream dest = new FileOutputStream(destFile)) {
+            ByteStreams.copy(source, dest);
+        }
     }
 
     private boolean isNewExperiment() {

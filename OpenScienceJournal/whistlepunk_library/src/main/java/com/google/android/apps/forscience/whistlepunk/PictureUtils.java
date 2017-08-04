@@ -16,18 +16,16 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
@@ -35,13 +33,10 @@ import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.StringSignature;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Static picture functions shared across many parts of the app.
@@ -51,8 +46,7 @@ public class PictureUtils {
 
     // Links a photo-taking request intent with the onActivityResult by requestType.
     public static final int REQUEST_TAKE_PHOTO = 1;
-    public static final int PERMISSIONS_WRITE_EXTERNAL_STORAGE = 2;
-    public static final int PERMISSIONS_CAMERA = 3;
+    public static final int REQUEST_SELECT_PHOTO = 2;
 
     private static final String PICTURE_NAME_TEMPLATE = "%s.jpg";
 
@@ -151,7 +145,6 @@ public class PictureUtils {
     public static void loadExperimentImage(Context context, ImageView view, String experimentId,
             String relativeFilePath) {
         File file = FileMetadataManager.getExperimentFile(context, experimentId, relativeFilePath);
-        Glide.clear(view);
         Glide.with(context).load(file.getAbsolutePath()).into(view);
     }
 
@@ -166,8 +159,37 @@ public class PictureUtils {
         return FileMetadataManager.getRelativePathInFilesDir(experimentId, relativeFilePath);
     }
 
-    public static String getExperimentOverviewFullImagePath(Context context,
+    /**
+     * The experiment overview has a relative file path to the root directory of internal storage,
+     * i.e. it already includes experiments/experiment_id/assets as well as the filename.
+     * This function prepends the root directory of internal storage to that relative path.
+     */
+    private static String getExperimentOverviewFullImagePath(Context context,
             String relativeFilePath) {
         return context.getFilesDir() + "/" + relativeFilePath;
+    }
+
+    public static void loadExperimentOverviewImage(ImageView imageView,
+            String experimentOverviewFilePath) {
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Context context = imageView.getContext();
+        String fullPath = PictureUtils.getExperimentOverviewFullImagePath(context,
+                experimentOverviewFilePath);
+        long fileLastModified = new File(fullPath).lastModified();
+        Glide.with(context)
+                .load(fullPath)
+                // Create a signature based on the last modified time so that cached images will
+                // not be used if the underlying file changes. This may happen if the user has
+                // picked an experiment photo from the "edit experiment" page because there is only
+                // one filename used for that photo.
+                .signature(new StringSignature(experimentOverviewFilePath + fileLastModified))
+                .into(imageView);
+    }
+
+    public static void launchPhotoPicker(Fragment fragment) {
+        Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        photoPickerIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        photoPickerIntent.setType("image/*");
+        fragment.startActivityForResult(photoPickerIntent, REQUEST_SELECT_PHOTO);
     }
 }

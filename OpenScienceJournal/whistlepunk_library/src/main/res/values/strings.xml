@@ -1403,6 +1403,9 @@ Permissions notice:
     <!-- Text note contents for first note in the first trial in the first experiment [CHAR_LIMIT=NONE] -->
     <string name="first_experiment_trial_text_note">Record data from the sensor tab and mark important points on the graph.</string>
 
+    <!-- Content description for placeholder image for choosing a photo for an experiment [CHAR_LIMIT=NONE] -->
+    <string name="experiment_cover_description">Choose an experiment photo</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
