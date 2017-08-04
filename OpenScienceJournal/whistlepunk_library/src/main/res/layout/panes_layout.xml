@@ -57,7 +57,7 @@
                 android:id="@+id/tool_picker"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:background="@color/capture_bottom_panel"
+                android:background="@color/control_panel"
                 android:contentDescription="@string/tool_picker_tab_layout_description"
                 app:tabIndicatorColor="@color/text_color_white"
                 app:tabIndicatorHeight="@dimen/sensor_tab_indicator_height"

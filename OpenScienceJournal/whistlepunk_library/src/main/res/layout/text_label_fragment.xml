@@ -34,7 +34,7 @@
     <!-- Later this section can move into a control bar fragment -->
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/observe_control_panel_bottom_height"
         android:layout_alignParentBottom="true"
         android:background="@color/capture_bottom_panel"
         android:id="@id/control"
@@ -42,8 +42,8 @@
         >
 
         <ImageButton
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/btn_add_note"
             android:contentDescription="@string/add_experiment_note"
             android:id="@+id/btn_add"

@@ -119,12 +119,12 @@ class ControlBarController {
                 recordButton.setContentDescription(resources.getString(
                         R.string.btn_stop_description));
                 recordButton.setImageDrawable(resources.getDrawable(
-                        R.drawable.ic_recording_stop_36dp));
+                        R.drawable.ic_recording_stop_42dp));
             } else {
                 recordButton.setContentDescription(resources.getString(
                         R.string.btn_record_description));
                 recordButton.setImageDrawable(resources.getDrawable(
-                        R.drawable.ic_recording_red_40dp));
+                        R.drawable.ic_recording_red_42dp));
             }
         });
     }

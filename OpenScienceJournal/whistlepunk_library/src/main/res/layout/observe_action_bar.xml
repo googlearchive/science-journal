@@ -55,7 +55,7 @@
             android:id="@+id/btn_record"
             android:layout_width="@dimen/accessibility_touch_target_min_size"
             android:layout_height="@dimen/accessibility_touch_target_min_size"
-            android:src="@drawable/ic_recording_red_40dp"
+            android:src="@drawable/ic_recording_red_42dp"
             android:alpha="@dimen/icon_active_alpha"
             android:contentDescription="@string/btn_record_description"
             android:layout_gravity="center"
