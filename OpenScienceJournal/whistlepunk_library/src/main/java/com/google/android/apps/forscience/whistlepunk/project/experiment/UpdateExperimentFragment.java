@@ -19,7 +19,6 @@ package com.google.android.apps.forscience.whistlepunk.project.experiment;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.graphics.Picture;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -37,8 +36,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
@@ -46,6 +47,7 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -58,6 +60,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -83,12 +86,14 @@ public class UpdateExperimentFragment extends Fragment {
      * or quitting. If {@code null}, do the default handling.
      */
     public static final String ARG_PARENT_COMPONENT = "parent_component";
+    private static final String KEY_SAVED_PICTURE_PATH = "picture_path";
 
     private String mExperimentId;
     private BehaviorSubject<Experiment> mExperiment = BehaviorSubject.create();
     private ComponentName mParentComponent;
     private boolean mWasEdited;
-    private ImageButton mPhotoButton;
+    private ImageView mPhotoPreview;
+    private String mPictureLabelPath = null;
 
     public UpdateExperimentFragment() {
     }
@@ -109,6 +114,9 @@ public class UpdateExperimentFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
         mParentComponent = getArguments().getParcelable(ARG_PARENT_COMPONENT);
+        if (savedInstanceState != null) {
+            mPictureLabelPath = savedInstanceState.getString(KEY_SAVED_PICTURE_PATH);
+        }
         getDataController().getExperimentById(mExperimentId,
                 new LoggingConsumer<Experiment>(TAG, "load experiment") {
                     @Override
@@ -147,7 +155,9 @@ public class UpdateExperimentFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_update_experiment, container, false);
         EditText title = (EditText) view.findViewById(R.id.experiment_title);
-        mPhotoButton = (ImageButton) view.findViewById(R.id.experiment_cover);
+        mPhotoPreview = (ImageView) view.findViewById(R.id.experiment_cover);
+        Button chooseButton = (Button) view.findViewById(R.id.btn_choose_photo);
+        ImageButton takeButton = (ImageButton) view.findViewById(R.id.btn_take_photo);
 
         mExperiment.subscribe(experiment -> {
             title.setText(experiment.getTitle());
@@ -174,13 +184,39 @@ public class UpdateExperimentFragment extends Fragment {
 
             if (!TextUtils.isEmpty(experiment.getExperimentOverview().imagePath)) {
                 // Load the current experiment photo
-                PictureUtils.loadExperimentOverviewImage(mPhotoButton,
+                PictureUtils.loadExperimentOverviewImage(mPhotoPreview,
                         experiment.getExperimentOverview().imagePath);
             }
-            mPhotoButton.setOnClickListener(new View.OnClickListener() {
+            chooseButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     PictureUtils.launchPhotoPicker(UpdateExperimentFragment.this);
+                }
+            });
+            takeButton.setOnClickListener(new View.OnClickListener() {
+                // TODO: Take photo
+                @Override
+                public void onClick(View view) {
+                    PermissionUtils.tryRequestingPermission(getActivity(),
+                            PermissionUtils.REQUEST_CAMERA,
+                            new PermissionUtils.PermissionListener() {
+                                @Override
+                                public void onPermissionGranted() {
+                                    mPictureLabelPath =
+                                            PictureUtils.capturePictureLabel(getActivity(),
+                                                    mExperimentId, mExperimentId);
+                                }
+
+                                @Override
+                                public void onPermissionDenied() {
+
+                                }
+
+                                @Override
+                                public void onPermissionPermanentlyDenied() {
+
+                                }
+                            });
                 }
             });
         });
@@ -260,11 +296,30 @@ public class UpdateExperimentFragment extends Fragment {
                                 relativePathInExperiment);
                 mExperiment.getValue().getExperimentOverview().imagePath = overviewPath;
                 saveExperiment();
-                PictureUtils.loadExperimentOverviewImage(mPhotoButton, overviewPath);
+                PictureUtils.loadExperimentOverviewImage(mPhotoPreview, overviewPath);
+            }
+            return;
+        } else if (requestCode == PictureUtils.REQUEST_TAKE_PHOTO) {
+            if (resultCode == Activity.RESULT_OK) {
+                String overviewPath =
+                        PictureUtils.getExperimentOverviewRelativeImagePath(mExperimentId,
+                        mPictureLabelPath);
+                mExperiment.getValue().getExperimentOverview().imagePath = overviewPath;
+                saveExperiment();
+                PictureUtils.loadExperimentImage(getActivity(), mPhotoPreview, mExperimentId,
+                        mPictureLabelPath);
+            } else {
+                mPictureLabelPath = null;
             }
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(KEY_SAVED_PICTURE_PATH, mPictureLabelPath);
+        super.onSaveInstanceState(outState);
     }
 
     /**

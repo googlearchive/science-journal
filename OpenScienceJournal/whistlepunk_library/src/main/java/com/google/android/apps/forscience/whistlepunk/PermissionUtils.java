@@ -42,7 +42,7 @@ public class PermissionUtils {
     public @interface Requests{}
 
     static final int REQUEST_WRITE_EXTERNAL_STORAGE = 0;
-    static final int REQUEST_CAMERA = 1;
+    public static final int REQUEST_CAMERA = 1;
     static final int REQUEST_RECORD_AUDIO = 2;
     public static final int REQUEST_ACCESS_COARSE_LOCATION = 3;
 

@@ -20,8 +20,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 
 public class UpdateExperimentActivity extends AppCompatActivity {
@@ -66,5 +68,15 @@ public class UpdateExperimentActivity extends AppCompatActivity {
         intent.putExtra(UpdateExperimentFragment.ARG_NEW, isNewExperiment);
         intent.putExtra(UpdateExperimentFragment.ARG_PARENT_COMPONENT, parentComponent);
         return intent;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (fragment != null && requestCode == PictureUtils.REQUEST_TAKE_PHOTO) {
+            fragment.onActivityResult(requestCode, resultCode, data);
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }

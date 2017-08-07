@@ -42,14 +42,14 @@
         </EditText>
     </android.support.design.widget.TextInputLayout>
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:layout_marginTop="20dp"
         >
 
-        <ImageButton
+        <ImageView
             android:id="@+id/experiment_cover"
             android:layout_width="match_parent"
             android:layout_height="180dp"
@@ -57,14 +57,15 @@
             android:src="@drawable/add_experiment_image"
             android:tint="@color/text_color_light_grey"
             android:contentDescription="@string/experiment_cover_description"
+            android:background="#D8D8D8"
+            android:scaleType="center"
             />
 
-        <TextView
-            android:id="@+id/project_cover_label"
+        <Button
+            android:id="@+id/btn_choose_photo"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/accessibility_touch_target_min_size"
             android:text="@string/choose_photo_button_text"
-            android:layout_gravity="center|bottom"
             android:layout_marginBottom="12dp"
             android:clickable="false"
             android:textAllCaps="true"
@@ -73,10 +74,27 @@
             android:background="#CCD8D8D8"
             android:paddingStart="18dp"
             android:paddingEnd="18dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
             />
 
-    </FrameLayout>
+        <ImageButton
+            android:id="@+id/btn_take_photo"
+            android:layout_width="@dimen/accessibility_touch_target_min_size"
+            android:layout_height="@dimen/accessibility_touch_target_min_size"
+            android:layout_gravity="center|bottom"
+            android:layout_marginBottom="12dp"
+            android:clickable="false"
+            android:textAllCaps="true"
+            android:textStyle="bold"
+            android:tint="@color/color_accent_dark"
+            android:background="#CCD8D8D8"
+            android:contentDescription="@string/btn_take_picture_content_description"
+            android:src="@drawable/ic_camera_white_24dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            />
+
+    </RelativeLayout>
 
 </LinearLayout>

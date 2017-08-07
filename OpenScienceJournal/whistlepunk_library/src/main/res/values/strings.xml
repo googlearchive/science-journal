@@ -1406,6 +1406,9 @@ Permissions notice:
     <!-- Content description for placeholder image for choosing a photo for an experiment [CHAR_LIMIT=NONE] -->
     <string name="experiment_cover_description">Choose an experiment photo</string>
 
+    <!-- Content description for button to take a picture to use as the experiment image [CHAR_LIMIT=NONE] -->
+    <string name="btn_take_picture_content_description">Take picture</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
