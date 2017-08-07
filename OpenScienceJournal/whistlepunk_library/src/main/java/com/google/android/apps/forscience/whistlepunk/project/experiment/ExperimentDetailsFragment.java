@@ -283,7 +283,9 @@ public class ExperimentDetailsFragment extends Fragment
             RxDataController.getTrial(getDataController(), mExperimentId, trialId)
                     .subscribe(t -> mAdapter.addActiveRecording(t));
         }
-        getActivity().invalidateOptionsMenu();
+        if (getActivity() != null) {
+            getActivity().invalidateOptionsMenu();
+        }
         setHomeButtonState(true);
     }
 
