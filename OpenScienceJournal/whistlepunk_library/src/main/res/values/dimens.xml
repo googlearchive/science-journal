@@ -216,4 +216,6 @@
     <!-- For small and medium views, single cards fill the screen, but card size shrinks when
          multiple cards are shown. -->
     <bool name="always_use_multi_card_height">false</bool>
+
+    <integer name="gallery_column_count">3</integer>
 </resources>

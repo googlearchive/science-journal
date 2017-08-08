@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.project.experiment;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -283,7 +284,7 @@ public class UpdateExperimentFragment extends Fragment {
                 // Use the experiment ID to name the project image.
                 imageFile = PictureUtils.createImageFile(getActivity(), mExperimentId,
                         mExperimentId);
-                copyUriToFile(data.getData(), imageFile);
+                copyUriToFile(getActivity(), data.getData(), imageFile);
                 success = true;
             } catch (IOException e) {
                 Log.e(TAG, "Could not save file", e);
@@ -328,8 +329,8 @@ public class UpdateExperimentFragment extends Fragment {
      * @param destFile A destination file to store the copy into.
      * @throws IOException
      */
-    private void copyUriToFile(Uri uri, File destFile) throws IOException {
-        try (InputStream source = getActivity().getContentResolver().openInputStream(uri);
+    public static void copyUriToFile(Context context, Uri uri, File destFile) throws IOException {
+        try (InputStream source = context.getContentResolver().openInputStream(uri);
              FileOutputStream dest = new FileOutputStream(destFile)) {
             ByteStreams.copy(source, dest);
         }

@@ -13,45 +13,39 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.google.android.apps.forscience.whistlepunk.intro;
+package com.google.android.apps.forscience.whistlepunk;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 /**
- * A FrameLayout that is a square!
+ * A RelativeLayout that is a square, based on the available width.
  */
-public class SquareFrameLayout extends FrameLayout {
-    public SquareFrameLayout(Context context) {
+public class SquareLayoutMaxWidth extends RelativeLayout {
+    public SquareLayoutMaxWidth(Context context) {
         super(context);
     }
 
-    public SquareFrameLayout(Context context, AttributeSet attrs) {
+    public SquareLayoutMaxWidth(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public SquareFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SquareLayoutMaxWidth(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
     @TargetApi(21)
-    public SquareFrameLayout(Context context, AttributeSet attrs, int defStyleAttr,
+    public SquareLayoutMaxWidth(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (widthMeasureSpec == 0 && heightMeasureSpec == 0) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        } else if (widthMeasureSpec == 0 || heightMeasureSpec == 0) {
-            int size = Math.max(widthMeasureSpec, heightMeasureSpec);
-            super.onMeasure(size, size);
-        } else {
-            int size = Math.min(widthMeasureSpec, heightMeasureSpec);
-            super.onMeasure(size, size);
-        }
+        // Set the width and height to be the width, i.e. the view is as wide as it would like
+        // to be and the height is set to match.
+        super.onMeasure(widthMeasureSpec, widthMeasureSpec);
     }
 }

@@ -1409,6 +1409,15 @@ Permissions notice:
     <!-- Content description for button to take a picture to use as the experiment image [CHAR_LIMIT=NONE] -->
     <string name="btn_take_picture_content_description">Take picture</string>
 
+    <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
+    <string name="tab_description_gallery">Choose picture</string>
+
+    <!-- Content description for an image in the gallery view that could be selected for a photo note [CHAR_LIMIT=NONE] -->
+    <string name="gallery_image_content_description">Image</string>
+
+    <!-- Content description for an icon showing a gallery image is selected [CHAR_LIMIT="none"] -->
+    <string name="content_description_selected">selected</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

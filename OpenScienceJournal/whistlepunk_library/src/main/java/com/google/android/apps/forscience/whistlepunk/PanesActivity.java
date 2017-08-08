@@ -70,6 +70,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 // TODO: b/62022245
                 return CameraFragment.newInstance();
             }
+        }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp) {
+            @Override
+            public Fragment createFragment(String experimentId) {
+                return GalleryFragment.newInstance();
+            }
         };
 
         private final int mContentDescriptionId;
@@ -232,7 +237,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
                 @Override
                 public int getCount() {
-                    return 3;
+                    return ToolTab.values().length;
                 }
             };
             pager.setAdapter(adapter);
@@ -428,7 +433,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
             @Override
             public Observable<String> getActiveExperimentId() {
-                return mActiveExperiment.map(e -> e.getExperimentId()).toObservable();
+                return PanesActivity.this.getActiveExperimentId();
             }
         };
     }
@@ -509,5 +514,9 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_MIDDLE);
             }
         }
+    }
+
+    private Observable<String> getActiveExperimentId() {
+        return mActiveExperiment.map(e -> e.getExperimentId()).toObservable();
     }
 }
