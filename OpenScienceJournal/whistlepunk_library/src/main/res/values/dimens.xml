@@ -207,6 +207,8 @@
 
     <dimen name="crop_thumb_radius">14dp</dimen>
     <dimen name="crop_thumb_offset">28dp</dimen>
+    <dimen name="panes_toolbar_height">56dp</dimen>
+    <dimen name="recording_indicator_height">4dp</dimen>
 
     <!-- Maximum number of lines to show when editing a text label or note. -->
     <integer name="label_edit_max_lines">10</integer>
