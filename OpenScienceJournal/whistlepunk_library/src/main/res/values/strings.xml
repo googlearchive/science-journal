@@ -791,7 +791,7 @@
     <string name="archived_badge">Archived</string>
 
     <!-- Checkable menu item label for viewing all experiments, including the archived ones [CHAR_LIMIT=50]-->
-    <string name="action_include_archived_experiments">Show archived experiments</string>
+    <string name="action_include_archived_experiments">Include archived experiments</string>
 
     <!-- Dialog title for deleting an experiment [CHAR_LIMIT=30]-->
     <string name="delete_experiment_dialog_title">Delete this experiment?</string>
