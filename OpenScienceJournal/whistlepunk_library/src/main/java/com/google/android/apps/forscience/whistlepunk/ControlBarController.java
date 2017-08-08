@@ -45,6 +45,19 @@ class ControlBarController {
         mSnackbarManager = snackbarManager;
     }
 
+    public void attachSnapshotButton(View snapshotButton) {
+        AppSingleton singleton = AppSingleton.getInstance(snapshotButton.getContext());
+        snapshotButton.setVisibility(mShowSnapshot ? View.VISIBLE : View.GONE);
+        snapshotButton.setOnClickListener(v -> {
+            Snapshotter snapshotter = new Snapshotter(singleton.getRecorderController(),
+                    singleton.getDataController(), singleton.getSensorRegistry());
+            singleton.getRecorderController().watchRecordingStatus()
+                     .firstElement()
+                     .flatMapSingle(status -> snapshotter.addSnapshotLabel(mExperimentId, status))
+                     .subscribe(label -> singleton.onLabelsAdded().onNext(label));
+        });
+    }
+
     public void attachAddButton(ImageButton addButton) {
         if (mShowSnapshot) {
             // If we're showing the snapshot, we're in the panes ui, and should not have an add

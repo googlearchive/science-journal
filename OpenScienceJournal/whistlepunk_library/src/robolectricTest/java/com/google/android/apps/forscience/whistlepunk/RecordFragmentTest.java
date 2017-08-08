@@ -15,9 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
@@ -41,6 +38,9 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.observers.TestObserver;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
@@ -75,7 +75,7 @@ public class RecordFragmentTest {
         exp.getSensorLayouts().add(layout);
 
         TestObserver<Label> test =
-                RecordFragment.addSnapshotLabelToHolder(exp, exp, rc, dc, reg).test();
+                new Snapshotter(rc, dc, reg).addSnapshotLabelToHolder(exp, exp).test();
         assertTrue(test.await(2, TimeUnit.SECONDS));
         test.assertComplete();
 
