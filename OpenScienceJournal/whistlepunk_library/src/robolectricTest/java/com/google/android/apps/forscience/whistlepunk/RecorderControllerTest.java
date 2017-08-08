@@ -16,17 +16,20 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import static junit.framework.Assert.assertEquals;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import android.content.Context;
+import android.content.Intent;
 
 import com.google.android.apps.forscience.javalib.Delay;
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
@@ -35,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvi
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StubStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
 import org.junit.Test;
@@ -45,9 +49,14 @@ import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
@@ -286,6 +295,93 @@ public class RecorderControllerTest {
         mSensor.pushValue(20, 60);
         assertEquals("[sensor has value 60.0]",
                 snapshot.test().assertNoErrors().values().toString());
+    }
+
+    @Test public void storeAppearances() throws InterruptedException {
+        final RecorderControllerImpl rc =
+                new RecorderControllerImpl(RuntimeEnvironment.application.getApplicationContext(),
+                        mEnvironment, new RecorderListenerRegistry(), connectionSupplier(),
+                        mDataController,
+                        mScheduler, Delay.ZERO, new SensorAppearanceProvider() {
+                    @Override
+                    public void loadAppearances(MaybeConsumer<Success> onSuccess) {
+
+                    }
+
+                    @Override
+                    public SensorAppearance getAppearance(String sensorId) {
+                        assertEquals(mSensorId, sensorId);
+                        return new EmptySensorAppearance() {
+                            @Override
+                            public String getName(Context context) {
+                                return mSensorName;
+                            }
+                        };
+                    }
+                });
+
+        rc.setLayoutSupplier(() -> {
+            GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
+            layout.sensorId = mSensorId;
+            return Lists.newArrayList(layout);
+        });
+
+        ArrayList<SensorTrigger> triggers = new ArrayList<>();
+        rc.startObserving(mSensorId, triggers, new RecordingSensorObserver(),
+                new RecordingStatusListener(), null, mSensorRegistry);
+
+        Experiment experiment =
+                RxDataController.createExperiment(mDataController).test().values().get(0);
+        rc.setSelectedExperiment(experiment);
+        rc.startRecording(null).test().await().assertComplete();
+        // must push at least one value to record
+        mSensor.pushValue(10, 50);
+        rc.stopRecording(mSensorRegistry).test().await().assertComplete();
+
+        Experiment savedExperiment =
+                RxDataController.getExperimentById(mDataController, experiment.getExperimentId())
+                                .test()
+                                .values()
+                                .get(0);
+
+        List<Trial> trials = savedExperiment.getTrials();
+        assertEquals(1, trials.size());
+
+        Trial trial = trials.get(0);
+
+        List<String> sensorIds = trial.getSensorIds();
+        assertEquals(Lists.newArrayList(mSensorId), sensorIds);
+        GoosciSensorAppearance.BasicSensorAppearance appearance =
+                trial.getAppearances().get(sensorIds.get(0));
+        assertEquals(mSensorName, appearance.name);
+    }
+
+    private Supplier<RecorderServiceConnection> connectionSupplier() {
+        return () -> (RecorderServiceConnection) c -> {
+            try {
+                c.take(new IRecorderService() {
+                    @Override
+                    public void beginServiceRecording(String experimentName, Intent launchIntent) {
+
+                    }
+
+                    @Override
+                    public void endServiceRecording(boolean notifyRecordingEnded, String runId,
+                            String experimentId,
+                            String experimentTitle) {
+
+                    }
+                });
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    private void throwIfNotNull(Throwable throwable) {
+        if (throwable != null) {
+            throw new RuntimeException(throwable);
+        }
     }
 
     public static GoosciSensorSpec.SensorSpec makeSensorProto(String name) {

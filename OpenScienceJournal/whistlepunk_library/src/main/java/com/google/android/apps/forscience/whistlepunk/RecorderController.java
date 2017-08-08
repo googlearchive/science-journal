@@ -20,7 +20,6 @@ import android.content.Intent;
 import android.support.annotation.IntDef;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -37,7 +36,6 @@ import java.util.List;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.functions.Function;
 
 public interface RecorderController {
     /**
@@ -75,7 +73,8 @@ public interface RecorderController {
     public class RecordingStopFailedException extends Exception {
         public @RecordingStopErrorType int errorType;
 
-        public RecordingStopFailedException(int errorType) {
+        public RecordingStopFailedException(int errorType, Exception e) {
+            super(e);
             this.errorType = errorType;
         }
     }

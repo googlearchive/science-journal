@@ -29,8 +29,8 @@ import java.util.Queue;
 
 class RecorderServiceConnectionImpl implements ServiceConnection, RecorderServiceConnection {
     private final FailureListener mOnFailure;
-    private Queue<FallibleConsumer<RecorderService>> mOperations = new LinkedList<>();
-    private RecorderService mService;
+    private Queue<FallibleConsumer<IRecorderService>> mOperations = new LinkedList<>();
+    private IRecorderService mService;
 
     public RecorderServiceConnectionImpl(Context context, FailureListener onFailure) {
         mOnFailure = onFailure;
@@ -47,7 +47,7 @@ class RecorderServiceConnectionImpl implements ServiceConnection, RecorderServic
         }
     }
 
-    private void runOperation(FallibleConsumer<RecorderService> op) {
+    private void runOperation(FallibleConsumer<IRecorderService> op) {
         try {
             op.take(mService);
         } catch (Exception e) {
@@ -61,7 +61,7 @@ class RecorderServiceConnectionImpl implements ServiceConnection, RecorderServic
     }
 
     @Override
-    public void runWithService(FallibleConsumer<RecorderService> c) {
+    public void runWithService(FallibleConsumer<IRecorderService> c) {
         if (mService != null) {
             runOperation(c);
         } else {

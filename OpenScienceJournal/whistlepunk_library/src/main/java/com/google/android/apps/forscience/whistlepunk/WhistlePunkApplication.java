@@ -55,11 +55,17 @@ public abstract class WhistlePunkApplication extends Application {
     }
 
     public static UsageTracker getUsageTracker(Context context) {
-        if (context == null) {
+        if (canGetUsageTracker(context)) {
+            // Don't try to track usage when testing
             return UsageTracker.STUB;
         }
         WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
         return app.mUsageTracker;
+    }
+
+    private static boolean canGetUsageTracker(Context context) {
+        return context == null
+               || !(context.getApplicationContext() instanceof WhistlePunkApplication);
     }
 
     public static FeatureDiscoveryProvider getFeatureDiscoveryProvider(Context context) {
