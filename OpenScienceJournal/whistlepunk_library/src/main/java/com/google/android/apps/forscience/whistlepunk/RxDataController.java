@@ -53,4 +53,10 @@ public class RxDataController {
     public static Single<Trial> getTrial(DataController dc, String experimentId, String trialId) {
         return getExperimentById(dc, experimentId).map(experiment -> experiment.getTrial(trialId));
     }
+
+    public static Completable addTrialLabel(Label label, DataController dc, Experiment experiment,
+            String trialId) {
+        experiment.getTrial(trialId).addLabel(label);
+        return updateExperiment(dc, experiment);
+    }
 }

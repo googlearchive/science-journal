@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -56,6 +55,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelVa
 import java.io.File;
 import java.util.UUID;
 
+import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -209,7 +209,7 @@ public class AddNoteDialog extends DialogFragment {
             Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             button.setEnabled(false);
             whenExperiment(getActivity()).subscribe(experiment -> {
-                button.setOnClickListener(view -> addLabel(getActivity(), experiment));
+                button.setOnClickListener(view -> addLabel(experiment));
                 updatePositiveButtonEnabled((AlertDialog) getDialog(), true);
             });
         });
@@ -285,7 +285,7 @@ public class AddNoteDialog extends DialogFragment {
             whenExperiment(button.getContext()).subscribe(experiment -> {
                         button.setVisibility(View.VISIBLE);
                         button.setOnClickListener(v -> {
-                            addLabel(button.getContext(), experiment);
+                            addLabel(experiment);
                             hideKeyboard(v);
                         });
                     });
@@ -334,7 +334,7 @@ public class AddNoteDialog extends DialogFragment {
         }
         timestampSection.setOnClickListener(v -> {
             getListener(v.getContext()).onAddNoteTimestampClicked(getCurrentValue(),
-                    getTimestamp(timestampSection.getContext()));
+                    mTimestamp);
         });
 
         setViewVisibilities(takePictureBtn, imageView, !hasPicture());
@@ -400,16 +400,15 @@ public class AddNoteDialog extends DialogFragment {
                 View.VISIBLE : View.GONE);
     }
 
-    private void addLabel(Context context, Experiment experiment) {
+    private void addLabel(Experiment experiment) {
         // Save this as a picture label if it has a picture, otherwise just save it as a text
         // label.
-        long t = getTimestamp(context);
 
         boolean success = false;
         if (hasPicture()) {
-            success = addPictureLabel(t, experiment);
+            success = addPictureLabel(experiment);
         } else {
-            success = addTextLabel(t, experiment);
+            success = addTextLabel(experiment);
         }
         if (success) {
             Dialog dialog = getDialog();
@@ -420,7 +419,7 @@ public class AddNoteDialog extends DialogFragment {
         }
     }
 
-    private boolean addTextLabel(long timestamp, Experiment experiment) {
+    private boolean addTextLabel(Experiment experiment) {
         String text = mInput.getText().toString();
         if (TextUtils.isEmpty(text)) {
             mInput.setError(getResources().getString(R.string.empty_text_note_error));
@@ -429,7 +428,7 @@ public class AddNoteDialog extends DialogFragment {
         GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
         labelValue.text = text;
         mInput.setText("");
-        Label label = Label.newLabelWithValue(timestamp, GoosciLabel.Label.TEXT,
+        Label label = Label.newLabelWithValue(mTimestamp, GoosciLabel.Label.TEXT,
                 labelValue, null);
         addLabel(label, getDataController(mInput.getContext()), experiment, mInput.getContext());
         return true;
@@ -439,16 +438,11 @@ public class AddNoteDialog extends DialogFragment {
         return AppSingleton.getInstance(context).getDataController();
     }
 
-
-    private long getTimestamp(Context context) {
-        return mTimestamp;
-    }
-
-    private boolean addPictureLabel(long timestamp, Experiment experiment) {
+    private boolean addPictureLabel(Experiment experiment) {
         GoosciPictureLabelValue.PictureLabelValue labelValue = new GoosciPictureLabelValue
                 .PictureLabelValue();
         labelValue.filePath = mPictureLabelPath;
-        Label label = Label.fromUuidAndValue(timestamp, mUuid, GoosciLabel.Label.PICTURE,
+        Label label = Label.fromUuidAndValue(mTimestamp, mUuid, GoosciLabel.Label.PICTURE,
                 labelValue);
         GoosciCaption.Caption caption = new GoosciCaption.Caption();
         caption.text = mInput.getText().toString();
@@ -465,20 +459,13 @@ public class AddNoteDialog extends DialogFragment {
         AddNoteDialogListener listener = getListener(context);
         listener.adjustLabelBeforeAdd(label);
 
-        // The listener may be cleared by onDetach() before the experiment/trial is written,
-        // so save the MaybeConsumer here as a final var.
-        experiment.getTrial(mTrialId).addLabel(label);
-        saveExperiment(dc, experiment, label).subscribe(
-                MaybeConsumers.toSingleObserver(listener.onLabelAdd()));
-    }
+        RxDataController.addTrialLabel(label, dc, experiment, mTrialId).subscribe(() -> {
+            // in case the fragment creator is hoping for explicit notification
+            listener.onLabelAdd().success(label);
 
-    /**
-     * @return a single that only calls onSuccess if the Label is successfully added.
-     */
-    public static Single<Label> saveExperiment(DataController dataController, Experiment experiment,
-            final Label label) {
-        return RxDataController.updateExperiment(dataController, experiment)
-                               .andThen(Single.just(label));
+            // All other global listeners
+            AppSingleton.getInstance(context).onLabelsAdded().onNext(label);
+        });
     }
 
     @Override

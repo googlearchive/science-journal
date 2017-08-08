@@ -170,11 +170,6 @@ public interface RecorderController {
         void onRequestStartRecording();
 
         /**
-         * Called when the RecorderController has added a trigger label successfully.
-         */
-        void onLabelAdded(Label label);
-
-        /**
          * Called before the RecorderController tries to stop the recording from a trigger.
          */
         void onRequestStopRecording(RecorderController rc);

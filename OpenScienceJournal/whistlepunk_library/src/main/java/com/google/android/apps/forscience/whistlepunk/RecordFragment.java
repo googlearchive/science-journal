@@ -45,7 +45,6 @@ import android.widget.ImageButton;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
@@ -67,7 +66,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
@@ -90,9 +88,9 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 
-public class RecordFragment extends Fragment implements AddNoteDialog.ListenerProvider,
-        Handler.Callback, StopRecordingNoDataDialog.StopRecordingDialogListener,
-        AudioSettingsDialog.AudioSettingsDialogListener {
+public class RecordFragment extends Fragment implements Handler.Callback,
+        StopRecordingNoDataDialog.StopRecordingDialogListener, AudioSettingsDialog
+                .AudioSettingsDialogListener {
     private static final String TAG = "RecordFragment";
 
     private static final String KEY_SAVED_ACTIVE_SENSOR_CARD = "savedActiveCardIndex";
@@ -143,14 +141,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
          * accordingly
          */
         void onRecordingSaved(String runId, Experiment experiment) {
-
-        }
-
-        /**
-         * Called when a label is added from the RecordFragment (for example, a snapshot)
-         * @param trialId the ID of the trial if it is recording, null otherwise.
-         */
-        public void onLabelAdded(Label label, String trialId) {
 
         }
     }
@@ -360,6 +350,11 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
           .takeUntil(mUiStop.happens())
           .subscribe(this::onNewRecordingStatus);
 
+        AppSingleton.getInstance(getActivity())
+                    .whenLabelsAdded()
+                    .takeUntil(mUiStop.happens())
+                    .subscribe(event -> processAddedLabel(event));
+
         RecorderController.TriggerFiredListener tlistener =
                 new RecorderController.TriggerFiredListener() {
                     @Override
@@ -370,14 +365,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
                     @Override
                     public void onRequestStartRecording() {
                         lockUiForRecording();
-                    }
-
-                    @Override
-                    public void onLabelAdded(Label label) {
-                        mRecordingStatus.firstElement().subscribe(status -> {
-                            processAddedLabel(label, status);
-                            mUICallbacks.onLabelAdded(label, status.getTrialId());
-                        });
                     }
 
                     @Override
@@ -562,7 +549,12 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
     private void attachSnapshotButton(View snapshotButton) {
         snapshotButton.setVisibility(getShowSnapshot() ? View.VISIBLE : View.GONE);
         snapshotButton.setOnClickListener(v -> {
-            mRecordingStatus.firstElement().subscribe(status -> takeSnapshot(status));
+            mRecordingStatus.firstElement()
+                            .flatMapSingle(status -> takeSnapshot(status))
+                            .subscribe(
+                                    label -> AppSingleton.getInstance(snapshotButton.getContext())
+                                                         .onLabelsAdded()
+                                                         .onNext(label));
         });
     }
 
@@ -993,50 +985,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         updateSensorCount();
     }
 
-    @Override
-    public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
-        return new AddNoteDialog.AddNoteDialogListener() {
-            @Override
-            public void adjustLabelBeforeAdd(Label label) {
-                adjustLabelTimestamp(label);
-            }
-
-            @Override
-            public MaybeConsumer<Label> onLabelAdd() {
-                return new LoggingConsumer<Label>(TAG, "store label") {
-                    @Override
-                    public void success(Label value) {
-                        mRecordingStatus.firstElement().subscribe(status -> {
-                            processAddedLabel(value, status);
-                        });
-                    }
-                };
-            }
-
-            @Override
-            public Single<String> whenExperimentId() {
-                return Single.just(mSelectedExperiment.getExperimentId());
-            }
-        };
-    }
-
-    private void adjustLabelTimestamp(Label label) {
-        if (label.getType() == GoosciLabel.Label.PICTURE) {
-            // We want to set the time stamp of this label to the time of the picture
-            GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
-                    label.getPictureLabelValue();
-            File file =  new File(PictureUtils.getExperimentImagePath(getActivity(),
-                    mSelectedExperiment.getExperimentId(), pictureLabelValue.filePath));
-            // Check to make sure this value is not crazy: should be within 10 minutes of
-            // now and not from the future.
-            long delta = System.currentTimeMillis() - file.lastModified();
-            if (delta < TimeUnit.MINUTES.toMillis(10) && delta > 0) {
-                label.setTimestamp(file.lastModified());
-            }
-        }
-    }
-
-    private void processAddedLabel(Label label, RecordingStatus status) {
+    private void processAddedLabel(AddedLabelEvent event) {
+        Label label = event.getLabel();
+        RecordingStatus status = event.getStatus();
         refreshLabels(status);
         ensureUnarchived(mSelectedExperiment, getDataController());
         playAddNoteAnimation();
@@ -1199,13 +1150,9 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
         }
     }
 
-    private void takeSnapshot(RecordingStatus status) {
+    private Single<Label> takeSnapshot(RecordingStatus status) {
         // Add new snapshot label
-        addSnapshotLabel(getRecorderController(), status).subscribe(label -> {
-            // Then process the added label, or complain.
-            processAddedLabel(label, status);
-            mUICallbacks.onLabelAdded(label, status.getTrialId());
-        }, LoggingConsumer.complain(TAG, "take snapshot"));
+        return addSnapshotLabel(getRecorderController(), status);
     }
 
     private Single<Label> addSnapshotLabel(RecorderController rc, RecordingStatus status) {
@@ -1438,10 +1385,6 @@ public class RecordFragment extends Fragment implements AddNoteDialog.ListenerPr
             mFeatureDiscoveryProvider.show(((AppCompatActivity) getActivity()),
                     FeatureDiscoveryProvider.FEATURE_NEW_EXTERNAL_SENSOR, sensorId);
         }
-    }
-
-    private SensorEnvironment getSensorEnvironment() {
-        return AppSingleton.getInstance(getActivity()).getSensorEnvironment();
     }
 
     @Override
