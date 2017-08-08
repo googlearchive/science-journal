@@ -29,14 +29,11 @@ import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 
 /**
  * ViewHolder and helper methods for showing notes in a list.
@@ -187,18 +184,31 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
         sensorName.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null);
         String triggerWhenText = context.getResources().getStringArray(
                 R.array.trigger_when_list_note_text)[labelValue.triggerInformation.triggerWhen];
+        GoosciSensorAppearance.BasicSensorAppearance appearance =
+                labelValue.sensor.rememberedAppearance;
+
+        if (appearance == null) {
+            // TODO: when is this necessary?  Can we prevent it?  Remove this workaround after
+            //  b/64115986 is fixed?
+            appearance = createDefaultAppearance();
+        }
+
         sensorName.setText(context.getResources().getString(R.string.trigger_label_name_header,
-                labelValue.sensor.rememberedAppearance.name, triggerWhenText));
+                appearance.name, triggerWhenText));
 
         String valueFormat = context.getResources().getString(R.string.data_with_units);
         String value = BuiltInSensorAppearance.formatValue(
                 labelValue.triggerInformation.valueToTrigger,
-                labelValue.sensor.rememberedAppearance.pointsAfterDecimal);
+                appearance.pointsAfterDecimal);
         ((TextView) valuesList.findViewById(R.id.sensor_value)).setText(
                 String.format(valueFormat, value,
-                        labelValue.sensor.rememberedAppearance.units));
-        loadLargeDrawable(labelValue.sensor.rememberedAppearance,
+                        appearance.units));
+        loadLargeDrawable(appearance,
                 AppSingleton.getInstance(context).getSensorAppearanceProvider(), valuesList);
+    }
+
+    private static GoosciSensorAppearance.BasicSensorAppearance createDefaultAppearance() {
+        return new GoosciSensorAppearance.BasicSensorAppearance();
     }
 
     private static void loadLargeDrawable(GoosciSensorAppearance.BasicSensorAppearance appearance,

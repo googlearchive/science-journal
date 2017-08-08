@@ -100,8 +100,7 @@ import io.reactivex.Single;
  * A fragment to handle displaying Experiment details, runs and labels.
  */
 public class ExperimentDetailsFragment extends Fragment
-        implements AddNoteDialog.ListenerProvider,
-        DeleteMetadataItemDialog.DeleteDialogListener,
+        implements DeleteMetadataItemDialog.DeleteDialogListener,
         NameExperimentDialog.OnExperimentTitleChangeListener {
 
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
@@ -524,36 +523,6 @@ public class ExperimentDetailsFragment extends Fragment
                 dialog.onActivityResult(requestCode, resultCode, data);
             }
         }
-    }
-
-    @Override
-    public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
-        return new AddNoteDialog.AddNoteDialogListener() {
-            @Override
-            public MaybeConsumer<Label> onLabelAdd() {
-                return  new LoggingConsumer<Label>(TAG, "add label") {
-                    @Override
-                    public void success(Label value) {
-                        mAdapter.insertNote(value);
-                        WhistlePunkApplication.getUsageTracker(getActivity())
-                                              .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                                      TrackerConstants.ACTION_CREATE,
-                                                      TrackerConstants.LABEL_EXPERIMENT_DETAIL,
-                                                      TrackerConstants.getLabelValueType(value));
-                    }
-                };
-            }
-
-            @Override
-            public void onAddNoteTimestampClicked(Label label, long selectedTimestamp) {
-                // No timestamp editing available in Experiments.
-            }
-
-            @Override
-            public Single<String> whenExperimentId() {
-                return Single.just(mExperimentId);
-            }
-        };
     }
 
     void deleteLabel(Label label) {

@@ -149,6 +149,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
         Single<Experiment> exp = whenSelectedExperiment(experimentId, getDataController());
         exp.takeUntil(mDestroyed.happensNext()).subscribe(mActiveExperiment);
+
+        AppSingleton.getInstance(this)
+                    .whenLabelsAdded()
+                    .takeUntil(mDestroyed.happens())
+                    .subscribe(event -> onLabelAdded(event.getTrialId()));
     }
 
     @Override
@@ -387,11 +392,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void onLabelAdded(Label label, String trialId) {
-                PanesActivity.this.onLabelAdded(label, trialId);
-            }
-
-            @Override
             public void onRecordingRequested(String experimentName) {
                 if (mRecordingBar != null) {
                     mRecordingBar.setVisibility(View.VISIBLE);
@@ -451,11 +451,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 e.getTrial(trialId).addLabel(label);
             }
             RxDataController.updateExperiment(getDataController(), e)
-                    .subscribe(() -> onLabelAdded(label, trialId));
+                    .subscribe(() -> onLabelAdded(trialId));
         });
     }
 
-    private void onLabelAdded(Label label, String trialId) {
+    private void onLabelAdded(String trialId) {
         if (TextUtils.isEmpty(trialId)) {
             // TODO: is this expensive?  Should we trigger a more incremental update?
             mExperimentFragment.loadExperiment();

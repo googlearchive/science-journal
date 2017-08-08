@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
@@ -67,6 +68,8 @@ public class TextToolFragment extends Fragment {
             Label result = Label.newLabelWithValue(timestamp, GoosciLabel.Label.TEXT, labelValue,
                     null);
             getListener(addButton.getContext()).onTextLabelTaken(result);
+
+            log(addButton.getContext(), result);
             // Clear the text
             mTextView.setText("");
         });
@@ -82,6 +85,14 @@ public class TextToolFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    private void log(Context context, Label result) {
+        WhistlePunkApplication.getUsageTracker(context)
+                              .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                      TrackerConstants.ACTION_CREATE,
+                                      TrackerConstants.LABEL_EXPERIMENT_DETAIL,
+                                      TrackerConstants.getLabelValueType(result));
     }
 
     @Override

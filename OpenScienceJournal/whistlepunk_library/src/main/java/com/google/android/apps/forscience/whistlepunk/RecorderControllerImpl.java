@@ -73,7 +73,6 @@ import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.functions.Function;
 import io.reactivex.subjects.BehaviorSubject;
 
 /**
@@ -342,7 +341,7 @@ public class RecorderControllerImpl implements RecorderController {
                 new LoggingConsumer<Success>(TAG, "add trigger label") {
                     @Override
                     public void success(Success value) {
-                        onLabelAdded(triggerLabel);
+                        onTriggerLabelAdded(triggerLabel);
                     }
                 });
 
@@ -358,7 +357,7 @@ public class RecorderControllerImpl implements RecorderController {
         return mSelectedExperiment.getValue();
     }
 
-    private void onLabelAdded(Label label) {
+    private void onTriggerLabelAdded(Label label) {
         String trackerLabel = isRecording() ? TrackerConstants.LABEL_RECORD :
                 TrackerConstants.LABEL_OBSERVE;
         WhistlePunkApplication.getUsageTracker(mContext)
@@ -366,9 +365,7 @@ public class RecorderControllerImpl implements RecorderController {
                                       TrackerConstants.ACTION_CREATE,
                                       trackerLabel,
                                       TrackerConstants.getLabelValueType(label));
-        for (TriggerFiredListener listener : mTriggerListeners.values()) {
-            listener.onLabelAdded(label);
-        }
+        AppSingleton.getInstance(mContext).onLabelsAdded().onNext(label);
     }
 
     private void startObserving(StatefulRecorder sr) {

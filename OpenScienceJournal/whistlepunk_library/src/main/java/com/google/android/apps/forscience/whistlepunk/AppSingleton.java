@@ -27,6 +27,7 @@ import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleClientImpl;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabaseImpl;
@@ -35,6 +36,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.subjects.PublishSubject;
 
 public class AppSingleton {
     private static final String SENSOR_DATABASE_NAME = "sensors.db";
@@ -52,6 +57,7 @@ public class AppSingleton {
     private PrefsSensorHistoryStorage mPrefsSensorHistoryStorage;
     private Map<String, SensorProvider> mExternalSensorProviders;
     private ConnectableSensor.Connector mSensorConnector;
+    private PublishSubject<Label> mLabelsAdded = PublishSubject.create();
 
     private SensorEnvironment mSensorEnvironment = new SensorEnvironment() {
                 @Override
@@ -201,4 +207,14 @@ public class AppSingleton {
         }
         return mSensorConnector;
     }
+
+    public Observable<AddedLabelEvent> whenLabelsAdded() {
+        return mLabelsAdded.withLatestFrom(getRecorderController().watchRecordingStatus(),
+                AddedLabelEvent::new);
+    }
+
+    public Observer<Label> onLabelsAdded() {
+        return mLabelsAdded;
+    }
+
 }
