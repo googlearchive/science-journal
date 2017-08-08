@@ -45,7 +45,6 @@ public class CameraPreview extends SurfaceView {
 
     private SurfaceHolder mHolder;
     private Camera mCamera;
-    private int mRotation = Surface.ROTATION_0;
 
     public CameraPreview(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -114,11 +113,8 @@ public class CameraPreview extends SurfaceView {
             private void setCameraDisplayOrientation(int cameraId, Camera camera) {
                 CameraInfo info = new CameraInfo();
                 Camera.getCameraInfo(cameraId, info);
-                WindowManager manager =
-                        (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-                mRotation = manager.getDefaultDisplay().getRotation();
                 int degrees = 0;
-                switch (mRotation) {
+                switch (getDisplayRotation()) {
                     case Surface.ROTATION_0:
                         degrees = 0;
                         break;
@@ -140,9 +136,22 @@ public class CameraPreview extends SurfaceView {
                 } else {  // back-facing
                     result = (info.orientation - degrees + 360) % 360;
                 }
+
+                // Adjust orientation of taken photo
+                Camera.Parameters params = mCamera.getParameters();
+                params.setRotation(result);
+                mCamera.setParameters(params);
+
+                // Adjust orientation of preview
                 camera.setDisplayOrientation(result);
             }
         });
+    }
+
+    private int getDisplayRotation() {
+        WindowManager manager =
+                (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        return manager.getDefaultDisplay().getRotation();
     }
 
     public void displayError(String errorMessage) {
@@ -237,7 +246,8 @@ public class CameraPreview extends SurfaceView {
     }
 
     private boolean isInPortrait() {
-        return mRotation == Surface.ROTATION_0 || mRotation == Surface.ROTATION_180;
+        int rotation = getDisplayRotation();
+        return rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180;
     }
 
     public void takePicture(Maybe<String> maybeExperimentId, String uuid,
