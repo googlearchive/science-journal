@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
@@ -38,7 +37,6 @@ import android.widget.ProgressBar;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
-import com.jakewharton.rxbinding2.view.RxView;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -46,13 +44,14 @@ import io.reactivex.subjects.SingleSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
         CameraFragment.ListenerProvider, TextToolFragment.ListenerProvider {
-    public static final int PERMISSIONS_AUDIO_RECORD_REQUEST = 1;
     private static final String TAG = "PanesActivity";
     private static final String EXTRA_EXPERIMENT_ID = "experimentId";
     private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
 
     private ProgressBar mRecordingBar;
     private int mSelectedTabIndex;
+    private PanesBottomSheetBehavior mBottomBehavior;
+    private View mToolPickerHolder;
 
     private static enum ToolTab {
         NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp) {
@@ -137,12 +136,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             AppSingleton.getInstance(this).getRecorderController().watchRecordingStatus()
                     .firstElement().subscribe(status -> {
                         if (status.state == RecordingState.ACTIVE) {
-                            mRecordingBar.setVisibility(View.VISIBLE);
+                            showRecordingBar();
                             Log.d(TAG, "start recording");
                             mExperimentFragment.onStartRecording(
                                     status.currentRecording.getRunId());
                         } else {
-                            mRecordingBar.setVisibility(View.GONE);
+                            hideRecordingBar();
                         }
                     });
         });
@@ -180,44 +179,48 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
         View bottomSheet = findViewById(R.id.bottom);
         TabLayout toolPicker = (TabLayout) findViewById(R.id.tool_picker);
-        View toolPickerHolder = findViewById(R.id.tool_picker_holder);
+        mToolPickerHolder = findViewById(R.id.tool_picker_holder);
         View experimentPane = findViewById(R.id.experiment_pane);
-        CoordinatorLayout.LayoutParams params =
-                (CoordinatorLayout.LayoutParams) experimentPane.getLayoutParams();
-        params.setBehavior(new CoordinatorLayout.Behavior() {
-            @Override
-            public boolean layoutDependsOn(CoordinatorLayout parent, View child,
-                    View dependency) {
-                if (dependency.getId() == R.id.bottom &&
-                        dependency.getVisibility() != View.GONE) {
-                    return true;
-                } else {
-                    return super.layoutDependsOn(parent, child, dependency);
-                }
-            }
-
-            @Override
-            public boolean onDependentViewChanged(CoordinatorLayout parent, View child,
-                    View dependency) {
-                int desiredBottom = dependency.getTop();
-                int currentBottom = child.getBottom();
-
-                if (desiredBottom != currentBottom && dependency.getVisibility() != View.GONE
-                        && dependency.getId() == R.id.bottom) {
-                    ViewGroup.LayoutParams layoutParams = child.getLayoutParams();
-                    layoutParams.height = desiredBottom - child.getTop();
-                    child.setLayoutParams(layoutParams);
-                    return true;
-                } else {
-                    return super.onDependentViewChanged(parent, child, dependency);
-                }
-            }
-        });
-        experimentPane.setLayoutParams(params);
 
         if (!experiment.isArchived()) {
+            CoordinatorLayout.LayoutParams params =
+                    (CoordinatorLayout.LayoutParams) experimentPane.getLayoutParams();
+            params.setBehavior(new CoordinatorLayout.Behavior() {
+                @Override
+                public boolean layoutDependsOn(CoordinatorLayout parent, View child,
+                        View dependency) {
+                    if (dependency.getId() == R.id.bottom &&
+                            dependency.getVisibility() != View.GONE) {
+                        return true;
+                    } else {
+                        return super.layoutDependsOn(parent, child, dependency);
+                    }
+                }
+
+                @Override
+                public boolean onDependentViewChanged(CoordinatorLayout parent, View child,
+                        View dependency) {
+                    int desiredBottom = dependency.getTop();
+                    int currentBottom = child.getBottom();
+
+                    if (desiredBottom != currentBottom && dependency.getVisibility() != View.GONE
+                            && dependency.getId() == R.id.bottom) {
+                        ViewGroup.LayoutParams layoutParams = child.getLayoutParams();
+                        layoutParams.height = desiredBottom - child.getTop();
+                        child.setLayoutParams(layoutParams);
+                        return true;
+                    } else {
+                        return super.onDependentViewChanged(parent, child, dependency);
+                    }
+                }
+            });
+            experimentPane.setLayoutParams(params);
+
             bottomSheet.setVisibility(View.VISIBLE);
             findViewById(R.id.shadow).setVisibility(View.VISIBLE);
+            mBottomBehavior = (PanesBottomSheetBehavior)
+                    ((CoordinatorLayout.LayoutParams) bottomSheet.getLayoutParams())
+                            .getBehavior();
 
             final FragmentPagerAdapter adapter = new FragmentPagerAdapter(getFragmentManager()) {
                 @Override
@@ -244,14 +247,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 return;
             }
 
-            RxView.globalLayouts(bottomSheet).firstElement().subscribe(o -> {
-                // After first layout, height is valid
-
-                BottomSheetBehavior<View> bottom = BottomSheetBehavior.from(bottomSheet);
-                bottom.setBottomSheetCallback(
-                        new TriStateCallback(bottom, true, getWindow().getDecorView().getHeight(),
-                                toolPickerHolder));
-            });
+            mBottomBehavior.setPeekHeight(getResources().getDimensionPixelSize(
+                    R.dimen.panes_toolbar_height));
 
             for (ToolTab tab : ToolTab.values()) {
                 TabLayout.Tab layoutTab = toolPicker.newTab();
@@ -288,8 +285,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         } else {
             bottomSheet.setVisibility(View.GONE);
             findViewById(R.id.shadow).setVisibility(View.GONE);
-            params.height = ((ViewGroup) experimentPane.getParent()).getHeight();
-            experimentPane.setLayoutParams(params);
+            experimentPane.setLayoutParams(new CoordinatorLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
             // Clear the tabs, which releases all cameras and removes all triggers etc.
             pager.setAdapter(null);
@@ -393,9 +390,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
             @Override
             public void onRecordingRequested(String experimentName) {
-                if (mRecordingBar != null) {
-                    mRecordingBar.setVisibility(View.VISIBLE);
-                }
+                showRecordingBar();
             }
 
             @Override
@@ -407,9 +402,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
             @Override
             void onRecordingStopped() {
-                if (mRecordingBar != null) {
-                    mRecordingBar.setVisibility(View.GONE);
-                }
+                hideRecordingBar();
                 mExperimentFragment.onStopRecording();
             }
         };
@@ -475,72 +468,24 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 grantResults);
     }
 
-    // TODO: this is acceptable, but still a bit wonky.  For example, it's hard to get from bottom
-    // back to middle without going to top first.
-    // Keep adjusting.
-
-    /**
-     * A callback that allows a bottom call sheet to snap to middle, bottom, and top positions.
-     */
-    private static class TriStateCallback extends BottomSheetBehavior.BottomSheetCallback {
-        private boolean mCurrentlySettlingToMiddle;
-        private int mFullHeight;
-        private final View mVisibleOnBottom;
-        private BottomSheetBehavior<View> mBottom;
-
-        public TriStateCallback(BottomSheetBehavior<View> bottom,
-                boolean currentlySettlingToMiddle, int fullHeight, View visibleOnBottom) {
-            mBottom = bottom;
-            mFullHeight = fullHeight;
-            mVisibleOnBottom = visibleOnBottom;
-            setSettlingToMiddle(currentlySettlingToMiddle);
+    private void showRecordingBar() {
+        if (mRecordingBar != null) {
+            mRecordingBar.setVisibility(View.VISIBLE);
+            mBottomBehavior.setPeekHeight(
+                    mRecordingBar.getResources().getDimensionPixelSize(
+                            R.dimen.panes_toolbar_height) +
+                    mRecordingBar.getResources().getDimensionPixelSize(
+                            R.dimen.recording_indicator_height));
         }
+    }
 
-        private void adjustSettling() {
-            if (mCurrentlySettlingToMiddle) {
-                // set peek height to halfway up page
-                mBottom.setPeekHeight(mFullHeight / 2);
-
-                // Hideable is true so that we can drag _beneath_ peek height
-                mBottom.setHideable(true);
-            } else {
-                // set peek height to bottom
-                mBottom.setPeekHeight(mVisibleOnBottom.getHeight());
-
-                // Hideable is false so that we don't actually drag off screen (hopefully)
-                mBottom.setHideable(false);
-            }
-        }
-
-        @Override
-        public void onStateChanged(@NonNull View bottomSheet, int newState) {
-            if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                // Should never _actually_ hide.  Instead, reset to bottom peeking.
-                setSettlingToMiddle(false);
-                mBottom.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            }
-        }
-
-        private void setSettlingToMiddle(boolean currentlySettlingToMiddle) {
-            mCurrentlySettlingToMiddle = currentlySettlingToMiddle;
-            adjustSettling();
-        }
-
-        @Override
-        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-            if (mCurrentlySettlingToMiddle) {
-                // If we're currently settling to middle, but we've slid such that less than a
-                // fourth of the height is taken up by the bottom panel, shift to settling to the
-                // bottom
-                if (slideOffset < -0.5) {
-                    setSettlingToMiddle(false);
-                }
-            } else {
-                // If we're currently settling to bottom, but we've slid such that more than a
-                // fourth of the height is taken up by bottom panel, shift to settling to middle.
-                if (slideOffset > 0.25) {
-                    setSettlingToMiddle(true);
-                }
+    private void hideRecordingBar() {
+        if (mRecordingBar != null) {
+            mRecordingBar.setVisibility(View.GONE);
+            if (mBottomBehavior != null) {
+                // Null if we are in an archived experiment.
+                mBottomBehavior.setPeekHeight(mRecordingBar.getResources()
+                        .getDimensionPixelSize(R.dimen.panes_toolbar_height));
             }
         }
     }
