@@ -51,7 +51,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private ProgressBar mRecordingBar;
     private int mSelectedTabIndex;
     private PanesBottomSheetBehavior mBottomBehavior;
-    private View mToolPickerHolder;
+    private boolean mTabsInitialized;
 
     private static enum ToolTab {
         NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp) {
@@ -179,7 +179,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
         View bottomSheet = findViewById(R.id.bottom);
         TabLayout toolPicker = (TabLayout) findViewById(R.id.tool_picker);
-        mToolPickerHolder = findViewById(R.id.tool_picker_holder);
         View experimentPane = findViewById(R.id.experiment_pane);
 
         if (!experiment.isArchived()) {
@@ -264,6 +263,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     ToolTab toolTab = (ToolTab) tab.getTag();
                     mSelectedTabIndex = toolTab.ordinal();
                     pager.setCurrentItem(mSelectedTabIndex, true);
+                    openPaneIfNeeded();
                 }
 
                 @Override
@@ -278,10 +278,20 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         // selected but the pager has not updated properly. This forces the
                         // update to the pager fragment.
                         onTabSelected(tab);
+                    } else {
+                        // Pull it up if it's the already selected item.
+                        openPaneIfNeeded();
                     }
                 }
             });
+            mTabsInitialized = false;
             toolPicker.getTabAt(mSelectedTabIndex).select();
+            if (experiment.getLabelCount() > 0 || experiment.getTrialCount() > 0) {
+                mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_COLLAPSED);
+            } else {
+                mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_MIDDLE);
+            }
+            mTabsInitialized = true;
         } else {
             bottomSheet.setVisibility(View.GONE);
             findViewById(R.id.shadow).setVisibility(View.GONE);
@@ -486,6 +496,17 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 // Null if we are in an archived experiment.
                 mBottomBehavior.setPeekHeight(mRecordingBar.getResources()
                         .getDimensionPixelSize(R.dimen.panes_toolbar_height));
+            }
+        }
+    }
+
+    private void openPaneIfNeeded() {
+        // Only do the work if it is initialized. This keeps the pane from jumping open and closed
+        // when the views are first loaded.
+        if (mTabsInitialized) {
+            // Clicking a tab raises the pane to middle if it was at the bottom.
+            if (mBottomBehavior.getState() == PanesBottomSheetBehavior.STATE_COLLAPSED) {
+                mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_MIDDLE);
             }
         }
     }
