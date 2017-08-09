@@ -1,5 +1,5 @@
 /*
- *  Copyright 2016 Google Inc. All Rights Reserved.
+ *  Copyright 2017 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import com.google.android.apps.forscience.javalib.FallibleConsumer;
+import android.content.Intent;
 
-public interface RecorderServiceConnection {
-    void runWithService(FallibleConsumer<IRecorderService> c);
+interface IRecorderService {
+    void beginServiceRecording(String experimentName, Intent launchIntent);
+
+    void endServiceRecording(boolean notifyRecordingEnded, String runId, String experimentId,
+            String experimentTitle);
 }

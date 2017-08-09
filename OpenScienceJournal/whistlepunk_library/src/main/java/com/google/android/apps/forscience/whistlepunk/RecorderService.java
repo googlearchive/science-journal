@@ -33,7 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
  *
  * For now, this service doesn't really hold any data, they are still in AppSingleton.
  */
-public class RecorderService extends Service {
+public class RecorderService extends Service implements IRecorderService {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -41,11 +41,12 @@ public class RecorderService extends Service {
     }
 
     public class Binder extends android.os.Binder {
-        public RecorderService getService() {
+        public IRecorderService getService() {
             return RecorderService.this;
         }
     }
 
+    @Override
     public void beginServiceRecording(String experimentName, Intent launchIntent) {
         clearRecordingCompletedNotification(getApplicationContext());
         final PendingIntent pi = PendingIntent.getActivity(this, 1, launchIntent, 0);
@@ -65,6 +66,7 @@ public class RecorderService extends Service {
      * @param runId If notifiyRecordingEnded is false, can be empty.
      * @param experimentTitle If notifyRecordingEnded is false, can be empty.
      */
+    @Override
     public void endServiceRecording(boolean notifyRecordingEnded, String runId, String experimentId,
             String experimentTitle) {
         // Remove the recording notification before notifying that recording has stopped, so that

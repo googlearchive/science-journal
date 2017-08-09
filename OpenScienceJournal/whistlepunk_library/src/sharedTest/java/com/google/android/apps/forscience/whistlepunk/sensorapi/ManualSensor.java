@@ -39,6 +39,7 @@ import java.util.concurrent.Executor;
 import static org.junit.Assert.fail;
 
 public class ManualSensor extends ScalarSensor {
+    private final boolean mAutomaticallyConnectWhenObserving;
     private StreamConsumer mConsumer;
     private ChartController mChartController;
 
@@ -53,8 +54,16 @@ public class ManualSensor extends ScalarSensor {
 
     public ManualSensor(String sensorId, long defaultGraphRange,
             int zoomLevelBetweenResolutionTiers, Executor uiThreadExecutor) {
+        this(sensorId, defaultGraphRange, zoomLevelBetweenResolutionTiers, uiThreadExecutor, true);
+    }
+
+    public ManualSensor(
+            String sensorId, long defaultGraphRange,
+            int zoomLevelBetweenResolutionTiers, Executor uiThreadExecutor,
+            boolean automaticallyConnectWhenObserving) {
         super(sensorId, defaultGraphRange, uiThreadExecutor,
                 zoomLevelBetweenResolutionTiers, new UptimeClock());
+        mAutomaticallyConnectWhenObserving = automaticallyConnectWhenObserving;
     }
 
     public SensorRecorder createRecorder(Context context, RecordingDataController rdc,
@@ -78,6 +87,9 @@ public class ManualSensor extends ScalarSensor {
             @Override
             public void startObserving() {
                 mConsumer = c;
+                if (mAutomaticallyConnectWhenObserving) {
+                    listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
+                }
             }
 
             @Override
@@ -93,6 +105,9 @@ public class ManualSensor extends ScalarSensor {
             @Override
             public void stopObserving() {
                 mConsumer = null;
+                if (mAutomaticallyConnectWhenObserving) {
+                    listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
+                }
             }
 
             @Override

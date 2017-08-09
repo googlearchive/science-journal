@@ -521,9 +521,10 @@ public class RecorderControllerImpl implements RecorderController {
 
         mRecordingStateChangeInProgress = true;
         return Completable.create(emitter ->
-                withBoundRecorderService(new FallibleConsumer<RecorderService>() {
+                withBoundRecorderService(new FallibleConsumer<IRecorderService>() {
                     @Override
-                    public void take(final RecorderService recorderService) throws RemoteException {
+                    public void take(
+                            final IRecorderService recorderService) throws RemoteException {
                         final DataController dataController = mDataController;
                         final long creationTimeMs = mClock.getNow();
                         List<GoosciSensorLayout.SensorLayout> layouts = buildSensorLayouts();
@@ -598,21 +599,22 @@ public class RecorderControllerImpl implements RecorderController {
             // If we try to stop recording when a sensor is not connected, recording stop fails.
             if (!mRegistry.isSourceConnectedWithoutError(sensorId)) {
                 return Completable.error(new RecordingStopFailedException(
-                        RecorderController.ERROR_STOP_FAILED_DISCONNECTED));
+                        RecorderController.ERROR_STOP_FAILED_DISCONNECTED, null));
             }
             // Check to see if it has no data recorded, as this also fails stop recording.
             if (!mRecorders.get(sensorId).hasRecordedData()) {
                 return Completable.error(new RecordingStopFailedException(
-                        RecorderController.ERROR_STOP_FAILED_NO_DATA));
+                        RecorderController.ERROR_STOP_FAILED_NO_DATA, null));
             }
         }
         mRecordingStateChangeInProgress = true;
         final boolean activityInForeground = mActivityInForeground;
 
         return Completable.create(emitter ->
-                withBoundRecorderService(new FallibleConsumer<RecorderService>() {
+                withBoundRecorderService(new FallibleConsumer<IRecorderService>() {
                     @Override
-                    public void take(final RecorderService recorderService) throws RemoteException {
+                    public void take(
+                            final IRecorderService recorderService) throws RemoteException {
                         final Trial trial = getSelectedExperiment().getTrial(mCurrentTrialId);
                         final List<GoosciSensorLayout.SensorLayout> sensorLayoutsAtStop =
                                 buildSensorLayouts();
@@ -627,7 +629,7 @@ public class RecorderControllerImpl implements RecorderController {
                                         for (StatefulRecorder recorder : mRecorders.values()) {
                                             recorder.stopRecording(trial);
                                         }
-                                        trackStopRecording(recorderService.getApplicationContext(),
+                                        trackStopRecording(mContext.getApplicationContext(),
                                                 trial, sensorLayoutsAtStop, sensorRegistry);
                                         mDataController.updateExperiment(
                                                 getSelectedExperiment().getExperimentId(),
@@ -648,7 +650,7 @@ public class RecorderControllerImpl implements RecorderController {
                                         mRecordingStateChangeInProgress = false;
                                         setRecording(null);
                                         emitter.onError(new RecordingStopFailedException(
-                                                RecorderController.ERROR_FAILED_SAVE_RECORDING));
+                                                RecorderController.ERROR_FAILED_SAVE_RECORDING, e));
                                     }
                                 });
                     }
@@ -794,7 +796,7 @@ public class RecorderControllerImpl implements RecorderController {
      *
      * @param c what to do
      */
-    protected void withBoundRecorderService(final FallibleConsumer<RecorderService> c) {
+    protected void withBoundRecorderService(final FallibleConsumer<IRecorderService> c) {
         // TODO: push logic to RecorderService
         if (mServiceConnection == null) {
             mServiceConnection = mConnectionSupplier.get();
@@ -850,7 +852,7 @@ public class RecorderControllerImpl implements RecorderController {
         mActivityInForeground = isInForeground;
     }
 
-    private MaybeConsumer<Success> endRecordingConsumer(RecorderService recorderService,
+    private MaybeConsumer<Success> endRecordingConsumer(IRecorderService recorderService,
             boolean activityInForeground, String trialId) {
         return new LoggingConsumer<Success>(TAG, "update completed trial") {
             @Override

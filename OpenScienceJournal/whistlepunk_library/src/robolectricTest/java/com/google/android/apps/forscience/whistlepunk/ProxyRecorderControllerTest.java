@@ -16,11 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import android.content.Context;
 import android.os.RemoteException;
 
@@ -46,11 +41,17 @@ import com.google.common.collect.Maps;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
@@ -68,7 +69,12 @@ public class ProxyRecorderControllerTest {
             ExplodingFactory.makeListener();
     private final RecordingSensorObserver mObserver = new RecordingSensorObserver();
     private final RecordingStatusListener mStatusListener = new RecordingStatusListener();
-    private SensorRegistry mRegistry = new AllSensorsRegistry();
+    private SensorRegistry mRegistry = new AllSensorsRegistry() {
+        @Override
+        protected boolean shouldAutomaticallyConnectWhenObserving() {
+            return false;
+        }
+    };
     private final MemorySensorEnvironment mEnvironment = new MemorySensorEnvironment(
             new InMemorySensorDatabase().makeSimpleRecordingController(),
             new FakeBleClient(null), new MemorySensorHistoryStorage(), null);
@@ -215,7 +221,7 @@ public class ProxyRecorderControllerTest {
     }
 
     @Test
-    public void failsStartRecording() throws RemoteException {
+    public void failsStartRecording() throws RemoteException, InterruptedException {
         RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
         RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
         ProxyRecorderController prc = new ProxyRecorderController(rc, mPolicy, mFailureListener,
@@ -231,15 +237,17 @@ public class ProxyRecorderControllerTest {
 
         // Not connected - no data
         assertFalse(stateListener.recentIsRecording);
-        rc.startRecording(null).blockingGet();
+        rc.startRecording(null).test().await().assertError(
+                RecorderController.RecordingStartFailedException.class);
         assertFalse(stateListener.recentIsRecording);
 
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTING);
-        rc.startRecording(null).blockingGet();
+        rc.startRecording(null).test().await().assertError(
+                RecorderController.RecordingStartFailedException.class);
         assertFalse(stateListener.recentIsRecording);
 
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
-        rc.startRecording(null).blockingGet();
+        rc.startRecording(null).test().await().assertComplete();
         assertTrue(stateListener.recentIsRecording);
     }
 
@@ -286,13 +294,14 @@ public class ProxyRecorderControllerTest {
 
     private class RecorderControllerTestImpl extends  RecorderControllerImpl {
         RecorderControllerTestImpl(RecorderListenerRegistry listenerRegistry) {
-            super(null, mEnvironment, listenerRegistry, null, DATA_CONTROLLER, null,
-                    Delay.millis(0), new FakeUnitAppearanceProvider());
+            super(RuntimeEnvironment.application.getApplicationContext(), mEnvironment,
+                    listenerRegistry, null, DATA_CONTROLLER, null, Delay.millis(0),
+                    new FakeUnitAppearanceProvider());
             this.setRecordActivityInForeground(true);
         }
 
         @Override
-        protected void withBoundRecorderService(FallibleConsumer<RecorderService> c) {
+        protected void withBoundRecorderService(FallibleConsumer<IRecorderService> c) {
             try {
                 c.take(new MockRecorderService());
             } catch (Exception e) {
