@@ -57,7 +57,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
@@ -76,15 +75,12 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.jakewharton.rxbinding2.view.RxView;
 
-import java.io.File;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -543,19 +539,7 @@ public class RecordFragment extends Fragment implements Handler.Callback,
         controlBarController.attachRecordButton(recordButton);
 
         View snapshotButton = rootView.findViewById(R.id.snapshot_button);
-        attachSnapshotButton(snapshotButton);
-    }
-
-    private void attachSnapshotButton(View snapshotButton) {
-        snapshotButton.setVisibility(getShowSnapshot() ? View.VISIBLE : View.GONE);
-        snapshotButton.setOnClickListener(v -> {
-            mRecordingStatus.firstElement()
-                            .flatMapSingle(status -> takeSnapshot(status))
-                            .subscribe(
-                                    label -> AppSingleton.getInstance(snapshotButton.getContext())
-                                                         .onLabelsAdded()
-                                                         .onNext(label));
-        });
+        controlBarController.attachSnapshotButton(snapshotButton);
     }
 
     private boolean getShowSnapshot() {
@@ -1148,43 +1132,6 @@ public class RecordFragment extends Fragment implements Handler.Callback,
         if (mExternalAxis != null) {
             mExternalAxis.onLabelsChanged(labels);
         }
-    }
-
-    private Single<Label> takeSnapshot(RecordingStatus status) {
-        // Add new snapshot label
-        return addSnapshotLabel(getRecorderController(), status);
-    }
-
-    private Single<Label> addSnapshotLabel(RecorderController rc, RecordingStatus status) {
-        Maybe<Experiment> experimentMaybe = mSelectedExperimentSubject.firstElement();
-
-        // When experiment is loaded, add label
-        return experimentMaybe.flatMapSingle(e ->  {
-            LabelListHolder holder =
-                    status.isRecording() ? e.getTrial(status.getCurrentRunId()) : e;
-            return addSnapshotLabelToHolder(e, holder, rc, getDataController(), mSensorRegistry);
-        });
-    }
-
-    @VisibleForTesting
-    public static Single<Label> addSnapshotLabelToHolder(final Experiment selectedExperiment,
-            final LabelListHolder labelListHolder, final RecorderController rc,
-            final DataController dc, SensorRegistry sensorRegistry) {
-        // get text
-        return rc.generateSnapshotLabelValue(selectedExperiment.getSensorIds(), sensorRegistry)
-
-                // Make it into a label
-                .map(snapshotValue ->
-                    Label.newLabelWithValue(rc.getNow(), GoosciLabel.Label.SNAPSHOT,
-                            snapshotValue, null)
-                )
-
-                // Make sure it's successfully added
-                .flatMap(label -> {
-                    labelListHolder.addLabel(label);
-                    return RxDataController.updateExperiment(dc, selectedExperiment)
-                            .andThen(Single.just(label));
-                });
     }
 
     @Override
