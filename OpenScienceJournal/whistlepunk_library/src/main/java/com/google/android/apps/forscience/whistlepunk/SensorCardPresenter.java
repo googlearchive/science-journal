@@ -23,11 +23,13 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.TabLayout;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -63,6 +65,8 @@ import com.google.android.apps.forscience.whistlepunk.sensors.LinearAcceleromete
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.collect.Lists;
+import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+import com.google.protobuf.nano.MessageNano;
 import com.jakewharton.rxbinding2.view.RxView;
 
 import java.text.NumberFormat;
@@ -1189,7 +1193,17 @@ public class SensorCardPresenter {
             mLayout.maximumYAxisValue = mSensorPresenter.getMaxY();
         }
         mLayout.extras = mCardOptions.exportAsLayoutExtras();
-        return mLayout;
+
+        // Copy layout so that future modifications don't do bad things.
+        return copyLayout(mLayout);
+    }
+
+    private GoosciSensorLayout.SensorLayout copyLayout(GoosciSensorLayout.SensorLayout layout) {
+        try {
+            return GoosciSensorLayout.SensorLayout.parseFrom(MessageNano.toByteArray(layout));
+        } catch (InvalidProtocolBufferNanoException e) {
+            throw new RuntimeException("Should be impossible", e);
+        }
     }
 
     int getColorIndex() {

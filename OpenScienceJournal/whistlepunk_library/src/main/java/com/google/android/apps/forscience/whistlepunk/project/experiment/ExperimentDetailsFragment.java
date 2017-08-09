@@ -1168,6 +1168,9 @@ public class ExperimentDetailsFragment extends Fragment
             }
 
             final TrialStats stats = trial.getStatsForSensor(sensorId);
+            if (stats == null) {
+                throw new IllegalArgumentException("Invalid trial: " + trial);
+            }
             if (!stats.statsAreValid()) {
                 holder.statsList.clearStats();
             } else {

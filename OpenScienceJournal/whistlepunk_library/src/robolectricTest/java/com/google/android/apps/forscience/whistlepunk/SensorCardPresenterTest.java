@@ -145,6 +145,16 @@ public class SensorCardPresenterTest {
         assertEquals(0, mStoppedSensorIds.size());
     }
 
+    @Test public void defensiveCopies() {
+        SensorCardPresenter scp = createSCP();
+        setSensorId(scp, "rightId", "rightName");
+        GoosciSensorLayout.SensorLayout firstLayout = scp.buildLayout();
+        setSensorId(scp, "wrongId", "rightName");
+        GoosciSensorLayout.SensorLayout secondLayout = scp.buildLayout();
+        assertEquals("rightId", firstLayout.sensorId);
+        assertEquals("wrongId", secondLayout.sensorId);
+    }
+
     private void setSensorId(SensorCardPresenter scp, String sensorId, String sensorDisplayName) {
         scp.setAppearanceProvider(new FakeAppearanceProvider());
         scp.setUiForConnectingNewSensor(sensorId, sensorDisplayName, "units", false);
