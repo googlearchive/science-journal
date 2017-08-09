@@ -43,8 +43,8 @@ import io.reactivex.Maybe;
 public class CameraPreview extends SurfaceView {
     private static final String TAG = "CameraPreview";
 
-    private SurfaceHolder mHolder;
     private Camera mCamera;
+    private boolean mPreviewStarted = false;
 
     public CameraPreview(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -62,12 +62,9 @@ public class CameraPreview extends SurfaceView {
     }
 
     private void init() {
-        mHolder = getHolder();
-
         // Warning: this callback is only invoked on SurfaceHolder updates if the CameraPreview
         // is visible.
-        mHolder.addCallback(new SurfaceHolder.Callback() {
-
+        getHolder().addCallback(new SurfaceHolder.Callback() {
             public void surfaceCreated(SurfaceHolder holder) {
                 // The Surface has been created, now tell the camera where to draw the preview.
                 if (holder == null) {
@@ -79,9 +76,7 @@ public class CameraPreview extends SurfaceView {
             }
 
             public void surfaceDestroyed(SurfaceHolder holder) {
-                if (mCamera != null) {
-                    mCamera.stopPreview();
-                }
+                stopPreview();
             }
 
             public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
@@ -89,63 +84,20 @@ public class CameraPreview extends SurfaceView {
                     return;
                 }
 
-                if (mCamera != null) {
-                    mCamera.stopPreview();
-                }
+                stopPreview();
 
                 // set preview size and make any resize, rotate or reformatting changes here
 
                 setupPreviewDisplay(holder);
             }
-
-            public void setupPreviewDisplay(SurfaceHolder holder) {
-                try {
-                    if (mCamera != null) {
-                        mCamera.setPreviewDisplay(holder);
-                        mCamera.startPreview();
-                        setCameraDisplayOrientation(0, mCamera);
-                    }
-                } catch (IOException e) {
-                    displayError("Creating camera preview failed; the surface holder was invalid.");
-                }
-            }
-
-            private void setCameraDisplayOrientation(int cameraId, Camera camera) {
-                CameraInfo info = new CameraInfo();
-                Camera.getCameraInfo(cameraId, info);
-                int degrees = 0;
-                switch (getDisplayRotation()) {
-                    case Surface.ROTATION_0:
-                        degrees = 0;
-                        break;
-                    case Surface.ROTATION_90:
-                        degrees = 90;
-                        break;
-                    case Surface.ROTATION_180:
-                        degrees = 180;
-                        break;
-                    case Surface.ROTATION_270:
-                        degrees = 270;
-                        break;
-                }
-
-                int result;
-                if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
-                    result = (info.orientation + degrees) % 360;
-                    result = (360 - result) % 360;  // compensate the mirror
-                } else {  // back-facing
-                    result = (info.orientation - degrees + 360) % 360;
-                }
-
-                // Adjust orientation of taken photo
-                Camera.Parameters params = mCamera.getParameters();
-                params.setRotation(result);
-                mCamera.setParameters(params);
-
-                // Adjust orientation of preview
-                camera.setDisplayOrientation(result);
-            }
         });
+    }
+
+    private void stopPreview() {
+        if (mCamera != null) {
+            mCamera.stopPreview();
+        }
+        mPreviewStarted = false;
     }
 
     private int getDisplayRotation() {
@@ -163,12 +115,68 @@ public class CameraPreview extends SurfaceView {
 
     public void setCamera(Camera camera) {
         mCamera = camera;
+        if (!mPreviewStarted) {
+            setupPreviewDisplay(getHolder());
+        }
         requestLayout();
+    }
+
+    public void setupPreviewDisplay(SurfaceHolder holder) {
+        try {
+            if (mCamera != null) {
+                mCamera.setPreviewDisplay(holder);
+                startPreview();
+                setCameraDisplayOrientation(0, mCamera);
+            }
+        } catch (IOException e) {
+            displayError("Creating camera preview failed; the surface holder was invalid.");
+        }
+    }
+
+    private void startPreview() {
+        mCamera.startPreview();
+        mPreviewStarted = true;
+    }
+
+    private void setCameraDisplayOrientation(int cameraId, Camera camera) {
+        CameraInfo info = new CameraInfo();
+        Camera.getCameraInfo(cameraId, info);
+        int degrees = 0;
+        switch (getDisplayRotation()) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }
+
+        int result;
+        if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
+            result = (info.orientation + degrees) % 360;
+            result = (360 - result) % 360;  // compensate the mirror
+        } else {  // back-facing
+            result = (info.orientation - degrees + 360) % 360;
+        }
+
+        // Adjust orientation of taken photo
+        Camera.Parameters params = mCamera.getParameters();
+        params.setRotation(result);
+        mCamera.setParameters(params);
+
+        // Adjust orientation of preview
+        camera.setDisplayOrientation(result);
     }
 
     public void removeCamera() {
         if (mCamera != null) {
-            mCamera.stopPreview();
+            stopPreview();
             mCamera.release();
             mCamera = null;
         }
@@ -216,7 +224,7 @@ public class CameraPreview extends SurfaceView {
         // Bake in the new preview size
         params.setPreviewSize(bestSize.width, bestSize.height);
         try {
-            mCamera.stopPreview();
+            stopPreview();
             mCamera.setParameters(params);
         } catch (RuntimeException e) {
             if (Log.isLoggable(TAG, Log.ERROR)) {
@@ -226,7 +234,7 @@ public class CameraPreview extends SurfaceView {
                 return;
             }
         } finally {
-            mCamera.startPreview();
+            startPreview();
         }
 
         // Remeasure to match ideal
@@ -268,7 +276,7 @@ public class CameraPreview extends SurfaceView {
                 // Pass back the relative path for saving in the label.
                 onSuccess.success(FileMetadataManager.getRelativePathInExperiment(experimentId,
                         photoFile));
-                mCamera.startPreview();
+                startPreview();
             } catch (IOException e) {
                 onSuccess.fail(e);
             }

@@ -26,13 +26,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensors.CameraPreview;
-import com.google.common.base.Preconditions;
 
-import java.io.File;
 import java.util.UUID;
 
 import io.reactivex.Observable;
@@ -135,7 +132,6 @@ public class CameraFragment extends Fragment {
                            .getSensorEnvironment()
                            .getDefaultClock();
     }
-
 
     @Override
     public void onStart() {
