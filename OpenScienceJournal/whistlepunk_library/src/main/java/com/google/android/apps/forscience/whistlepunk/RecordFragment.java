@@ -27,7 +27,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -41,7 +40,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageButton;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -52,7 +50,6 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableS
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
@@ -81,7 +78,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 
 public class RecordFragment extends Fragment implements Handler.Callback,
@@ -93,6 +89,7 @@ public class RecordFragment extends Fragment implements Handler.Callback,
     private static final String KEY_SAVED_RECYCLER_LAYOUT = "savedRecyclerLayout";
     private static final String KEY_SHOW_SNAPSHOT = "showSnapshot";
     private static final String KEY_EXPERIMENT_ID = "experimentId";
+    private static final String KEY_NATIVE_CONTROL_BAR = "nativeControlBar";
     private static final String KEY_INFLATE_MENU = "inflateMenu";
 
     private static final int DEFAULT_CARD_VIEW = GoosciSensorLayout.SensorLayout.METER;
@@ -190,12 +187,13 @@ public class RecordFragment extends Fragment implements Handler.Callback,
     RxEvent mContextDetach = new RxEvent();
 
     public static RecordFragment newInstance(String experimentId, boolean showSnapshot,
-            boolean inflateMenu) {
+            boolean inflateMenu, boolean nativeControlBar) {
         RecordFragment fragment = new RecordFragment();
         Bundle args = new Bundle();
         args.putBoolean(KEY_SHOW_SNAPSHOT, showSnapshot);
         args.putBoolean(KEY_INFLATE_MENU, inflateMenu);
         args.putString(KEY_EXPERIMENT_ID, experimentId);
+        args.putBoolean(KEY_NATIVE_CONTROL_BAR, nativeControlBar);
         fragment.setArguments(args);
         return fragment;
     }
@@ -528,18 +526,20 @@ public class RecordFragment extends Fragment implements Handler.Callback,
     }
 
     private void attachControlButtons(ViewGroup rootView, boolean showSnapshot) {
-        ControlBarController controlBarController =
-                new ControlBarController(getFragmentManager(), getExperimentId(), showSnapshot,
-                        mSnackbarManager);
+        View bar = rootView.findViewById(R.id.observe_action_bar);
 
-        ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add);
-        controlBarController.attachAddButton(addButton);
+        // TODO: remove this check, and the XML it enables, once PanesActivity#SHARED_CONTROL_BAR
+        // is permanently true
+        if (shouldUseNativeControlBar()) {
+            bar.setVisibility(View.VISIBLE);
+            ControlBarController controlBarController =
+                    new ControlBarController(getFragmentManager(), getExperimentId(), showSnapshot,
+                            mSnackbarManager);
 
-        ImageButton recordButton = (ImageButton) rootView.findViewById(R.id.btn_record);
-        controlBarController.attachRecordButton(recordButton);
-
-        View snapshotButton = rootView.findViewById(R.id.snapshot_button);
-        controlBarController.attachSnapshotButton(snapshotButton);
+            controlBarController.attachRecordButtons(rootView);
+        } else {
+            bar.setVisibility(View.GONE);
+        }
     }
 
     private boolean getShowSnapshot() {
@@ -552,6 +552,10 @@ public class RecordFragment extends Fragment implements Handler.Callback,
 
     private String getExperimentId() {
         return getArguments().getString(KEY_EXPERIMENT_ID);
+    }
+
+    private boolean shouldUseNativeControlBar() {
+        return getArguments().getBoolean(KEY_NATIVE_CONTROL_BAR, true);
     }
 
     private void activateSensorCardPresenter(SensorCardPresenter sensorCardPresenter,

@@ -37,6 +37,7 @@ import android.widget.ProgressBar;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
+import com.google.common.base.Joiner;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -44,6 +45,11 @@ import io.reactivex.subjects.SingleSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
         CameraFragment.ListenerProvider, TextToolFragment.ListenerProvider {
+    /**
+     * Just for development, will be removed once shared control bar works
+     */
+    private static final boolean SHARED_CONTROL_BAR = false;
+
     private static final String TAG = "PanesActivity";
     private static final String EXTRA_EXPERIMENT_ID = "experimentId";
     private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
@@ -62,7 +68,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp) {
             @Override
             public Fragment createFragment(String experimentId) {
-                return RecordFragment.newInstance(experimentId, true, false);
+                return RecordFragment.newInstance(experimentId, true, false, !SHARED_CONTROL_BAR);
             }
         }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp) {
             @Override
@@ -139,16 +145,16 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             setupViews(experiment);
             setExperimentFragmentId(experiment);
             AppSingleton.getInstance(this).getRecorderController().watchRecordingStatus()
-                    .firstElement().subscribe(status -> {
-                        if (status.state == RecordingState.ACTIVE) {
-                            showRecordingBar();
-                            Log.d(TAG, "start recording");
-                            mExperimentFragment.onStartRecording(
-                                    status.currentRecording.getRunId());
-                        } else {
-                            hideRecordingBar();
-                        }
-                    });
+                        .firstElement().subscribe(status -> {
+                if (status.state == RecordingState.ACTIVE) {
+                    showRecordingBar();
+                    Log.d(TAG, "start recording");
+                    mExperimentFragment.onStartRecording(
+                            status.currentRecording.getRunId());
+                } else {
+                    hideRecordingBar();
+                }
+            });
         });
 
         Single<Experiment> exp = whenSelectedExperiment(experimentId, getDataController());
@@ -158,6 +164,32 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     .whenLabelsAdded()
                     .takeUntil(mDestroyed.happens())
                     .subscribe(event -> onLabelAdded(event.getTrialId()));
+
+        View bottomControlBar = findViewById(R.id.bottom_control_bar);
+        if (SHARED_CONTROL_BAR) {
+            bottomControlBar.setVisibility(View.VISIBLE);
+        } else {
+            bottomControlBar.setVisibility(View.GONE);
+        }
+
+        setCoordinatorBehavior(bottomControlBar, new BottomDependentBehavior() {
+            @Override
+            public boolean onDependentViewChanged(CoordinatorLayout parent, View child,
+                    View dependency) {
+                View holder = dependency.findViewById(R.id.tool_picker_holder);
+                int childTop = child.getTop();
+                int bottomOfTabs = dependency.getTop() + holder.getBottom();
+
+                // Translate down enough to get out of the way of the tabs
+                int translateY = Math.max(0, bottomOfTabs - childTop);
+                if (child.getTranslationY() != translateY) {
+                    child.setTranslationY(translateY);
+                    return true;
+                }
+
+                return false;
+            }
+        });
     }
 
     @Override
@@ -187,20 +219,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         View experimentPane = findViewById(R.id.experiment_pane);
 
         if (!experiment.isArchived()) {
-            CoordinatorLayout.LayoutParams params =
-                    (CoordinatorLayout.LayoutParams) experimentPane.getLayoutParams();
-            params.setBehavior(new CoordinatorLayout.Behavior() {
-                @Override
-                public boolean layoutDependsOn(CoordinatorLayout parent, View child,
-                        View dependency) {
-                    if (dependency.getId() == R.id.bottom &&
-                            dependency.getVisibility() != View.GONE) {
-                        return true;
-                    } else {
-                        return super.layoutDependsOn(parent, child, dependency);
-                    }
-                }
-
+            setCoordinatorBehavior(experimentPane, new BottomDependentBehavior() {
                 @Override
                 public boolean onDependentViewChanged(CoordinatorLayout parent, View child,
                         View dependency) {
@@ -208,7 +227,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     int currentBottom = child.getBottom();
 
                     if (desiredBottom != currentBottom && dependency.getVisibility() != View.GONE
-                            && dependency.getId() == R.id.bottom) {
+                        && dependency.getId() == R.id.bottom) {
                         ViewGroup.LayoutParams layoutParams = child.getLayoutParams();
                         layoutParams.height = desiredBottom - child.getTop();
                         child.setLayoutParams(layoutParams);
@@ -218,7 +237,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     }
                 }
             });
-            experimentPane.setLayoutParams(params);
 
             bottomSheet.setVisibility(View.VISIBLE);
             findViewById(R.id.shadow).setVisibility(View.VISIBLE);
@@ -243,8 +261,9 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             pager.setAdapter(adapter);
 
             if (toolPicker.getTabCount() > 0) {
-                experimentPane.getLayoutParams().height = bottomSheet.getTop();
-                experimentPane.setLayoutParams(params);
+                ViewGroup.LayoutParams layoutParams = experimentPane.getLayoutParams();
+                layoutParams.height = bottomSheet.getTop();
+                experimentPane.setLayoutParams(layoutParams);
                 toolPicker.getTabAt(mSelectedTabIndex).select();
 
                 // It's already initialized. Don't do it again!
@@ -306,6 +325,13 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             // Clear the tabs, which releases all cameras and removes all triggers etc.
             pager.setAdapter(null);
         }
+    }
+
+    private void setCoordinatorBehavior(View view, BottomDependentBehavior behavior) {
+        CoordinatorLayout.LayoutParams params =
+                (CoordinatorLayout.LayoutParams) view.getLayoutParams();
+        params.setBehavior(behavior);
+        view.setLayoutParams(params);
     }
 
     private void setExperimentFragmentId(Experiment experiment) {
@@ -459,7 +485,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 e.getTrial(trialId).addLabel(label);
             }
             RxDataController.updateExperiment(getDataController(), e)
-                    .subscribe(() -> onLabelAdded(trialId));
+                            .subscribe(() -> onLabelAdded(trialId));
         });
     }
 
@@ -518,5 +544,18 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     private Observable<String> getActiveExperimentId() {
         return mActiveExperiment.map(e -> e.getExperimentId()).toObservable();
+    }
+
+    private static class BottomDependentBehavior extends CoordinatorLayout.Behavior {
+        @Override
+        public boolean layoutDependsOn(CoordinatorLayout parent, View child,
+                View dependency) {
+            if (dependency.getId() == R.id.bottom &&
+                dependency.getVisibility() != View.GONE) {
+                return true;
+            } else {
+                return super.layoutDependsOn(parent, child, dependency);
+            }
+        }
     }
 }

@@ -85,4 +85,13 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/bottom_control_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/observe_control_panel_bottom_height"
+        android:layout_gravity="bottom"
+        android:background="@color/capture_bottom_panel"
+        android:elevation="4dp"/>
+
 </android.support.design.widget.CoordinatorLayout>

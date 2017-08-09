@@ -21,6 +21,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.support.design.widget.Snackbar;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import com.jakewharton.rxbinding2.view.RxView;
@@ -216,5 +217,16 @@ class ControlBarController {
         Snackbar bar = AccessibilityUtils.makeSnackbar(anchorView,
                 anchorView.getResources().getString(stringId), Snackbar.LENGTH_LONG);
         mSnackbarManager.showSnackbar(bar);
+    }
+
+    void attachRecordButtons(ViewGroup rootView) {
+        ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add);
+        attachAddButton(addButton);
+
+        ImageButton recordButton = (ImageButton) rootView.findViewById(R.id.btn_record);
+        attachRecordButton(recordButton);
+
+        View snapshotButton = rootView.findViewById(R.id.snapshot_button);
+        attachSnapshotButton(snapshotButton);
     }
 }
