@@ -348,4 +348,12 @@ public class Trial extends LabelListHolder {
         }
         return appearances;
     }
+
+    @Override
+    public String toString() {
+        return "Trial{" +
+               "mTrial=" + mTrial +
+               ", mTrialStats=" + mTrialStats +
+               '}';
+    }
 }
