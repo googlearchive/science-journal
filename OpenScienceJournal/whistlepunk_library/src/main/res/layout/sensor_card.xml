@@ -92,8 +92,6 @@
                 android:textStyle="bold"
                 android:paddingTop="@dimen/sensor_card_header_text_padding"
                 android:paddingBottom="@dimen/sensor_card_header_text_padding"
-                android:ellipsize="middle"
-                android:maxLines="1"
                 android:singleLine="true"
                 />
 

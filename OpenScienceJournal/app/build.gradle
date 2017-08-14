@@ -4,7 +4,7 @@ apply from: project(':whistlepunk_library').projectDir.absolutePath + '/version.
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    buildToolsVersion '26.0.1'
 
     defaultConfig {
         applicationId "com.google.android.apps.forscience.whistlepunk.opensource"
@@ -31,6 +31,9 @@ android {
 
         // Due to b/36261865, don't try to check icon shape when linting.
         disable 'IconLauncherShape'
+        
+        // b/64679950
+        warning "InvalidPackage"
     }
     compileOptions {
         targetCompatibility 1.8
@@ -39,8 +42,7 @@ android {
 }
 
 dependencies {
-    debugCompile project(path: ':whistlepunk_library', configuration: 'debug')
-    releaseCompile project(path: ':whistlepunk_library', configuration: 'release')
+    implementation project(':whistlepunk_library')
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:support-annotations:25.3.1'

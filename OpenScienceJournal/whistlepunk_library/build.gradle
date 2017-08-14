@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.7.7'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.3'
     }
 }
 
@@ -40,6 +40,9 @@ android {
 
         lintConfig file("lint.xml")
         warning "MissingTranslation", "ExtraTranslation"
+
+        // b/64679950
+        warning "InvalidPackage"
 
         htmlOutput file("build/reports/whistlepunk-lint-results.html")
         xmlOutput file("build/reports/whistlepunk-lint-results.xml")
