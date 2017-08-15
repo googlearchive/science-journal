@@ -33,10 +33,16 @@ import com.google.android.apps.forscience.whistlepunk.sensors.CameraPreview;
 import java.util.UUID;
 
 import io.reactivex.Observable;
+import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.subjects.SingleSubject;
 
 import static android.content.ContentValues.TAG;
 
 public class CameraFragment extends Fragment {
+    private SingleSubject<ViewGroup> mPreviewContainer = SingleSubject.create();
+    private CompletableSubject mPermissionGranted = CompletableSubject.create();
+    private RxEvent mFocusLost = new RxEvent();
+
     public static abstract class CameraFragmentListener {
         static CameraFragmentListener NULL = new CameraFragmentListener() {
             @Override
@@ -61,8 +67,6 @@ public class CameraFragment extends Fragment {
     }
 
     private CameraFragmentListener mListener = CameraFragmentListener.NULL;
-
-    private CameraPreview mPreview = null;
 
     public static CameraFragment newInstance() {
         return new CameraFragment();
@@ -102,23 +106,7 @@ public class CameraFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             Bundle savedInstanceState) {
         View inflated = inflater.inflate(R.layout.fragment_camera_tool, null);
-        mPreview = (CameraPreview) inflated.findViewById(R.id.preview);
-        mPreview.setOnClickListener(v -> {
-            final long timestamp = getTimestamp(v.getContext());
-            final String uuid = UUID.randomUUID().toString();
-            mPreview.takePicture(mListener.getActiveExperimentId().firstElement(), uuid,
-                    new LoggingConsumer<String>(TAG, "taking picture") {
-                        @Override
-                        public void success(String relativePicturePath) {
-                            GoosciPictureLabelValue.PictureLabelValue labelValue =
-                                    new GoosciPictureLabelValue.PictureLabelValue();
-                            labelValue.filePath = relativePicturePath;
-                            Label label = Label.fromUuidAndValue(timestamp, uuid,
-                                    GoosciLabel.Label.PICTURE, labelValue);
-                            mListener.onPictureLabelTaken(label);
-                        }
-                    });
-        });
+        mPreviewContainer.onSuccess((ViewGroup) inflated.findViewById(R.id.preview_container));
         return inflated;
     }
 
@@ -136,31 +124,71 @@ public class CameraFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        PermissionUtils.tryRequestingPermission(getActivity(),
-                PermissionUtils.REQUEST_CAMERA, new PermissionUtils.PermissionListener() {
-                    @Override
-                    public void onPermissionGranted() {
-                        Camera camera = Camera.open(0);
-                        if(camera != null) {
-                            mPreview.setCamera(camera);
+
+        if (!mPermissionGranted.hasComplete()) {
+            PermissionUtils.tryRequestingPermission(getActivity(),
+                    PermissionUtils.REQUEST_CAMERA, new PermissionUtils.PermissionListener() {
+                        @Override
+                        public void onPermissionGranted() {
+                            mPermissionGranted.onComplete();
                         }
-                    }
 
-                    @Override
-                    public void onPermissionDenied() {
+                        @Override
+                        public void onPermissionDenied() {
+                            mPermissionGranted.onError(new RuntimeException("denied"));
+                        }
 
-                    }
-
-                    @Override
-                    public void onPermissionPermanentlyDenied() {
-
-                    }
-                });
+                        @Override
+                        public void onPermissionPermanentlyDenied() {
+                            mPermissionGranted.onError(new RuntimeException("permanently denied"));
+                        }
+                    });
+        }
     }
 
     @Override
     public void onStop() {
-        mPreview.removeCamera();
+        mFocusLost.onHappened();
         super.onStop();
+    }
+
+
+    public void onGainedFocus() {
+        mPreviewContainer.subscribe(container -> {
+            LayoutInflater inflater = LayoutInflater.from(container.getContext());
+            View view = inflater.inflate(R.layout.camera_tool_preview, container, false);
+            CameraPreview preview = (CameraPreview) view;
+            container.addView(preview);
+
+            mPermissionGranted.subscribe(() -> {
+                preview.setCamera(Camera.open(0));
+            });
+
+            preview.setOnClickListener(v -> {
+                final long timestamp = getTimestamp(v.getContext());
+                final String uuid = UUID.randomUUID().toString();
+                preview.takePicture(mListener.getActiveExperimentId().firstElement(), uuid,
+                        new LoggingConsumer<String>(TAG, "taking picture") {
+                            @Override
+                            public void success(String relativePicturePath) {
+                                GoosciPictureLabelValue.PictureLabelValue labelValue =
+                                        new GoosciPictureLabelValue.PictureLabelValue();
+                                labelValue.filePath = relativePicturePath;
+                                Label label = Label.fromUuidAndValue(timestamp, uuid,
+                                        GoosciLabel.Label.PICTURE, labelValue);
+                                mListener.onPictureLabelTaken(label);
+                            }
+                        });
+            });
+
+            mFocusLost.happens().firstElement().subscribe(o -> {
+                preview.removeCamera();
+                container.removeAllViews();
+            });
+        });
+    }
+
+    public void onLosingFocus() {
+        mFocusLost.onHappened();
     }
 }

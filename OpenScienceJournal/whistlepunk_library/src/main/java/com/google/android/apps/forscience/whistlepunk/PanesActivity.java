@@ -37,7 +37,6 @@ import android.widget.ProgressBar;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
-import com.google.common.base.Joiner;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -76,6 +75,13 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 // TODO: b/62022245
                 return CameraFragment.newInstance();
             }
+
+            @Override
+            public Runnable onGainedFocus(Object object) {
+                CameraFragment fragment = (CameraFragment) object;
+                fragment.onGainedFocus();
+                return () -> fragment.onLosingFocus();
+            }
         }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp) {
             @Override
             public Fragment createFragment(String experimentId) {
@@ -99,6 +105,16 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
         public int getIconId() {
             return mIconId;
+        }
+
+        /**
+         * Called when focus is gained by this tab.
+         *
+         * @return a Runnable that should be called when focus is lost, or null to do nothing.
+         */
+        public Runnable onGainedFocus(Object object) {
+            // by default, do nothing
+            return null;
         }
     }
 
@@ -244,19 +260,43 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     ((CoordinatorLayout.LayoutParams) bottomSheet.getLayoutParams())
                             .getBehavior();
 
+            // TODO: could this be FragmentStatePagerAdapter?  Would the fragment lifecycle methods
+            //       get called in time to remove the camera preview views and avoid b/64442501?
             final FragmentPagerAdapter adapter = new FragmentPagerAdapter(getFragmentManager()) {
+                // TODO: extract and test this.
+                private int mPreviousPrimary = -1;
+                private Runnable mOnLosingFocus = null;
+
                 @Override
                 public Fragment getItem(int position) {
                     if (position >= ToolTab.values().length) {
                         return null;
                     }
-                    return ToolTab.values()[position].createFragment(experiment.getExperimentId());
+                    return getToolTab(position).createFragment(experiment.getExperimentId());
+                }
+
+                private ToolTab getToolTab(int position) {
+                    return ToolTab.values()[position];
                 }
 
                 @Override
                 public int getCount() {
                     return ToolTab.values().length;
                 }
+
+                @Override
+                public void setPrimaryItem(ViewGroup container, int position, Object object) {
+                    if (position != mPreviousPrimary && mOnLosingFocus != null) {
+                        mOnLosingFocus.run();
+                        mOnLosingFocus = null;
+                    }
+                    super.setPrimaryItem(container, position, object);
+                    if (position != mPreviousPrimary) {
+                        mOnLosingFocus = getToolTab(position).onGainedFocus(object);
+                        mPreviousPrimary = position;
+                    }
+                }
+
             };
             pager.setAdapter(adapter);
 
