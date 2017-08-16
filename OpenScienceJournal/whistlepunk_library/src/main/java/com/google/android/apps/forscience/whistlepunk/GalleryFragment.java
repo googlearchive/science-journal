@@ -16,15 +16,14 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.app.Activity;
+import android.Manifest;
+import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -42,13 +41,12 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentFragment;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import io.reactivex.Observable;
 
 /**
  * Fragment controlling adding picture notes from the gallery in the observe pane.
@@ -65,8 +63,19 @@ public class GalleryFragment extends Fragment implements
     private ImageButton mAddButton;
     private int mInitiallySelectedPhoto;
 
-    public static Fragment newInstance() {
-        return new GalleryFragment();
+    public static Fragment newInstance(RxPermissions permissions) {
+        GalleryFragment fragment = new GalleryFragment();
+
+        // TODO: use RxPermissions instead of PermissionsUtils everywhere?
+        permissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
+                   .firstElement()
+                   .subscribe(granted -> {
+                       if (granted) {
+                           fragment.loadImages();
+                       }
+                       // TODO: else to show retry and error.
+                   });
+        return fragment;
     }
 
     @Override
@@ -83,7 +92,14 @@ public class GalleryFragment extends Fragment implements
                 mAddButton.setEnabled(false);
             }
         });
-        loadImages();
+
+        new RxPermissions(getActivity()).request(Manifest.permission.READ_EXTERNAL_STORAGE)
+                                        .firstElement()
+                                        .subscribe(granted -> {
+                                            if (granted) {
+                                                loadImages();
+                                            }
+                                        });
     }
 
     @Nullable

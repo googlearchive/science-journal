@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -29,10 +30,14 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensors.CameraPreview;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.UUID;
 
+import io.reactivex.CompletableObserver;
 import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.SingleSubject;
 
@@ -68,8 +73,20 @@ public class CameraFragment extends Fragment {
 
     private CameraFragmentListener mListener = CameraFragmentListener.NULL;
 
-    public static CameraFragment newInstance() {
-        return new CameraFragment();
+    public static CameraFragment newInstance(RxPermissions permissions) {
+        CameraFragment fragment = new CameraFragment();
+        permissions.request(Manifest.permission.CAMERA).subscribe(granted -> {
+            if (granted) {
+                fragment.onPermissionGranted().onComplete();
+            } else {
+                fragment.onPermissionGranted().onError(new RuntimeException("Not granted"));
+            }
+        });
+        return fragment;
+    }
+
+    CompletableObserver onPermissionGranted() {
+        return mPermissionGranted;
     }
 
     // TODO: extract this pattern of fragment listeners
@@ -122,31 +139,6 @@ public class CameraFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        if (!mPermissionGranted.hasComplete()) {
-            PermissionUtils.tryRequestingPermission(getActivity(),
-                    PermissionUtils.REQUEST_CAMERA, new PermissionUtils.PermissionListener() {
-                        @Override
-                        public void onPermissionGranted() {
-                            mPermissionGranted.onComplete();
-                        }
-
-                        @Override
-                        public void onPermissionDenied() {
-                            mPermissionGranted.onError(new RuntimeException("denied"));
-                        }
-
-                        @Override
-                        public void onPermissionPermanentlyDenied() {
-                            mPermissionGranted.onError(new RuntimeException("permanently denied"));
-                        }
-                    });
-        }
-    }
-
-    @Override
     public void onStop() {
         mFocusLost.onHappened();
         super.onStop();
@@ -162,7 +154,7 @@ public class CameraFragment extends Fragment {
 
             mPermissionGranted.subscribe(() -> {
                 preview.setCamera(Camera.open(0));
-            });
+            }, LoggingConsumer.complain(TAG, "camera permission"));
 
             preview.setOnClickListener(v -> {
                 final long timestamp = getTimestamp(v.getContext());

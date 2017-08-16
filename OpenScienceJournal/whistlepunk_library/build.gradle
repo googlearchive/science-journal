@@ -117,6 +117,7 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxjava:2.1.0'
     compile 'joda-time:joda-time:2.9.4'
     compile 'org.joda:joda-convert:1.8'
+    compile 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testCompile 'junit:junit:4.12'

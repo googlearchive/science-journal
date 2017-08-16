@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -37,6 +38,7 @@ import android.widget.ProgressBar;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -61,19 +63,19 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private static enum ToolTab {
         NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp) {
             @Override
-            public Fragment createFragment(String experimentId) {
+            public Fragment createFragment(String experimentId, Activity activity) {
                 return TextToolFragment.newInstance();
             }
         }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp) {
             @Override
-            public Fragment createFragment(String experimentId) {
+            public Fragment createFragment(String experimentId, Activity activity) {
                 return RecordFragment.newInstance(experimentId, true, false, !SHARED_CONTROL_BAR);
             }
         }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp) {
             @Override
-            public Fragment createFragment(String experimentId) {
+            public Fragment createFragment(String experimentId, Activity activity) {
                 // TODO: b/62022245
-                return CameraFragment.newInstance();
+                return CameraFragment.newInstance(new RxPermissions(activity));
             }
 
             @Override
@@ -84,8 +86,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
         }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp) {
             @Override
-            public Fragment createFragment(String experimentId) {
-                return GalleryFragment.newInstance();
+            public Fragment createFragment(String experimentId, Activity activity) {
+                return GalleryFragment.newInstance(new RxPermissions(activity));
             }
         };
 
@@ -97,7 +99,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             mIconId = iconId;
         }
 
-        public abstract Fragment createFragment(String experimentId);
+        public abstract Fragment createFragment(String experimentId, Activity activity);
 
         public int getContentDescriptionId() {
             return mContentDescriptionId;
@@ -272,7 +274,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     if (position >= ToolTab.values().length) {
                         return null;
                     }
-                    return getToolTab(position).createFragment(experiment.getExperimentId());
+                    return getToolTab(position).createFragment(experiment.getExperimentId(),
+                            PanesActivity.this);
                 }
 
                 private ToolTab getToolTab(int position) {
