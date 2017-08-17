@@ -414,7 +414,7 @@ public class ExperimentDetailsFragment extends Fragment
 
     // Prompt the user to name the experiment if they haven't yet.
     private void displayNamePromptOrGoUp() {
-        if (!TextUtils.isEmpty(mExperiment.getTitle())) {
+        if (!TextUtils.isEmpty(mExperiment.getTitle()) || mExperiment.isArchived()) {
             goToExperimentList();
             return;
         }
@@ -441,7 +441,7 @@ public class ExperimentDetailsFragment extends Fragment
             startActivity(intent);
             return true;
         }
-        if (TextUtils.isEmpty(mExperiment.getTitle())) {
+        if (TextUtils.isEmpty(mExperiment.getTitle()) && !mExperiment.isArchived()) {
             displayNamePrompt();
             // We are handling this.
             return true;
