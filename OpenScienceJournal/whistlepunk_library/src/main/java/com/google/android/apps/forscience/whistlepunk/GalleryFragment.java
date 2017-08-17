@@ -48,6 +48,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.subjects.SingleSubject;
+
 /**
  * Fragment controlling adding picture notes from the gallery in the observe pane.
  */
@@ -62,6 +64,7 @@ public class GalleryFragment extends Fragment implements
     private GalleryItemAdapter mGalleryAdapter;
     private ImageButton mAddButton;
     private int mInitiallySelectedPhoto;
+    private SingleSubject<LoaderManager> mWhenLoaderManager = SingleSubject.create();
 
     public static Fragment newInstance(RxPermissions permissions) {
         GalleryFragment fragment = new GalleryFragment();
@@ -100,6 +103,7 @@ public class GalleryFragment extends Fragment implements
                                                 loadImages();
                                             }
                                         });
+        mWhenLoaderManager.onSuccess(getLoaderManager());
     }
 
     @Nullable
@@ -190,7 +194,7 @@ public class GalleryFragment extends Fragment implements
     }
 
     private void loadImages() {
-        getLoaderManager().initLoader(PHOTO_LOADER_INDEX, null, this);
+        mWhenLoaderManager.subscribe(manager -> manager.initLoader(PHOTO_LOADER_INDEX, null, this));
     }
 
     @Override

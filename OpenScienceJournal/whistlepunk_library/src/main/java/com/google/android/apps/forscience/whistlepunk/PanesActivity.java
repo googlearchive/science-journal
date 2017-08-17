@@ -31,8 +31,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -54,11 +56,17 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private static final String TAG = "PanesActivity";
     private static final String EXTRA_EXPERIMENT_ID = "experimentId";
     private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
+    private static final boolean SHOW_SNAPSHOT = true;
+    private final SnackbarManager mSnackbarManager;
 
     private ProgressBar mRecordingBar;
     private int mSelectedTabIndex;
     private PanesBottomSheetBehavior mBottomBehavior;
     private boolean mTabsInitialized;
+
+    public PanesActivity() {
+        mSnackbarManager = new SnackbarManager();
+    }
 
     private static enum ToolTab {
         NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp) {
@@ -66,10 +74,24 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             public Fragment createFragment(String experimentId, Activity activity) {
                 return TextToolFragment.newInstance();
             }
+
+            @Override
+            public void addControlsToBar(FrameLayout controlBar,
+                    ControlBarController controlBarController) {
+                // TODO: implement
+            }
         }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp) {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
-                return RecordFragment.newInstance(experimentId, true, false, !SHARED_CONTROL_BAR);
+                return RecordFragment.newInstance(experimentId, SHOW_SNAPSHOT, false, !SHARED_CONTROL_BAR);
+            }
+
+            @Override
+            public void addControlsToBar(FrameLayout controlBar,
+                    ControlBarController controlBarController) {
+                LayoutInflater.from(controlBar.getContext())
+                              .inflate(R.layout.observe_action_bar, controlBar, true);
+                controlBarController.attachRecordButtons(controlBar);
             }
         }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp) {
             @Override
@@ -84,13 +106,24 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 fragment.onGainedFocus();
                 return () -> fragment.onLosingFocus();
             }
+
+            @Override
+            public void addControlsToBar(FrameLayout controlBar,
+                    ControlBarController controlBarController) {
+                // TODO: implement
+            }
         }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp) {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
                 return GalleryFragment.newInstance(new RxPermissions(activity));
             }
-        };
 
+            @Override
+            public void addControlsToBar(FrameLayout controlBar,
+                    ControlBarController controlBarController) {
+                // TODO: implement
+            }
+        };
         private final int mContentDescriptionId;
         private final int mIconId;
 
@@ -118,6 +151,9 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             // by default, do nothing
             return null;
         }
+
+        public abstract void addControlsToBar(FrameLayout controlBar,
+                ControlBarController controlBarController);
     }
 
     public static void launch(Context context, String experimentId) {
@@ -231,7 +267,19 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private void setupViews(Experiment experiment) {
+        ControlBarController controlBarController =
+                new ControlBarController(getFragmentManager(), experiment.getExperimentId(),
+                        SHOW_SNAPSHOT, mSnackbarManager);
+
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
+        View controlBarSpacer = findViewById(R.id.control_bar_spacer);
+
+        if (SHARED_CONTROL_BAR) {
+            controlBarSpacer.setVisibility(View.VISIBLE);
+        } else {
+            controlBarSpacer.setVisibility(View.GONE);
+        }
+
         View bottomSheet = findViewById(R.id.bottom);
         TabLayout toolPicker = (TabLayout) findViewById(R.id.tool_picker);
         View experimentPane = findViewById(R.id.experiment_pane);
@@ -295,7 +343,14 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     }
                     super.setPrimaryItem(container, position, object);
                     if (position != mPreviousPrimary) {
-                        mOnLosingFocus = getToolTab(position).onGainedFocus(object);
+                        ToolTab toolTab = getToolTab(position);
+                        if (SHARED_CONTROL_BAR) {
+                            FrameLayout controlBar =
+                                    (FrameLayout) findViewById(R.id.bottom_control_bar);
+                            controlBar.removeAllViews();
+                            toolTab.addControlsToBar(controlBar, controlBarController);
+                        }
+                        mOnLosingFocus = toolTab.onGainedFocus(object);
                         mPreviousPrimary = position;
                     }
                 }
@@ -509,12 +564,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     @Override
     public TextToolFragment.TextLabelFragmentListener getTextLabelFragmentListener() {
-        return new TextToolFragment.TextLabelFragmentListener() {
-            @Override
-            public void onTextLabelTaken(Label result) {
-                addNewLabel(result);
-            }
-        };
+        return result -> addNewLabel(result);
     }
 
     private void addNewLabel(Label label) {

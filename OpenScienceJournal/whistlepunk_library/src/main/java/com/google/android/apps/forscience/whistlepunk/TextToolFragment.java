@@ -59,6 +59,18 @@ public class TextToolFragment extends Fragment {
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.text_label_fragment, null);
 
+        mTextView = (TextView) rootView.findViewById(R.id.text);
+
+        attachButtons(rootView);
+
+        if (savedInstanceState != null) {
+            mTextView.setText(savedInstanceState.getString(KEY_TEXT));
+        }
+
+        return rootView;
+    }
+
+    public void attachButtons(View rootView) {
         ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add);
         addButton.setOnClickListener(view -> {
             final long timestamp = getTimestamp(addButton.getContext());
@@ -77,14 +89,12 @@ public class TextToolFragment extends Fragment {
         // This will probably happen in the ControlBar rather than here.
         addButton.setEnabled(false);
 
-        mTextView = (TextView) rootView.findViewById(R.id.text);
         RxTextView.afterTextChangeEvents(mTextView)
-                .subscribe(event -> addButton.setEnabled(!TextUtils.isEmpty(mTextView.getText())));
-        if (savedInstanceState != null) {
-            mTextView.setText(savedInstanceState.getString(KEY_TEXT));
-        }
+                  .subscribe(event -> addButton.setEnabled(canAddLabel()));
+    }
 
-        return rootView;
+    private boolean canAddLabel() {
+        return !TextUtils.isEmpty(mTextView.getText());
     }
 
     private void log(Context context, Label result) {
