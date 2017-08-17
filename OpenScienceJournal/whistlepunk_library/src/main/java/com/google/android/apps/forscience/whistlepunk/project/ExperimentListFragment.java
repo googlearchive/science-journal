@@ -39,7 +39,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
@@ -436,7 +435,7 @@ public class ExperimentListFragment extends Fragment implements
             } else if (archived) {
                 // Remove archived experiment immediately.
                 int i = mItems.indexOf(item);
-                removeItem(i);
+                removeExperiment(i);
             } else {
                 // It could be added back anywhere.
                 if (mParentReference.get() != null) {
@@ -483,14 +482,23 @@ public class ExperimentListFragment extends Fragment implements
                 }
             }
             if (index > 0) {
-                removeItem(index);
+                removeExperiment(index);
             }
         }
 
-        private void removeItem(int index) {
+        private void removeExperiment(int index) {
             mItems.remove(index);
             if (mItems.size() > 1) {
                 notifyItemRemoved(index);
+                // Make sure the item before is not a date that has no children.
+                // If it is, remove it too.
+                // Index cannot be 0 because the first item is a date.
+                if (mItems.get(index - 1).viewType == VIEW_TYPE_DATE &&
+                        ((mItems.size() > index && mItems.get(index).viewType == VIEW_TYPE_DATE) ||
+                                (mItems.size() == index))) {
+                    mItems.remove(index - 1);
+                    notifyItemRemoved(index - 1);
+                }
             } else {
                 // The last experiment was just removed.
                 // All that's left is one date! Remove it.
