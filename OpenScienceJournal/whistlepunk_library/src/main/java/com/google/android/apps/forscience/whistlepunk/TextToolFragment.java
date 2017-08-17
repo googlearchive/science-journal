@@ -33,13 +33,18 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
+
 /**
  * Fragment controlling adding text notes in the observe pane.
  */
 public class TextToolFragment extends Fragment {
     private static final String KEY_TEXT = "saved_text";
+    private static final String KEY_NATIVE_CONTROL_BAR = "nativeControlBar";
     private TextView mTextView;
     private TextLabelFragmentListener mListener;
+    private BehaviorSubject<CharSequence> mWhenText = BehaviorSubject.create();
 
     public interface TextLabelFragmentListener {
         void onTextLabelTaken(Label result);
@@ -49,8 +54,12 @@ public class TextToolFragment extends Fragment {
         TextToolFragment.TextLabelFragmentListener getTextLabelFragmentListener();
     }
 
-    public static Fragment newInstance() {
-        return new TextToolFragment();
+    public static Fragment newInstance(boolean nativeControlBar) {
+        TextToolFragment fragment = new TextToolFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(KEY_NATIVE_CONTROL_BAR, nativeControlBar);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -60,8 +69,17 @@ public class TextToolFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.text_label_fragment, null);
 
         mTextView = (TextView) rootView.findViewById(R.id.text);
+        View bar = rootView.findViewById(R.id.text_action_bar);
 
-        attachButtons(rootView);
+        if (shouldUseNativeControlBar()) {
+            bar.setVisibility(View.VISIBLE);
+            attachButtons(bar);
+        } else {
+            bar.setVisibility(View.GONE);
+        }
+
+        RxTextView.afterTextChangeEvents(mTextView)
+                  .subscribe(event -> mWhenText.onNext(event.view().getText()));
 
         if (savedInstanceState != null) {
             mTextView.setText(savedInstanceState.getString(KEY_TEXT));
@@ -89,12 +107,7 @@ public class TextToolFragment extends Fragment {
         // This will probably happen in the ControlBar rather than here.
         addButton.setEnabled(false);
 
-        RxTextView.afterTextChangeEvents(mTextView)
-                  .subscribe(event -> addButton.setEnabled(canAddLabel()));
-    }
-
-    private boolean canAddLabel() {
-        return !TextUtils.isEmpty(mTextView.getText());
+        mWhenText.subscribe(text -> addButton.setEnabled(!TextUtils.isEmpty(text)));
     }
 
     private void log(Context context, Label result) {
@@ -135,5 +148,9 @@ public class TextToolFragment extends Fragment {
             }
         }
         return mListener;
+    }
+
+    private boolean shouldUseNativeControlBar() {
+        return getArguments().getBoolean(KEY_NATIVE_CONTROL_BAR, true);
     }
 }

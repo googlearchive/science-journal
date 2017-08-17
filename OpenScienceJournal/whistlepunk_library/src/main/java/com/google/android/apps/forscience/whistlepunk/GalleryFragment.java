@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
 
 /**
@@ -58,16 +59,21 @@ public class GalleryFragment extends Fragment implements
     private static final String TAG = "GalleryFragment";
     private static final int PHOTO_LOADER_INDEX = 1;
     private static final String KEY_SELECTED_PHOTO = "selected_photo";
+    private static final String KEY_NATIVE_CONTROL_BAR = "nativeControlBar";
 
     // Same methods as the camera fragment, so share the listener code.
     private CameraFragment.CameraFragmentListener mListener;
     private GalleryItemAdapter mGalleryAdapter;
-    private ImageButton mAddButton;
     private int mInitiallySelectedPhoto;
     private SingleSubject<LoaderManager> mWhenLoaderManager = SingleSubject.create();
+    private BehaviorSubject<Boolean> mAddButtonEnabled = BehaviorSubject.create();
 
-    public static Fragment newInstance(RxPermissions permissions) {
+    public static Fragment newInstance(RxPermissions permissions,
+            boolean shouldUseNativeControlBar) {
         GalleryFragment fragment = new GalleryFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(KEY_NATIVE_CONTROL_BAR, shouldUseNativeControlBar);
+        fragment.setArguments(args);
 
         // TODO: use RxPermissions instead of PermissionsUtils everywhere?
         permissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -89,11 +95,7 @@ public class GalleryFragment extends Fragment implements
                 savedInstanceState != null ? savedInstanceState.getInt(KEY_SELECTED_PHOTO) : -1;
 
         mGalleryAdapter = new GalleryItemAdapter(getActivity(), (image, selected) -> {
-            if (selected) {
-                mAddButton.setEnabled(!TextUtils.isEmpty(image));
-            } else {
-                mAddButton.setEnabled(false);
-            }
+            mAddButtonEnabled.onNext(selected && !TextUtils.isEmpty(image));
         });
 
         new RxPermissions(getActivity()).request(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -112,9 +114,29 @@ public class GalleryFragment extends Fragment implements
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.gallery_fragment, null);
 
-        mAddButton = (ImageButton) rootView.findViewById(R.id.btn_add);
-        mAddButton.setOnClickListener(view -> {
-            final long timestamp = getTimestamp(mAddButton.getContext());
+        View bar = rootView.findViewById(R.id.control);
+
+        if (shouldUseNativeControlBar()) {
+            bar.setVisibility(View.VISIBLE);
+            attachAddButton(bar);
+        } else {
+            bar.setVisibility(View.GONE);
+        }
+
+        RecyclerView gallery = (RecyclerView) rootView.findViewById(R.id.gallery);
+        GridLayoutManager layoutManager = new GridLayoutManager(gallery.getContext(),
+                gallery.getContext().getResources().getInteger(R.integer.gallery_column_count));
+        gallery.setLayoutManager(layoutManager);
+        gallery.setItemAnimator(new DefaultItemAnimator());
+        gallery.setAdapter(mGalleryAdapter);
+
+        return rootView;
+    }
+
+    public void attachAddButton(View rootView) {
+        ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add);
+        addButton.setOnClickListener(view -> {
+            final long timestamp = getTimestamp(addButton.getContext());
             GoosciPictureLabelValue.PictureLabelValue labelValue =
                     new GoosciPictureLabelValue.PictureLabelValue();
             String selectedImage = mGalleryAdapter.getSelectedImage();
@@ -124,14 +146,14 @@ public class GalleryFragment extends Fragment implements
             }
 
             CameraFragment.CameraFragmentListener listener =
-                    getListener(mAddButton.getContext());
+                    getListener(addButton.getContext());
             listener.getActiveExperimentId().firstElement().subscribe(experimentId -> {
                 Label result = Label.newLabel(timestamp, GoosciLabel.Label.PICTURE);
                 File imageFile = PictureUtils.createImageFile(getActivity(), experimentId,
                         result.getLabelId());
 
                 try {
-                    UpdateExperimentFragment.copyUriToFile(mAddButton.getContext(),
+                    UpdateExperimentFragment.copyUriToFile(addButton.getContext(),
                             Uri.parse(selectedImage), imageFile);
                     labelValue.filePath = FileMetadataManager.getRelativePathInExperiment(
                             experimentId, imageFile);
@@ -148,18 +170,11 @@ public class GalleryFragment extends Fragment implements
             });
         });
 
+
         // TODO: Need to update the content description if we are recording or not.
-        // This will probably happen in the ControlBar rather than here.
-        mAddButton.setEnabled(false);
+        addButton.setEnabled(false);
 
-        RecyclerView gallery = (RecyclerView) rootView.findViewById(R.id.gallery);
-        GridLayoutManager layoutManager = new GridLayoutManager(gallery.getContext(),
-                gallery.getContext().getResources().getInteger(R.integer.gallery_column_count));
-        gallery.setLayoutManager(layoutManager);
-        gallery.setItemAnimator(new DefaultItemAnimator());
-        gallery.setAdapter(mGalleryAdapter);
-
-        return rootView;
+        mAddButtonEnabled.subscribe(enabled -> addButton.setEnabled(enabled));
     }
 
     @Override
@@ -209,7 +224,7 @@ public class GalleryFragment extends Fragment implements
             // Resume from saved state if needed.
             mGalleryAdapter.setSelectedIndex(mInitiallySelectedPhoto);
             String image = mGalleryAdapter.getSelectedImage();
-            mAddButton.setEnabled(!TextUtils.isEmpty(image));
+            mAddButtonEnabled.onNext(!TextUtils.isEmpty(image));
             mInitiallySelectedPhoto = -1;
         }
     }
@@ -320,5 +335,9 @@ public class GalleryFragment extends Fragment implements
                 selectedIndicator = itemView.findViewById(R.id.selected_indicator);
             }
         }
+    }
+
+    private boolean shouldUseNativeControlBar() {
+        return getArguments().getBoolean(KEY_NATIVE_CONTROL_BAR, true);
     }
 }

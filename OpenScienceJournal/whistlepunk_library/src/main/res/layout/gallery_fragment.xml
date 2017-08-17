@@ -28,26 +28,5 @@
         android:layout_alignParentTop="true"
         />
 
-    <!-- Later this section can move into a control bar fragment -->
-    <FrameLayout
-        android:id="@id/control"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/observe_control_panel_bottom_height"
-        android:layout_alignParentBottom="true"
-        android:background="@color/capture_bottom_panel"
-        android:padding="4dp"
-        >
-
-        <ImageButton
-            android:id="@+id/btn_add"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/add_experiment_note"
-            android:src="@drawable/btn_add_note"
-            />
-
-    </FrameLayout>
-
+    <include layout="@layout/gallery_action_bar"/>
 </RelativeLayout>

@@ -51,7 +51,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     /**
      * Just for development, will be removed once shared control bar works
      */
-    private static final boolean SHARED_CONTROL_BAR = false;
+    private static final boolean SHARED_CONTROL_BAR = true;
 
     private static final String TAG = "PanesActivity";
     private static final String EXTRA_EXPERIMENT_ID = "experimentId";
@@ -72,13 +72,16 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp) {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
-                return TextToolFragment.newInstance();
+                return TextToolFragment.newInstance(!SHARED_CONTROL_BAR);
             }
 
             @Override
-            public void addControlsToBar(FrameLayout controlBar,
+            public void addControlsToBar(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController) {
-                // TODO: implement
+                TextToolFragment ttf = (TextToolFragment) fragment;
+                LayoutInflater.from(controlBar.getContext())
+                              .inflate(R.layout.text_action_bar, controlBar, true);
+                ttf.attachButtons(controlBar);
             }
         }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp) {
             @Override
@@ -87,7 +90,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void addControlsToBar(FrameLayout controlBar,
+            public void addControlsToBar(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController) {
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.observe_action_bar, controlBar, true);
@@ -108,20 +111,25 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void addControlsToBar(FrameLayout controlBar,
+            public void addControlsToBar(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController) {
                 // TODO: implement
             }
         }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp) {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
-                return GalleryFragment.newInstance(new RxPermissions(activity));
+                return GalleryFragment.newInstance(new RxPermissions(activity),
+                        !SHARED_CONTROL_BAR);
             }
 
             @Override
-            public void addControlsToBar(FrameLayout controlBar,
+            public void addControlsToBar(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController) {
-                // TODO: implement
+                // TODO: is this duplicated code?
+                GalleryFragment gf = (GalleryFragment) fragment;
+                LayoutInflater.from(controlBar.getContext())
+                              .inflate(R.layout.gallery_action_bar, controlBar, true);
+                gf.attachAddButton(controlBar);
             }
         };
         private final int mContentDescriptionId;
@@ -152,7 +160,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             return null;
         }
 
-        public abstract void addControlsToBar(FrameLayout controlBar,
+        public abstract void addControlsToBar(Fragment fragment, FrameLayout controlBar,
                 ControlBarController controlBarController);
     }
 
@@ -348,7 +356,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                             FrameLayout controlBar =
                                     (FrameLayout) findViewById(R.id.bottom_control_bar);
                             controlBar.removeAllViews();
-                            toolTab.addControlsToBar(controlBar, controlBarController);
+                            toolTab.addControlsToBar((Fragment) object, controlBar,
+                                    controlBarController);
                         }
                         mOnLosingFocus = toolTab.onGainedFocus(object);
                         mPreviousPrimary = position;

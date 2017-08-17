@@ -17,24 +17,23 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/control"
     android:layout_width="match_parent"
     android:layout_height="@dimen/observe_control_panel_bottom_height"
     android:layout_alignParentBottom="true"
     android:background="@color/capture_bottom_panel"
-    android:id="@id/control"
     android:padding="4dp"
-    tools:showIn="@layout/text_label_fragment">
+    tools:showIn="@layout/gallery_fragment">
 
     <ImageButton
+        android:id="@+id/btn_add"
         android:layout_width="@dimen/accessibility_touch_target_min_size"
         android:layout_height="@dimen/accessibility_touch_target_min_size"
-        android:src="@drawable/btn_add_note"
-        android:contentDescription="@string/add_experiment_note"
-        android:id="@+id/btn_add"
         android:layout_gravity="center"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/add_experiment_note"
+        android:src="@drawable/btn_add_note"
         />
 
 </FrameLayout>
-
 
