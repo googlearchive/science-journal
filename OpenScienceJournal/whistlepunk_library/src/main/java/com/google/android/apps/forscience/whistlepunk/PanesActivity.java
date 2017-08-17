@@ -113,7 +113,10 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             @Override
             public void addControlsToBar(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController) {
-                // TODO: implement
+                CameraFragment cf = (CameraFragment) fragment;
+                LayoutInflater.from(controlBar.getContext())
+                              .inflate(R.layout.camera_action_bar, controlBar, true);
+                cf.attachButtons(controlBar);
             }
         }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp) {
             @Override
@@ -238,12 +241,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             @Override
             public boolean onDependentViewChanged(CoordinatorLayout parent, View child,
                     View dependency) {
-                View holder = dependency.findViewById(R.id.tool_picker_holder);
-                int childTop = child.getTop();
-                int bottomOfTabs = dependency.getTop() + holder.getBottom();
+                int dependencyTop = dependency.getTop();
+                int belowHalf = dependencyTop - (parent.getHeight() / 2);
 
-                // Translate down enough to get out of the way of the tabs
-                int translateY = Math.max(0, bottomOfTabs - childTop);
+                // Translate down once the drawer is below halfway
+                int translateY = Math.max(0, belowHalf);
                 if (child.getTranslationY() != translateY) {
                     child.setTranslationY(translateY);
                     return true;

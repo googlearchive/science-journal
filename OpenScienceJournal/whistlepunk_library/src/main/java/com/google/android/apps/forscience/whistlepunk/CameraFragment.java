@@ -25,20 +25,22 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensors.CameraPreview;
+import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.UUID;
 
 import io.reactivex.CompletableObserver;
 import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.SingleSubject;
 
 import static android.content.ContentValues.TAG;
@@ -47,6 +49,7 @@ public class CameraFragment extends Fragment {
     private SingleSubject<ViewGroup> mPreviewContainer = SingleSubject.create();
     private CompletableSubject mPermissionGranted = CompletableSubject.create();
     private RxEvent mFocusLost = new RxEvent();
+    private PublishSubject<Object> mWhenUserTakesPhoto = PublishSubject.create();
 
     public static abstract class CameraFragmentListener {
         static CameraFragmentListener NULL = new CameraFragmentListener() {
@@ -127,6 +130,11 @@ public class CameraFragment extends Fragment {
         return inflated;
     }
 
+    public void attachButtons(FrameLayout controlBar) {
+        ImageButton addButton = (ImageButton) controlBar.findViewById(R.id.btn_add);
+        RxView.clicks(addButton).subscribe(click -> mWhenUserTakesPhoto.onNext(click));
+    }
+
     private long getTimestamp(Context context) {
         return getClock(context).getNow();
     }
@@ -156,8 +164,10 @@ public class CameraFragment extends Fragment {
                 preview.setCamera(Camera.open(0));
             }, LoggingConsumer.complain(TAG, "camera permission"));
 
-            preview.setOnClickListener(v -> {
-                final long timestamp = getTimestamp(v.getContext());
+            preview.setOnClickListener(v -> mWhenUserTakesPhoto.onNext(v));
+
+            mWhenUserTakesPhoto.takeUntil(mFocusLost.happens()).subscribe(o -> {
+                final long timestamp = getTimestamp(preview.getContext());
                 final String uuid = UUID.randomUUID().toString();
                 preview.takePicture(mListener.getActiveExperimentId().firstElement(), uuid,
                         new LoggingConsumer<String>(TAG, "taking picture") {
