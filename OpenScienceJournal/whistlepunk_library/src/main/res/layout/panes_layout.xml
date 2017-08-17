@@ -84,6 +84,13 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"/>
+
+        <View
+            android:id="@+id/control_bar_spacer"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/observe_control_panel_bottom_height"
+            android:visibility="gone"
+            android:background="@android:color/transparent" />
     </LinearLayout>
 
     <FrameLayout
