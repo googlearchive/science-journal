@@ -60,22 +60,6 @@ public class PictureUtils {
     }
 
     /**
-     * Scan the file when adding or deleting so that media scanner aware apps like Gallery apps can
-     * properly index the file.
-     */
-    // TODO: Delete this, it doesn't work in the new system. Instead, use DocumentProvider.
-    public static void scanFile(String photoPath, Context context) {
-        MediaScannerConnection.scanFile(context, new String[]{photoPath}, null,
-                new MediaScannerConnection.OnScanCompletedListener() {
-                    @Override
-                    public void onScanCompleted(String path, Uri uri) {
-                        Log.i(TAG, "Scanned " + path + ":");
-                        Log.i(TAG, "-> uri=" + uri);
-                    }
-                });
-    }
-
-    /**
      * Tries to capture a picture label using the default camera app.
      * @return The relative path to the picture in the experiment.
      */
@@ -95,8 +79,7 @@ public class PictureUtils {
         // Starts a picture intent.
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
-            File photoFile = null;
-            photoFile = PictureUtils.createImageFile(context, experimentId, uuid);
+            File photoFile = PictureUtils.createImageFile(context, experimentId, uuid);
             if (photoFile != null) {
                 Uri contentUri = FileProvider.getUriForFile(context,
                         "com.google.android.apps.forscience.whistlepunk", photoFile);
@@ -117,22 +100,25 @@ public class PictureUtils {
         void startActivityForResult(Intent intent, int requestCode);
     }
 
-    public static void launchExternalViewer(Activity activity, String experimentId,
+    public static void launchExternalEditor(Activity activity, String experimentId,
             String relativeFilePath) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
         File file = FileMetadataManager.getExperimentFile(activity, experimentId, relativeFilePath);
         String extension = MimeTypeMap.getFileExtensionFromUrl(file.getAbsolutePath());
         String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         if (!TextUtils.isEmpty(type)) {
+            Intent intent = new Intent(Intent.ACTION_EDIT);
             Uri photoUri = FileProvider.getUriForFile(activity, activity.getPackageName(), file);
             intent.setDataAndType(photoUri, type);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 // Needed to avoid security exception on KitKat.
                 intent.setClipData(ClipData.newRawUri(null, photoUri));
             }
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             try {
-                activity.startActivity(intent);
+                activity.startActivity(Intent.createChooser(intent,
+                        activity.getResources().getString(R.string.photo_editor_dialog_title)));
             } catch (ActivityNotFoundException e) {
                 Log.e(TAG, "No activity found to handle this " + file.getAbsolutePath() + " type "
                         + type);
@@ -145,7 +131,12 @@ public class PictureUtils {
     public static void loadExperimentImage(Context context, ImageView view, String experimentId,
             String relativeFilePath) {
         File file = FileMetadataManager.getExperimentFile(context, experimentId, relativeFilePath);
-        Glide.with(context).load(file.getAbsolutePath()).into(view);
+        // Use last modified time as part of the signature to force a glide cache refresh.
+        long fileLastModified = file.lastModified();
+        Glide.with(context)
+                .load(file.getAbsolutePath())
+                .signature(new StringSignature(relativeFilePath + fileLastModified))
+                .into(view);
     }
 
     public static String getExperimentImagePath(Context context, String experimentId,

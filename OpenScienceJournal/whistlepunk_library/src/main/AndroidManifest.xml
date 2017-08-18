@@ -221,6 +221,17 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+        <provider
+            android:name=".filemetadata.ScienceJournalDocsProvider"
+            android:authorities="com.google.android.apps.forscience.whistlepunk.documents"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS"
+            >
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
         <service
             android:name=".ExportService"
             android:exported="false"></service>

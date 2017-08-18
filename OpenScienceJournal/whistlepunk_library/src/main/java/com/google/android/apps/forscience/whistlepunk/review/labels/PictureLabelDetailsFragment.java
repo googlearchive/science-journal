@@ -19,27 +19,24 @@ package com.google.android.apps.forscience.whistlepunk.review.labels;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 
 /**
  * Details view controller for PictureLabel
  */
 public class PictureLabelDetailsFragment extends LabelDetailsFragment {
+
+    private ImageView mImageView;
 
     public static PictureLabelDetailsFragment newInstance(String experimentId,
             String trialId, Label originalLabel) {
@@ -69,13 +66,19 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
 
         setupCaption(rootView);
 
-        ImageView imageView = (ImageView) rootView.findViewById(R.id.image);
-        PictureUtils.loadExperimentImage(getActivity(), imageView, mExperimentId,
-                mOriginalLabel.getPictureLabelValue().filePath);
+        mImageView = (ImageView) rootView.findViewById(R.id.image);
 
         // TODO: Transition
 
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Load on resume in case edits have been made.
+        PictureUtils.loadExperimentImage(getActivity(), mImageView, mExperimentId,
+                mOriginalLabel.getPictureLabelValue().filePath);
     }
 
     @Override
@@ -86,5 +89,15 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
         actionBar.setTitle("");
 
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_edit) {
+            PictureUtils.launchExternalEditor(getActivity(), mExperimentId,
+                    mOriginalLabel.getPictureLabelValue().filePath);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

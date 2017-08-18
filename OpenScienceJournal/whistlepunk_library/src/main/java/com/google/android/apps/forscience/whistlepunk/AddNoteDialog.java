@@ -449,7 +449,6 @@ public class AddNoteDialog extends DialogFragment {
         caption.lastEditedTimestamp = label.getCreationTimeMs();
         label.setCaption(caption);
         addLabel(label, getDataController(mInput.getContext()), experiment, mInput.getContext());
-        PictureUtils.scanFile(mPictureLabelPath, getActivity());
         mPictureLabelPath = null;
         return true;
     }

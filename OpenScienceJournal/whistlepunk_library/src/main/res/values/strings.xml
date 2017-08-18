@@ -1418,6 +1418,9 @@ Permissions notice:
     <!-- Content description for an icon showing a gallery image is selected [CHAR_LIMIT="none"] -->
     <string name="content_description_selected">selected</string>
 
+    <!-- Title for a chooser to open a photo editing app [CHAR_LIMIT=50] -->
+    <string name="photo_editor_dialog_title">Edit photo with...</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
