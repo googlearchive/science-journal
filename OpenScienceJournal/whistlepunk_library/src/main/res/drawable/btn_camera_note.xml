@@ -24,10 +24,10 @@
         </shape>
     </item>
     <item
-        android:left="9dp"
-        android:right="9dp"
+        android:left="12dp"
+        android:right="12dp"
         android:top="12dp"
-        android:bottom="12dp"
+        android:bottom="14dp"
         android:drawable="@drawable/ic_camera_white_24dp"
         >
     </item>
