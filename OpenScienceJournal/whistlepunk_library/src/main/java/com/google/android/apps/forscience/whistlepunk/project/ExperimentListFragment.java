@@ -22,6 +22,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
@@ -42,6 +43,7 @@ import android.widget.TextView;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.PanesActivity;
@@ -51,9 +53,16 @@ import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -74,6 +83,7 @@ public class ExperimentListFragment extends Fragment implements
      */
     private static final String EXTRA_INCLUDE_ARCHIVED = "includeArchived";
     private static final String ARG_USE_PANES = "usePanes";
+    private static final String KEY_DEFAULT_EXPERIMENT_CREATED = "key_default_experiment_created";
 
     private ExperimentListAdapter mExperimentListAdapter;
     private boolean mIncludeArchived;
@@ -151,19 +161,68 @@ public class ExperimentListFragment extends Fragment implements
         return view;
     }
 
-    private boolean shouldUsePanes() {
-        return getArguments().getBoolean(ARG_USE_PANES, true);
-    }
-
     private void loadExperiments() {
         getDataController().getExperimentOverviews(mIncludeArchived,
                 new LoggingConsumer<List<GoosciUserMetadata.ExperimentOverview>>(TAG,
                         "Retrieve experiments") {
                     @Override
                     public void success(List<GoosciUserMetadata.ExperimentOverview> experiments) {
-                        attachToExperiments(experiments);
+                        if (experiments.size() == 0 &&
+                                !PreferenceManager.getDefaultSharedPreferences(getActivity())
+                                        .getBoolean(KEY_DEFAULT_EXPERIMENT_CREATED, false)) {
+                            // If there are no experiments and we've never made a default one,
+                            // create the default experiment and set the boolean to true.
+                            createDefaultExperiment();
+                        } else {
+                            attachToExperiments(experiments);
+                        }
                     }
                 });
+    }
+
+    private void createDefaultExperiment() {
+        RxDataController.createExperiment(getDataController()).subscribe(e -> {
+            Resources res = getActivity().getResources();
+            e.setTitle(res.getString(R.string.first_experiment_title));
+            Clock clock = AppSingleton.getInstance(getActivity())
+                    .getSensorEnvironment()
+                    .getDefaultClock();
+
+            // Create a text label 2 seconds ago with default text.
+            GoosciTextLabelValue.TextLabelValue goosciTextLabel = new GoosciTextLabelValue
+                    .TextLabelValue();
+            goosciTextLabel.text = res.getString(R.string.first_experiment_text_note);
+            Label textLabel = Label.newLabelWithValue(clock.getNow() - 2000, GoosciLabel.Label.TEXT,
+                    goosciTextLabel, null);
+            e.addLabel(textLabel);
+
+            // Create a picture label 1 second ago with a default drawable and caption.
+            GoosciCaption.Caption caption = new GoosciCaption.Caption();
+            caption.text = res.getString(R.string.first_experiment_picture_note_caption);
+            caption.lastEditedTimestamp = clock.getNow() - 1000;
+            Label pictureLabel = Label.newLabel(caption.lastEditedTimestamp,
+                    GoosciLabel.Label.PICTURE);
+            File pictureFile = PictureUtils.createImageFile(getActivity(), e.getExperimentId(),
+                    pictureLabel.getLabelId());
+            PictureUtils.writeDrawableToFile(getActivity(), pictureFile, R.drawable.first_note);
+            GoosciPictureLabelValue.PictureLabelValue goosciPictureLabel =
+                    new GoosciPictureLabelValue.PictureLabelValue();
+            goosciPictureLabel.filePath = FileMetadataManager.getRelativePathInExperiment(
+                    e.getExperimentId(), pictureFile);
+            pictureLabel.setLabelProtoData(goosciPictureLabel);
+            pictureLabel.setCaption(caption);
+            e.addLabel(pictureLabel);
+
+            // TODO: Add a recording item. Need to generate run data and add it to the database
+            // properly...
+
+            RxDataController.updateExperiment(getDataController(), e).subscribe(() -> {
+                PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putBoolean(
+                        KEY_DEFAULT_EXPERIMENT_CREATED, true).apply();
+                loadExperiments();
+            });
+
+        });
     }
 
     private void attachToExperiments(List<GoosciUserMetadata.ExperimentOverview> experiments) {

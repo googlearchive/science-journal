@@ -1395,7 +1395,7 @@ Permissions notice:
     <string name="first_experiment_title">Welcome to Science Journal</string>
 
     <!-- Text note contents for first note in first experiment [CHAR_LIMIT=NONE] -->
-    <string name="first_experiment_text_note">Take notes and record data using tools from the drawer below.</string>
+    <string name="first_experiment_text_note">Welcome to Science Journal! Take notes and record data using tools from the drawer below.</string>
 
     <!-- Text note contents for first note in first experiment [CHAR_LIMIT=NONE] -->
     <string name="first_experiment_picture_note_caption">Find activities to try at g.co/sciencejournalactivities</string>

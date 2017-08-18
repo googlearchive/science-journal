@@ -21,6 +21,8 @@ import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -37,6 +39,9 @@ import com.bumptech.glide.signature.StringSignature;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Static picture functions shared across many parts of the app.
@@ -182,5 +187,21 @@ public class PictureUtils {
         photoPickerIntent.addCategory(Intent.CATEGORY_OPENABLE);
         photoPickerIntent.setType("image/*");
         fragment.startActivityForResult(photoPickerIntent, REQUEST_SELECT_PHOTO);
+    }
+
+    public static boolean writeDrawableToFile(Context context, File pictureFile, int drawableId) {
+        // Populate the file with the bitmap!
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), drawableId);
+        try (FileOutputStream outputStream = new FileOutputStream(pictureFile)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            outputStream.flush();
+            outputStream.close();
+            return true;
+        } catch (IOException ex) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, ex.getMessage());
+            }
+            return false;
+        }
     }
 }
