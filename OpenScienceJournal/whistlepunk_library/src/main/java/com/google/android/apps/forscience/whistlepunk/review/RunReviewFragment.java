@@ -1004,7 +1004,7 @@ public class RunReviewFragment extends Fragment implements
         final DataController dataController = getDataController();
         final ChartController.ChartLoadingStatus fragmentRef = this;
         TrialStats stats = getTrial().getStatsForSensor(sensorLayout.sensorId);
-        populateStats(stats, statsList, sensorLayout.sensorId);
+        populateStats(stats, statsList, sensorLayout);
 
         mChartController.loadRunData(getTrial(), sensorLayout, dataController,
                 fragmentRef,
@@ -1029,14 +1029,18 @@ public class RunReviewFragment extends Fragment implements
                 }, getActivity());
     }
 
-    private void populateStats(TrialStats trialStats, StatsList statsList, String sensorId) {
+    private void populateStats(TrialStats trialStats, StatsList statsList,
+            GoosciSensorLayout.SensorLayout layout) {
         mCurrentSensorStats = trialStats;
+        int color = getActivity().getResources().getIntArray(R.array.graph_colors_array)[
+                layout.colorIndex];
+        statsList.updateColor(color);
         if (!mCurrentSensorStats.statsAreValid()) {
             statsList.clearStats();
             mChartController.updateStats(Collections.<StreamStat>emptyList());
         } else {
             NumberFormat numberFormat = AppSingleton.getInstance(getActivity())
-                    .getSensorAppearanceProvider().getAppearance(sensorId).getNumberFormat();
+                    .getSensorAppearanceProvider().getAppearance(layout.sensorId).getNumberFormat();
             List<StreamStat> streamStats = new StatsAccumulator.StatsDisplay(numberFormat)
                     .updateStreamStats(trialStats);
             statsList.updateStats(streamStats);

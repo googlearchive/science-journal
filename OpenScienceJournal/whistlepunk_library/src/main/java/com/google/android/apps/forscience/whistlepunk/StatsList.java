@@ -51,9 +51,6 @@ public class StatsList extends FrameLayout {
     private SingleLineResizableTextView mMaxTextView;
     private SingleLineResizableTextView mAvgTextView;
 
-    private int mDarkerColor;
-    private int mLighterColor;
-
     public StatsList(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
@@ -71,7 +68,7 @@ public class StatsList extends FrameLayout {
                 0, 0);
         try {
             int layout = a.getResourceId(R.styleable.StatsList_statsLayout,
-                    R.layout.stats_view_small);
+                    R.layout.stats_view_run_review);
             LayoutInflater.from(context).inflate(layout, this);
         } finally {
             a.recycle();
@@ -80,9 +77,6 @@ public class StatsList extends FrameLayout {
         mMaxTextView = (SingleLineResizableTextView) this.findViewById(R.id.stats_view_max);
         mAvgTextView = (SingleLineResizableTextView) this.findViewById(R.id.stats_view_avg);
         mStats = new ArrayList<>();
-
-        mDarkerColor = context.getResources().getColor(R.color.text_color_dark_grey);
-        mLighterColor = context.getResources().getColor(R.color.text_color_light_grey);
     }
 
     public void updateStats(List<StreamStat> stats) {
@@ -143,5 +137,10 @@ public class StatsList extends FrameLayout {
         mMinTextView.setTypeface(typeface);
         mMaxTextView.setTypeface(typeface);
         mAvgTextView.setTypeface(typeface);
+    }
+
+    public void updateColor(int color) {
+        mMinTextView.setTextColor(color);
+        mMaxTextView.setTextColor(color);
     }
 }

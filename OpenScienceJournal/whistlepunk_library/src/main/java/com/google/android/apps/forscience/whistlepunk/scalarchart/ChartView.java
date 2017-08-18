@@ -136,8 +136,7 @@ public class ChartView extends View {
 
     // For drawing stats
     private float mStatLineWidth;
-    private Paint mStatMaxPaint;
-    private Paint mStatMinPaint;
+    private Paint mStatMinMaxPaint;
     private Paint mStatAvgPaint;
     private Drawable mMinDrawable;
     private Drawable mMaxDrawable;
@@ -197,8 +196,7 @@ public class ChartView extends View {
         mRecordingTimePaint.setStyle(Paint.Style.STROKE);
 
         mLabelLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mStatMaxPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mStatMinPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mStatMinMaxPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mStatAvgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     }
 
@@ -245,11 +243,6 @@ public class ChartView extends View {
 
         mMinDrawable = res.getDrawable(R.drawable.ic_data_min_color_12dpm);
         mMaxDrawable = res.getDrawable(R.drawable.ic_data_max_color_12dpm);
-        // No need to mutate -- the color is always the same.
-        mMinDrawable.setColorFilter(getContext().getResources().getColor(R.color.stats_min_color),
-                PorterDuff.Mode.SRC_ATOP);
-        mMaxDrawable.setColorFilter(getContext().getResources().getColor(R.color.stats_max_color),
-                PorterDuff.Mode.SRC_ATOP);
         mAvgDrawable = res.getDrawable(R.drawable.ic_data_average_color_12dp);
         mStatDrawableWidth = res.getDimensionPixelSize(R.dimen.small_stat_icon_size);
 
@@ -262,8 +255,7 @@ public class ChartView extends View {
         float dashSize = res.getDimensionPixelSize(R.dimen.recording_overlay_dash_size);
         makeDashedLinePaint(mLabelLinePaint, R.color.note_overlay_line_color, mStatLineWidth,
                 dashSize);
-        makeDashedLinePaint(mStatMaxPaint, R.color.stats_max_color, mStatLineWidth, dashSize);
-        makeDashedLinePaint(mStatMinPaint, R.color.stats_min_color, mStatLineWidth, dashSize);
+        makeDashedLinePaint(mStatMinMaxPaint, mStatLineWidth, dashSize);
         makeDashedLinePaint(mStatAvgPaint, R.color.stats_average_color, mStatLineWidth, dashSize);
 
         // These calculations are done really frequently, so store in member variables to reduce
@@ -277,10 +269,14 @@ public class ChartView extends View {
     }
 
     private void makeDashedLinePaint(Paint paint, int colorId, float lineWidth, float dashSize) {
+        makeDashedLinePaint(paint, lineWidth, dashSize);
+        paint.setColor(getResources().getColor(colorId));
+    }
+
+    private void makeDashedLinePaint(Paint paint, float lineWidth, float dashSize) {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(lineWidth);
         paint.setPathEffect(new DashPathEffect(new float[]{dashSize, dashSize}, dashSize));
-        paint.setColor(getResources().getColor(colorId));
     }
 
     @Override
@@ -519,6 +515,12 @@ public class ChartView extends View {
         mLabelOutlinePaint.setColor(mChartOptions.getLabelOutlineColor(res));
         mBackgroundColor = res.getColor(mChartOptions.getChartBackgroundColorId());
         mBackgroundPaint.setColor(mBackgroundColor);
+
+        mStatMinMaxPaint.setColor(chartColor);
+        mMinDrawable = mMinDrawable.mutate();
+        mMinDrawable.setColorFilter(chartColor, PorterDuff.Mode.SRC_ATOP);
+        mMaxDrawable = mMaxDrawable.mutate();
+        mMaxDrawable.setColorFilter(chartColor, PorterDuff.Mode.SRC_ATOP);
     }
 
     private double getYValueDeltaFromYScreenDelta(float screenDiff) {
@@ -892,9 +894,8 @@ public class ChartView extends View {
     private Paint getStatPaint(int type) {
         switch (type) {
             case StreamStat.TYPE_MIN:
-                return mStatMinPaint;
             case StreamStat.TYPE_MAX:
-                return mStatMaxPaint;
+                return mStatMinMaxPaint;
             case StreamStat.TYPE_AVERAGE:
                 return mStatAvgPaint;
             default:

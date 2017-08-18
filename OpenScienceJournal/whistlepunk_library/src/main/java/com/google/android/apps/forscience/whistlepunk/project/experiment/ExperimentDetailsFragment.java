@@ -1151,9 +1151,10 @@ public class ExperimentDetailsFragment extends Fragment
             final NumberFormat numberFormat = appearance.getNumberFormat();
             holder.sensorName.setText(Appearances.getSensorDisplayName(appearance, appContext));
             final GoosciSensorLayout.SensorLayout sensorLayout = item.getSelectedSensorLayout();
+            int color = appContext.getResources().getIntArray(
+                    R.array.graph_colors_array)[sensorLayout.colorIndex];
             Appearances.applyDrawableToImageView(appearance.getIconDrawable(appContext),
-                    holder.sensorImage, appContext.getResources().getIntArray(
-                            R.array.graph_colors_array)[sensorLayout.colorIndex]);
+                    holder.sensorImage, color);
 
             boolean hasNextButton = item.getSensorTagIndex() < trial.getSensorIds().size() - 1;
             boolean hasPrevButton = item.getSensorTagIndex() > 0;
@@ -1174,6 +1175,7 @@ public class ExperimentDetailsFragment extends Fragment
             if (stats == null) {
                 throw new IllegalArgumentException("Invalid trial: " + trial);
             }
+            holder.statsList.updateColor(color);
             if (!stats.statsAreValid()) {
                 holder.statsList.clearStats();
             } else {
