@@ -52,8 +52,6 @@
     <color name="graph_line_color_grey">#616161</color>
     <color name="graph_label_fill_color">#F8E71C</color>
     <color name="trigger_fire_color">#DB4437</color>
-    <color name="stats_max_color">@color/stats_min_color</color>
-    <color name="stats_min_color">@color/graph_line_color_green</color>
     <color name="stats_average_color">#9E9E9E</color>
     <color name="color_primary">#673ab7</color>
     <color name="color_primary_dark">#4A148C</color>
