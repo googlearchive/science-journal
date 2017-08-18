@@ -34,7 +34,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelVa
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
 import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.PublishSubject;
 
 /**
  * Fragment controlling adding text notes in the observe pane.
@@ -144,6 +143,8 @@ public class TextToolFragment extends Fragment {
                 Fragment parentFragment = getParentFragment();
                 if (parentFragment instanceof ListenerProvider) {
                     mListener = ((ListenerProvider) parentFragment).getTextLabelFragmentListener();
+                } else if (parentFragment == null) {
+                    mListener = ((ListenerProvider) getActivity()).getTextLabelFragmentListener();
                 }
             }
         }
