@@ -34,6 +34,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
@@ -83,6 +84,15 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                               .inflate(R.layout.text_action_bar, controlBar, true);
                 ttf.attachButtons(controlBar);
             }
+
+            @Override
+            public Runnable onGainedFocus(Object object, Activity activity) {
+                TextToolFragment ttf = (TextToolFragment) object;
+                return () -> {
+                    // when losing focus, close keyboard
+                    closeKeyboard(activity);
+                };
+            }
         }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp) {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
@@ -104,7 +114,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public Runnable onGainedFocus(Object object) {
+            public Runnable onGainedFocus(Object object, Activity activity) {
                 CameraFragment fragment = (CameraFragment) object;
                 fragment.onGainedFocus();
                 return () -> fragment.onLosingFocus();
@@ -158,13 +168,22 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
          *
          * @return a Runnable that should be called when focus is lost, or null to do nothing.
          */
-        public Runnable onGainedFocus(Object object) {
+        public Runnable onGainedFocus(Object object, Activity activity) {
             // by default, do nothing
             return null;
         }
 
         public abstract void addControlsToBar(Fragment fragment, FrameLayout controlBar,
                 ControlBarController controlBarController);
+    }
+
+    private static void closeKeyboard(Activity activity) {
+        View view = activity.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     public static void launch(Context context, String experimentId) {
@@ -254,6 +273,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 return false;
             }
         });
+
     }
 
     @Override
@@ -361,7 +381,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                             toolTab.addControlsToBar((Fragment) object, controlBar,
                                     controlBarController);
                         }
-                        mOnLosingFocus = toolTab.onGainedFocus(object);
+                        mOnLosingFocus = toolTab.onGainedFocus(object, PanesActivity.this);
                         mPreviousPrimary = position;
                     }
                 }
@@ -593,13 +613,29 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         });
     }
 
+    private void dropToHalfScreenIfNeeded() {
+        changeSheetState(PanesBottomSheetBehavior.STATE_EXPANDED,
+                PanesBottomSheetBehavior.STATE_MIDDLE);
+    }
+
+    private void changeSheetState(int fromState, int toState) {
+        if (mBottomBehavior.getState() == fromState) {
+            mBottomBehavior.setState(toState);
+        }
+    }
+
     private void onLabelAdded(String trialId) {
         if (TextUtils.isEmpty(trialId)) {
             // TODO: is this expensive?  Should we trigger a more incremental update?
-            mExperimentFragment.loadExperiment();
+            reloadExperiment();
         } else {
             mExperimentFragment.onRecordingTrialUpdated(trialId);
         }
+        dropToHalfScreenIfNeeded();
+    }
+
+    private void reloadExperiment() {
+        mExperimentFragment.loadExperiment();
     }
 
     private DataController getDataController() {
@@ -640,9 +676,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         // when the views are first loaded.
         if (mTabsInitialized) {
             // Clicking a tab raises the pane to middle if it was at the bottom.
-            if (mBottomBehavior.getState() == PanesBottomSheetBehavior.STATE_COLLAPSED) {
-                mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_MIDDLE);
-            }
+            changeSheetState(PanesBottomSheetBehavior.STATE_COLLAPSED,
+                    PanesBottomSheetBehavior.STATE_MIDDLE);
         }
     }
 
