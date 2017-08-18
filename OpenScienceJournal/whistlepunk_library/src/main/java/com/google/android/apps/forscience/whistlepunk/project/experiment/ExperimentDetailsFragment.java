@@ -286,6 +286,9 @@ public class ExperimentDetailsFragment extends Fragment
             getActivity().invalidateOptionsMenu();
         }
         setHomeButtonState(true);
+
+        // TODO: there has to be a cheaper way to make the feed scroll to the bottom
+        loadExperiment();
     }
 
     public void onRecordingTrialUpdated(String trialId) {
