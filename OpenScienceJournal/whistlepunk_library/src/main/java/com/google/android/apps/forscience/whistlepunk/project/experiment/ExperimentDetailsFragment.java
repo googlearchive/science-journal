@@ -314,9 +314,7 @@ public class ExperimentDetailsFragment extends Fragment
             ActionBar actionBar = activity.getSupportActionBar();
             if (actionBar != null) {
                 final Drawable upArrow = ContextCompat.getDrawable(activity,
-                        R.drawable.abc_ic_ab_back_material);
-                DrawableCompat.setTint(upArrow,
-                        ContextCompat.getColor(activity, android.R.color.white));
+                        R.drawable.ic_arrow_back_white_24dp);
                 if (disabled) {
                     upArrow.setAlpha(
                             getResources().getInteger(R.integer.home_disabled_drawable_alpha));
