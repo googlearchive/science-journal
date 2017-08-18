@@ -213,8 +213,7 @@ public class ExperimentListFragment extends Fragment implements
             pictureLabel.setCaption(caption);
             e.addLabel(pictureLabel);
 
-            // TODO: Add a recording item. Need to generate run data and add it to the database
-            // properly...
+            // TODO: Add a recording item if required by b/64844798.
 
             RxDataController.updateExperiment(getDataController(), e).subscribe(() -> {
                 PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putBoolean(
