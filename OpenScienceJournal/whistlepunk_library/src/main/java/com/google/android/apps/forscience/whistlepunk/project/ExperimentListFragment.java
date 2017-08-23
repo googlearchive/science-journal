@@ -50,6 +50,7 @@ import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
+import com.google.android.apps.forscience.whistlepunk.SnackbarManager;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -126,6 +127,12 @@ public class ExperimentListFragment extends Fragment implements
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(EXTRA_INCLUDE_ARCHIVED, mIncludeArchived);
+    }
+
+    @Override
+    public void onDestroy() {
+        mExperimentListAdapter.onDestroy();
+        super.onDestroy();
     }
 
     @Override
@@ -319,6 +326,7 @@ public class ExperimentListFragment extends Fragment implements
         private final String mMonthYearFormat;
 
         private final WeakReference<ExperimentListFragment> mParentReference;
+        private SnackbarManager mSnackbarManager = new SnackbarManager();
 
         public ExperimentListAdapter(ExperimentListFragment parent, DataController dc) {
             mItems = new ArrayList<>();
@@ -450,6 +458,7 @@ public class ExperimentListFragment extends Fragment implements
                         setExperimentArchived(item, false);
                         return true;
                     } else if (menuItem.getItemId() == R.id.menu_item_delete) {
+                        mSnackbarManager.hideVisibleSnackbar();
                         mParentReference.get().confirmDelete(item.experimentOverview.experimentId);
                         return true;
                     }
@@ -515,7 +524,7 @@ public class ExperimentListFragment extends Fragment implements
                 // We only seem to show "undo" for archiving items, not unarchiving them.
                 bar.setAction(R.string.action_undo, view -> setExperimentArchived(item, !archived));
             }
-            bar.show();
+            mSnackbarManager.showSnackbar(bar);
         }
 
         private void setCardColor(ViewHolder holder, int color) {
@@ -563,6 +572,10 @@ public class ExperimentListFragment extends Fragment implements
                 mItems.remove(0);
                 notifyDataSetChanged();
             }
+        }
+
+        public void onDestroy() {
+            mSnackbarManager.onDestroy();
         }
     }
 

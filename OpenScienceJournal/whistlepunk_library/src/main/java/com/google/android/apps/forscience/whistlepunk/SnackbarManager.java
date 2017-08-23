@@ -37,6 +37,7 @@ public class SnackbarManager {
             public void onShown(Snackbar snackbar) {
             }
         });
+        hideVisibleSnackbar();
         bar.show();
         mVisibleSnackbar = bar;
     }
@@ -50,9 +51,13 @@ public class SnackbarManager {
      * be dismissed.
      */
     public void onDestroy() {
+        hideVisibleSnackbar();
+        mVisibleSnackbar = null;
+    }
+
+    public void hideVisibleSnackbar() {
         if (mVisibleSnackbar != null) {
             mVisibleSnackbar.dismiss();
-            mVisibleSnackbar = null;
         }
     }
 }
