@@ -151,7 +151,8 @@ public class ChartController {
             ScalarDisplayOptions scalarDisplayOptions, int chartDataThrowawayThreshold,
             long dataLoadBuffer, Clock uptimeClock, FailureListener dataFailureListener) {
         mUptimeClock = uptimeClock;
-        mChartData = new ChartData(chartDataThrowawayThreshold);
+        mChartData = new ChartData(chartDataThrowawayThreshold,
+                ChartData.DEFAULT_THROWAWAY_TIME_THRESHOLD);
         mChartOptions = new ChartOptions(chartPlacementType);
         mChartOptions.setScalarDisplayOptions(scalarDisplayOptions);
         mDataFailureListener = dataFailureListener;
