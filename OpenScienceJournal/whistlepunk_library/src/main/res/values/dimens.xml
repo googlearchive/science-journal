@@ -62,7 +62,6 @@
     <dimen name="edit_trigger_horizontal_margin">24dp</dimen>
     <dimen name="update_metadata_vertical_padding">16dp</dimen>
 
-    <dimen name="toolbar_image_cover_height">250dp</dimen>
     <dimen name="appbar_subtitle_text_size">14sp</dimen>
 
     <item name="metadata_card_alpha" type="fraction">100%</item>
@@ -93,9 +92,6 @@
     <dimen name="sensor_tab_padding_bottom">10dp</dimen>
     <dimen name="sensor_tab_width">52dp</dimen>
 
-    <dimen name="stats_drawer_small_icon_padding">4dp</dimen>
-    <dimen name="stats_drawer_item_width">42dp</dimen>
-    <dimen name="stats_view_small_text_size">12sp</dimen>
     <dimen name="small_stat_icon_size">12dp</dimen>
     <dimen name="stats_divider_margin">4dp</dimen>
 

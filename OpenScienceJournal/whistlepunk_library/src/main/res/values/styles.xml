@@ -40,12 +40,6 @@
         <item name="colorAccent">@color/color_accent</item>
     </style>
 
-    <!-- For activities that deal with reviewing data. Different primary color. -->
-    <style name="NoBarTheme.Review">
-        <item name="colorPrimaryDark">@color/color_accent_dark</item>
-        <item name="colorPrimary">@color/color_accent</item>
-    </style>
-
     <!-- Metadata update activities for triggers have a different primary color. -->
     <style name="AppTheme.Triggers">
         <item name="colorPrimaryDark">@color/color_accent_dark</item>

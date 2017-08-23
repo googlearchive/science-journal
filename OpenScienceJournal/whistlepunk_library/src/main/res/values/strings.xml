@@ -126,9 +126,6 @@
     <!-- Sound intensity sensor name [CHAR_LIMIT=25] -->
     <string name="decibel">Sound intensity</string>
 
-    <!-- Window title label for the tutorial activity [CHAR_LIMIT=25] -->
-    <string name="title_activity_tutorial">Science Journal Tutorial</string>
-
     <!-- Window title label for the experiment details activity [CHAR_LIMIT=25] -->
     <string name="title_activity_age_verifier">Birthday</string>
 
@@ -235,9 +232,6 @@
 
     <!-- The content description for a picture note picture [CHAR_LIMIT=NONE] -->
     <string name="picture_note_preview_content_description">Picture note preview</string>
-
-    <!-- Title of the navigation item to select observe page [CHAR_LIMIT=25] -->
-    <string name="navigation_item_observe">Observe</string>
 
     <!-- Title of the navigation item to go to making science activities [CHAR_LIMIT=25] -->
     <string name="navigation_item_activities">Activities</string>
@@ -368,9 +362,6 @@
     <!-- Title of a settings item that displays the app's version [CHAR_LIMIT=25]-->
     <string name="settings_version_title">Version</string>
 
-    <!-- Title of a settings item that replays the tutorial screen [CHAR_LIMIT=25]-->
-    <string name="settings_replay_tutorial_title">Tutorial</string>
-
     <!-- Title of a settings item that displays the app's open source licenses [CHAR_LIMIT=25]-->
     <string name="settings_open_source_title">Open source licenses</string>
 
@@ -413,18 +404,6 @@
 
     <!-- Replacement content description used for archived recordings, projects and experiments [CHAR_LIMIT=NONE]-->
     <string name="archived_content_description"><xliff:g id="item">%1s</xliff:g> (archived)</string>
-
-    <!-- Label displaying number of runs in an experiment [CHAR_LIMIT=20] -->
-    <plurals name="experiment_run_count">
-        <item quantity="one"><xliff:g id="number">%1d</xliff:g> recording</item>
-        <item quantity="other"><xliff:g id="number">%1d</xliff:g> recordings</item>
-    </plurals>
-
-    <!-- Label displaying number of notes in a run [CHAR_LIMIT=20] -->
-    <plurals name="notes_count">
-        <item quantity="one"><xliff:g id="number">%1d</xliff:g> note</item>
-        <item quantity="other"><xliff:g id="number">%1d</xliff:g> notes</item>
-    </plurals>
 
     <!-- Hint (aka. placeholder) for experiment title input field [CHAR_LIMIT=50] -->
     <string name="experiment_title_hint">Experiment title</string>
@@ -525,17 +504,8 @@
         <item>@string/amplitude</item>
     </string-array>
 
-    <!-- Label for a spinner item which creates a new experiment. [CHAR_LIMIT=40]-->
-    <string name="new_experiment_spinner_item">New experiment\u2026</string>
-
     <!-- Recording label set as subtitle during recording [CHAR_LIMIT=25] -->
     <string name="recording_title_label">Recording\u2026</string>
-
-    <!-- Context description for button which goes back to observe [CHAR_LIMIT=50]-->
-    <string name="btn_observe_content_description">Observe</string>
-
-    <!-- Window title label for the experiment details activity [CHAR_LIMIT=25] -->
-    <string name="title_activity_experiment_details">Experiment Details</string>
 
     <!-- Message shown to user if they have no recordings or notes yet. [CHAR_LIMIT=60]-->
     <string name="empty_experiment">You have no observations yet</string>
@@ -709,12 +679,6 @@
     <!-- The content description for the sensor card overflow menu [CHAR_LIMIT=none] -->
     <string name="sensor_card_overflow_menu_content_description">Card options</string>
 
-    <!-- The content description for the sensor card button to flip the card to the info side [CHAR_LIMIT=none] -->
-    <string name="btn_sensor_flip_info_content_description">switch to info mode</string>
-
-    <!-- The content description for the sensor card button to flip the card to the graph side [CHAR_LIMIT=none] -->
-    <string name="btn_sensor_flip_graph_content_description">switch to graph mode</string>
-
     <!-- The content description for the sensor tab layout [CHAR_LIMIT=none] -->
     <string name="sensor_tab_layout_content_description">available sensors</string>
 
@@ -742,9 +706,6 @@
     <!-- Run review menu option to crop a run [CHAR_LIMIT=25] -->
     <string name="crop_run">Crop</string>
 
-    <!-- Run review menu option to add a note to a run [CHAR_LIMIT=25] -->
-    <string name="add_run_note">Add note</string>
-
     <!-- Experiment Details menu option to add a note to an experiment [CHAR_LIMIT=25] -->
     <string name="add_experiment_note">Add note</string>
 
@@ -760,9 +721,6 @@
     <!-- Content description for the arrow button to move to the next sensor in RunReview [CHAR_LIMIT=none] -->
     <string name="run_review_switch_sensor_btn_next">next sensor: <xliff:g id="sensor_name">%s</xliff:g></string>
 
-    <!-- Hint text for editing a run text note [CHAR_LIMIT=100] -->
-    <string name="edit_note_hint_text">Edit recording note</string>
-
     <!-- Hint text for adding a run text note [CHAR_LIMIT=100] -->
     <string name="add_note_hint_text">Add a new note</string>
 
@@ -774,9 +732,6 @@
 
     <!-- Text placeholder for adding a run note [CHAR_LIMIT=NONE] -->
     <string name="add_run_note_placeholder_text">Add note to this recording</string>
-
-    <!-- Text placeholder for adding an experiment note [CHAR_LIMIT=NONE] -->
-    <string name="add_experiment_note_placeholder_text">Add experiment note</string>
 
     <!-- Content description for the add note button [CHAR_LIMIT=NONE] -->
     <string name="add_note_image_button_content_description">Take picture note</string>
@@ -861,9 +816,6 @@
 
     <!-- Snackbar message shown to user if no application exists to handle this action [CHAR_LIMIT=100]-->
     <string name="no_app_found">No installed app can handle this action.</string>
-
-    <!-- Hint text for the caption text input field while picture note editing [CHAR_LIMIT=30]-->
-    <string name="picture_note_caption_hint">Add a caption</string>
 
     <!-- Play Store Listing Strings -->
     <skip />
@@ -1091,9 +1043,6 @@ Permissions notice:
     <!-- The auto-generated note text for a note type trigger. For example,this might say, "Ambient light rose above 3.0 lux". [CHAR_LIMIT=200]-->
     <string name="trigger_label_auto_text"><xliff:g id="sensor_name">%1$s</xliff:g> <xliff:g id="trigger_when">%2$s</xliff:g> <xliff:g id="trigger_value">%3$.2f</xliff:g> <xliff:g id="sensor_units">%4$s</xliff:g></string>
 
-    <!-- The content description for the auto generated text on a note from a trigger [CHAR_LIMIT=NONE] -->
-    <string name="trigger_label_icon_content_description">Trigger note: <xliff:g id="trigger description">%1$s</xliff:g></string>
-
     <!-- The format for a floating point data value when displayed to the user. This has more significant figures than on the Y axis. DO NOT TRANSLATE -->
     <string name="run_review_chart_label_format" translatable="false"><xliff:g id="value">%.2f</xliff:g></string>
 
@@ -1165,9 +1114,6 @@ Permissions notice:
 
     <!-- Name for a drop down that shows built-in sensors on the phone [CHAR_LIMIT=30] -->
     <string name="phone_sensors">Internal sensors</string>
-
-    <!-- Menu option to change the name for a paired external device [CHAR_LIMIT=30] -->
-    <string name="rename_device">Rename device</string>
 
     <!-- Menu option to forget pairing relationship with an external device [CHAR_LIMIT=30] -->
     <string name="forget_device">Forget this device</string>
@@ -1249,9 +1195,6 @@ Permissions notice:
 
     <!-- Error message when the user tries to save a crop that is too small, i.e. less than one second [CHAR_LIMIT=100] -->
     <string name="crop_failed_range_too_small">The trial cannot be cropped to less than one second</string>
-
-    <!-- Error message when a crop fails due to an invalid data state [CHAR_LIMIT=100] -->
-    <string name="crop_failed_invalid_state">Invalid state</string>
 
     <!-- Title of developer option to enable Android StrictMode [CHAR_LIMIT=35] -->
     <string name="dev_tools_strict_mode_title" translatable="false">Enable Android StrictMode</string>
