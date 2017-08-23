@@ -512,8 +512,6 @@ public class RecordFragment extends Fragment implements Handler.Callback,
                     }
                 }, /* IsLive */ true, new CurrentTimeClock(), resetButton);
 
-        attachControlButtons(rootView, getShowSnapshot());
-
         mGraphOptionsController.loadIntoScalarDisplayOptions(mScalarDisplayOptions, getView());
         mSensorCardLayoutManager = new LinearLayoutManager(getActivity());
 
@@ -525,37 +523,12 @@ public class RecordFragment extends Fragment implements Handler.Callback,
         return rootView;
     }
 
-    private void attachControlButtons(ViewGroup rootView, boolean showSnapshot) {
-        View bar = rootView.findViewById(R.id.observe_action_bar);
-
-        // TODO: remove this check, and the XML it enables, once PanesActivity#SHARED_CONTROL_BAR
-        // is permanently true
-        if (shouldUseNativeControlBar()) {
-            bar.setVisibility(View.VISIBLE);
-            ControlBarController controlBarController =
-                    new ControlBarController(getFragmentManager(), getExperimentId(), showSnapshot,
-                            mSnackbarManager);
-
-            controlBarController.attachRecordButtons(rootView);
-        } else {
-            bar.setVisibility(View.GONE);
-        }
-    }
-
-    private boolean getShowSnapshot() {
-        return getArguments().getBoolean(KEY_SHOW_SNAPSHOT, false);
-    }
-
     private boolean shouldInflateMenu() {
         return getArguments().getBoolean(KEY_INFLATE_MENU, true);
     }
 
     private String getExperimentId() {
         return getArguments().getString(KEY_EXPERIMENT_ID);
-    }
-
-    private boolean shouldUseNativeControlBar() {
-        return getArguments().getBoolean(KEY_NATIVE_CONTROL_BAR, true);
     }
 
     private void activateSensorCardPresenter(SensorCardPresenter sensorCardPresenter,
@@ -978,7 +951,6 @@ public class RecordFragment extends Fragment implements Handler.Callback,
         RecordingStatus status = event.getStatus();
         refreshLabels(status);
         ensureUnarchived(mSelectedExperiment, getDataController());
-        playAddNoteAnimation();
         // Trigger labels are logged in RecorderControllerImpl.
         if (!(label.getType() == GoosciLabel.Label.SENSOR_TRIGGER)) {
             String trackerLabel = status.isRecording() ? TrackerConstants.LABEL_RECORD :
@@ -989,50 +961,6 @@ public class RecordFragment extends Fragment implements Handler.Callback,
                             trackerLabel,
                             TrackerConstants.getLabelValueType(label));
         }
-    }
-
-    private void playAddNoteAnimation() {
-        if (getActivity() == null) {
-            return;
-        }
-        final View addNoteIndicator = LayoutInflater.from(getActivity()).inflate(
-                R.layout.note_indicator, (ViewGroup) getView(), false);
-        ((ViewGroup) getView()).addView(addNoteIndicator);
-        // NOTE: this is not always guaranteed to find the menu item view.
-        View menuItem = getActivity().findViewById(R.id.btn_experiment_details);
-        if (menuItem == null) {
-            // Nothing to animate to, so just end.
-            return;
-        }
-        int[] location = new int[2];
-        menuItem.getLocationOnScreen(location);
-        // Center in parent view.
-        addNoteIndicator.setX(getView().getWidth() / 2);
-        addNoteIndicator.setY(getView().getHeight() / 2);
-        addNoteIndicator.setAlpha(1.0f);
-        addNoteIndicator.setScaleX(4.0f);
-        addNoteIndicator.setScaleY(4.0f);
-        addNoteIndicator.setVisibility(View.VISIBLE);
-        // Note: these animation values are not shared with any other animation, leaving them as
-        // raw values so this custom animation can be easily tweaked.
-        addNoteIndicator.animate()
-                .setStartDelay(100)
-                .x(location[0]) // go to the button
-                .y(-addNoteIndicator.getHeight()) // hide into menu bar
-                .scaleX(1.0f)
-                .scaleY(1.0f)
-                .alpha(.2f)
-                .setDuration(750)
-                .setInterpolator(new DecelerateInterpolator())
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        if (addNoteIndicator.getParent() != null) {
-                            ((ViewGroup) addNoteIndicator.getParent()).removeView(addNoteIndicator);
-                        }
-                    }
-                })
-                .start();
     }
 
     @Override
