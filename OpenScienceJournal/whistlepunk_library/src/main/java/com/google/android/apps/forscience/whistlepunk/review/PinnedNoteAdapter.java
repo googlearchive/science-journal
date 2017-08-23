@@ -252,7 +252,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public void onLabelAdded(Label label) {
         if (mTrial.getLabelCount() == 1) {
-            notifyItemChanged(0);
+            notifyItemChanged(1); // First label at index 1 (0 is the "add note" button)
         } else {
             int position = findLabelIndexById(label.getLabelId());
             if (position != -1) {
@@ -264,7 +264,8 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private int findLabelIndexById(String id) {
         for (int i = 0; i < mTrial.getLabelCount(); i++) {
             if (TextUtils.equals(mTrial.getLabels().get(i).getLabelId(), id)) {
-                return i;
+                // The 0th index item is "add note to timeline" button
+                return i + 1;
             }
         }
         return -1;
