@@ -32,16 +32,19 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
@@ -227,6 +230,18 @@ public class UpdateExperimentFragment extends Fragment {
                             });
                 }
             });
+        });
+        title.setOnEditorActionListener((textView, i, keyEvent) -> {
+            if (i == EditorInfo.IME_ACTION_DONE) {
+                title.clearFocus();
+                title.setFocusable(false);
+            }
+            return false;
+        });
+        title.setOnTouchListener((v, e) -> {
+            title.setFocusableInTouchMode(true);
+            title.requestFocus();
+            return false;
         });
         return view;
     }
