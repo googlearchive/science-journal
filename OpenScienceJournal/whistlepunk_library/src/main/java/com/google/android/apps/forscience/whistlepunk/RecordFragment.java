@@ -136,6 +136,13 @@ public class RecordFragment extends Fragment implements Handler.Callback,
         void onRecordingSaved(String runId, Experiment experiment) {
 
         }
+
+        /**
+         * Called when the record fragment wants to be maximized.
+         */
+        void maximizeFragment() {
+
+        }
     }
 
     public interface CallbacksProvider {
@@ -1241,9 +1248,10 @@ public class RecordFragment extends Fragment implements Handler.Callback,
                     trigger.getValueToTrigger(), units);
             final Snackbar bar = AccessibilityUtils.makeSnackbar(getView(), message,
                     Snackbar.LENGTH_LONG);
-            bar.setAction(R.string.scroll_to_card,
-                    v -> mSensorCardLayoutManager.scrollToPosition(
-                            getPositionOfPresenter(presenter)));
+            bar.setAction(R.string.scroll_to_card, v -> {
+                mUICallbacks.maximizeFragment();
+                mSensorCardLayoutManager.scrollToPosition(getPositionOfPresenter(presenter));
+            });
             mSnackbarManager.showSnackbar(bar);
         }
     }

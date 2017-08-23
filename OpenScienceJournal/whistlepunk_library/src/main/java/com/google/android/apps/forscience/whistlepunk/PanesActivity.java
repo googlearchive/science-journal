@@ -575,6 +575,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 hideRecordingBar();
                 mExperimentFragment.onStopRecording();
             }
+
+            @Override
+            void maximizeFragment() {
+                expandSheet();
+            }
         };
     }
 
@@ -621,6 +626,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private void changeSheetState(int fromState, int toState) {
         if (mBottomBehavior.getState() == fromState) {
             mBottomBehavior.setState(toState);
+        }
+    }
+
+    private void expandSheet() {
+        if (mBottomBehavior.getState() != PanesBottomSheetBehavior.STATE_EXPANDED) {
+            mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_EXPANDED);
         }
     }
 
