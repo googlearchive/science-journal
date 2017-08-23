@@ -26,8 +26,8 @@
     tools:showIn="@layout/text_label_fragment">
 
     <ImageButton
-        android:layout_width="@dimen/accessibility_touch_target_min_size"
-        android:layout_height="@dimen/accessibility_touch_target_min_size"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:src="@drawable/btn_camera_note"
         android:contentDescription="@string/btn_take_picture_content_description"
         android:id="@+id/btn_add"
