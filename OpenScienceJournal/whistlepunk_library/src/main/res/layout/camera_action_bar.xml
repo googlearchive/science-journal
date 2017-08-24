@@ -32,6 +32,7 @@
         android:contentDescription="@string/btn_take_picture_content_description"
         android:id="@+id/btn_add"
         android:layout_gravity="center"
+        android:alpha="1"
         android:background="?attr/selectableItemBackgroundBorderless"
         />
 
