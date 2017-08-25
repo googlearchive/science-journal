@@ -199,7 +199,7 @@ public class ChartDataTest {
     }
 
     @Test public void throwAwayBefore() {
-        ChartData chartData = new ChartData(0);
+        ChartData chartData = new ChartData(0, ChartData.DEFAULT_THROWAWAY_TIME_THRESHOLD);
         List<ChartData.DataPoint> data = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
             data.add(new ChartData.DataPoint(i * 5, i * 5));
@@ -207,5 +207,19 @@ public class ChartDataTest {
         chartData.setPoints(data);
         chartData.throwAwayBefore(17);
         assertEquals(20, chartData.getClosestDataPointToTimestamp(0).getX());
+    }
+
+    @Test public void throwAwayBeforeLongAgoData() {
+        ChartData chartData = new ChartData(ChartData.DEFAULT_THROWAWAY_THRESHOLD, 20);
+        List<ChartData.DataPoint> data = new ArrayList<>();
+        data.add(new ChartData.DataPoint(0, 0));
+        for (int i = 100; i < 180; i+= 10) {
+            data.add(new ChartData.DataPoint(i, i));
+        }
+        chartData.setPoints(data);
+        assertEquals(9, chartData.getNumPoints());
+        // Within the size threshold, but outside of the time threshold.
+        chartData.throwAwayBefore(99);
+        assertEquals(8, chartData.getNumPoints());
     }
 }

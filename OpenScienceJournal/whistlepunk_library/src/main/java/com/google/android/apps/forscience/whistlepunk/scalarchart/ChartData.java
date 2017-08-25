@@ -64,6 +64,10 @@ public class ChartData {
     public static final int DEFAULT_THROWAWAY_THRESHOLD = 100;
     private int mThrowawayDataSizeThreshold;
 
+    // 2 minutes is plenty.
+    public static final long DEFAULT_THROWAWAY_TIME_THRESHOLD = 1000 * 60 * 2;
+    private long mThrowawayDataTimeThreshold = DEFAULT_THROWAWAY_TIME_THRESHOLD;
+
     private List<DataPoint> mData = new ArrayList<>();
 
     // The list of data points at which a label should be displayed.
@@ -86,11 +90,12 @@ public class ChartData {
     };
 
     public ChartData() {
-        this(DEFAULT_THROWAWAY_THRESHOLD);
+        this(DEFAULT_THROWAWAY_THRESHOLD, DEFAULT_THROWAWAY_TIME_THRESHOLD);
     }
 
-    public ChartData(int throwawayDataSizeThreshold) {
+    public ChartData(int throwawayDataSizeThreshold, long throwawayDataTimeThreshold) {
         mThrowawayDataSizeThreshold = throwawayDataSizeThreshold;
+        mThrowawayDataTimeThreshold = throwawayDataTimeThreshold;
     }
 
     // This assumes the data point occurs after all previous data points.
@@ -334,9 +339,15 @@ public class ChartData {
         int indexStart = approximateBinarySearch(throwAwayMinX, 0, mData.size() - 1, false, 1);
 
         // Only throw away in bulk once we reach a threshold, so that all the work is not done on
-        // every iteration.
-        if (indexEnd - indexStart < mThrowawayDataSizeThreshold) {
+        // every iteration. Make sure to also throw out very far away old data to avoid
+        // "path too long". So if the data is less than the size, and the range is not too long,
+        // we can just "return" here.
+        if (indexEnd - indexStart < mThrowawayDataSizeThreshold && (
+                indexStart >= 0 && indexEnd < mData.size() &&
+                mData.get(indexEnd).getX() - mData.get(indexStart).getX() <
+                        mThrowawayDataTimeThreshold)) {
             return;
+
         }
         mData.subList(indexStart, indexEnd).clear();
     }
