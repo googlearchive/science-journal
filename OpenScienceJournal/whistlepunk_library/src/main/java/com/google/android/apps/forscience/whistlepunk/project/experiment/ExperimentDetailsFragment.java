@@ -968,7 +968,7 @@ public class ExperimentDetailsFragment extends Fragment
             final Trial trial = item.getTrial();
             final Context applicationContext = holder.itemView.getContext().getApplicationContext();
             holder.setRunId(trial.getTrialId());
-            String title = trial.getTitleWithDuration(applicationContext, mExperiment);
+            String title = trial.getTitleWithDuration(applicationContext);
             holder.runTitle.setText(title);
             holder.cardView.setTag(R.id.run_title_text, trial.getTrialId());
 
@@ -1038,7 +1038,7 @@ public class ExperimentDetailsFragment extends Fragment
         private void bindRecording(RecordingViewHolder holder, ExperimentDetailItem item) {
             Context context = holder.cardView.getContext();
             holder.title.setText(context.getResources().getString(R.string.card_recording_title,
-                    item.getTrial().getTitle(context, mExperiment)));
+                    item.getTrial().getTitle(context)));
             holder.noteHolder.removeAllViews();
             if (item.getTrial().getLabelCount() > 0) {
                 for (int i = 0; i < item.getTrial().getLabelCount(); i++) {

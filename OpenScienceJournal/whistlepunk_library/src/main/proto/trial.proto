@@ -84,6 +84,12 @@ message Trial {
 
     // Which sensors are shown, and how to show them.
     repeated AppearanceEntry sensorAppearances = 12;
+
+    // The order of this trial within the experiment, compared to all the trials ever made in
+    // this experiment. This is used to generate a name for the trial if no name is set by the user,
+    // i.e. "Recording 1", "Recording 2", etc. No two trials within an experiment should have the
+    // same index. Starts at 1 (different from an index, which starts at 0!)
+    optional int32 trialNumberInExperiment = 13;
 };
 
 /*

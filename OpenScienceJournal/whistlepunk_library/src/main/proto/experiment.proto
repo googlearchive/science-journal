@@ -86,6 +86,13 @@ message Experiment {
     // Identifies the intended format version of this file, and the app that wrote it.
     // See version.proto for details.
     optional FileVersion fileVersion = 12;
+
+    // The total number of trials ever made in this experiment. This is used to create unique
+    // names for untitled trials, i.e. "Recording 1", "Recording 2", etc, so that no two
+    // recordings in one experiment ever use the same name.
+    // This differs from GoosciUserMetadata.ExperimentOverview.trialCount because it is
+    // monotonically increasing, whereas trialCount will decrease when trials are deleted.
+    optional int32 totalTrials = 13;
 };
 
 /*

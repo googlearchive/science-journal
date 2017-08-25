@@ -159,7 +159,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
         mFileMetadataManager.deleteAll(experimentIds);
 
         for (String experimentId : experimentIds) {
-            boolean foundPicture = false;
             Experiment experiment = getDatabaseExperimentById(db, experimentId, mContext, true);
 
             // This prepares the file system for the new experiment.
@@ -653,31 +652,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return getFileMetadataManager().getLastUsedUnarchivedExperiment();
     }
 
-    @VisibleForTesting
-    Experiment getLastUsedUnarchivedDatabaseExperiment() {
-        Experiment experiment = null;
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-            String selection = ExperimentColumns.ARCHIVED + "=0";
-            Cursor cursor = null;
-            try {
-                cursor = db.query(Tables.EXPERIMENTS, ExperimentColumns.GET_COLUMNS, selection,
-                        null, null, null,
-                        ExperimentColumns.LAST_USED_TIME + " DESC, " + BaseColumns._ID + " DESC",
-                        "1");
-                if (cursor.moveToNext()) {
-                    experiment = createExperimentFromCursor(cursor);
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }
-            populateDatabaseExperiment(db, experiment, mContext, false);
-        }
-        return experiment;
-    }
-
     private static void deleteDatabaseObjectsInExperiment(SQLiteDatabase db,
             Experiment experiment, Context context) {
         List<Label> labels = getDatabaseLabelsForExperiment(db, experiment, context);
@@ -704,11 +678,13 @@ public class SimpleMetaDataManager implements MetaDataManager {
         if (includeTrials) {
             List<String> trialIds = getDatabaseExperimentRunIds(db, experiment.getExperimentId(),
                     true);
+            List<Trial> trials = new ArrayList<>();
             for (String trialId : trialIds) {
                 List<ApplicationLabel> applicationLabels =
                         getDatabaseApplicationLabelsWithStartId(db, trialId);
-                experiment.addTrial(getDatabaseTrial(db, trialId, applicationLabels, context));
+                trials.add(getDatabaseTrial(db, trialId, applicationLabels, context));
             }
+            experiment.setTrials(trials);
         }
     }
 
@@ -716,18 +692,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
     @Deprecated
     public void setLastUsedExperiment(Experiment experiment) {
         getFileMetadataManager().setLastUsedExperiment(experiment);
-    }
-
-    void setLastUsedDatabaseExperiment(Experiment experiment) {
-        long time = getCurrentTime();
-        experiment.setLastUsedTime(time);
-        synchronized (mLock) {
-            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            final ContentValues values = new ContentValues();
-            values.put(ExperimentColumns.LAST_USED_TIME, time);
-            db.update(Tables.EXPERIMENTS, values, ExperimentColumns.EXPERIMENT_ID + "=?",
-                    new String[]{experiment.getExperimentId()});
-        }
     }
 
     @VisibleForTesting
@@ -882,6 +846,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             trialProto.autoZoomEnabled = autoZoomEnabled;
             trialProto.archived = archived;
             trialProto.creationTimeMs = creationTimeMs;
+            trialProto.trialNumberInExperiment = runIndex + 1;
 
             populateTrialProtoFromLabels(trialProto, applicationLabels, labels);
 

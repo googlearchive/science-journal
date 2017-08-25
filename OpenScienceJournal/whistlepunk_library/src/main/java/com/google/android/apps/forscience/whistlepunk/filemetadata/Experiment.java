@@ -61,6 +61,7 @@ public class Experiment extends LabelListHolder {
         experimentOverview.experimentId = experimentId;
         experimentOverview.colorIndex = colorIndex;
         proto.creationTimeMs = creationTime;
+        proto.totalTrials = 0;
 
         // This experiment is being created with the latest VERSION available.
         proto.fileVersion = new Version.FileVersion();
@@ -236,10 +237,21 @@ public class Experiment extends LabelListHolder {
         return result;
     }
 
-    @VisibleForTesting
-    void setTrials(List<Trial> trials) {
+    /**
+     * This wipes the current trial list and should be used only when populating an experiment
+     * from the database.
+     */
+    public void setTrials(List<Trial> trials) {
         mTrials = Preconditions.checkNotNull(trials);
         mExperimentOverview.trialCount = mTrials.size();
+        mProto.totalTrials = mTrials.size();
+
+        // Make sure it isn't any larger than this. That's possible if runs were deleted.
+        for (int i = 0; i < trials.size(); i++) {
+            if (trials.get(i).getTrialNumberInExperiment() > mProto.totalTrials) {
+                mProto.totalTrials = trials.get(i).getTrialNumberInExperiment();
+            }
+        }
     }
 
     /**
@@ -287,6 +299,7 @@ public class Experiment extends LabelListHolder {
     public void addTrial(Trial trial) {
         mTrials.add(trial);
         mExperimentOverview.trialCount = mTrials.size();
+        trial.setTrialNumberInExperiment(++mProto.totalTrials);
         sortTrials();
     }
 
@@ -309,6 +322,11 @@ public class Experiment extends LabelListHolder {
         for (Trial trial : getTrials()) {
             trial.deleteContents(context, getExperimentId());
         }
+    }
+
+    @VisibleForTesting
+    public void deleteTrialOnlyForTesting(Trial trial) {
+        mTrials.remove(trial);
     }
 
     private void sortTrials() {
@@ -532,17 +550,5 @@ public class Experiment extends LabelListHolder {
 
     int getMinorVersion() {
         return mProto.fileVersion.minorVersion;
-    }
-
-    /**
-     * Gets the index of a particular trial in an experiment. Returns -1 if not found.
-     */
-    public int getTrialIndex(String trialId) {
-        for (int i = 0; i < mTrials.size(); i++) {
-            if (TextUtils.equals(mTrials.get(i).getTrialId(), trialId)) {
-                return i;
-            }
-        }
-        return -1;
     }
 }

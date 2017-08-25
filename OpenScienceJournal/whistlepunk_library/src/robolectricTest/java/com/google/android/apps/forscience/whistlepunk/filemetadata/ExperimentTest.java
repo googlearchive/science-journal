@@ -219,6 +219,45 @@ public class ExperimentTest {
         assertEquals(result.trials.length, 1);
     }
 
+    @Test
+    public void testTrialNameOrdering() {
+        GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[]{});
+        Experiment experiment = Experiment.fromExperiment(proto,
+                new GoosciUserMetadata.ExperimentOverview());
+        GoosciTrial.Trial trialProto1 = new GoosciTrial.Trial();
+        GoosciTrial.Trial trialProto2 = new GoosciTrial.Trial();
+        GoosciTrial.Trial trialProto3 = new GoosciTrial.Trial();
+        trialProto1.trialId = "trial1";
+        trialProto2.trialId = "trial2";
+        trialProto3.trialId = "trial3";
+        GoosciTrial.Range range1 = new GoosciTrial.Range();
+        range1.startMs = 0;
+        trialProto1.recordingRange = range1;
+        GoosciTrial.Range range2 = new GoosciTrial.Range();
+        range2.startMs = 10;
+        trialProto2.recordingRange = range2;
+        GoosciTrial.Range range3 = new GoosciTrial.Range();
+        range3.startMs = 20;
+        trialProto3.recordingRange = range3;
+        Trial trial1 = Trial.fromTrial(trialProto1);
+        Trial trial2 = Trial.fromTrial(trialProto2);
+        Trial trial3 = Trial.fromTrial(trialProto3);
+
+        Context context = getContext();
+        experiment.addTrial(trial1);
+        assertEquals("Recording 1", experiment.getTrials().get(0).getTitle(context));
+        experiment.addTrial(trial2);
+        assertEquals("Recording 1", experiment.getTrial(trial1.getTrialId()).getTitle(context));
+        assertEquals("Recording 2", experiment.getTrial(trial2.getTrialId()).getTitle(context));
+
+        // Deleting the trial with the real delete function causes a crash because of the context
+        // class type. All we actually want is to remove the trial from the list.
+        experiment.deleteTrialOnlyForTesting(trial2);
+        experiment.addTrial(trial3);
+        assertEquals("Recording 1", experiment.getTrial(trial1.getTrialId()).getTitle(context));
+        assertEquals("Recording 3", experiment.getTrial(trial3.getTrialId()).getTitle(context));
+    }
+
     private Context getContext() {
         return RuntimeEnvironment.application.getApplicationContext();
     }
