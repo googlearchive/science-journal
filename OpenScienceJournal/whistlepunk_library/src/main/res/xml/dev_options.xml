@@ -92,4 +92,9 @@
         android:summary="@string/use_new_manage_devices_ux_option_summary"
     />
 
+    <Preference
+        android:key="show_perf_tracker_debug"
+        android:title="@string/perf_tracker_debug_pref_title"
+        />
+
 </PreferenceScreen>

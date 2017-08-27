@@ -43,6 +43,7 @@ public class DevOptionsFragment extends PreferenceFragment {
     public static final String KEY_DEV_SONIFICATION_TYPES = "enable_dev_sonification_types";
     public static final String KEY_LINEAR_ACCELERATION_SENSOR = "enable_linear_acceleration";
     public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
+    private static final String KEY_PERF_DEBUG_SCREEN = "show_perf_tracker_debug";
 
     public static DevOptionsFragment newInstance() {
         return new DevOptionsFragment();
@@ -73,6 +74,13 @@ public class DevOptionsFragment extends PreferenceFragment {
         } else {
             getPreferenceScreen().removePreference(leakPref);
         }
+
+        Preference prefTrackerPref = findPreference(KEY_PERF_DEBUG_SCREEN);
+        prefTrackerPref.setOnPreferenceClickListener(preference -> {
+            WhistlePunkApplication.getPerfTrackerProvider(getContext())
+                    .startPerfTrackerEventDebugActivity(getContext());
+            return true;
+        });
     }
 
     @Override

@@ -23,13 +23,14 @@ import com.google.android.apps.forscience.whistlepunk.modules.NativeBleDiscovere
 import com.google.android.apps.forscience.whistlepunk.modules.ScalarInputDiscoveryModule;
 import com.google.android.apps.forscience.whistlepunk.opensource.modules.FeatureDiscoveryModule;
 import com.google.android.apps.forscience.whistlepunk.opensource.modules.FeedbackModule;
+import com.google.android.apps.forscience.whistlepunk.opensource.modules.PerfTrackerModule;
 import com.google.android.apps.forscience.whistlepunk.opensource.modules.UsageTrackerModule;
 
 import dagger.Component;
 
 @Component(modules = {FeatureDiscoveryModule.class, FeedbackModule.class, UsageTrackerModule.class,
         NativeBleDiscovererModule.class, InputDeviceModule.class, ScalarInputDiscoveryModule.class,
-        ContextModule.class})
+        ContextModule.class, PerfTrackerModule.class})
 public interface OpenSourceComponent {
     void inject(WhistlePunkApplication app);
 }
