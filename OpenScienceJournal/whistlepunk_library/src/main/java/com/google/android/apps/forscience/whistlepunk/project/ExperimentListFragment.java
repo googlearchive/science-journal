@@ -195,18 +195,26 @@ public class ExperimentListFragment extends Fragment implements
                     .getSensorEnvironment()
                     .getDefaultClock();
 
-            // Create a text label 2 seconds ago with default text.
-            GoosciTextLabelValue.TextLabelValue goosciTextLabel = new GoosciTextLabelValue
+            // Create a text label 1 second ago with default text.
+            GoosciTextLabelValue.TextLabelValue goosciTextLabel1 = new GoosciTextLabelValue
                     .TextLabelValue();
-            goosciTextLabel.text = res.getString(R.string.first_experiment_text_note);
-            Label textLabel = Label.newLabelWithValue(clock.getNow() - 2000, GoosciLabel.Label.TEXT,
-                    goosciTextLabel, null);
-            e.addLabel(textLabel);
+            goosciTextLabel1.text = res.getString(R.string.first_experiment_second_text_note);
+            Label textLabel1 = Label.newLabelWithValue(clock.getNow() - 1000,
+                    GoosciLabel.Label.TEXT, goosciTextLabel1, null);
+            e.addLabel(textLabel1);
 
-            // Create a picture label 1 second ago with a default drawable and caption.
+            // Create a text label 2 seconds ago with default text.
+            GoosciTextLabelValue.TextLabelValue goosciTextLabel2 = new GoosciTextLabelValue
+                    .TextLabelValue();
+            goosciTextLabel2.text = res.getString(R.string.first_experiment_text_note);
+            Label textLabel2 = Label.newLabelWithValue(clock.getNow() - 2000,
+                    GoosciLabel.Label.TEXT, goosciTextLabel2, null);
+            e.addLabel(textLabel2);
+
+            // Create a picture label 4 second ago with a default drawable and caption.
             GoosciCaption.Caption caption = new GoosciCaption.Caption();
             caption.text = res.getString(R.string.first_experiment_picture_note_caption);
-            caption.lastEditedTimestamp = clock.getNow() - 1000;
+            caption.lastEditedTimestamp = clock.getNow() - 4000;
             Label pictureLabel = Label.newLabel(caption.lastEditedTimestamp,
                     GoosciLabel.Label.PICTURE);
             File pictureFile = PictureUtils.createImageFile(getActivity(), e.getExperimentId(),
