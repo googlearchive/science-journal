@@ -80,7 +80,7 @@ public class UpdateRunFragment extends Fragment {
                     public void success(Experiment experiment) {
                         mExperiment = experiment;
                         mRunTitle.setText(mExperiment.getTrial(mRunId).getTitle(
-                                getActivity(), mExperiment));
+                                getActivity()));
                         mRunTitle.selectAll();
                     }
                 });

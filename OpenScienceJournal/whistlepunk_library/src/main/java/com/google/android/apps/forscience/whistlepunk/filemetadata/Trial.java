@@ -18,13 +18,11 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.ElapsedTimeAxisFormatter;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
@@ -186,15 +184,14 @@ public class Trial extends LabelListHolder {
                 getOriginalFirstTimestamp();
     }
 
-    public String getTitleWithDuration(Context context, Experiment experiment) {
-        return context.getString(R.string.title_with_duration, getTitle(context, experiment),
+    public String getTitleWithDuration(Context context) {
+        return context.getString(R.string.title_with_duration, getTitle(context),
                 ElapsedTimeFormatter.getInstance(context).format(elapsedSeconds()));
     }
 
-    public String getTitle(Context context, Experiment experiment) {
+    public String getTitle(Context context) {
         if (TextUtils.isEmpty(mTrial.title)) {
-            return context.getString(R.string.default_trial_title,
-                    experiment.getTrialIndex(mTrial.trialId));
+            return context.getString(R.string.default_trial_title, mTrial.trialNumberInExperiment);
         } else {
             return mTrial.title;
         }
@@ -355,5 +352,13 @@ public class Trial extends LabelListHolder {
                "mTrial=" + mTrial +
                ", mTrialStats=" + mTrialStats +
                '}';
+    }
+
+    public void setTrialNumberInExperiment(int trialNumberInExperiment) {
+        mTrial.trialNumberInExperiment = trialNumberInExperiment;
+    }
+
+    public int getTrialNumberInExperiment() {
+        return mTrial.trialNumberInExperiment;
     }
 }

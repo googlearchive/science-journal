@@ -23,6 +23,7 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.common.annotations.VisibleForTesting;
@@ -52,7 +53,7 @@ class ExperimentCache {
     // will allow us to detect files written by buggy versions if needed.
     //
     // Increment this each time the file-writing logic changes.
-    protected static final int PLATFORM_VERSION = 1;
+    protected static final int PLATFORM_VERSION = 2;
 
     // Write the experiment file no more than once per every WRITE_DELAY_MS.
     private static final long WRITE_DELAY_MS = 1000;
@@ -391,6 +392,19 @@ class ExperimentCache {
                 && fileVersion.platformVersion < newPlatformVersion) {
                 // Any further upgrades may do work in logic below
                 setPlatformVersion(proto, 1);
+            }
+
+            if (fileVersion.platformVersion == 1
+                    && fileVersion.platformVersion < newPlatformVersion) {
+                // Update trial indexes for each trial in the experiment
+                // Since this has never been set, we don't know about deleted trials, so we will
+                // just do our best and index over again.
+                proto.totalTrials = proto.trials.length;
+                int count = 0;
+                for (GoosciTrial.Trial trial : proto.trials) {
+                    trial.trialNumberInExperiment = ++count;
+                }
+                setPlatformVersion(proto, 2);
             }
 
             // When we are ready for version 2.0, we would do work in the following if statement

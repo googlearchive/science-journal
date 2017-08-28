@@ -21,6 +21,7 @@ import android.test.InstrumentationTestCase;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.protobuf.nano.MessageNano;
@@ -265,6 +266,28 @@ public class ExperimentCacheTest extends InstrumentationTestCase {
         cache.updateExperiment(experiment); // Set this one to active so we can try to write it.
         cache.writeActiveExperimentFile();
         assertEquals(1, mFailureCount);
+    }
+
+    public void testPlatformVersion1To2() {
+        // From 1.1.1 to 1.1.2, we index the trials within the experiment.
+        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
+                getFailureExpectedListener());
+        GoosciExperiment.Experiment proto = createExperimentProto();
+        proto.fileVersion.platformVersion = 1;
+        proto.fileVersion.version = 1;
+        proto.fileVersion.minorVersion = 1;
+        GoosciUserMetadata.ExperimentOverview overview =
+                new GoosciUserMetadata.ExperimentOverview();
+        GoosciTrial.Trial trial1 = new GoosciTrial.Trial();
+        GoosciTrial.Trial trial2 = new GoosciTrial.Trial();
+        proto.trials = new GoosciTrial.Trial[]{trial1, trial2};
+
+        cache.upgradeExperimentVersionIfNeeded(proto, overview, 1, 1, 2);
+        assertEquals(0, mFailureCount);
+        assertEquals(2, proto.fileVersion.platformVersion);
+        assertEquals(2, proto.totalTrials);
+        assertEquals(1, proto.trials[0].trialNumberInExperiment);
+        assertEquals(2, proto.trials[1].trialNumberInExperiment);
     }
 
     @NonNull

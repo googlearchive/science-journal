@@ -1101,7 +1101,7 @@ public class RunReviewFragment extends Fragment implements
         setArchivedUi(rootView, trial.isArchived());
 
         final TextView runTitle = (TextView) rootView.findViewById(R.id.run_title_text);
-        runTitle.setText(trial.getTitle(rootView.getContext(), mExperiment));
+        runTitle.setText(trial.getTitle(rootView.getContext()));
 
         final RelativeTimeTextView runDetailsText = (RelativeTimeTextView) rootView.findViewById(
                 R.id.run_details_text);
