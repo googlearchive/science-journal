@@ -745,6 +745,11 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         private void setupCaption(DetailsViewHolder holder, String caption) {
+            // This is temporarily removed per b/65063919 but planned to be re-enabled later.
+            holder.captionView.setVisibility(View.GONE);
+            holder.captionIcon.setVisibility(View.GONE);
+
+            /*
             if (!TextUtils.isEmpty(caption)) {
                 holder.captionView.setVisibility(View.VISIBLE);
                 holder.captionTextView.setText(caption);
@@ -752,7 +757,7 @@ public class ExperimentDetailsFragment extends Fragment
             } else {
                 holder.captionView.setVisibility(View.GONE);
                 holder.captionIcon.setVisibility(View.VISIBLE);
-            }
+            }*/
         }
 
         private void setupTrialMenu(ExperimentDetailItem item, PopupMenu popup) {

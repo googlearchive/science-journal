@@ -213,8 +213,13 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public int getItemCount() {
+        // The caption is temporarily removed per b/65063919 so the size is labels + 1.
+        return mTrial.getLabelCount() + 1;
+
+        /*
         // We always show caption and add note button, making the size the labels + 2.
         return mTrial.getLabelCount() + 2;
+        */
     }
 
     @Override
