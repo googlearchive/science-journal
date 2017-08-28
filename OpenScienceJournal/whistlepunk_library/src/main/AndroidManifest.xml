@@ -227,7 +227,7 @@
         </provider>
         <provider
             android:name=".filemetadata.ScienceJournalDocsProvider"
-            android:authorities="com.google.android.apps.forscience.whistlepunk.documents"
+            android:authorities="${applicationId}.documents"
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS"
