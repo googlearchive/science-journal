@@ -199,7 +199,7 @@ public class RunReviewFragment extends Fragment implements
     @Override
     public void onPause() {
         if (!isMultiWindowEnabled()) {
-            pausePlaybackForLifecycleEvent();
+            stopUi();
         }
         super.onPause();
     }
@@ -295,9 +295,21 @@ public class RunReviewFragment extends Fragment implements
     @Override
     public void onStop() {
         if (isMultiWindowEnabled()) {
-            pausePlaybackForLifecycleEvent();
+            stopUi();
         }
         super.onStop();
+    }
+
+    private void stopUi() {
+        pausePlaybackForLifecycleEvent();
+        unregisterBroadcastReceiver();
+    }
+
+    private void unregisterBroadcastReceiver() {
+        if (mBroadcastReceiver != null) {
+            CropHelper.unregisterBroadcastReceiver(getActivity(), mBroadcastReceiver);
+            mBroadcastReceiver = null;
+        }
     }
 
     private boolean isMultiWindowEnabled() {
@@ -434,10 +446,6 @@ public class RunReviewFragment extends Fragment implements
     public void onDestroyView() {
         if (mChartController != null) {
             mChartController.onViewRecycled();
-        }
-        if (mBroadcastReceiver != null) {
-            CropHelper.unregisterBroadcastReceiver(getActivity(), mBroadcastReceiver);
-            mBroadcastReceiver = null;
         }
         super.onDestroyView();
     }
