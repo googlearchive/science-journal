@@ -580,6 +580,12 @@ public class RecorderControllerImpl implements RecorderController {
                 recording == null ? RecordingStatus.INACTIVE : RecordingStatus.active(recording));
     }
 
+    private Completable stopRecordingError(int error) {
+        // Still recording, because stopping has failed. Reset the recording status.
+        mRecordingStatus.onNext(mRecordingStatus.getValue().withState(RecordingState.ACTIVE));
+        return Completable.error(new RecordingStopFailedException(error, null));
+    }
+
     @Override
     public Completable stopRecording(final SensorRegistry sensorRegistry) {
         if (!isRecording()
@@ -598,13 +604,12 @@ public class RecorderControllerImpl implements RecorderController {
         for (String sensorId : mRecorders.keySet()) {
             // If we try to stop recording when a sensor is not connected, recording stop fails.
             if (!mRegistry.isSourceConnectedWithoutError(sensorId)) {
-                return Completable.error(new RecordingStopFailedException(
-                        RecorderController.ERROR_STOP_FAILED_DISCONNECTED, null));
+                return stopRecordingError(RecorderController.ERROR_STOP_FAILED_DISCONNECTED);
+
             }
             // Check to see if it has no data recorded, as this also fails stop recording.
             if (!mRecorders.get(sensorId).hasRecordedData()) {
-                return Completable.error(new RecordingStopFailedException(
-                        RecorderController.ERROR_STOP_FAILED_NO_DATA, null));
+                return stopRecordingError(RecorderController.ERROR_STOP_FAILED_NO_DATA);
             }
         }
         mRecordingStateChangeInProgress = true;
