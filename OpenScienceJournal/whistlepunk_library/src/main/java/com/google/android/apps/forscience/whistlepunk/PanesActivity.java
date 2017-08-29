@@ -41,10 +41,13 @@ import android.widget.ProgressBar;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
+import com.google.common.base.Joiner;
+import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
@@ -64,6 +67,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private int mSelectedTabIndex;
     private PanesBottomSheetBehavior mBottomBehavior;
     private boolean mTabsInitialized;
+    private BehaviorSubject<Integer> mActivityHeight = BehaviorSubject.create();
+    private BehaviorSubject<Integer> mBottomSheetState = BehaviorSubject.create();
 
     public PanesActivity() {
         mSnackbarManager = new SnackbarManager();
@@ -73,16 +78,18 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp) {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
-                return TextToolFragment.newInstance(!SHARED_CONTROL_BAR);
+                return TextToolFragment.newInstance();
             }
 
             @Override
-            public void addControlsToBar(Fragment fragment, FrameLayout controlBar,
-                    ControlBarController controlBarController) {
+            public void connectControls(Fragment fragment, FrameLayout controlBar,
+                    ControlBarController controlBarController,
+                    Observable<Integer> availableHeight) {
                 TextToolFragment ttf = (TextToolFragment) fragment;
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.text_action_bar, controlBar, true);
                 ttf.attachButtons(controlBar);
+                ttf.listenToAvailableHeight(availableHeight);
             }
 
             @Override
@@ -91,17 +98,20 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 return () -> {
                     // when losing focus, close keyboard
                     closeKeyboard(activity);
+                    ttf.onLosingFocus();
                 };
             }
         }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp) {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
-                return RecordFragment.newInstance(experimentId, SHOW_SNAPSHOT, false, !SHARED_CONTROL_BAR);
+                return RecordFragment.newInstance(experimentId, SHOW_SNAPSHOT, false,
+                        !SHARED_CONTROL_BAR);
             }
 
             @Override
-            public void addControlsToBar(Fragment fragment, FrameLayout controlBar,
-                    ControlBarController controlBarController) {
+            public void connectControls(Fragment fragment, FrameLayout controlBar,
+                    ControlBarController controlBarController,
+                    Observable<Integer> availableHeight) {
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.observe_action_bar, controlBar, true);
                 controlBarController.attachRecordButtons(controlBar);
@@ -121,8 +131,9 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void addControlsToBar(Fragment fragment, FrameLayout controlBar,
-                    ControlBarController controlBarController) {
+            public void connectControls(Fragment fragment, FrameLayout controlBar,
+                    ControlBarController controlBarController,
+                    Observable<Integer> availableHeight) {
                 CameraFragment cf = (CameraFragment) fragment;
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.camera_action_bar, controlBar, true);
@@ -136,8 +147,9 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void addControlsToBar(Fragment fragment, FrameLayout controlBar,
-                    ControlBarController controlBarController) {
+            public void connectControls(Fragment fragment, FrameLayout controlBar,
+                    ControlBarController controlBarController,
+                    Observable<Integer> availableHeight) {
                 // TODO: is this duplicated code?
                 GalleryFragment gf = (GalleryFragment) fragment;
                 LayoutInflater.from(controlBar.getContext())
@@ -173,8 +185,9 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             return null;
         }
 
-        public abstract void addControlsToBar(Fragment fragment, FrameLayout controlBar,
-                ControlBarController controlBarController);
+        public abstract void connectControls(Fragment fragment, FrameLayout controlBar,
+                ControlBarController controlBarController,
+                Observable<Integer> availableHeight);
     }
 
     private static void closeKeyboard(Activity activity) {
@@ -213,6 +226,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.panes_layout);
+        RxView.layoutChangeEvents(findViewById(R.id.container)).subscribe(event -> {
+            int bottom = event.bottom();
+            int top = event.top();
+            int height = bottom - top;
+            mActivityHeight.onNext(height);
+        });
 
         mRecordingBar = (ProgressBar) findViewById(R.id.recording_progress_bar);
 
@@ -339,6 +358,18 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             mBottomBehavior = (PanesBottomSheetBehavior)
                     ((CoordinatorLayout.LayoutParams) bottomSheet.getLayoutParams())
                             .getBehavior();
+            mBottomBehavior.setBottomSheetCallback(
+                    new PanesBottomSheetBehavior.BottomSheetCallback() {
+                        @Override
+                        public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                            mBottomSheetState.onNext(newState);
+                        }
+
+                        @Override
+                        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+                        }
+                    });
 
             // TODO: could this be FragmentStatePagerAdapter?  Would the fragment lifecycle methods
             //       get called in time to remove the camera preview views and avoid b/64442501?
@@ -374,13 +405,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     super.setPrimaryItem(container, position, object);
                     if (position != mPreviousPrimary) {
                         ToolTab toolTab = getToolTab(position);
-                        if (SHARED_CONTROL_BAR) {
-                            FrameLayout controlBar =
-                                    (FrameLayout) findViewById(R.id.bottom_control_bar);
-                            controlBar.removeAllViews();
-                            toolTab.addControlsToBar((Fragment) object, controlBar,
-                                    controlBarController);
-                        }
+                        FrameLayout controlBar =
+                                (FrameLayout) findViewById(R.id.bottom_control_bar);
+                        controlBar.removeAllViews();
+                        toolTab.connectControls((Fragment) object, controlBar,
+                                controlBarController, availableTabHeight());
                         mOnLosingFocus = toolTab.onGainedFocus(object, PanesActivity.this);
                         mPreviousPrimary = position;
                     }
@@ -454,6 +483,21 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             // Clear the tabs, which releases all cameras and removes all triggers etc.
             pager.setAdapter(null);
         }
+    }
+
+    private Observable<Integer> availableTabHeight() {
+        return Observable.combineLatest(mActivityHeight, mBottomSheetState,
+                (activityHeight, sheetState) -> {
+                    switch (sheetState) {
+                        case PanesBottomSheetBehavior.STATE_COLLAPSED:
+                            return 0;
+                        case PanesBottomSheetBehavior.STATE_EXPANDED:
+                            return activityHeight;
+                        case PanesBottomSheetBehavior.STATE_MIDDLE:
+                            return activityHeight / 2;
+                    }
+                    return activityHeight;
+                });
     }
 
     private void setCoordinatorBehavior(View view, BottomDependentBehavior behavior) {
@@ -677,7 +721,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             if (mBottomBehavior != null) {
                 // Null if we are in an archived experiment.
                 mBottomBehavior.setPeekHeight(mRecordingBar.getResources()
-                        .getDimensionPixelSize(R.dimen.panes_toolbar_height));
+                                                           .getDimensionPixelSize(
+                                                                   R.dimen.panes_toolbar_height));
             }
         }
     }

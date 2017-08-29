@@ -33,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
+import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 
 /**
@@ -40,10 +41,20 @@ import io.reactivex.subjects.BehaviorSubject;
  */
 public class TextToolFragment extends Fragment {
     private static final String KEY_TEXT = "saved_text";
-    private static final String KEY_NATIVE_CONTROL_BAR = "nativeControlBar";
+
+    // TODO: make a dimension / configurable / calculated?
+    /**
+     * The height at which the control bar is replaced by an inline button
+     * (This is meant to be about the height of the drawer when it's in the middle and
+     *  the keyboard is up)
+     */
+    private static final int COLLAPSE_THRESHHOLD = 200;
+
     private TextView mTextView;
     private TextLabelFragmentListener mListener;
     private BehaviorSubject<CharSequence> mWhenText = BehaviorSubject.create();
+    private RxEvent mFocusLost = new RxEvent();
+    private BehaviorSubject<Boolean> mShowingCollapsed = BehaviorSubject.create();
 
     public interface TextLabelFragmentListener {
         void onTextLabelTaken(Label result);
@@ -53,10 +64,9 @@ public class TextToolFragment extends Fragment {
         TextToolFragment.TextLabelFragmentListener getTextLabelFragmentListener();
     }
 
-    public static Fragment newInstance(boolean nativeControlBar) {
+    public static Fragment newInstance() {
         TextToolFragment fragment = new TextToolFragment();
         Bundle args = new Bundle();
-        args.putBoolean(KEY_NATIVE_CONTROL_BAR, nativeControlBar);
         fragment.setArguments(args);
         return fragment;
     }
@@ -68,14 +78,6 @@ public class TextToolFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.text_label_fragment, null);
 
         mTextView = (TextView) rootView.findViewById(R.id.text);
-        View bar = rootView.findViewById(R.id.text_action_bar);
-
-        if (shouldUseNativeControlBar()) {
-            bar.setVisibility(View.VISIBLE);
-            attachButtons(bar);
-        } else {
-            bar.setVisibility(View.GONE);
-        }
 
         RxTextView.afterTextChangeEvents(mTextView)
                   .subscribe(event -> mWhenText.onNext(event.view().getText()));
@@ -84,11 +86,28 @@ public class TextToolFragment extends Fragment {
             mTextView.setText(savedInstanceState.getString(KEY_TEXT));
         }
 
+        ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add_inline);
+        setupAddButton(addButton);
+
+        mShowingCollapsed.subscribe(isCollapsed -> {
+            addButton.setVisibility(isCollapsed ? View.VISIBLE : View.GONE);
+        });
+
         return rootView;
     }
 
-    public void attachButtons(View rootView) {
-        ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add);
+    public void attachButtons(View controlBar) {
+        ImageButton addButton = (ImageButton) controlBar.findViewById(R.id.btn_add);
+        setupAddButton(addButton);
+
+        mShowingCollapsed.subscribe(isCollapsed -> {
+            controlBar.setVisibility(isCollapsed ? View.GONE : View.VISIBLE);
+        });
+
+        mFocusLost.happens().subscribe(o -> controlBar.setVisibility(View.VISIBLE));
+    }
+
+    public void setupAddButton(ImageButton addButton) {
         addButton.setOnClickListener(view -> {
             final long timestamp = getTimestamp(addButton.getContext());
             GoosciTextLabelValue.TextLabelValue labelValue =
@@ -151,7 +170,13 @@ public class TextToolFragment extends Fragment {
         return mListener;
     }
 
-    private boolean shouldUseNativeControlBar() {
-        return getArguments().getBoolean(KEY_NATIVE_CONTROL_BAR, true);
+    public void listenToAvailableHeight(Observable<Integer> height) {
+        height.takeUntil(mFocusLost.happens()).subscribe(h -> {
+            mShowingCollapsed.onNext(h < COLLAPSE_THRESHHOLD);
+        });
+    }
+
+    public void onLosingFocus() {
+        mFocusLost.onHappened();
     }
 }

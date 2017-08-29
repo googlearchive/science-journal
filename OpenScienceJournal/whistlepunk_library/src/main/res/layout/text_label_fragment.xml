@@ -14,25 +14,32 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="horizontal"
     >
 
     <EditText
-        android:layout_width="match_parent"
+        android:id="@+id/text"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="match_parent"
+        android:layout_above="@+id/control"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/white"
+        android:gravity="top"
         android:hint="@string/text_label_hint"
         android:padding="16dp"
-        android:id="@+id/text"
-        android:layout_alignParentTop="true"
-        android:gravity="top"
-        android:layout_above="@+id/control"
-        android:background="@android:color/white"
         />
 
-    <!-- Later this section can move into a control bar fragment -->
-    <include
-        android:id="@+id/text_action_bar"
-        layout="@layout/text_action_bar"/>
-</RelativeLayout>
+    <ImageButton
+        android:layout_width="@dimen/accessibility_touch_target_min_size"
+        android:layout_height="@dimen/accessibility_touch_target_min_size"
+        android:src="@drawable/btn_add_note_inline"
+        android:contentDescription="@string/add_experiment_note"
+        android:id="@+id/btn_add_inline"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:visibility="gone"
+        />
+</LinearLayout>
