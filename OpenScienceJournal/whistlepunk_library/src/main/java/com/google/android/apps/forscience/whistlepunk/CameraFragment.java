@@ -37,19 +37,22 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.UUID;
 
-import io.reactivex.CompletableObserver;
 import io.reactivex.Observable;
-import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.Observer;
+import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.SingleSubject;
 
 import static android.content.ContentValues.TAG;
 
 public class CameraFragment extends Fragment {
-    private SingleSubject<ViewGroup> mPreviewContainer = SingleSubject.create();
-    private CompletableSubject mPermissionGranted = CompletableSubject.create();
+    private static final String KEY_PERMISSION_GRANTED = "key_permission_granted";
+
+    private final SingleSubject<ViewGroup> mPreviewContainer = SingleSubject.create();
+    private BehaviorSubject<Boolean> mPermissionGranted = BehaviorSubject.create();
     private RxEvent mFocusLost = new RxEvent();
     private PublishSubject<Object> mWhenUserTakesPhoto = PublishSubject.create();
+    private boolean mFocused = false;
 
     public static abstract class CameraFragmentListener {
         static CameraFragmentListener NULL = new CameraFragmentListener() {
@@ -79,16 +82,12 @@ public class CameraFragment extends Fragment {
     public static CameraFragment newInstance(RxPermissions permissions) {
         CameraFragment fragment = new CameraFragment();
         permissions.request(Manifest.permission.CAMERA).subscribe(granted -> {
-            if (granted) {
-                fragment.onPermissionGranted().onComplete();
-            } else {
-                fragment.onPermissionGranted().onError(new RuntimeException("Not granted"));
-            }
+            fragment.onPermissionGranted().onNext(granted);
         });
         return fragment;
     }
 
-    CompletableObserver onPermissionGranted() {
+    Observer<Boolean> onPermissionGranted() {
         return mPermissionGranted;
     }
 
@@ -147,21 +146,49 @@ public class CameraFragment extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        mFocusLost.onHappened();
-        super.onStop();
+    public void onPause() {
+        onLosingFocus();
+        super.onPause();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        onGainedFocus();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mPermissionGranted.hasValue()) {
+            outState.putBoolean(KEY_PERMISSION_GRANTED, mPermissionGranted.getValue());
+        }
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_PERMISSION_GRANTED)) {
+            mPermissionGranted.onNext(savedInstanceState.getBoolean(KEY_PERMISSION_GRANTED));
+        }
+    }
 
     public void onGainedFocus() {
+        if (mFocused) {
+            return;
+        }
+
+        mFocused = true;
         mPreviewContainer.subscribe(container -> {
             LayoutInflater inflater = LayoutInflater.from(container.getContext());
             View view = inflater.inflate(R.layout.camera_tool_preview, container, false);
             CameraPreview preview = (CameraPreview) view;
             container.addView(preview);
 
-            mPermissionGranted.subscribe(() -> {
-                preview.setCamera(Camera.open(0));
+            mPermissionGranted.firstElement().subscribe(granted -> {
+                if (granted) {
+                    preview.setCamera(openCamera());
+                }
             }, LoggingConsumer.complain(TAG, "camera permission"));
 
             preview.setOnClickListener(v -> mWhenUserTakesPhoto.onNext(v));
@@ -190,7 +217,15 @@ public class CameraFragment extends Fragment {
         });
     }
 
+    public Camera openCamera() {
+        return Camera.open(0);
+    }
+
     public void onLosingFocus() {
+        if (!mFocused) {
+            return;
+        }
+        mFocused = false;
         mFocusLost.onHappened();
     }
 }
