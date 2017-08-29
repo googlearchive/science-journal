@@ -270,16 +270,22 @@ public class CameraPreview extends SurfaceView {
     private void takePicture(String experimentId, String uuid, MaybeConsumer<String> onSuccess) {
         final File photoFile = PictureUtils.createImageFile(getContext(), experimentId, uuid);
 
-        mCamera.takePicture(null, null, null, (data, camera) -> {
-            try (FileOutputStream out = new FileOutputStream(photoFile)) {
-                out.write(data);
-                // Pass back the relative path for saving in the label.
-                onSuccess.success(FileMetadataManager.getRelativePathInExperiment(experimentId,
-                        photoFile));
-                startPreview();
-            } catch (IOException e) {
-                onSuccess.fail(e);
-            }
-        });
+        try {
+            mCamera.takePicture(null, null, null, (data, camera) -> {
+                try (FileOutputStream out = new FileOutputStream(photoFile)) {
+                    out.write(data);
+                    // Pass back the relative path for saving in the label.
+                    onSuccess.success(FileMetadataManager.getRelativePathInExperiment(experimentId,
+                            photoFile));
+                    startPreview();
+                } catch (IOException e) {
+                    onSuccess.fail(e);
+                }
+            });
+        } catch (RuntimeException e) {
+            // TODO: why is this so common?  Do we need to disable the picture button for a while
+            //       after taking a picture?
+            onSuccess.fail(e);
+        }
     }
 }
