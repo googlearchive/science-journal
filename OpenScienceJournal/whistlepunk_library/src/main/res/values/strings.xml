@@ -1364,6 +1364,9 @@ Permissions notice:
     <!-- Title for a chooser to open a photo editing app [CHAR_LIMIT=50] -->
     <string name="photo_editor_dialog_title">Edit photo with...</string>
 
+    <!-- Title for the Primes debug screen preference [CHAR_LIMIT=50] -->
+    <string name="perf_tracker_debug_pref_title" translatable="false">Show Perf Tracker Debug Screen</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
