@@ -306,7 +306,7 @@ public class ExpandableDeviceAdapterTest {
 
         // Make sure the built-in sensor is added to the experiment
         ExperimentSensors sensors =
-                mMetadataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                mMetadataManager.getExperimentSensors(experiment.getExperimentId(),
                         Maps.<String, SensorProvider>newHashMap(), mConnector);
         List<ConnectableSensor> included = sensors.getIncludedSensors();
         assertEquals(1, included.size());

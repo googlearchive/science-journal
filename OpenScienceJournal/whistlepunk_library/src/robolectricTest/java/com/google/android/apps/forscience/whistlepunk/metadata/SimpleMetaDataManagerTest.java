@@ -16,14 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -46,7 +38,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataM
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.common.collect.Lists;
-import com.google.protobuf.nano.MessageNano;
 
 import org.junit.After;
 import org.junit.Before;
@@ -63,6 +54,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.reactivex.Observable;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for {@link SimpleMetaDataManager}
@@ -240,10 +241,6 @@ public class SimpleMetaDataManagerTest {
         assertEquals(Lists.newArrayList("startId3", "startId2", "startId1"), experimentRunIds2);
     }
 
-    private void assertEqualLabels(Label expected, Label actual) {
-        assertTrue(MessageNano.messageNanoEquals(expected.getLabelProto(), actual.getLabelProto()));
-    }
-
     @Test
     public void testAddRemoveExternalSensor() {
         Map<String, SensorProvider> providerMap = getProviderMap();
@@ -359,7 +356,7 @@ public class SimpleMetaDataManagerTest {
 
         ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providerMap);
         Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
-                mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                mMetaDataManager.getExperimentSensors(experiment.getExperimentId(),
                         providerMap, connector));
         assertEquals(1, sensors.size());
         assertEquals(databaseTag, sensors.keySet().iterator().next());
@@ -367,7 +364,7 @@ public class SimpleMetaDataManagerTest {
         mMetaDataManager.removeSensorFromExperiment(databaseTag, experiment.getExperimentId());
 
         sensors = ConnectableSensor.makeMap(
-                mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                mMetaDataManager.getExperimentSensors(experiment.getExperimentId(),
                         providerMap, connector));
         assertEquals(0, sensors.size());
     }
@@ -386,7 +383,7 @@ public class SimpleMetaDataManagerTest {
         mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
         Map<String, ExternalSensorSpec> sensors = ConnectableSensor.makeMap(
-                mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                mMetaDataManager.getExperimentSensors(experiment.getExperimentId(),
                         providerMap, connector));
         assertEquals(1, sensors.size());
         assertEquals(databaseTag, sensors.keySet().iterator().next());
@@ -395,7 +392,7 @@ public class SimpleMetaDataManagerTest {
 
         // This should be gone now.
         sensors = ConnectableSensor.makeMap(
-                mMetaDataManager.getExperimentExternalSensors(experiment.getExperimentId(),
+                mMetaDataManager.getExperimentSensors(experiment.getExperimentId(),
                         providerMap, connector));
         assertEquals(0, sensors.size());
     }
@@ -497,7 +494,7 @@ public class SimpleMetaDataManagerTest {
         mMetaDataManager.addSensorToExperiment(id1, "experimentId");
         mMetaDataManager.addSensorToExperiment(id2, "experimentId");
         mMetaDataManager.addSensorToExperiment(id3, "experimentId");
-        List<ConnectableSensor> sensors = mMetaDataManager.getExperimentExternalSensors(
+        List<ConnectableSensor> sensors = mMetaDataManager.getExperimentSensors(
                 "experimentId", providerMap, connector).getIncludedSensors();
         assertEquals(id1, sensors.get(0).getConnectedSensorId());
         assertEquals(id2, sensors.get(1).getConnectedSensorId());
@@ -512,7 +509,7 @@ public class SimpleMetaDataManagerTest {
                 providerMap);
         mMetaDataManager.addSensorToExperiment(id1, "experimentId");
         mMetaDataManager.addSensorToExperiment(id1, "experimentId");
-        List<ConnectableSensor> sensors = mMetaDataManager.getExperimentExternalSensors(
+        List<ConnectableSensor> sensors = mMetaDataManager.getExperimentSensors(
                 "experimentId", providerMap, connector).getIncludedSensors();
         assertEquals(1, sensors.size());
     }
@@ -618,6 +615,20 @@ public class SimpleMetaDataManagerTest {
         List<GoosciDeviceSpec.DeviceSpec> myDevices = mMetaDataManager.fileGetMyDevices();
         assertEquals(1, myDevices.size());
         assertEquals("name", myDevices.get(0).name);
+    }
+
+    @Test
+    public void testGetInternalSensors() {
+        mMetaDataManager.addSensorToExperiment("internalTag", "experimentId");
+        HashMap<String, SensorProvider> providerMap = new HashMap<>();
+        ExperimentSensors sensors =
+                mMetaDataManager.getExperimentSensors("experimentId", providerMap,
+                        new ConnectableSensor.Connector(providerMap));
+        List<ConnectableSensor> included = sensors.getIncludedSensors();
+        Observable.fromIterable(included)
+                  .test()
+                  .assertValue(
+                          cs -> cs.isBuiltIn() && cs.getConnectedSensorId().equals("internalTag"));
     }
 
     private List<String> getIds(List<GoosciSensorLayout.SensorLayout> layouts) {

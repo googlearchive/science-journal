@@ -31,11 +31,11 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
-import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
+import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
@@ -1508,9 +1508,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     @Override
-    public ExperimentSensors getExperimentExternalSensors(String experimentId,
-            Map<String, SensorProvider> providerMap,
-            ConnectableSensor.Connector connector) {
+    public ExperimentSensors getExperimentSensors(String experimentId,
+            Map<String, SensorProvider> providerMap, ConnectableSensor.Connector connector) {
         List<ConnectableSensor> includedSensors = new ArrayList<>();
         Set<String> excludedTags = new ArraySet<>();
 
@@ -1547,9 +1546,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
             // This is somewhat inefficient to do nested queries, but in most cases there will
             // only be one or two, so we are trading off code complexity of doing a db join.
             for (String tag : tags) {
+                ExternalSensorSpec sensor = getExternalSensorById(tag, providerMap);
                 includedSensors.add(
-                        connector.connected(getExternalSensorById(tag, providerMap).asGoosciSpec(),
-                                tag));
+                        connector.connected(ExternalSensorSpec.toGoosciSpec(sensor), tag));
             }
         }
 

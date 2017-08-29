@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -39,7 +37,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -461,7 +458,7 @@ public class RecordFragment extends Fragment implements Handler.Callback,
             return;
         }
         final List<GoosciSensorLayout.SensorLayout> layouts = saveCurrentExperiment();
-        Preconditions.checkNotNull(saveCurrentExperiment());
+        Preconditions.checkNotNull(layouts);
 
         // Freeze layouts to be saved if recording finishes
         getRecorderController().setLayoutSupplier(Suppliers.ofInstance(layouts));
@@ -583,6 +580,7 @@ public class RecordFragment extends Fragment implements Handler.Callback,
             return null;
         }
         final List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
+
         if (layouts != null) {
             mSelectedExperiment.setSensorLayouts(layouts);
             getDataController().updateExperiment(mSelectedExperiment.getExperimentId(),
