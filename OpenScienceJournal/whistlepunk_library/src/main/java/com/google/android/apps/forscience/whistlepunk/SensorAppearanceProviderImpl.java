@@ -129,12 +129,12 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 AccelerometerSensor.Axis.Z.getSensorId()));
 
         putAppearance(LinearAccelerometerSensor.ID, BuiltInSensorAppearance.create(
-                R.string.linear_accelerometer, R.drawable.ic_check_white_24dp, // TODO: Icons
+                R.string.linear_accelerometer, R.drawable.ic_sensor_linacc_white_24dp,
                 R.string.acc_units, R.string.sensor_desc_short_linear_acc,
                 R.string.sensor_desc_first_paragraph_linear_acc,
                 R.string.sensor_desc_second_paragraph_linear_acc, R.drawable.learnmore_acc,
-                new SensorAnimationBehavior(R.drawable.accz_level_drawable, // TODO: Drawable
-                        SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE),
+                new SensorAnimationBehavior(R.drawable.linacc_level_drawable,
+                        SensorAnimationBehavior.TYPE_POSITIVE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL,
                 LinearAccelerometerSensor.ID));
 
@@ -147,19 +147,19 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL, AmbientLightSensor.ID));
 
         putAppearance(MagneticStrengthSensor.ID, BuiltInSensorAppearance.create(
-                R.string.magnetic_field_strength, R.drawable.ic_sensors_white_24dp, // TODO: icons
+                R.string.magnetic_field_strength, R.drawable.ic_sensor_magnet_white_24dp,
                 R.string.magnetic_strength_units, R.string.sensor_desc_short_magnetic_strength,
                 R.string.sensor_desc_first_paragraph_magnetic_strength,
                 R.string.sensor_desc_second_paragraph_magnetic_strength,
-                R.drawable.learnmore_magnetometer,
-                new SensorAnimationBehavior(R.drawable.bluetooth_level_drawable, // TODO: drawables
-                        SensorAnimationBehavior.TYPE_RELATIVE_SCALE),
+                R.drawable.learnmore_magnet,
+                new SensorAnimationBehavior(R.drawable.magnetometer_level_drawable,
+                        SensorAnimationBehavior.TYPE_POSITIVE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL, MagneticStrengthSensor.ID));
 
         putAppearance(CompassSensor.ID, BuiltInSensorAppearance.create(R.string.compass,
                 R.drawable.ic_sensor_compass_white_24dp, R.string.compass_units,
                 R.string.sensor_desc_short_compass, R.string.sensor_desc_first_paragraph_compass,
-                R.string.sensor_desc_second_paragraph_compass, R.drawable.learnmore_magnetometer,
+                R.string.sensor_desc_second_paragraph_compass, R.drawable.learnmore_compass,
                 new SensorAnimationBehavior(R.drawable.compass_level_drawable,
                         SensorAnimationBehavior.TYPE_ROTATION),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL, CompassSensor.ID));

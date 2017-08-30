@@ -48,11 +48,10 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:id="@+id/info_image"
-        android:scaleType="center"
+        android:scaleType="fitCenter"
         android:contentDescription="@null"
-        android:layout_gravity="center"
         android:layout_marginTop="@dimen/info_paragraph_margin_top"
         />
 
