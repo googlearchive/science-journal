@@ -269,12 +269,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     .subscribe(event -> onLabelAdded(event.getTrialId()));
 
         View bottomControlBar = findViewById(R.id.bottom_control_bar);
-        if (SHARED_CONTROL_BAR) {
-            bottomControlBar.setVisibility(View.VISIBLE);
-        } else {
-            bottomControlBar.setVisibility(View.GONE);
-        }
-
         setCoordinatorBehavior(bottomControlBar, new BottomDependentBehavior() {
             @Override
             public boolean onDependentViewChanged(CoordinatorLayout parent, View child,
@@ -321,17 +315,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         SHOW_SNAPSHOT, mSnackbarManager);
 
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
-        View controlBarSpacer = findViewById(R.id.control_bar_spacer);
-
-        if (SHARED_CONTROL_BAR) {
-            controlBarSpacer.setVisibility(View.VISIBLE);
-        } else {
-            controlBarSpacer.setVisibility(View.GONE);
-        }
-
         View bottomSheet = findViewById(R.id.bottom);
         TabLayout toolPicker = (TabLayout) findViewById(R.id.tool_picker);
         View experimentPane = findViewById(R.id.experiment_pane);
+        View controlBarSpacer = findViewById(R.id.control_bar_spacer);
+        FrameLayout controlBar = (FrameLayout) findViewById(R.id.bottom_control_bar);
 
         if (!experiment.isArchived()) {
             setCoordinatorBehavior(experimentPane, new BottomDependentBehavior() {
@@ -353,6 +341,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 }
             });
 
+            controlBarSpacer.setVisibility(View.VISIBLE);
+            controlBar.setVisibility(View.VISIBLE);
             bottomSheet.setVisibility(View.VISIBLE);
             findViewById(R.id.shadow).setVisibility(View.VISIBLE);
             mBottomBehavior = (PanesBottomSheetBehavior)
@@ -475,6 +465,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
             mTabsInitialized = true;
         } else {
+            controlBar.setVisibility(View.GONE);
+            controlBarSpacer.setVisibility(View.GONE);
             bottomSheet.setVisibility(View.GONE);
             findViewById(R.id.shadow).setVisibility(View.GONE);
             experimentPane.setLayoutParams(new CoordinatorLayout.LayoutParams(
@@ -488,6 +480,10 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private Observable<Integer> availableTabHeight() {
         return Observable.combineLatest(mActivityHeight, mBottomSheetState,
                 (activityHeight, sheetState) -> {
+                    if (mActiveExperiment.getValue().isArchived()) {
+                        // No matter the state, the control bar is hidden when archived.
+                        return 0;
+                    }
                     switch (sheetState) {
                         case PanesBottomSheetBehavior.STATE_COLLAPSED:
                             return 0;
