@@ -151,6 +151,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
         }
     }
 
+    @VisibleForTesting
+    void migrateExperimentsToFiles() {
+        synchronized (mLock) {
+            final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            migrateExperimentsToFiles(db);
+        }
+    }
+
     private void migrateExperimentsToFiles(SQLiteDatabase db) {
         // For each experiment, migrate it over and delete it from the database.
         List<String> experimentIds = getAllExperimentIds(db);
@@ -176,7 +184,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 experiment.addLabel(descriptionLabel);
             }
             // Migrate assets
-            for (Label label : experiment.getLabels()) {
+            for (int i = 0; i < experiment.getLabelCount(); i++) {
+                Label label = experiment.getLabels().get(i);
                 updateLabelPictureAssets(experiment, label);
             }
             for (Trial trial : experiment.getTrials()) {
@@ -218,7 +227,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
      */
     private void updateLabelPictureAssets(Experiment experiment, Label label) {
         if (migratePictureAssetsIfNeeded(experiment.getExperimentId(), label)) {
-            experiment.updateLabel(label);
+            experiment.updateLabelWithoutSorting(label);
             if (TextUtils.isEmpty(experiment.getExperimentOverview().imagePath)) {
                 String path = label.getPictureLabelValue().filePath;
                 if (!TextUtils.isEmpty(path)) {
@@ -1021,7 +1030,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         return null;
     }
 
-    private void addDatabaseLabel(String experimentId, String trialId, Label label,
+    @VisibleForTesting
+    void addDatabaseLabel(String experimentId, String trialId, Label label,
             LabelValue labelValue) {
         synchronized (mLock) {
             final SQLiteDatabase db = mDbHelper.getWritableDatabase();
