@@ -202,6 +202,9 @@ public class GalleryFragment extends Fragment implements
                 if (parentFragment instanceof CameraFragment.ListenerProvider) {
                     mListener = ((CameraFragment.ListenerProvider) parentFragment)
                             .getCameraFragmentListener();
+                } else if (parentFragment == null) {
+                    mListener = ((CameraFragment.ListenerProvider) getActivity())
+                            .getCameraFragmentListener();
                 }
             }
         }
