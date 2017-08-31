@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 
 /**
@@ -86,13 +87,10 @@ public class SensorInfoActivity extends AppCompatActivity {
             appearance.loadLearnMore(this).subscribe(contents -> {
                 firstParagraph.setText(contents.getFirstParagraph());
                 secondParagraph.setText(contents.getSecondParagraph());
-                Drawable drawable = contents.getDrawable();
-                if (drawable != null) {
-                    ViewGroup.LayoutParams params = imageView.getLayoutParams();
-                    params.width = drawable.getIntrinsicWidth();
-                    params.height = drawable.getIntrinsicHeight();
-                    imageView.setLayoutParams(params);
-                    imageView.setImageDrawable(drawable);
+                int drawable = contents.getDrawableResourceId();
+                if (drawable != 0) {
+                    imageView.setVisibility(View.VISIBLE);
+                    Glide.with(this).load(contents.getDrawableResourceId()).fitCenter().into(imageView);
                 } else {
                     imageView.setVisibility(View.GONE);
                 }
