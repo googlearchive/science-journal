@@ -55,7 +55,6 @@
             android:layout_height="180dp"
             android:padding="0dp"
             android:src="@drawable/add_experiment_image"
-            android:tint="@color/text_color_light_grey"
             android:contentDescription="@string/experiment_cover_description"
             android:background="#D8D8D8"
             android:scaleType="center"
