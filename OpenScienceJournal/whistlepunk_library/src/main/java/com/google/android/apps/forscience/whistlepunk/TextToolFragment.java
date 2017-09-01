@@ -42,19 +42,18 @@ import io.reactivex.subjects.BehaviorSubject;
 public class TextToolFragment extends Fragment {
     private static final String KEY_TEXT = "saved_text";
 
-    // TODO: make a dimension / configurable / calculated?
     /**
-     * The height at which the control bar is replaced by an inline button
-     * (This is meant to be about the height of the drawer when it's in the middle and
-     *  the keyboard is up)
+     * The height at which the control bar is replaced by an inline button, in (approximate)
+     * lines of text (this includes toolbar and control bar)
      */
-    private static final int COLLAPSE_THRESHHOLD = 200;
+    private static final int COLLAPSE_THRESHHOLD_LINES_OF_TEXT = 10;
 
     private TextView mTextView;
     private TextLabelFragmentListener mListener;
     private BehaviorSubject<CharSequence> mWhenText = BehaviorSubject.create();
     private RxEvent mFocusLost = new RxEvent();
     private BehaviorSubject<Boolean> mShowingCollapsed = BehaviorSubject.create();
+    private BehaviorSubject<Integer> mTextSize = BehaviorSubject.create();
 
     public interface TextLabelFragmentListener {
         void onTextLabelTaken(Label result);
@@ -78,6 +77,7 @@ public class TextToolFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.text_label_fragment, null);
 
         mTextView = (TextView) rootView.findViewById(R.id.text);
+        mTextSize.onNext((int)mTextView.getTextSize());
 
         RxTextView.afterTextChangeEvents(mTextView)
                   .subscribe(event -> mWhenText.onNext(event.view().getText()));
@@ -171,9 +171,13 @@ public class TextToolFragment extends Fragment {
     }
 
     public void listenToAvailableHeight(Observable<Integer> height) {
-        height.takeUntil(mFocusLost.happens()).subscribe(h -> {
-            mShowingCollapsed.onNext(h < COLLAPSE_THRESHHOLD);
-        });
+        Observable.combineLatest(height, mTextSize, (h, s) -> h < collapseThreshold(s))
+                  .takeUntil(mFocusLost.happens())
+                  .subscribe(collapsed -> mShowingCollapsed.onNext(collapsed));
+    }
+
+    public int collapseThreshold(Integer textSize) {
+        return textSize * COLLAPSE_THRESHHOLD_LINES_OF_TEXT;
     }
 
     public void onLosingFocus() {
