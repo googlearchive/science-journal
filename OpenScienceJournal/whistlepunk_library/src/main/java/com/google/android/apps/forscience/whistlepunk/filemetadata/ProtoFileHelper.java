@@ -18,10 +18,12 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.util.Log;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.nano.MessageNano;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -53,14 +55,53 @@ public class ProtoFileHelper<T extends MessageNano> {
     }
 
     public boolean writeToFile(File file, T protoToWrite) {
-        try (FileOutputStream outputStream = new FileOutputStream(file)) {
-            outputStream.write(MessageNano.toByteArray(protoToWrite));
-            return true;
+        return writeToFile(file, protoToWrite, /* don't throw an error for testing */ false);
+    }
+
+    @VisibleForTesting
+    boolean writeToFile(File file, T protoToWrite, boolean failWritingForTest) {
+        // Do this outside the file-writing blocks. If it fails it throws a RuntimeException
+        // which we don't want to have happen during reading or writing.
+        byte[] protoBytes = MessageNano.toByteArray(protoToWrite);
+
+        // Save what's in the file in case the write fails. This is a safety net because
+        // the FileOutputStream clears the file and we need a way to put the data back
+        // to how it was.
+        byte[] bytes = new byte[(int) file.length()];
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            inputStream.read(bytes);
         } catch (IOException ex) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, Log.getStackTraceString(ex));
             }
             return false;
+        }
+
+        // Now try to write.
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+            if (failWritingForTest) {
+                throw new IOException("Failing for the test");
+            } else {
+                outputStream.write(protoBytes);
+                return true;
+            }
+        } catch (IOException ex) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, Log.getStackTraceString(ex));
+            }
+            replaceContents(file, bytes);
+            return false;
+        }
+    }
+
+    private void replaceContents(File file, byte[] bytes) {
+        // If write failed, might be the proto's fault, try to write back what we had before.
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+            outputStream.write(bytes);
+        } catch (IOException ex) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, Log.getStackTraceString(ex));
+            }
         }
     }
 }

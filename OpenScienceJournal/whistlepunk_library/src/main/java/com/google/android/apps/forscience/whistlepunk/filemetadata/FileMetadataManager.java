@@ -143,6 +143,7 @@ public class FileMetadataManager {
 
     public void saveImmediately() {
         mActiveExperimentCache.saveImmediately();
+        mUserMetadataManager.saveImmediately();
     }
 
     public void deleteExperiment(Experiment experiment) {
@@ -197,7 +198,7 @@ public class FileMetadataManager {
     }
 
     public void close() {
-        mActiveExperimentCache.saveImmediately();
+        saveImmediately();
     }
 
     @VisibleForTesting
