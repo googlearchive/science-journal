@@ -23,11 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -46,7 +44,6 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
@@ -93,8 +90,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import io.reactivex.Single;
 
 /**
  * A fragment to handle displaying Experiment details, runs and labels.
@@ -163,7 +158,7 @@ public class ExperimentDetailsFragment extends Fragment
             mExperimentId = experimentId;
             if (isResumed()) {
                 // If not resumed, wait to load until next resume!
-                loadExperiment();
+                loadExperimentIfInitialized();
             }
         }
     }
@@ -178,7 +173,7 @@ public class ExperimentDetailsFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
-        loadExperiment();
+        loadExperimentIfInitialized();
         // Create a BroadcastReceiver for when the stats get updated.
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -191,7 +186,12 @@ public class ExperimentDetailsFragment extends Fragment
                 mBroadcastReceiver);
     }
 
-    public void loadExperiment() {
+    public void loadExperimentIfInitialized() {
+        if (mExperimentId == null) {
+            // We haven't initialized yet. Just wait for this to get called later during
+            // initialization.
+            return;
+        }
         getDataController().getExperimentById(mExperimentId,
                 new LoggingConsumer<Experiment>(TAG, "retrieve experiment") {
                     @Override
@@ -288,7 +288,7 @@ public class ExperimentDetailsFragment extends Fragment
         setHomeButtonState(true);
 
         // TODO: there has to be a cheaper way to make the feed scroll to the bottom
-        loadExperiment();
+        loadExperimentIfInitialized();
     }
 
     public void onRecordingTrialUpdated(String trialId) {

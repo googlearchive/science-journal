@@ -41,7 +41,6 @@ import android.widget.ProgressBar;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
-import com.google.common.base.Joiner;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
@@ -686,7 +685,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private void reloadExperiment() {
-        mExperimentFragment.loadExperiment();
+        mExperimentFragment.loadExperimentIfInitialized();
     }
 
     private DataController getDataController() {
