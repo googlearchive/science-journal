@@ -1344,7 +1344,7 @@ Permissions notice:
     <string name="first_experiment_picture_note_caption">Welcome to Science Journal!</string>
 
     <!-- Text note contents for the second text note in the first experiment [CHAR_LIMIT=NONE] -->
-    <string name="first_experiment_second_text_note">Find activities to try at g.co/sciencejournalactivities</string>
+    <string name="first_experiment_second_text_note">Find activities to try at \ng.co/sciencejournalactivities</string>
 
     <!-- Content description for placeholder image for choosing a photo for an experiment [CHAR_LIMIT=NONE] -->
     <string name="experiment_cover_description">Choose an experiment photo</string>
