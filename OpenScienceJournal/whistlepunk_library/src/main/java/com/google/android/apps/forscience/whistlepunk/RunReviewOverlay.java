@@ -50,6 +50,10 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
 
     private static final String TAG = "RunReviewOverlay";
 
+    // To avoid getting into an infinite loop, only try to refresh if the chart viewtreeobserver is
+    // not alive so many times.
+    private static final int MAX_REFRESH_ATTEMPTS = 5;
+
     public interface OnTimestampChangeListener {
         void onTimestampChanged(long timestamp);
     }
@@ -817,6 +821,10 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
     }
 
     public void refreshAfterChartLoad(final boolean backUpdateProgressBar) {
+        refreshAfterChartLoad(backUpdateProgressBar, 0);
+    }
+
+    public void refreshAfterChartLoad(final boolean backUpdateProgressBar, final int numAttempts) {
         if (!mChartController.hasDrawnChart()) {
             // Refresh the Run Review Overlay after the line graph presenter's chart
             // has finished drawing itself.
@@ -831,6 +839,13 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
                     RunReviewOverlay.this.post(new Runnable() {
                         @Override
                         public void run() {
+                            if (!observer.isAlive()) {
+                                if (numAttempts < MAX_REFRESH_ATTEMPTS) {
+                                    // Just try again, maybe it will come alive.
+                                    refreshAfterChartLoad(backUpdateProgressBar, numAttempts + 1);
+                                }
+                                return;
+                            }
                             // The ViewTreeObserver calls its listeners without an iterator,
                             // so we need to remove the listener outside the flow or we risk
                             // an index-out-of-bounds crash in the case of multiple listeners.
