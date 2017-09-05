@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.Clock;
+import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -36,6 +37,8 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDis
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.common.collect.Lists;
 
@@ -629,6 +632,26 @@ public class SimpleMetaDataManagerTest {
                   .test()
                   .assertValue(
                           cs -> cs.isBuiltIn() && cs.getConnectedSensorId().equals("internalTag"));
+    }
+
+    @Test
+    public void testMigrateExperimentsToFiles() {
+        Experiment experiment = mMetaDataManager.newDatabaseExperiment();
+        for (int i = 0; i < 50; i++) {
+            GoosciPictureLabelValue.PictureLabelValue labelValue = new GoosciPictureLabelValue
+                    .PictureLabelValue();
+            labelValue.filePath = "fake/path";
+            Label label = Label.newLabelWithValue(i * 1000, GoosciLabelValue.LabelValue.PICTURE,
+                    labelValue, null);
+            LabelValue deprecatedValue = PictureLabelValue.fromPicture(labelValue.filePath, "");
+            // In the database, labels are stored separately. Add them directly here so that we
+            // don't need to re-create methods to update them from the SimpleMetadataManager.
+            mMetaDataManager.addDatabaseLabel(experiment.getExperimentId(),
+                    RecorderController.NOT_RECORDING_RUN_ID, label, deprecatedValue);
+        }
+        mMetaDataManager.migrateExperimentsToFiles();
+        assertEquals(50,
+                mMetaDataManager.getExperimentById(experiment.getExperimentId()).getLabelCount());
     }
 
     private List<String> getIds(List<GoosciSensorLayout.SensorLayout> layouts) {
