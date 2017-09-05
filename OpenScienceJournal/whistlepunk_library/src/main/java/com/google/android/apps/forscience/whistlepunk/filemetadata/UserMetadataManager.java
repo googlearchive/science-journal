@@ -17,12 +17,10 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.content.Context;
+import android.os.Handler;
 import android.text.TextUtils;
 
-import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
-import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -48,6 +46,13 @@ public class UserMetadataManager {
     // The current minor version number we expect from UserMetadata.
     // See upgradeUserMetadataVersionIfNeeded for the meaning of version numbers.
     private static final int MINOR_VERSION = 1;
+    private static final long WRITE_DELAY_MS = 500;
+
+    private final Handler mHandler;
+    private final Runnable mWriteRunnable;
+    private final long mWriteDelayMs;
+    private boolean mNeedsWrite = false;
+    private GoosciUserMetadata.UserMetadata mUserMetadata;
 
     interface FailureListener {
         // TODO: What's helpful to pass back here? Maybe info about the type of error?
@@ -67,13 +72,43 @@ public class UserMetadataManager {
         mFailureListener = failureListener;
         mOverviewProtoFileHelper = new ProtoFileHelper<>();
         mUserMetadataFile = FileMetadataManager.getUserMetadataFile(context);
+        mHandler = new Handler();
+        mWriteRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (mNeedsWrite) {
+                    writeUserMetadata(mUserMetadata);
+                }
+            }
+        };
+        mWriteDelayMs = WRITE_DELAY_MS;
+    }
+
+    private void startWriteTimer() {
+        if (mNeedsWrite) {
+            // The timer is already running.
+            return;
+        }
+        mNeedsWrite = true;
+        mHandler.postDelayed(mWriteRunnable, mWriteDelayMs);
+    }
+
+    public void saveImmediately() {
+        if (mNeedsWrite) {
+            writeUserMetadata(mUserMetadata);
+            cancelWriteTimer();
+        }
+    }
+
+    private void cancelWriteTimer() {
+        mHandler.removeCallbacks(mWriteRunnable);
     }
 
     /**
      * Gets an experiment overview by experiment ID from the Shared Metadata.
      */
     GoosciUserMetadata.ExperimentOverview getExperimentOverview(String experimentId) {
-        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
         if (userMetadata == null) {
             return null;
         }
@@ -89,7 +124,7 @@ public class UserMetadataManager {
      * Adds a new experiment overview to the Shared Metadata.
      */
     void addExperimentOverview(GoosciUserMetadata.ExperimentOverview overviewToAdd) {
-        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
         if (userMetadata == null) {
             return;
         }
@@ -97,14 +132,14 @@ public class UserMetadataManager {
                 Arrays.copyOf(userMetadata.experiments, userMetadata.experiments.length + 1);
         newList[userMetadata.experiments.length] = overviewToAdd;
         userMetadata.experiments = newList;
-        writeUserMetadata(userMetadata);
+        startWriteTimer();
     }
 
     /**
      * Updates an experiment overview in the Shared Metadata.
      */
     void updateExperimentOverview(GoosciUserMetadata.ExperimentOverview overviewToUpdate) {
-        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
         if (userMetadata == null) {
             return;
         }
@@ -118,7 +153,7 @@ public class UserMetadataManager {
             }
         }
         if (updated) {
-            writeUserMetadata(userMetadata);
+            startWriteTimer();
         }
     }
 
@@ -127,7 +162,7 @@ public class UserMetadataManager {
      * @param experimentIdToDelete the ID of the overview to be deleted.
      */
     void deleteExperimentOverview(String experimentIdToDelete) {
-        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
         if (userMetadata == null || userMetadata.experiments.length == 0) {
             return;
         }
@@ -147,7 +182,7 @@ public class UserMetadataManager {
         }
         if (updated) {
             userMetadata.experiments = newList;
-            writeUserMetadata(userMetadata);
+            startWriteTimer();
         }
     }
 
@@ -156,7 +191,7 @@ public class UserMetadataManager {
      * @param includeArchived Whether to include the archived experiments.
      */
     List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(boolean includeArchived) {
-        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
         if (userMetadata == null) {
             return null;
         }
@@ -177,7 +212,7 @@ public class UserMetadataManager {
      * Adds a device to the user's list of devices if it is not yet added.
      */
     public void addMyDevice(GoosciDeviceSpec.DeviceSpec device) {
-        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
 
         if (userMetadata == null) {
             return;
@@ -195,11 +230,11 @@ public class UserMetadataManager {
         userMetadata.myDevices = newSpecs;
 
         // TODO: capture this pattern (read, null check, write) in a helper method?
-        writeUserMetadata(userMetadata);
+        startWriteTimer();
     }
 
     public void removeMyDevice(GoosciDeviceSpec.DeviceSpec device) {
-        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
 
         if (userMetadata == null) {
             return;
@@ -222,11 +257,11 @@ public class UserMetadataManager {
         userMetadata.myDevices = newSpecs;
 
         // TODO: capture this pattern (read, null check, write) in a helper method?
-        writeUserMetadata(userMetadata);
+        startWriteTimer();
     }
 
     public List<GoosciDeviceSpec.DeviceSpec> getMyDevices() {
-        GoosciUserMetadata.UserMetadata userMetadata = readUserMetadata();
+        GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
         if (userMetadata == null) {
             return Lists.newArrayList();
         }
@@ -238,26 +273,29 @@ public class UserMetadataManager {
      * Reads the shared metadata from the file, and throws an error to the failure listener if
      * needed.
      */
-    private GoosciUserMetadata.UserMetadata readUserMetadata() {
+    private GoosciUserMetadata.UserMetadata getUserMetadata() {
+        if (mUserMetadata != null) {
+            return mUserMetadata;
+        }
+        // Otherwise, read it from the file.
         boolean firstTime = createUserMetadataFileIfNeeded();
-        GoosciUserMetadata.UserMetadata userMetadata;
         // Create a new user metadata proto to populate
         if (firstTime) {
             // If the file has nothing in it, these version numbers will be the basis of our initial
             // UserMetadata file.
-            userMetadata = new GoosciUserMetadata.UserMetadata();
-            userMetadata.version = VERSION;
-            userMetadata.minorVersion = MINOR_VERSION;
+            mUserMetadata = new GoosciUserMetadata.UserMetadata();
+            mUserMetadata.version = VERSION;
+            mUserMetadata.minorVersion = MINOR_VERSION;
         } else {
-            userMetadata = mOverviewProtoFileHelper.readFromFile(mUserMetadataFile,
+            mUserMetadata = mOverviewProtoFileHelper.readFromFile(mUserMetadataFile,
                     GoosciUserMetadata.UserMetadata::parseFrom);
-            if (userMetadata == null) {
+            if (mUserMetadata == null) {
                 mFailureListener.onReadFailed();
                 return null;
             }
-            upgradeUserMetadataVersionIfNeeded(userMetadata);
+            upgradeUserMetadataVersionIfNeeded(mUserMetadata);
         }
-        return userMetadata;
+        return mUserMetadata;
     }
 
     private void upgradeUserMetadataVersionIfNeeded(GoosciUserMetadata.UserMetadata userMetadata) {
@@ -333,7 +371,9 @@ public class UserMetadataManager {
         createUserMetadataFileIfNeeded();
         if (!mOverviewProtoFileHelper.writeToFile(mUserMetadataFile, userMetadata)) {
             mFailureListener.onWriteFailed();
-        };
+        } else {
+            mNeedsWrite = false;
+        }
     }
 
     /**
