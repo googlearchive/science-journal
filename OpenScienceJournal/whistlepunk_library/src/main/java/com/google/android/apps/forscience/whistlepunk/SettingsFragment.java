@@ -40,8 +40,6 @@ public class SettingsFragment extends PreferenceFragment {
 
     private static final String KEY_VERSION = "version";
     private static final String KEY_OPEN_SOURCE = "open_source";
-    private static final String KEY_SITE_LINK = "website";
-    private static final String KEY_REPLAY_TUTORIAL = "replay_tutorial";
 
     public static SettingsFragment newInstance(@SettingsType int type) {
         Bundle args = new Bundle();
@@ -63,10 +61,6 @@ public class SettingsFragment extends PreferenceFragment {
             Preference licensePreference = findPreference(KEY_OPEN_SOURCE);
             licensePreference.setIntent(new Intent(getActivity().getApplicationContext(),
                     LicenseActivity.class));
-
-            Preference linkPreference = findPreference(KEY_SITE_LINK);
-            linkPreference.setIntent(new Intent(Intent.ACTION_VIEW).setData(
-                    Uri.parse(getString(R.string.website_url))));
 
             loadVersion(getActivity());
         } else if (type == SettingsActivity.TYPE_SETTINGS) {

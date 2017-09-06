@@ -177,10 +177,10 @@
     <string name="unknown_sensor">Unknown sensor</string>
 
     <!-- The text on a snackbar displayed when a recording could not be started [CHAR_LIMIT=50] -->
-    <string name="recording_start_failed">Recording failed, please try again</string>
+    <string name="recording_start_failed">Recording could not be started, please try again</string>
 
     <!-- The text on a snackbar displayed when a recording could not be started because a sensor is not connected [CHAR_LIMIT=65] -->
-    <string name="recording_start_failed_disconnected">Recording failed: a sensor is not connected. Please try again</string>
+    <string name="recording_start_failed_disconnected">Cannot start recording because a sensor is disconnected. Please try again.</string>
 
     <!-- The title of a dialog displayed when a recording could not be stopped because not all sensors had data [CHAR_LIMIT=50] -->
     <string name="recording_stop_failed_no_data_title">Data is not being recorded</string>
@@ -195,10 +195,10 @@
     <string name="recording_stop_failed_cancel">Cancel recording</string>
 
     <!-- The text on a snackbar displayed when a recording could not be stopped because some sensor was disconnected and had no data[CHAR_LIMIT=150] -->
-    <string name="recording_stop_failed_disconnected">Stop recording failed: a sensor is disconnected. Would you like to cancel this recording?</string>
+    <string name="recording_stop_failed_disconnected">Cannot stop recording because a sensor is disconnected. Would you like to cancel this recording?</string>
 
     <!-- The text on a snackbar displayed when a recording end time could not be saved to the database. -->
-    <string name="recording_stop_failed_save">Stop recording failed: failed to save trial. Please try again.</string>
+    <string name="recording_stop_failed_save">Could not stop recording or save trial. Please try again.</string>
 
     <!-- The string formatting string used to display elapsed time less than 60 seconds [CHAR_LIMIT=3] -->
     <string name="elapsed_time_short_format"><xliff:g id="seconds">%1d</xliff:g>s</string>
@@ -228,7 +228,7 @@
     <string name="graph_exploring_seekbar_content_description"><xliff:g id="time">%1$s</xliff:g>, <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g>.</string>
 
     <!-- The content description for a picture note taken during the run [CHAR_LIMIT=NONE] -->
-    <string name="picture_note_description">Picture from trial</string>
+    <string name="picture_note_description">Picture from recording</string>
 
     <!-- The content description for a picture note picture [CHAR_LIMIT=NONE] -->
     <string name="picture_note_preview_content_description">Picture note preview</string>
@@ -238,12 +238,6 @@
 
     <!-- URL to go to when navigation to the activities. DO NOT TRANSLATE -->
     <string name="activities_url" translatable="false">https://makingscience.withgoogle.com/science-journal/activities</string>
-
-    <!-- Title of the navigation item to go to making science website [CHAR_LIMIT=25] -->
-    <string name="navigation_item_web_link">Making &amp; Science website</string>
-
-    <!-- URL to go to when navigation to the link. DO NOT TRANSLATE -->
-    <string name="website_url" translatable="false">https://makingscience.withgoogle.com</string>
 
     <!-- Title of the navigation item to show settings [CHAR_LIMIT=25] -->
     <string name="navigation_item_settings">Settings</string>
@@ -418,7 +412,7 @@
     <string name="title_activity_update_experiment">Update experiment</string>
 
     <!-- Failure message for saving an experiment [CHAR_LIMIT=100] -->
-    <string name="experiment_save_failed">Experiment failed to save. Please try again.</string>
+    <string name="experiment_save_failed">Experiment could not save. Please try again.</string>
 
     <!-- The content description for the button which adds a new sensor card to the view
      [CHAR_LIMIT=NONE] -->
@@ -813,8 +807,11 @@
     <!-- Snackbar message shown to user if the export fails [CHAR_LIMIT=50]-->
     <string name="export_error">Export failed.</string>
 
-    <!-- Snackbar message shown to user if no application exists to handle this action [CHAR_LIMIT=100]-->
-    <string name="no_app_found">No installed app can handle this action.</string>
+    <!-- Snackbar message shown to user if no application exists to handle a CSV file export [CHAR_LIMIT=100]-->
+    <string name="no_app_found_for_csv">No app installed to handle CSV export.</string>
+
+    <!-- The text for a snackbar button to learn more about why no app was found [CHAR_LIMIT=25] -->
+    <string name="no_app_found_learn_more">Learn More</string>
 
     <!-- Play Store Listing Strings -->
     <skip />
@@ -1064,7 +1061,7 @@ Permissions notice:
     <string name="trigger_view_icon_content_description">triggers</string>
 
     <!-- Warning for a user that they must select at least one type of alert when making an "alert me" trigger [CHAR_LIMIT=150] -->
-    <string name="alert_trigger_needs_alerts">Error: You must select at least one type of alert for this trigger.</string>
+    <string name="alert_trigger_needs_alerts">You must select at least one type of alert for this trigger.</string>
 
     <!-- Text to display when a trigger is activated in the trigger bar [CHAR_LIMIT=25] -->
     <string name="trigger_fired_text">Trigger activated</string>
@@ -1076,7 +1073,7 @@ Permissions notice:
     <string name="crop_end_seekbar_content_description">crop end: <xliff:g id="time">%1$s</xliff:g>, <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g></string>
 
     <!-- Error message to show the user when a crop failed. This will be followed by more detailed information. [CHAR_LIMIT=50] -->
-    <string name="crop_failed_message">Failed to save crop: <xliff:g id="details">%1$s</xliff:g></string>
+    <string name="crop_failed_message">Could not save crop: <xliff:g id="details">%1$s</xliff:g></string>
 
     <!-- Message to show the suer when a crop succeeded [CHAR_LIMIT=150] -->
     <string name="crop_completed_message">Trial cropped</string>

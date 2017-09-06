@@ -107,7 +107,7 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
                     dismiss();
                 } else {
                     Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
-                            getString(R.string.no_app_found), Snackbar.LENGTH_LONG);
+                            getString(R.string.no_app_found_for_csv), Snackbar.LENGTH_LONG);
                     bar.show();
                 }
             }
