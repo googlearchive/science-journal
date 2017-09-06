@@ -191,8 +191,6 @@ public class CameraFragment extends Fragment {
                 }
             }, LoggingConsumer.complain(TAG, "camera permission"));
 
-            preview.setOnClickListener(v -> mWhenUserTakesPhoto.onNext(v));
-
             mWhenUserTakesPhoto.takeUntil(mFocusLost.happens()).subscribe(o -> {
                 final long timestamp = getTimestamp(preview.getContext());
                 final String uuid = UUID.randomUUID().toString();
