@@ -22,9 +22,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -172,6 +174,18 @@ abstract class LabelDetailsFragment extends Fragment {
         mCaption.setText(mOriginalLabel.getCaptionText());
         mCaption.setImeOptions(EditorInfo.IME_ACTION_DONE);
         mCaption.setRawInputType(InputType.TYPE_CLASS_TEXT);
+        mCaption.setOnEditorActionListener((textView, i, keyEvent) -> {
+            if (i == EditorInfo.IME_ACTION_DONE) {
+                mCaption.clearFocus();
+                mCaption.setFocusable(false);
+            }
+            return false;
+        });
+        mCaption.setOnTouchListener((v, motionEvent) -> {
+            mCaption.setFocusableInTouchMode(true);
+            mCaption.requestFocus();
+            return false;
+        });
 
         mCaption.setEnabled(false);
         mExperiment.firstElement().subscribe(experiment -> {
