@@ -53,10 +53,28 @@
             android:orientation="vertical"
             >
 
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/control_panel"
+                >
+
+                <ImageButton
+                    android:layout_width="72dp"
+                    android:layout_height="6dp"
+                    android:layout_marginTop="4dp"
+                    android:id="@+id/grabber"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/grabber"
+                    android:layout_gravity="center_horizontal"
+                    />
+
+            </FrameLayout>
+
             <android.support.design.widget.TabLayout
                 android:id="@+id/tool_picker"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/panes_toolbar_height"
+                android:layout_height="@dimen/accessibility_touch_target_min_size"
                 android:background="@color/control_panel"
                 android:contentDescription="@string/tool_picker_tab_layout_description"
                 app:tabIndicatorColor="@color/text_color_white"

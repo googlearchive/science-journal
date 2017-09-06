@@ -1362,6 +1362,15 @@ Permissions notice:
     <!-- Title for the Primes debug screen preference [CHAR_LIMIT=50] -->
     <string name="perf_tracker_debug_pref_title" translatable="false">Show Perf Tracker Debug Screen</string>
 
+    <!-- Button shown to users with accessibility settings on that allows them to expand the pane from collapsed to the middle of the screen [CHAR_LIMIT=NONE] -->
+    <string name="btn_show_tools">Show tool drawer</string>
+
+    <!-- Button shown to users with accessibility settings on that allows them to expand the pane from the middle to the fully expanded [CHAR_LIMIT=NONE] -->
+    <string name="btn_expand_tools">Expand tool drawer</string>
+
+    <!-- Button shown to users with accessibility settings on that allows them to collapse a fully expanded pane [CHAR_LIMIT=NONE] -->
+    <string name="btn_hide_tools">Collapse tool drawer</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
