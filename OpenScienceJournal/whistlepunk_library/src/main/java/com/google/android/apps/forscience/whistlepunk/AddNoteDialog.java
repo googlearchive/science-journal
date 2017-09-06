@@ -129,7 +129,7 @@ public class AddNoteDialog extends DialogFragment {
     CompositeDisposable mUntilDestroyed = new CompositeDisposable();
 
     public static AddNoteDialog newInstance(long timestamp, String currentRunId,
-            String experimentId, int hintTextId, String labelTimeText,
+            String experimentId, int hintTextId, String labelTimeText, Label editedLabel,
             String labelTimeTextDescription) {
         AddNoteDialog dialog = new AddNoteDialog();
 
@@ -140,24 +140,10 @@ public class AddNoteDialog extends DialogFragment {
         args.putInt(KEY_HINT_TEXT_ID, hintTextId);
         args.putString(KEY_LABEL_TIME_TEXT, labelTimeText);
         args.putString(KEY_SAVED_TIME_TEXT_DESCRIPTION, labelTimeTextDescription);
-        dialog.setArguments(args);
 
-        return dialog;
-    }
-
-    public static AddNoteDialog newInstance(long timestamp, String currentRunId,
-            String experimentId, int hintTextId, String labelTimeText, Label editedLabel,
-            String labelTimeTextDescription) {
-        AddNoteDialog dialog = AddNoteDialog.newInstance(timestamp, currentRunId, experimentId,
-                hintTextId, labelTimeText, labelTimeTextDescription);
-
-        if (editedLabel == null) {
-            // no user added value yet, so no need to store anything else.
-            return dialog;
+        if (editedLabel != null) {
+            args.putParcelable(KEY_SAVED_VALUE, editedLabel);
         }
-
-        Bundle args = dialog.getArguments();
-        args.putParcelable(KEY_SAVED_VALUE, editedLabel);
 
         dialog.setArguments(args);
         return dialog;
@@ -269,6 +255,7 @@ public class AddNoteDialog extends DialogFragment {
                     if (savedLabel.getType() == GoosciLabel.Label.PICTURE) {
                         mPictureLabelPath = savedLabel.getPictureLabelValue().filePath;
                     }
+                    mUuid = savedLabel.getLabelId();
                 }
             }
         }
