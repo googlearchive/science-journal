@@ -213,26 +213,20 @@ public class SensorRegistry {
             addBuiltInSensor(new AccelerometerSensor(AccelerometerSensor.Axis.Z));
         }
 
-        if (DevOptionsFragment.isLinearAccelerometerSensorEnabled(context)) {
-            if (LinearAccelerometerSensor.isLinearAccelerometerAvailable(available)) {
-                addBuiltInSensor(new LinearAccelerometerSensor());
-            }
+        if (LinearAccelerometerSensor.isLinearAccelerometerAvailable(available)) {
+            addBuiltInSensor(new LinearAccelerometerSensor());
         }
 
         if (BarometerSensor.isBarometerSensorAvailable(available)) {
             addBuiltInSensor(new BarometerSensor());
         }
 
-        if (DevOptionsFragment.isMagnetometerEnabled(context)) {
-            if (MagneticStrengthSensor.isMagneticRotationSensorAvailable(available)) {
-                addBuiltInSensor(new MagneticStrengthSensor());
-            }
+        if (MagneticStrengthSensor.isMagneticRotationSensorAvailable(available)) {
+            addBuiltInSensor(new MagneticStrengthSensor());
         }
 
-        if (DevOptionsFragment.isCompassEnabled(context)) {
-            if (CompassSensor.isCompassSensorAvailable(available)) {
-                addBuiltInSensor(new CompassSensor());
-            }
+        if (CompassSensor.isCompassSensorAvailable(available)) {
+            addBuiltInSensor(new CompassSensor());
         }
 
         if (DevOptionsFragment.isAmbientTemperatureSensorEnabled(context)) {

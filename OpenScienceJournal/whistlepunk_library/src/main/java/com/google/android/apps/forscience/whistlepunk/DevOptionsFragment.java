@@ -35,13 +35,10 @@ public class DevOptionsFragment extends PreferenceFragment {
     @VisibleForTesting
     public static final String KEY_SINE_WAVE_SENSOR = "enable_sine_wave_sensor";
 
-    private static final String KEY_MAGNETOMETER = "enable_magnetometer_sensor";
-    private static final String KEY_COMPASS = "enable_compass_sensor";
     private static final String KEY_DEV_TOOLS = "dev_tools";
     private static final String KEY_LEAK_CANARY = "leak_canary";
     private static final String KEY_STRICT_MODE = "strict_mode";
     public static final String KEY_DEV_SONIFICATION_TYPES = "enable_dev_sonification_types";
-    public static final String KEY_LINEAR_ACCELERATION_SENSOR = "enable_linear_acceleration";
     public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
     private static final String KEY_PERF_DEBUG_SCREEN = "show_perf_tracker_debug";
 
@@ -98,14 +95,6 @@ public class DevOptionsFragment extends PreferenceFragment {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    public static boolean isMagnetometerEnabled(Context context) {
-        return getBoolean(KEY_MAGNETOMETER, false, context);
-    }
-
-    public static boolean isCompassEnabled(Context context) {
-        return getBoolean(KEY_COMPASS, false, context);
-    }
-
     public static boolean isSineWaveEnabled(Context context) {
         return getBoolean(KEY_SINE_WAVE_SENSOR, false, context);
     }
@@ -133,10 +122,6 @@ public class DevOptionsFragment extends PreferenceFragment {
 
     public static boolean isAmbientTemperatureSensorEnabled(Context context) {
         return getBoolean(KEY_AMBIENT_TEMPERATURE_SENSOR, false, context);
-    }
-
-    public static boolean isLinearAccelerometerSensorEnabled(Context context) {
-        return getBoolean(KEY_LINEAR_ACCELERATION_SENSOR, false, context);
     }
 
     private static boolean getBoolean(String key, boolean defaultBool, Context context) {
