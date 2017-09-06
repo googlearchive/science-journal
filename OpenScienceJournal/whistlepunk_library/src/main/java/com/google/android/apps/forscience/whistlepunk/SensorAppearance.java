@@ -40,9 +40,9 @@ public interface SensorAppearance {
         String getFirstParagraph();
 
         /**
-         * @return an optional image that goes in the middle
+         * @return an optional image resource that goes in the middle
          */
-        Drawable getDrawable();
+        int getDrawableResourceId();
 
         /**
          * @return optionally, text that comes after the image in LEARN MORE

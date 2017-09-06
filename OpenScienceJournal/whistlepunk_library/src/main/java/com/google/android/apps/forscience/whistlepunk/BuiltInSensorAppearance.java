@@ -154,11 +154,8 @@ public class BuiltInSensorAppearance implements SensorAppearance {
             }
 
             @Override
-            public Drawable getDrawable() {
-                if (mLearnMoreDrawableId != 0) {
-                    return context.getResources().getDrawable(mLearnMoreDrawableId);
-                }
-                return null;
+            public int getDrawableResourceId() {
+                return mLearnMoreDrawableId;
             }
 
             @Override

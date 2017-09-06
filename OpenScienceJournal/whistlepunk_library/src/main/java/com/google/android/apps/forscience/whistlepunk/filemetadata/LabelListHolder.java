@@ -49,6 +49,11 @@ public abstract class LabelListHolder {
      * Updates a label in the list. Maintains label sort order.
      */
     public void updateLabel(Label label) {
+        updateLabelWithoutSorting(label);
+        sortLabels();
+    }
+
+    public void updateLabelWithoutSorting(Label label) {
         for (int i = 0; i < mLabels.size(); i++) {
             Label next = mLabels.get(i);
             if (!TextUtils.equals(label.getLabelId(), next.getLabelId())) {
@@ -56,7 +61,6 @@ public abstract class LabelListHolder {
             }
             mLabels.set(i, label);
         }
-        sortLabels();
     }
 
     /**

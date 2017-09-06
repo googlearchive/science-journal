@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -159,6 +160,12 @@ public class UpdateExperimentFragment extends Fragment {
         mPhotoPreview = (ImageView) view.findViewById(R.id.experiment_cover);
         Button chooseButton = (Button) view.findViewById(R.id.btn_choose_photo);
         ImageButton takeButton = (ImageButton) view.findViewById(R.id.btn_take_photo);
+
+        // Set the color of the placeholder drawable. This isn't used anywhere else
+        // so we don't need to mutate() the drawable.
+        mPhotoPreview.getDrawable().setColorFilter(
+                mPhotoPreview.getResources().getColor(R.color.text_color_light_grey),
+                PorterDuff.Mode.SRC_IN);
 
         mExperiment.subscribe(experiment -> {
             title.setText(experiment.getTitle());
