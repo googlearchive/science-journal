@@ -387,7 +387,7 @@ public class ExperimentDetailsFragment extends Fragment
             displayNamePromptOrGoUp();
             return true;
         } else if (itemId == R.id.action_edit_experiment) {
-            UpdateExperimentActivity.launch(getActivity(), mExperimentId, false /* not new */);
+            UpdateExperimentActivity.launch(getActivity(), mExperimentId);
             return true;
         } else if (itemId == R.id.action_archive_experiment
                 || itemId == R.id.action_unarchive_experiment) {
@@ -427,6 +427,10 @@ public class ExperimentDetailsFragment extends Fragment
     @Override
     public void onTitleChangedFromDialog() {
         // If it was saved successfully, we can just go up to the parent.
+        WhistlePunkApplication.getUsageTracker(getActivity())
+                .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
+                        TrackerConstants.ACTION_EDITED,
+                        TrackerConstants.LABEL_EXPERIMENT_DETAIL, 0);
         goToExperimentList();
     }
 
@@ -490,7 +494,7 @@ public class ExperimentDetailsFragment extends Fragment
                         .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
                                 archived ? TrackerConstants.ACTION_ARCHIVE :
                                         TrackerConstants.ACTION_UNARCHIVE,
-                                null, 0);
+                                TrackerConstants.LABEL_EXPERIMENT_DETAIL, 0);
 
                 Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
                         getActivity().getResources().getString(
@@ -580,7 +584,7 @@ public class ExperimentDetailsFragment extends Fragment
                     .trackEvent(TrackerConstants.CATEGORY_RUNS,
                             toArchive ? TrackerConstants.ACTION_ARCHIVE :
                                     TrackerConstants.ACTION_UNARCHIVE,
-                            null, 0);
+                            TrackerConstants.LABEL_EXPERIMENT_DETAIL, 0);
         });
     }
 
@@ -610,6 +614,11 @@ public class ExperimentDetailsFragment extends Fragment
                     new LoggingConsumer<Success>(TAG, "Delete experiment") {
                 @Override
                 public void success(Success value) {
+                    WhistlePunkApplication.getUsageTracker(getActivity())
+                            .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
+                                    TrackerConstants.ACTION_DELETED,
+                                    TrackerConstants.LABEL_EXPERIMENT_DETAIL,
+                                    0);
                     getActivity().finish();
                 }
             });
