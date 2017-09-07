@@ -721,15 +721,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private void onLabelAdded(String trialId) {
         if (TextUtils.isEmpty(trialId)) {
             // TODO: is this expensive?  Should we trigger a more incremental update?
-            reloadExperiment();
+            mExperimentFragment.reloadAndScrollToBottom();
         } else {
             mExperimentFragment.onRecordingTrialUpdated(trialId);
         }
         dropToHalfScreenIfNeeded();
-    }
-
-    private void reloadExperiment() {
-        mExperimentFragment.loadExperimentIfInitialized();
     }
 
     private DataController getDataController() {

@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
@@ -91,6 +92,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import io.reactivex.Completable;
+import io.reactivex.functions.Consumer;
+
 /**
  * A fragment to handle displaying Experiment details, runs and labels.
  */
@@ -158,7 +162,7 @@ public class ExperimentDetailsFragment extends Fragment
             mExperimentId = experimentId;
             if (isResumed()) {
                 // If not resumed, wait to load until next resume!
-                loadExperimentIfInitialized();
+                reloadWithoutScroll();
             }
         }
     }
@@ -173,7 +177,7 @@ public class ExperimentDetailsFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
-        loadExperimentIfInitialized();
+        reloadWithoutScroll();
         // Create a BroadcastReceiver for when the stats get updated.
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -186,25 +190,33 @@ public class ExperimentDetailsFragment extends Fragment
                 mBroadcastReceiver);
     }
 
-    public void loadExperimentIfInitialized() {
+    public void reloadWithoutScroll() {
+        loadExperimentIfInitialized().subscribe(() -> {}, onReloadError());
+    }
+
+    @NonNull
+    public Consumer<? super Throwable> onReloadError() {
+        return LoggingConsumer.complain(TAG, "reload");
+    }
+
+    public Completable loadExperimentIfInitialized() {
         if (mExperimentId == null) {
             // We haven't initialized yet. Just wait for this to get called later during
             // initialization.
-            return;
+            return Completable.complete();
         }
-        getDataController().getExperimentById(mExperimentId,
-                new LoggingConsumer<Experiment>(TAG, "retrieve experiment") {
-                    @Override
-                    public void success(final Experiment experiment) {
-                        if (experiment == null) {
-                            // This was deleted on us. Finish and return so we don't try to load.
-                            getActivity().finish();
-                            return;
-                        }
-                        attachExperimentDetails(experiment);
-                        loadExperimentData(experiment);
-                    }
-                });
+        return RxDataController.getExperimentById(getDataController(), mExperimentId)
+                               .doOnSuccess(experiment -> {
+                                   if (experiment == null) {
+                                       // This was deleted on us. Finish and return so we don't
+                                       // try to load.
+                                       getActivity().finish();
+                                       return;
+                                   }
+                                   attachExperimentDetails(experiment);
+                                   loadExperimentData(experiment);
+                               })
+                               .toCompletable();
     }
 
     @Override
@@ -284,12 +296,22 @@ public class ExperimentDetailsFragment extends Fragment
         setHomeButtonState(true);
 
         // TODO: there has to be a cheaper way to make the feed scroll to the bottom
-        loadExperimentIfInitialized();
+        reloadAndScrollToBottom();
+    }
+
+    public void reloadAndScrollToBottom() {
+        loadExperimentIfInitialized().subscribe(() -> scrollToBottom(), onReloadError());
+    }
+
+    public void scrollToBottom() {
+        mDetails.smoothScrollToPosition(0);
     }
 
     public void onRecordingTrialUpdated(String trialId) {
-        RxDataController.getTrial(getDataController(), mExperimentId, trialId)
-                .subscribe(t -> mAdapter.updateActiveRecording(t));
+        RxDataController.getTrial(getDataController(), mExperimentId, trialId).subscribe(t -> {
+            mAdapter.updateActiveRecording(t);
+            scrollToBottom();
+        });
     }
 
     public void onStopRecording() {
