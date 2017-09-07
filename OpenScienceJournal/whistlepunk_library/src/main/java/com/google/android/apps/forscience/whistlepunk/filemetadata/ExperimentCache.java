@@ -21,6 +21,8 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
@@ -304,7 +306,7 @@ class ExperimentCache {
 
         File experimentFile = getExperimentFile(mActiveExperiment.getExperimentOverview());
         boolean success = mExperimentProtoFileHelper.writeToFile(experimentFile,
-                mActiveExperiment.getExperimentProto());
+                mActiveExperiment.getExperimentProto(), getUsageTracker());
         if (success) {
             mActiveExperimentNeedsWrite = false;
         } else {
@@ -312,11 +314,15 @@ class ExperimentCache {
         }
     }
 
+    private UsageTracker getUsageTracker() {
+        return WhistlePunkApplication.getUsageTracker(mContext);
+    }
+
     @VisibleForTesting
     void loadActiveExperimentFromFile(GoosciUserMetadata.ExperimentOverview experimentOverview) {
         File experimentFile = getExperimentFile(experimentOverview);
         GoosciExperiment.Experiment proto = mExperimentProtoFileHelper.readFromFile(experimentFile,
-                GoosciExperiment.Experiment::parseFrom);
+                GoosciExperiment.Experiment::parseFrom, getUsageTracker());
         if (proto != null) {
             upgradeExperimentVersionIfNeeded(proto, experimentOverview);
             mActiveExperiment = Experiment.fromExperiment(proto, experimentOverview);

@@ -20,6 +20,8 @@ import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
 
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.common.annotations.VisibleForTesting;
@@ -53,6 +55,7 @@ public class UserMetadataManager {
     private final long mWriteDelayMs;
     private boolean mNeedsWrite = false;
     private GoosciUserMetadata.UserMetadata mUserMetadata;
+    private UsageTracker mUsageTracker;
 
     interface FailureListener {
         // TODO: What's helpful to pass back here? Maybe info about the type of error?
@@ -82,6 +85,7 @@ public class UserMetadataManager {
             }
         };
         mWriteDelayMs = WRITE_DELAY_MS;
+        mUsageTracker = WhistlePunkApplication.getUsageTracker(context);
     }
 
     private void startWriteTimer() {
@@ -288,7 +292,7 @@ public class UserMetadataManager {
             mUserMetadata.minorVersion = MINOR_VERSION;
         } else {
             mUserMetadata = mOverviewProtoFileHelper.readFromFile(mUserMetadataFile,
-                    GoosciUserMetadata.UserMetadata::parseFrom);
+                    GoosciUserMetadata.UserMetadata::parseFrom, mUsageTracker);
             if (mUserMetadata == null) {
                 mFailureListener.onReadFailed();
                 return null;
@@ -369,7 +373,7 @@ public class UserMetadataManager {
             mFailureListener.onNewerVersionDetected(); // TODO: Or should this throw onWriteFailed?
         }
         createUserMetadataFileIfNeeded();
-        if (!mOverviewProtoFileHelper.writeToFile(mUserMetadataFile, userMetadata)) {
+        if (!mOverviewProtoFileHelper.writeToFile(mUserMetadataFile, userMetadata, mUsageTracker)) {
             mFailureListener.onWriteFailed();
         } else {
             mNeedsWrite = false;

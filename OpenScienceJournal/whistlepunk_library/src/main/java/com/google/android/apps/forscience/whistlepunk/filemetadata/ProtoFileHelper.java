@@ -18,12 +18,13 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.util.Log;
 
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.nano.MessageNano;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -36,30 +37,38 @@ import io.reactivex.functions.Function;
 public class ProtoFileHelper<T extends MessageNano> {
     private static final String TAG = "ProtoFileHelper";
 
-    public T readFromFile(File file, Function<byte[], T> parseFrom) {
+    public T readFromFile(File file, Function<byte[], T> parseFrom, UsageTracker tracker) {
         try (FileInputStream inputStream = new FileInputStream(file)) {
             byte[] bytes = new byte[(int) file.length()];
             inputStream.read(bytes);
             return parseFrom.apply(bytes);
         }  catch (IOException ex) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, Log.getStackTraceString(ex));
-            }
+            logError(tracker, ex, TrackerConstants.ACTION_READ_FAILED);
             return null;
         } catch (Exception ex) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, Log.getStackTraceString(ex));
-            }
+            logError(tracker, ex, TrackerConstants.ACTION_READ_FAILED);
             return null;
         }
     }
 
-    public boolean writeToFile(File file, T protoToWrite) {
-        return writeToFile(file, protoToWrite, /* don't throw an error for testing */ false);
+    private void logError(UsageTracker tracker, Exception ex, String action) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, Log.getStackTraceString(ex));
+        }
+        trackError(tracker, ex, action);
+    }
+
+    private void trackError(UsageTracker tracker, Throwable ex, String action) {
+        tracker.trackEvent(TrackerConstants.CATEGORY_STORAGE, action, null, 0);
+    }
+
+    public boolean writeToFile(File file, T protoToWrite,
+            UsageTracker tracker) {
+        return writeToFile(file, protoToWrite, /* don't throw an error for testing */ false, tracker);
     }
 
     @VisibleForTesting
-    boolean writeToFile(File file, T protoToWrite, boolean failWritingForTest) {
+    boolean writeToFile(File file, T protoToWrite, boolean failWritingForTest, UsageTracker tracker) {
         // Do this outside the file-writing blocks. If it fails it throws a RuntimeException
         // which we don't want to have happen during reading or writing.
         byte[] protoBytes = MessageNano.toByteArray(protoToWrite);
@@ -71,9 +80,7 @@ public class ProtoFileHelper<T extends MessageNano> {
         try (FileInputStream inputStream = new FileInputStream(file)) {
             inputStream.read(bytes);
         } catch (IOException ex) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, Log.getStackTraceString(ex));
-            }
+            logError(tracker, ex, TrackerConstants.ACTION_WRITE_FAILED);
             return false;
         }
 
@@ -86,22 +93,19 @@ public class ProtoFileHelper<T extends MessageNano> {
                 return true;
             }
         } catch (IOException ex) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, Log.getStackTraceString(ex));
-            }
-            replaceContents(file, bytes);
+            logError(tracker, ex, TrackerConstants.ACTION_WRITE_FAILED);
+            replaceContents(file, bytes, tracker);
             return false;
         }
     }
 
-    private void replaceContents(File file, byte[] bytes) {
+    private void replaceContents(File file, byte[] bytes,
+            UsageTracker tracker) {
         // If write failed, might be the proto's fault, try to write back what we had before.
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
             outputStream.write(bytes);
         } catch (IOException ex) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, Log.getStackTraceString(ex));
-            }
+            logError(tracker, ex, TrackerConstants.ACTION_WRITE_FAILED);
         }
     }
 }
