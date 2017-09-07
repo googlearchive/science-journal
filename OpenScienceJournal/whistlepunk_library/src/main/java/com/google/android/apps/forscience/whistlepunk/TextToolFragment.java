@@ -91,6 +91,7 @@ public class TextToolFragment extends Fragment {
 
         mShowingCollapsed.subscribe(isCollapsed -> {
             addButton.setVisibility(isCollapsed ? View.VISIBLE : View.GONE);
+            mTextView.setMaxLines(isCollapsed ? 3 : Integer.MAX_VALUE);
         });
 
         return rootView;
