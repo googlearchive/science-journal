@@ -304,7 +304,9 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void scrollToBottom() {
-        mDetails.smoothScrollToPosition(0);
+        if (mDetails != null) {
+            mDetails.smoothScrollToPosition(0);
+        }
     }
 
     public void onRecordingTrialUpdated(String trialId) {
