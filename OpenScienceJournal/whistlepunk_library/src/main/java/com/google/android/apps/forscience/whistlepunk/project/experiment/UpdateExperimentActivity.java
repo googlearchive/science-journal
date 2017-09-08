@@ -39,9 +39,7 @@ public class UpdateExperimentActivity extends AppCompatActivity {
             String experimentId = getIntent().getExtras().getString(
                     UpdateExperimentFragment.ARG_EXPERIMENT_ID);
 
-            UpdateExperimentFragment fragment = UpdateExperimentFragment.newInstance(experimentId,
-                    getIntent().getBooleanExtra(UpdateExperimentFragment.ARG_NEW, false),
-                    getIntent().getParcelableExtra(UpdateExperimentFragment.ARG_PARENT_COMPONENT));
+            UpdateExperimentFragment fragment = UpdateExperimentFragment.newInstance(experimentId);
             fragment.setRetainInstance(true);
 
             getSupportFragmentManager().beginTransaction().add(R.id.container, fragment,
@@ -50,23 +48,14 @@ public class UpdateExperimentActivity extends AppCompatActivity {
 
     }
 
-    public static void launch(Context context, String experimentId, boolean isNewExperiment) {
-        launch(context, experimentId, isNewExperiment, null);
-    }
-
-    public static void launch(Context context, String experimentId, boolean isNewExperiment,
-                              ComponentName parentComponent) {
-        final Intent intent = getLaunchIntent(context, experimentId, isNewExperiment,
-                parentComponent);
+    public static void launch(Context context, String experimentId) {
+        final Intent intent = getLaunchIntent(context, experimentId);
         context.startActivity(intent);
     }
 
-    public static Intent getLaunchIntent(Context context, String experimentId,
-            boolean isNewExperiment, ComponentName parentComponent) {
+    public static Intent getLaunchIntent(Context context, String experimentId) {
         final Intent intent = new Intent(context, UpdateExperimentActivity.class);
         intent.putExtra(UpdateExperimentFragment.ARG_EXPERIMENT_ID, experimentId);
-        intent.putExtra(UpdateExperimentFragment.ARG_NEW, isNewExperiment);
-        intent.putExtra(UpdateExperimentFragment.ARG_PARENT_COMPONENT, parentComponent);
         return intent;
     }
 
