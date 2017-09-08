@@ -56,6 +56,7 @@ public final class TrackerConstants {
     public static final String CATEGORY_API = "API";
     public static final String CATEGORY_INFO = "Info";
     public static final String CATEGORY_SENSOR_MANAGEMENT = "ManageSensors";
+    public static final String CATEGORY_STORAGE = "Storage";
 
     // Event actions
     public static final String ACTION_CREATE = "Create";
@@ -76,6 +77,8 @@ public final class TrackerConstants {
     public static final String ACTION_CROP_COMPLETED = "CropCompleted";
     public static final String ACTION_CROP_STARTED = "CropStarted";
     public static final String ACTION_CROP_FAILED = "CropFailed";
+    public static final String ACTION_WRITE_FAILED = "WriteFailed";
+    public static final String ACTION_READ_FAILED = "ReadFailed";
 
     // Labels
     public static final String LABEL_RECORD = "record";
