@@ -453,13 +453,22 @@ public class RecordFragment extends Fragment implements Handler.Callback,
         super.onDestroyView();
     }
 
-    private void freezeLayouts() {
+    private List<GoosciSensorLayout.SensorLayout> safeSaveCurrentLayouts() {
         if (mSelectedExperiment == null) {
-            return;
+            return Collections.EMPTY_LIST;
         }
-        final List<GoosciSensorLayout.SensorLayout> layouts = saveCurrentExperiment();
-        Preconditions.checkNotNull(layouts);
 
+        // TODO: re-route data to make this impossible
+        List<GoosciSensorLayout.SensorLayout> layouts = saveCurrentExperiment();
+        if (layouts == null) {
+            return Collections.EMPTY_LIST;
+        } else {
+            return layouts;
+        }
+    }
+
+    private void freezeLayouts() {
+        List<GoosciSensorLayout.SensorLayout> layouts = safeSaveCurrentLayouts();
         // Freeze layouts to be saved if recording finishes
         getRecorderController().setLayoutSupplier(Suppliers.ofInstance(layouts));
     }
