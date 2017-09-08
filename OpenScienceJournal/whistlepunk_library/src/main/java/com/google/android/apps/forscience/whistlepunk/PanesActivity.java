@@ -707,6 +707,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private void changeSheetState(int fromState, int toState) {
+        if (mBottomBehavior == null) {
+            // TODO: wire up bottom behavior at creation
+            // Experiment is archived, there's no sheet to change
+            return;
+        }
         if (mBottomBehavior.getState() == fromState) {
             mBottomBehavior.setState(toState);
         }
