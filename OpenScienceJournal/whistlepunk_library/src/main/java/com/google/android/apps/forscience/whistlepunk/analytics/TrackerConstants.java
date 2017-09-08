@@ -82,6 +82,8 @@ public final class TrackerConstants {
     public static final String LABEL_RUN_REVIEW = "run_review";
     public static final String LABEL_OBSERVE = "observe";
     public static final String LABEL_EXPERIMENT_DETAIL = "experiment_detail";
+    public static final String LABEL_EXPERIMENT_LIST = "experiment_list";
+    public static final String LABEL_UPDATE_EXPERIMENT = "update_experiment";
 
     public static final String LABEL_MODE_CHILD = "child";
     public static final String LABEL_MODE_NONCHILD = "nonchild";

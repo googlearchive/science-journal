@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -68,6 +69,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private boolean mTabsInitialized;
     private BehaviorSubject<Integer> mActivityHeight = BehaviorSubject.create();
     private BehaviorSubject<Integer> mBottomSheetState = BehaviorSubject.create();
+    private ImageButton mGrabber;
 
     public PanesActivity() {
         mSnackbarManager = new SnackbarManager();
@@ -233,6 +235,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         });
 
         mRecordingBar = (ProgressBar) findViewById(R.id.recording_progress_bar);
+        mGrabber = (ImageButton) findViewById(R.id.grabber);
 
         String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
 
@@ -352,11 +355,23 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         @Override
                         public void onStateChanged(@NonNull View bottomSheet, int newState) {
                             mBottomSheetState.onNext(newState);
+                            if (mBottomBehavior.getState() ==
+                                    PanesBottomSheetBehavior.STATE_COLLAPSED) {
+                                mGrabber.setContentDescription(getResources().getString(
+                                        R.string.btn_show_tools));
+                            } else if (mBottomBehavior.getState() ==
+                                    PanesBottomSheetBehavior.STATE_MIDDLE) {
+                                mGrabber.setContentDescription(getResources().getString(
+                                        R.string.btn_expand_tools));
+                            } else if (mBottomBehavior.getState() ==
+                                    PanesBottomSheetBehavior.STATE_EXPANDED) {
+                                mGrabber.setContentDescription(getResources().getString(
+                                        R.string.btn_hide_tools));
+                            }
                         }
 
                         @Override
                         public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
                         }
                     });
 
@@ -407,62 +422,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             };
             pager.setAdapter(adapter);
 
-            if (toolPicker.getTabCount() > 0) {
-                ViewGroup.LayoutParams layoutParams = experimentPane.getLayoutParams();
-                layoutParams.height = bottomSheet.getTop();
-                experimentPane.setLayoutParams(layoutParams);
-                toolPicker.getTabAt(mSelectedTabIndex).select();
-
-                // It's already initialized. Don't do it again!
-                return;
-            }
-
-            mBottomBehavior.setPeekHeight(getResources().getDimensionPixelSize(
-                    R.dimen.panes_toolbar_height));
-
-            for (ToolTab tab : ToolTab.values()) {
-                TabLayout.Tab layoutTab = toolPicker.newTab();
-                layoutTab.setContentDescription(tab.getContentDescriptionId());
-                layoutTab.setIcon(tab.getIconId());
-                layoutTab.setTag(tab);
-                toolPicker.addTab(layoutTab);
-            }
-
-            toolPicker.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-                @Override
-                public void onTabSelected(TabLayout.Tab tab) {
-                    ToolTab toolTab = (ToolTab) tab.getTag();
-                    mSelectedTabIndex = toolTab.ordinal();
-                    pager.setCurrentItem(mSelectedTabIndex, true);
-                    openPaneIfNeeded();
-                }
-
-                @Override
-                public void onTabUnselected(TabLayout.Tab tab) {
-
-                }
-
-                @Override
-                public void onTabReselected(TabLayout.Tab tab) {
-                    if (pager.getCurrentItem() != mSelectedTabIndex) {
-                        // After archive/unarchive we can get a state where the tab is technically
-                        // selected but the pager has not updated properly. This forces the
-                        // update to the pager fragment.
-                        onTabSelected(tab);
-                    } else {
-                        // Pull it up if it's the already selected item.
-                        openPaneIfNeeded();
-                    }
-                }
-            });
-            mTabsInitialized = false;
-            toolPicker.getTabAt(mSelectedTabIndex).select();
-            if (experiment.getLabelCount() > 0 || experiment.getTrialCount() > 0) {
-                mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_COLLAPSED);
-            } else {
-                mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_MIDDLE);
-            }
-            mTabsInitialized = true;
+            initializeToolPicker(toolPicker, pager, experiment, bottomSheet, experimentPane);
         } else {
             controlBar.setVisibility(View.GONE);
             controlBarSpacer.setVisibility(View.GONE);
@@ -473,6 +433,90 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
             // Clear the tabs, which releases all cameras and removes all triggers etc.
             pager.setAdapter(null);
+        }
+    }
+
+    private void initializeToolPicker(TabLayout toolPicker, ViewPager pager,
+            Experiment experiment, View bottomSheet, View experimentPane) {
+        if (toolPicker.getTabCount() > 0) {
+            ViewGroup.LayoutParams layoutParams = experimentPane.getLayoutParams();
+            layoutParams.height = bottomSheet.getTop();
+            experimentPane.setLayoutParams(layoutParams);
+            toolPicker.getTabAt(mSelectedTabIndex).select();
+
+            // It's already initialized. Don't do it again!
+            return;
+        }
+
+        mBottomBehavior.setPeekHeight(getResources().getDimensionPixelSize(
+                R.dimen.panes_toolbar_height));
+
+        for (ToolTab tab : ToolTab.values()) {
+            TabLayout.Tab layoutTab = toolPicker.newTab();
+            layoutTab.setContentDescription(tab.getContentDescriptionId());
+            layoutTab.setIcon(tab.getIconId());
+            layoutTab.setTag(tab);
+            toolPicker.addTab(layoutTab);
+        }
+
+        toolPicker.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                ToolTab toolTab = (ToolTab) tab.getTag();
+                mSelectedTabIndex = toolTab.ordinal();
+                pager.setCurrentItem(mSelectedTabIndex, true);
+                openPaneIfNeeded();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                if (pager.getCurrentItem() != mSelectedTabIndex) {
+                    // After archive/unarchive we can get a state where the tab is technically
+                    // selected but the pager has not updated properly. This forces the
+                    // update to the pager fragment.
+                    onTabSelected(tab);
+                } else {
+                    // Pull it up if it's the already selected item.
+                    openPaneIfNeeded();
+                }
+            }
+        });
+        mTabsInitialized = false;
+        toolPicker.getTabAt(mSelectedTabIndex).select();
+        if (experiment.getLabelCount() > 0 || experiment.getTrialCount() > 0) {
+            mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_COLLAPSED);
+            mGrabber.setContentDescription(getResources().getString(
+                    R.string.btn_show_tools));
+        } else {
+            mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_MIDDLE);
+            mGrabber.setContentDescription(getResources().getString(
+                    R.string.btn_expand_tools));
+        }
+        mTabsInitialized = true;
+    }
+
+    private void setupGrabber() {
+        if (AccessibilityUtils.isAccessibilityManagerEnabled(this)) {
+            mGrabber.setOnClickListener(view -> {
+                if (mBottomBehavior.getState() ==
+                        PanesBottomSheetBehavior.STATE_COLLAPSED) {
+                    changeSheetState(PanesBottomSheetBehavior.STATE_COLLAPSED,
+                            PanesBottomSheetBehavior.STATE_MIDDLE);
+                } else if (mBottomBehavior.getState() ==
+                        PanesBottomSheetBehavior.STATE_MIDDLE) {
+                    changeSheetState(PanesBottomSheetBehavior.STATE_MIDDLE,
+                            PanesBottomSheetBehavior.STATE_EXPANDED);
+                } else if (mBottomBehavior.getState() ==
+                        PanesBottomSheetBehavior.STATE_EXPANDED) {
+                    changeSheetState(PanesBottomSheetBehavior.STATE_EXPANDED,
+                            PanesBottomSheetBehavior.STATE_COLLAPSED);
+                }
+            });
         }
     }
 
@@ -540,6 +584,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         if (!isMultiWindowEnabled()) {
             updateRecorderControllerForResume();
         }
+        setupGrabber();
     }
 
     @Override
@@ -579,7 +624,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         RecorderController rc = AppSingleton.getInstance(this).getRecorderController();
         rc.setRecordActivityInForeground(false);
     }
-
 
     @Override
     public void onBackPressed() {
@@ -663,6 +707,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private void changeSheetState(int fromState, int toState) {
+        if (mBottomBehavior == null) {
+            // TODO: wire up bottom behavior at creation
+            // Experiment is archived, there's no sheet to change
+            return;
+        }
         if (mBottomBehavior.getState() == fromState) {
             mBottomBehavior.setState(toState);
         }
@@ -677,15 +726,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private void onLabelAdded(String trialId) {
         if (TextUtils.isEmpty(trialId)) {
             // TODO: is this expensive?  Should we trigger a more incremental update?
-            reloadExperiment();
+            mExperimentFragment.reloadAndScrollToBottom();
         } else {
             mExperimentFragment.onRecordingTrialUpdated(trialId);
         }
         dropToHalfScreenIfNeeded();
-    }
-
-    private void reloadExperiment() {
-        mExperimentFragment.loadExperimentIfInitialized();
     }
 
     private DataController getDataController() {

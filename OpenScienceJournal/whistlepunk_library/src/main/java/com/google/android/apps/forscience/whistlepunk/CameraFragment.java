@@ -32,6 +32,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensors.CameraPreview;
+import com.google.common.base.Optional;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
@@ -41,14 +42,14 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.SingleSubject;
 
 import static android.content.ContentValues.TAG;
+
 
 public class CameraFragment extends Fragment {
     private static final String KEY_PERMISSION_GRANTED = "key_permission_granted";
 
-    private final SingleSubject<ViewGroup> mPreviewContainer = SingleSubject.create();
+    private final BehaviorSubject<Optional<ViewGroup>> mPreviewContainer = BehaviorSubject.create();
     private BehaviorSubject<Boolean> mPermissionGranted = BehaviorSubject.create();
     private RxEvent mFocusLost = new RxEvent();
     private PublishSubject<Object> mWhenUserTakesPhoto = PublishSubject.create();
@@ -125,8 +126,15 @@ public class CameraFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             Bundle savedInstanceState) {
         View inflated = inflater.inflate(R.layout.fragment_camera_tool, null);
-        mPreviewContainer.onSuccess((ViewGroup) inflated.findViewById(R.id.preview_container));
+        mPreviewContainer.onNext(
+                Optional.of((ViewGroup) inflated.findViewById(R.id.preview_container)));
         return inflated;
+    }
+
+    @Override
+    public void onDestroyView() {
+        mPreviewContainer.onNext(Optional.absent());
+        super.onDestroyView();
     }
 
     public void attachButtons(FrameLayout controlBar) {
@@ -179,7 +187,8 @@ public class CameraFragment extends Fragment {
         }
 
         mFocused = true;
-        mPreviewContainer.subscribe(container -> {
+        mPreviewContainer.filter(o -> o.isPresent()).firstElement().subscribe(opt -> {
+            ViewGroup container = opt.get();
             LayoutInflater inflater = LayoutInflater.from(container.getContext());
             View view = inflater.inflate(R.layout.camera_tool_preview, container, false);
             CameraPreview preview = (CameraPreview) view;
@@ -190,8 +199,6 @@ public class CameraFragment extends Fragment {
                     preview.setCamera(openCamera());
                 }
             }, LoggingConsumer.complain(TAG, "camera permission"));
-
-            preview.setOnClickListener(v -> mWhenUserTakesPhoto.onNext(v));
 
             mWhenUserTakesPhoto.takeUntil(mFocusLost.happens()).subscribe(o -> {
                 final long timestamp = getTimestamp(preview.getContext());

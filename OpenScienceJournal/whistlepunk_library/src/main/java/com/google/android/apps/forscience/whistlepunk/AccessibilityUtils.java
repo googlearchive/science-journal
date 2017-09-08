@@ -95,7 +95,7 @@ public final class AccessibilityUtils {
     /**
      * Returns true if the accessibility manager is enabled.
      */
-    private static boolean isAccessibilityManagerEnabled(Context context) {
+    public static boolean isAccessibilityManagerEnabled(Context context) {
         AccessibilityManager accessibilityManager =
                 ((AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE));
         return accessibilityManager != null && accessibilityManager.isEnabled();

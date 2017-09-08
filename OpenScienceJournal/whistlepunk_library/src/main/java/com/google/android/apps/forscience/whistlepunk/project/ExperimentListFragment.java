@@ -161,6 +161,11 @@ public class ExperimentListFragment extends Fragment implements
                 new LoggingConsumer<Experiment>(TAG, "Create a new experiment") {
                     @Override
                     public void success(final Experiment experiment) {
+                        WhistlePunkApplication.getUsageTracker(getActivity())
+                                .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
+                                        TrackerConstants.ACTION_CREATE,
+                                        TrackerConstants.LABEL_EXPERIMENT_LIST,
+                                        0);
                         PanesActivity.launch(v.getContext(), experiment.getExperimentId());
                     }
                 }));
@@ -297,6 +302,11 @@ public class ExperimentListFragment extends Fragment implements
                                 @Override
                                 public void success(Success value) {
                                     mExperimentListAdapter.onExperimentDeleted(experimentId);
+                                    WhistlePunkApplication.getUsageTracker(getActivity())
+                                            .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
+                                                    TrackerConstants.ACTION_DELETED,
+                                                    TrackerConstants.LABEL_EXPERIMENT_LIST,
+                                                    0);
                                 }
                             });
                 });
@@ -498,6 +508,12 @@ public class ExperimentListFragment extends Fragment implements
                                     @Override
                                     public void success(Success value) {
                                         updateArchivedState(item, archived);
+                                        WhistlePunkApplication.getUsageTracker(
+                                                mParentReference.get().getActivity())
+                                                .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
+                                                        archived ? TrackerConstants.ACTION_ARCHIVE :
+                                                                TrackerConstants.ACTION_UNARCHIVE,
+                                                        TrackerConstants.LABEL_EXPERIMENT_LIST, 0);
                                         showArchivedSnackbar(archived, item);
                                     }
                                 });

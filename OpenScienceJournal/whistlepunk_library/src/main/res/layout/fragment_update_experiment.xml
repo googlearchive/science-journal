@@ -38,7 +38,6 @@
             android:inputType="textCapSentences"
             android:contentDescription="@string/experiment_title_hint"
             >
-            <requestFocus />
         </EditText>
     </android.support.design.widget.TextInputLayout>
 

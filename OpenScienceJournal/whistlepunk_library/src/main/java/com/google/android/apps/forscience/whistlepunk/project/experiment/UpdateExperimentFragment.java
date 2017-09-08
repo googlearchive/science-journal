@@ -32,16 +32,19 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
@@ -78,21 +81,10 @@ public class UpdateExperimentFragment extends Fragment {
      */
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
 
-    /**
-     * Boolean extra denoting whether this is a new experiment or not.
-     */
-    public static final String ARG_NEW = "new";
-
-    /**
-     * Parcelable extra with the component name of the parent class that should be used when saving
-     * or quitting. If {@code null}, do the default handling.
-     */
-    public static final String ARG_PARENT_COMPONENT = "parent_component";
     private static final String KEY_SAVED_PICTURE_PATH = "picture_path";
 
     private String mExperimentId;
     private BehaviorSubject<Experiment> mExperiment = BehaviorSubject.create();
-    private ComponentName mParentComponent;
     private boolean mWasEdited;
     private ImageView mPhotoPreview;
     private String mPictureLabelPath = null;
@@ -100,13 +92,10 @@ public class UpdateExperimentFragment extends Fragment {
     public UpdateExperimentFragment() {
     }
 
-    public static UpdateExperimentFragment newInstance(String experimentId, boolean isNewExperiment,
-                                                       ComponentName parentComponent) {
+    public static UpdateExperimentFragment newInstance(String experimentId) {
         UpdateExperimentFragment fragment = new UpdateExperimentFragment();
         Bundle args = new Bundle();
         args.putString(ARG_EXPERIMENT_ID, experimentId);
-        args.putBoolean(ARG_NEW, isNewExperiment);
-        args.putParcelable(ARG_PARENT_COMPONENT, parentComponent);
         fragment.setArguments(args);
         return fragment;
     }
@@ -115,7 +104,6 @@ public class UpdateExperimentFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
-        mParentComponent = getArguments().getParcelable(ARG_PARENT_COMPONENT);
         if (savedInstanceState != null) {
             mPictureLabelPath = savedInstanceState.getString(KEY_SAVED_PICTURE_PATH);
         }
@@ -126,9 +114,7 @@ public class UpdateExperimentFragment extends Fragment {
                         attachExperimentDetails(experiment);
                     }
                 });
-        getActivity().setTitle(getString(isNewExperiment() ?
-                R.string.title_activity_new_experiment :
-                R.string.title_activity_update_experiment));
+        getActivity().setTitle(getString(R.string.title_activity_update_experiment));
         setHasOptionsMenu(true);
     }
 
@@ -136,18 +122,17 @@ public class UpdateExperimentFragment extends Fragment {
     public void onStart() {
         super.onStart();
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
-                isNewExperiment() ? TrackerConstants.SCREEN_NEW_EXPERIMENT :
-                        TrackerConstants.SCREEN_UPDATE_EXPERIMENT);
+                TrackerConstants.SCREEN_UPDATE_EXPERIMENT);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (mWasEdited && !isNewExperiment()) {
+        if (mWasEdited) {
             WhistlePunkApplication.getUsageTracker(getActivity())
                     .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
                             TrackerConstants.ACTION_EDITED,
-                            null, 0);
+                            TrackerConstants.LABEL_UPDATE_EXPERIMENT, 0);
             mWasEdited = false;
         }
     }
@@ -228,51 +213,19 @@ public class UpdateExperimentFragment extends Fragment {
                 }
             });
         });
-        return view;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_update_experiment, menu);
-
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (isNewExperiment()) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
-        }
-        menu.findItem(R.id.action_save).setVisible(isNewExperiment());
-        actionBar.setDisplayHomeAsUpEnabled(true);
-
-        actionBar.setTitle(getString(isNewExperiment() ? R.string.title_activity_new_experiment :
-                R.string.title_activity_update_experiment));
-
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == android.R.id.home) {
-            if (isNewExperiment()) {
-                // We should delete the experiment: user killed it without saving.
-                // TODO: warn the user if they edited anything.
-                mExperiment.firstElement().subscribe(e -> deleteExperiment(e));
-            } else {
-                goToParent();
+        title.setOnEditorActionListener((textView, i, keyEvent) -> {
+            if (i == EditorInfo.IME_ACTION_DONE) {
+                title.clearFocus();
+                title.setFocusable(false);
             }
-            return true;
-        } else if (id == R.id.action_save) {
-            saveExperiment(true /* go to parent when done */);
-            WhistlePunkApplication.getUsageTracker(getActivity())
-                    .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
-                            TrackerConstants.ACTION_CREATE,
-                            null, 0);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+            return false;
+        });
+        title.setOnTouchListener((v, e) -> {
+            title.setFocusableInTouchMode(true);
+            title.requestFocus();
+            return false;
+        });
+        return view;
     }
 
     @Override
@@ -306,6 +259,7 @@ public class UpdateExperimentFragment extends Fragment {
                 saveExperiment();
                 PictureUtils.loadExperimentOverviewImage(mPhotoPreview, overviewPath);
             }
+            mWasEdited = true;
             return;
         } else if (requestCode == PictureUtils.REQUEST_TAKE_PHOTO) {
             if (resultCode == Activity.RESULT_OK) {
@@ -319,6 +273,7 @@ public class UpdateExperimentFragment extends Fragment {
             } else {
                 mPictureLabelPath = null;
             }
+            mWasEdited = true;
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -343,10 +298,6 @@ public class UpdateExperimentFragment extends Fragment {
         }
     }
 
-    private boolean isNewExperiment() {
-        return getArguments().getBoolean(ARG_NEW, false);
-    }
-
     private void attachExperimentDetails(final Experiment experiment) {
         mExperiment.onNext(experiment);
         mWasEdited = false;
@@ -357,17 +308,9 @@ public class UpdateExperimentFragment extends Fragment {
     }
 
     /**
-     * Save the experiment and stay on this screen.
+     * Save the experiment
      */
     private void saveExperiment() {
-        saveExperiment(false /* stay on this screen */);
-    }
-
-    /**
-     * Save the experiment and optionally to go the parent, depending on
-     * {@param goToParentWhenDone}.
-     */
-    private void saveExperiment(final boolean goToParentWhenDone) {
         getDataController().updateExperiment(mExperimentId,
                 new LoggingConsumer<Success>(TAG, "update experiment") {
                     @Override
@@ -381,49 +324,8 @@ public class UpdateExperimentFragment extends Fragment {
 
                     @Override
                     public void success(Success value) {
-                        if (goToParentWhenDone) {
-                            goToParent();
-                        }
+                        // Do nothing
                     }
                 });
-    }
-
-    private void deleteExperiment(Experiment experiment) {
-        getDataController().deleteExperiment(experiment,
-                new LoggingConsumer<Success>(TAG, "Deleting new experiment") {
-            @Override
-            public void success(Success value) {
-                if (mParentComponent != null) {
-                    goToParent();
-                } else if (getActivity() != null) {
-                    // Go back to the experiment list page
-                    Intent intent = new Intent(getActivity(), MainActivity.class);
-                    intent.putExtra(MainActivity.ARG_SELECTED_NAV_ITEM_ID,
-                            R.id.navigation_item_experiments);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                            Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    NavUtils.navigateUpTo(getActivity(), intent);
-                } else {
-                    Log.e(TAG, "Can't exit activity because it's no longer there.");
-                }
-            }
-        });
-    }
-
-    private void goToParent() {
-        Intent upIntent;
-        if (mParentComponent != null) {
-            upIntent = new Intent();
-            upIntent.setClassName(mParentComponent.getPackageName(),
-                    mParentComponent.getClassName());
-        } else {
-            upIntent = NavUtils.getParentActivityIntent(getActivity());
-        }
-        upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, mExperimentId);
-        if (getActivity() != null) {
-            NavUtils.navigateUpTo(getActivity(), upIntent);
-        } else {
-            Log.e(TAG, "Can't exit activity because it's no longer there.");
-        }
     }
 }
