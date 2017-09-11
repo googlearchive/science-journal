@@ -64,7 +64,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusList
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.jakewharton.rxbinding2.view.RxView;
@@ -84,9 +83,7 @@ public class RecordFragment extends Fragment implements Handler.Callback,
 
     private static final String KEY_SAVED_ACTIVE_SENSOR_CARD = "savedActiveCardIndex";
     private static final String KEY_SAVED_RECYCLER_LAYOUT = "savedRecyclerLayout";
-    private static final String KEY_SHOW_SNAPSHOT = "showSnapshot";
     private static final String KEY_EXPERIMENT_ID = "experimentId";
-    private static final String KEY_NATIVE_CONTROL_BAR = "nativeControlBar";
     private static final String KEY_INFLATE_MENU = "inflateMenu";
 
     private static final int DEFAULT_CARD_VIEW = GoosciSensorLayout.SensorLayout.METER;
@@ -190,14 +187,11 @@ public class RecordFragment extends Fragment implements Handler.Callback,
     RxEvent mUiStop = new RxEvent();
     RxEvent mContextDetach = new RxEvent();
 
-    public static RecordFragment newInstance(String experimentId, boolean showSnapshot,
-            boolean inflateMenu, boolean nativeControlBar) {
+    public static RecordFragment newInstance(String experimentId, boolean inflateMenu) {
         RecordFragment fragment = new RecordFragment();
         Bundle args = new Bundle();
-        args.putBoolean(KEY_SHOW_SNAPSHOT, showSnapshot);
         args.putBoolean(KEY_INFLATE_MENU, inflateMenu);
         args.putString(KEY_EXPERIMENT_ID, experimentId);
-        args.putBoolean(KEY_NATIVE_CONTROL_BAR, nativeControlBar);
         fragment.setArguments(args);
         return fragment;
     }
@@ -532,6 +526,13 @@ public class RecordFragment extends Fragment implements Handler.Callback,
         }
 
         return rootView;
+    }
+
+    public void setRecordingTimeUpdateListener(
+            ExternalAxisController.RecordingTimeUpdateListener listener) {
+        if (mExternalAxis != null) {
+            mExternalAxis.setRecordingTimeUpdateListener(listener);
+        }
     }
 
     private boolean shouldInflateMenu() {
