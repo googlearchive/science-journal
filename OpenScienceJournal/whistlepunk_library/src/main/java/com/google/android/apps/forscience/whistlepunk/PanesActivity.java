@@ -668,9 +668,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             public void onRecordingRequested(String experimentName, boolean userInitiated) {
                 showRecordingBar();
                 if (mTabsInitialized && userInitiated) {
-                    if (mBottomBehavior.getState() != PanesBottomSheetBehavior.STATE_EXPANDED) {
-                        mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_EXPANDED);
-                    }
+                    expandSheet();
                 }
             }
 
@@ -690,6 +688,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             void onRecordingStopped() {
                 hideRecordingBar();
                 mExperimentFragment.onStopRecording();
+                dropToHalfScreenIfNeeded();
             }
 
             @Override
