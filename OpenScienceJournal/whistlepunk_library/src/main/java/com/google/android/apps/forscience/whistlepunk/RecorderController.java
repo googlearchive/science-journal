@@ -110,10 +110,11 @@ public interface RecorderController {
     /**
      * @param resumeIntent this must be distinct from any other active Intent, as defined by
      *                     {@link Intent#filterEquals(Intent)}
+     * @param userInitiated whether the user explicitly started this recording, or the system did.
      * @return a Completable that can be watched for success or errors.  Errors will, whenever
      *         possible, be flagged by an instance of {@link RecordingStartFailedException}
      */
-    Completable startRecording(Intent resumeIntent);
+    Completable startRecording(Intent resumeIntent, boolean userInitiated);
 
     /**
      * @return a Completable that can be watched for success or errors.  Errors will, whenever

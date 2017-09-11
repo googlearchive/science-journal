@@ -666,12 +666,22 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void onRecordingRequested(String experimentName) {
+            public void onRecordingRequested(String experimentName, boolean userInitiated) {
                 showRecordingBar();
+                if (mTabsInitialized && userInitiated) {
+                    if (mBottomBehavior.getState() != PanesBottomSheetBehavior.STATE_EXPANDED) {
+                        mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_EXPANDED);
+                    }
+                }
             }
 
             @Override
-            void onRecordingStart(String trialId) {
+            void onRecordingStart(RecordingStatus recordingStatus) {
+                if (recordingStatus.state == RecordingState.STOPPING) {
+                    // If we call "recording start" when stopping it leads to extra work.
+                    return;
+                }
+                String trialId = recordingStatus.getCurrentRunId();
                 if (!TextUtils.isEmpty(trialId)) {
                     mExperimentFragment.onStartRecording(trialId);
                 }

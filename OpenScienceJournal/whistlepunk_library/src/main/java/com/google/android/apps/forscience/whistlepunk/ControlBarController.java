@@ -194,7 +194,7 @@ class ControlBarController {
         RecorderController rc =
                 AppSingleton.getInstance(anchorView.getContext()).getRecorderController();
 
-        rc.startRecording(launchIntent).subscribe(() -> {
+        rc.startRecording(launchIntent, /* user initiated */ true).subscribe(() -> {
         }, error -> {
             if (error instanceof RecorderController.RecordingStartFailedException) {
                 RecorderController.RecordingStartFailedException e =

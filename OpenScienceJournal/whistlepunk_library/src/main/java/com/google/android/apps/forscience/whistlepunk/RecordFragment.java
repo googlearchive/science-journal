@@ -64,7 +64,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusList
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.jakewharton.rxbinding2.view.RxView;
@@ -106,16 +105,17 @@ public class RecordFragment extends Fragment implements Handler.Callback,
          * Called when recording is about to start
          *
          * @param experimentName the name of the experiment we're recording in.
+         * @param userInitiated whether the user requested this recording (vs a trigger)
          */
-        void onRecordingRequested(String experimentName) {
+        void onRecordingRequested(String experimentName, boolean userInitiated) {
 
         }
 
         /**
          * Called when recording starts
-         * @param trialId the ID of the trial currently being recorded.
+         * @param recordingStatus the current recording status
          */
-        void onRecordingStart(String trialId) {
+        void onRecordingStart(RecordingStatus recordingStatus) {
 
         }
 
@@ -362,7 +362,7 @@ public class RecordFragment extends Fragment implements Handler.Callback,
 
                     @Override
                     public void onRequestStartRecording() {
-                        lockUiForRecording();
+                        lockUiForRecording(/* is starting */ true, /* user initiated */ false);
                     }
 
                     @Override
@@ -1028,8 +1028,14 @@ public class RecordFragment extends Fragment implements Handler.Callback,
         }
     }
 
-    private void lockUiForRecording() {
-        mUICallbacks.onRecordingRequested(getExperimentName());
+    /**
+     * Locks the UI to user imput in order to do a recording state change.
+     * @param isStarting whether recording is just starting.
+     */
+    private void lockUiForRecording(boolean isStarting, boolean userInitiated) {
+        if (isStarting) {
+            mUICallbacks.onRecordingRequested(getExperimentName(), userInitiated);
+        }
 
         // Lock the sensor cards and add button
         if (mSensorCardAdapter != null) {
@@ -1042,9 +1048,11 @@ public class RecordFragment extends Fragment implements Handler.Callback,
             return;
         }
 
-        if (status.isRecording()) {
-            lockUiForRecording();
-            mUICallbacks.onRecordingStart(status.currentRecording.getRunId());
+        if (status.state == RecordingState.STARTING) {
+            lockUiForRecording(/* state is STARTING */ true, status.userInitiated);
+        } else if (status.isRecording())   {
+            lockUiForRecording(/* state is not STARTING */ false, status.userInitiated);
+            mUICallbacks.onRecordingStart(status);
         } else {
             mUICallbacks.onRecordingStopped();
             if (mSensorCardAdapter != null) {
