@@ -62,7 +62,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private static final String TAG = "PanesActivity";
     private static final String EXTRA_EXPERIMENT_ID = "experimentId";
     private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
-    private static final boolean SHOW_SNAPSHOT = true;
     private final SnackbarManager mSnackbarManager;
 
     private ProgressBar mRecordingBar;
@@ -107,8 +106,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp, "OBSERVE") {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
-                return RecordFragment.newInstance(experimentId, SHOW_SNAPSHOT, false,
-                        !SHARED_CONTROL_BAR);
+                return RecordFragment.newInstance(experimentId, false);
             }
 
             @Override
@@ -118,6 +116,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.observe_action_bar, controlBar, true);
                 controlBarController.attachRecordButtons(controlBar);
+                controlBarController.attachElapsedTime(controlBar, (RecordFragment) fragment);
             }
         }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp, "CAMERA") {
             @Override
@@ -323,7 +322,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private void setupViews(Experiment experiment) {
         ControlBarController controlBarController =
                 new ControlBarController(getFragmentManager(), experiment.getExperimentId(),
-                        SHOW_SNAPSHOT, mSnackbarManager);
+                        mSnackbarManager);
 
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
         View bottomSheet = findViewById(R.id.bottom);
