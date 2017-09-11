@@ -166,8 +166,16 @@ public class SimpleMetaDataManager implements MetaDataManager {
         // Clean up if a previous migration was not successful / complete.
         mFileMetadataManager.deleteAll(experimentIds);
 
+        int colorIndex = 0;
+        int colorCount = mContext.getResources().getIntArray(R.array.experiment_colors_array)
+                .length;
         for (String experimentId : experimentIds) {
             Experiment experiment = getDatabaseExperimentById(db, experimentId, mContext, true);
+
+            // Assign a color. This is based on the order that experiments are retrieved from
+            // the database so it might not be in any particular order.
+            experiment.getExperimentOverview().colorIndex = colorIndex;
+            colorIndex = (colorIndex + 1) % colorCount;
 
             // This prepares the file system for the new experiment.
             mFileMetadataManager.addExperiment(experiment);
@@ -194,6 +202,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     updateLabelPictureAssets(experiment, trialLabel);
                 }
             }
+
             // Now that all the labels have their assets in the right place, we can save them.
             mFileMetadataManager.updateExperiment(experiment);
             mFileMetadataManager.saveImmediately();
@@ -316,6 +325,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         for (Project project : projects) {
             List<Experiment> experiments = getAllDatabaseExperimentsForProject(db, project);
             for (Experiment experiment : experiments) {
+                // Migrate project data
                 if (!TextUtils.isEmpty(project.getDescription())) {
                     // Create a label with the description at the start of the experiment.
                     // Because projects do not track their creation time, use the experiment
