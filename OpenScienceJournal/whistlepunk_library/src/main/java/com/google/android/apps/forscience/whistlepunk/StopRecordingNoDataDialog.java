@@ -62,7 +62,9 @@ public class StopRecordingNoDataDialog extends DialogFragment {
                 new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ((StopRecordingDialogListener) getParentFragment()).requestCancelRecording();
+                if (getParentFragment() != null) {
+                    ((StopRecordingDialogListener) getParentFragment()).requestCancelRecording();
+                }
             }
         });
 
