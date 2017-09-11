@@ -20,6 +20,8 @@ package com.google.android.apps.forscience.whistlepunk.sensors;
 import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -36,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataM
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import io.reactivex.Maybe;
 
@@ -190,6 +193,29 @@ public class CameraPreview extends SurfaceView {
         }
     }
 
+    public static class PreviewSize {
+        public PreviewSize(int width, int height) {
+            this.width = width;
+            this.height = height;
+        }
+
+        public int width;
+        public int height;
+
+        public void setFrom(Camera.Size size) {
+            this.width = size.width;
+            this.height = size.height;
+        }
+
+        @Override
+        public String toString() {
+            return this.width + "," + this.height;
+        }
+    }
+
+    // To avoid allocation when preview sizes are the same (which I assume they'll often be)
+    private PreviewSize[] mCachedSupportedSizes = new PreviewSize[0];
+
     private void adjustPreviewSizeAndShrinkToMatchRatio() {
         Camera.Parameters params = mCamera.getParameters();
         int idealWidth = getMeasuredWidth();
@@ -201,21 +227,9 @@ public class CameraPreview extends SurfaceView {
         // TODO: is this still right on a Chromebook?
 
         boolean flipSizes = isInPortrait();
-        Camera.Size bestSize = null;
-        double bestRatioMatch = 0.0;
+        List<Camera.Size> sizeOptions = params.getSupportedPreviewSizes();
 
-        // Find preview size with closest aspect ratio, tiebreaking with absolute size
-        // On one test device, largest size was first.  Assuming this always works
-        for (Camera.Size size : params.getSupportedPreviewSizes()) {
-            int testHeight = !flipSizes ? size.height : size.width;
-            int testWidth = !flipSizes ? size.width : size.height;
-            double ratio = (1.0 * testHeight) / testWidth;
-            double ratioMatch = Math.min(ratio, idealRatio) / Math.max(ratio, idealRatio);
-            if (ratioMatch > bestRatioMatch) {
-                bestSize = size;
-                bestRatioMatch = ratioMatch;
-            }
-        }
+        PreviewSize bestSize = getBestSize(idealRatio, flipSizes, getPreviewSizes(sizeOptions));
 
         if (bestSize == null) {
             return;
@@ -223,6 +237,7 @@ public class CameraPreview extends SurfaceView {
 
         // Bake in the new preview size
         params.setPreviewSize(bestSize.width, bestSize.height);
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         try {
             stopPreview();
             mCamera.setParameters(params);
@@ -251,6 +266,56 @@ public class CameraPreview extends SurfaceView {
             // preview is too skinny (or just right), reduce measured width
             setMeasuredDimension((int) (idealWidth * idealRatio / ratio), idealHeight);
         }
+    }
+
+    private PreviewSize[] getPreviewSizes(List<Camera.Size> sizeOptions) {
+        if (mCachedSupportedSizes.length != sizeOptions.size()) {
+            mCachedSupportedSizes = new PreviewSize[sizeOptions.size()];
+            for (int i = 0; i < mCachedSupportedSizes.length; i++) {
+                mCachedSupportedSizes[i] = new PreviewSize(0, 0);
+            }
+        }
+        for (int i = 0; i < sizeOptions.size(); i++) {
+            mCachedSupportedSizes[i].setFrom(sizeOptions.get(i));
+        }
+        return mCachedSupportedSizes;
+    }
+
+    /**
+     * @param idealRatio the ideal ratio (height / width)
+     * @param flipSizes if the options need to be flipped (so that height becomes width and vice
+     *                  versa) in order to be correctly matched with the idealRatio (because of
+     *                  oddity in how camera API handles rotation)
+     * @param sizeOptions the optional sizes
+     * @return the best size.  "Best size" means the most preview pixels visible on screen,
+     *         _minus_ the number of preview-sized pixels needed to letter box to the current size.
+     *         This is heuristic, and should choose high-resolution previews, with letterbox
+     *         minimization as a lower-priority tiebreaker
+     */
+    @Nullable @VisibleForTesting
+    public static PreviewSize getBestSize(double idealRatio, boolean flipSizes,
+            PreviewSize... sizeOptions) {
+        PreviewSize bestSize = null;
+        double bestPixels = 0;
+
+        for (PreviewSize size : sizeOptions) {
+            int goodPixels = size.height * size.width;
+
+            int testHeight = !flipSizes ? size.height : size.width;
+            int testWidth = !flipSizes ? size.width : size.height;
+            double ratio = (1.0 * testHeight) / testWidth;
+            double ratioMatch = Math.min(ratio, idealRatio) / Math.max(ratio, idealRatio);
+
+            // How many pixels worth of letterboxing?
+            double badPixels = goodPixels * (1 - ratioMatch);
+            double pixelScore = goodPixels - badPixels;
+
+            if (pixelScore > bestPixels) {
+                bestSize = size;
+                bestPixels = pixelScore;
+            }
+        }
+        return bestSize;
     }
 
     private boolean isInPortrait() {
