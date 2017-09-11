@@ -250,7 +250,7 @@ public class ExperimentDetailsFragment extends Fragment
 
         mDetails = (RecyclerView) view.findViewById(R.id.details_list);
         mDetails.setLayoutManager(new LinearLayoutManager(view.getContext(),
-                LinearLayoutManager.VERTICAL, true));
+                LinearLayoutManager.VERTICAL, /* don't reverse layout */ false));
         mAdapter = new DetailsAdapter(this, savedInstanceState);
         mDetails.setAdapter(mAdapter);
 
@@ -305,7 +305,7 @@ public class ExperimentDetailsFragment extends Fragment
 
     public void scrollToBottom() {
         if (mDetails != null) {
-            mDetails.smoothScrollToPosition(0);
+            mDetails.smoothScrollToPosition(mAdapter.getItemCount() - 1);
         }
     }
 
@@ -536,8 +536,7 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     private void setExperimentItemsOrder(Experiment experiment) {
-        ((LinearLayoutManager) mDetails.getLayoutManager()).setReverseLayout(
-                !experiment.isArchived());
+        mAdapter.setReverseLayout(!experiment.isArchived());
     }
 
     @Override
@@ -672,6 +671,7 @@ public class ExperimentDetailsFragment extends Fragment
         private List<Integer> mSensorIndices = null;
         private boolean mHasRunsOrLabels;
         private ScalarDisplayOptions mScalarDisplayOptions;
+        private boolean mReverseOrder = true;
 
         DetailsAdapter(ExperimentDetailsFragment parent, Bundle savedInstanceState) {
             mItems = new ArrayList<>();
@@ -1243,8 +1243,13 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         void sortItems() {
-            Collections.sort(mItems,
-                    (lhs, rhs) -> Long.compare(rhs.getTimestamp(), lhs.getTimestamp()));
+            if (mReverseOrder) {
+                Collections.sort(mItems,
+                        (lhs, rhs) -> Long.compare(lhs.getTimestamp(), rhs.getTimestamp()));
+            } else {
+                Collections.sort(mItems,
+                        (lhs, rhs) -> Long.compare(rhs.getTimestamp(), lhs.getTimestamp()));
+            }
         }
 
         public void onSaveInstanceState(Bundle outState) {
@@ -1317,6 +1322,14 @@ public class ExperimentDetailsFragment extends Fragment
             } else {
                 mItems.set(position, new ExperimentDetailItem(trial, mScalarDisplayOptions, false));
                 notifyItemChanged(position);
+            }
+        }
+
+        public void setReverseLayout(boolean reverseLayout) {
+            if (mReverseOrder != reverseLayout) {
+                mReverseOrder = reverseLayout;
+                sortItems();
+                notifyDataSetChanged();
             }
         }
 
