@@ -743,4 +743,20 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
         }
         return (PanesBottomSheetBehavior<V>) behavior;
     }
+    public String getDrawerStateForLogging() {
+        switch (mState) {
+            case PanesBottomSheetBehavior.STATE_COLLAPSED:
+                return "COLLAPSED";
+            case PanesBottomSheetBehavior.STATE_MIDDLE:
+                return "MIDDLE";
+            case PanesBottomSheetBehavior.STATE_EXPANDED:
+                return "EXPANDED";
+            case PanesBottomSheetBehavior.STATE_DRAGGING:
+                return "DRAGGING";
+            case PanesBottomSheetBehavior.STATE_SETTLING:
+                return "SETTLING";
+            default:
+                return "UNKNOWN";
+        }
+    }
 }

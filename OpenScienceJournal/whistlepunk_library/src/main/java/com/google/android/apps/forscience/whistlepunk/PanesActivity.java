@@ -31,6 +31,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
@@ -76,7 +78,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private static enum ToolTab {
-        NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp) {
+        NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp, "NOTES") {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
                 return TextToolFragment.newInstance();
@@ -102,7 +104,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     ttf.onLosingFocus();
                 };
             }
-        }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp) {
+        }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp, "OBSERVE") {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
                 return RecordFragment.newInstance(experimentId, SHOW_SNAPSHOT, false,
@@ -117,7 +119,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                               .inflate(R.layout.observe_action_bar, controlBar, true);
                 controlBarController.attachRecordButtons(controlBar);
             }
-        }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp) {
+        }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp, "CAMERA") {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
                 // TODO: b/62022245
@@ -140,7 +142,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                               .inflate(R.layout.camera_action_bar, controlBar, true);
                 cf.attachButtons(controlBar);
             }
-        }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp) {
+        }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp, "GALLERY") {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
                 return GalleryFragment.newInstance(new RxPermissions(activity),
@@ -160,10 +162,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         };
         private final int mContentDescriptionId;
         private final int mIconId;
+        private final String mLoggingName;
 
-        ToolTab(int contentDescriptionId, int iconId) {
+        ToolTab(int contentDescriptionId, int iconId, String loggingName) {
             mContentDescriptionId = contentDescriptionId;
             mIconId = iconId;
+            mLoggingName = loggingName;
         }
 
         public abstract Fragment createFragment(String experimentId, Activity activity);
@@ -174,6 +178,10 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
         public int getIconId() {
             return mIconId;
+        }
+
+        public String getLoggingName() {
+            return mLoggingName;
         }
 
         /**
@@ -288,7 +296,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 return false;
             }
         });
-
+        WhistlePunkApplication.getUsageTracker(this).trackScreenView(
+                TrackerConstants.SCREEN_PANES);
     }
 
     @Override
@@ -591,6 +600,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     protected void onPause() {
         if (!isMultiWindowEnabled()) {
             updateRecorderControllerForPause();
+            logPanesState(TrackerConstants.ACTION_PAUSED);
         }
         super.onPause();
     }
@@ -607,8 +617,21 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     protected void onStop() {
         if (isMultiWindowEnabled()) {
             updateRecorderControllerForPause();
+            logPanesState(TrackerConstants.ACTION_PAUSED);
         }
         super.onStop();
+    }
+
+    private void logPanesState(String action) {
+        SparseArray<String> dimensions = new SparseArray<>();
+        if (mTabsInitialized) {
+            dimensions.append(TrackerConstants.PANES_DRAWER_STATE,
+                    mBottomBehavior.getDrawerStateForLogging());
+            dimensions.append(TrackerConstants.PANES_TOOL_NAME,
+                    ToolTab.values()[mSelectedTabIndex].getLoggingName());
+        }
+        WhistlePunkApplication.getUsageTracker(this).trackDimensionEvent(
+                TrackerConstants.CATEGORY_PANES, action, dimensions);
     }
 
     private boolean isMultiWindowEnabled() {
@@ -638,6 +661,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         return new RecordFragment.UICallbacks() {
             @Override
             void onRecordingSaved(String runId, Experiment experiment) {
+                logPanesState(TrackerConstants.ACTION_RECORDED);
                 mExperimentFragment.loadExperimentData(experiment);
             }
 
@@ -724,6 +748,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private void onLabelAdded(String trialId) {
+        logPanesState(TrackerConstants.ACTION_LABEL_ADDED);
         if (TextUtils.isEmpty(trialId)) {
             // TODO: is this expensive?  Should we trigger a more incremental update?
             mExperimentFragment.reloadAndScrollToBottom();

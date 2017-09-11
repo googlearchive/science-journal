@@ -16,6 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.analytics;
 
+import android.util.SparseArray;
+
 /**
  * Tracks usage for aggregate statistics.
  */
@@ -34,6 +36,12 @@ public interface UsageTracker {
 
         @Override
         public void trackEvent(String category, String action, String label, long value) {
+            // do nothing
+        }
+
+        @Override
+        public void trackDimensionEvent(String category, String action,
+                SparseArray<String> dimensions) {
             // do nothing
         }
     };
@@ -59,4 +67,13 @@ public interface UsageTracker {
      * @param value    Optional value
      */
     public void trackEvent(String category, String action, String label, long value);
+
+    /**
+     * Tracks a dimension only event
+     *
+     * @param category Category of the event
+     * @param action   Action tag of the event
+     * @param dimensions Map of custom dimensions for the event
+     */
+    public void trackDimensionEvent(String category, String action, SparseArray<String> dimensions);
 }

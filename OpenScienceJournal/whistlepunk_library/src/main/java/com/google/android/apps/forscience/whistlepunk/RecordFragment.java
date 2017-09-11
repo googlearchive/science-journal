@@ -389,8 +389,6 @@ public class RecordFragment extends Fragment implements Handler.Callback,
                         }
                     });
                 });
-        WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
-                TrackerConstants.SCREEN_OBSERVE_RECORD);
     }
 
     public boolean readSensorsFromExtras(RecorderController rc) {
