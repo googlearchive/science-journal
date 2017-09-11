@@ -108,15 +108,18 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     private void removeTrialSensorData(final Trial trial) {
-        mSensorDataThread.execute(new Runnable() {
-
-            @Override
-            public void run() {
-                TimeRange times = TimeRange.oldest(Range.closed(trial.getFirstTimestamp(),
-                        trial.getLastTimestamp()));
-                for (String tag : trial.getSensorIds()) {
-                    mSensorDatabase.deleteScalarReadings(tag, times);
-                }
+        mSensorDataThread.execute(() -> {
+            long firstTimestamp = trial.getOriginalFirstTimestamp();
+            long lastTimestamp = trial.getOriginalLastTimestamp();
+            if (firstTimestamp > lastTimestamp) {
+                // TODO: Need a way to clean up invalid old data properly. For now, just
+                // continue to ignore it because we cannot be sure where to stop deleting.
+                return;
+            }
+            TimeRange times = TimeRange.oldest(Range.closed(firstTimestamp,
+                    lastTimestamp));
+            for (String tag : trial.getSensorIds()) {
+                mSensorDatabase.deleteScalarReadings(tag, times);
             }
         });
     }
