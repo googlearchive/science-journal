@@ -471,6 +471,10 @@ public class ExperimentDetailsFragment extends Fragment
             // We are handling this.
             return true;
         }
+        if (getActivity().isTaskRoot()) {
+            goToExperimentList();
+            return true;
+        }
         // The activity can handle it normally.
         return false;
     }

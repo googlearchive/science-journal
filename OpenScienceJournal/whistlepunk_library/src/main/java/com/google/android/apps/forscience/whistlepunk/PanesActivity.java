@@ -556,7 +556,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     private void setExperimentFragmentId(Experiment experiment) {
         if (mExperimentFragment == null) {
-            boolean createTaskStack = false;
+            boolean createTaskStack = true;
             Label deletedLabel = getDeletedLabel();
             mExperimentFragment =
                     ExperimentDetailsFragment.newInstance(experiment.getExperimentId(),
