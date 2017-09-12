@@ -90,7 +90,10 @@ public class SensorInfoActivity extends AppCompatActivity {
                 int drawable = contents.getDrawableResourceId();
                 if (drawable != 0) {
                     imageView.setVisibility(View.VISIBLE);
-                    Glide.with(this).load(contents.getDrawableResourceId()).fitCenter().into(imageView);
+                    GlideApp.with(this)
+                            .load(contents.getDrawableResourceId())
+                            .fitCenter()
+                            .into(imageView);
                 } else {
                     imageView.setVisibility(View.GONE);
                 }

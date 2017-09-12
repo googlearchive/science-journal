@@ -278,7 +278,7 @@ public class GalleryFragment extends Fragment implements
         public void onBindViewHolder(ViewHolder holder, int position) {
             String image = mImages.get(position);
 
-            Glide.with(mContext)
+            GlideApp.with(mContext)
                     .load(image)
                     .thumbnail(.5f)
                     .into(holder.image);

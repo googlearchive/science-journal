@@ -33,9 +33,8 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.signature.StringSignature;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 
 import java.io.File;
@@ -136,19 +135,17 @@ public class PictureUtils {
             String relativeFilePath) {
         File file = FileMetadataManager.getExperimentFile(context, experimentId, relativeFilePath);
         // Use last modified time as part of the signature to force a glide cache refresh.
-        long fileLastModified = file.lastModified();
-        Glide.with(context)
+        GlideApp.with(context)
                 .load(file.getAbsolutePath())
-                .signature(new StringSignature(relativeFilePath + fileLastModified))
+                .signature(new ObjectKey(file.getPath() + file.lastModified()))
                 .fitCenter()
-                // Cache the resulting size, which is most frequently used in the RecyclerView.
-                // TODO: Glide 4.0 seems to have a good default; this should be removed on upgrade.
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                // caches only the final image, after reducing the resolution
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(view);
     }
 
     public static void clearImage(ImageView image) {
-        Glide.clear(image);
+        GlideApp.with(image).clear(image);
     }
 
     public static String getExperimentImagePath(Context context, String experimentId,
@@ -178,14 +175,14 @@ public class PictureUtils {
         Context context = imageView.getContext();
         String fullPath = PictureUtils.getExperimentOverviewFullImagePath(context,
                 experimentOverviewFilePath);
-        long fileLastModified = new File(fullPath).lastModified();
-        Glide.with(context)
+        File file = new File(fullPath);
+        GlideApp.with(context)
                 .load(fullPath)
                 // Create a signature based on the last modified time so that cached images will
                 // not be used if the underlying file changes. This may happen if the user has
                 // picked an experiment photo from the "edit experiment" page because there is only
                 // one filename used for that photo.
-                .signature(new StringSignature(experimentOverviewFilePath + fileLastModified))
+                .signature(new ObjectKey(file.getPath() + file.lastModified()))
                 .into(imageView);
     }
 
