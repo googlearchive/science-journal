@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
@@ -90,6 +91,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
             PictureUtils.loadExperimentImage(image.getContext(), image, experimentId,
                     labelValue.filePath);
         } else {
+            PictureUtils.clearImage(image);
             image.setVisibility(View.GONE);
         }
 
