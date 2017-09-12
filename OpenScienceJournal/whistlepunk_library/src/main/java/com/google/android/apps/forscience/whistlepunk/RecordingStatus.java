@@ -28,10 +28,17 @@ public class RecordingStatus {
 
     public final RecordingState state;
     public final RecordingMetadata currentRecording;
+    public final boolean userInitiated;
 
     private RecordingStatus(RecordingState state, RecordingMetadata metadata) {
+        this(state, metadata, true);
+    }
+
+    private RecordingStatus(RecordingState state, RecordingMetadata metadata,
+            boolean userInitiated) {
         this.state = state;
         this.currentRecording = metadata;
+        this.userInitiated = userInitiated;
     }
 
     public boolean isRecording() {
@@ -45,6 +52,10 @@ public class RecordingStatus {
 
     public RecordingStatus withState(RecordingState newState) {
         return new RecordingStatus(newState, currentRecording);
+    }
+
+    public RecordingStatus withState(RecordingState newState, boolean userInitiated) {
+        return new RecordingStatus(newState, currentRecording, userInitiated);
     }
 
     public RecordingStatus inStableRecordingState() {

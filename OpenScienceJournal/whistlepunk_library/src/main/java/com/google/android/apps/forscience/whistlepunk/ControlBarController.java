@@ -23,6 +23,7 @@ import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.view.RxView;
 
@@ -35,20 +36,17 @@ import io.reactivex.Observable;
 class ControlBarController {
     private final FragmentManager mFragmentManager;
     private final String mExperimentId;
-    private boolean mShowSnapshot;
     private SnackbarManager mSnackbarManager;
 
     public ControlBarController(FragmentManager fragmentManager, String experimentId,
-            boolean showSnapshot, SnackbarManager snackbarManager) {
+            SnackbarManager snackbarManager) {
         mFragmentManager = fragmentManager;
         mExperimentId = experimentId;
-        mShowSnapshot = showSnapshot;
         mSnackbarManager = snackbarManager;
     }
 
     public void attachSnapshotButton(View snapshotButton) {
         AppSingleton singleton = AppSingleton.getInstance(snapshotButton.getContext());
-        snapshotButton.setVisibility(mShowSnapshot ? View.VISIBLE : View.GONE);
         snapshotButton.setOnClickListener(v -> {
             Snapshotter snapshotter = new Snapshotter(singleton.getRecorderController(),
                     singleton.getDataController(), singleton.getSensorRegistry());
@@ -57,34 +55,6 @@ class ControlBarController {
                      .flatMapSingle(status -> snapshotter.addSnapshotLabel(mExperimentId, status))
                      .subscribe(label -> singleton.onLabelsAdded().onNext(label));
         });
-    }
-
-    public void attachAddButton(ImageButton addButton) {
-        if (mShowSnapshot) {
-            // If we're showing the snapshot, we're in the panes ui, and should not have an add
-            // note button
-            addButton.setVisibility(View.GONE);
-        } else {
-            addButton.setVisibility(View.VISIBLE);
-            AppSingleton singleton = AppSingleton.getInstance(addButton.getContext());
-            Observable<RecordingStatus> recordingStatus =
-                    singleton
-                            .getRecorderController()
-                            .watchRecordingStatus();
-
-            attachAddButton(recordingStatus, addButton);
-
-            RxView.clicks(addButton).subscribe(o -> {
-                recordingStatus.firstElement().subscribe(status -> {
-                    long now = singleton.getSensorEnvironment().getDefaultClock().getNow();
-
-                    // Save the timestamp for the note, but show the user a UI to create it:
-                    // Can't create the note yet as we don't know ahead of time if this is a
-                    // picture or text note.
-                    launchLabelAdd(now, status.getCurrentRunId());
-                });
-            });
-        }
     }
 
     private void attachAddButton(Observable<RecordingStatus> recordingState,
@@ -101,11 +71,6 @@ class ControlBarController {
                         resources.getString(R.string.btn_add_experiment_note_description));
             }
         });
-    }
-
-    private void launchLabelAdd(long timestamp, String currentRunId) {
-        boolean isRecording = currentRunId != RecorderController.NOT_RECORDING_RUN_ID;
-        // TODO: Use TextLabeLFragment. This doesn't appear to be hooked up to anything yet, though.
     }
 
     public void attachRecordButton(ImageButton recordButton) {
@@ -194,7 +159,7 @@ class ControlBarController {
         RecorderController rc =
                 AppSingleton.getInstance(anchorView.getContext()).getRecorderController();
 
-        rc.startRecording(launchIntent).subscribe(() -> {
+        rc.startRecording(launchIntent, /* user initiated */ true).subscribe(() -> {
         }, error -> {
             if (error instanceof RecorderController.RecordingStartFailedException) {
                 RecorderController.RecordingStartFailedException e =
@@ -220,13 +185,31 @@ class ControlBarController {
     }
 
     void attachRecordButtons(ViewGroup rootView) {
-        ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add);
-        attachAddButton(addButton);
-
         ImageButton recordButton = (ImageButton) rootView.findViewById(R.id.btn_record);
         attachRecordButton(recordButton);
 
         View snapshotButton = rootView.findViewById(R.id.snapshot_button);
         attachSnapshotButton(snapshotButton);
+    }
+
+    void attachElapsedTime(ViewGroup rootView, RecordFragment fragment) {
+        TextView elapsedTime = (TextView) rootView.findViewById(R.id.recorded_time);
+        Observable<RecordingStatus> recordingStatus =
+                AppSingleton.getInstance(elapsedTime.getContext())
+                        .getRecorderController()
+                        .watchRecordingStatus();
+        recordingStatus.takeUntil(RxView.detaches(elapsedTime)).subscribe(status -> {
+            if (status.isRecording()) {
+                elapsedTime.setVisibility(View.VISIBLE);
+            } else {
+                elapsedTime.setVisibility(View.GONE);
+            }
+        });
+        ElapsedTimeAxisFormatter formatter = ElapsedTimeAxisFormatter.getInstance(
+                elapsedTime.getContext());
+        // This clears any old listener as well as setting a new one, so we don't need to worry
+        // about having multiple listeners active.
+        fragment.setRecordingTimeUpdateListener(
+                recordingTime -> elapsedTime.setText(formatter.formatToTenths(recordingTime)));
     }
 }

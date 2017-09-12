@@ -16,6 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.opensource.modules;
 
+import android.util.SparseArray;
+
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 
 import dagger.Module;
@@ -41,6 +43,12 @@ public class UsageTrackerModule {
 
             @Override
             public void trackEvent(String category, String action, String label, long value) {
+
+            }
+
+            @Override
+            public void trackDimensionEvent(String category, String action,
+                    SparseArray<String> dimensions) {
 
             }
         };

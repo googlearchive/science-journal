@@ -90,8 +90,13 @@ public class ExternalAxisController {
         void requestResetZoom();
     }
 
+    public interface RecordingTimeUpdateListener {
+        void onRecordingTimeUpdated(long now);
+    }
+
     private List<AxisUpdateListener> mAxisUpdateListeners = new ArrayList<>();
     private InteractionListener mInteractionListener;
+    private RecordingTimeUpdateListener mRecordingTimeUpdateListener;
 
     public static final int MS_IN_SEC = 1000;
     private static final int DEFAULT_GRAPH_RANGE_IN_SECONDS = 20;
@@ -271,7 +276,12 @@ public class ExternalAxisController {
                     mXMin = timestamp - DEFAULT_GRAPH_RANGE_IN_MILLIS;
                     isInitialized = true;
                 }
-                scrollToNowIfPinned(mCurrentTimeClock.getNow(), timestamp);
+                long now = mCurrentTimeClock.getNow();
+                scrollToNowIfPinned(now, timestamp);
+                if (mRecordingStart != RecordingMetadata.NOT_RECORDING &&
+                        mRecordingTimeUpdateListener != null) {
+                    mRecordingTimeUpdateListener.onRecordingTimeUpdated(now - mRecordingStart);
+                }
                 mRefreshHandler.postDelayed(mRefreshRunnable, UPDATE_TIME_MS);
             }
         };
@@ -298,6 +308,10 @@ public class ExternalAxisController {
         return mInteractionListener;
     }
 
+    public void setRecordingTimeUpdateListener(RecordingTimeUpdateListener listener) {
+        mRecordingTimeUpdateListener = listener;
+    }
+
     public void setReviewData(long originalStart, long runStart, long reviewMin, long reviewMax) {
         // The start and end of recording.
         mRecordingStart = runStart;
@@ -315,6 +329,7 @@ public class ExternalAxisController {
     public void destroy() {
         mAxisUpdateListeners.clear();
         mInteractionListener = null;
+        mRecordingTimeUpdateListener = null;
     }
 
     public void updateAxis() {

@@ -200,7 +200,7 @@ public class ProxyRecorderControllerTest {
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
 
         assertFalse(stateListener.recentIsRecording);
-        rc.startRecording(null).blockingGet();
+        rc.startRecording(null, true).blockingGet();
         assertTrue(stateListener.recentIsRecording);
 
         rc.forceHasData("id1", true);
@@ -209,7 +209,7 @@ public class ProxyRecorderControllerTest {
         assertFalse(stateListener.recentIsRecording);
         prc.removeRecordingStateListener("listenerId");
         assertFalse(stateListener.recentIsRecording);
-        rc.startRecording(null);
+        rc.startRecording(null, true);
         // Still false, because we've stopped listening
         assertFalse(stateListener.recentIsRecording);
         rc.stopRecording(mRegistry).blockingGet();
@@ -237,17 +237,17 @@ public class ProxyRecorderControllerTest {
 
         // Not connected - no data
         assertFalse(stateListener.recentIsRecording);
-        rc.startRecording(null).test().await().assertError(
+        rc.startRecording(null, true).test().await().assertError(
                 RecorderController.RecordingStartFailedException.class);
         assertFalse(stateListener.recentIsRecording);
 
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTING);
-        rc.startRecording(null).test().await().assertError(
+        rc.startRecording(null, true).test().await().assertError(
                 RecorderController.RecordingStartFailedException.class);
         assertFalse(stateListener.recentIsRecording);
 
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
-        rc.startRecording(null).test().await().assertComplete();
+        rc.startRecording(null, true).test().await().assertComplete();
         assertTrue(stateListener.recentIsRecording);
     }
 
@@ -267,7 +267,7 @@ public class ProxyRecorderControllerTest {
                 BLANK_OPTIONS, mRegistry);
 
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
-        rc.startRecording(null).blockingAwait();
+        rc.startRecording(null, true).blockingAwait();
         assertTrue(stateListener.recentIsRecording);
 
         // No data yet -- stop recording should not actually stop
@@ -280,7 +280,7 @@ public class ProxyRecorderControllerTest {
 
         // This time we will disconnect during recording, and stopRecording should also fail.
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
-        rc.startRecording(null).blockingGet();
+        rc.startRecording(null, true).blockingGet();
         listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_DISCONNECTED);
         assertTrue(stateListener.recentIsRecording);
 

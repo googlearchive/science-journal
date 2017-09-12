@@ -40,7 +40,6 @@
             android:contentDescription="@string/snapshot_button_text"
             android:src="@drawable/snapshot_icon"
             android:layout_gravity="center"
-            android:visibility="gone"
             android:background="?attr/selectableItemBackgroundBorderless"
             style="?attr/borderlessButtonStyle"
             />
@@ -71,17 +70,16 @@
         android:layout_weight="1"
         >
 
-        <ImageButton
-            android:id="@+id/btn_add"
-            android:layout_width="@dimen/accessibility_touch_target_min_size"
-            android:layout_height="@dimen/accessibility_touch_target_min_size"
-            android:scaleType="center"
+        <TextView
+            android:id="@+id/recorded_time"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:src="@drawable/ic_notes_white_24dp"
-            android:contentDescription="@string/btn_add_experiment_note_description"
-            android:alpha="@dimen/icon_active_alpha"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            style="?attr/borderlessButtonStyle"
+            android:gravity="center"
+            android:textColor="@color/text_color_white"
+            android:textSize="24sp"
+            android:visibility="gone"
             />
+
     </FrameLayout>
 </LinearLayout>

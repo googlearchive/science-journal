@@ -26,11 +26,11 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 public final class TrackerConstants {
 
     // Screen names.
-    public static final String SCREEN_INTRO = "intro";
-    public static final String SCREEN_INTRO_REPLAY = "intro_replay";
-    public static final String SCREEN_OBSERVE_RECORD = "observe_record";
+    // public static final String SCREEN_INTRO = "intro";
+    // public static final String SCREEN_INTRO_REPLAY = "intro_replay";
+    // public static final String SCREEN_OBSERVE_RECORD = "observe_record";
     public static final String SCREEN_EXPERIMENT_LIST = "experiment_list";
-    public static final String SCREEN_NEW_EXPERIMENT = "experiment_new";
+    // public static final String SCREEN_NEW_EXPERIMENT = "experiment_new";
     public static final String SCREEN_UPDATE_EXPERIMENT = "experiment_update";
     public static final String SCREEN_EXPERIMENT_DETAIL = "experiment_detail";
     public static final String SCREEN_RUN_REVIEW = "run_review";
@@ -42,10 +42,13 @@ public final class TrackerConstants {
     public static final String SCREEN_TRIGGER_LIST = "trigger_list";
     public static final String SCREEN_TRIGGER_EDIT = "trigger_edit";
     public static final String SCREEN_SENSOR_INFO = "sensor_info";
+    public static final String SCREEN_PANES = "panes";
 
     // Custom dimension indices.
     public static final int DIMENSION_MODE = 1;
     public static final int RELEASE_TYPE = 2;
+    public static final int PANES_TOOL_NAME = 3;
+    public static final int PANES_DRAWER_STATE = 4;
 
     // Categories
     public static final String CATEGORY_EXPERIMENTS = "Experiments";
@@ -56,6 +59,8 @@ public final class TrackerConstants {
     public static final String CATEGORY_API = "API";
     public static final String CATEGORY_INFO = "Info";
     public static final String CATEGORY_SENSOR_MANAGEMENT = "ManageSensors";
+    public static final String CATEGORY_STORAGE = "Storage";
+    public static final String CATEGORY_PANES = "Panes";
 
     // Event actions
     public static final String ACTION_CREATE = "Create";
@@ -76,6 +81,10 @@ public final class TrackerConstants {
     public static final String ACTION_CROP_COMPLETED = "CropCompleted";
     public static final String ACTION_CROP_STARTED = "CropStarted";
     public static final String ACTION_CROP_FAILED = "CropFailed";
+    public static final String ACTION_WRITE_FAILED = "WriteFailed";
+    public static final String ACTION_READ_FAILED = "ReadFailed";
+    public static final String ACTION_PAUSED = "Paused";
+    public static final String ACTION_LABEL_ADDED = "LabelAdded";
 
     // Labels
     public static final String LABEL_RECORD = "record";

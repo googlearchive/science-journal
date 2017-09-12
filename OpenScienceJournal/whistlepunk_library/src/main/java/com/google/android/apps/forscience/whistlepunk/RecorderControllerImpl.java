@@ -262,8 +262,9 @@ public class RecorderControllerImpl implements RecorderController {
                     listener.onRequestStartRecording();
                 }
                 // TODO: test this subscribe
-                startRecording(new Intent(mContext, MainActivity.class)).subscribe(
-                        LoggingConsumer.observe(TAG, "start recording with trigger"));
+                startRecording(new Intent(mContext, MainActivity.class),
+                        /* not user initiated */ false).subscribe(
+                                LoggingConsumer.observe(TAG, "start recording with trigger"));
                 WhistlePunkApplication.getUsageTracker(mContext).trackEvent(
                         TrackerConstants.CATEGORY_RUNS,
                         TrackerConstants.ACTION_TRY_RECORDING_FROM_TRIGGER, null, 0);
@@ -497,7 +498,7 @@ public class RecorderControllerImpl implements RecorderController {
     }
 
     @Override
-    public Completable startRecording(final Intent resumeIntent) {
+    public Completable startRecording(final Intent resumeIntent, boolean userInitiated) {
         if (isRecording() || mRecordingStateChangeInProgress) {
             return Completable.complete();
         }
@@ -517,7 +518,8 @@ public class RecorderControllerImpl implements RecorderController {
             }
         }
 
-        mRecordingStatus.onNext(mRecordingStatus.getValue().withState(RecordingState.STARTING));
+        mRecordingStatus.onNext(mRecordingStatus.getValue().withState(RecordingState.STARTING,
+                userInitiated));
 
         mRecordingStateChangeInProgress = true;
         return Completable.create(emitter ->

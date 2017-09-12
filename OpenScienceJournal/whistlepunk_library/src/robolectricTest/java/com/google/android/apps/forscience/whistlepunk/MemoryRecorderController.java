@@ -72,7 +72,7 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
-    public Completable startRecording(Intent resumeIntent) {
+    public Completable startRecording(Intent resumeIntent, boolean userInitiated) {
         return Completable.complete();
     }
 

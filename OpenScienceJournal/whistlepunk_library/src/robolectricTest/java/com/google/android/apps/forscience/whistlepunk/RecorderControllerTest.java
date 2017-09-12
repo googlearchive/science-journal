@@ -333,7 +333,7 @@ public class RecorderControllerTest {
         Experiment experiment =
                 RxDataController.createExperiment(mDataController).test().values().get(0);
         rc.setSelectedExperiment(experiment);
-        rc.startRecording(null).test().await().assertComplete();
+        rc.startRecording(null, true).test().await().assertComplete();
         // must push at least one value to record
         mSensor.pushValue(10, 50);
         rc.stopRecording(mSensorRegistry).test().await().assertComplete();
