@@ -84,4 +84,9 @@
         <resource>license_apache2</resource>
         <copyrightHeader>Copyright (c) 2017 Thomas Bruyelle</copyrightHeader>
     </license>
+    <license key="rxbinding">
+        <title>RxBinding</title>
+        <resource>license_apache2</resource>
+        <copyrightHeader>Copyright (C) 2015 Jake Wharton</copyrightHeader>
+    </license>
 </licenses>
