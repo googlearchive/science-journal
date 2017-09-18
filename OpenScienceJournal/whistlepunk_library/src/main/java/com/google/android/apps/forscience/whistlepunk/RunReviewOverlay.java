@@ -408,8 +408,8 @@ public class RunReviewOverlay extends View implements ChartController.ChartDataL
             pointData.label = "";
         }
         float labelWidth = mTextPaint.measureText(pointData.label);
-        String timeLabel = mTimeFormat.formatToTenths(pointData.timestamp -
-                mExternalAxis.getRecordingStartTime());
+        String timeLabel = mTimeFormat.format(pointData.timestamp -
+                mExternalAxis.getRecordingStartTime(), true);
         float timeWidth = mTimePaint.measureText(timeLabel);
 
         // Ascent returns the distance above (negative) the baseline (ascent). Since it is negative,

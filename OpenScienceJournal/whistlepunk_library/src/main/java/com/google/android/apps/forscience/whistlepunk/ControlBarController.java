@@ -210,6 +210,6 @@ class ControlBarController {
         // This clears any old listener as well as setting a new one, so we don't need to worry
         // about having multiple listeners active.
         fragment.setRecordingTimeUpdateListener(
-                recordingTime -> elapsedTime.setText(formatter.formatToTenths(recordingTime)));
+                recordingTime -> elapsedTime.setText(formatter.format(recordingTime, true)));
     }
 }
