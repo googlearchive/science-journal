@@ -1294,13 +1294,13 @@ Permissions notice:
     <string name="tool_picker_tab_layout_description">Available tools</string>
 
     <!-- Content description for tab icon to add a text note [CHAR_LIMIT=none] -->
-    <string name="tab_description_add_note">Add note</string>
+    <string name="tab_description_add_note">Write text</string>
 
     <!-- Content description for tab icon to observe sensors [CHAR_LIMIT=none] -->
     <string name="tab_description_observe">Observe sensors</string>
 
     <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
-    <string name="tab_description_camera">Take picture</string>
+    <string name="tab_description_camera">Take photo</string>
 
     <!-- Button to view more notes in a trial [CHAR_LIMIT=50] -->
     <string name="load_more_notes_btn">View more notes</string>
@@ -1345,7 +1345,7 @@ Permissions notice:
     <string name="experiment_cover_description">Choose an experiment photo</string>
 
     <!-- Content description for button to take a picture to use as the experiment image [CHAR_LIMIT=NONE] -->
-    <string name="btn_take_picture_content_description">Take picture</string>
+    <string name="btn_take_picture_content_description">Shutter</string>
 
     <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
     <string name="tab_description_gallery">Choose picture</string>
@@ -1373,6 +1373,9 @@ Permissions notice:
 
     <!-- Menu option to edit a photo [CHAR_LIMIT=30] -->
     <string name="action_edit_photo">Edit photo</string>
+
+    <!-- Experiment Details menu option to add a text note [CHAR_LIMIT=25] -->
+    <string name="add_text_note">Add text note</string>
 
     <!-- Content description for the camera preview [CHAR_LIMIT=NONE] -->
     <string name="camera_preview_content_description">Camera live view</string>

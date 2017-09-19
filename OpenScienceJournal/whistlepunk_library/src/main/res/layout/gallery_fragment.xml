@@ -24,9 +24,8 @@
         android:id="@+id/gallery"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/control"
         android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
         />
 
-    <include layout="@layout/gallery_action_bar"/>
 </RelativeLayout>

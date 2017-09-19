@@ -60,7 +60,6 @@ public class GalleryFragment extends Fragment implements
     private static final String TAG = "GalleryFragment";
     private static final int PHOTO_LOADER_INDEX = 1;
     private static final String KEY_SELECTED_PHOTO = "selected_photo";
-    private static final String KEY_NATIVE_CONTROL_BAR = "nativeControlBar";
 
     // Same methods as the camera fragment, so share the listener code.
     private CameraFragment.CameraFragmentListener mListener;
@@ -69,12 +68,8 @@ public class GalleryFragment extends Fragment implements
     private SingleSubject<LoaderManager> mWhenLoaderManager = SingleSubject.create();
     private BehaviorSubject<Boolean> mAddButtonEnabled = BehaviorSubject.create();
 
-    public static Fragment newInstance(RxPermissions permissions,
-            boolean shouldUseNativeControlBar) {
+    public static Fragment newInstance(RxPermissions permissions) {
         GalleryFragment fragment = new GalleryFragment();
-        Bundle args = new Bundle();
-        args.putBoolean(KEY_NATIVE_CONTROL_BAR, shouldUseNativeControlBar);
-        fragment.setArguments(args);
 
         // TODO: use RxPermissions instead of PermissionsUtils everywhere?
         permissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -114,15 +109,6 @@ public class GalleryFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.gallery_fragment, null);
-
-        View bar = rootView.findViewById(R.id.control);
-
-        if (shouldUseNativeControlBar()) {
-            bar.setVisibility(View.VISIBLE);
-            attachAddButton(bar);
-        } else {
-            bar.setVisibility(View.GONE);
-        }
 
         RecyclerView gallery = (RecyclerView) rootView.findViewById(R.id.gallery);
         GridLayoutManager layoutManager = new GridLayoutManager(gallery.getContext(),
@@ -347,9 +333,5 @@ public class GalleryFragment extends Fragment implements
                 selectedIndicator = itemView.findViewById(R.id.selected_indicator);
             }
         }
-    }
-
-    private boolean shouldUseNativeControlBar() {
-        return getArguments().getBoolean(KEY_NATIVE_CONTROL_BAR, true);
     }
 }
