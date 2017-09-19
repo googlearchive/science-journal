@@ -144,8 +144,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp, "GALLERY") {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
-                return GalleryFragment.newInstance(new RxPermissions(activity),
-                        !SHARED_CONTROL_BAR);
+                return GalleryFragment.newInstance(new RxPermissions(activity));
             }
 
             @Override
