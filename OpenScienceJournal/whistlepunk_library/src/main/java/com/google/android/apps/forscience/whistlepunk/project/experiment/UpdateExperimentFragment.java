@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.project.experiment;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -25,18 +24,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -44,14 +36,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
-import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -65,7 +55,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
 
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -255,8 +244,7 @@ public class UpdateExperimentFragment extends Fragment {
                 String overviewPath =
                         PictureUtils.getExperimentOverviewRelativeImagePath(mExperimentId,
                                 relativePathInExperiment);
-                mExperiment.getValue().getExperimentOverview().imagePath = overviewPath;
-                saveExperiment();
+                setImagePath(overviewPath);
                 PictureUtils.loadExperimentOverviewImage(mPhotoPreview, overviewPath);
             }
             mWasEdited = true;
@@ -266,8 +254,7 @@ public class UpdateExperimentFragment extends Fragment {
                 String overviewPath =
                         PictureUtils.getExperimentOverviewRelativeImagePath(mExperimentId,
                         mPictureLabelPath);
-                mExperiment.getValue().getExperimentOverview().imagePath = overviewPath;
-                saveExperiment();
+                setImagePath(overviewPath);
                 PictureUtils.loadExperimentImage(getActivity(), mPhotoPreview, mExperimentId,
                         mPictureLabelPath);
             } else {
@@ -277,6 +264,13 @@ public class UpdateExperimentFragment extends Fragment {
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void setImagePath(String overviewPath) {
+        mExperiment.firstElement().subscribe(e -> {
+            e.getExperimentOverview().imagePath = overviewPath;
+            saveExperiment();
+        });
     }
 
     @Override
