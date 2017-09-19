@@ -1351,7 +1351,7 @@ Permissions notice:
     <string name="tab_description_gallery">Choose picture</string>
 
     <!-- Content description for an image in the gallery view that could be selected for a photo note [CHAR_LIMIT=NONE] -->
-    <string name="gallery_image_content_description">Image</string>
+    <string name="gallery_image_content_description">Image taken on <xliff:g id="date">%s</xliff:g></string>
 
     <!-- Content description for an icon showing a gallery image is selected [CHAR_LIMIT="none"] -->
     <string name="content_description_selected">selected</string>
