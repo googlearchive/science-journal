@@ -28,6 +28,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,7 +56,7 @@ import io.reactivex.subjects.SingleSubject;
  * Fragment controlling adding picture notes from the gallery in the observe pane.
  */
 public class GalleryFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<List<String>> {
+        LoaderManager.LoaderCallbacks<List<PhotoAsyncLoader.Image>> {
     private static final String TAG = "GalleryFragment";
     private static final int PHOTO_LOADER_INDEX = 1;
     private static final String KEY_SELECTED_PHOTO = "selected_photo";
@@ -216,13 +217,14 @@ public class GalleryFragment extends Fragment implements
     }
 
     @Override
-    public Loader<List<String>> onCreateLoader(int i, Bundle bundle) {
+    public Loader<List<PhotoAsyncLoader.Image>> onCreateLoader(int i, Bundle bundle) {
         return new PhotoAsyncLoader(getActivity().getApplicationContext());
     }
 
     @Override
-    public void onLoadFinished(Loader<List<String>> loader, List<String> imageUris) {
-        mGalleryAdapter.setImages(imageUris);
+    public void onLoadFinished(Loader<List<PhotoAsyncLoader.Image>> loader,
+            List<PhotoAsyncLoader.Image> images) {
+        mGalleryAdapter.setImages(images);
         if (mInitiallySelectedPhoto != -1) {
             // Resume from saved state if needed.
             mGalleryAdapter.setSelectedIndex(mInitiallySelectedPhoto);
@@ -233,7 +235,7 @@ public class GalleryFragment extends Fragment implements
     }
 
     @Override
-    public void onLoaderReset(Loader<List<String>> loader) {
+    public void onLoaderReset(Loader<List<PhotoAsyncLoader.Image>> loader) {
         mGalleryAdapter.clearImages();
     }
 
@@ -244,18 +246,21 @@ public class GalleryFragment extends Fragment implements
             void onImageClicked(String image, boolean selected);
         }
 
-        private List<String> mImages;
+        private List<PhotoAsyncLoader.Image> mImages;
         private final Context mContext;
         private final ImageClickListener mListener;
         private int mSelectedIndex = -1;
+        private final String mContentDescriptionPrefix;
 
         public GalleryItemAdapter(Context context, ImageClickListener listener) {
             mImages = new ArrayList<>();
             mContext = context;
             mListener = listener;
+            mContentDescriptionPrefix = context.getResources().getString(
+                    R.string.gallery_image_content_description);
         }
 
-        public void setImages(List<String> images) {
+        public void setImages(List<PhotoAsyncLoader.Image> images) {
             mImages.clear();
             mImages.addAll(images);
             notifyDataSetChanged();
@@ -276,12 +281,16 @@ public class GalleryFragment extends Fragment implements
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            String image = mImages.get(position);
+            String path = mImages.get(position).path;
 
             GlideApp.with(mContext)
-                    .load(image)
+                    .load(path)
                     .thumbnail(.5f)
                     .into(holder.image);
+            holder.image.setContentDescription(String.format(mContentDescriptionPrefix,
+                    DateUtils.formatDateTime(mContext, mImages.get(position).timestampTaken,
+                            DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME |
+                                    DateUtils.FORMAT_ABBREV_ALL)));
 
             boolean selected = position == mSelectedIndex;
             holder.selectedIndicator.setVisibility(selected ? View.VISIBLE : View.GONE);
@@ -296,7 +305,7 @@ public class GalleryFragment extends Fragment implements
                     mSelectedIndex = -1;
                 }
                 holder.selectedIndicator.setVisibility(newlySelected ? View.VISIBLE : View.GONE);
-                mListener.onImageClicked(image, newlySelected);
+                mListener.onImageClicked(path, newlySelected);
             });
         }
 
@@ -309,7 +318,7 @@ public class GalleryFragment extends Fragment implements
             if (mSelectedIndex == -1) {
                 return null;
             }
-            return mImages.get(mSelectedIndex);
+            return mImages.get(mSelectedIndex).path;
         }
 
         public void deselectImages() {
