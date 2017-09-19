@@ -74,6 +74,7 @@
             android:paddingEnd="18dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
+            android:textSize="14sp"
             />
 
         <ImageButton

@@ -1371,6 +1371,9 @@ Permissions notice:
     <!-- Button shown to users with accessibility settings on that allows them to collapse a fully expanded pane [CHAR_LIMIT=NONE] -->
     <string name="btn_hide_tools">Collapse tool drawer</string>
 
+    <!-- Menu option to edit a photo [CHAR_LIMIT=30] -->
+    <string name="action_edit_photo">Edit photo</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
