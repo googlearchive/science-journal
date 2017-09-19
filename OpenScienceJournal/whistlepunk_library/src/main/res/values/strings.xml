@@ -1374,6 +1374,9 @@ Permissions notice:
     <!-- Menu option to edit a photo [CHAR_LIMIT=30] -->
     <string name="action_edit_photo">Edit photo</string>
 
+    <!-- Content description for the camera preview [CHAR_LIMIT=NONE] -->
+    <string name="camera_preview_content_description">Camera live view</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
