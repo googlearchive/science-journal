@@ -194,11 +194,11 @@ public class CameraFragment extends Fragment {
             CameraPreview preview = (CameraPreview) view;
             container.addView(preview);
 
-            mPermissionGranted.firstElement().subscribe(granted -> {
-                if (granted) {
-                    preview.setCamera(openCamera());
-                }
-            }, LoggingConsumer.complain(TAG, "camera permission"));
+            mPermissionGranted.firstElement()
+                              .flatMapObservable(granted -> granted ? Observable.just(
+                                      openCamera()) : Observable.empty())
+                              .subscribe(preview::setCamera,
+                                      LoggingConsumer.complain(TAG, "camera permission"));
 
             mWhenUserTakesPhoto.takeUntil(mFocusLost.happens()).subscribe(o -> {
                 final long timestamp = getTimestamp(preview.getContext());
