@@ -67,9 +67,7 @@ public class RunReviewActivity extends MetadataActivity {
                     getIntent().getExtras().getString(RunReviewFragment.ARG_EXPERIMENT_ID),
                     getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID),
                     getIntent().getExtras().getInt(RunReviewFragment.ARG_SENSOR_INDEX),
-                    createTask /* create a task when going up */,
-                    getIntent().getExtras().getParcelable(
-                            ExperimentDetailsFragment.ARG_DELETED_LABEL));
+                    createTask /* create a task when going up */);
             getFragmentManager().beginTransaction().add(R.id.container, fragment, FRAGMENT_TAG)
                     .commit();
         }

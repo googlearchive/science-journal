@@ -103,7 +103,6 @@ public class ExperimentDetailsFragment extends Fragment
         NameExperimentDialog.OnExperimentTitleChangeListener {
 
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
-    public static final String ARG_DELETED_LABEL = "deleted_label";
     public static final String ARG_CREATE_TASK = "create_task";
     private static final String TAG = "ExperimentDetails";
 
@@ -120,7 +119,6 @@ public class ExperimentDetailsFragment extends Fragment
     private ScalarDisplayOptions mScalarDisplayOptions;
     private boolean mIncludeArchived;
     private BroadcastReceiver mBroadcastReceiver;
-    private Label mDeletedLabel;
     private String mActiveTrialId;
     private TextView mEmptyView;
 
@@ -133,12 +131,11 @@ public class ExperimentDetailsFragment extends Fragment
      *                          navigation.
      */
     public static ExperimentDetailsFragment newInstance(String experimentId,
-            boolean createTaskStack, Label deletedLabel) {
+            boolean createTaskStack) {
         ExperimentDetailsFragment fragment = new ExperimentDetailsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_EXPERIMENT_ID, experimentId);
         args.putBoolean(ARG_CREATE_TASK, createTaskStack);
-        args.putParcelable(ARG_DELETED_LABEL, deletedLabel);
         fragment.setArguments(args);
         return fragment;
     }
@@ -150,10 +147,6 @@ public class ExperimentDetailsFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
-        if (savedInstanceState == null) {
-            // Only try to restore a deleted label the first time.
-            mDeletedLabel = getArguments().getParcelable(ARG_DELETED_LABEL);
-        }
         setHasOptionsMenu(true);
     }
 
@@ -188,6 +181,11 @@ public class ExperimentDetailsFragment extends Fragment
         };
         CropHelper.registerStatsBroadcastReceiver(getActivity().getApplicationContext(),
                 mBroadcastReceiver);
+
+        Label label = AppSingleton.getInstance(getActivity()).popDeletedLabelForUndo();
+        if (label != null) {
+            onLabelDelete(label);
+        }
     }
 
     public void reloadWithoutScroll() {
@@ -359,11 +357,6 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         setExperimentItemsOrder(experiment);
-
-        if (mDeletedLabel != null) {
-            onLabelDelete(mDeletedLabel);
-            mDeletedLabel = null;
-        }
 
         getActivity().setTitle(experiment.getDisplayTitle(getActivity()));
 
@@ -904,7 +897,7 @@ public class ExperimentDetailsFragment extends Fragment
                 if (item.getViewType() == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
                     continue;
                 }
-                if (timestamp > item.getTimestamp()) {
+                if (timestamp < item.getTimestamp()) {
                     mItems.add(i, new ExperimentDetailItem(label));
                     notifyItemInserted(i);
                     inserted = true;

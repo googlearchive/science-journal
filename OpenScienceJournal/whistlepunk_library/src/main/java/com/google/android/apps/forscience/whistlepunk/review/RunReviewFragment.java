@@ -160,7 +160,6 @@ public class RunReviewFragment extends Fragment implements
     // Save the savedInstanceState between onCreateView and loading the run data, in case
     // an onPause happens during that time.
     private Bundle mSavedInstanceStateForLoad;
-    private Label mDeletedLabel;
 
     /**
      * Use this factory method to create a new instance of
@@ -172,14 +171,13 @@ public class RunReviewFragment extends Fragment implements
      * @return A new instance of fragment RunReviewFragment.
      */
     public static RunReviewFragment newInstance(String experimentId, String startLabelId,
-            int sensorIndex, boolean createTask, Label deletedLabel) {
+            int sensorIndex, boolean createTask) {
         RunReviewFragment fragment = new RunReviewFragment();
         Bundle args = new Bundle();
         args.putString(ARG_EXPERIMENT_ID, experimentId);
         args.putString(ARG_START_LABEL_ID, startLabelId);
         args.putInt(ARG_SENSOR_INDEX, sensorIndex);
         args.putBoolean(ARG_CREATE_TASK, createTask);
-        args.putParcelable(ExperimentDetailsFragment.ARG_DELETED_LABEL, deletedLabel);
         fragment.setArguments(args);
         return fragment;
     }
@@ -193,6 +191,10 @@ public class RunReviewFragment extends Fragment implements
         super.onResume();
         if (!isMultiWindowEnabled()) {
             initializeData();
+        }
+        Label deletedLabel = AppSingleton.getInstance(getActivity()).popDeletedLabelForUndo();
+        if (deletedLabel != null) {
+            onLabelDelete(deletedLabel);
         }
     }
 
@@ -240,10 +242,6 @@ public class RunReviewFragment extends Fragment implements
                 mSelectedSensorIndex = savedInstanceState.getInt(KEY_SELECTED_SENSOR_INDEX);
             }
             mShowStatsOverlay = savedInstanceState.getBoolean(KEY_STATS_OVERLAY_VISIBLE, false);
-        } else {
-            // Only try to restore a deleted label the first time.
-            mDeletedLabel = getArguments().getParcelable(
-                    ExperimentDetailsFragment.ARG_DELETED_LABEL);
         }
         mAudioPlaybackController = new AudioPlaybackController(
                 new AudioPlaybackController.AudioPlaybackListener() {
@@ -812,11 +810,6 @@ public class RunReviewFragment extends Fragment implements
         loadRunData(rootView);
         if (getActivity() != null) {
             ((AppCompatActivity) getActivity()).supportStartPostponedEnterTransition();
-        }
-
-        if (mDeletedLabel != null) {
-            onLabelDelete(mDeletedLabel);
-            mDeletedLabel = null;
         }
     }
 

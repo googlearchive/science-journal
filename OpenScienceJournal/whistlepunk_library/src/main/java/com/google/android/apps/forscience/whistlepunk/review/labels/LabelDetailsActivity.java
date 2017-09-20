@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
@@ -141,8 +142,7 @@ public class LabelDetailsActivity extends AppCompatActivity {
         }
 
         if (labelDeleted) {
-            // Add info to the intent so that the deleted label can have a snackbar undo action.
-            upIntent.putExtra(ExperimentDetailsFragment.ARG_DELETED_LABEL, originalLabel);
+            AppSingleton.getInstance(this).pushDeletedLabelForUndo(originalLabel);
         }
         // TODO: In the Panes world, do we still need to pass any other args?
 

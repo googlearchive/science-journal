@@ -574,10 +574,9 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private void setExperimentFragmentId(Experiment experiment) {
         if (mExperimentFragment == null) {
             boolean createTaskStack = true;
-            Label deletedLabel = getDeletedLabel();
             mExperimentFragment =
                     ExperimentDetailsFragment.newInstance(experiment.getExperimentId(),
-                            createTaskStack, deletedLabel);
+                            createTaskStack);
 
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
@@ -585,15 +584,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                            .commit();
         } else {
             mExperimentFragment.setExperimentId(experiment.getExperimentId());
-        }
-    }
-
-    private Label getDeletedLabel() {
-        Bundle extras = getIntent().getExtras();
-        if (extras == null) {
-            return null;
-        } else {
-            return extras.getParcelable(ExperimentDetailsFragment.ARG_DELETED_LABEL);
         }
     }
 
@@ -605,6 +595,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     @Override
     public void onResume() {
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
         super.onResume();
         if (!isMultiWindowEnabled()) {
             updateRecorderControllerForResume();
