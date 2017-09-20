@@ -55,11 +55,6 @@ import io.reactivex.subjects.SingleSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
         CameraFragment.ListenerProvider, TextToolFragment.ListenerProvider {
-    /**
-     * Just for development, will be removed once shared control bar works
-     */
-    private static final boolean SHARED_CONTROL_BAR = true;
-
     private static final String TAG = "PanesActivity";
     private static final String EXTRA_EXPERIMENT_ID = "experimentId";
     private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
@@ -549,7 +544,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private Observable<Integer> availableTabHeight() {
-        return Observable.combineLatest(mActivityHeight, mBottomSheetState,
+        return Observable.combineLatest(mActivityHeight.distinctUntilChanged(),
+                mBottomSheetState.distinctUntilChanged(),
                 (activityHeight, sheetState) -> {
                     if (mActiveExperiment.getValue().isArchived()) {
                         // No matter the state, the control bar is hidden when archived.
@@ -563,8 +559,9 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         case PanesBottomSheetBehavior.STATE_MIDDLE:
                             return activityHeight / 2;
                     }
-                    return activityHeight;
-                });
+                    // Filter out other states
+                    return -1;
+                }).filter(height -> height >= 0);
     }
 
     private void setCoordinatorBehavior(View view, BottomDependentBehavior behavior) {
