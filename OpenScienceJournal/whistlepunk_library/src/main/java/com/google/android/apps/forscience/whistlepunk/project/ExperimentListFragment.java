@@ -429,16 +429,16 @@ public class ExperimentListFragment extends Fragment implements
         private void bindExperiment(final ViewHolder holder, final ExperimentListItem item) {
             Resources res = holder.itemView.getResources();
             // First on the UI thread, set what experiment we're trying to load.
-            holder.experimentId = item.experimentOverview.experimentId;
+            GoosciUserMetadata.ExperimentOverview overview = item.experimentOverview;
+            holder.experimentId = overview.experimentId;
 
             // Set the data we know about.
             String experimentText = Experiment.getDisplayTitle(holder.itemView.getContext(),
-                    item.experimentOverview.title);
+                    overview.title);
             holder.experimentTitle.setText(experimentText);
-            holder.archivedIndicator.setVisibility(item.experimentOverview.isArchived ?
-                    View.VISIBLE : View.GONE);
+            holder.archivedIndicator.setVisibility(overview.isArchived ? View.VISIBLE : View.GONE);
 
-            if (item.experimentOverview.isArchived) {
+            if (overview.isArchived) {
                 holder.experimentTitle.setContentDescription(res.getString(
                         R.string.archived_content_description, experimentText));
                 holder.itemView.findViewById(R.id.content).setAlpha(res.getFraction(
@@ -452,32 +452,33 @@ public class ExperimentListFragment extends Fragment implements
                 setCardColor(holder, res.getColor(R.color.text_color_white));
             }
 
-            holder.itemView.setTag(R.id.experiment_title, item.experimentOverview.experimentId);
+            holder.itemView.setTag(R.id.experiment_title, overview.experimentId);
 
             holder.cardView.setOnClickListener(v -> {
-                PanesActivity.launch(v.getContext(), item.experimentOverview.experimentId);
+                PanesActivity.launch(v.getContext(), overview.experimentId);
             });
 
             holder.menuButton.setOnClickListener(v -> {
+                int position = mItems.indexOf(item);
                 Context context = holder.menuButton.getContext();
                 PopupMenu popup = new PopupMenu(context, holder.menuButton);
                 popup.getMenuInflater().inflate(R.menu.menu_experiment_overview, popup.getMenu());
                 popup.getMenu().findItem(R.id.menu_item_archive).setVisible(
-                        !item.experimentOverview.isArchived);
+                        !overview.isArchived);
                 popup.getMenu().findItem(R.id.menu_item_unarchive).setVisible(
-                        item.experimentOverview.isArchived);
+                        overview.isArchived);
                 popup.getMenu().findItem(R.id.menu_item_delete).setEnabled(
-                        item.experimentOverview.isArchived);
+                        overview.isArchived);
                 popup.setOnMenuItemClickListener(menuItem -> {
                     if (menuItem.getItemId() == R.id.menu_item_archive) {
-                        setExperimentArchived(item, true);
+                        setExperimentArchived(overview, position, true);
                         return true;
                     } else if (menuItem.getItemId() == R.id.menu_item_unarchive) {
-                        setExperimentArchived(item, false);
+                        setExperimentArchived(overview, position, false);
                         return true;
                     } else if (menuItem.getItemId() == R.id.menu_item_delete) {
                         mSnackbarManager.hideVisibleSnackbar();
-                        mParentReference.get().confirmDelete(item.experimentOverview.experimentId);
+                        mParentReference.get().confirmDelete(overview.experimentId);
                         return true;
                     }
                     return false;
@@ -485,47 +486,50 @@ public class ExperimentListFragment extends Fragment implements
                 popup.show();
             });
 
-            if (!TextUtils.isEmpty(item.experimentOverview.imagePath)) {
+            if (!TextUtils.isEmpty(overview.imagePath)) {
                 PictureUtils.loadExperimentOverviewImage(holder.experimentImage,
-                        item.experimentOverview.imagePath);
+                        overview.imagePath);
             } else {
                 // Make sure the scale type is correct for the placeholder
                 holder.experimentImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 holder.experimentImage.setImageDrawable(mPlaceHolderImage);
-                holder.experimentImage.setBackgroundColor(holder.experimentImage.getContext()
-                        .getResources().getIntArray(R.array.experiment_colors_array)[
-                                item.experimentOverview.colorIndex]);
+                int[] intArray = holder.experimentImage.getContext()
+                                                       .getResources()
+                                                       .getIntArray(
+                                                               R.array.experiment_colors_array);
+                holder.experimentImage.setBackgroundColor(intArray[overview.colorIndex]);
             }
         }
 
-        private void setExperimentArchived(ExperimentListItem item, boolean archived) {
-            item.experimentOverview.isArchived = archived;
-            RxDataController.getExperimentById(mDataController, item.experimentOverview.experimentId)
+        private void setExperimentArchived(GoosciUserMetadata.ExperimentOverview overview,
+                final int position, boolean archived) {
+            overview.isArchived = archived;
+            RxDataController.getExperimentById(mDataController, overview.experimentId)
                     .subscribe(fullExperiment -> {
                         fullExperiment.setArchived(archived);
-                        mDataController.updateExperiment(item.experimentOverview.experimentId,
+                        mDataController.updateExperiment(overview.experimentId,
                                 new LoggingConsumer<Success>(TAG, "set archived bit") {
                                     @Override
                                     public void success(Success value) {
-                                        updateArchivedState(item, archived);
+                                        updateArchivedState(position, archived);
                                         WhistlePunkApplication.getUsageTracker(
                                                 mParentReference.get().getActivity())
                                                 .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
                                                         archived ? TrackerConstants.ACTION_ARCHIVE :
                                                                 TrackerConstants.ACTION_UNARCHIVE,
                                                         TrackerConstants.LABEL_EXPERIMENT_LIST, 0);
-                                        showArchivedSnackbar(archived, item);
+                                        showArchivedSnackbar(overview, position, archived);
                                     }
                                 });
                     });
         }
 
-        private void updateArchivedState(ExperimentListItem item, boolean archived) {
+        private void updateArchivedState(int position, boolean archived) {
             if (mIncludeArchived) {
-                notifyItemChanged(mItems.indexOf(item));
+                notifyItemChanged(position);
             } else if (archived) {
                 // Remove archived experiment immediately.
-                int i = mItems.indexOf(item);
+                int i = position;
                 removeExperiment(i);
             } else {
                 // It could be added back anywhere.
@@ -535,7 +539,8 @@ public class ExperimentListFragment extends Fragment implements
             }
         }
 
-        private void showArchivedSnackbar(boolean archived, ExperimentListItem item) {
+        private void showArchivedSnackbar(GoosciUserMetadata.ExperimentOverview overview,
+                int position, boolean archived) {
             if (mParentReference.get() == null) {
                 return;
             }
@@ -546,7 +551,7 @@ public class ExperimentListFragment extends Fragment implements
                     Snackbar.LENGTH_LONG);
             if (archived) {
                 // We only seem to show "undo" for archiving items, not unarchiving them.
-                bar.setAction(R.string.action_undo, view -> setExperimentArchived(item, !archived));
+                bar.setAction(R.string.action_undo, view -> setExperimentArchived(overview, position, !archived));
             }
             mSnackbarManager.showSnackbar(bar);
         }
