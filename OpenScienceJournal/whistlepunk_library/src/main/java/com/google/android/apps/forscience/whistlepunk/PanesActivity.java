@@ -44,6 +44,7 @@ import android.widget.ProgressBar;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -113,6 +114,14 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                               .inflate(R.layout.observe_action_bar, controlBar, true);
                 controlBarController.attachRecordButtons(controlBar);
                 controlBarController.attachElapsedTime(controlBar, (RecordFragment) fragment);
+            }
+
+            @Override
+            public Runnable onGainedFocus(Object object, Activity activity) {
+                final PerfTrackerProvider perfTracker = WhistlePunkApplication
+                        .getPerfTrackerProvider(activity);
+                perfTracker.startJankRecorder(TrackerConstants.PRIMES_OBSERVE);
+                return () -> perfTracker.stopJankRecorder(TrackerConstants.PRIMES_OBSERVE);
             }
         }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp, "CAMERA") {
             @Override
@@ -242,6 +251,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(this);
+        PerfTrackerProvider.TimerToken experimentLoad = perfTracker.startTimer();
         setContentView(R.layout.panes_layout);
         RxView.layoutChangeEvents(findViewById(R.id.container)).subscribe(event -> {
             int bottom = event.bottom();
@@ -275,6 +286,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 } else {
                     hideRecordingBar();
                 }
+                perfTracker.stopTimer(experimentLoad, TrackerConstants.PRIMES_EXPERIMENT_LOADED);
+                perfTracker.onAppInteractive();
             });
         });
 

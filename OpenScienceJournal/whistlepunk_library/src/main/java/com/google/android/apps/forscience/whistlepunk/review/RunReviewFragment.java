@@ -85,6 +85,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.review.EditLabelTimeDialog.EditTimeDialogListener;
 
@@ -156,6 +157,7 @@ public class RunReviewFragment extends Fragment implements
     private boolean mShowStatsOverlay = false;
     private BroadcastReceiver mBroadcastReceiver;
     private Pair<Double, Double> mPreviousYPair;
+    private PerfTrackerProvider mPerfTracker;
 
     // Save the savedInstanceState between onCreateView and loading the run data, in case
     // an onPause happens during that time.
@@ -231,6 +233,8 @@ public class RunReviewFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPerfTracker = WhistlePunkApplication.getPerfTrackerProvider(getActivity());
+        mPerfTracker.startGlobalTimer(TrackerConstants.PRIMES_RUN_LOADED);
         if (getArguments() != null) {
             mTrialId = getArguments().getString(ARG_START_LABEL_ID);
             mSelectedSensorIndex = getArguments().getInt(ARG_SENSOR_INDEX);
@@ -567,6 +571,8 @@ public class RunReviewFragment extends Fragment implements
                         }
                         mExperiment = experiment;
                         attachToRun(experiment.getTrial(mTrialId));
+                        mPerfTracker.stopGlobalTimer(TrackerConstants.PRIMES_RUN_LOADED);
+                        mPerfTracker.onAppInteractive();
                     }
                 });
     }

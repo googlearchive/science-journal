@@ -61,6 +61,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 
 import java.io.File;
@@ -174,6 +175,9 @@ public class ExperimentListFragment extends Fragment implements
     }
 
     private void loadExperiments() {
+        PerfTrackerProvider perfTracker = WhistlePunkApplication
+                .getPerfTrackerProvider(getActivity());
+        PerfTrackerProvider.TimerToken loadExperimentTimer = perfTracker.startTimer();
         getDataController().getExperimentOverviews(mIncludeArchived,
                 new LoggingConsumer<List<GoosciUserMetadata.ExperimentOverview>>(TAG,
                         "Retrieve experiments") {
@@ -185,9 +189,14 @@ public class ExperimentListFragment extends Fragment implements
                             // If there are no experiments and we've never made a default one,
                             // create the default experiment and set the boolean to true.
                             createDefaultExperiment();
+                            perfTracker.stopTimer(loadExperimentTimer,
+                                    TrackerConstants.PRIMES_DEFAULT_EXPERIMENT_CREATED);
                         } else {
                             attachToExperiments(experiments);
+                            perfTracker.stopTimer(loadExperimentTimer,
+                                    TrackerConstants.PRIMES_EXPERIMENT_LIST_LOADED);
                         }
+                        perfTracker.onAppInteractive();
                     }
                 });
     }

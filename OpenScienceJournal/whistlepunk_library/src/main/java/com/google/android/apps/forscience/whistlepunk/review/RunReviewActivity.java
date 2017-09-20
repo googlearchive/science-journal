@@ -25,7 +25,9 @@ import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderService;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.MetadataActivity;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 
@@ -59,6 +61,7 @@ public class RunReviewActivity extends MetadataActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WhistlePunkApplication.getPerfTrackerProvider(this).onActivityInit();
         setContentView(R.layout.activity_run_review);
         mFromRecord = getIntent().getExtras().getBoolean(EXTRA_FROM_RECORD, false);
         boolean createTask = getIntent().getExtras().getBoolean(EXTRA_CREATE_TASK, true);
