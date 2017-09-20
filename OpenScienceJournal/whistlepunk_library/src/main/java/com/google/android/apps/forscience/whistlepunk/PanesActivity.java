@@ -21,6 +21,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -99,7 +100,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 TextToolFragment ttf = (TextToolFragment) object;
                 return () -> {
                     // when losing focus, close keyboard
-                    closeKeyboard(activity);
+                    closeKeyboard(activity).subscribe();
                     ttf.onLosingFocus();
                 };
             }
@@ -197,12 +198,26 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 Observable<Integer> availableHeight);
     }
 
-    private static void closeKeyboard(Activity activity) {
+    /**
+     * Returns Observable that will receive true if the keyboard is closed
+     */
+    private static Single<Boolean> closeKeyboard(Activity activity) {
         View view = activity.getCurrentFocus();
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(
                     Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+            return Single.create(s -> {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0, new ResultReceiver(null) {
+                    @Override
+                    protected void onReceiveResult(int resultCode, Bundle resultData) {
+                        s.onSuccess(resultCode == InputMethodManager.RESULT_HIDDEN);
+                        super.onReceiveResult(resultCode, resultData);
+                    }
+                });
+            });
+        } else {
+            return Single.just(false);
         }
     }
 
@@ -364,6 +379,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                             mBottomSheetState.onNext(newState);
                             if (mBottomBehavior.getState() ==
                                     PanesBottomSheetBehavior.STATE_COLLAPSED) {
+                                closeKeyboard(PanesActivity.this).subscribe(closed -> {
+                                    // if we just closed the drawer with the keyboard open,
+                                    // keep the drawer half-open
+                                    changeSheetState(PanesBottomSheetBehavior.STATE_COLLAPSED,
+                                            PanesBottomSheetBehavior.STATE_MIDDLE);
+                                });
                                 mGrabber.setContentDescription(getResources().getString(
                                         R.string.btn_show_tools));
                             } else if (mBottomBehavior.getState() ==
