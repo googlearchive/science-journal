@@ -39,6 +39,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
@@ -84,6 +85,7 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
+import com.jakewharton.rxbinding2.view.RxView;
 
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
@@ -1139,7 +1141,24 @@ public class ExperimentDetailsFragment extends Fragment
             LayoutInflater.from(noteHolder.getContext()).inflate(R.layout.load_more_notes_button,
                     noteHolder);
             // TODO: Jump straight to the notes section.
-            noteHolder.findViewById(R.id.load_more_btn).setOnClickListener(
+            Button button = (Button) noteHolder.findViewById(R.id.load_more_btn);
+            Context context = button.getContext();
+            int activeTextColor = button.getCurrentTextColor();
+            int inactiveColor = context.getResources().getColor(R.color.archived_background_color);
+
+            AppSingleton.getInstance(context)
+                        .getRecorderController()
+                        .watchRecordingStatus()
+                        .takeUntil(RxView.detaches(button))
+                        .subscribe(status -> {
+                            if (status.isRecording()) {
+                                button.setTextColor(inactiveColor);
+                            } else {
+                                button.setTextColor(activeTextColor);
+                            }
+                        });
+
+            button.setOnClickListener(
                     view -> RunReviewActivity.launch(noteHolder.getContext(), runId,
                             mExperiment.getExperimentId(), 0 /* sensor index deprecated */,
                             false /* from record */, false /* create task */, null)
