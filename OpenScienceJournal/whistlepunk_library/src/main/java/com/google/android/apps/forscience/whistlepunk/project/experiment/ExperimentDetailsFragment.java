@@ -549,9 +549,11 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     void deleteLabel(Label label) {
-        mExperiment.deleteLabel(label, getActivity());
-        RxDataController.updateExperiment(getDataController(), mExperiment)
-                .subscribe(() -> onLabelDelete(label));
+        if (getActivity() != null) {
+            mExperiment.deleteLabel(label, getActivity());
+            RxDataController.updateExperiment(getDataController(), mExperiment)
+                    .subscribe(() -> onLabelDelete(label));
+        }
     }
 
     private void onLabelDelete(final Label item) {
