@@ -343,7 +343,12 @@ public class CameraPreview extends SurfaceView {
                     onSuccess.success(FileMetadataManager.getRelativePathInExperiment(experimentId,
                             photoFile));
                     startPreview();
-                } catch (IOException e) {
+                    // NPE occurs when data == null (unclear what causes that case)
+                } catch (IOException|NullPointerException e) {
+                    // Delete the file if we failed to write to it
+                    if (photoFile.exists()) {
+                        photoFile.delete();
+                    }
                     onSuccess.fail(e);
                 }
             });
