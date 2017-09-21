@@ -741,7 +741,10 @@ public class SensorCardPresenter {
                     if (i < 0) {
                         i = 0;
                     }
-                    mCardViewHolder.sensorTabLayout.getTabAt(i).select();
+                    TabLayout.Tab tab = mCardViewHolder.sensorTabLayout.getTabAt(i);
+                    if (tab != null) {
+                        tab.select();
+                    }
                 }
             }
         });
