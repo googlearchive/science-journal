@@ -112,7 +112,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     Observable<Integer> availableHeight) {
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.observe_action_bar, controlBar, true);
-                controlBarController.attachRecordButtons(controlBar);
+                controlBarController.attachRecordButtons(controlBar,
+                        fragment.getChildFragmentManager());
                 controlBarController.attachElapsedTime(controlBar, (RecordFragment) fragment);
             }
 
@@ -343,8 +344,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     private void setupViews(Experiment experiment) {
         ControlBarController controlBarController =
-                new ControlBarController(getFragmentManager(), experiment.getExperimentId(),
-                        mSnackbarManager);
+                new ControlBarController(experiment.getExperimentId(), mSnackbarManager);
 
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
         View bottomSheet = findViewById(R.id.bottom);

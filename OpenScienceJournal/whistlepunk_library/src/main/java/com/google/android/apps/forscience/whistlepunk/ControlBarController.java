@@ -34,13 +34,11 @@ import io.reactivex.Observable;
  * snapshots, starting recording, etc
  */
 class ControlBarController {
-    private final FragmentManager mFragmentManager;
     private final String mExperimentId;
     private SnackbarManager mSnackbarManager;
 
-    public ControlBarController(FragmentManager fragmentManager, String experimentId,
+    public ControlBarController(String experimentId,
             SnackbarManager snackbarManager) {
-        mFragmentManager = fragmentManager;
         mExperimentId = experimentId;
         mSnackbarManager = snackbarManager;
     }
@@ -73,7 +71,7 @@ class ControlBarController {
         });
     }
 
-    public void attachRecordButton(ImageButton recordButton) {
+    public void attachRecordButton(ImageButton recordButton, FragmentManager fragmentManager) {
         Observable<RecordingStatus> recordingStatus =
                 AppSingleton.getInstance(recordButton.getContext())
                             .getRecorderController()
@@ -84,7 +82,7 @@ class ControlBarController {
               .flatMapMaybe(click -> recordingStatus.firstElement())
               .subscribe(status -> {
                   if (status.isRecording()) {
-                      tryStopRecording(recordButton);
+                      tryStopRecording(recordButton, fragmentManager);
                   } else {
                       tryStartRecording(recordButton);
                   }
@@ -108,7 +106,7 @@ class ControlBarController {
         });
     }
 
-    private void tryStopRecording(View anchorView) {
+    private void tryStopRecording(View anchorView, FragmentManager fragmentManager) {
         AppSingleton singleton = AppSingleton.getInstance(anchorView.getContext());
         RecorderController rc = singleton.getRecorderController();
         SensorRegistry sensorRegistry = singleton.getSensorRegistry();
@@ -118,18 +116,21 @@ class ControlBarController {
             if (error instanceof RecorderController.RecordingStopFailedException) {
                 RecorderController.RecordingStopFailedException e =
                         (RecorderController.RecordingStopFailedException) error;
-                onRecordingStopFailed(anchorView, e.errorType);
+                onRecordingStopFailed(anchorView, e.errorType, fragmentManager);
             }
         });
     }
 
     private void onRecordingStopFailed(View anchorView,
-            @RecorderController.RecordingStopErrorType int errorType) {
+            @RecorderController.RecordingStopErrorType int errorType,
+            FragmentManager fragmentManager) {
         Resources resources = anchorView.getResources();
         if (errorType == RecorderController.ERROR_STOP_FAILED_DISCONNECTED) {
-            alertFailedStopRecording(resources, R.string.recording_stop_failed_disconnected);
+            alertFailedStopRecording(resources, R.string.recording_stop_failed_disconnected,
+                    fragmentManager);
         } else if (errorType == RecorderController.ERROR_STOP_FAILED_NO_DATA) {
-            alertFailedStopRecording(resources, R.string.recording_stop_failed_no_data);
+            alertFailedStopRecording(resources, R.string.recording_stop_failed_no_data,
+                    fragmentManager);
         } else if (errorType == RecorderController.ERROR_FAILED_SAVE_RECORDING) {
             AccessibilityUtils.makeSnackbar(anchorView,
                     resources.getString(R.string.recording_stop_failed_save),
@@ -137,10 +138,11 @@ class ControlBarController {
         }
     }
 
-    private void alertFailedStopRecording(Resources resources, int stringId) {
+    private void alertFailedStopRecording(Resources resources, int stringId,
+            FragmentManager fragmentManager) {
         StopRecordingNoDataDialog dialog = StopRecordingNoDataDialog.newInstance(
                 resources.getString(stringId));
-        dialog.show(mFragmentManager, StopRecordingNoDataDialog.TAG);
+        dialog.show(fragmentManager, StopRecordingNoDataDialog.TAG);
     }
 
     private void tryStartRecording(View anchorView) {
@@ -184,9 +186,9 @@ class ControlBarController {
         mSnackbarManager.showSnackbar(bar);
     }
 
-    void attachRecordButtons(ViewGroup rootView) {
+    void attachRecordButtons(ViewGroup rootView, FragmentManager fragmentManager) {
         ImageButton recordButton = (ImageButton) rootView.findViewById(R.id.btn_record);
-        attachRecordButton(recordButton);
+        attachRecordButton(recordButton, fragmentManager);
 
         View snapshotButton = rootView.findViewById(R.id.snapshot_button);
         attachSnapshotButton(snapshotButton);
