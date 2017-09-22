@@ -293,7 +293,6 @@ public class ExperimentDetailsFragment extends Fragment
         if (getActivity() != null) {
             getActivity().invalidateOptionsMenu();
         }
-        setHomeButtonState(true);
 
         // TODO: there has to be a cheaper way to make the feed scroll to the bottom
         reloadAndScrollToBottom();
@@ -323,7 +322,6 @@ public class ExperimentDetailsFragment extends Fragment
             mActiveTrialId = null;
         }
         getActivity().invalidateOptionsMenu();
-        setHomeButtonState(false);
     }
 
     // Sets the actionBar home button to opaque to indicate it is disabled.
@@ -392,6 +390,7 @@ public class ExperimentDetailsFragment extends Fragment
         menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
         menu.findItem(R.id.action_edit_experiment).setVisible(mExperiment != null &&
                 !mExperiment.isArchived());
+        setHomeButtonState(isRecording());
     }
 
     @Override
