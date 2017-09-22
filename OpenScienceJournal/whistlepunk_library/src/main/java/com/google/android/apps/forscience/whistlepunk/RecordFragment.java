@@ -233,8 +233,7 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
             return;
         }
         if (newState == PermissionUtils.GRANTED) {
-            startSensorCardObserving(mDecibelSensorCardPresenter, DecibelSensor.ID,
-                    mRecordingStatus.getValue());
+            mDecibelSensorCardPresenter.retryConnection(getActivity());
         } else if (newState == PermissionUtils.DENIED) {
             // If the sensor can't be loaded, still show it as selected on the card
             // so the user understands that they wanted this sensor but can't use it.
@@ -923,7 +922,6 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
                             onAudioPermissionChanged(PermissionUtils.PERMANENTLY_DENIED);
                         }
                     });
-            return;
         }
         startSensorCardObserving(sensorCardPresenter, sensorId, status);
     }
