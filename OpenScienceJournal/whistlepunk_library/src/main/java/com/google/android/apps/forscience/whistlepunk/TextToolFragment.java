@@ -42,7 +42,7 @@ import io.reactivex.subjects.BehaviorSubject;
 /**
  * Fragment controlling adding text notes in the observe pane.
  */
-public class TextToolFragment extends Fragment {
+public class TextToolFragment extends PanesToolFragment {
     private static final String KEY_TEXT = "saved_text";
 
     /**
@@ -77,7 +77,7 @@ public class TextToolFragment extends Fragment {
     @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreatePanesView(LayoutInflater inflater, @Nullable ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.text_label_fragment, null);
 

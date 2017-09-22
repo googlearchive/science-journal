@@ -23,6 +23,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.R;
@@ -42,6 +43,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
@@ -213,9 +215,17 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
             mViewDragHelper = ViewDragHelper.create(parent, mDragCallback);
         }
         mViewRef = new WeakReference<>(child);
-        mNestedScrollingChildRef = new WeakReference<>(findScrollingChild(child));
+
+        if (getScrollingChild() == null) {
+            setScrollingChild(child);
+        }
         return true;
     }
+
+    public void setScrollingChild(View child) {
+        mNestedScrollingChildRef = new WeakReference<>(findScrollingChild(child));
+    }
+
     @Override
     public boolean onInterceptTouchEvent(CoordinatorLayout parent, V child, MotionEvent event) {
         if (!child.isShown()) {
@@ -245,8 +255,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
             case MotionEvent.ACTION_DOWN:
                 int initialX = (int) event.getX();
                 mInitialY = (int) event.getY();
-                View scroll = mNestedScrollingChildRef != null
-                        ? mNestedScrollingChildRef.get() : null;
+                View scroll = getScrollingChild();
                 if (scroll != null && parent.isPointInChildBounds(scroll, initialX, mInitialY)) {
                     mActivePointerId = event.getPointerId(event.getActionIndex());
                     mTouchingScrollingChild = true;
@@ -267,6 +276,12 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
                 !parent.isPointInChildBounds(scroll, (int) event.getX(), (int) event.getY()) &&
                 Math.abs(mInitialY - event.getY()) > mViewDragHelper.getTouchSlop();
     }
+
+    @Nullable
+    public View getScrollingChild() {
+        return mNestedScrollingChildRef != null ? mNestedScrollingChildRef.get() : null;
+    }
+
     @Override
     public boolean onTouchEvent(CoordinatorLayout parent, V child, MotionEvent event) {
         if (!child.isShown()) {

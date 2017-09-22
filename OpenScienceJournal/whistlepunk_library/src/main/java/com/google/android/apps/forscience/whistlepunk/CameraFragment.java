@@ -46,7 +46,7 @@ import io.reactivex.subjects.PublishSubject;
 import static android.content.ContentValues.TAG;
 
 
-public class CameraFragment extends Fragment {
+public class CameraFragment extends PanesToolFragment {
     private static final String KEY_PERMISSION_GRANTED = "key_permission_granted";
 
     private final BehaviorSubject<Optional<ViewGroup>> mPreviewContainer = BehaviorSubject.create();
@@ -123,7 +123,7 @@ public class CameraFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreatePanesView(LayoutInflater inflater, @Nullable ViewGroup container,
             Bundle savedInstanceState) {
         View inflated = inflater.inflate(R.layout.fragment_camera_tool, null);
         mPreviewContainer.onNext(
@@ -132,9 +132,8 @@ public class CameraFragment extends Fragment {
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroyPanesView() {
         mPreviewContainer.onNext(Optional.absent());
-        super.onDestroyView();
     }
 
     public void attachButtons(FrameLayout controlBar) {
