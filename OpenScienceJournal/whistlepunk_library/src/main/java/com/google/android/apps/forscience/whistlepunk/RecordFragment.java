@@ -76,7 +76,7 @@ import java.util.Objects;
 
 import io.reactivex.subjects.BehaviorSubject;
 
-public class RecordFragment extends Fragment implements Handler.Callback,
+public class RecordFragment extends PanesToolFragment implements Handler.Callback,
         StopRecordingNoDataDialog.StopRecordingDialogListener, AudioSettingsDialog
                 .AudioSettingsDialogListener {
     private static final String TAG = "RecordFragment";
@@ -433,7 +433,7 @@ public class RecordFragment extends Fragment implements Handler.Callback,
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroyPanesView() {
         // TODO: extract presenter with lifespan identical to the views.
         if (mSensorCardAdapter != null) {
             mSensorCardAdapter.onDestroy();
@@ -443,7 +443,6 @@ public class RecordFragment extends Fragment implements Handler.Callback,
         if (mExternalAxis != null) {
             mExternalAxis.destroy();
         }
-        super.onDestroyView();
     }
 
     private List<GoosciSensorLayout.SensorLayout> safeSaveCurrentLayouts() {
@@ -495,7 +494,7 @@ public class RecordFragment extends Fragment implements Handler.Callback,
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreatePanesView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         final ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_record, container,
                 false);
@@ -758,7 +757,6 @@ public class RecordFragment extends Fragment implements Handler.Callback,
             }
         });
         mSensorCardRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 adjustSensorCardAddAlpha();

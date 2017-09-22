@@ -55,7 +55,7 @@ import io.reactivex.subjects.SingleSubject;
 /**
  * Fragment controlling adding picture notes from the gallery in the observe pane.
  */
-public class GalleryFragment extends Fragment implements
+public class GalleryFragment extends PanesToolFragment implements
         LoaderManager.LoaderCallbacks<List<PhotoAsyncLoader.Image>> {
     private static final String TAG = "GalleryFragment";
     private static final int PHOTO_LOADER_INDEX = 1;
@@ -106,7 +106,7 @@ public class GalleryFragment extends Fragment implements
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreatePanesView(LayoutInflater inflater, @Nullable ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.gallery_fragment, null);
 

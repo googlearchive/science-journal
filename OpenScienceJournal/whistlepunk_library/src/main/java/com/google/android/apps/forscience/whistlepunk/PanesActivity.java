@@ -92,8 +92,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public Runnable onGainedFocus(Object object, Activity activity) {
-                TextToolFragment ttf = (TextToolFragment) object;
+            public Runnable onGainedFocus(Fragment fragment, Activity activity) {
+                TextToolFragment ttf = (TextToolFragment) fragment;
                 return () -> {
                     // when losing focus, close keyboard
                     closeKeyboard(activity).subscribe();
@@ -117,7 +117,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public Runnable onGainedFocus(Object object, Activity activity) {
+            public Runnable onGainedFocus(Fragment fragment, Activity activity) {
                 final PerfTrackerProvider perfTracker = WhistlePunkApplication
                         .getPerfTrackerProvider(activity);
                 perfTracker.startJankRecorder(TrackerConstants.PRIMES_OBSERVE);
@@ -131,10 +131,10 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public Runnable onGainedFocus(Object object, Activity activity) {
-                CameraFragment fragment = (CameraFragment) object;
-                fragment.onGainedFocus();
-                return () -> fragment.onLosingFocus();
+            public Runnable onGainedFocus(Fragment fragment, Activity activity) {
+                CameraFragment cf = (CameraFragment) fragment;
+                cf.onGainedFocus();
+                return () -> cf.onLosingFocus();
             }
 
             @Override
@@ -192,7 +192,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
          *
          * @return a Runnable that should be called when focus is lost, or null to do nothing.
          */
-        public Runnable onGainedFocus(Object object, Activity activity) {
+        public Runnable onGainedFocus(Fragment fragment, Activity activity) {
             // by default, do nothing
             return null;
         }
@@ -448,9 +448,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         FrameLayout controlBar =
                                 (FrameLayout) findViewById(R.id.bottom_control_bar);
                         controlBar.removeAllViews();
-                        toolTab.connectControls((Fragment) object, controlBar,
-                                controlBarController, availableTabHeight());
-                        mOnLosingFocus = toolTab.onGainedFocus(object, PanesActivity.this);
+                        PanesToolFragment fragment = (PanesToolFragment) object;
+                        fragment.whenNextView()
+                                .subscribe(v -> mBottomBehavior.setScrollingChild(v));
+                        toolTab.connectControls(fragment, controlBar, controlBarController,
+                                availableTabHeight());
+                        mOnLosingFocus = toolTab.onGainedFocus(fragment, PanesActivity.this);
                         mPreviousPrimary = position;
                     }
                 }
@@ -762,7 +765,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     private void changeSheetState(int fromState, int toState) {
         if (mBottomBehavior == null) {
-            // TODO: wire up bottom behavior at creation
             // Experiment is archived, there's no sheet to change
             return;
         }
