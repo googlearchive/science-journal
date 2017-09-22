@@ -304,7 +304,7 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void scrollToBottom() {
-        if (mDetails != null) {
+        if (mDetails != null && mAdapter != null && mAdapter.getItemCount() > 0) {
             mDetails.smoothScrollToPosition(mAdapter.getItemCount() - 1);
         }
     }
