@@ -248,6 +248,10 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             @Override
             public Experiment call() throws Exception {
                 Experiment result = mMetaDataManager.getExperimentById(experimentId);
+                if (result == null) {
+                    throw new IllegalArgumentException(
+                            "Could not find experiment with id " + experimentId);
+                }
                 return result;
             }
         });

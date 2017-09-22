@@ -63,6 +63,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
 import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MultiWindowUtils;
+import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment;
@@ -77,18 +78,18 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
-import com.google.android.apps.forscience.whistlepunk.review.EditLabelTimeDialog.EditTimeDialogListener;
-
+import com.google.android.apps.forscience.whistlepunk.review.EditLabelTimeDialog
+        .EditTimeDialogListener;
 import com.google.android.apps.forscience.whistlepunk.review.labels.LabelDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartOptions;
@@ -509,6 +510,10 @@ public class RunReviewFragment extends Fragment implements
         if (id == android.R.id.home) {
             Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
             if (mExperiment != null) {
+                // This should be the only one that matters, I think, but leaving the others
+                // for potential legacy cases (b/66162829)
+                upIntent.putExtra(PanesActivity.EXTRA_EXPERIMENT_ID, mExperimentId);
+
                 upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, mExperimentId);
                 upIntent.putExtra(ExperimentDetailsFragment.ARG_CREATE_TASK,
                         getArguments().getBoolean(ARG_CREATE_TASK, false));

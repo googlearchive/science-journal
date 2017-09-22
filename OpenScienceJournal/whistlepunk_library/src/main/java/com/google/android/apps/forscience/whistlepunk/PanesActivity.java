@@ -57,7 +57,7 @@ import io.reactivex.subjects.SingleSubject;
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
         CameraFragment.ListenerProvider, TextToolFragment.ListenerProvider {
     private static final String TAG = "PanesActivity";
-    private static final String EXTRA_EXPERIMENT_ID = "experimentId";
+    public static final String EXTRA_EXPERIMENT_ID = "experimentId";
     private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
     private final SnackbarManager mSnackbarManager;
 
