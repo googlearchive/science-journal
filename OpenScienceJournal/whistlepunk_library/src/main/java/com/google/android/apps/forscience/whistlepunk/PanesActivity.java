@@ -388,10 +388,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                             if (mBottomBehavior.getState() ==
                                     PanesBottomSheetBehavior.STATE_COLLAPSED) {
                                 closeKeyboard(PanesActivity.this).subscribe(closed -> {
-                                    // if we just closed the drawer with the keyboard open,
-                                    // keep the drawer half-open
-                                    changeSheetState(PanesBottomSheetBehavior.STATE_COLLAPSED,
-                                            PanesBottomSheetBehavior.STATE_MIDDLE);
+                                    if (closed) {
+                                        // if we just closed the drawer with the keyboard open,
+                                        // keep the drawer half-open
+                                        changeSheetState(PanesBottomSheetBehavior.STATE_COLLAPSED,
+                                                PanesBottomSheetBehavior.STATE_MIDDLE);
+                                    }
                                 });
                                 mGrabber.setContentDescription(getResources().getString(
                                         R.string.btn_show_tools));
