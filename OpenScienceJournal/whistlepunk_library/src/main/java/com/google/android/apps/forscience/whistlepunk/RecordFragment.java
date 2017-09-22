@@ -229,7 +229,7 @@ public class RecordFragment extends Fragment implements Handler.Callback,
     }
 
     private void onAudioPermissionChanged(@PermissionUtils.PermissionState int newState) {
-        if (mDecibelSensorCardPresenter == null) {
+        if (mDecibelSensorCardPresenter == null || getActivity() == null) {
             return;
         }
         if (newState == PermissionUtils.GRANTED) {
@@ -239,10 +239,10 @@ public class RecordFragment extends Fragment implements Handler.Callback,
             // If the sensor can't be loaded, still show it as selected on the card
             // so the user understands that they wanted this sensor but can't use it.
             mDecibelSensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
-                    getActivity().getApplicationContext(), true);
+                    getActivity(), true);
         } else {
             mDecibelSensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
-                    getActivity().getApplicationContext(), false);
+                    getActivity(), false);
         }
         // in either case, we have our answer.  Stop waiting for it.
         mDecibelSensorCardPresenter = null;
