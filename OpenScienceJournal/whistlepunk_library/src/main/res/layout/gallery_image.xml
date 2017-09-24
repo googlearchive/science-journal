@@ -39,12 +39,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_margin="4dp"
-        android:background="@drawable/select_button_background"
+        android:src="@drawable/select_button_background"
         android:contentDescription="@string/content_description_selected"
-        android:scaleType="center"
-        android:src="@drawable/ic_check_white_24dp"
         />
-
-    <!-- TODO: What should an auto-generated helpful content description be for one of these? -->
 
 </com.google.android.apps.forscience.whistlepunk.SquareLayoutMaxWidth>

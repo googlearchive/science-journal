@@ -22,6 +22,7 @@
     android:layout_alignParentBottom="true"
     android:orientation="horizontal"
     android:background="@color/capture_bottom_panel"
+    android:baselineAligned="false"
     android:elevation="4dp"
     tools:ignore="UnusedAttribute"
     android:gravity="center_vertical"
@@ -80,6 +81,5 @@
             android:textSize="24sp"
             android:visibility="gone"
             />
-
     </FrameLayout>
 </LinearLayout>

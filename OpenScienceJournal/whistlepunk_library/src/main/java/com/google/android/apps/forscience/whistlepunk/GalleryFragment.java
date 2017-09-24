@@ -21,6 +21,7 @@ import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Loader;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -37,6 +38,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
@@ -271,6 +276,22 @@ public class GalleryFragment extends PanesToolFragment implements
 
             GlideApp.with(mContext)
                     .load(path)
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                                Target<Drawable> target,
+                                boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model,
+                                Target<Drawable> target,
+                                DataSource dataSource, boolean isFirstResource) {
+                            holder.image.setBackground(null);
+                            return false;
+                        }
+                    })
                     .thumbnail(.5f)
                     .into(holder.image);
             holder.image.setContentDescription(String.format(mContentDescriptionPrefix,
@@ -293,6 +314,13 @@ public class GalleryFragment extends PanesToolFragment implements
                 holder.selectedIndicator.setVisibility(newlySelected ? View.VISIBLE : View.GONE);
                 mListener.onImageClicked(path, newlySelected);
             });
+        }
+
+        @Override
+        public void onViewRecycled(ViewHolder holder) {
+            holder.image.setBackgroundColor(mContext.getResources()
+                    .getColor(R.color.background_color));
+            super.onViewRecycled(holder);
         }
 
         @Override

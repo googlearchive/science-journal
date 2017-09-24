@@ -19,6 +19,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     android:id="@+id/scroll"
     >
 
@@ -34,7 +35,6 @@
             android:layout_above="@+id/control"
             android:layout_alignParentTop="true"
             android:layout_weight="1"
-            android:background="@android:color/white"
             android:gravity="top"
             android:hint="@string/text_label_hint"
             android:padding="16dp"
