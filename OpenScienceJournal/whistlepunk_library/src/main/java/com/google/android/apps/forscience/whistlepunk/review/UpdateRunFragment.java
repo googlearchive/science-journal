@@ -20,6 +20,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -109,6 +111,11 @@ public class UpdateRunFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_update_run, menu);
+
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+        actionBar.setHomeActionContentDescription(android.R.string.cancel);
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 

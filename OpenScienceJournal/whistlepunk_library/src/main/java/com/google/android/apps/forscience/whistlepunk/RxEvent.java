@@ -48,6 +48,10 @@ public class RxEvent {
         mHappenings.onNext(true);
     }
 
+    public void onDoneHappening() {
+        mHappenings.onComplete();
+    }
+
     public CompletableSource happensNext() {
         return happens().firstOrError().toCompletable();
     }
