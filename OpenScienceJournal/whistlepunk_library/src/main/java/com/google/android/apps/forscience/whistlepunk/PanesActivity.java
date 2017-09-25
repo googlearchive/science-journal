@@ -51,6 +51,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
 
@@ -452,9 +453,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         controlBar.removeAllViews();
                         PanesToolFragment fragment = (PanesToolFragment) object;
                         fragment.whenNextView()
-                                .subscribe(v -> mBottomBehavior.setScrollingChild(v));
-                        toolTab.connectControls(fragment, controlBar, controlBarController,
-                                availableTabHeight());
+                                .subscribe(v -> {
+                                    mBottomBehavior.setScrollingChild(v);
+                                    toolTab.connectControls(fragment, controlBar, controlBarController,
+                                            availableTabHeight());
+                                });
                         mOnLosingFocus = toolTab.onGainedFocus(fragment, PanesActivity.this);
                         mPreviousPrimary = position;
                     }
