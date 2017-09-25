@@ -69,7 +69,6 @@ public class SnapshotLabelDetailsFragment extends LabelDetailsFragment {
         return rootView;
     }
 
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_sensor_item_label_details, menu);
