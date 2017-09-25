@@ -204,7 +204,10 @@ public class GalleryFragment extends PanesToolFragment implements
     }
 
     private void loadImages() {
-        mWhenLoaderManager.subscribe(manager -> manager.initLoader(PHOTO_LOADER_INDEX, null, this));
+        if (getActivity() != null) {
+            mWhenLoaderManager.subscribe(
+                    manager -> manager.initLoader(PHOTO_LOADER_INDEX, null, this));
+        }
     }
 
     @Override
