@@ -137,6 +137,11 @@ class MemoryRecorderController implements RecorderController {
     }
 
     @Override
+    public Experiment getSelectedExperiment() {
+        return null;
+    }
+
+    @Override
     public long getNow() {
         return 0;
     }

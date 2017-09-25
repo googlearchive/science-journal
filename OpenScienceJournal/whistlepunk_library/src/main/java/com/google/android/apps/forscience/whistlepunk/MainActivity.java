@@ -121,14 +121,6 @@ public class MainActivity extends AppCompatActivity
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
-    private void exitMetadataIfNeeded() {
-        if (mIsRecording) {
-            if (mSelectedItemId == R.id.navigation_item_experiments) {
-                finish();
-            }
-        }
-    }
-
     private int getSavedItemId(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             return NO_SELECTED_ITEM;
@@ -215,9 +207,10 @@ public class MainActivity extends AppCompatActivity
         // TODO: extract and test
         rc.watchRecordingStatus().takeUntil(mPause.happens()).subscribe(status -> {
             mIsRecording = status.isRecording();
-            mNavigationView.getMenu().findItem(R.id.navigation_item_experiments).setEnabled(
-                    !mIsRecording);
-            exitMetadataIfNeeded();
+            // TODO: Add experimentId to RecordingStatus
+            if (isTaskRoot() && mIsRecording) {
+                PanesActivity.launch(this, rc.getSelectedExperiment().getExperimentId());
+            }
         });
     }
 
