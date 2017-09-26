@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
-import static org.junit.Assert.assertEquals;
-
 import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
@@ -31,6 +29,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for Trials
@@ -59,7 +59,7 @@ public class TrialTest {
         trial.addLabel(second);
         assertEquals(trial.getLabelCount(), 2);
 
-        trial.deleteLabel(label, getContext(), "experimentId");
+        trial.deleteLabelAndReturnAssetDeleter(label, getContext(), "experimentId").run();
         assertEquals(trial.getLabelCount(), 1);
     }
 

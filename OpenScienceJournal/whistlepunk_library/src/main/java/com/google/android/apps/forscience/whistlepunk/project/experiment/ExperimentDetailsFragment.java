@@ -53,6 +53,7 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
@@ -184,9 +185,9 @@ public class ExperimentDetailsFragment extends Fragment
         CropHelper.registerStatsBroadcastReceiver(getActivity().getApplicationContext(),
                 mBroadcastReceiver);
 
-        Label label = AppSingleton.getInstance(getActivity()).popDeletedLabelForUndo();
+        DeletedLabel label = AppSingleton.getInstance(getActivity()).popDeletedLabelForUndo();
         if (label != null) {
-            onLabelDelete(label);
+            onLabelDelete(new DeletedLabel(label.getLabel(), label.getAssetDeleter()));
         }
     }
 
@@ -549,53 +550,33 @@ public class ExperimentDetailsFragment extends Fragment
 
     void deleteLabel(Label label) {
         if (getActivity() != null) {
-            mExperiment.deleteLabel(label, getActivity());
+            Runnable assetDeleter =
+                    mExperiment.deleteLabelAndReturnAssetDeleter(label, getActivity());
             RxDataController.updateExperiment(getDataController(), mExperiment)
-                    .subscribe(() -> onLabelDelete(label));
+                    .subscribe(() -> onLabelDelete(new DeletedLabel(label, assetDeleter)));
         }
     }
 
-    private void onLabelDelete(final Label item) {
-        final DataController dc = getDataController();
-        Snackbar bar = AccessibilityUtils.makeSnackbar(getView(), getActivity().getResources()
-                .getString(R.string.snackbar_note_deleted),
-                Snackbar.LENGTH_LONG);
+    private void onLabelDelete(DeletedLabel deletedLabel) {
+        deletedLabel.deleteAndDisplayUndoBar(getView(), mExperiment.getExperimentId(), mExperiment,
+                () -> {
+                    mAdapter.insertNote(deletedLabel.getLabel());
 
-        // On undo, re-add the item to the database and the pinned note list.
-        bar.setAction(R.string.snackbar_undo, new View.OnClickListener() {
-            boolean mUndone = false;
-            @Override
-            public void onClick(View v) {
-                if (mUndone) {
-                    return;
-                }
-                mUndone = true;
-                final Label label = Label.copyOf(item);
-                mExperiment.addLabel(label);
-                dc.updateExperiment(mExperimentId, new LoggingConsumer<Success>(TAG,
-                        "re-add deleted label") {
-                    @Override
-                    public void success(Success value) {
-                        // TODO: Somehow re-add the deleted picture here.
-                        mAdapter.insertNote(label);
-                        WhistlePunkApplication.getUsageTracker(getActivity())
-                                .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                        TrackerConstants.ACTION_DELETE_UNDO,
-                                        TrackerConstants.LABEL_EXPERIMENT_DETAIL,
-                                        TrackerConstants.getLabelValueType(item));
-                    }
+                    WhistlePunkApplication.getUsageTracker(getActivity())
+                                          .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                                  TrackerConstants.ACTION_DELETE_UNDO,
+                                                  TrackerConstants.LABEL_EXPERIMENT_DETAIL,
+                                                  TrackerConstants.getLabelValueType(
+                                                          deletedLabel.getLabel()));
                 });
-            }
-        });
-        bar.show();
 
-        mAdapter.deleteNote(item);
+        mAdapter.deleteNote(deletedLabel.getLabel());
 
         WhistlePunkApplication.getUsageTracker(getActivity())
                 .trackEvent(TrackerConstants.CATEGORY_NOTES,
                         TrackerConstants.ACTION_DELETED,
                         TrackerConstants.LABEL_EXPERIMENT_DETAIL,
-                        TrackerConstants.getLabelValueType(item));
+                        TrackerConstants.getLabelValueType(deletedLabel.getLabel()));
     }
 
     private void setTrialArchived(Trial trial, boolean toArchive) {

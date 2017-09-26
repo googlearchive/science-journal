@@ -57,6 +57,7 @@ import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
@@ -195,7 +196,8 @@ public class RunReviewFragment extends Fragment implements
         if (!isMultiWindowEnabled()) {
             initializeData();
         }
-        Label deletedLabel = AppSingleton.getInstance(getActivity()).popDeletedLabelForUndo();
+        DeletedLabel deletedLabel =
+                AppSingleton.getInstance(getActivity()).popDeletedLabelForUndo();
         if (deletedLabel != null) {
             onLabelDelete(deletedLabel);
         }
@@ -827,64 +829,31 @@ public class RunReviewFragment extends Fragment implements
     private void deleteLabel(Label item) {
         // Delete the item immediately.
         // TODO: Deleting the assets makes undo not work on photo labels...
-        getTrial().deleteLabel(item, getActivity(), mExperimentId);
+        Runnable assetDeleter =
+                getTrial().deleteLabelAndReturnAssetDeleter(item, getActivity(), mExperimentId);
         RxDataController.updateExperiment(getDataController(), mExperiment)
-                .subscribe(() -> onLabelDelete(item));
+                .subscribe(() -> onLabelDelete(new DeletedLabel(item, assetDeleter)));
     }
 
-    private void onLabelDelete(Label item) {
-        final DataController dc = getDataController();
-        Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
-                getActivity().getResources().getString(R.string.snackbar_note_deleted),
-                Snackbar.LENGTH_LONG);
-
-        // On undo, re-add the item to the database and the pinned note list.
-        bar.setAction(R.string.snackbar_undo, new View.OnClickListener() {
-            boolean mUndone = false;
-            @Override
-            public void onClick(View v) {
-                if (mUndone) {
-                    return;
-                }
-                mUndone = true;
-                final Label label = Label.copyOf(item);
-                getTrial().addLabel(label);
-                dc.updateExperiment(mExperimentId, new MaybeConsumer<Success>() {
-                    @Override
-                    public void fail(Exception e) {
-                        if (Log.isLoggable(TAG, Log.ERROR)) {
-                            Log.e(TAG, "Failed: re-add deleted label");
-                        }
-                        // It didn't work, so remove the label from the view again.
-                        getTrial().deleteLabel(label, getActivity(), mExperimentId);
-                    }
-
-                    @Override
-                    public void success(Success success) {
-                        // TODO: Somehow re-add the deleted picture here.
-                        mPinnedNoteAdapter.onLabelAdded(label);
-                        mChartController.setLabels(getTrial()
-                                .getLabels());
-                        WhistlePunkApplication.getUsageTracker(getActivity())
-                                .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                        TrackerConstants.ACTION_DELETE_UNDO,
-                                        TrackerConstants.LABEL_RUN_REVIEW,
-                                        TrackerConstants.getLabelValueType(item));
-                    }
-                });
-            }
+    private void onLabelDelete(DeletedLabel item) {
+        item.deleteAndDisplayUndoBar(getView(), mExperimentId, getTrial(), () -> {
+            mPinnedNoteAdapter.onLabelAdded(item.getLabel());
+            mChartController.setLabels(getTrial().getLabels());
+            WhistlePunkApplication.getUsageTracker(getActivity())
+                                  .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                          TrackerConstants.ACTION_DELETE_UNDO,
+                                          TrackerConstants.LABEL_RUN_REVIEW,
+                                          TrackerConstants.getLabelValueType(item.getLabel()));
         });
 
-        mPinnedNoteAdapter.onLabelUpdated(item);
+        mPinnedNoteAdapter.onLabelUpdated(item.getLabel());
         mChartController.setLabels(getTrial().getLabels());
 
         WhistlePunkApplication.getUsageTracker(getActivity())
                 .trackEvent(TrackerConstants.CATEGORY_NOTES,
                         TrackerConstants.ACTION_DELETED,
                         TrackerConstants.LABEL_RUN_REVIEW,
-                        TrackerConstants.getLabelValueType(item));
-
-        bar.show();
+                        TrackerConstants.getLabelValueType(item.getLabel()));
     }
 
     private void setUpAxis(Bundle savedInstanceStateForLoad, View rootView) {

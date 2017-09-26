@@ -89,4 +89,9 @@
         <resource>license_apache2</resource>
         <copyrightHeader>Copyright (C) 2015 Jake Wharton</copyrightHeader>
     </license>
+    <license key="rxandroid">
+        <title>RxAndroid</title>
+        <resource>license_apache2</resource>
+        <copyrightHeader>Copyright 2015 The RxAndroid authors</copyrightHeader>
+    </license>
 </licenses>
