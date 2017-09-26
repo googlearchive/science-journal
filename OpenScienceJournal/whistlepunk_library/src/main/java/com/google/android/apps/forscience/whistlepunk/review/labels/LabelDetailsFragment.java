@@ -119,8 +119,7 @@ abstract class LabelDetailsFragment extends Fragment {
             return true;
         } else if (id == R.id.action_save) {
             mSaved.onHappened();
-            returnToParent(false);
-
+            returnToParent(false, null);
         } else if (id == R.id.action_delete) {
             deleteAndReturnToParent();
             return true;
