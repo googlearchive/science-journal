@@ -33,6 +33,7 @@ import android.widget.TextView;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
@@ -45,6 +46,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import io.reactivex.Maybe;
 import io.reactivex.subjects.BehaviorSubject;
 
 /**
@@ -113,7 +115,7 @@ abstract class LabelDetailsFragment extends Fragment {
         if (id == android.R.id.home) {
             mSaved.onDoneHappening();
             boolean labelDeleted = false;
-            returnToParent(labelDeleted);
+            returnToParent(labelDeleted, null);
             return true;
         } else if (id == R.id.action_save) {
             mSaved.onHappened();
@@ -149,7 +151,7 @@ abstract class LabelDetailsFragment extends Fragment {
         return AppSingleton.getInstance(getActivity()).getDataController();
     }
 
-    protected void returnToParent(boolean labelDeleted) {
+    protected void returnToParent(boolean labelDeleted, Runnable assetDeleter) {
         if (getActivity() == null) {
             return;
         }
@@ -158,22 +160,30 @@ abstract class LabelDetailsFragment extends Fragment {
             getActivity().onBackPressed();
         }
         // Need to either fake a back button or send the right args
-        ((LabelDetailsActivity) getActivity()).returnToParent(labelDeleted, mOriginalLabel);
+        ((LabelDetailsActivity) getActivity()).returnToParent(labelDeleted,
+                new DeletedLabel(mOriginalLabel, assetDeleter));
     }
 
     protected void deleteAndReturnToParent() {
         mExperiment.firstElement()
-                   .flatMapCompletable(experiment -> {
-                       if (TextUtils.isEmpty(mTrialId)) {
-                           experiment.deleteLabel(mOriginalLabel, getActivity());
-                       } else {
-                           experiment.getTrial(mTrialId).deleteLabel(mOriginalLabel, getActivity(),
-                                   mExperimentId);
-                       }
-                       return RxDataController.updateExperiment(getDataController(), experiment);
+                   .flatMap(experiment -> {
+                       Runnable assetDeleter = deleteLabelFromExperiment(experiment);
+                       return RxDataController.updateExperiment(getDataController(), experiment)
+                                              .andThen(Maybe.just(assetDeleter));
                    })
-                   .subscribe(() -> returnToParent(/* label deleted */ true),
+                   .subscribe(
+                           assetDeleter -> returnToParent(/* label deleted */ true, assetDeleter),
                            LoggingConsumer.complain(TAG, "delete label"));
+    }
+
+    private Runnable deleteLabelFromExperiment(Experiment experiment) {
+        if (TextUtils.isEmpty(mTrialId)) {
+            return experiment.deleteLabelAndReturnAssetDeleter(mOriginalLabel, getActivity());
+        } else {
+            return experiment.getTrial(mTrialId)
+                             .deleteLabelAndReturnAssetDeleter(mOriginalLabel, getActivity(),
+                                     mExperimentId);
+        }
     }
 
     // Most types of labels have a caption. This sets up the text watcher / autosave for that.

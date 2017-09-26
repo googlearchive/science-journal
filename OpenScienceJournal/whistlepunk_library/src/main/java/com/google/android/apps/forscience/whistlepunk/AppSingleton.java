@@ -80,7 +80,7 @@ public class AppSingleton {
                     return AppSingleton.this.getBleClient();
                 }
             };
-    private Label mDeletedLabel;
+    private DeletedLabel mDeletedLabel;
 
     @NonNull
     public PrefsSensorHistoryStorage getPrefsSensorHistoryStorage() {
@@ -218,13 +218,13 @@ public class AppSingleton {
         return mLabelsAdded;
     }
 
-    public void pushDeletedLabelForUndo(Label deletedLabel) {
+    public void pushDeletedLabelForUndo(DeletedLabel deletedLabel) {
         mDeletedLabel = deletedLabel;
     }
 
-    public Label popDeletedLabelForUndo() {
+    public DeletedLabel popDeletedLabelForUndo() {
         if (mDeletedLabel != null) {
-            Label returnThis = mDeletedLabel;
+            DeletedLabel returnThis = mDeletedLabel;
             mDeletedLabel = null;
             return returnThis;
         }

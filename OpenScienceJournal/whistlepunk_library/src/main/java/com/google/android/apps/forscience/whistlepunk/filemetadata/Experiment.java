@@ -539,8 +539,8 @@ public class Experiment extends LabelListHolder {
         }
     }
 
-    public void deleteLabel(Label item, Context context) {
-        deleteLabel(item, context, getExperimentId());
+    public Runnable deleteLabelAndReturnAssetDeleter(Label item, Context context) {
+        return deleteLabelAndReturnAssetDeleter(item, context, getExperimentId());
     }
 
     @VisibleForTesting
