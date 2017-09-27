@@ -51,7 +51,6 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
 
@@ -82,7 +81,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void connectControls(Fragment fragment, FrameLayout controlBar,
+            public View connectControls(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController,
                     Observable<Integer> availableHeight) {
                 TextToolFragment ttf = (TextToolFragment) fragment;
@@ -90,6 +89,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                               .inflate(R.layout.text_action_bar, controlBar, true);
                 ttf.attachButtons(controlBar);
                 ttf.listenToAvailableHeight(availableHeight);
+                return ttf.getViewToKeepVisible();
             }
 
             @Override
@@ -108,7 +108,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void connectControls(Fragment fragment, FrameLayout controlBar,
+            public View connectControls(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController,
                     Observable<Integer> availableHeight) {
                 LayoutInflater.from(controlBar.getContext())
@@ -116,6 +116,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 controlBarController.attachRecordButtons(controlBar,
                         fragment.getChildFragmentManager());
                 controlBarController.attachElapsedTime(controlBar, (RecordFragment) fragment);
+                return null;
             }
 
             @Override
@@ -140,13 +141,14 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void connectControls(Fragment fragment, FrameLayout controlBar,
+            public View connectControls(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController,
                     Observable<Integer> availableHeight) {
                 CameraFragment cf = (CameraFragment) fragment;
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.camera_action_bar, controlBar, true);
                 cf.attachButtons(controlBar);
+                return null;
             }
         }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp, "GALLERY") {
             @Override
@@ -155,7 +157,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void connectControls(Fragment fragment, FrameLayout controlBar,
+            public View connectControls(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController,
                     Observable<Integer> availableHeight) {
                 // TODO: is this duplicated code?
@@ -163,6 +165,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.gallery_action_bar, controlBar, true);
                 gf.attachAddButton(controlBar);
+                return null;
             }
         };
         private final int mContentDescriptionId;
@@ -199,7 +202,10 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             return null;
         }
 
-        public abstract void connectControls(Fragment fragment, FrameLayout controlBar,
+        /**
+         * @return a View to attempt to keep visible by resizing the drawer if possible
+         */
+        public abstract View connectControls(Fragment fragment, FrameLayout controlBar,
                 ControlBarController controlBarController,
                 Observable<Integer> availableHeight);
     }
@@ -388,14 +394,9 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                             mBottomSheetState.onNext(newState);
                             if (mBottomBehavior.getState() ==
                                     PanesBottomSheetBehavior.STATE_COLLAPSED) {
-                                closeKeyboard(PanesActivity.this).subscribe(closed -> {
-                                    if (closed) {
-                                        // if we just closed the drawer with the keyboard open,
-                                        // keep the drawer half-open
-                                        changeSheetState(PanesBottomSheetBehavior.STATE_COLLAPSED,
-                                                PanesBottomSheetBehavior.STATE_MIDDLE);
-                                    }
-                                });
+                                // We no longer need to know what happens when the keyboard closes:
+                                // Stay closed.
+                                closeKeyboard(PanesActivity.this).subscribe();
                                 mGrabber.setContentDescription(getResources().getString(
                                         R.string.btn_show_tools));
                             } else if (mBottomBehavior.getState() ==
@@ -455,14 +456,17 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         fragment.whenNextView()
                                 .subscribe(v -> {
                                     mBottomBehavior.setScrollingChild(v);
-                                    toolTab.connectControls(fragment, controlBar, controlBarController,
-                                            availableTabHeight());
+
+                                    View viewToKeepVisible =
+                                            toolTab.connectControls(fragment, controlBar,
+                                                    controlBarController, availableTabHeight());
+                                    mBottomBehavior.setViewToKeepVisibleIfPossible(
+                                            viewToKeepVisible);
                                 });
                         mOnLosingFocus = toolTab.onGainedFocus(fragment, PanesActivity.this);
                         mPreviousPrimary = position;
                     }
                 }
-
             };
             pager.setAdapter(adapter);
 

@@ -38,6 +38,7 @@
             android:gravity="top"
             android:hint="@string/text_label_hint"
             android:padding="16dp"
+            android:background="@android:color/transparent"
             />
 
         <ImageButton

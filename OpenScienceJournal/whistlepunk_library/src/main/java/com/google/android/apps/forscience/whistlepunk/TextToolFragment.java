@@ -59,6 +59,10 @@ public class TextToolFragment extends PanesToolFragment {
     private BehaviorSubject<Integer> mTextSize = BehaviorSubject.create();
     private boolean mUserMovingScroll = false;
 
+    public View getViewToKeepVisible() {
+        return mTextView;
+    }
+
     public interface TextLabelFragmentListener {
         void onTextLabelTaken(Label result);
     }

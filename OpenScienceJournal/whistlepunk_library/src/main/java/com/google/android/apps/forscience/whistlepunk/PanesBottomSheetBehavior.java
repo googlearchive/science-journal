@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcel;
@@ -47,6 +46,8 @@ import android.view.ViewParent;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 /**
  * An interaction behavior plugin for a child view of {@link CoordinatorLayout} to make it work as
  * a bottom sheet that has a mid-height stop, STATE_MIDDLE.
@@ -56,6 +57,7 @@ import java.lang.ref.WeakReference;
  */
 public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.Behavior<V> {
     private static final String TAG = "PanesBottomSheetBehavior";
+    private View mViewToKeepVisibleIfPossible;
 
     /**
      * Callback for monitoring events about bottom sheets.
@@ -179,6 +181,11 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
             mState = ss.state;
         }
     }
+
+    public void setViewToKeepVisibleIfPossible(View view) {
+        mViewToKeepVisibleIfPossible = view;
+    }
+
     @Override
     public boolean onLayoutChild(CoordinatorLayout parent, V child, int layoutDirection) {
         if (ViewCompat.getFitsSystemWindows(parent) && !ViewCompat.getFitsSystemWindows(child)) {
@@ -188,6 +195,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
         // First let the parent lay it out
         parent.onLayoutChild(child, layoutDirection);
         // Offset the bottom sheet
+        int parentWidth = parent.getWidth();
         mParentHeight = parent.getHeight();
         int peekHeight;
         if (mPeekHeightAuto) {
@@ -195,7 +203,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
                 mPeekHeightMin = parent.getResources().getDimensionPixelSize(
                         R.dimen.design_bottom_sheet_peek_height_min);
             }
-            peekHeight = Math.max(mPeekHeightMin, mParentHeight - parent.getWidth() * 9 / 16);
+            peekHeight = Math.max(mPeekHeightMin, mParentHeight - parentWidth * 9 / 16);
         } else {
             peekHeight = mPeekHeight;
         }
@@ -207,7 +215,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
             ViewCompat.offsetTopAndBottom(child, mMaxOffset);
         } else if (mState == STATE_MIDDLE) {
             // Added for PanesBottomSheetBehavior.
-            ViewCompat.offsetTopAndBottom(child, (mMaxOffset + mMinOffset) / 2);
+            ViewCompat.offsetTopAndBottom(child, computeMiddleOffset(parentWidth > mParentHeight));
         } else if (mState == STATE_DRAGGING || mState == STATE_SETTLING) {
             ViewCompat.offsetTopAndBottom(child, savedTop - child.getTop());
         }
@@ -220,6 +228,18 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
             setScrollingChild(child);
         }
         return true;
+    }
+
+    private int computeMiddleOffset(boolean saveSpace) {
+        int midOffset = (mMaxOffset + mMinOffset) / 2;
+        if (mViewToKeepVisibleIfPossible == null || !saveSpace) {
+            return midOffset;
+        } else {
+            // We're at a space premium.  Show just enough drawer to keep the target view entirely
+            // visible.  (Assumes target view is just below tool tabs)
+            int height = mViewToKeepVisibleIfPossible.getHeight();
+            return Math.max(mMaxOffset - height, mMinOffset);
+        }
     }
 
     public void setScrollingChild(View child) {
