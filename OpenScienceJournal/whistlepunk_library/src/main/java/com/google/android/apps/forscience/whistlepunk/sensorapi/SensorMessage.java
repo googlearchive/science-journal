@@ -15,8 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import android.os.Bundle;
-
 import com.google.android.apps.forscience.javalib.Consumer;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -51,7 +49,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class SensorMessage {
     private final Runnable mRunnable;
     private long mTimestamp = -1;
-    private Bundle mData = new Bundle();
+
+    private SensorObserver.Data mData = new SensorObserver.Data();
 
     private SensorMessage(final Consumer<SensorMessage> onNewData) {
         mRunnable = new Runnable() {
@@ -74,7 +73,7 @@ public class SensorMessage {
      * The bundle returned here is mutable.  Add data to it to be delivered to the observer.
      * When getRunnable() is run, the data will be delivered, and then cleared out for reuse.
      */
-    public Bundle getData() {
+    public SensorObserver.Data getData() {
         return mData;
     }
 

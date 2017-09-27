@@ -21,6 +21,7 @@ import android.support.annotation.IntDef;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
@@ -73,9 +74,8 @@ public class StatsAccumulator {
             mAvgStat.clear();
         }
 
-        public void updateFromBundle(Bundle bundle) {
-            updateStreamStats(bundle.getDouble(KEY_MIN), bundle.getDouble(KEY_MAX),
-                    bundle.getDouble(KEY_AVERAGE));
+        public void updateFromBundle(SensorObserver.Data bundle) {
+            updateStreamStats(bundle.min, bundle.max, bundle.average);
         }
 
         public List<StreamStat> updateStreamStats(double yMin, double yMax, double average) {
@@ -174,14 +174,14 @@ public class StatsAccumulator {
         return mLatestTimestamp;
     }
 
-    public void addStatsToBundle(Bundle data) {
-        data.putDouble(KEY_MIN, mMin);
-        data.putDouble(KEY_MAX, mMax);
-        data.putDouble(KEY_AVERAGE, getAverage());
+    public void addStatsToBundle(SensorObserver.Data data) {
+        data.min = mMin;
+        data.max = mMax;
+        data.average = getAverage();
     }
 
     public void updateDisplayDirectly(StatsDisplay display) {
-        final Bundle bundle = new Bundle();
+        final SensorObserver.Data bundle = new SensorObserver.Data();
         addStatsToBundle(bundle);
         display.updateFromBundle(bundle);
     }

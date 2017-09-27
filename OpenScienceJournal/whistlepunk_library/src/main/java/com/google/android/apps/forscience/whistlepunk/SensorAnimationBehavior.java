@@ -21,7 +21,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.support.annotation.IntDef;
 import android.view.Surface;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import java.lang.annotation.Retention;
@@ -62,14 +61,15 @@ public class SensorAnimationBehavior {
         mLevelDrawableId = levelDrawableId;
     }
 
-    public void updateImageView(ImageView view, double newValue, double yMin, double yMax) {
+    public void updateImageView(ImageView view, double newValue, double yMin, double yMax,
+            int screenOrientation) {
         if (mBehaviorType == TYPE_ROTATION) {
-            float delta = getScreenRotationDelta(view.getContext());
+            float delta = getScreenRotationDelta(screenOrientation);
             view.setRotation((float) (-1.0 * (newValue + delta)));
             view.setImageLevel(0);
         } else {
             if (mBehaviorType == TYPE_ACCELEROMETER_SCALE_ROTATES) {
-                float delta = getScreenRotationDelta(view.getContext());
+                float delta = getScreenRotationDelta(screenOrientation);
                 view.setRotation(-1 * delta);
             } else {
                 view.setRotation(0.0f);
@@ -122,9 +122,7 @@ public class SensorAnimationBehavior {
         return index;
     }
 
-    private float getScreenRotationDelta(Context context) {
-        int screenOrientation = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE))
-                .getDefaultDisplay().getRotation();
+    private float getScreenRotationDelta(int screenOrientation) {
         float delta = 0;
         // Use screen orientation to make sure we point the icon the right way even if the
         // screen is rotated.

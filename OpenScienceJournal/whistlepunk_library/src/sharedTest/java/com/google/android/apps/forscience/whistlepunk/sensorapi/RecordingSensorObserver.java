@@ -27,7 +27,7 @@ public class RecordingSensorObserver implements SensorObserver {
     private List<ScalarReading> mReadings = new ArrayList<>();
 
     @Override
-    public void onNewData(long timestamp, Bundle bundle) {
+    public void onNewData(long timestamp, Data bundle) {
         mReadings.add(new ScalarReading(timestamp, ScalarSensor.getValue(bundle)));
     }
 

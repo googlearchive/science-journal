@@ -23,6 +23,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.LruCache;
 import android.view.View;
 
 import java.text.NumberFormat;
@@ -62,6 +63,9 @@ public abstract class ExternalAxisView extends View {
     protected long mTimeBetweenTicks;
     protected float mPaddingLeft;
     protected float mPaddingRight;
+
+    LruCache<String, Float> mCachedLabelMeasurements = new LruCache<>(256);
+    LruCache<String, Float> mCachedFormattedLabels = new LruCache<>(256);
 
     public ExternalAxisView(Context context) {
         super(context);
@@ -189,9 +193,20 @@ public abstract class ExternalAxisView extends View {
 
     private void drawLabel(long t, float xOffset, float tickPaddingTop, Canvas canvas) {
         String label = mFormat.format(t);
-        float labelWidth = mTextPaint.measureText(label);
+        float labelWidth = getLabelWidth(label);
         canvas.drawText(label, xOffset - labelWidth/2, (tickPaddingTop + mTextHeight +
                 mTickPaddingBottom + mLongTickHeight), mTextPaint);
+    }
+
+    private float getLabelWidth(String label) {
+        Float cached = mCachedLabelMeasurements.get(label);
+        if (cached != null) {
+            return cached;
+        }
+
+        float computed = mTextPaint.measureText(label);
+        mCachedLabelMeasurements.put(label, computed);
+        return computed;
     }
 
     // Returns how much should be added to X to draw this timestamp, given the current

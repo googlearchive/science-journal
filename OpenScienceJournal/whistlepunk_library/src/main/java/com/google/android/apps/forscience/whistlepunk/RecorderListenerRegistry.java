@@ -148,7 +148,7 @@ public class RecorderListenerRegistry implements SensorStatusListener {
     public SensorObserver makeObserverForRecorder(final String sensorId) {
         return new SensorObserver() {
             @Override
-            public void onNewData(long timestamp, Bundle bundle) {
+            public void onNewData(long timestamp, Data bundle) {
                 for (ListenerSet set : mListeners.get(sensorId)) {
                     set.observer.onNewData(timestamp, bundle);
                 }

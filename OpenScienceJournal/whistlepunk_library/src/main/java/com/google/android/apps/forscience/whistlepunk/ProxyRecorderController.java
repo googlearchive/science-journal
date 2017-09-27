@@ -88,12 +88,12 @@ public class ProxyRecorderController extends IRecorderController.Stub {
             boolean mValid = true;
 
             @Override
-            public void onNewData(long timestamp, Bundle data) {
+            public void onNewData(long timestamp, Data data) {
                 if (!mValid) {
                     return;
                 }
                 try {
-                    observer.onNewData(timestamp, data);
+                    observer.onNewData(timestamp, data.asBundle());
                 } catch (RemoteException e) {
                     mFailureListener.fail(e);
                     mValid = false;
