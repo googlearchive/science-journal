@@ -21,12 +21,18 @@ import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorHistoryStorage;
 
+import io.reactivex.Single;
+
 /**
  * Encapsulates services that sensors need to do their jobs
  */
 public interface SensorEnvironment {
     RecordingDataController getDataController();
-    BleClient getBleClient();
+
+    /**
+     * @return a Single that publishes once there is a connected BLE client
+     */
+    Single<BleClient> getConnectedBleClient();
 
     /**
      * @return report values using this clock, _unless_ the sensor has a better built-in

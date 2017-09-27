@@ -23,6 +23,8 @@ import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorHistoryStorage;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 
+import io.reactivex.Single;
+
 public class MemorySensorEnvironment implements SensorEnvironment {
     private final RecordingDataController mDataController;
     private final Clock mClock;
@@ -44,8 +46,8 @@ public class MemorySensorEnvironment implements SensorEnvironment {
     }
 
     @Override
-    public BleClient getBleClient() {
-        return mBleClient;
+    public Single<BleClient> getConnectedBleClient() {
+        return Single.just(mBleClient);
     }
 
     @Override

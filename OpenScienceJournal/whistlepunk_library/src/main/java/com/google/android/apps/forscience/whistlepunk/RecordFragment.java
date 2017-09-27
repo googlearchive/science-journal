@@ -222,10 +222,6 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
                 getActivity());
 
         setHasOptionsMenu(true);
-
-        // TODO: this is necessary because of a race condition: the BluetoothSensor assumes
-        // that the BleService has already been connected before it tries to start observing.
-        AppSingleton.getInstance(getActivity()).getBleClient();
     }
 
     private void onAudioPermissionChanged(@PermissionUtils.PermissionState int newState) {

@@ -43,6 +43,8 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
+import io.reactivex.Single;
+
 public class BluetoothSensor extends ScalarSensor {
     private static final String TAG = "BluetoothSensor";
 
@@ -71,7 +73,6 @@ public class BluetoothSensor extends ScalarSensor {
     private String mAddress;
     private GoosciSensorConfig.BleSensorConfig.ScaleTransform mDeviceScaleTransform;
 
-    private BleFlow mFlow;
     private BleFlowListener mBleFlowListener;
 
     public BluetoothSensor(String sensorId, BleSensorSpec sensor, BleServiceSpec serviceSpec) {
@@ -89,7 +90,7 @@ public class BluetoothSensor extends ScalarSensor {
     }
 
     private BleFlowListener createBleFlowListener(final StreamConsumer c, final Clock defaultClock,
-            final SensorStatusListener listener) {
+            final SensorStatusListener listener, BleFlow flow) {
         return new BleFlowListener() {
             final PacketAssembler mPa = new PacketAssembler(defaultClock,
                     new PacketAssembler.Listener() {
@@ -113,9 +114,9 @@ public class BluetoothSensor extends ScalarSensor {
                 Log.d(TAG, "Failure " + error.getMessage());
                 listener.onSourceError(getId(), SensorStatusListener.ERROR_UNKNOWN,
                         error.getLocalizedMessage());
-                mFlow.resetAndAddListener(mBleFlowListener, true)
+                flow.resetAndAddListener(mBleFlowListener, true)
                         .disconnect();
-                BleFlow.run(mFlow);
+                BleFlow.run(flow);
             }
 
             @Override
@@ -128,7 +129,7 @@ public class BluetoothSensor extends ScalarSensor {
                     switch (protocolVersion.getMajorVersion()) {
                         // Currently no version requires a special connection sequence
                         default:
-                            writeConfigAndSetNotification();
+                            writeConfigAndSetNotification(flow);
                     }
                 }
             }
@@ -157,20 +158,20 @@ public class BluetoothSensor extends ScalarSensor {
             @Override
             public void onNotificationUnsubscribed() {
                 mNotificationSubscribed = false;
-                mFlow.resetAndAddListener(mBleFlowListener, true)
+                flow.resetAndAddListener(mBleFlowListener, true)
                         .disconnect();
-                BleFlow.run(mFlow);
+                BleFlow.run(flow);
             }
 
             @Override
             public void onServicesDiscovered() {
-                if (mFlow.isCharacteristicValid(mServiceSpec.getServiceId(),
+                if (flow.isCharacteristicValid(mServiceSpec.getServiceId(),
                         mServiceSpec.getVersionId())) {
-                    mFlow.lookupCharacteristic(mServiceSpec.getServiceId(),
+                    flow.lookupCharacteristic(mServiceSpec.getServiceId(),
                             mServiceSpec.getVersionId()).read();
-                    BleFlow.run(mFlow);
+                    BleFlow.run(flow);
                 } else {
-                    writeConfigAndSetNotification();
+                    writeConfigAndSetNotification(flow);
                 }
             }
         };
@@ -230,16 +231,16 @@ public class BluetoothSensor extends ScalarSensor {
         return outputStream.toByteArray();
     }
 
-    private void writeConfigAndSetNotification() {
+    private void writeConfigAndSetNotification(BleFlow flow) {
         byte[] sensorConfig = buildConfigProtoForDevice(mSensor);
-        if (sensorConfig != null && mFlow.isCharacteristicValid(mServiceSpec.getServiceId(),
+        if (sensorConfig != null && flow.isCharacteristicValid(mServiceSpec.getServiceId(),
                 mServiceSpec.getSettingId())) {
-            mFlow.lookupCharacteristic(mServiceSpec.getServiceId(),
+            flow.lookupCharacteristic(mServiceSpec.getServiceId(),
                     mServiceSpec.getSettingId()).write(sensorConfig);
         }
-        mFlow.lookupCharacteristic(mServiceSpec.getServiceId(), mServiceSpec.getValueId())
+        flow.lookupCharacteristic(mServiceSpec.getServiceId(), mServiceSpec.getValueId())
                 .enableNotification();
-        BleFlow.run(mFlow);
+        BleFlow.run(flow);
     }
 
     private void readConfigurationFrom(BleSensorSpec bleSensor) {
@@ -258,34 +259,41 @@ public class BluetoothSensor extends ScalarSensor {
     protected SensorRecorder makeScalarControl(final StreamConsumer c,
             final SensorEnvironment environment, Context context,
             final SensorStatusListener listener) {
-        mFlow = environment.getBleClient().getFlowFor(mAddress);
+        Single<BleFlow> whenFlow = environment.getConnectedBleClient()
+                                              .map(client -> client.getFlowFor(mAddress))
+                                              .cache();
+
         return new AbstractSensorRecorder() {
             @Override
             public void startObserving() {
                 // make BLE connection
                 listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTING);
-                mBleFlowListener =
-                        createBleFlowListener(c, environment.getDefaultClock(), listener);
-                mFlow.resetAndAddListener(mBleFlowListener, true)
-                        .connect()
-                        .lookupService(mServiceSpec.getServiceId());
-                BleFlow.run(mFlow);
+                whenFlow.subscribe(flow -> {
+                    mBleFlowListener =
+                            createBleFlowListener(c, environment.getDefaultClock(), listener, flow);
+                    flow.resetAndAddListener(mBleFlowListener, true)
+                         .connect()
+                         .lookupService(mServiceSpec.getServiceId());
+                    BleFlow.run(flow);
+                });
             }
 
             @Override
             public void stopObserving() {
-                // Don't reset service map: should still be valid from above, and it doesn't work
-                // on ChromeBooks
-                mFlow.resetAndAddListener(mBleFlowListener, false);
-                if(mNotificationSubscribed) {
-                    mFlow.lookupService(mServiceSpec.getServiceId()).lookupCharacteristic(
-                            mServiceSpec.getServiceId(), mServiceSpec.getValueId())
-                            .disableNotification();
-                    BleFlow.run(mFlow);
-                } else {
-                    mFlow.disconnect();
-                    BleFlow.run(mFlow);
-                }
+                whenFlow.subscribe(flow -> {
+                    // Don't reset service map: should still be valid from above, and it doesn't work
+                    // on ChromeBooks
+                    flow.resetAndAddListener(mBleFlowListener, false);
+                    if(mNotificationSubscribed) {
+                        flow.lookupService(mServiceSpec.getServiceId()).lookupCharacteristic(
+                                mServiceSpec.getServiceId(), mServiceSpec.getValueId())
+                             .disableNotification();
+                        BleFlow.run(flow);
+                    } else {
+                        flow.disconnect();
+                        BleFlow.run(flow);
+                    }
+                });
             }
         };
     }

@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
+import com.google.common.base.Preconditions;
 
 import java.text.FieldPosition;
 import java.text.NumberFormat;
@@ -169,7 +170,7 @@ public class BuiltInSensorAppearance implements SensorAppearance {
     public GoosciIcon.IconPath getSmallIconPath() {
         GoosciIcon.IconPath path = new GoosciIcon.IconPath();
         path.type = GoosciIcon.IconPath.BUILTIN;
-        path.pathString = mBuiltInSensorId;
+        path.pathString = Preconditions.checkNotNull(mBuiltInSensorId);
         return path;
     }
 
@@ -177,7 +178,7 @@ public class BuiltInSensorAppearance implements SensorAppearance {
     public GoosciIcon.IconPath getLargeIconPath() {
         GoosciIcon.IconPath path = new GoosciIcon.IconPath();
         path.type = GoosciIcon.IconPath.BUILTIN;
-        path.pathString = mBuiltInSensorId;
+        path.pathString = Preconditions.checkNotNull(mBuiltInSensorId);
         return path;
     }
 

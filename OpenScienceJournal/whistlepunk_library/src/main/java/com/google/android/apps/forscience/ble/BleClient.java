@@ -22,6 +22,8 @@ import android.bluetooth.BluetoothGattService;
 
 import java.util.UUID;
 
+import io.reactivex.Single;
+
 public interface BleClient {
     void scanForDevices(UUID[] serviceType, int timeoutSeconds);
 
@@ -56,4 +58,6 @@ public interface BleClient {
     String getFirstDeviceAddress();
 
     void setMaxNoDevices(int maxNoDevices);
+
+    Single<BleClient> whenConnected();
 }

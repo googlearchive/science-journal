@@ -29,6 +29,12 @@ message IconPath {
         // sensor.  Internal code should look up the appropriate icon and display it.
         BUILTIN = 0;
 
+
+        // Legacy type from Android.  The path string is the string representation of an integer
+        // representing SensorTypeProvider#SensorKind
+        // TODO: replace with better system
+        LEGACY_ANDROID_BLE = 1;
+
         // TODO: When we have local storage of custom sensor icons, add another type here.
     }
 

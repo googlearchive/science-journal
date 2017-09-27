@@ -27,9 +27,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
@@ -96,11 +96,11 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
         }
 
         if (label.getType() != GoosciLabel.Label.SENSOR_TRIGGER &&
-                label.getType() != GoosciLabel.Label.SNAPSHOT) {
+            label.getType() != GoosciLabel.Label.SNAPSHOT) {
             valuesList.setVisibility(View.GONE);
         } else {
             if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
-               loadTriggerIntoList(valuesList, label);
+                loadTriggerIntoList(valuesList, label);
             }
             if (label.getType() == GoosciLabel.Label.SNAPSHOT) {
                 loadSnapshotsIntoList(valuesList, label);
@@ -180,9 +180,9 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
         }
 
         TextView sensorName = (TextView) valuesList.findViewById(R.id.sensor_name);
+        Drawable black = context.getResources().getDrawable(R.drawable.ic_label_black_18dp);
         Drawable drawable =
-                ColorUtils.colorBlackDrawable(valuesList.getContext(), context.getResources()
-                        .getDrawable(R.drawable.ic_label_black_18dp), R.color.color_accent);
+                ColorUtils.colorBlackDrawable(valuesList.getContext(), black, R.color.color_accent);
         sensorName.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null);
         String triggerWhenText = context.getResources().getStringArray(
                 R.array.trigger_when_list_note_text)[labelValue.triggerInformation.triggerWhen];
@@ -216,15 +216,25 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     private static void loadLargeDrawable(GoosciSensorAppearance.BasicSensorAppearance appearance,
             SensorAppearanceProvider appearanceProvider, ViewGroup layout) {
         GoosciIcon.IconPath iconPath = appearance.largeIconPath;
-        if (iconPath != null) {
-            if (iconPath.type == GoosciIcon.IconPath.BUILTIN) {
-                SensorAppearance sa = appearanceProvider.getAppearance(iconPath.pathString);
-                if (sa != null) {
-                    SensorAnimationBehavior behavior = sa.getSensorAnimationBehavior();
-                    behavior.initializeLargeIcon(
-                            ((ImageView) layout.findViewById(R.id.large_icon)));
-                }
-            }
+        SensorAppearance sa = getSensorAppearance(iconPath, appearanceProvider);
+        if (sa != null) {
+            SensorAnimationBehavior behavior = sa.getSensorAnimationBehavior();
+            behavior.initializeLargeIcon(((ImageView) layout.findViewById(R.id.large_icon)));
         }
+    }
+
+    private static SensorAppearance getSensorAppearance(GoosciIcon.IconPath iconPath,
+            SensorAppearanceProvider appearanceProvider) {
+        if (iconPath == null) {
+            return null;
+        }
+        switch (iconPath.type) {
+            case GoosciIcon.IconPath.BUILTIN:
+                return appearanceProvider.getAppearance(iconPath.pathString);
+            case GoosciIcon.IconPath.LEGACY_ANDROID_BLE:
+                return SensorTypeProvider.getSensorAppearance(Integer.valueOf(iconPath.pathString),
+                        "");
+        }
+        return null;
     }
 }

@@ -48,7 +48,7 @@ public class SensorTypeProvider {
                     R.string.sensor_desc_second_paragraph_rotation,
                     R.drawable.learnmore_rotation,
                     new SensorAnimationBehavior(R.drawable.rotation_level_drawable,
-                            SensorAnimationBehavior.TYPE_POSITIVE_RELATIVE_SCALE), name);
+                            SensorAnimationBehavior.TYPE_POSITIVE_RELATIVE_SCALE), name, kind);
         } else if (kind == SensorTypeProvider.TYPE_RAW) {
             // TODO(dek): switch icon to voltage when ready.
             // b/27226547
@@ -60,7 +60,7 @@ public class SensorTypeProvider {
                     R.string.sensor_desc_second_paragraph_raw,
                     R.drawable.artboard,
                     new SensorAnimationBehavior(R.drawable.percent_level_drawable,
-                            SensorAnimationBehavior.TYPE_RELATIVE_SCALE), name);
+                            SensorAnimationBehavior.TYPE_RELATIVE_SCALE), name, kind);
         } else {
             // Handle appearance for custom sensors.
             return new ExternalSensorAppearance(R.string.sensor_custom,
@@ -70,7 +70,7 @@ public class SensorTypeProvider {
                     R.string.sensor_desc_second_paragraph_unknown_bluetooth,
                     R.drawable.learnmore_bluetooth,
                     new SensorAnimationBehavior(R.drawable.bluetooth_level_drawable,
-                            SensorAnimationBehavior.TYPE_RELATIVE_SCALE), name);
+                            SensorAnimationBehavior.TYPE_RELATIVE_SCALE), name, kind);
         }
     }
 
