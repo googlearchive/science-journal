@@ -1394,6 +1394,15 @@ Permissions notice:
     <!-- Content description for the camera preview [CHAR_LIMIT=NONE] -->
     <string name="camera_preview_content_description">Camera live view</string>
 
+    <!-- Error message for camera view when permissions are denied [CHAR_LIMIT=NONE] -->
+    <string name="input_camera_permission_denied">The camera cannot be used because Science Journal does not have permission to access it.</string>
+
+    <!-- Error message for gallery view when permissions are denied [CHAR_LIMIT=NONE] -->
+    <string name="input_photo_library_permission_denied">Your photo library cannot be used because Science Journal does not have permission to access it.</string>
+
+    <!-- Button text to open phone settings [CHAR_LIMIT=30] -->
+    <string name="input_blocked_open_settings_button">Open Settings</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 
