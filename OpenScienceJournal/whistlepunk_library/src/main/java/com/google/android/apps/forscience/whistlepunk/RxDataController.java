@@ -22,6 +22,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHold
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 
 /**
@@ -52,6 +53,18 @@ public class RxDataController {
 
     public static Single<Trial> getTrial(DataController dc, String experimentId, String trialId) {
         return getExperimentById(dc, experimentId).map(experiment -> experiment.getTrial(trialId));
+    }
+
+    public static Maybe<Trial> getTrialMaybe(DataController dc, String experimentId,
+            String trialId) {
+        return getExperimentById(dc, experimentId).flatMapMaybe(experiment -> {
+            Trial trial = experiment.getTrial(trialId);
+            if (trial != null) {
+                return Maybe.just(trial);
+            } else {
+                return Maybe.empty();
+            }
+        });
     }
 
     public static Completable addTrialLabel(Label label, DataController dc, Experiment experiment,

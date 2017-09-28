@@ -310,7 +310,9 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void onRecordingTrialUpdated(String trialId) {
-        RxDataController.getTrial(getDataController(), mExperimentId, trialId).subscribe(t -> {
+        // getTrialMaybe as workaround to avoid b/67008535; we can't live without a trial forever,
+        // but the consequences of not having that trial are small here.
+        RxDataController.getTrialMaybe(getDataController(), mExperimentId, trialId).subscribe(t -> {
             mAdapter.updateActiveRecording(t);
             scrollToBottom();
         });
@@ -1291,8 +1293,9 @@ public class ExperimentDetailsFragment extends Fragment
 
         public void addActiveRecording(Trial trial) {
             if (findTrialIndex(trial.getTrialId()) == -1) {
-                mItems.add(0, new ExperimentDetailItem(trial, mScalarDisplayOptions, true));
-                notifyItemInserted(0);
+                // active recording goes to end of list
+                mItems.add(new ExperimentDetailItem(trial, mScalarDisplayOptions, true));
+                notifyItemInserted(mItems.size() - 1);
                 updateEmptyView();
             }
         }
