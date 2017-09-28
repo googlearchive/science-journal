@@ -73,6 +73,7 @@ public class ChartView extends View {
     private Paint mPathPaint;
     private Path mPath;
     private boolean mHasPath;
+    private Matrix mMatrix = new Matrix();
 
     private Paint mAxisPaint;
     private Paint mAxisTextPaint;
@@ -669,11 +670,11 @@ public class ChartView extends View {
      */
     public void transformPath() {
         // The path needs to be scaled in X and Y based on the range of the new data points.
-        Matrix matrix = new Matrix();
+        mMatrix.reset();
         mPreviousChartRect.set(getScreenX(mXMinForPathCalcs), getScreenY(mYMaxForPathCalcs),
                 getScreenX(mXMaxForPathCalcs), getScreenY(mYMinForPathCalcs));
-        matrix.setRectToRect(mChartRect, mPreviousChartRect, Matrix.ScaleToFit.FILL);
-        mPath.transform(matrix);
+        mMatrix.setRectToRect(mChartRect, mPreviousChartRect, Matrix.ScaleToFit.FILL);
+        mPath.transform(mMatrix);
 
         updatePathCalcs();
         postInvalidateOnAnimation();
