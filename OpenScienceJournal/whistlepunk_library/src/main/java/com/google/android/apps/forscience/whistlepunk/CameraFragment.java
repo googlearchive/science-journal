@@ -51,9 +51,12 @@ public class CameraFragment extends PanesToolFragment {
 
     private final BehaviorSubject<Optional<ViewGroup>> mPreviewContainer = BehaviorSubject.create();
     private BehaviorSubject<Boolean> mPermissionGranted = BehaviorSubject.create();
-    private RxEvent mFocusLost = new RxEvent();
     private PublishSubject<Object> mWhenUserTakesPhoto = PublishSubject.create();
-    private boolean mFocused = false;
+
+    private RxEvent mVisibilityGained = new RxEvent();
+    private RxEvent mVisibilityLost = new RxEvent();
+    private BehaviorSubject<Boolean> mFocused = BehaviorSubject.create();
+    private BehaviorSubject<Boolean> mResumed = BehaviorSubject.create();
 
     public static abstract class CameraFragmentListener {
         static CameraFragmentListener NULL = new CameraFragmentListener() {
@@ -86,6 +89,58 @@ public class CameraFragment extends PanesToolFragment {
             fragment.onPermissionGranted().onNext(granted);
         });
         return fragment;
+    }
+
+    public CameraFragment() {
+        // Only treat as visible (and therefore connect the camera) when we are both focused and
+        // resumed.
+        Observable.combineLatest(mFocused, mResumed, (focused, resumed) -> focused && resumed)
+                  .distinctUntilChanged()
+                  .subscribe(hasBecomeVisible -> {
+                      if (hasBecomeVisible) {
+                          mVisibilityGained.onHappened();
+                      } else {
+                          mVisibilityLost.onHappened();
+                      }
+                  });
+
+        mVisibilityGained.happens().subscribe(v -> {
+            mPreviewContainer.filter(o -> o.isPresent()).firstElement().subscribe(opt -> {
+                ViewGroup container = opt.get();
+                LayoutInflater inflater = LayoutInflater.from(container.getContext());
+                View view = inflater.inflate(R.layout.camera_tool_preview, container, false);
+                CameraPreview preview = (CameraPreview) view;
+                container.addView(preview);
+
+                mPermissionGranted.firstElement()
+                                  .flatMapObservable(granted -> granted ? Observable.just(
+                                          openCamera()) : Observable.empty())
+                                  .subscribe(preview::setCamera,
+                                          LoggingConsumer.complain(TAG, "camera permission"));
+
+                mWhenUserTakesPhoto.takeUntil(mVisibilityLost.happens()).subscribe(o -> {
+                    final long timestamp = getTimestamp(preview.getContext());
+                    final String uuid = UUID.randomUUID().toString();
+                    preview.takePicture(mListener.getActiveExperimentId().firstElement(), uuid,
+                            new LoggingConsumer<String>(TAG, "taking picture") {
+                                @Override
+                                public void success(String relativePicturePath) {
+                                    GoosciPictureLabelValue.PictureLabelValue labelValue =
+                                            new GoosciPictureLabelValue.PictureLabelValue();
+                                    labelValue.filePath = relativePicturePath;
+                                    Label label = Label.fromUuidAndValue(timestamp, uuid,
+                                            GoosciLabel.Label.PICTURE, labelValue);
+                                    mListener.onPictureLabelTaken(label);
+                                }
+                            });
+                });
+
+                mVisibilityLost.happensNext().subscribe(() -> {
+                    preview.removeCamera();
+                    container.removeAllViews();
+                });
+            });
+        });
     }
 
     Observer<Boolean> onPermissionGranted() {
@@ -154,14 +209,14 @@ public class CameraFragment extends PanesToolFragment {
 
     @Override
     public void onPause() {
-        onLosingFocus();
+        mResumed.onNext(false);
         super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        onGainedFocus();
+        mResumed.onNext(true);
     }
 
     @Override
@@ -181,46 +236,7 @@ public class CameraFragment extends PanesToolFragment {
     }
 
     public void onGainedFocus() {
-        if (mFocused) {
-            return;
-        }
-
-        mFocused = true;
-        mPreviewContainer.filter(o -> o.isPresent()).firstElement().subscribe(opt -> {
-            ViewGroup container = opt.get();
-            LayoutInflater inflater = LayoutInflater.from(container.getContext());
-            View view = inflater.inflate(R.layout.camera_tool_preview, container, false);
-            CameraPreview preview = (CameraPreview) view;
-            container.addView(preview);
-
-            mPermissionGranted.firstElement()
-                              .flatMapObservable(granted -> granted ? Observable.just(
-                                      openCamera()) : Observable.empty())
-                              .subscribe(preview::setCamera,
-                                      LoggingConsumer.complain(TAG, "camera permission"));
-
-            mWhenUserTakesPhoto.takeUntil(mFocusLost.happens()).subscribe(o -> {
-                final long timestamp = getTimestamp(preview.getContext());
-                final String uuid = UUID.randomUUID().toString();
-                preview.takePicture(mListener.getActiveExperimentId().firstElement(), uuid,
-                        new LoggingConsumer<String>(TAG, "taking picture") {
-                            @Override
-                            public void success(String relativePicturePath) {
-                                GoosciPictureLabelValue.PictureLabelValue labelValue =
-                                        new GoosciPictureLabelValue.PictureLabelValue();
-                                labelValue.filePath = relativePicturePath;
-                                Label label = Label.fromUuidAndValue(timestamp, uuid,
-                                        GoosciLabel.Label.PICTURE, labelValue);
-                                mListener.onPictureLabelTaken(label);
-                            }
-                        });
-            });
-
-            mFocusLost.happens().firstElement().subscribe(o -> {
-                preview.removeCamera();
-                container.removeAllViews();
-            });
-        });
+        mFocused.onNext(true);
     }
 
     public Camera openCamera() {
@@ -228,10 +244,6 @@ public class CameraFragment extends PanesToolFragment {
     }
 
     public void onLosingFocus() {
-        if (!mFocused) {
-            return;
-        }
-        mFocused = false;
-        mFocusLost.onHappened();
+        mFocused.onNext(false);
     }
 }
