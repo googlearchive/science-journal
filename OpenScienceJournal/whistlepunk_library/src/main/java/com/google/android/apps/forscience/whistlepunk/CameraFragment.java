@@ -58,6 +58,10 @@ public class CameraFragment extends PanesToolFragment {
     private BehaviorSubject<Boolean> mFocused = BehaviorSubject.create();
     private BehaviorSubject<Boolean> mResumed = BehaviorSubject.create();
 
+    private BehaviorSubject<Integer> mDrawerState = BehaviorSubject.create();
+
+    private RxEvent mDestroyed = new RxEvent();
+
     public static abstract class CameraFragmentListener {
         static CameraFragmentListener NULL = new CameraFragmentListener() {
             @Override
@@ -112,6 +116,9 @@ public class CameraFragment extends PanesToolFragment {
                 CameraPreview preview = (CameraPreview) view;
                 container.addView(preview);
 
+                mDrawerState.takeUntil(RxView.detaches(preview))
+                            .subscribe(preview::setCurrentDrawerState);
+
                 mPermissionGranted.firstElement()
                                   .flatMapObservable(granted -> granted ? Observable.just(
                                           openCamera()) : Observable.empty())
@@ -141,6 +148,10 @@ public class CameraFragment extends PanesToolFragment {
                 });
             });
         });
+    }
+
+    public void attachDrawerState(Observable<Integer> drawerState) {
+        drawerState.takeUntil(mDestroyed.happens()).subscribe(mDrawerState::onNext);
     }
 
     Observer<Boolean> onPermissionGranted() {
@@ -245,5 +256,11 @@ public class CameraFragment extends PanesToolFragment {
 
     public void onLosingFocus() {
         mFocused.onNext(false);
+    }
+
+    @Override
+    public void onDestroy() {
+        mDestroyed.onHappened();
+        super.onDestroy();
     }
 }
