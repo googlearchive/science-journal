@@ -597,13 +597,25 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private void setExperimentFragmentId(Experiment experiment) {
+        FragmentManager fragmentManager = getFragmentManager();
+
+        if (mExperimentFragment == null) {
+            // If we haven't cached the fragment, go looking for it.
+            ExperimentDetailsFragment oldFragment =
+                    (ExperimentDetailsFragment) fragmentManager.findFragmentById(R.id.experiment_pane);
+            if (oldFragment != null && oldFragment.getExperimentId()
+                                                  .equals(experiment.getExperimentId())) {
+                mExperimentFragment = oldFragment;
+                return;
+            }
+        }
+
         if (mExperimentFragment == null) {
             boolean createTaskStack = true;
             mExperimentFragment =
                     ExperimentDetailsFragment.newInstance(experiment.getExperimentId(),
                             createTaskStack);
 
-            FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                            .replace(R.id.experiment_pane, mExperimentFragment)
                            .commit();
