@@ -68,6 +68,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private BehaviorSubject<Integer> mActivityHeight = BehaviorSubject.create();
     private BehaviorSubject<Integer> mBottomSheetState = BehaviorSubject.create();
     private ImageButton mGrabber;
+    private ToolTab[] mToolTabs = ToolTab.values();
 
     public PanesActivity() {
         mSnackbarManager = new SnackbarManager();
@@ -424,7 +425,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
                 @Override
                 public Fragment getItem(int position) {
-                    if (position >= ToolTab.values().length) {
+                    if (position >= mToolTabs.length) {
                         return null;
                     }
                     return getToolTab(position).createFragment(experiment.getExperimentId(),
@@ -432,12 +433,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 }
 
                 private ToolTab getToolTab(int position) {
-                    return ToolTab.values()[position];
+                    return mToolTabs[position];
                 }
 
                 @Override
                 public int getCount() {
-                    return ToolTab.values().length;
+                    return mToolTabs.length;
                 }
 
                 @Override
@@ -499,7 +500,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         mBottomBehavior.setPeekHeight(getResources().getDimensionPixelSize(
                 R.dimen.panes_toolbar_height));
 
-        for (ToolTab tab : ToolTab.values()) {
+        for (ToolTab tab : mToolTabs) {
             TabLayout.Tab layoutTab = toolPicker.newTab();
             layoutTab.setContentDescription(tab.getContentDescriptionId());
             layoutTab.setIcon(tab.getIconId());
@@ -661,7 +662,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             dimensions.append(TrackerConstants.PANES_DRAWER_STATE,
                     mBottomBehavior.getDrawerStateForLogging());
             dimensions.append(TrackerConstants.PANES_TOOL_NAME,
-                    ToolTab.values()[mSelectedTabIndex].getLoggingName());
+                    mToolTabs[mSelectedTabIndex].getLoggingName());
         }
         WhistlePunkApplication.getUsageTracker(this).trackDimensionEvent(
                 TrackerConstants.CATEGORY_PANES, action, dimensions);

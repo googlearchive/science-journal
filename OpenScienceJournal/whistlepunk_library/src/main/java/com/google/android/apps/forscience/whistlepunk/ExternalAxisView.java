@@ -65,7 +65,7 @@ public abstract class ExternalAxisView extends View {
     protected float mPaddingRight;
 
     LruCache<String, Float> mCachedLabelMeasurements = new LruCache<>(256);
-    LruCache<String, Float> mCachedFormattedLabels = new LruCache<>(256);
+    LruCache<Long, String> mCachedFormattedLabels = new LruCache<>(256);
 
     public ExternalAxisView(Context context) {
         super(context);
@@ -192,10 +192,22 @@ public abstract class ExternalAxisView extends View {
     }
 
     private void drawLabel(long t, float xOffset, float tickPaddingTop, Canvas canvas) {
-        String label = mFormat.format(t);
+        String label = getLabelText(t);
         float labelWidth = getLabelWidth(label);
         canvas.drawText(label, xOffset - labelWidth/2, (tickPaddingTop + mTextHeight +
                 mTickPaddingBottom + mLongTickHeight), mTextPaint);
+    }
+
+    private String getLabelText(long timeStampMs) {
+        Long cacheKey = timeStampMs/100;
+        String cached = mCachedFormattedLabels.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+
+        String computed = mFormat.format(timeStampMs);
+        mCachedFormattedLabels.put(cacheKey, computed);
+        return computed;
     }
 
     private float getLabelWidth(String label) {
