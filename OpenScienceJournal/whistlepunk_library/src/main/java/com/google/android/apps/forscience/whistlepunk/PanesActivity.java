@@ -69,6 +69,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private BehaviorSubject<Integer> mBottomSheetState = BehaviorSubject.create();
     private ImageButton mGrabber;
     private ToolTab[] mToolTabs = ToolTab.values();
+    private RxPermissions mPermissions;
 
     public PanesActivity() {
         mSnackbarManager = new SnackbarManager();
@@ -168,7 +169,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             @Override
             public Fragment createFragment(String experimentId, Activity activity,
                     Observable<DrawerLayoutState> layoutState) {
-                CameraFragment cf = CameraFragment.newInstance(new RxPermissions(activity));
+                CameraFragment cf = CameraFragment.newInstance();
                 cf.attachDrawerState(layoutState.map(state -> state.getDrawerState()));
                 return cf;
             }
@@ -301,6 +302,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPermissions = new RxPermissions(this);
         PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(this);
         PerfTrackerProvider.TimerToken experimentLoad = perfTracker.startTimer();
         setContentView(R.layout.panes_layout);
@@ -775,6 +777,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     @Override
     public CameraFragment.CameraFragmentListener getCameraFragmentListener() {
         return new CameraFragment.CameraFragmentListener() {
+            @Override
+            public RxPermissions getPermissions() {
+                return mPermissions;
+            }
+
             @Override
             public void onPictureLabelTaken(final Label label) {
                 addNewLabel(label);

@@ -22,6 +22,7 @@ import android.content.Context;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensors.CameraPreview;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -39,7 +41,6 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 import java.util.UUID;
 
 import io.reactivex.Observable;
-import io.reactivex.Observer;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 
@@ -47,8 +48,6 @@ import static android.content.ContentValues.TAG;
 
 
 public class CameraFragment extends PanesToolFragment {
-    private static final String KEY_PERMISSION_GRANTED = "key_permission_granted";
-
     private final BehaviorSubject<Optional<ViewGroup>> mPreviewContainer = BehaviorSubject.create();
     private BehaviorSubject<Boolean> mPermissionGranted = BehaviorSubject.create();
     private PublishSubject<Object> mWhenUserTakesPhoto = PublishSubject.create();
@@ -70,6 +69,11 @@ public class CameraFragment extends PanesToolFragment {
             }
 
             @Override
+            public RxPermissions getPermissions() {
+                return null;
+            }
+
+            @Override
             public String toString() {
                 return "CameraFragmentListener.NULL";
             }
@@ -79,6 +83,8 @@ public class CameraFragment extends PanesToolFragment {
         }
 
         public abstract Observable<String> getActiveExperimentId();
+
+        public abstract RxPermissions getPermissions();
     }
 
     public interface ListenerProvider {
@@ -87,12 +93,8 @@ public class CameraFragment extends PanesToolFragment {
 
     private CameraFragmentListener mListener = CameraFragmentListener.NULL;
 
-    public static CameraFragment newInstance(RxPermissions permissions) {
-        CameraFragment fragment = new CameraFragment();
-        permissions.request(Manifest.permission.CAMERA).subscribe(granted -> {
-            fragment.onPermissionGranted().onNext(granted);
-        });
-        return fragment;
+    public static CameraFragment newInstance() {
+        return new CameraFragment();
     }
 
     public CameraFragment() {
@@ -111,41 +113,21 @@ public class CameraFragment extends PanesToolFragment {
         mVisibilityGained.happens().subscribe(v -> {
             mPreviewContainer.filter(o -> o.isPresent()).firstElement().subscribe(opt -> {
                 ViewGroup container = opt.get();
-                LayoutInflater inflater = LayoutInflater.from(container.getContext());
-                View view = inflater.inflate(R.layout.camera_tool_preview, container, false);
-                CameraPreview preview = (CameraPreview) view;
-                container.addView(preview);
 
-                mDrawerState.takeUntil(RxView.detaches(preview))
-                            .subscribe(preview::setCurrentDrawerState);
-
-                mPermissionGranted.firstElement()
-                                  .flatMapObservable(granted -> granted ? Observable.just(
-                                          openCamera()) : Observable.empty())
-                                  .subscribe(preview::setCamera,
-                                          LoggingConsumer.complain(TAG, "camera permission"));
-
-                mWhenUserTakesPhoto.takeUntil(mVisibilityLost.happens()).subscribe(o -> {
-                    final long timestamp = getTimestamp(preview.getContext());
-                    final String uuid = UUID.randomUUID().toString();
-                    preview.takePicture(mListener.getActiveExperimentId().firstElement(), uuid,
-                            new LoggingConsumer<String>(TAG, "taking picture") {
-                                @Override
-                                public void success(String relativePicturePath) {
-                                    GoosciPictureLabelValue.PictureLabelValue labelValue =
-                                            new GoosciPictureLabelValue.PictureLabelValue();
-                                    labelValue.filePath = relativePicturePath;
-                                    Label label = Label.fromUuidAndValue(timestamp, uuid,
-                                            GoosciLabel.Label.PICTURE, labelValue);
-                                    mListener.onPictureLabelTaken(label);
-                                }
-                            });
-                });
-
-                mVisibilityLost.happensNext().subscribe(() -> {
-                    preview.removeCamera();
-                    container.removeAllViews();
-                });
+                mPermissionGranted.distinctUntilChanged().takeUntil(RxView.detaches(container)).map(
+                        granted -> {
+                            if (granted) {
+                                return Optional.of(openCamera());
+                            } else {
+                                return Optional.<Camera>absent();
+                            }
+                        }).subscribe(optCamera -> {
+                    if (optCamera.isPresent()) {
+                        setUpWorkingCamera(container, optCamera.get());
+                    } else {
+                        complainCameraPermissions(container);
+                    }
+                }, LoggingConsumer.complain(TAG, "camera permission"));
             });
         });
     }
@@ -154,8 +136,48 @@ public class CameraFragment extends PanesToolFragment {
         drawerState.takeUntil(mDestroyed.happens()).subscribe(mDrawerState::onNext);
     }
 
-    Observer<Boolean> onPermissionGranted() {
-        return mPermissionGranted;
+    private void complainCameraPermissions(ViewGroup container) {
+        LayoutInflater inflater = LayoutInflater.from(container.getContext());
+        View view = inflater.inflate(R.layout.camera_complaint, container, false);
+
+        container.removeAllViews();
+        container.addView(view);
+        RxView.clicks(view.findViewById(R.id.open_settings))
+              .subscribe(click -> requestPermission());
+    }
+
+    public void setUpWorkingCamera(ViewGroup container, Camera camera) {
+        LayoutInflater inflater = LayoutInflater.from(container.getContext());
+        View view = inflater.inflate(R.layout.camera_tool_preview, container, false);
+        CameraPreview preview = (CameraPreview) view;
+
+        container.removeAllViews();
+        container.addView(preview);
+        preview.setCamera(camera);
+
+        mDrawerState.takeUntil(RxView.detaches(preview)).subscribe(preview::setCurrentDrawerState);
+
+        mWhenUserTakesPhoto.takeUntil(mVisibilityLost.happens()).subscribe(o -> {
+            final long timestamp = getTimestamp(preview.getContext());
+            final String uuid = UUID.randomUUID().toString();
+            preview.takePicture(mListener.getActiveExperimentId().firstElement(), uuid,
+                    new LoggingConsumer<String>(TAG, "taking picture") {
+                        @Override
+                        public void success(String relativePicturePath) {
+                            GoosciPictureLabelValue.PictureLabelValue labelValue =
+                                    new GoosciPictureLabelValue.PictureLabelValue();
+                            labelValue.filePath = relativePicturePath;
+                            Label label = Label.fromUuidAndValue(timestamp, uuid,
+                                    GoosciLabel.Label.PICTURE, labelValue);
+                            mListener.onPictureLabelTaken(label);
+                        }
+                    });
+        });
+
+        mVisibilityLost.happensNext().subscribe(() -> {
+            preview.removeCamera();
+            container.removeAllViews();
+        });
     }
 
     // TODO: extract this pattern of fragment listeners
@@ -185,6 +207,18 @@ public class CameraFragment extends PanesToolFragment {
         if (parentFragment instanceof ListenerProvider) {
             mListener = ((ListenerProvider) parentFragment).getCameraFragmentListener();
         }
+
+        requestPermission();
+    }
+
+    private void requestPermission() {
+        RxPermissions permissions = mListener.getPermissions();
+        if (permissions == null) {
+            return;
+        }
+        permissions.request(Manifest.permission.CAMERA).subscribe(granted -> {
+            mPermissionGranted.onNext(granted);
+        });
     }
 
     @Nullable
@@ -228,22 +262,6 @@ public class CameraFragment extends PanesToolFragment {
     public void onResume() {
         super.onResume();
         mResumed.onNext(true);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (mPermissionGranted.hasValue()) {
-            outState.putBoolean(KEY_PERMISSION_GRANTED, mPermissionGranted.getValue());
-        }
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_PERMISSION_GRANTED)) {
-            mPermissionGranted.onNext(savedInstanceState.getBoolean(KEY_PERMISSION_GRANTED));
-        }
     }
 
     public void onGainedFocus() {
