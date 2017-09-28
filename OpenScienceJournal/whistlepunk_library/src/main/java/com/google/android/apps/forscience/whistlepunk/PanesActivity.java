@@ -73,22 +73,58 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         mSnackbarManager = new SnackbarManager();
     }
 
+    public static class DrawerLayoutState {
+        private final int mActivityHeight;
+        private final int mDrawerState;
+        private Experiment mExperiment;
+
+        private DrawerLayoutState(int activityHeight, int drawerState, Experiment experiment) {
+            mActivityHeight = activityHeight;
+            mDrawerState = drawerState;
+            mExperiment = experiment;
+        }
+
+        public int getAvailableHeight() {
+            if (mExperiment.isArchived()) {
+                // No matter the state, the control bar is hidden when archived.
+                return 0;
+            }
+
+            switch (mDrawerState) {
+                case PanesBottomSheetBehavior.STATE_COLLAPSED:
+                    return 0;
+                case PanesBottomSheetBehavior.STATE_EXPANDED:
+                    return mActivityHeight;
+                case PanesBottomSheetBehavior.STATE_MIDDLE:
+                    return mActivityHeight / 2;
+            }
+
+            // Filter out other states
+            return -1;
+        }
+
+        public int getDrawerState() {
+            return mDrawerState;
+        }
+    }
+
     private static enum ToolTab {
         NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp, "NOTES") {
             @Override
-            public Fragment createFragment(String experimentId, Activity activity) {
+            public Fragment createFragment(String experimentId, Activity activity,
+                    Observable<DrawerLayoutState> layoutState) {
                 return TextToolFragment.newInstance();
             }
 
             @Override
             public View connectControls(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController,
-                    Observable<Integer> availableHeight) {
+                    Observable<DrawerLayoutState> layoutState) {
                 TextToolFragment ttf = (TextToolFragment) fragment;
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.text_action_bar, controlBar, true);
                 ttf.attachButtons(controlBar);
-                ttf.listenToAvailableHeight(availableHeight);
+                ttf.listenToAvailableHeight(layoutState.map(state -> state.getAvailableHeight()));
                 return ttf.getViewToKeepVisible();
             }
 
@@ -103,14 +139,15 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
         }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp, "OBSERVE") {
             @Override
-            public Fragment createFragment(String experimentId, Activity activity) {
+            public Fragment createFragment(String experimentId, Activity activity,
+                    Observable<DrawerLayoutState> layoutState) {
                 return RecordFragment.newInstance(experimentId, false);
             }
 
             @Override
             public View connectControls(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController,
-                    Observable<Integer> availableHeight) {
+                    Observable<DrawerLayoutState> availableHeight) {
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.observe_action_bar, controlBar, true);
                 controlBarController.attachRecordButtons(controlBar,
@@ -128,9 +165,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
         }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp, "CAMERA") {
             @Override
-            public Fragment createFragment(String experimentId, Activity activity) {
-                // TODO: b/62022245
-                return CameraFragment.newInstance(new RxPermissions(activity));
+            public Fragment createFragment(String experimentId, Activity activity,
+                    Observable<DrawerLayoutState> layoutState) {
+                CameraFragment cf = CameraFragment.newInstance(new RxPermissions(activity));
+                cf.attachDrawerState(layoutState.map(state -> state.getDrawerState()));
+                return cf;
             }
 
             @Override
@@ -143,7 +182,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             @Override
             public View connectControls(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController,
-                    Observable<Integer> availableHeight) {
+                    Observable<DrawerLayoutState> layoutState) {
                 CameraFragment cf = (CameraFragment) fragment;
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.camera_action_bar, controlBar, true);
@@ -152,14 +191,15 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
         }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp, "GALLERY") {
             @Override
-            public Fragment createFragment(String experimentId, Activity activity) {
+            public Fragment createFragment(String experimentId, Activity activity,
+                    Observable<DrawerLayoutState> layoutState) {
                 return GalleryFragment.newInstance(new RxPermissions(activity));
             }
 
             @Override
             public View connectControls(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController,
-                    Observable<Integer> availableHeight) {
+                    Observable<DrawerLayoutState> availableHeight) {
                 // TODO: is this duplicated code?
                 GalleryFragment gf = (GalleryFragment) fragment;
                 LayoutInflater.from(controlBar.getContext())
@@ -178,7 +218,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             mLoggingName = loggingName;
         }
 
-        public abstract Fragment createFragment(String experimentId, Activity activity);
+        public abstract Fragment createFragment(String experimentId, Activity activity,
+                Observable<DrawerLayoutState> layoutState);
 
         public int getContentDescriptionId() {
             return mContentDescriptionId;
@@ -207,7 +248,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
          */
         public abstract View connectControls(Fragment fragment, FrameLayout controlBar,
                 ControlBarController controlBarController,
-                Observable<Integer> availableHeight);
+                Observable<DrawerLayoutState> layoutState);
     }
 
     /**
@@ -428,7 +469,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         return null;
                     }
                     return getToolTab(position).createFragment(experiment.getExperimentId(),
-                            PanesActivity.this);
+                            PanesActivity.this, drawerLayoutState());
                 }
 
                 private ToolTab getToolTab(int position) {
@@ -459,7 +500,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
                                     View viewToKeepVisible =
                                             toolTab.connectControls(fragment, controlBar,
-                                                    controlBarController, availableTabHeight());
+                                                    controlBarController, drawerLayoutState());
                                     mBottomBehavior.setViewToKeepVisibleIfPossible(
                                             viewToKeepVisible);
                                 });
@@ -568,25 +609,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         }
     }
 
-    private Observable<Integer> availableTabHeight() {
+    private Observable<DrawerLayoutState> drawerLayoutState() {
+        // keep an eye on activity height, bottom sheet state, and experiment loading.
         return Observable.combineLatest(mActivityHeight.distinctUntilChanged(),
-                mBottomSheetState.distinctUntilChanged(),
-                (activityHeight, sheetState) -> {
-                    if (mActiveExperiment.getValue().isArchived()) {
-                        // No matter the state, the control bar is hidden when archived.
-                        return 0;
-                    }
-                    switch (sheetState) {
-                        case PanesBottomSheetBehavior.STATE_COLLAPSED:
-                            return 0;
-                        case PanesBottomSheetBehavior.STATE_EXPANDED:
-                            return activityHeight;
-                        case PanesBottomSheetBehavior.STATE_MIDDLE:
-                            return activityHeight / 2;
-                    }
-                    // Filter out other states
-                    return -1;
-                }).filter(height -> height >= 0);
+                mBottomSheetState.distinctUntilChanged(), mActiveExperiment.toObservable(),
+                DrawerLayoutState::new).filter(state -> state.getAvailableHeight() >= 0);
     }
 
     private void setCoordinatorBehavior(View view, BottomDependentBehavior behavior) {
