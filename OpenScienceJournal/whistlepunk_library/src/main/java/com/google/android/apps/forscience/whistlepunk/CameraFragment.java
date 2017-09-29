@@ -22,7 +22,6 @@ import android.content.Context;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +32,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensors.CameraPreview;
-import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -180,26 +178,13 @@ public class CameraFragment extends PanesToolFragment {
         });
     }
 
-    // TODO: extract this pattern of fragment listeners
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        internalOnAttach(context);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        internalOnAttach(activity);
-    }
-
     @Override
     public void onDetach() {
         mListener = CameraFragmentListener.NULL;
         super.onDetach();
     }
 
-    private void internalOnAttach(Context context) {
+    protected void panesOnAttach(Context context) {
         if (context instanceof ListenerProvider) {
             mListener = ((ListenerProvider) context).getCameraFragmentListener();
         }

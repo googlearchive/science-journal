@@ -55,7 +55,8 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
-        CameraFragment.ListenerProvider, TextToolFragment.ListenerProvider {
+        CameraFragment.ListenerProvider, TextToolFragment.ListenerProvider, GalleryFragment
+                .ListenerProvider {
     private static final String TAG = "PanesActivity";
     public static final String EXTRA_EXPERIMENT_ID = "experimentId";
     private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
@@ -195,7 +196,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             @Override
             public Fragment createFragment(String experimentId, Activity activity,
                     Observable<DrawerLayoutState> layoutState) {
-                return GalleryFragment.newInstance(new RxPermissions(activity));
+                return GalleryFragment.newInstance();
             }
 
             @Override
@@ -790,6 +791,26 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             @Override
             public Observable<String> getActiveExperimentId() {
                 return PanesActivity.this.getActiveExperimentId();
+            }
+        };
+    }
+
+    @Override
+    public GalleryFragment.Listener getGalleryListener() {
+        return new GalleryFragment.Listener() {
+            @Override
+            public Observable<String> getActiveExperimentId() {
+                return PanesActivity.this.getActiveExperimentId();
+            }
+
+            @Override
+            public void onPictureLabelTaken(Label label) {
+                addNewLabel(label);
+            }
+
+            @Override
+            public RxPermissions getPermissions() {
+                return mPermissions;
             }
         };
     }
