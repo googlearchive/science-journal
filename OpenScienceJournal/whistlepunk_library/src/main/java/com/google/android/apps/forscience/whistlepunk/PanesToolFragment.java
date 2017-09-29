@@ -15,7 +15,9 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -58,5 +60,22 @@ public abstract class PanesToolFragment extends Fragment {
 
     public Maybe<View> whenNextView() {
         return mView.filter(Optional::isPresent).map(Optional::get).firstElement();
+    }
+
+
+    // TODO: extract this pattern of fragment listeners
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        panesOnAttach(context);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        panesOnAttach(activity);
+    }
+
+    protected void panesOnAttach(Context context) {
     }
 }

@@ -37,7 +37,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
@@ -47,6 +46,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentFragment;
+import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
 
@@ -67,25 +68,26 @@ public class GalleryFragment extends PanesToolFragment implements
     private static final String KEY_SELECTED_PHOTO = "selected_photo";
 
     // Same methods as the camera fragment, so share the listener code.
-    private CameraFragment.CameraFragmentListener mListener;
+    private Listener mListener;
     private GalleryItemAdapter mGalleryAdapter;
     private int mInitiallySelectedPhoto;
     private SingleSubject<LoaderManager> mWhenLoaderManager = SingleSubject.create();
     private BehaviorSubject<Boolean> mAddButtonEnabled = BehaviorSubject.create();
+    private BehaviorSubject<Boolean> mPermissionGranted = BehaviorSubject.create();
+    private RxEvent mDestroyed = new RxEvent();
 
-    public static Fragment newInstance(RxPermissions permissions) {
-        GalleryFragment fragment = new GalleryFragment();
+    public interface Listener {
+        Observable<String> getActiveExperimentId();
+        void onPictureLabelTaken(Label label);
+        RxPermissions getPermissions();
+    }
 
-        // TODO: use RxPermissions instead of PermissionsUtils everywhere?
-        permissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
-                   .firstElement()
-                   .subscribe(granted -> {
-                       if (granted) {
-                           fragment.loadImages();
-                       }
-                       // TODO: else to show retry and error.
-                   });
-        return fragment;
+    public interface ListenerProvider {
+        Listener getGalleryListener();
+    }
+
+    public static Fragment newInstance() {
+        return new GalleryFragment();
     }
 
     @Override
@@ -99,14 +101,47 @@ public class GalleryFragment extends PanesToolFragment implements
             mAddButtonEnabled.onNext(selected && !TextUtils.isEmpty(image));
         });
 
-        new RxPermissions(getActivity()).request(Manifest.permission.READ_EXTERNAL_STORAGE)
-                                        .firstElement()
-                                        .subscribe(granted -> {
-                                            if (granted) {
-                                                loadImages();
-                                            }
-                                        });
+        mPermissionGranted.distinctUntilChanged()
+                          .takeUntil(mDestroyed.happens())
+                          .subscribe(granted -> {
+                              if (granted) {
+                                  loadImages();
+                              } else {
+                                  complainPermissions();
+                              }
+                          });
+
         mWhenLoaderManager.onSuccess(getLoaderManager());
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    protected void panesOnAttach(Context context) {
+        if (context instanceof ListenerProvider) {
+            mListener = ((ListenerProvider) context).getGalleryListener();
+        }
+        Fragment parentFragment = getParentFragment();
+        if (parentFragment instanceof ListenerProvider) {
+            mListener = ((ListenerProvider) parentFragment).getGalleryListener();
+        }
+
+        requestPermission();
+        super.panesOnAttach(context);
+    }
+
+    // TODO: duplicate logic with CameraFragment?
+    private void requestPermission() {
+        RxPermissions permissions = mListener.getPermissions();
+        if (permissions == null) {
+            return;
+        }
+        permissions.request(Manifest.permission.READ_EXTERNAL_STORAGE).subscribe(granted -> {
+            mPermissionGranted.onNext(granted);
+        });
     }
 
     @Nullable
@@ -122,7 +157,19 @@ public class GalleryFragment extends PanesToolFragment implements
         gallery.setItemAnimator(new DefaultItemAnimator());
         gallery.setAdapter(mGalleryAdapter);
 
+
         return rootView;
+    }
+
+    private void complainPermissions() {
+        View rootView = getView();
+        if (rootView != null) {
+            rootView.findViewById(R.id.gallery).setVisibility(View.GONE);
+            rootView.findViewById(R.id.complaint).setVisibility(View.VISIBLE);
+
+            RxView.clicks(rootView.findViewById(R.id.open_settings))
+                  .subscribe(click -> requestPermission());
+        }
     }
 
     public void attachAddButton(View rootView) {
@@ -137,9 +184,7 @@ public class GalleryFragment extends PanesToolFragment implements
                 return;
             }
 
-            CameraFragment.CameraFragmentListener listener =
-                    getListener(addButton.getContext());
-            listener.getActiveExperimentId().firstElement().subscribe(experimentId -> {
+            mListener.getActiveExperimentId().firstElement().subscribe(experimentId -> {
                 Label result = Label.newLabel(timestamp, GoosciLabel.Label.PICTURE);
                 File imageFile = PictureUtils.createImageFile(getActivity(), experimentId,
                         result.getLabelId());
@@ -157,7 +202,7 @@ public class GalleryFragment extends PanesToolFragment implements
                 }
 
                 result.setLabelProtoData(labelValue);
-                listener.onPictureLabelTaken(result);
+                mListener.onPictureLabelTaken(result);
                 mGalleryAdapter.deselectImages();
             });
         });
@@ -181,29 +226,17 @@ public class GalleryFragment extends PanesToolFragment implements
 
     private Clock getClock(Context context) {
         return AppSingleton.getInstance(context)
-                .getSensorEnvironment()
-                .getDefaultClock();
-    }
-
-    private CameraFragment.CameraFragmentListener getListener(Context context) {
-        if (mListener == null) {
-            if (context instanceof CameraFragment.ListenerProvider) {
-                mListener = ((CameraFragment.ListenerProvider) context).getCameraFragmentListener();
-            } else {
-                Fragment parentFragment = getParentFragment();
-                if (parentFragment instanceof CameraFragment.ListenerProvider) {
-                    mListener = ((CameraFragment.ListenerProvider) parentFragment)
-                            .getCameraFragmentListener();
-                } else if (parentFragment == null) {
-                    mListener = ((CameraFragment.ListenerProvider) getActivity())
-                            .getCameraFragmentListener();
-                }
-            }
-        }
-        return mListener;
+                           .getSensorEnvironment()
+                           .getDefaultClock();
     }
 
     private void loadImages() {
+        View rootView = getView();
+        if (rootView != null) {
+            rootView.findViewById(R.id.gallery).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.complaint).setVisibility(View.GONE);
+        }
+
         if (getActivity() != null) {
             mWhenLoaderManager.subscribe(
                     manager -> manager.initLoader(PHOTO_LOADER_INDEX, null, this));
@@ -218,6 +251,7 @@ public class GalleryFragment extends PanesToolFragment implements
     @Override
     public void onLoadFinished(Loader<List<PhotoAsyncLoader.Image>> loader,
             List<PhotoAsyncLoader.Image> images) {
+
         mGalleryAdapter.setImages(images);
         if (mInitiallySelectedPhoto != -1) {
             // Resume from saved state if needed.
@@ -300,7 +334,7 @@ public class GalleryFragment extends PanesToolFragment implements
             holder.image.setContentDescription(String.format(mContentDescriptionPrefix,
                     DateUtils.formatDateTime(mContext, mImages.get(position).timestampTaken,
                             DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME |
-                                    DateUtils.FORMAT_ABBREV_ALL)));
+                            DateUtils.FORMAT_ABBREV_ALL)));
 
             boolean selected = position == mSelectedIndex;
             holder.selectedIndicator.setVisibility(selected ? View.VISIBLE : View.GONE);
@@ -322,7 +356,7 @@ public class GalleryFragment extends PanesToolFragment implements
         @Override
         public void onViewRecycled(ViewHolder holder) {
             holder.image.setBackgroundColor(mContext.getResources()
-                    .getColor(R.color.background_color));
+                                                    .getColor(R.color.background_color));
             super.onViewRecycled(holder);
         }
 
