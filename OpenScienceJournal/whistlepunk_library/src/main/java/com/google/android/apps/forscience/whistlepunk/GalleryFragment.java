@@ -129,7 +129,6 @@ public class GalleryFragment extends PanesToolFragment implements
             mListener = ((ListenerProvider) parentFragment).getGalleryListener();
         }
 
-        requestPermission();
         super.panesOnAttach(context);
     }
 
@@ -157,7 +156,7 @@ public class GalleryFragment extends PanesToolFragment implements
         gallery.setItemAnimator(new DefaultItemAnimator());
         gallery.setAdapter(mGalleryAdapter);
 
-
+        requestPermission();
         return rootView;
     }
 

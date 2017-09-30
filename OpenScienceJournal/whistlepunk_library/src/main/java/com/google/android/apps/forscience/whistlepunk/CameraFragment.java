@@ -192,8 +192,6 @@ public class CameraFragment extends PanesToolFragment {
         if (parentFragment instanceof ListenerProvider) {
             mListener = ((ListenerProvider) parentFragment).getCameraFragmentListener();
         }
-
-        requestPermission();
     }
 
     private void requestPermission() {
@@ -213,6 +211,7 @@ public class CameraFragment extends PanesToolFragment {
         View inflated = inflater.inflate(R.layout.fragment_camera_tool, null);
         mPreviewContainer.onNext(
                 Optional.of((ViewGroup) inflated.findViewById(R.id.preview_container)));
+        requestPermission();
         return inflated;
     }
 
