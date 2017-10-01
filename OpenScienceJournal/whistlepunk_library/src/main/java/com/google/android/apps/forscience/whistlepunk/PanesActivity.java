@@ -881,11 +881,13 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private void showRecordingBar() {
         if (mRecordingBar != null) {
             mRecordingBar.setVisibility(View.VISIBLE);
-            mBottomBehavior.setPeekHeight(
-                    mRecordingBar.getResources().getDimensionPixelSize(
-                            R.dimen.panes_toolbar_height) +
-                    mRecordingBar.getResources().getDimensionPixelSize(
-                            R.dimen.recording_indicator_height));
+            if (mBottomBehavior != null) {
+                mBottomBehavior.setPeekHeight(
+                        mRecordingBar.getResources().getDimensionPixelSize(
+                                R.dimen.panes_toolbar_height) +
+                        mRecordingBar.getResources().getDimensionPixelSize(
+                                R.dimen.recording_indicator_height));
+            }
         }
     }
 

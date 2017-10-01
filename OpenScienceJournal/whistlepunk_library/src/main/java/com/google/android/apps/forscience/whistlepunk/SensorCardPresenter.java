@@ -470,9 +470,11 @@ public class SensorCardPresenter {
 
         mCardViewHolder.graphStatsList.setTextBold(mLayout.showStatsOverlay);
         mCardViewHolder.graphStatsList.setOnClickListener(v -> {
-            mLayout.showStatsOverlay = !mLayout.showStatsOverlay;
-            mSensorPresenter.setShowStatsOverlay(mLayout.showStatsOverlay);
-            mCardViewHolder.graphStatsList.setTextBold(mLayout.showStatsOverlay);
+            if (mSensorPresenter != null) {
+                mLayout.showStatsOverlay = !mLayout.showStatsOverlay;
+                mSensorPresenter.setShowStatsOverlay(mLayout.showStatsOverlay);
+                mCardViewHolder.graphStatsList.setTextBold(mLayout.showStatsOverlay);
+            }
         });
         updateStatusUi();
         updateAudioEnabledUi(mLayout.audioEnabled);
