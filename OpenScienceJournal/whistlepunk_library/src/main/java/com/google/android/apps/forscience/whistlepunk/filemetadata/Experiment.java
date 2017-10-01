@@ -51,6 +51,13 @@ public class Experiment extends LabelListHolder {
     private List<GoosciExperiment.ExperimentSensor> mExperimentSensors;
     private List<SensorTrigger> mSensorTriggers;
     private List<Trial> mTrials;
+    private String mTitle;
+    private String mDescription;
+    private String mImagePath;
+    private int mTrialCount;
+    private int mTotalTrials;
+    private boolean mIsArchived;
+    private long mLastUsedTimeMs;
 
     public static Experiment newExperiment(long creationTime, String experimentId, int colorIndex) {
         GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
@@ -100,6 +107,13 @@ public class Experiment extends LabelListHolder {
         for (GoosciSensorTrigger.SensorTrigger proto : mProto.sensorTriggers) {
             mSensorTriggers.add(SensorTrigger.fromProto(proto));
         }
+        mTitle = mProto.title;
+        mDescription = mProto.description;
+        mLastUsedTimeMs = mExperimentOverview.lastUsedTimeMs;
+        mImagePath = mExperimentOverview.imagePath;
+        mIsArchived = mExperimentOverview.isArchived;
+        mTotalTrials = mProto.totalTrials;
+        mTrialCount = mExperimentOverview.trialCount;
     }
 
     /**
@@ -114,6 +128,11 @@ public class Experiment extends LabelListHolder {
 
     public GoosciUserMetadata.ExperimentOverview getExperimentOverview() {
         mExperimentOverview.trialCount = mTrials.size();
+        mExperimentOverview.title = mTitle;
+        mExperimentOverview.isArchived = mIsArchived;
+        mExperimentOverview.imagePath = mImagePath;
+        mExperimentOverview.lastUsedTimeMs = mLastUsedTimeMs;
+        mExperimentOverview.trialCount = mTrialCount;
         return mExperimentOverview;
     }
 
@@ -133,20 +152,19 @@ public class Experiment extends LabelListHolder {
     }
 
     public boolean isArchived() {
-        return mExperimentOverview.isArchived;
+        return mIsArchived;
     }
 
     public void setArchived(boolean archived) {
-        mExperimentOverview.isArchived = archived;
+        mIsArchived = archived;
     }
 
     public String getTitle() {
-        return mProto.title;
+        return mTitle;
     }
 
     public void setTitle(String title) {
-        mExperimentOverview.title = title;
-        mProto.title = title;
+        mTitle = title;
     }
 
     public String getDisplayTitle(Context context) {
@@ -160,19 +178,19 @@ public class Experiment extends LabelListHolder {
 
     @Deprecated
     public String getDescription() {
-        return mProto.description;
+        return mDescription;
     }
 
     public void setDescription(String description) {
-        mProto.description = description;
+        mDescription = description;
     }
 
     public long getLastUsedTime() {
-        return mExperimentOverview.lastUsedTimeMs;
+        return mLastUsedTimeMs;
     }
 
     public void setLastUsedTime(long lastUsedTime) {
-        mExperimentOverview.lastUsedTimeMs = lastUsedTime;
+        mLastUsedTimeMs = lastUsedTime;
     }
 
     /**
@@ -298,8 +316,8 @@ public class Experiment extends LabelListHolder {
      */
     public void addTrial(Trial trial) {
         mTrials.add(trial);
-        mExperimentOverview.trialCount = mTrials.size();
-        trial.setTrialNumberInExperiment(++mProto.totalTrials);
+        mTrialCount = mTrials.size();
+        trial.setTrialNumberInExperiment(++mTotalTrials);
         sortTrials();
     }
 
@@ -309,7 +327,7 @@ public class Experiment extends LabelListHolder {
     public void deleteTrial(Trial trial, Context context) {
         trial.deleteContents(context, getExperimentId());
         mTrials.remove(trial);
-        mExperimentOverview.trialCount = mTrials.size();
+        mTrialCount = mTrials.size();
     }
 
     /**
@@ -496,8 +514,9 @@ public class Experiment extends LabelListHolder {
             }
         }
 
-        // Copy necessary ExperimentOverview fields.
-        mProto.title = mExperimentOverview.title;
+        mProto.title = mTitle;
+        mProto.description = mDescription;
+        mProto.totalTrials = mTotalTrials;
     }
 
     public List<String> getSensorIds() {
@@ -510,16 +529,15 @@ public class Experiment extends LabelListHolder {
 
     @Override
     protected void onPictureLabelAdded(Label label) {
-        if (TextUtils.isEmpty(mExperimentOverview.imagePath)) {
-            mExperimentOverview.imagePath =
-                    PictureUtils.getExperimentOverviewRelativeImagePath(getExperimentId(),
+        if (TextUtils.isEmpty(mImagePath)) {
+            mImagePath = PictureUtils.getExperimentOverviewRelativeImagePath(getExperimentId(),
                             label.getPictureLabelValue().filePath);
         }
     }
 
     @Override
     protected void beforeDeletingPictureLabel(Label label) {
-        if (TextUtils.equals(mExperimentOverview.imagePath,
+        if (TextUtils.equals(mImagePath,
                 PictureUtils.getExperimentOverviewRelativeImagePath(getExperimentId(),
                         label.getPictureLabelValue().filePath))) {
             // This is the picture label which is used as the cover photo for this experiment.
@@ -528,14 +546,14 @@ public class Experiment extends LabelListHolder {
                 Label other = mLabels.get(i);
                 if (!TextUtils.equals(other.getLabelId(), label.getLabelId()) &&
                         other.getType() == GoosciLabel.Label.PICTURE) {
-                    mExperimentOverview.imagePath =
+                    mImagePath =
                             PictureUtils.getExperimentOverviewRelativeImagePath(getExperimentId(),
                                     other.getPictureLabelValue().filePath);
                     return;
                 }
             }
             // Couldn't find another, so just set it to nothing.
-            mExperimentOverview.imagePath = "";
+            mImagePath = "";
         }
     }
 
