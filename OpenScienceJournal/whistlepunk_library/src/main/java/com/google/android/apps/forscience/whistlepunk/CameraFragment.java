@@ -16,7 +16,6 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.hardware.Camera;
@@ -98,7 +97,11 @@ public class CameraFragment extends PanesToolFragment {
     public CameraFragment() {
         // Only treat as visible (and therefore connect the camera) when we are both focused and
         // resumed.
-        Observable.combineLatest(mFocused, mResumed, (focused, resumed) -> focused && resumed)
+        Observable.combineLatest(mFocused, mResumed, mDrawerState,
+                (focused, resumed, drawerState) -> focused
+                                                   && resumed
+                                                   && drawerState
+                                                      != PanesBottomSheetBehavior.STATE_COLLAPSED)
                   .distinctUntilChanged()
                   .subscribe(hasBecomeVisible -> {
                       if (hasBecomeVisible) {
