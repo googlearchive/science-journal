@@ -187,7 +187,7 @@ public class ExperimentDetailsFragment extends Fragment
 
         DeletedLabel label = AppSingleton.getInstance(getActivity()).popDeletedLabelForUndo();
         if (label != null) {
-            onLabelDelete(new DeletedLabel(label.getLabel(), label.getAssetDeleter()));
+            onLabelDelete(label);
         }
     }
 
@@ -552,8 +552,7 @@ public class ExperimentDetailsFragment extends Fragment
 
     void deleteLabel(Label label) {
         if (getActivity() != null) {
-            Runnable assetDeleter =
-                    mExperiment.deleteLabelAndReturnAssetDeleter(label, getActivity());
+            Consumer<Context> assetDeleter = mExperiment.deleteLabelAndReturnAssetDeleter(label);
             RxDataController.updateExperiment(getDataController(), mExperiment)
                     .subscribe(() -> onLabelDelete(new DeletedLabel(label, assetDeleter)));
         }

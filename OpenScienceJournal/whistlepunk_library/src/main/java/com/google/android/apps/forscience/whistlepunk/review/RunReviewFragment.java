@@ -105,6 +105,7 @@ import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
 
 public class RunReviewFragment extends Fragment implements
         AddNoteDialog.ListenerProvider,
@@ -828,9 +829,8 @@ public class RunReviewFragment extends Fragment implements
 
     private void deleteLabel(Label item) {
         // Delete the item immediately.
-        // TODO: Deleting the assets makes undo not work on photo labels...
-        Runnable assetDeleter =
-                getTrial().deleteLabelAndReturnAssetDeleter(item, getActivity(), mExperimentId);
+        Consumer<Context> assetDeleter =
+                getTrial().deleteLabelAndReturnAssetDeleter(item, mExperimentId);
         RxDataController.updateExperiment(getDataController(), mExperiment)
                 .subscribe(() -> onLabelDelete(new DeletedLabel(item, assetDeleter)));
     }

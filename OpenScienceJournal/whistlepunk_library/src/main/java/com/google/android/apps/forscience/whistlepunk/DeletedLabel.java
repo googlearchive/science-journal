@@ -17,42 +17,35 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.support.design.widget.Snackbar;
-import android.util.Log;
 import android.view.View;
 
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
-import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
-import com.google.common.base.Joiner;
 
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
 public class DeletedLabel {
     private static final String TAG = "DeletedLabel";
     private Label mLabel;
-    private Runnable mAssetDeleter;
+    private Consumer<Context> mAssetDeleter;
 
     // This is a little longer than the value of SnackbarManager#LONG_DURATION_MS.  We set it
     // custom so we can try to be sure when it has disappeared.
     private static final int UNDO_DELAY_MS = 3000;
 
 
-    public DeletedLabel(Label label, Runnable assetDeleter) {
+    public DeletedLabel(Label label, Consumer<Context> assetDeleter) {
         mLabel = label;
         mAssetDeleter = assetDeleter;
     }
 
     public Label getLabel() {
         return mLabel;
-    }
-
-    public Runnable getAssetDeleter() {
-        return mAssetDeleter;
     }
 
     public void deleteAndDisplayUndoBar(View view, final String experimentId,
@@ -74,7 +67,7 @@ public class DeletedLabel {
                 }
                 undone.onHappened();
                 mUndone = true;
-                final Label label = Label.copyOf(getLabel());
+                final Label label = Label.copyOf(mLabel);
                 labelHolder.addLabel(label);
                 dc.updateExperiment(experimentId, new LoggingConsumer<Success>(TAG,
                         "re-add deleted label") {
@@ -90,10 +83,11 @@ public class DeletedLabel {
         // Add just a bit of extra time to be sure
         long delayWithBuffer = (long) (bar.getDuration() * 1.1);
 
+        Context appContext = view.getContext().getApplicationContext();
         Observable.timer(delayWithBuffer, TimeUnit.MILLISECONDS)
                   .takeUntil(undone.happens())
                   .observeOn(AndroidSchedulers.mainThread())
-                  .subscribe(o -> getAssetDeleter().run());
+                  .subscribe(o -> mAssetDeleter.accept(appContext));
     }
 
 }

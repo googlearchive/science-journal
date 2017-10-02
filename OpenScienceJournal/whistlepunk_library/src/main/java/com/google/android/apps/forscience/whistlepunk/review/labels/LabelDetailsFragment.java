@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -47,6 +48,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import io.reactivex.Maybe;
+import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
 
 /**
@@ -150,7 +152,7 @@ abstract class LabelDetailsFragment extends Fragment {
         return AppSingleton.getInstance(getActivity()).getDataController();
     }
 
-    protected void returnToParent(boolean labelDeleted, Runnable assetDeleter) {
+    protected void returnToParent(boolean labelDeleted, Consumer<Context> assetDeleter) {
         if (getActivity() == null) {
             return;
         }
@@ -166,7 +168,7 @@ abstract class LabelDetailsFragment extends Fragment {
     protected void deleteAndReturnToParent() {
         mExperiment.firstElement()
                    .flatMap(experiment -> {
-                       Runnable assetDeleter = deleteLabelFromExperiment(experiment);
+                       Consumer<Context> assetDeleter = deleteLabelFromExperiment(experiment);
                        return RxDataController.updateExperiment(getDataController(), experiment)
                                               .andThen(Maybe.just(assetDeleter));
                    })
@@ -175,13 +177,12 @@ abstract class LabelDetailsFragment extends Fragment {
                            LoggingConsumer.complain(TAG, "delete label"));
     }
 
-    private Runnable deleteLabelFromExperiment(Experiment experiment) {
+    private Consumer<Context> deleteLabelFromExperiment(Experiment experiment) {
         if (TextUtils.isEmpty(mTrialId)) {
-            return experiment.deleteLabelAndReturnAssetDeleter(mOriginalLabel, getActivity());
+            return experiment.deleteLabelAndReturnAssetDeleter(mOriginalLabel);
         } else {
             return experiment.getTrial(mTrialId)
-                             .deleteLabelAndReturnAssetDeleter(mOriginalLabel, getActivity(),
-                                     mExperimentId);
+                             .deleteLabelAndReturnAssetDeleter(mOriginalLabel, mExperimentId);
         }
     }
 

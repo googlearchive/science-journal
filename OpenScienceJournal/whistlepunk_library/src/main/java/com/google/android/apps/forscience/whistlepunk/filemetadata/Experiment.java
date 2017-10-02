@@ -26,8 +26,8 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import io.reactivex.functions.Consumer;
 
 /**
  * Represents a Science Journal experiment.
@@ -557,8 +559,8 @@ public class Experiment extends LabelListHolder {
         }
     }
 
-    public Runnable deleteLabelAndReturnAssetDeleter(Label item, Context context) {
-        return deleteLabelAndReturnAssetDeleter(item, context, getExperimentId());
+    public Consumer<Context> deleteLabelAndReturnAssetDeleter(Label item) {
+        return deleteLabelAndReturnAssetDeleter(item, getExperimentId());
     }
 
     @VisibleForTesting

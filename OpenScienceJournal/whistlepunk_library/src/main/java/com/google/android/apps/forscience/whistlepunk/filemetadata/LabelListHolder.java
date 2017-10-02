@@ -24,6 +24,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import java.util.Collections;
 import java.util.List;
 
+import io.reactivex.functions.Consumer;
+
 /**
  * Class which has a list of labels, and setters / getters / modifiers for those labels.
  */
@@ -79,15 +81,14 @@ public abstract class LabelListHolder {
      * Returns a Runnable that also deletes the assets this label referenced.  This should be
      * executed when the deletion is final (user opts not to undo).
      */
-    public Runnable deleteLabelAndReturnAssetDeleter(Label toDelete, Context context,
-            String experimentId) {
+    public Consumer<Context> deleteLabelAndReturnAssetDeleter(Label toDelete, String experimentId) {
         for (Label label : mLabels) {
             if (TextUtils.equals(label.getLabelId(), toDelete.getLabelId())) {
                 mLabels.remove(label);
                 break;
             }
         }
-        return () -> deleteLabelAssets(toDelete, context, experimentId);
+        return context -> deleteLabelAssets(toDelete, context, experimentId);
     }
 
     protected void deleteLabelAssets(Label toDelete, Context context, String experimentId) {
