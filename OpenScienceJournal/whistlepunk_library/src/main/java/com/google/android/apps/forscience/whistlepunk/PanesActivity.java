@@ -432,6 +432,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             mBottomBehavior = (PanesBottomSheetBehavior)
                     ((CoordinatorLayout.LayoutParams) bottomSheet.getLayoutParams())
                             .getBehavior();
+            mBottomSheetState.onNext(mBottomBehavior.getState());
             mBottomBehavior.setBottomSheetCallback(
                     new PanesBottomSheetBehavior.BottomSheetCallback() {
                         @Override
