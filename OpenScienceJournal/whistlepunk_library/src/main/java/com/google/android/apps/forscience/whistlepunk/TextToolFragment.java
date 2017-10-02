@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.NestedScrollView;
@@ -201,9 +202,14 @@ public class TextToolFragment extends PanesToolFragment {
     }
 
     public void listenToAvailableHeight(Observable<Integer> height) {
-        Observable.combineLatest(height, mTextSize, (h, s) -> h < collapseThreshold(s))
+        Observable.combineLatest(height, mTextSize, (h, s) -> h < collapseThreshold(s) && canTint())
                   .takeUntil(mFocusLost.happens())
                   .subscribe(collapsed -> mShowingCollapsed.onNext(collapsed));
+    }
+
+    private boolean canTint() {
+        // if we can't tint, we can't currently show an inline send button (b/67312778)
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 
     public int collapseThreshold(int textSize) {
