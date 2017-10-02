@@ -39,7 +39,7 @@ import static org.junit.Assert.assertEquals;
 @Config(constants = BuildConfig.class)
 public class TrialTest {
     @Test
-    public void testTrialWithLabels() {
+    public void testTrialWithLabels() throws Exception {
         GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
         trialProto.labels = new GoosciLabel.Label[1];
         GoosciLabel.Label labelProto = new GoosciLabel.Label();
@@ -59,7 +59,7 @@ public class TrialTest {
         trial.addLabel(second);
         assertEquals(trial.getLabelCount(), 2);
 
-        trial.deleteLabelAndReturnAssetDeleter(label, getContext(), "experimentId").run();
+        trial.deleteLabelAndReturnAssetDeleter(label, "experimentId").accept(getContext());
         assertEquals(trial.getLabelCount(), 1);
     }
 
