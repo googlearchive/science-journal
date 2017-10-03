@@ -73,8 +73,8 @@ public class AddNoteDialog extends DialogFragment {
     private static final String KEY_HINT_TEXT_ID = "savedHintTextId";
     private static final String KEY_LABEL_TIME_TEXT = "savedLabelTimeText";
     private static final String KEY_SAVED_VALUE = "savedLabelValue";
-    private static final java.lang.String KEY_SAVED_TIME_TEXT_DESCRIPTION =
-            "keySavedTimeTextDescription";
+    private static final String KEY_SAVED_TIME_TEXT_DESCRIPTION = "keySavedTimeTextDescription";
+    private static final String KEY_SAVED_LABEL_UUID = "keySavedLabelUuid";
 
     private String mUuid;
 
@@ -158,6 +158,7 @@ public class AddNoteDialog extends DialogFragment {
         outState.putString(KEY_SAVED_PICTURE_PATH, mPictureLabelPath);
         outState.putString(KEY_SAVED_INPUT_TEXT,
                 mInput == null ? null : mInput.getText().toString());
+        outState.putString(KEY_SAVED_LABEL_UUID, mUuid);
     }
 
     @Nullable
@@ -263,6 +264,7 @@ public class AddNoteDialog extends DialogFragment {
             // SavedInstanceState is more recent than args and may override the values.
             mPictureLabelPath = savedInstanceState.getString(KEY_SAVED_PICTURE_PATH, null);
             text = savedInstanceState.getString(KEY_SAVED_INPUT_TEXT, text);
+            mUuid = savedInstanceState.getString(KEY_SAVED_LABEL_UUID, null);
         }
 
         LinearLayout addNoteView = createAddNoteView(text, inflater);
