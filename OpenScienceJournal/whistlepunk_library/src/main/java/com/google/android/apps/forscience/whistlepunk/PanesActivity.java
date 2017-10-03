@@ -60,6 +60,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private static final String TAG = "PanesActivity";
     public static final String EXTRA_EXPERIMENT_ID = "experimentId";
     private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
+    private static final String KEY_DRAWER_STATE = "drawerState";
     private final SnackbarManager mSnackbarManager;
 
     private ProgressBar mRecordingBar;
@@ -71,6 +72,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private ImageButton mGrabber;
     private ToolTab[] mToolTabs = ToolTab.values();
     private RxPermissions mPermissions;
+    private int mInitialDrawerState = -1;
 
     public PanesActivity() {
         mSnackbarManager = new SnackbarManager();
@@ -114,8 +116,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private static enum ToolTab {
         NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp, "NOTES") {
             @Override
-            public Fragment createFragment(String experimentId, Activity activity,
-                    Observable<DrawerLayoutState> layoutState) {
+            public Fragment createFragment(String experimentId, Activity activity) {
                 return TextToolFragment.newInstance();
             }
 
@@ -142,8 +143,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
         }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp, "OBSERVE") {
             @Override
-            public Fragment createFragment(String experimentId, Activity activity,
-                    Observable<DrawerLayoutState> layoutState) {
+            public Fragment createFragment(String experimentId, Activity activity) {
                 return RecordFragment.newInstance(experimentId, false);
             }
 
@@ -168,11 +168,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
         }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp, "CAMERA") {
             @Override
-            public Fragment createFragment(String experimentId, Activity activity,
-                    Observable<DrawerLayoutState> layoutState) {
-                CameraFragment cf = CameraFragment.newInstance();
-                cf.attachDrawerState(layoutState.map(state -> state.getDrawerState()));
-                return cf;
+            public Fragment createFragment(String experimentId, Activity activity) {
+                return CameraFragment.newInstance();
             }
 
             @Override
@@ -194,8 +191,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
         }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp, "GALLERY") {
             @Override
-            public Fragment createFragment(String experimentId, Activity activity,
-                    Observable<DrawerLayoutState> layoutState) {
+            public Fragment createFragment(String experimentId, Activity activity) {
                 return GalleryFragment.newInstance();
             }
 
@@ -221,8 +217,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             mLoggingName = loggingName;
         }
 
-        public abstract Fragment createFragment(String experimentId, Activity activity,
-                Observable<DrawerLayoutState> layoutState);
+        public abstract Fragment createFragment(String experimentId, Activity activity);
 
         public int getContentDescriptionId() {
             return mContentDescriptionId;
@@ -322,6 +317,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         mSelectedTabIndex = 0;
         if (savedInstanceState != null) {
             mSelectedTabIndex = savedInstanceState.getInt(KEY_SELECTED_TAB_INDEX);
+            mInitialDrawerState = savedInstanceState.getInt(KEY_DRAWER_STATE);
         }
 
         // By adding the subscription to mUntilDestroyed, we make sure that we can disconnect from
@@ -377,6 +373,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putInt(KEY_SELECTED_TAB_INDEX, mSelectedTabIndex);
+        outState.putInt(KEY_DRAWER_STATE, mBottomBehavior.getState());
         super.onSaveInstanceState(outState);
     }
 
@@ -392,6 +389,19 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     public void onArchivedStateChanged(Experiment experiment) {
         setupViews(experiment);
         findViewById(R.id.container).requestLayout();
+    }
+
+    private void updateGrabberContentDescription() {
+        int state = mBottomBehavior.getState();
+        if (state == PanesBottomSheetBehavior.STATE_COLLAPSED) {
+            mGrabber.setContentDescription(getResources().getString(R.string.btn_show_tools));
+        } else if (state == PanesBottomSheetBehavior.STATE_MIDDLE) {
+            mGrabber.setContentDescription(getResources().getString(R.string.btn_expand_tools));
+        } else if (state == PanesBottomSheetBehavior.STATE_EXPANDED) {
+            mGrabber.setContentDescription(getResources().getString(R.string.btn_hide_tools));
+        }
+
+        // Leave unchanged when in interstitial states
     }
 
     private void setupViews(Experiment experiment) {
@@ -432,7 +442,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             mBottomBehavior = (PanesBottomSheetBehavior)
                     ((CoordinatorLayout.LayoutParams) bottomSheet.getLayoutParams())
                             .getBehavior();
-            mBottomSheetState.onNext(mBottomBehavior.getState());
             mBottomBehavior.setBottomSheetCallback(
                     new PanesBottomSheetBehavior.BottomSheetCallback() {
                         @Override
@@ -443,17 +452,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                                 // We no longer need to know what happens when the keyboard closes:
                                 // Stay closed.
                                 closeKeyboard(PanesActivity.this).subscribe();
-                                mGrabber.setContentDescription(getResources().getString(
-                                        R.string.btn_show_tools));
-                            } else if (mBottomBehavior.getState() ==
-                                    PanesBottomSheetBehavior.STATE_MIDDLE) {
-                                mGrabber.setContentDescription(getResources().getString(
-                                        R.string.btn_expand_tools));
-                            } else if (mBottomBehavior.getState() ==
-                                    PanesBottomSheetBehavior.STATE_EXPANDED) {
-                                mGrabber.setContentDescription(getResources().getString(
-                                        R.string.btn_hide_tools));
                             }
+                            updateGrabberContentDescription();
                         }
 
                         @Override
@@ -474,7 +474,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         return null;
                     }
                     return getToolTab(position).createFragment(experiment.getExperimentId(),
-                            PanesActivity.this, drawerLayoutState());
+                            PanesActivity.this);
                 }
 
                 private ToolTab getToolTab(int position) {
@@ -582,16 +582,18 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         });
         mTabsInitialized = false;
         toolPicker.getTabAt(mSelectedTabIndex).select();
-        if (experiment.getLabelCount() > 0 || experiment.getTrialCount() > 0) {
+
+        if (mInitialDrawerState >= 0) {
+            mBottomBehavior.setState(mInitialDrawerState);
+        } else if (experiment.getLabelCount() > 0 || experiment.getTrialCount() > 0) {
             mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_COLLAPSED);
-            mGrabber.setContentDescription(getResources().getString(
-                    R.string.btn_show_tools));
         } else {
             mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_MIDDLE);
-            mGrabber.setContentDescription(getResources().getString(
-                    R.string.btn_expand_tools));
         }
+        updateGrabberContentDescription();
         mTabsInitialized = true;
+
+        mBottomSheetState.onNext(mBottomBehavior.getState());
     }
 
     private void setupGrabber() {
@@ -782,6 +784,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             @Override
             public RxPermissions getPermissions() {
                 return mPermissions;
+            }
+
+            @Override
+            public Observable<Integer> watchDrawerState() {
+                return drawerLayoutState().map(state -> state.getDrawerState());
             }
 
             @Override

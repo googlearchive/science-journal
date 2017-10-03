@@ -500,7 +500,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
      * @param state One of {@link #STATE_COLLAPSED}, {@link #STATE_EXPANDED}, or
      *              {@link #STATE_MIDDLE}.
      */
-    public final void setState(final @State int state) {
+    public final void setState(final /* @State */ int state) {
         if (state == mState) {
             return;
         }

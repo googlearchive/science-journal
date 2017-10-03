@@ -56,7 +56,7 @@ public class CameraFragment extends PanesToolFragment {
 
     private BehaviorSubject<Integer> mDrawerState = BehaviorSubject.create();
 
-    private RxEvent mDestroyed = new RxEvent();
+    private RxEvent mViewDestroyed = new RxEvent();
 
     public static abstract class CameraFragmentListener {
         static CameraFragmentListener NULL = new CameraFragmentListener() {
@@ -71,6 +71,11 @@ public class CameraFragment extends PanesToolFragment {
             }
 
             @Override
+            public Observable<Integer> watchDrawerState() {
+                return Observable.empty();
+            }
+
+            @Override
             public String toString() {
                 return "CameraFragmentListener.NULL";
             }
@@ -82,6 +87,8 @@ public class CameraFragment extends PanesToolFragment {
         public abstract Observable<String> getActiveExperimentId();
 
         public abstract RxPermissions getPermissions();
+
+        public abstract Observable<Integer> watchDrawerState();
     }
 
     public interface ListenerProvider {
@@ -95,22 +102,6 @@ public class CameraFragment extends PanesToolFragment {
     }
 
     public CameraFragment() {
-        // Only treat as visible (and therefore connect the camera) when we are both focused and
-        // resumed.
-        Observable.combineLatest(mFocused, mResumed, mDrawerState,
-                (focused, resumed, drawerState) -> focused
-                                                   && resumed
-                                                   && drawerState
-                                                      != PanesBottomSheetBehavior.STATE_COLLAPSED)
-                  .distinctUntilChanged()
-                  .subscribe(hasBecomeVisible -> {
-                      if (hasBecomeVisible) {
-                          mVisibilityGained.onHappened();
-                      } else {
-                          mVisibilityLost.onHappened();
-                      }
-                  });
-
         mVisibilityGained.happens().subscribe(v -> {
             mPreviewContainer.filter(o -> o.isPresent()).firstElement().subscribe(opt -> {
                 ViewGroup container = opt.get();
@@ -131,10 +122,22 @@ public class CameraFragment extends PanesToolFragment {
                 }, LoggingConsumer.complain(TAG, "camera permission"));
             });
         });
-    }
 
-    public void attachDrawerState(Observable<Integer> drawerState) {
-        drawerState.takeUntil(mDestroyed.happens()).subscribe(mDrawerState::onNext);
+        // Only treat as visible (and therefore connect the camera) when we are both focused and
+        // resumed.
+        Observable.combineLatest(mFocused, mResumed, mDrawerState,
+                (focused, resumed, drawerState) -> focused
+                                                   && resumed
+                                                   && drawerState
+                                                      != PanesBottomSheetBehavior.STATE_COLLAPSED)
+                  .distinctUntilChanged()
+                  .subscribe(hasBecomeVisible -> {
+                      if (hasBecomeVisible) {
+                          mVisibilityGained.onHappened();
+                      } else {
+                          mVisibilityLost.onHappened();
+                      }
+                  });
     }
 
     private void complainCameraPermissions(ViewGroup container) {
@@ -215,12 +218,16 @@ public class CameraFragment extends PanesToolFragment {
         mPreviewContainer.onNext(
                 Optional.of((ViewGroup) inflated.findViewById(R.id.preview_container)));
         requestPermission();
+        mListener.watchDrawerState()
+                 .takeUntil(mViewDestroyed.happens())
+                 .subscribe(mDrawerState::onNext);
         return inflated;
     }
 
     @Override
     public void onDestroyPanesView() {
         mPreviewContainer.onNext(Optional.absent());
+        mViewDestroyed.onHappened();
     }
 
     public void attachButtons(FrameLayout controlBar) {
@@ -261,11 +268,5 @@ public class CameraFragment extends PanesToolFragment {
 
     public void onLosingFocus() {
         mFocused.onNext(false);
-    }
-
-    @Override
-    public void onDestroy() {
-        mDestroyed.onHappened();
-        super.onDestroy();
     }
 }
