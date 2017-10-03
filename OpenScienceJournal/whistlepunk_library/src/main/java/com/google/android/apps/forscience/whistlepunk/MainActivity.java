@@ -44,8 +44,6 @@ import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 
-import io.reactivex.Observable;
-
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -208,8 +206,15 @@ public class MainActivity extends AppCompatActivity
         rc.watchRecordingStatus().takeUntil(mPause.happens()).subscribe(status -> {
             mIsRecording = status.isRecording();
             // TODO: Add experimentId to RecordingStatus
-            if (isTaskRoot() && mIsRecording) {
-                PanesActivity.launch(this, rc.getSelectedExperiment().getExperimentId());
+            if (mIsRecording) {
+                AppSingleton.getInstance(this).getDataController().getLastUsedUnarchivedExperiment(
+                        new LoggingConsumer<Experiment>(TAG, "getting last used experiment") {
+                            @Override
+                            public void success(Experiment experiment) {
+                                PanesActivity.launch(MainActivity.this,
+                                        experiment.getExperimentId());
+                            }
+                        });
             }
         });
     }
