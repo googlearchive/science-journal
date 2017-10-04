@@ -76,10 +76,6 @@ public class Project {
         return mDescription;
     }
 
-    public String getDisplayTitle(Context context) {
-        return !TextUtils.isEmpty(mTitle) ? mTitle : context.getString(R.string.default_project_name);
-    }
-
     public String getCoverPhoto() {
         return mCoverPhoto;
     }
