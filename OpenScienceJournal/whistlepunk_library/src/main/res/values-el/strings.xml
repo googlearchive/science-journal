@@ -23,8 +23,6 @@
     <string name="action_about" msgid="6800644842624263352">"Πληροφορίες"</string>
     <string name="action_save" msgid="9094966122984771386">"Αποθήκευση"</string>
     <string name="action_edit" msgid="8133918565183877925">"Επεξεργ."</string>
-    <string name="action_archive_project" msgid="8407635733693871521">"Αρχειοθέτηση έργου"</string>
-    <string name="action_unarchive_project" msgid="442733101427522517">"Αναίρεση αρχειοθέτησης έργου"</string>
     <string name="action_archive_experiment" msgid="4508918574186115343">"Αρχειοθέτηση πειράματος"</string>
     <string name="action_unarchive_experiment" msgid="7449138468795347573">"Αναίρεση αρχειοθέτησης"</string>
     <string name="action_archive_run" msgid="770255470137391128">"Αρχειοθέτηση δοκιμής"</string>
@@ -37,13 +35,13 @@
     <string name="acc_y" msgid="663998787829282850">"Επιταχυνσιόμετρο Υ"</string>
     <string name="acc_z" msgid="6875563648805408084">"Επιταχυνσιόμετρο Z"</string>
     <string name="ambient_light" msgid="956709382703134737">"Φωτισμός περιβάλλοντος"</string>
-    <string name="magnetic_rotation" msgid="7304010829539827205">"Μαγνητόμετρο"</string>
+    <string name="magnetic_field_strength" msgid="9143845524950877124">"Μαγνητόμετρο"</string>
     <string name="barometer" msgid="99316252932520865">"Βαρόμετρο"</string>
     <string name="ambient_temperature" msgid="1293814885248346186">"Θερμοκρασία περιβάλλοντος"</string>
     <string name="video_stream" msgid="6479736939735009121">"Ροή βίντεο"</string>
     <string name="acc_units" msgid="3131953779961725111">"m/s²"</string>
     <string name="ambient_light_units" msgid="3481544691869862434">"lux"</string>
-    <string name="compass_units" msgid="9212090641224993573">"μοίρες"</string>
+    <string name="magnetic_strength_units" msgid="2947332496355264272">"μT"</string>
     <string name="decibel_units" msgid="1242238682082079824">"dB"</string>
     <string name="rpm_units" msgid="2651871280948091901">"RPM"</string>
     <string name="voltage_units" msgid="598716668433769220">"V"</string>
@@ -55,7 +53,6 @@
     <string name="snackbar_source_error" msgid="488480213360860471">"Παρουσιάστηκε σφάλμα κατά τη σύνδεση στην πηγή: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
     <string name="action_retry" msgid="3145700667339813916">"Επανάληψη"</string>
     <string name="decibel" msgid="2567269521573545643">"Ένταση ήχου"</string>
-    <string name="title_activity_tutorial" msgid="2584345529619464915">"Οδηγός Science Journal"</string>
     <string name="title_activity_age_verifier" msgid="7040452872458524616">"Γενέθλια"</string>
     <string name="title_activity_ruler" msgid="7356097859627917798">"Χάρακας"</string>
     <string name="ruler_label_metric" msgid="4168199108712627963">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
@@ -72,31 +69,26 @@
     <string name="btn_record_description" msgid="268797023942242799">"Έναρξη εγγραφής"</string>
     <string name="btn_stop_description" msgid="360845145601118810">"Διακοπή εγγραφής"</string>
     <string name="unknown_sensor" msgid="2817579529256439266">"Άγνωστος αισθητήρας"</string>
-    <string name="recording_start_failed" msgid="2424384727076648476">"Δεν ήταν δυνατή η καταγραφή, δοκιμάστε ξανά"</string>
-    <string name="recording_start_failed_disconnected" msgid="6044183997855730278">"Αποτυχία: μη συνδεδεμένος αισθητήρας. Νέα δοκιμή."</string>
+    <string name="recording_start_failed" msgid="8552798481347616797">"Αδύνατη η έναρξη της εγγραφής. Δοκιμάστε ξανά"</string>
+    <string name="recording_start_failed_disconnected" msgid="5403438882837691163">"Αδύνατη η έναρξη της εγγραφής: αποσυνδέθηκε αισθητήρας. Δοκιμάστε ξανά."</string>
     <string name="recording_stop_failed_no_data_title" msgid="7187684438487384614">"Δεν γίνεται εγγραφή δεδομένων"</string>
     <string name="recording_stop_failed_no_data" msgid="5652683982830054853">"Ένας ή περισσότεροι αισθητήρες δεν έχουν καταγράψει δεδομένα. Θέλετε να ακυρώσετε αυτήν την εγγραφή;"</string>
     <string name="recording_stop_failed_continue" msgid="6866415472979372254">"Συνέχιση"</string>
     <string name="recording_stop_failed_cancel" msgid="1054502695356124817">"Ακύρωση εγγραφής"</string>
-    <string name="recording_stop_failed_disconnected" msgid="1890256452807120000">"Αποτυχία: αποσυνδεδεμένος αισθητήρας. Ακύρωση εγγραφής;"</string>
-    <string name="recording_stop_failed_save" msgid="3671113211131295790">"Αποτυχία διακοπής εγγραφής: δεν ήταν δυνατή η αποθήκευση της δοκιμής. Δοκιμάστε ξανά."</string>
-    <!-- no translation found for elapsed_time_short_format (3910690086425194536) -->
-    <skip />
-    <string name="elapsed_time_long_format" msgid="3886757247239765591">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
-    <!-- no translation found for accessible_elapsed_time_short_format (2808530294119164764) -->
-    <skip />
-    <string name="accessible_elapsed_time_long_format" msgid="2581868378578719385">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="recording_stop_failed_disconnected" msgid="4286495388309028275">"Δεν είναι δυνατή η διακοπή της εγγραφής, επειδή αποσυνδέθηκε ένας αισθητήρας. Θέλετε να ακυρώσετε αυτήν την εγγραφή;"</string>
+    <string name="recording_stop_failed_save" msgid="207682974449628219">"Δεν ήταν δυνατή η διακοπή της εγγραφής ή η αποθήκευση δοκιμής. Δοκιμάστε ξανά."</string>
+    <string name="elapsed_time_short_format" msgid="8463172882298601730">"<xliff:g id="SECONDS">%1d</xliff:g> δ."</string>
+    <string name="elapsed_time_long_format" msgid="4817190871022457088">"<xliff:g id="MINUTES">%1d</xliff:g>λ. <xliff:g id="SECONDS">%2d</xliff:g>δ."</string>
+    <string name="accessible_elapsed_time_short_format" msgid="1251813383121495815">"<xliff:g id="SECONDS">%1d</xliff:g> δευτερόλεπτα"</string>
+    <string name="accessible_elapsed_time_long_format" msgid="4837463320977106566">"<xliff:g id="MINUTES">%1d</xliff:g> λεπτά <xliff:g id="SECONDS">%2d</xliff:g> δευτερόλεπτα"</string>
     <string name="elapsed_time_axis_format_small" msgid="7697419444947920959">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large" msgid="5693537324927532690">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_small_tenths" msgid="4091017607656155791">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large_tenths" msgid="3013544179502005785">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>."</string>
-    <string name="picture_note_description" msgid="6443481127492010185">"Εικόνα από τη δοκιμή"</string>
+    <string name="picture_note_description" msgid="380216379546379164">"Εικόνα από εγγραφή"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"Προεπισκόπηση σημείωσης με φωτογραφία"</string>
-    <string name="navigation_item_observe" msgid="8558454737213940045">"Παρατήρηση"</string>
-    <string name="navigation_item_projects" msgid="2995007802369585217">"Βιβλιοθήκη έργων"</string>
     <string name="navigation_item_activities" msgid="2828059180911151657">"Δραστηριότητες"</string>
-    <string name="navigation_item_web_link" msgid="2569270479818502015">"Ιστότοπος Making &amp; Science"</string>
     <string name="navigation_item_settings" msgid="2126253880412012953">"Ρυθμίσεις"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"Επιλογές δοκιμής"</string>
     <string name="title_activity_main" msgid="7023325446656975223">"Science Journal - <xliff:g id="SECTION">%s</xliff:g>"</string>
@@ -112,7 +104,6 @@
     <string name="options_message" msgid="5565091991624696680">"Ρύθμιση επιλογών για <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
     <string name="sine_wave_frequency_option" msgid="5738179822180276142">"Ρύθμιση συχνότητας ημιτονοειδούς κύματος σε χιλιοστά δευτερολέπτου:"</string>
     <string name="video_stream_fps_option" msgid="5159674567746736769">"Ρυθμίστε την καταγραφή ροής βίντεο σε καρέ ανά δευτερόλεπτο:"</string>
-    <string name="title_activity_project_details" msgid="2062373187938579607">"Πειράματα έργου"</string>
     <string name="graph_name" msgid="2545455541298916481">"το γράφημα"</string>
     <string name="graph_options" msgid="6713912577613720780">"Επιλογές γραφημάτων"</string>
     <string name="graph_options_title" msgid="1337465440393004072">"Επιλογές γραφήματος"</string>
@@ -127,55 +118,30 @@
     <string name="stat_min" msgid="2266439267301735688">"Ελάχιστο"</string>
     <string name="stat_max" msgid="8842803905585048937">"Μέγιστη τιμή"</string>
     <string name="stat_average" msgid="2997539530283743087">"Μέσος όρος"</string>
-    <string name="stat_min_label" msgid="5418771583021876764">"Ελάχιστο"</string>
-    <string name="stat_max_label" msgid="2701466484421221541">"Μέγιστο"</string>
     <string name="stat_average_label" msgid="3416599910353955678">"Μέσος όρος"</string>
     <string name="stat_duration" msgid="7050779789237242550">"Διάρκεια"</string>
     <string name="stat_unknown" msgid="4617276179275913656">"Άγνωστο"</string>
     <string name="btn_reset_description" msgid="7031769397794008342">"Μετάβαση στην τρέχουσα χρονική στιγμή"</string>
-    <string name="export_action" msgid="983044359273517958">"Εξαγωγή"</string>
+    <string name="export_action" msgid="897850091094685357">"Κοινοποίηση"</string>
     <string name="export_run_chooser_title" msgid="3151522898296393519">"Αποθήκευση σε…"</string>
     <string name="settings_version_title" msgid="6926476057478648092">"Έκδοση"</string>
-    <string name="settings_replay_tutorial_title" msgid="6935249461039953640">"Οδηγός"</string>
     <string name="settings_open_source_title" msgid="2075335777151654751">"Άδειες ανοικτού κώδικα"</string>
     <string name="cannot_scan_message" msgid="5736974833739008592">"Αν θέλετε να έχετε πρόσβαση σε εξωτερικές συσκευές (“Αισθητήρες του Science Journal”) μέσω του Science Journal, θα πρέπει πρώτα να ενεργοποιήσετε το Bluetooth. Για να είναι δυνατή η ανακάλυψη Αισθητήρων του Science Journal, το Android απαιτεί την άδειά σας για να έχει πρόσβαση στην τοποθεσία σας, επειδή άλλες συσκευές Bluetooth ενδέχεται να μεταδίδουν πληροφορίες τοποθεσίας κατά τη διαδικασία ανακάλυψης συσκευών. Ωστόσο, το Science Journal δεν πρόκειται να αποθηκεύσει ούτε να χρησιμοποιήσει αυτές τις πληροφορίες τοποθεσίας και οι Αισθητήρες του Science Journal δεν μεταδίδουν πληροφορίες τοποθεσίας."</string>
     <string name="btn_request_location" msgid="307169020767649663">"Ενεργοποίηση πρόσβασης τοποθεσίας"</string>
     <string name="btn_enable_bluetooth" msgid="4110230448360114456">"Ενεργοποίηση Bluetooth"</string>
-    <string name="btn_new_project_content_description" msgid="7274313837160584011">"Νέο έργο"</string>
-    <string name="title_activity_new_project" msgid="1587042971310859166">"Νέο έργο"</string>
-    <string name="title_activity_update_project" msgid="7350262427705944300">"Ενημέρωση έργου"</string>
-    <string name="project_save_failed" msgid="5086391732504142091">"Δεν ήταν δυνατή η αποθήκευση του έργου. Δοκιμάστε ξανά."</string>
-    <string name="archived_project_message" msgid="66153039940455913">"Το έργο αρχειοθετήθηκε."</string>
-    <string name="unarchived_project_message" msgid="8018113308137052929">"Το έργο βγήκε από το αρχείο."</string>
     <string name="action_undo" msgid="1852278327756791797">"Αναίρεση"</string>
-    <string name="deleted_project_message" msgid="1227635187612669144">"Το έργο διαγράφηκε."</string>
-    <string name="project_title_hint" msgid="5788484729941933289">"Τίτλος έργου"</string>
-    <string name="project_problem_hint" msgid="4818690816549079105">"Περιγραφή"</string>
-    <string name="project_cover_description" msgid="8583694225708356859">"Επιλογή φωτογραφίας έργου"</string>
     <string name="choose_photo_button_text" msgid="1108459708662688336">"Επιλογή φωτογραφίας"</string>
-    <plurals name="project_experiments_count" formatted="false" msgid="4266966348548554933">
-      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> πειράματα</item>
-      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> πείραμα</item>
-    </plurals>
     <string name="btn_new_experiment_content_description" msgid="3961726691003098466">"Νέο πείραμα"</string>
     <string name="archived_experiment_message" msgid="8039215577892892448">"Το πείραμα αρχειοθετήθηκε."</string>
     <string name="unarchived_experiment_message" msgid="7870126733421916514">"Το πείραμα βγήκε από το αρχείο."</string>
-    <string name="archived_run_message" msgid="8346607350306633655">"Η δοκιμή αρχειοθετήθηκε."</string>
-    <string name="unarchived_run_message" msgid="3807535396227509421">"Η δοκιμή βγήκε από το αρχείο."</string>
+    <string name="archived_run_message" msgid="9177761999719472818">"Η εγγραφή αρχειοθετήθηκε."</string>
+    <string name="unarchived_run_message" msgid="3312481757552571642">"Η εγγραφή μεταφέρθηκε εκτός του αρχείου."</string>
     <string name="archived_content_description" msgid="7931247623909344339">"<xliff:g id="ITEM">%1s</xliff:g> (αρχειοθετημένο)"</string>
-    <plurals name="experiment_run_count" formatted="false" msgid="1283784154893798777">
-      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> δοκιμές</item>
-      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> δοκιμή</item>
-    </plurals>
-    <plurals name="notes_count" formatted="false" msgid="1493689099305335546">
-      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> σημειώσεις</item>
-      <item quantity="one"><xliff:g id="NUMBER_0">%1d</xliff:g> σημείωση</item>
-    </plurals>
     <string name="experiment_title_hint" msgid="4911759592447244874">"Τίτλος πειράματος"</string>
     <string name="experiment_description_hint" msgid="9040493859360181138">"Περιγραφή πειράματος"</string>
     <string name="title_activity_new_experiment" msgid="1697272498867631187">"Νέο πείραμα"</string>
     <string name="title_activity_update_experiment" msgid="8903071005308719553">"Ενημέρωση πειράματος"</string>
-    <string name="experiment_save_failed" msgid="3579978860172392885">"Δεν ήταν δυνατή η αποθήκευση του πειράματος. Δοκιμάστε ξανά."</string>
+    <string name="experiment_save_failed" msgid="448483045879204333">"Δεν ήταν δυνατή η αποθήκευση του πειράματος. Δοκιμάστε ξανά."</string>
     <string name="btn_add_sensor_card_description" msgid="3220894480072851740">"Προσθήκη νέας κάρτας αισθητήρα"</string>
     <string name="btn_sensor_card_settings" msgid="8338988984248785174">"Ρυθμίσεις αισθητήρων"</string>
     <string name="sensor_options" msgid="2527469837515426649">"Επιλογές αισθητήρα"</string>
@@ -184,8 +150,6 @@
     <string name="btn_sensor_card_close" msgid="7007680079590450567">"Κλείσιμο κάρτας"</string>
     <string name="learn_more_button" msgid="7118982997189708606">"Μάθετε περισσότερα"</string>
     <string name="default_experiment_name" msgid="7276399663891989139">"Πείραμα χωρίς τίτλο"</string>
-    <string name="default_project_name" msgid="6612431275727005025">"Έργο χωρίς τίτλο"</string>
-    <string name="empty_project_library" msgid="5583535044982272786">"Δεν υπάρχουν έργα"</string>
     <string name="empty_project" msgid="4645516559486435478">"Δεν υπάρχουν πειράματα"</string>
     <string name="frequency_window_option_label" msgid="4919436041479250367">"Περιθώριο συχνότητας (σε ms)"</string>
     <string name="frequency_filter_option_label" msgid="4458966053132937293">"Φίλτρο συχνοτήτων (σε αισθητήρες)"</string>
@@ -206,11 +170,8 @@
     <!-- no translation found for sonification_types_prod:2 (1917376169281831239) -->
     <!-- no translation found for sonification_types_prod:3 (602550002110522910) -->
     <!-- no translation found for sonification_types_dev:0 (7417644575217300390) -->
-    <string name="new_experiment_spinner_item" msgid="5017810476745425374">"Νέο πείραμα…"</string>
     <string name="recording_title_label" msgid="736399431431816185">"Γίνεται εγγραφή…"</string>
-    <string name="btn_observe_content_description" msgid="476911391550333702">"Παρατήρηση"</string>
-    <string name="title_activity_experiment_details" msgid="3494340558031776911">"Λεπτομέρειες πειράματος"</string>
-    <string name="empty_experiment" msgid="6142475501762739386">"Αυτό το πείραμα δεν έχει δοκιμές ή σημειώσεις."</string>
+    <string name="empty_experiment" msgid="5464387708526270196">"Δεν υπάρχουν ακόμα παρατηρήσεις"</string>
     <string name="permission_request_write" msgid="6590731147363977582">"Απαιτείται άδεια για την εγγραφή σε εξωτερικό χώρο αποθήκευσης."</string>
     <string name="device_options_sensor_label_text" msgid="5073336029128358977">"Αισθητήρας"</string>
     <string name="external_sensor_appearance_name" msgid="6419268671149879170">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
@@ -227,15 +188,15 @@
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"Η επιτάχυνση του τηλεφώνου προς τα επάνω και προς τα κάτω σε m/s²"</string>
     <string name="sensor_desc_short_decibel" msgid="2359189091191569028">"Η ένταση του ήχου, σε (dB), που φτάνει στον αισθητήρα ήχου ή στο μικρόφωνο."</string>
     <string name="sensor_desc_short_light" msgid="8639505918865988429">"Η ποσότητα φωτός, σε lux, που φτάνει στον αισθητήρα φωτισμού περιβάλλοντος."</string>
-    <string name="sensor_desc_short_magnetic_rotation" msgid="4240862107662012031">"Η γωνία μεταξύ του τηλεφώνου και του εξωτερικού μαγνητικού πεδίου."</string>
+    <string name="sensor_desc_short_magnetic_strength" msgid="62101212164736802">"Η δύναμη του ατμοσφαιρικού μαγνητικού πεδίου σε Microtesla."</string>
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"Εδώ εμφανίζονται τα δεδομένα ενός εξωτερικού αισθητήρα, σύμφωνα με τις προσαρμοσμένες ρυθμίσεις."</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"Το πλήθος των περιστροφών ανά λεπτό"</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"Το ποσοστό της καθαρής μέτρησης από έναν εξωτερικό αισθητήρα."</string>
     <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"Η ατμοσφαιρική πίεση μετράται σε εκτοπασκάλ (hPa)."</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"Ο αισθητήρας φωτισμού περιβάλλοντος μετρά την ένταση του φωτός σε lux, ένα μέσο μέτρησης φωτισμού που εξαρτάται από την ποσότητα του εισερχόμενου φωτός και την περιοχή στην οποία εξαπλώνεται. \n\nΟ φωτισμός σε μια νύχτα με πανσέληνο αντιστοιχεί περίπου σε 1 lux, ένα τυπικό σαλόνι με ηλεκτρικό φωτισμό αντιστοιχεί περίπου σε 50 lux, ο έντονος φωτισμός σε μια αίθουσα διδασκαλίας ή ο φωτισμός κατά την ανατολή και τη δύση του ηλίου αντιστοιχεί σε 400 lux, το φως της ημέρας (έμμεση έκθεση στον ήλιο) ξεπερνά τα 10.000 lux και η άμεση έκθεση στον ήλιο ξεπερνά τα 30.000 lux. \n\nΗ μονάδα lux δεν είναι ιδιαίτερα γνωστή στο ευρύτερο κοινό. Όταν αγοράζουμε λαμπτήρες, συνήθως τους επιλέγουμε βάσει της ισχύος τους σε βατ. Όμως η ισχύς του λαμπτήρα δεν εκφράζει τη φωτεινότητα του λαμπτήρα, παρά μόνο την ποσότητα ενέργειας που χρησιμοποιεί. Τα lumen είναι πιο χρήσιμα ως μονάδα μέτρησης για την αγορά φωτιστικών, καθώς δηλώνουν την ποσότητα του φωτός που παράγει πραγματικά ο λαμπτήρας. Τα lux, από την άλλη πλευρά, δηλώνουν την ποσότητα αυτού του φωτός που θα φτάσει σε μια συγκεκριμένη περιοχή."</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"Επειδή το φως διαχέεται ενώ κινείται, η μέτρηση σε lux μειώνεται όσο απομακρύνεστε από μια πηγή φωτός, παρόλο που η πηγή εξακολουθεί να εκπέμπει τον ίδιο φωτισμό σε lumen. Μια περιοχή που αποκλίνει από μια φωτεινή πηγή δέχεται και αυτή λιγότερο φωτισμό, κι αυτός είναι ο λόγος που οι περιοχές που βρίσκονται κοντά στον ισημερινό της Γης έχουν τόσο υψηλότερες θερμοκρασίες από τους παγωμένους πόλους. \n\nΠαρεμπιπτόντως, ο αισθητήρας φωτός του τηλεφώνου σας χρησιμοποιείται για τη ρύθμιση της φωτεινότητας της οθόνης, ανάλογα με το φωτισμό του περιβάλλοντος. Ο αισθητήρας φωτός περιέχει έναν μικροσκοπικό ημιαγωγό, ο οποίος ανταποκρίνεται στο εισερχόμενο φως και δημιουργεί μια μικρή, αλλά υπολογίσιμη, ποσότητα ηλεκτρικού ρεύματος. Αυτό το φαινόμενο είναι γνωστό ως φωτοηλεκτρισμός. Παρόμοιοι αισθητήρες χρησιμοποιούνται σε ορισμένες περιπτώσεις και στα φώτα του δρόμου, ώστε να ενεργοποιούνται αυτόματα όταν σκοτεινιάζει."</string>
-    <string name="sensor_desc_first_paragraph_magnetic_rotation" msgid="7544395877395406770">"Μάλλον γνωρίζετε ήδη ότι η γη διαθέτει μαγνητικό πεδίο. Αυτό που ίσως δεν έχετε συνειδητοποιήσει είναι ότι το τηλέφωνό σας διαθέτει μια συσκευή ειδικά σχεδιασμένη να εντοπίζει τα μαγνητικά πεδία: ένα μαγνητόμετρο. \n\nΗ παραδοσιακή πυξίδα αποτελεί μαγνητόμετρο παλιότερης τεχνολογίας, με μια μαγνητισμένη βελόνα που στρέφεται προκειμένου να ευθυγραμμιστεί με το περιβάλλον μαγνητικό πεδίο. Το τηλέφωνό σας δεν περιέχει κάποια μικροσκοπική πυξίδα, αλλά έναν μικροσκοπικό αισθητήρα τριών αξόνων που χρησιμοποιεί ηλεκτρικά ρεύματα για να εντοπίσει την ισχύ του μαγνητικού πεδίου στις τρεις διαστάσεις του χώρου. \n\nΟρισμένα μαγνητόμετρα εντοπίζουν τα μαγνητικά πεδία αξιοποιώντας το φαινόμενο Hall—την τάση των μαγνητικών πεδίων να εκτρέπουν το κινούμενο φορτίο κατά τη ροή του. Τα πιο καινούργια μαγνητόμετρα βασίζονται σε μαγνητοαντιστάτες, μεταλλικά κράματα που μεταβάλλουν την αντίστασή τους με βάση τα μαγνητικά πεδία. \n\nΓιατί ένα τηλέφωνο χρειάζεται μαγνητόμετρο; Ο προσανατολισμός σας στον χώρο χρησιμεύει στην ενσωματωμένη πυξίδα και στις εφαρμογές πλοήγησης και ειδικά στις εφαρμογές που σας δίνουν αναλυτικές οδηγίες κατεύθυνσης."</string>
-    <string name="sensor_desc_second_paragraph_magnetic_rotation" msgid="975262966302662919">"Όπως ίσως έχετε παρατηρήσει, το μαγνητόμετρο του τηλεφώνου σας επηρεάζεται από το μαγνητικό πεδίο της γης, αλλά και από οποιοδήποτε και κάθε μαγνητικό πεδίο που βρίσκεται γύρω σας. Οι μαγνήτες, τα ηλεκτρικά ρεύματα και τα μεταλλικά αντικείμενα μπορούν εύκολα να οδηγήσουν το μαγνητόμετρο του τηλεφώνου σας προς διάφορες κατευθύνσεις. Σταθείτε σε μια ανοιχτή περιοχή, καλύτερα σε εξωτερικό χώρο και μακριά από γραμμές ηλεκτρικού ρεύματος, για να είστε σίγουροι ότι το κόκκινο άκρο του μαγνητόμετρου είναι ευθυγραμμισμένο με το μαγνητικό πεδίο της γης. Μπορείτε να μετακινήσετε το τηλέφωνό σας σύμφωνα με το μοτίβο της εικόνας 8 για να βαθμονομήσετε το μαγνητόμετρο του τηλεφώνου."</string>
+    <string name="sensor_desc_first_paragraph_magnetic_strength" msgid="4396458078167964347">"Το τηλέφωνό σας διαθέτει μια συσκευή ειδικά σχεδιασμένη για να εντοπίζει τα μαγνητικά πεδία: ένα μαγνητόμετρο. Αυτός ο μικροσκοπικός αισθητήρας τριών αξόνων χρησιμοποιεί ηλεκτρικά ρεύματα για να εντοπίσει την ισχύ του μαγνητικού πεδίου στις τρεις διαστάσεις του χώρου. Συνδυάζοντας δεδομένα και από τους τρεις άξονες, μπορούμε να δημιουργήσουμε έναν αισθητήρα ισχύος συνολικού μαγνητικού πεδίου. \n\nΟρισμένα μαγνητόμετρα εντοπίζουν τα μαγνητικά πεδία αξιοποιώντας το φαινόμενο Hall – την τάση των μαγνητικών πεδίων να εκτρέπουν το κινούμενο φορτίο κατά τη ροή του. Τα πιο καινούργια μαγνητόμετρα βασίζονται σε μαγνητοαντιστάτες, μεταλλικά κράματα που μεταβάλλουν την αντίστασή τους με βάση τα μαγνητικά πεδία. \n\nΓιατί ένα τηλέφωνο χρειάζεται μαγνητόμετρο; Ο προσανατολισμός σας στον χώρο χρησιμεύει στην ενσωματωμένη πυξίδα και στις εφαρμογές πλοήγησης και ειδικά στις εφαρμογές που σας δίνουν αναλυτικές οδηγίες κατεύθυνσης."</string>
+    <string name="sensor_desc_second_paragraph_magnetic_strength" msgid="4456139881419987543">"Οι μαγνήτες, τα ηλεκτρικά ρεύματα και τα μεταλλικά αντικείμενα μπορούν εύκολα να οδηγήσουν το μαγνητόμετρο του τηλεφώνου σας προς διάφορες κατευθύνσεις. Αλλά ακόμα και στη μέση ενός κενού πεδίου, το μαγνητόμετρο στο τηλέφωνό σας δείχνει πάντα μια χαμηλή, μη μηδενική ένδειξη: αυτό είναι το μαγνητικό πεδίο της γης!"</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"Τα αντικείμενα έχουν την τάση να παραμένουν στη θέση τους ή να συνεχίσουν να κινούνται, σε περίπτωση που κινούνται. Αυτή η τάση λέγεται \"αδράνεια\". Ο Πρώτος Νόμος του Νεύτωνα διατυπώνει αυτήν την έννοια με πιο επίσημο τρόπο: \"Τα αντικείμενα διατηρούν την κατάσταση κινητικότητας ή ακινησίας τους, εκτός και αν ασκηθεί επάνω τους μια μη εξισορροπημένη δύναμη. \n\nΌταν μια μη εξισορροπημένη δύναμη προκαλεί τη μετακίνηση ενός αντικειμένου, λέμε ότι το αντικείμενο βρίσκεται σε επιτάχυνση, δηλαδή μεταβάλλεται η ταχύτητά του, είτε αυξάνεται, είτε μειώνεται, είτε αλλάζει κατεύθυνση. Η επιτάχυνση υπολογίζεται ως μεταβολή της ταχύτητας σε συνάρτηση με το χρόνο (μέτρα ανά δευτερόλεπτο) ή μέτρα ανά δευτερόλεπτο στο τετράγωνο (m/s²). \n\nΤο τηλέφωνό σας διαθέτει μια συσκευή που υπολογίζει αυτές τις μεταβολές στην κίνηση, η οποία είναι γνωστή ως επιταχυνσιόμετρο. Στο εσωτερικό του επιταχυνσιόμετρου υπάρχουν μικρές, αιωρούμενες μάζες που μπορούν να κινούνται ελεύθερα. Οι μεταβολές στην κίνηση προκαλούν τη μετακίνηση αυτών των μαζών, περίπου όπως πέφτει το κεφάλι σας προς τα εμπρός όταν βρίσκεστε σε ένα αυτοκίνητο που φρενάρει απότομα. Τα επιταχυνσιόμετρα των τηλεφώνων μπορούν να υπολογίσουν αυτές τις μετατοπίσεις λόγω αδράνειας και να ανιχνεύσουν με αυτόν τον τρόπο μεταβολές στην κίνηση και τον προσανατολισμό. Αυτή η τεχνολογία χρησιμοποιείται για την αυτόματη εναλλαγή του προσανατολισμού της οθόνης, για συγκεκριμένους χειρισμούς στα παιχνίδια που παίζετε στο τηλέφωνό σας και για άλλους σκοπούς."</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"Λογικά, θα παρατηρήσατε μια σταθερή επιτάχυνση στον άξονα Z, ακόμη και όταν το τηλέφωνο είναι ακίνητο επάνω σε ένα τραπέζι. Αυτή είναι η επιτάχυνση στην οποία υποβάλλονται όλα τα αντικείμενα στην επιφάνεια της Γης, λόγω της έλξης της βαρύτητας, η οποία υπολογίζεται περίπου στα 9,8 m/s²."</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"Οι ήχοι δημιουργούνται από τις δονήσεις. Η φωνή σας, για παράδειγμα, προέρχεται από τις δονήσεις των φωνητικών χορδών στον λάρυγγά σας. Αυτές οι δονήσεις δημιουργούν εναλλάξ ζώνες με υψηλή και χαμηλή πίεση αέρα, οι οποίες εξαπλώνονται προς τα έξω, περίπου όπως και οι κυκλικοί κυματισμοί που δημιουργούνται στην επιφάνεια μιας ήρεμης λιμνούλας όταν πετάξετε μέσα της μια πέτρα."</string>
@@ -255,8 +216,6 @@
     <string name="live_graph_content_description" msgid="7102643199006291209">"Ζωντανό γράφημα αισθητήρα. Σύρετε για μετατόπιση του άξονα Χ, τσιμπήστε για εστίαση του άξονα Y."</string>
     <string name="static_graph_content_description" msgid="4724363632843408472">"Γράφημα αισθητήρα. Τσιμπήστε για ζουμ και σύρετε για μετατόπιση ή πατήστε δύο φορές για σμίκρυνση."</string>
     <string name="sensor_card_overflow_menu_content_description" msgid="4358551973476442373">"Επιλογές κάρτας"</string>
-    <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"εναλλαγή σε κατάσταση πληροφοριών"</string>
-    <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"εναλλαγή σε κατάσταση γραφήματος"</string>
     <string name="sensor_tab_layout_content_description" msgid="3807243095823040361">"διαθέσιμοι αισθητήρες"</string>
     <string name="title_activity_sensor_info" msgid="8667402055779114709">"Πληροφορίες αισθητήρα"</string>
     <string name="title_activity_sensor_info_format" msgid="4284132895191711797">"Αισθητήρας <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
@@ -266,47 +225,28 @@
     <string name="delete_note_menu_item" msgid="3351780044042394477">"Διαγραφή"</string>
     <string name="delete_run" msgid="7610513991553541053">"Διαγραφή"</string>
     <string name="crop_run" msgid="6840335859520847482">"Περικοπή"</string>
-    <string name="add_run_note" msgid="7224091083430877994">"Προσθήκη σημείωσης"</string>
     <string name="add_experiment_note" msgid="3946438334341592982">"Προσθήκη σημείωσης"</string>
+    <string name="title_with_duration" msgid="7294061868597672387">"<xliff:g id="TITLE">%1$s</xliff:g> (<xliff:g id="ELAPSED_TIME">%2$s</xliff:g>)"</string>
+    <string name="default_trial_title" msgid="3107589851566196173">"Εγγραφή <xliff:g id="INDEX">%1$d</xliff:g>"</string>
     <string name="run_review_switch_sensor_btn_prev" msgid="193192887823025190">"προηγούμενος αισθητήρας: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="run_review_switch_sensor_btn_next" msgid="7804434037837088592">"επόμενος αισθητήρας: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
-    <string name="edit_note_hint_text" msgid="1729007018652377076">"Επεξεργασία σημείωσης δοκιμής"</string>
     <string name="add_note_hint_text" msgid="2378709047693154979">"Προσθήκη νέας σημείωσης"</string>
     <string name="snackbar_note_deleted" msgid="6991629249337643878">"Η σημείωση διαγράφηκε"</string>
     <string name="snackbar_undo" msgid="2277748858954056127">"Αναίρεση"</string>
-    <string name="add_run_note_placeholder_text" msgid="4470545253774006492">"Προσθήκη σημείωσης σε αυτήν τη δοκιμή"</string>
-    <string name="add_experiment_note_placeholder_text" msgid="2815729408235567303">"Προσθήκη σημείωσης πειράματος"</string>
+    <string name="add_run_note_placeholder_text" msgid="4139664399729584582">"Προσθήκη σημείωσης σε αυτήν την εγγραφή"</string>
     <string name="add_note_image_button_content_description" msgid="45880639214601555">"Τραβήξτε φωτογραφία για τη σημείωση"</string>
     <string name="pinned_note_placeholder_text" msgid="1019278674906788183">"Προσθήκη σημείωσης"</string>
-    <string name="no_notes_text" msgid="2487720915222758113">"Δεν υπάρχουν σημειώσεις"</string>
     <string name="indeterminate_value" msgid="3103662211042579599">"--"</string>
-    <string name="project_card_overflow_menu_content_description" msgid="3537115360336968327">"Επιλογές έργου"</string>
-    <string name="project_active_badge" msgid="7042566285853918127">"Ενεργό"</string>
     <string name="archived_badge" msgid="6068366174702659773">"Αρχειοθετημένα"</string>
-    <string name="action_include_archived_projects" msgid="7075034155088762601">"Να συμπεριληφθούν αρχειοθετημένα έργα"</string>
     <string name="action_include_archived_experiments" msgid="9179328397501796497">"Να συμπεριληφθούν αρχειοθετημένα πειράματα"</string>
-    <string name="delete_project_dialog_title" msgid="7681697983255312708">"Διαγραφή αυτού του έργου;"</string>
-    <string name="delete_project_dialog_message" msgid="3039092965074898348">"Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το έργο; Θα διαγραφούν όλα τα πειράματα, οι δοκιμές και οι σημειώσεις του. Δεν είναι δυνατή η αναίρεση αυτής της ενέργειας."</string>
     <string name="delete_experiment_dialog_title" msgid="522221451175758058">"Διαγραφή αυτού του πειράματος;"</string>
-    <string name="delete_experiment_dialog_message" msgid="8055334758058363747">"Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το πείραμα; Θα διαγραφούν όλες οι δοκιμές και οι σημειώσεις του. Δεν είναι δυνατή η αναίρεση αυτής της ενέργειας."</string>
-    <string name="action_new_experiment" msgid="5987527361707254638">"Νέο πείραμα"</string>
-    <string name="delete_run_dialog_title" msgid="3841579587741640965">"Να διαγραφεί αυτή η δοκιμή;"</string>
-    <string name="run_review_delete_confirm" msgid="1608962272042732123">"Είστε σίγουροι ότι θέλετε να διαγράψετε αυτήν τη δοκιμή; Θα διαγραφούν οι σημειώσεις και τα δεδομένα που έχουν καταγραφεί. Αυτή η ενέργεια δεν είναι δυνατόν να αναιρεθεί."</string>
+    <string name="delete_experiment_dialog_message" msgid="8509346279898186875">"Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το πείραμα; Θα διαγραφούν όλες οι εγγραφές και οι σημειώσεις του. Δεν είναι δυνατή η αναίρεση αυτής της ενέργειας."</string>
+    <string name="delete_run_dialog_title" msgid="7008565166051348569">"Διαγραφή αυτής της εγγραφής;"</string>
+    <string name="run_review_delete_confirm" msgid="6565595557388366823">"Είστε σίγουροι ότι θέλετε να διαγράψετε αυτήν τη εγγραφή; Θα διαγραφούν οι σημειώσεις και τα δεδομένα που έχουν καταγραφεί. Δεν είναι δυνατή η αναίρεση αυτής της ενέργειας."</string>
     <string name="menu_btn_content_description" msgid="6686128481642305452">"μενού"</string>
     <string name="age_verifier_header" msgid="6109465186601177801">"Επαλήθευση ηλικίας"</string>
     <string name="age_verifier_birthday" msgid="6757334725141206468">"Ημερομηνία γέννησης:"</string>
     <string name="age_verifier_get_started" msgid="9125839459553905737">"Έναρξη"</string>
-    <string name="tutorial_welcome_header" msgid="8673213009201774919">"Εξερευνήστε τον κόσμο σας"</string>
-    <string name="tutorial_welcome_body" msgid="7504590176372575077">"Χρησιμοποιήστε τους αισθητήρες στο τηλέφωνο Android, για να μετρήσετε ήχο, φως και άλλα!"</string>
-    <string name="tutorial_setup_header" msgid="5866129957923532593">"Οργάνωση έργων"</string>
-    <string name="tutorial_setup_body" msgid="4621803117988869624">"Δημιουργήστε έργα και πειράματα για να οργανώσετε τα δεδομένα σας και να συγκρίνετε αποτελέσματα."</string>
-    <string name="tutorial_observe_record_header" msgid="6908831734895697396">"Καταγραφή σε πραγματικό χρόνο"</string>
-    <string name="tutorial_observe_record_body" msgid="2645271576190894956">"Υπάρχει κάτι που θέλετε να μετρήσετε; Καταγράψτε τις παρατηρήσεις σας σε πραγματικό χρόνο με το πάτημα ενός κουμπιού!"</string>
-    <string name="tutorial_take_notes_header" msgid="3292315997680250927">"Προσθήκη σημειώσεων παρατήρησης"</string>
-    <string name="tutorial_take_notes_body" msgid="3156191863373375875">"Κατά τη διάρκεια της καταγραφής, μπορείτε να προσθέσετε σημειώσεις και εικόνες για να υποστηρίξετε καλύτερα τα δεδομένα σας."</string>
-    <string name="btn_previous_label" msgid="1726590296250110893">"Προηγ."</string>
-    <string name="btn_next_label" msgid="6877193481185676643">"Επόμενο"</string>
-    <string name="btn_skip_label" msgid="2947141543365158602">"Παράβλεψη"</string>
     <string name="sensor_card_error_text" msgid="3679963077521758478">"Δεν ήταν δυνατή η φόρτωση δεδομένων αισθητήρα"</string>
     <string name="bluetooth_not_on_title" msgid="1500514868723624858">"Σύνδεση σε Bluetooth"</string>
     <string name="bluetooth_not_on_body" msgid="7739877029954834163">"Δεν είναι δυνατή η σύνδεση σε εξωτερικό αισθητήρα. Το Bluetooth είναι ανενεργό. Ενεργοποιήστε το."</string>
@@ -316,25 +256,24 @@
     <string name="playback_button_pause" msgid="348710889337495167">"παύση αναπαραγωγής ήχου"</string>
     <string name="playback_button_play" msgid="3845595255478520691">"έναρξη αναπαραγωγής ήχου"</string>
     <string name="dev_sonification_types_title" msgid="8470117255317834775">"Ενεργοποίηση τύπων προγραμματιστή"</string>
-    <string name="title_edit_trial_activity" msgid="2639088409396156730">"Επεξεργασία δοκιμής"</string>
-    <string name="edit_trial_title_hint" msgid="2537511526292819270">"Τίτλος δοκιμής"</string>
-    <string name="include_archived_trials" msgid="2976166896399146224">"Συμπερίληψη αρχειοθετήσεων"</string>
+    <string name="title_edit_trial_activity" msgid="6563295412905345378">"Επεξεργασία εγγραφής"</string>
+    <string name="edit_trial_title_hint" msgid="2517506393996420794">"Τίτλος εγγραφής"</string>
+    <string name="include_archived_trials" msgid="4061915194331729499">"Εμφάνιση αρχειοθετημένων εγγραφών"</string>
     <string name="export_error" msgid="2485739090885091041">"Η εξαγωγή απέτυχε."</string>
-    <string name="no_app_found" msgid="4158372008501245612">"Καμία εγκατεστημένη εφαρμογή δεν μπορεί να χειριστεί αυτήν την ενέργεια."</string>
-    <string name="picture_note_caption_hint" msgid="9155126680230680734">"Προσθήκη λεζάντας"</string>
+    <string name="no_app_found_for_csv" msgid="4251087103186089612">"Δεν υπάρχει εγκατεστημένη εφαρμογή για το άνοιγμα του αρχείου εξαγωγής CSV."</string>
+    <string name="no_app_found_learn_more" msgid="4440663710498182380">"Μάθετε περισσότερα"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Πειραματιστείτε στον κόσμο."</string>
-    <string name="listing_changelog" msgid="1682128084009185355">"Νέες δυνατότητες και βελτιώσεις: \n• Επίσημη υποστήριξη για τα ChromeBook που υποστηρίζουν το Play Store: https://support.google.com/chromebook/answer/7021273. \n• Διορθώθηκε η υποστήριξη για τη λειτουργία πολλών παραθύρων στο Nougat. \n• Πλέον είναι δυνατή η περικοπή επιπλέον δεδομένων από καταγεγραμμένες δοκιμές."</string>
-    <string name="listing__description" msgid="1437079553322248814">"Το Science Journal είναι ένα εργαλείο για να πραγματοποιείτε επιστημονικά πειράματα με το τηλέφωνο, το tablet ή το Chromebook που υποστηρίζει εφαρμογές Android. Μπορείτε να χρησιμοποιήσετε τους αισθητήρες στο τηλέφωνό σας ή να συνδεθείτε σε εξωτερικούς αισθητήρες για να διεξάγετε πειράματα στον κόσμο γύρω σας. Οργανώστε τις ιδέες σας σε έργα, κάντε προβλέψεις, κρατήστε σημειώσεις και συλλέξτε δεδομένα από πολλές δοκιμές. Στη συνέχεια, καταγράψτε και εξερευνήστε τα αποτελέσματά σας. Θα είναι το απόλυτο σημειωματάριο εργαστηριακών δοκιμών που θα έχετε πάντα μαζί σας. \n\n \nΠάρτε ιδέες για δραστηριότητες που μπορείτε να κάνετε στην εφαρμογή εδώ: https://makingscience.withgoogle.com/science-journal/activities \nΜάθετε περισσότερα για το Making &amp; Science: https://makingscience.withgoogle.com \nΓια υποστήριξη: https://productforums.google.com/forum/#!forum/sciencejournal \nΔιαθέσιμος κωδικός: https://github.com/google/science-journal"</string>
+    <!-- no translation found for listing_changelog (530900357619095816) -->
+    <skip />
+    <!-- no translation found for listing__description (1193865948828289689) -->
+    <skip />
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Σάρωση για αισθητήρες τρίτων"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Αναζητήστε εφαρμογές που υποστηρίζουν το API αισθητήρων τρίτων και επιτρέψτε την προσθήκη αυτών των αισθητήρων σε πειράματα."</string>
-    <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"Ενεργοποίηση πειραματικού αισθητήρα μαγνητόμετρου"</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Ενεργοποίηση θερμοκρασίας"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"Ενεργοποίηση πειραματικού αισθητήρα θερμοκρασίας περιβάλλοντος"</string>
     <string name="enable_sine_wave_sensor_title" msgid="5361133155106781791">"Ενεργοποίηση ημιτονοειδούς κύματος"</string>
     <string name="enable_sine_wave_sensor_summary" msgid="4344597474984074166">"Ενεργοποίηση πειραματικού αισθητήρα σύνθεσης ημιτονοειδούς κύματος"</string>
-    <string name="enable_video_sensor_title" msgid="4519564641860085548">"Ενεργοποίηση αισθητήρα βίντεο"</string>
-    <string name="enable_video_sensor_summary" msgid="3554296098795476937">"Ενεργοποίηση αισθητήρα βίντεο"</string>
     <string name="menu_item_audio_settings" msgid="3083272235611335612">"Ρυθμίσεις ήχου"</string>
     <string name="dev_sonification_types_summary" msgid="3388638534256966964">"Εάν θα ενεργοποιηθούν επιπλέον επιλογές ηχητικού κύματος"</string>
     <string name="audio_settings_sensor_prompt" msgid="5297799876523575284">"Επιλέξτε ρυθμίσεις ήχου για:"</string>
@@ -396,18 +335,17 @@
   </string-array>
     <string name="trigger_only_when_recording" msgid="2102420075414851575">"Έναυσμα μόνο κατά την εγγραφή"</string>
     <string name="trigger_label_auto_text" msgid="7238124210986703642">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
-    <string name="trigger_label_icon_content_description" msgid="4567123930201934477">"Σημείωση εναύσματος: <xliff:g id="TRIGGER_DESCRIPTION">%1$s</xliff:g>"</string>
     <string name="trigger_snackbar_auto_text" msgid="1082338857442085741">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
     <string name="scroll_to_card" msgid="4531288548260633064">"εμφάνιση"</string>
     <string name="could_not_find_service_error" msgid="6399923176664381124">"Δεν ήταν δυνατή η εύρεση της υπηρεσίας: <xliff:g id="SERVICE_ID">%s</xliff:g>"</string>
     <string name="recording_stopped_notification_text" msgid="2700948290649435580">"Η εγγραφή ολοκληρώθηκε."</string>
     <string name="disable_all_triggers" msgid="4207192080361552008">"Απενεργοποίηση εναυσμάτων"</string>
     <string name="trigger_view_icon_content_description" msgid="468973450644969062">"εναύσματα"</string>
-    <string name="alert_trigger_needs_alerts" msgid="9046346885115277889">"Σφάλμα: Πρέπει να επιλέξετε τουλάχιστον έναν τύπο ειδοποίησης για αυτό το έναυσμα."</string>
+    <string name="alert_trigger_needs_alerts" msgid="1195471137123743218">"Πρέπει να επιλέξετε τουλάχιστον έναν τύπο ειδοποίησης για αυτό το έναυσμα."</string>
     <string name="trigger_fired_text" msgid="8122555560445417775">"Έναυσμα ενεργό"</string>
     <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"έναρξη περικοπής: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
     <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"λήξη περικοπής: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
-    <string name="crop_failed_message" msgid="5035154087997365574">"Αποτυχία αποθήκευσης περικοπής: <xliff:g id="DETAILS">%1$s</xliff:g>"</string>
+    <string name="crop_failed_message" msgid="2749918757913420074">"Δεν ήταν δυνατή η αποθήκευση της περικοπής: <xliff:g id="DETAILS">%1$s</xliff:g>"</string>
     <string name="crop_completed_message" msgid="2902081668922934393">"Η δοκιμή περικόπηκε"</string>
     <string name="launch_settings" msgid="2712101939691138420">"Εκκίνηση ρυθμίσεων"</string>
     <string name="trigger_alert_prompt" msgid="7548827088664791710">"Να ειδοποιούμαι με"</string>
@@ -420,7 +358,6 @@
     <string name="btn_contract_service" msgid="7107148514331162439">"απόκρυψη συσκευών υπηρεσίας"</string>
     <string name="select_sensors" msgid="7242531205153688282">"Επιλέξτε αισθητήρες για χρήση στο πείραμα <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"Εσωτερικοί αισθητήρες"</string>
-    <string name="rename_device" msgid="6177379501609319531">"Μετονομασία συσκευής"</string>
     <string name="forget_device" msgid="7258019924047721349">"Αγνόηση αυτής της συσκευής"</string>
     <string name="device_settings_for" msgid="903293384402586834">"Ρυθμίσεις συσκευής για τη <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
     <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"προσθήκη στο πείραμα"</string>
@@ -443,9 +380,76 @@
     <string name="minute_second_divider" msgid="1227776218919718096">":"</string>
     <string name="timestamp_picker_format_error" msgid="7119140041902399744">"Χρησιμοποιήστε έγκυρη μορφή, h:mm:ss.SSS"</string>
     <string name="timestamp_picker_range_error" msgid="1138095977022442393">"Η ώρα πρέπει να είναι στο εύρος δοκιμής"</string>
-    <string name="timestamp_picker_crop_range_error" msgid="7993788975367469387">"Αδύνατη περικοπή δοκιμών κάτω από 1 δευτ"</string>
+    <string name="timestamp_picker_crop_range_error" msgid="2568664888027806617">"Αδύνατη η περικοπή των καταγραφών κάτω από ένα δευτερόλεπτο"</string>
     <string name="timestamp_picker_prompt" msgid="7006377675003309657">"Νέα ώρα (h:mm:ss.SSS)"</string>
     <string name="crop_failed_range_too_large" msgid="3346936676881544788">"Δεν είναι δυνατή η περικοπή της δοκιμής εκτός του αρχικού καταγεγραμμένου εύρους"</string>
     <string name="crop_failed_range_too_small" msgid="2107171169092126449">"Δεν είναι δυνατή η περικοπή της δοκιμής κάτω από ένα δευτερόλεπτο"</string>
-    <string name="crop_failed_invalid_state" msgid="3637654578796335566">"Μη έγκυρη πολιτεία"</string>
+    <string name="project_experiment_title" msgid="2978147784450916263">"<xliff:g id="PROJECT_NAME">%1s</xliff:g>: <xliff:g id="EXPERIMENT_NAME">%1s</xliff:g>"</string>
+    <string name="snapshot_button_text" msgid="6920838734610813060">"σύνοψη"</string>
+    <string name="export_options_title" msgid="1313836868518047627">"Εξαγωγή…"</string>
+    <string name="export_options_relative_time" msgid="3171536380796115508">"Σχετικός χρόνος"</string>
+    <string name="old_trigger_note_format" msgid="5794951574203245272">"Σημείωση με έναυσμα: <xliff:g id="AUTO_TEXT">%1s</xliff:g>"</string>
+    <string name="old_trigger_note_format_custom" msgid="4352918996399391010">"Σημείωση με έναυσμα: <xliff:g id="USER_TEXT">%1s</xliff:g>; <xliff:g id="AUTO_TEXT">%2s</xliff:g>"</string>
+    <string name="compass" msgid="7226757706683095417">"Πυξίδα"</string>
+    <string name="compass_units" msgid="2437446630519758665">"μοίρες"</string>
+    <string name="sensor_desc_short_compass" msgid="9116131754124775262">"Ο προσανατολισμός του τηλέφωνου όσον αφορά το μαγνητικό πεδίο της γης."</string>
+    <string name="sensor_desc_first_paragraph_compass" msgid="4104296826087624053">"Μάλλον γνωρίζετε ήδη ότι η γη έχει μαγνητικό πεδίο. Αυτό που ίσως δεν έχετε συνειδητοποιήσει είναι ότι το τηλέφωνό σας διαθέτει μια συσκευή ειδικά σχεδιασμένη για να εντοπίζει τα μαγνητικά πεδία: ένα μαγνητόμετρο. Συνδυάζοντας δεδομένα από το μαγνητόμετρο του τηλεφώνου σας με τον προσανατολισμό του τηλεφώνου σας, μπορούμε να δημιουργήσουμε μια ψηφιακή πυξίδα. \n\nΗ παραδοσιακή πυξίδα είναι ένα μαγνητόμετρο παλιότερης τεχνολογίας, με μια μαγνητισμένη βελόνα που στρέφεται προκειμένου να ευθυγραμμιστεί με το περιβάλλον μαγνητικό πεδίο. Το τηλέφωνό σας δεν περιέχει κάποια μικροσκοπική πυξίδα, αλλά έναν μικροσκοπικό αισθητήρα τριών αξόνων που χρησιμοποιεί ηλεκτρικά ρεύματα για να εντοπίσει την ισχύ του μαγνητικού πεδίου στις τρεις διαστάσεις του χώρου. Αλλά αυτό μόνο του δεν αρκεί για να δημιουργήσετε μια πυξίδα! \n\nΓιατί μια πυξίδα πρέπει να συνδυάσει τα δεδομένα από το μαγνητόμετρο με τον προσανατολισμό του τηλεφώνου; Ο προσανατολισμός του τηλεφώνου μάς δίνει τη δυνατότητα να υπολογίσουμε τη μαγνητική περιστροφή, ακόμα κι όταν το τηλέφωνο δεν διατηρείται οριζόντιο στο ίδιο επίπεδο με το μαγνητικό πεδίο της γης. Γνωρίζουμε ότι η βαρύτητα είναι κατακόρυφη στο μαγνητικό πεδίο της γης, οπότε μπορούμε να χρησιμοποιήσουμε την κατεύθυνση της βαρύτητας από τους αισθητήρες του επιταχύμετρου για να καθορίσουμε πόσο από το μαγνητικό πεδίο είναι στο ίδιο επίπεδο με το μαγνητικό πεδίο της γης."</string>
+    <string name="sensor_desc_second_paragraph_compass" msgid="761568271487494415">"Όπως ίσως έχετε παρατηρήσει, η πυξίδα επηρεάζεται από το μαγνητικό πεδίο της γης, αλλά και από οποιοδήποτε και κάθε μαγνητικό πεδίο που βρίσκεται γύρω σας. Οι μαγνήτες, τα ηλεκτρικά ρεύματα και τα μεταλλικά αντικείμενα μπορούν εύκολα να οδηγήσουν το μαγνητόμετρο του τηλεφώνου σας προς διάφορες κατευθύνσεις, με αποτέλεσμα η ένδειξη της πυξίδας να αλλάξει. Σταθείτε σε μια ανοιχτή περιοχή, καλύτερα σε εξωτερικό χώρο και μακριά από γραμμές ηλεκτρικού ρεύματος, για να είστε σίγουροι ότι το κόκκινο άκρο της πυξίδας είναι ευθυγραμμισμένο με το μαγνητικό πεδίο της γης. Μπορείτε να μετακινήσετε το τηλέφωνό σας σύμφωνα με το μοτίβο της εικόνας 8 για να βαθμονομήσετε το μαγνητόμετρο του τηλεφώνου."</string>
+    <string name="text_label_details_title" msgid="5762833845224450327">"Επεξεργασία σημείωσης κειμένου"</string>
+    <string name="empty_text_note_error" msgid="5477130758519974030">"Οι σημειώσεις κειμένου δεν μπορούν να είναι κενές"</string>
+    <string name="navigation_item_experiments" msgid="1674374151553482535">"Πειράματα"</string>
+    <string name="note_caption_hint" msgid="8572263497062792260">"Προσθέστε περιγραφή"</string>
+    <string name="month_year_format" msgid="4472432989730548540">"ΜΜΜΜ εεεε"</string>
+    <string name="linear_accelerometer" msgid="3545063399726733886">"Γραμμικό επιταχύμετρο"</string>
+    <string name="sensor_desc_short_linear_acc" msgid="6557334520561664125">"Η συνολική επιτάχυνση του τηλεφώνου, εξαιρουμένης της δύναμης της βαρύτητας, σε m/s²"</string>
+    <string name="sensor_desc_first_paragraph_linear_acc" msgid="6755155119242232200">"Τα αντικείμενα έχουν την τάση να παραμένουν στη θέση τους ή να συνεχίζουν να κινούνται, σε περίπτωση που κινούνται. Αυτή η τάση λέγεται \"αδράνεια\". Ο Πρώτος Νόμος του Νεύτωνα διατυπώνει αυτήν την έννοια με πιο επίσημο τρόπο: \"Τα αντικείμενα διατηρούν την κατάσταση κίνησης ή ακινησίας τους, εκτός και αν ασκηθεί επάνω τους μια μη εξισορροπημένη δύναμη. \n\nΌταν μια μη εξισορροπημένη δύναμη προκαλεί την κίνηση ενός αντικειμένου, λέμε ότι το αντικείμενο βρίσκεται σε επιτάχυνση, δηλαδή μεταβάλλεται η ταχύτητά του, είτε αυξάνεται είτε μειώνεται ή αλλάζει κατεύθυνση. Η επιτάχυνση υπολογίζεται ως η μεταβολή της ταχύτητας σε συνάρτηση με τον χρόνο (μέτρα ανά δευτερόλεπτο) ή μέτρα ανά δευτερόλεπτο στο τετράγωνο (m/s²). \n\nΤο τηλέφωνό σας διαθέτει μια συσκευή που υπολογίζει αυτές τις μεταβολές στην κίνηση, η οποία είναι γνωστή ως επιταχύμετρο. Στο εσωτερικό του επιταχύμετρου, υπάρχουν μικρές, αιωρούμενες μάζες που μπορούν να κινούνται ελεύθερα. Οι μεταβολές στην κίνηση προκαλούν την μετακίνηση αυτών των μαζών, περίπου όπως πέφτει το κεφάλι σας προς τα εμπρός όταν βρίσκεστε σε ένα αυτοκίνητο που φρενάρει απότομα. Τα επιταχύμετρα των τηλεφώνων μπορούν να υπολογίσουν αυτές τις ανεπαίσθητες μετατοπίσεις λόγω αδράνειας και να ανιχνεύσουν με αυτόν τον τρόπο μεταβολές στην κίνηση και τον προσανατολισμό. Αυτή η τεχνολογία χρησιμοποιείται για την εναλλαγή μεταξύ οριζόντιου και κατακόρυφου προσανατολισμού στην οθόνη, για να παίζετε παιχνίδια στο τηλέφωνό σας και άλλα."</string>
+    <string name="sensor_desc_second_paragraph_linear_acc" msgid="8151233080180828158">"Ο συνδυασμένος γραμμικός αισθητήρας επιταχύμετρου καταγράφει τη συνολική επιτάχυνση και στους τρεις άξονες του τηλεφώνου, εξαιρούμενης της βαρύτητας."</string>
+    <string name="data_with_units" msgid="6919197320548318804">"<xliff:g id="VALUE">%1$s</xliff:g> <xliff:g id="UNITS">%2$s</xliff:g>"</string>
+    <string name="edit_note_time_menu_item" msgid="8949041732814286402">"Επεξεργασία ώρας"</string>
+    <string name="add_note_button_text" msgid="1263907264569204297">"Προσθήκη σημείωσης στο χρονολόγιο"</string>
+    <string name="trial_caption_hint_text" msgid="8974493718130569209">"Προσθήκη περιγραφής ή εγγραφής εδώ"</string>
+    <string name="snapshot_label_details_title" msgid="876439532036968792">"Στοιχεία σύνοψης"</string>
+    <string name="trigger_label_details_title" msgid="7844261655862849084">"Στοιχεία σημείωσης με έναυσμα"</string>
+    <string name="tool_picker_tab_layout_description" msgid="6898249361624127701">"Διαθέσιμα εργαλεία"</string>
+    <!-- no translation found for tab_description_add_note (8259995764315955353) -->
+    <skip />
+    <string name="tab_description_observe" msgid="8315777883595993294">"Παρατήρηση αισθητήρων"</string>
+    <!-- no translation found for tab_description_camera (5608734417285292850) -->
+    <skip />
+    <string name="load_more_notes_btn" msgid="317448385027133819">"Προβολή περισσότερων σημειώσεων"</string>
+    <string name="name_experiment_dialog_title" msgid="4253322993689197542">"Δώστε όνομα σε αυτό το πείραμα"</string>
+    <string name="empty_experiment_title_error" msgid="4741357059638017915">"Το όνομα δεν μπορεί να είναι κενό"</string>
+    <string name="card_recording_title" msgid="2760260378349508177">"<xliff:g id="TITLE">%1$s</xliff:g>…"</string>
+    <string name="throbber_content_description" msgid="3400101352483412316">"Εγγραφή σε εξέλιξη"</string>
+    <string name="trigger_label_name_header" msgid="2262672414778047276">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g>"</string>
+    <string name="description_hint" msgid="673355468672398307">"Περιγραφή"</string>
+    <string name="details_header" msgid="3615607795479940179">"Λεπτομέρειες"</string>
+    <string name="text_label_hint" msgid="1108956064543616019">"Προσθήκη παρατήρησης"</string>
+    <string name="first_experiment_title" msgid="4510437516891041608">"Καλωσορίσατε στο Science Journal"</string>
+    <string name="first_experiment_text_note" msgid="1517699072074036189">"Δοκιμάστε να κρατήσετε σημειώσεις και να εγγράψετε δεδομένα μέσω της παρακάτω γραμμής εργαλείων!"</string>
+    <string name="first_experiment_picture_note_caption" msgid="5429499615012974999">"Καλωσορίσατε στο Science Journal!"</string>
+    <string name="first_experiment_second_text_note" msgid="7840206175805610752">"Βρείτε δραστηριότητες στο \ng.co/sciencejournalactivities και δοκιμάστε τις"</string>
+    <string name="experiment_cover_description" msgid="6319265532135034002">"Επιλέξτε μια φωτογραφία πειράματος"</string>
+    <!-- no translation found for btn_take_picture_content_description (3029866757337599621) -->
+    <skip />
+    <string name="tab_description_gallery" msgid="1558619247937893970">"Επιλογή εικόνας"</string>
+    <!-- no translation found for gallery_image_content_description (474626617793194680) -->
+    <skip />
+    <string name="content_description_selected" msgid="4555792111169052548">"επιλεγμένη"</string>
+    <string name="photo_editor_dialog_title" msgid="2305657514653927089">"Επεξεργασία φωτογραφίας με…"</string>
+    <string name="btn_show_tools" msgid="2318999636820360860">"Εμφάνιση συρταριού εργαλείου"</string>
+    <string name="btn_expand_tools" msgid="8312223732779598934">"Ανάπτυξη συρταριού εργαλείου"</string>
+    <string name="btn_hide_tools" msgid="1499529350560310547">"Σύμπτυξη συρταριού εργαλείου"</string>
+    <!-- no translation found for action_edit_photo (8325672235883072547) -->
+    <skip />
+    <!-- no translation found for add_text_note (7399260444850532349) -->
+    <skip />
+    <!-- no translation found for camera_preview_content_description (5571625157168747543) -->
+    <skip />
+    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
+    <skip />
+    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
+    <skip />
+    <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
+    <skip />
 </resources>

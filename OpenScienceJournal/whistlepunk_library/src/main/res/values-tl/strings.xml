@@ -23,8 +23,6 @@
     <string name="action_about" msgid="6800644842624263352">"Tungkol Sa"</string>
     <string name="action_save" msgid="9094966122984771386">"I-save"</string>
     <string name="action_edit" msgid="8133918565183877925">"I-edit"</string>
-    <string name="action_archive_project" msgid="8407635733693871521">"I-archive ang proyekto"</string>
-    <string name="action_unarchive_project" msgid="442733101427522517">"Hindi naka-archive na proyekto"</string>
     <string name="action_archive_experiment" msgid="4508918574186115343">"I-archive ang eksperimento"</string>
     <string name="action_unarchive_experiment" msgid="7449138468795347573">"Hindi naka-archive na eksperimento"</string>
     <string name="action_archive_run" msgid="770255470137391128">"I-archive ang pagsubok"</string>
@@ -37,13 +35,13 @@
     <string name="acc_y" msgid="663998787829282850">"Accelerometer Y"</string>
     <string name="acc_z" msgid="6875563648805408084">"Accelerometer Z"</string>
     <string name="ambient_light" msgid="956709382703134737">"Liwanag sa paligid"</string>
-    <string name="magnetic_rotation" msgid="7304010829539827205">"Magnetometer"</string>
+    <string name="magnetic_field_strength" msgid="9143845524950877124">"Magnetometer"</string>
     <string name="barometer" msgid="99316252932520865">"Barometer"</string>
     <string name="ambient_temperature" msgid="1293814885248346186">"Temperatura sa paligid"</string>
     <string name="video_stream" msgid="6479736939735009121">"Video stream"</string>
     <string name="acc_units" msgid="3131953779961725111">"m/s²"</string>
     <string name="ambient_light_units" msgid="3481544691869862434">"lux"</string>
-    <string name="compass_units" msgid="9212090641224993573">"degrees"</string>
+    <string name="magnetic_strength_units" msgid="2947332496355264272">"μT"</string>
     <string name="decibel_units" msgid="1242238682082079824">"dB"</string>
     <string name="rpm_units" msgid="2651871280948091901">"RPM"</string>
     <string name="voltage_units" msgid="598716668433769220">"V"</string>
@@ -55,7 +53,6 @@
     <string name="snackbar_source_error" msgid="488480213360860471">"Nagka-error habang kumokonekta sa source na ito: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
     <string name="action_retry" msgid="3145700667339813916">"Subukang muli"</string>
     <string name="decibel" msgid="2567269521573545643">"Tindi ng tunog"</string>
-    <string name="title_activity_tutorial" msgid="2584345529619464915">"Tutorial ng Science Journal"</string>
     <string name="title_activity_age_verifier" msgid="7040452872458524616">"Kaarawan"</string>
     <string name="title_activity_ruler" msgid="7356097859627917798">"Ruler"</string>
     <string name="ruler_label_metric" msgid="4168199108712627963">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
@@ -72,31 +69,26 @@
     <string name="btn_record_description" msgid="268797023942242799">"Simulan ang pag-record"</string>
     <string name="btn_stop_description" msgid="360845145601118810">"Itigil ang pag-record"</string>
     <string name="unknown_sensor" msgid="2817579529256439266">"Hindi malamang sensor"</string>
-    <string name="recording_start_failed" msgid="2424384727076648476">"Nabigo ang pagre-record, pakisubukang muli"</string>
-    <string name="recording_start_failed_disconnected" msgid="6044183997855730278">"Nabigo ang pagre-record: may nakadiskonektang sensor. Pakisubukang muli"</string>
+    <string name="recording_start_failed" msgid="8552798481347616797">"Hindi masimulan ang recording, pakisubukang muli"</string>
+    <string name="recording_start_failed_disconnected" msgid="5403438882837691163">"Hindi masimulan ang recording dahil may nakadiskonektang sensor. Pakisubukang muli."</string>
     <string name="recording_stop_failed_no_data_title" msgid="7187684438487384614">"Hindi naire-record ang data"</string>
     <string name="recording_stop_failed_no_data" msgid="5652683982830054853">"May isa o higit pa sa iyong mga sensor na hindi nag-record ng anumang data. Gusto mo bang kanselahin ang pagre-record na ito?"</string>
     <string name="recording_stop_failed_continue" msgid="6866415472979372254">"Magpatuloy"</string>
     <string name="recording_stop_failed_cancel" msgid="1054502695356124817">"Kanselahin ang pagre-record"</string>
-    <string name="recording_stop_failed_disconnected" msgid="1890256452807120000">"Nabigo ang pagtigil sa pagre-record: may nakadiskonektang sensor. Gusto mo bang kanselahin ang pagre-record?"</string>
-    <string name="recording_stop_failed_save" msgid="3671113211131295790">"Nabigo ang pagtigil sa pagre-record: nabigong i-save ang pagsubok. Pakisubukang muli."</string>
-    <!-- no translation found for elapsed_time_short_format (3910690086425194536) -->
-    <skip />
-    <string name="elapsed_time_long_format" msgid="3886757247239765591">"<xliff:g id="MINUTES">%1dmin</xliff:g> <xliff:g id="SECONDS">%2ds</xliff:g>"</string>
-    <!-- no translation found for accessible_elapsed_time_short_format (2808530294119164764) -->
-    <skip />
-    <string name="accessible_elapsed_time_long_format" msgid="2581868378578719385">"<xliff:g id="MINUTES">%1d minutes</xliff:g> <xliff:g id="SECONDS">%2d seconds</xliff:g>"</string>
+    <string name="recording_stop_failed_disconnected" msgid="4286495388309028275">"Hindi matigil ang recording dahil may nakadiskonektang sensor. Gusto mo bang kanselahin ang recording na ito?"</string>
+    <string name="recording_stop_failed_save" msgid="207682974449628219">"Hindi matigil ang recording o ma-save ang pagsubok. Pakisubukang muli."</string>
+    <string name="elapsed_time_short_format" msgid="8463172882298601730">"<xliff:g id="SECONDS">%1d</xliff:g>s"</string>
+    <string name="elapsed_time_long_format" msgid="4817190871022457088">"<xliff:g id="MINUTES">%1d</xliff:g>min <xliff:g id="SECONDS">%2d</xliff:g>s"</string>
+    <string name="accessible_elapsed_time_short_format" msgid="1251813383121495815">"<xliff:g id="SECONDS">%1d</xliff:g> (na) segundo"</string>
+    <string name="accessible_elapsed_time_long_format" msgid="4837463320977106566">"<xliff:g id="MINUTES">%1d</xliff:g> (na) minuto <xliff:g id="SECONDS">%2d</xliff:g> (na) segundo"</string>
     <string name="elapsed_time_axis_format_small" msgid="7697419444947920959">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large" msgid="5693537324927532690">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_small_tenths" msgid="4091017607656155791">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large_tenths" msgid="3013544179502005785">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>.<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>."</string>
-    <string name="picture_note_description" msgid="6443481127492010185">"Larawan mula sa pagsubok"</string>
+    <string name="picture_note_description" msgid="380216379546379164">"Larawan mula sa recording"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"Preview sa tala ng larawan"</string>
-    <string name="navigation_item_observe" msgid="8558454737213940045">"Mag-obserba"</string>
-    <string name="navigation_item_projects" msgid="2995007802369585217">"Library ng proyekto"</string>
     <string name="navigation_item_activities" msgid="2828059180911151657">"Mga Aktibidad"</string>
-    <string name="navigation_item_web_link" msgid="2569270479818502015">"Making &amp; Science website"</string>
     <string name="navigation_item_settings" msgid="2126253880412012953">"Mga Setting"</string>
     <string name="navigation_item_testing_options" msgid="1439511512230377082">"Mga opsyon sa pagsusuri"</string>
     <string name="title_activity_main" msgid="7023325446656975223">"Science Journal - <xliff:g id="SECTION">%s</xliff:g>"</string>
@@ -112,7 +104,6 @@
     <string name="options_message" msgid="5565091991624696680">"Magtakda ng mga opsyon para sa <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
     <string name="sine_wave_frequency_option" msgid="5738179822180276142">"Itakda ang frequency ng sine wave sa millisecond:"</string>
     <string name="video_stream_fps_option" msgid="5159674567746736769">"Itakda ang rate ng pag-record ng video stream sa frames per second:"</string>
-    <string name="title_activity_project_details" msgid="2062373187938579607">"Mga Eksperimento sa Proyekto"</string>
     <string name="graph_name" msgid="2545455541298916481">"ang graph"</string>
     <string name="graph_options" msgid="6713912577613720780">"Mga opsyon sa graph"</string>
     <string name="graph_options_title" msgid="1337465440393004072">"Mga opsyon sa graph"</string>
@@ -127,55 +118,30 @@
     <string name="stat_min" msgid="2266439267301735688">"Minimum"</string>
     <string name="stat_max" msgid="8842803905585048937">"Maximum"</string>
     <string name="stat_average" msgid="2997539530283743087">"Average"</string>
-    <string name="stat_min_label" msgid="5418771583021876764">"Min"</string>
-    <string name="stat_max_label" msgid="2701466484421221541">"Max"</string>
     <string name="stat_average_label" msgid="3416599910353955678">"Average"</string>
     <string name="stat_duration" msgid="7050779789237242550">"Tagal"</string>
     <string name="stat_unknown" msgid="4617276179275913656">"Hindi alam"</string>
     <string name="btn_reset_description" msgid="7031769397794008342">"Tumalon sa ngayon"</string>
-    <string name="export_action" msgid="983044359273517958">"I-export"</string>
+    <string name="export_action" msgid="897850091094685357">"Ibahagi"</string>
     <string name="export_run_chooser_title" msgid="3151522898296393519">"I-save sa..."</string>
     <string name="settings_version_title" msgid="6926476057478648092">"Bersyon"</string>
-    <string name="settings_replay_tutorial_title" msgid="6935249461039953640">"Tutorial"</string>
     <string name="settings_open_source_title" msgid="2075335777151654751">"Mga open source na lisensya"</string>
     <string name="cannot_scan_message" msgid="5736974833739008592">"Upang ma-access ang mga external device (\"Science Journal Sensor\") gamit ang Science Journal, kailangan mo munang i-on ang Bluetooth. Upang makadiskubre ng mga Science Journal Sensor, hinihingi sa iyo ng Android na magbigay rin ng pahintulot na ma-access ang iyong lokasyon dahil maaaring i-broadcast ng iba pang Bluetooth device ang impormasyon ng kanilang lokasyon habang nagdidiskubre ng device. Gayunman, hindi itatabi o gagamitin ng Science Journal ang impormasyon ng lokasyon, at hindi nagpapadala ang mga Science Journal Sensor ng impormasyon ng lokasyon."</string>
     <string name="btn_request_location" msgid="307169020767649663">"I-on ang access sa lokasyon"</string>
     <string name="btn_enable_bluetooth" msgid="4110230448360114456">"I-on ang Bluetooth"</string>
-    <string name="btn_new_project_content_description" msgid="7274313837160584011">"Bagong proyekto"</string>
-    <string name="title_activity_new_project" msgid="1587042971310859166">"Bagong proyekto"</string>
-    <string name="title_activity_update_project" msgid="7350262427705944300">"I-update ang proyekto"</string>
-    <string name="project_save_failed" msgid="5086391732504142091">"Hindi mai-save ang proyekto. Pakisubukang muli."</string>
-    <string name="archived_project_message" msgid="66153039940455913">"Nai-archive ang proyekto."</string>
-    <string name="unarchived_project_message" msgid="8018113308137052929">"Inalis sa archive ang proyekto."</string>
     <string name="action_undo" msgid="1852278327756791797">"I-undo"</string>
-    <string name="deleted_project_message" msgid="1227635187612669144">"Na-delete ang proyekto."</string>
-    <string name="project_title_hint" msgid="5788484729941933289">"Pamagat ng proyekto"</string>
-    <string name="project_problem_hint" msgid="4818690816549079105">"Paglalarawan"</string>
-    <string name="project_cover_description" msgid="8583694225708356859">"Pumili ng larawan ng proyekto"</string>
     <string name="choose_photo_button_text" msgid="1108459708662688336">"Pumili ng larawan"</string>
-    <plurals name="project_experiments_count" formatted="false" msgid="4266966348548554933">
-      <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> eksperimento</item>
-      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> na eksperimento</item>
-    </plurals>
     <string name="btn_new_experiment_content_description" msgid="3961726691003098466">"Bagong eksperimento"</string>
     <string name="archived_experiment_message" msgid="8039215577892892448">"Nai-archive ang eksperimento."</string>
     <string name="unarchived_experiment_message" msgid="7870126733421916514">"Inalis sa archive ang eksperimento."</string>
-    <string name="archived_run_message" msgid="8346607350306633655">"Na-archive ang pagsubok."</string>
-    <string name="unarchived_run_message" msgid="3807535396227509421">"Inalis sa archive ang pagsubok."</string>
+    <string name="archived_run_message" msgid="9177761999719472818">"Na-archive ang recording."</string>
+    <string name="unarchived_run_message" msgid="3312481757552571642">"Nailabas sa archive ang recording."</string>
     <string name="archived_content_description" msgid="7931247623909344339">"<xliff:g id="ITEM">%1s</xliff:g> (naka-archive)"</string>
-    <plurals name="experiment_run_count" formatted="false" msgid="1283784154893798777">
-      <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> pagsubok</item>
-      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> na pagsubok</item>
-    </plurals>
-    <plurals name="notes_count" formatted="false" msgid="1493689099305335546">
-      <item quantity="one"><xliff:g id="NUMBER_1">%1d</xliff:g> tala</item>
-      <item quantity="other"><xliff:g id="NUMBER_1">%1d</xliff:g> na tala</item>
-    </plurals>
     <string name="experiment_title_hint" msgid="4911759592447244874">"Pamagat ng eksperimento"</string>
     <string name="experiment_description_hint" msgid="9040493859360181138">"Paglalarawan ng eksperimento"</string>
     <string name="title_activity_new_experiment" msgid="1697272498867631187">"Bagong eksperimento"</string>
     <string name="title_activity_update_experiment" msgid="8903071005308719553">"I-update ang eksperimento"</string>
-    <string name="experiment_save_failed" msgid="3579978860172392885">"Nabigong ma-save ang eksperimento. Pakisubukang muli."</string>
+    <string name="experiment_save_failed" msgid="448483045879204333">"Hindi mase-save ang ekperimento. Pakisubukang muli."</string>
     <string name="btn_add_sensor_card_description" msgid="3220894480072851740">"Lagyan ng bagong sensor card"</string>
     <string name="btn_sensor_card_settings" msgid="8338988984248785174">"Mga setting ng sensor"</string>
     <string name="sensor_options" msgid="2527469837515426649">"Mga opsyon sa sensor"</string>
@@ -184,8 +150,6 @@
     <string name="btn_sensor_card_close" msgid="7007680079590450567">"Isara ang card"</string>
     <string name="learn_more_button" msgid="7118982997189708606">"Matuto nang Higit Pa"</string>
     <string name="default_experiment_name" msgid="7276399663891989139">"Eksperimentong Walang Pamagat"</string>
-    <string name="default_project_name" msgid="6612431275727005025">"Proyektong Walang Pamagat"</string>
-    <string name="empty_project_library" msgid="5583535044982272786">"Wala kang mga proyekto"</string>
     <string name="empty_project" msgid="4645516559486435478">"Wala kang mga eksperimento"</string>
     <string name="frequency_window_option_label" msgid="4919436041479250367">"Frequency window (sa millisecond)"</string>
     <string name="frequency_filter_option_label" msgid="4458966053132937293">"Filter ng frequency (sa mga sensor unit)"</string>
@@ -206,11 +170,8 @@
     <!-- no translation found for sonification_types_prod:2 (1917376169281831239) -->
     <!-- no translation found for sonification_types_prod:3 (602550002110522910) -->
     <!-- no translation found for sonification_types_dev:0 (7417644575217300390) -->
-    <string name="new_experiment_spinner_item" msgid="5017810476745425374">"Bagong eksperimento..."</string>
     <string name="recording_title_label" msgid="736399431431816185">"Nagre-record…"</string>
-    <string name="btn_observe_content_description" msgid="476911391550333702">"Mag-obserba"</string>
-    <string name="title_activity_experiment_details" msgid="3494340558031776911">"Mga Detalye ng Eksperimento"</string>
-    <string name="empty_experiment" msgid="6142475501762739386">"Walang pagsubok o tala ang eksperimentong ito."</string>
+    <string name="empty_experiment" msgid="5464387708526270196">"Wala ka pang obserbasyon"</string>
     <string name="permission_request_write" msgid="6590731147363977582">"Kailangan ang pahintulot upang makapag-write sa external storage."</string>
     <string name="device_options_sensor_label_text" msgid="5073336029128358977">"Sensor"</string>
     <string name="external_sensor_appearance_name" msgid="6419268671149879170">"<xliff:g id="SENSOR_NAME">%s</xliff:g> - <xliff:g id="DEVICE_NAME">%s</xliff:g>"</string>
@@ -227,15 +188,15 @@
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"Ang acceleration ng telepono pataas at pababa, sa m/s²"</string>
     <string name="sensor_desc_short_decibel" msgid="2359189091191569028">"Ang tindi ng tunog, sinusukat sa decibels (DB), na umaabot sa sensor ng tunog o mikropono."</string>
     <string name="sensor_desc_short_light" msgid="8639505918865988429">"Ang liwanag, sinusukat sa lux, na umaabot sa sensor ng liwanag sa paligid."</string>
-    <string name="sensor_desc_short_magnetic_rotation" msgid="4240862107662012031">"Ang anggulo sa pagitan ng telepono at ng external na magnetic field."</string>
+    <string name="sensor_desc_short_magnetic_strength" msgid="62101212164736802">"Ang lakas ng ambient geomagnetic field sa Microtesla."</string>
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"May external sensor na nagpapakita ng data nito rito, batay sa mga custom na setting."</string>
     <string name="sensor_desc_short_rotation" msgid="9195411025691703485">"Ang bilang ng mga pag-ikot kada minuto"</string>
     <string name="sensor_desc_short_raw" msgid="110741801025942586">"Ang porsyento ng raw reading mula sa isang external sensor."</string>
     <string name="sensor_desc_short_barometer" msgid="6151736411866441587">"Ang presyon ng atmosphere na sinusukat sa hectopascals (hPa)."</string>
     <string name="sensor_desc_first_paragraph_light" msgid="3688992479733196527">"Sinusukat ng sensor ng liwanag sa paligid sa lux ang liwanag, isang sukat ng pagliwanag na nakadepende sa halaga ng paparating na liwanag at ang lugar kung saan ito kumakalat. \n\nNagbibigay ng humigit-kumulang 1 lux ng liwanag, ang isang bilog na buwan, ang pangkaraniwang sala na inilawan ng lamp ay humigit-kumulang 50 lux, ang ilaw sa silid-aralan at pagsikat at paglubog ng araw ay humigit-kumulang 400 lux, ang liwanag sa umaga (hindi direktang araw) ay higit sa 10,000 lux, at ang direktang araw ay higit sa 30,000 Lux. \n\nHindi pamilyar na unit ang lux para sa karamihan sa atin. Kapag bumibili tayo ng mga bombilya, kadalasang bumibili tayo ayon sa watts—ngunit hindi sinasabi sa iyo ng wattage ng isang bombilya kung gaano kaliwanag ang isang bombilya, kundi kung gaano lamang ito kalakas na kumonsumo ng enerhiya. Mas magandang sukatan sa pamimili ng ilaw ang lumens; sinasabi ng mga ito sa iyo kung gaano kaliwanag ang aktuwal na magagawa ng isang bombilya. Samantala, sinasabi sa iyo ng lux, kung gaano kalakas na liwanag ang dumadating sa isang partikular na lugar."</string>
     <string name="sensor_desc_second_paragraph_light" msgid="3400053339096963489">"Sapagkat kumakalat ang liwanag habang naglalakbay ito, bumababa ang bilang ng lux habang umaatras ka palayo sa isang pinagmumulan ng liwanag, kahit pa nagbibigay pa rin ng parehong dami ng liwanag sa lumens ang pinagmumulan. Ang isang bahagi na nakatagilid palayo sa isang pinagmumulan ng liwanag ay nakatatanggap din ng mas kaunting liwanag—na siyang dahilan kung bakit ang mga rehiyon sa equator dito sa Mundo ay mas mainit kaysa sa magiginaw na pole. \n\nSiya nga pala, ang layunin ng sensor ng liwanag sa iyong telepono ay upang makontrol ang antas ng liwanag ng screen, na iniaayon sa mga makulimlim at maliliwanag na kapaligiran. Sa loob ng light sensor, may maliit na semiconductor na tutumugon sa papasok na liwanag sa pamamagitan ng paggawa ng kakaunti ngunit nasusukat na kuryente—isang pambihirang pangyayari na kilala bilang epektong photoelectric. Ginagamit ang mga katulad na sensor sa ilang ilaw sa poste upang mai-on lang ang mga ito kapag dumilim na sa labas."</string>
-    <string name="sensor_desc_first_paragraph_magnetic_rotation" msgid="7544395877395406770">"Marahil ay alam mo na na may magnetic field ang mundo. Maaaring hindi mo alam na naglalaman ng device ang iyong telepono na dinisenyo upang madetekta ang mga magnetic field: isang magnetometer. \n\nAng makalumang compass ay isang low-tech na magnetometer, na may magnetized na needle na pumipihit upang kusang humanay ito sa nakapaligid na magnetic field. Walang maliit na compass sa loob ng telepono mo, ngunit sa halip ay may maliit na tatlong axis na sensor na gumagamit ng kuryente upang madetekta ang lakas ng magnetic field sa tatlong dimensiyon ng kalawakan. \n\nMay ilang magnetometer na nagdedetekta ng mga magnetic field na gumagamit ng Hall effect—ang likas na katangian ng mga magnetic field na i-deflect ang kumikilos na charge habang dumadaloy ito. Ang mga mas bagong magnetometer ay gumagamit ng mga magnetoresistor, mga metal na alloy na nagbabago ng kanilang resistance depende sa mga magnetic field. \n\nBakit kailangan ng telepono ang magnetometer? Kapaki-pakinabang ang pag-alam ng iyong posisyon para sa mga built-in na compass at mga navigation app, lalo na ang mga naghahangad na makapagbigay ng mga direksyon sa bawat pagliko."</string>
-    <string name="sensor_desc_second_paragraph_magnetic_rotation" msgid="975262966302662919">"Marahil ay napansin mo na, ang magnetometer sa iyong telepono ay tumutugon hindi lamang sa magnetic field ng Mundo, ngunit gayon din sa anuman at bawat magnetic field na maaaring nasa paligid. Mas madaling maililiko na paganito at paganoon ng mga magnet, kuryente at mga metal na bagay ang magnetometer ng iyong telepono. Tumayo sa isang bukas na lugar—mas mainam sa labas at malayo sa mga linya ng kuryente— kung gusto mong matiyak na ang pulang dulo ng iyong magnetometer ay humahanay sa magnetic field ng Mundo. Nakatutulong ito na maigalaw ang iyong telepono nang hugis 8 upang ma-calibrate ang magnetometer sa iyong telepono."</string>
+    <string name="sensor_desc_first_paragraph_magnetic_strength" msgid="4396458078167964347">"Naglalaman ng device ang iyong telepono na dinisenyo upang makadetekta ng mga magnetic field: isang magnetometer. Ang maliit na tatlong axis na sensor na ito na gumagamit ng kuryente upang madetekta ang lakas ng magnetic field sa tatlong dimensiyon ng kalawakan. Sa pamamagitan ng pagsasama-sama ng data mula sa lahat ng tatlong axis ay makakagawa tayo ng sensor ng kabuuang lakas ng magnetic field. \n\nMay ilang magnetometer na nagdedetekta ng mga magnetic field gamit ang Hall effect—ang likas na katangian ng mga magnetic field na mag-deflect ng kumikilos na charge habang dumadaloy ito. Gumagamit ng mga magnetoresistor ang mga mas bagong magnetometer, mga metal na alloy na nagbabago ng kanilang resistance bilang tugon sa mga magnetic field. \n\nBakit kailangan ng telepono ang magnetometer? Kapaki-pakinabang ang pag-alam ng iyong orientation sa kalawakan para sa mga built-in na compass at mga navigation app, lalo na ang mga naghahangad na makapagbigay ng mga direksyon sa bawat pagliko."</string>
+    <string name="sensor_desc_second_paragraph_magnetic_strength" msgid="4456139881419987543">"Mas madaling maililiko na paganito at paganoon ng mga magnet, kuryente, at mga metal na bagay ang magnetometer ng iyong telepono. Pero kahit sa gitna ng isang bakanteng field, laging nagpapakita ng mababa, hindi zero na reading ang magnetometer sa iyong telepono: ito ang magnetic field ng Mundo!"</string>
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"Likas sa mga bagay ang manatili sa kinalalagyan, o kumilos kung kumikilos ang mga ito—tinatawag nating inertia ang likas na katangiang ito. Pormal na inihahayag ng Unang Batas ni Newton ang ideyang ito: Patuloy na kikilos o mananatili ang isang bagay maliban kung maapektuhan ng isang hindi balanseng puwersa. \n\nKapag may hindi balanseng puwersa na nagdulot ng paggalaw ng isang bagay, sinasabi natin na nag-a-accelerate (bumibilis ang pagkilos) ng bagay: nagbabago ang velocity nito, o bilis—maaaring sa pamamagitan ng pagbilis, pagbagal, o pagbabago ng direksyon. Sinusukat ang acceleration bilang isang pagbabago ng velocity (metro kada segundo) sa oras, o metro kada segundo kuwadrado (m/s²). \n\nMay device ang iyong telepono upang masukat ang mga pagbabagong ito sa paggalaw—isang accelerometer. Sa loob ng isang accelerometer, malayang nakakagalaw ang maliliit na nakasuspinding bagay. Ang mga pagbabago sa paggalaw ang nagiging sanhi ng pagkilos ng mga bagay na ito, tulad ng iyong likas na pagsubsob kapag nakasakay ka sa kotse na biglang huminto. Sa pagsukat ng mga hindi kapansin-pansing pagkilos na ito na dulot ng inertia, nadedetekta ng accelerometer sa isang telepono ang mga pagbabago sa galaw at orientation, kapaki-pakinabang para sa paglipat ng screen mula sa landscape tungo sa portrait mode, para sa paglalaro sa iyong telepono, at marami pang iba."</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"Marahil ay may napansin kang patuloy na acceleration sa Z axis, kahit pa nakapirmi ang telepono sa ibabaw ng isang mesa. Ito ang acceleration na nararanasan natin dito sa ibabaw ng Daigdig dahil sa paghila ng gravity, humigit-kumulang ay 9.8 m/s²."</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"Mula sa vibration ang mga tunog. Ang iyong boses, halimbawa, ay mula sa mga vibration ng mga vocal chord sa iyong lalamunan. Ang mga vibration na ito ay gumagawa ng mga nagsasalitang sona ng mataas at mababang presyon ng hangin na naglalakbay palabas—tulad ng maliliit na along ginawa ng isang maliit na batong inihagis sa tubig."</string>
@@ -255,8 +216,6 @@
     <string name="live_graph_content_description" msgid="7102643199006291209">"Live na sensor graph. I-drag upang mai-pan ang X axis, i-pinch upang mai-zoom ang Y axis."</string>
     <string name="static_graph_content_description" msgid="4724363632843408472">"Sensor graph. I-pinch upang mai-zoom at i-drag upang mai-pan, i-double-tap upang mag-zoom out."</string>
     <string name="sensor_card_overflow_menu_content_description" msgid="4358551973476442373">"Mga opsyon sa card"</string>
-    <string name="btn_sensor_flip_info_content_description" msgid="8202389118320924163">"lumipat sa info mode"</string>
-    <string name="btn_sensor_flip_graph_content_description" msgid="3492613926537151020">"lumipat sa graph mode"</string>
     <string name="sensor_tab_layout_content_description" msgid="3807243095823040361">"mga available na sensor"</string>
     <string name="title_activity_sensor_info" msgid="8667402055779114709">"Impormasyon sa Sensor"</string>
     <string name="title_activity_sensor_info_format" msgid="4284132895191711797">"<xliff:g id="SENSOR_NAME">%s</xliff:g> sensor"</string>
@@ -266,47 +225,28 @@
     <string name="delete_note_menu_item" msgid="3351780044042394477">"I-delete"</string>
     <string name="delete_run" msgid="7610513991553541053">"I-delete"</string>
     <string name="crop_run" msgid="6840335859520847482">"I-crop"</string>
-    <string name="add_run_note" msgid="7224091083430877994">"Lagyan ng tala"</string>
     <string name="add_experiment_note" msgid="3946438334341592982">"Lagyan ng tala"</string>
+    <string name="title_with_duration" msgid="7294061868597672387">"<xliff:g id="TITLE">%1$s</xliff:g> (<xliff:g id="ELAPSED_TIME">%2$s</xliff:g>)"</string>
+    <string name="default_trial_title" msgid="3107589851566196173">"Recording <xliff:g id="INDEX">%1$d</xliff:g>"</string>
     <string name="run_review_switch_sensor_btn_prev" msgid="193192887823025190">"naunang sensor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="run_review_switch_sensor_btn_next" msgid="7804434037837088592">"susunod na sensor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
-    <string name="edit_note_hint_text" msgid="1729007018652377076">"I-edit ang tala sa pagsubok"</string>
     <string name="add_note_hint_text" msgid="2378709047693154979">"Lagyan ng bagong tala"</string>
     <string name="snackbar_note_deleted" msgid="6991629249337643878">"Na-delete ang tala"</string>
     <string name="snackbar_undo" msgid="2277748858954056127">"I-undo"</string>
-    <string name="add_run_note_placeholder_text" msgid="4470545253774006492">"Lagyan ng tala ang pagsubok na ito"</string>
-    <string name="add_experiment_note_placeholder_text" msgid="2815729408235567303">"Lagyan ng tala sa eksperimento"</string>
+    <string name="add_run_note_placeholder_text" msgid="4139664399729584582">"Maglagay ng tala sa recording na ito"</string>
     <string name="add_note_image_button_content_description" msgid="45880639214601555">"Tala sa pagkuha ng larawan"</string>
     <string name="pinned_note_placeholder_text" msgid="1019278674906788183">"Lagyan ng tala"</string>
-    <string name="no_notes_text" msgid="2487720915222758113">"Walang mga tala"</string>
     <string name="indeterminate_value" msgid="3103662211042579599">"--"</string>
-    <string name="project_card_overflow_menu_content_description" msgid="3537115360336968327">"Mga opsyon sa proyekto"</string>
-    <string name="project_active_badge" msgid="7042566285853918127">"Aktibo"</string>
     <string name="archived_badge" msgid="6068366174702659773">"Na-archive"</string>
-    <string name="action_include_archived_projects" msgid="7075034155088762601">"Isama ang mga naka-archive na proyekto"</string>
     <string name="action_include_archived_experiments" msgid="9179328397501796497">"Isama ang mga naka-archive na eksperimento"</string>
-    <string name="delete_project_dialog_title" msgid="7681697983255312708">"I-delete ang proyektong ito?"</string>
-    <string name="delete_project_dialog_message" msgid="3039092965074898348">"Sigurado ka bang gusto mong i-delete ang proyektong ito? Made-delete ang lahat ng pagsubok at tala nito. Hindi maia-undo ang pagkilos na ito."</string>
     <string name="delete_experiment_dialog_title" msgid="522221451175758058">"I-delete ang eksperimentong ito?"</string>
-    <string name="delete_experiment_dialog_message" msgid="8055334758058363747">"Sigurado ka bang gusto mong i-delete ang eksperimentong ito? Made-delete ang lahat ng pagsubok at tala nito. Hindi maia-undo ang pagkilos na ito."</string>
-    <string name="action_new_experiment" msgid="5987527361707254638">"Bagong eksperimento"</string>
-    <string name="delete_run_dialog_title" msgid="3841579587741640965">"I-delete ang pagsubok na ito?"</string>
-    <string name="run_review_delete_confirm" msgid="1608962272042732123">"Sigurado ka bang gusto mong i-delete ang pagsubok na ito? Made-delete ang nai-record na data at mga tala. Hindi maia-undo ang aksyong ito."</string>
+    <string name="delete_experiment_dialog_message" msgid="8509346279898186875">"Sigurado ka bang gusto mong i-delete ang eksperimentong ito? Made-delete ang lahat ng recording at tala nito. Hindi maa-undo ang pagkilos na ito."</string>
+    <string name="delete_run_dialog_title" msgid="7008565166051348569">"I-delete ang recording na ito?"</string>
+    <string name="run_review_delete_confirm" msgid="6565595557388366823">"Sigurado ka bang gusto mong i-delete ang recording na ito? Made-delete ang na-record na data at mga tala. Hindi maa-undo ang pagkilos na ito."</string>
     <string name="menu_btn_content_description" msgid="6686128481642305452">"menu"</string>
     <string name="age_verifier_header" msgid="6109465186601177801">"I-verify ang iyong edad"</string>
     <string name="age_verifier_birthday" msgid="6757334725141206468">"Kaarawan:"</string>
     <string name="age_verifier_get_started" msgid="9125839459553905737">"Magsimula"</string>
-    <string name="tutorial_welcome_header" msgid="8673213009201774919">"I-explore ang iyong mundo"</string>
-    <string name="tutorial_welcome_body" msgid="7504590176372575077">"Gamitin ang mga sensor sa iyong Android phone upang masukat ang tunog, liwanag at marami pang iba!"</string>
-    <string name="tutorial_setup_header" msgid="5866129957923532593">"Isaayos ang mga proyekto"</string>
-    <string name="tutorial_setup_body" msgid="4621803117988869624">"Mag-set up ng mga proyekto at eksperimento upang maisaayos ang iyong data at paghambingin ang iyong mga resulta."</string>
-    <string name="tutorial_observe_record_header" msgid="6908831734895697396">"Real-time na mag-record"</string>
-    <string name="tutorial_observe_record_body" msgid="2645271576190894956">"May nakikita ka bang bagay na gusto mong sukatin? Real-time na i-record ang iyong mga obserbasyon sa isang pindot ng button!"</string>
-    <string name="tutorial_take_notes_header" msgid="3292315997680250927">"Lagyan ng mga tala ayon sa obserbasyon"</string>
-    <string name="tutorial_take_notes_body" msgid="3156191863373375875">"Habang nagre-record ka, maaari kang maglagay ng mga tala at larawan upang mabigyan ng higit pang konteksto ang data."</string>
-    <string name="btn_previous_label" msgid="1726590296250110893">"Nakaraan"</string>
-    <string name="btn_next_label" msgid="6877193481185676643">"Susunod"</string>
-    <string name="btn_skip_label" msgid="2947141543365158602">"Laktawan"</string>
     <string name="sensor_card_error_text" msgid="3679963077521758478">"Nabigong i-load ang sensor data"</string>
     <string name="bluetooth_not_on_title" msgid="1500514868723624858">"Kumonekta sa Bluetooth"</string>
     <string name="bluetooth_not_on_body" msgid="7739877029954834163">"Hindi makakonekta sa external sensor: Naka-disable ang Bluetooth. I-on ang Bluetooth upang makakonekta sa iyong external sensor."</string>
@@ -316,25 +256,24 @@
     <string name="playback_button_pause" msgid="348710889337495167">"i-pause ang pag-playback ng audio"</string>
     <string name="playback_button_play" msgid="3845595255478520691">"simulan ang pag-playback ng audio"</string>
     <string name="dev_sonification_types_title" msgid="8470117255317834775">"I-enable ang mga uri ng dev sonification"</string>
-    <string name="title_edit_trial_activity" msgid="2639088409396156730">"I-edit ang Pagsubok"</string>
-    <string name="edit_trial_title_hint" msgid="2537511526292819270">"Pamagat ng pagsubok"</string>
-    <string name="include_archived_trials" msgid="2976166896399146224">"Isama ang mga naka-archive na pagsubok"</string>
+    <string name="title_edit_trial_activity" msgid="6563295412905345378">"I-edit ang Recording"</string>
+    <string name="edit_trial_title_hint" msgid="2517506393996420794">"Pamagat ng recording"</string>
+    <string name="include_archived_trials" msgid="4061915194331729499">"Ipakita ang mga na-archive na recording"</string>
     <string name="export_error" msgid="2485739090885091041">"Hindi na-export."</string>
-    <string name="no_app_found" msgid="4158372008501245612">"Walang naka-install na app na makakagawa ng pagkilos na ito."</string>
-    <string name="picture_note_caption_hint" msgid="9155126680230680734">"Lagyan ng caption"</string>
+    <string name="no_app_found_for_csv" msgid="4251087103186089612">"Walang naka-install na app na aasikaso sa pag-export ng CSV."</string>
+    <string name="no_app_found_learn_more" msgid="4440663710498182380">"Matuto Pa"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Mag-eksperimento sa iyong mundo."</string>
-    <string name="listing_changelog" msgid="1682128084009185355">"Mga bagong feature at mga pagpapabuti: \n• Opisyal na suporta para sa ChromeBooks na sumusuporta ng Play Store: https://support.google.com/chromebook/answer/7021273. \n• Inayos ang suporta para sa Nougat multi-window mode. \n• Makakapag-crop na ngayon ng karagdagang data mula sa mga nai-record na pagsubok."</string>
-    <string name="listing__description" msgid="1437079553322248814">"Isang tool ang Science Journal para sa pagsasagawa ng science gamit ang iyong telepono, tablet o Chromebook na sumusuporta ng mga Android app. Maaari mong gamitin ang mga sensor sa iyong telepono o kumonekta sa mga external sensor upang magsagawa ng mga eksperimento sa mundong ginagalawan mo. Isaayos ang iyong mga ideya para maging mga proyekto, magsagawa ng mga hula, kumuha ng mga tala at mangalap ng data sa maraming pagsubok, pagkatapos ay i-annotate at i-explore ang iyong mga resulta. Lab notebook ang lagi mong dala. \n\n \nKumuha dito ng mga ideya ng aktibidad na magagamit sa app: https://makingscience.withgoogle.com/science-journal/activities \nAlamin pa ang tungkol sa Making &amp; Science: https://makingscience.withgoogle.com \nPara sa suporta: https://productforums.google.com/forum/#!forum/sciencejournal \nAvailable ang code: https://github.com/google/science-journal"</string>
+    <!-- no translation found for listing_changelog (530900357619095816) -->
+    <skip />
+    <!-- no translation found for listing__description (1193865948828289689) -->
+    <skip />
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"I-scan para sa mga third-party sensor"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Tumingin ng mga app na sumusuporta sa third-party sensor API, at i-enable ang pagdaragdag ng mga sensor na iyon sa mga eksperimento."</string>
-    <string name="enable_magnetometer_sensor_summary" msgid="3340675192529257009">"I-enable ang pang-eksperimentong magnetometer sensor"</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"I-enable ang temperatura sa paligid"</string>
     <string name="enable_temperature_sensor_summary" msgid="4474780922846302015">"I-enable ang pang-eksperimentong sensor ng temperatura sa paligid"</string>
     <string name="enable_sine_wave_sensor_title" msgid="5361133155106781791">"I-enable ang sine wave"</string>
     <string name="enable_sine_wave_sensor_summary" msgid="4344597474984074166">"I-enable ang pang-eksperimentong synthetic na sine wave sensor"</string>
-    <string name="enable_video_sensor_title" msgid="4519564641860085548">"I-enable ang video sensor"</string>
-    <string name="enable_video_sensor_summary" msgid="3554296098795476937">"I-enable ang video sensor"</string>
     <string name="menu_item_audio_settings" msgid="3083272235611335612">"Mga setting ng audio"</string>
     <string name="dev_sonification_types_summary" msgid="3388638534256966964">"Kung ie-enable ang mga karagdagang opsyon sa sonification"</string>
     <string name="audio_settings_sensor_prompt" msgid="5297799876523575284">"Pumili ng mga setting ng audio para sa:"</string>
@@ -396,18 +335,17 @@
   </string-array>
     <string name="trigger_only_when_recording" msgid="2102420075414851575">"Mag-trigger lang kapag nagre-record"</string>
     <string name="trigger_label_auto_text" msgid="7238124210986703642">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
-    <string name="trigger_label_icon_content_description" msgid="4567123930201934477">"Tala sa trigger: <xliff:g id="TRIGGER_DESCRIPTION">%1$s</xliff:g>"</string>
     <string name="trigger_snackbar_auto_text" msgid="1082338857442085741">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
     <string name="scroll_to_card" msgid="4531288548260633064">"ipakita"</string>
     <string name="could_not_find_service_error" msgid="6399923176664381124">"Hindi mahanap ang serbisyo: <xliff:g id="SERVICE_ID">%s</xliff:g>"</string>
     <string name="recording_stopped_notification_text" msgid="2700948290649435580">"Natapos ang pagre-record."</string>
     <string name="disable_all_triggers" msgid="4207192080361552008">"I-disable ang mga trigger"</string>
     <string name="trigger_view_icon_content_description" msgid="468973450644969062">"mga trigger"</string>
-    <string name="alert_trigger_needs_alerts" msgid="9046346885115277889">"Error: Dapat kang pumili ng isang uri man lang ng alerto para sa trigger na ito."</string>
+    <string name="alert_trigger_needs_alerts" msgid="1195471137123743218">"Dapat kang pumili ng isang uri man lang ng alerto para sa trigger na ito."</string>
     <string name="trigger_fired_text" msgid="8122555560445417775">"Na-activate ang trigger"</string>
     <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"nagsimula ang pag-crop: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
     <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"natapos ang pag-crop: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
-    <string name="crop_failed_message" msgid="5035154087997365574">"Hindi nai-save ang pag-crop: <xliff:g id="DETAILS">%1$s</xliff:g>"</string>
+    <string name="crop_failed_message" msgid="2749918757913420074">"Hindi ma-save ang crop: <xliff:g id="DETAILS">%1$s</xliff:g>"</string>
     <string name="crop_completed_message" msgid="2902081668922934393">"Na-crop ang pagsubok"</string>
     <string name="launch_settings" msgid="2712101939691138420">"Ilunsad ang mga setting"</string>
     <string name="trigger_alert_prompt" msgid="7548827088664791710">"Alertuhan ako gamit ang"</string>
@@ -420,7 +358,6 @@
     <string name="btn_contract_service" msgid="7107148514331162439">"itago ang mga device ng serbisyo"</string>
     <string name="select_sensors" msgid="7242531205153688282">"Piliin ang mga sensor na gagamitin sa <xliff:g id="EXPERIMENTNAME">%1$s</xliff:g>"</string>
     <string name="phone_sensors" msgid="1093110931724349906">"Mga internal sensor"</string>
-    <string name="rename_device" msgid="6177379501609319531">"Palitan ang pangalan ng device"</string>
     <string name="forget_device" msgid="7258019924047721349">"Kalimutan ang device na ito"</string>
     <string name="device_settings_for" msgid="903293384402586834">"Mga setting ng device para sa <xliff:g id="DEVICENAME">%1$s</xliff:g>"</string>
     <string name="add_device_to_experiment_checkbox" msgid="3096368155357172882">"idagdag sa eksperimento"</string>
@@ -443,9 +380,76 @@
     <string name="minute_second_divider" msgid="1227776218919718096">":"</string>
     <string name="timestamp_picker_format_error" msgid="7119140041902399744">"Gumamit ng wastong format, h:mm:ss.SSS"</string>
     <string name="timestamp_picker_range_error" msgid="1138095977022442393">"Dapat na sakop ng pagsubok ang oras"</string>
-    <string name="timestamp_picker_crop_range_error" msgid="7993788975367469387">"Hindi maka-crop ang mga pagsubok sa mas mababa sa isang segundo"</string>
+    <string name="timestamp_picker_crop_range_error" msgid="2568664888027806617">"Hindi maka-crop ang mga recording sa mas mababa sa isang segundo"</string>
     <string name="timestamp_picker_prompt" msgid="7006377675003309657">"Bagong oras (h:mm:ss.SSS)"</string>
     <string name="crop_failed_range_too_large" msgid="3346936676881544788">"Hindi maka-crop ang pagsubok nang wala sa una nang nai-record na hanay"</string>
     <string name="crop_failed_range_too_small" msgid="2107171169092126449">"Hindi maka-crop ang pagsubok sa mas mababa sa isang segundo"</string>
-    <string name="crop_failed_invalid_state" msgid="3637654578796335566">"Di-wastong status"</string>
+    <string name="project_experiment_title" msgid="2978147784450916263">"<xliff:g id="PROJECT_NAME">%1s</xliff:g>: <xliff:g id="EXPERIMENT_NAME">%1s</xliff:g>"</string>
+    <string name="snapshot_button_text" msgid="6920838734610813060">"snapshot"</string>
+    <string name="export_options_title" msgid="1313836868518047627">"I-export…"</string>
+    <string name="export_options_relative_time" msgid="3171536380796115508">"Kaukulang oras"</string>
+    <string name="old_trigger_note_format" msgid="5794951574203245272">"Na-trigger na tala: <xliff:g id="AUTO_TEXT">%1s</xliff:g>"</string>
+    <string name="old_trigger_note_format_custom" msgid="4352918996399391010">"Na-trigger na tala: <xliff:g id="USER_TEXT">%1s</xliff:g>; <xliff:g id="AUTO_TEXT">%2s</xliff:g>"</string>
+    <string name="compass" msgid="7226757706683095417">"Compass"</string>
+    <string name="compass_units" msgid="2437446630519758665">"degrees"</string>
+    <string name="sensor_desc_short_compass" msgid="9116131754124775262">"Ang orientation ng telepono kaugnay ng magnetic field ng Mundo."</string>
+    <string name="sensor_desc_first_paragraph_compass" msgid="4104296826087624053">"Marahil ay alam mo na na may magnetic field ang Mundo. Maaaring hindi mo alam na naglalaman ng device ang iyong telepono na dinisenyo upang makadetekta ng mga magnetic field: isang magnetometer. Sa pamamagitan ng pagsasama ng data mula sa magnetometer ng telepono mo sa orientation ng telepono sa kalawakan, makakagawa tayo ng digital compass. \n\nAng makalumang compass ay isang low-tech na magnetometer, na may magnetized na needle na pumipihit upang kusang humanay ito sa nakapaligid na magnetic field. Walang maliit na compass sa loob ng telepono mo, ngunit sa halip ay may maliit na tatlong axis na sensor na gumagamit ng kuryente upang madetekta ang lakas ng magnetic field sa tatlong dimensiyon ng kalawakan. Pero kulang ito para makagawa ng compass! \n\nBakit kailangang pagsamahin ng compass ang data mula sa magnetometer sa orientation ng telepono? Ang pag-alam sa orientation ng telepono ay nagbibigay-kakayahan sa amin na makwenta ang magnetic na pag-ikot kahit pa hindi naka-flat ang telepono sa parehong plane na tulad ng sa magnetic field ng Mundo. Alam natin na perpendicular ang gravity sa magnetic field ng Mundo, kaya magagamit natin ang direksyon ng gravity mula sa mga accelerometer sensor upang malaman kung gaano kalakas ang magnetic field sa parehong plane na tulad ng sa magnetic field ng Mundo."</string>
+    <string name="sensor_desc_second_paragraph_compass" msgid="761568271487494415">"Marahil ay napansin mo na, tumutugon ang compass hindi lamang sa magnetic field ng Mundo, ngunit gayon din sa anuman at bawat magnetic field na maaaring nasa paligid. Mas madaling maililiko na paganito at paganoon ng mga magnet, kuryente, at mga metal na bagay ang magnetometer ng iyong telepono, na nagiging sanhi ng pagbabago ng reading ng compass. Tumayo sa isang bukas na lugar—mas mainam sa labas at malayo sa mga linya ng kuryente— kung gusto mong matiyak na humahanay sa magnetic field ng Mundo ang pulang dulo ng iyong compass. Nakatutulong ito na maigalaw ang iyong telepono sa hugis 8 na pattern upang ma-calibrate ang magnetometer sa iyong telepono."</string>
+    <string name="text_label_details_title" msgid="5762833845224450327">"I-edit ang text na tala"</string>
+    <string name="empty_text_note_error" msgid="5477130758519974030">"Hindi maaaring bakante ang mga text na tala"</string>
+    <string name="navigation_item_experiments" msgid="1674374151553482535">"Mga eksperimento"</string>
+    <string name="note_caption_hint" msgid="8572263497062792260">"Magdagdag ng paglalarawan"</string>
+    <string name="month_year_format" msgid="4472432989730548540">"MMMM yyyy"</string>
+    <string name="linear_accelerometer" msgid="3545063399726733886">"Linear accelerometer"</string>
+    <string name="sensor_desc_short_linear_acc" msgid="6557334520561664125">"Ang kabuuang acceleration ng telepono, hindi kasama ang pwersa ng gravity, sa m/s²"</string>
+    <string name="sensor_desc_first_paragraph_linear_acc" msgid="6755155119242232200">"Likas sa mga bagay ang manatili sa kinalalagyan, o patuloy na kumilos kung kumikilos ang mga ito—tinatawag nating inertia ang likas na katangiang ito. Pormal na inihahayag ng Newton\'s First Law ang ideyang ito: Patuloy na kikilos o mananatili ang isang bagay maliban kung maapektuhan ng isang hindi balanseng puwersa. \n\nKapag may hindi balanseng puwersa na nagdulot ng paggalaw ng isang bagay, sinasabi natin na nag-a-accelerate (bumibilis ang pagkilos) ng bagay: nagbabago ang velocity, o bilis nito—maaaring sa pamamagitan ng pagbilis, pagbagal, o pagbabago ng direksyon. Sinusukat ang acceleration bilang isang pagbabago ng velocity (metro kada segundo) sa oras, o metro kada segundo kuwadrado (m/s²). \n\nMay device ang iyong telepono upang masukat ang mga pagbabagong ito sa paggalaw—isang accelerometer. Sa loob ng isang accelerometer, malayang nakakagalaw ang maliliit na lumulutang na bagay. Ang mga pagbabago sa paggalaw ang nagiging sanhi ng pagkilos ng mga bagay na ito, tulad ng iyong likas na pagsubsob kapag nakasakay ka sa kotse na biglang huminto. Sa pagsukat ng mga hindi kapansin-pansing pagkilos na ito na dulot ng inertia, nadedetekta ng accelerometer sa isang telepono ang mga pagbabago sa galaw at orientation, kapaki-pakinabang para sa paglipat ng screen mula sa landscape tungo sa portrait mode, para sa paglalaro sa iyong telepono, at marami pang iba."</string>
+    <string name="sensor_desc_second_paragraph_linear_acc" msgid="8151233080180828158">"Ang pinagsamang sensor ng linear accelerometer ay nagtatala ng kabuuang acceleration sa lahat ng tatlong axis ng telepono, hindi kasama ang gravity."</string>
+    <string name="data_with_units" msgid="6919197320548318804">"<xliff:g id="VALUE">%1$s</xliff:g> <xliff:g id="UNITS">%2$s</xliff:g>"</string>
+    <string name="edit_note_time_menu_item" msgid="8949041732814286402">"I-edit ang oras"</string>
+    <string name="add_note_button_text" msgid="1263907264569204297">"Maglagay ng tala sa timeline"</string>
+    <string name="trial_caption_hint_text" msgid="8974493718130569209">"Maglagay ng paglalarawan ng recording dito"</string>
+    <string name="snapshot_label_details_title" msgid="876439532036968792">"Mga detalye ng snapshot"</string>
+    <string name="trigger_label_details_title" msgid="7844261655862849084">"Mga detalye ng na-trigger na tala"</string>
+    <string name="tool_picker_tab_layout_description" msgid="6898249361624127701">"Mga available na tool"</string>
+    <!-- no translation found for tab_description_add_note (8259995764315955353) -->
+    <skip />
+    <string name="tab_description_observe" msgid="8315777883595993294">"Obserbahan ang mga sensor"</string>
+    <!-- no translation found for tab_description_camera (5608734417285292850) -->
+    <skip />
+    <string name="load_more_notes_btn" msgid="317448385027133819">"Tumingin pa ng mga tala"</string>
+    <string name="name_experiment_dialog_title" msgid="4253322993689197542">"Pangalanan ang eksperimentong ito"</string>
+    <string name="empty_experiment_title_error" msgid="4741357059638017915">"Hindi maaaring bakante ang pangalan"</string>
+    <string name="card_recording_title" msgid="2760260378349508177">"<xliff:g id="TITLE">%1$s</xliff:g>…"</string>
+    <string name="throbber_content_description" msgid="3400101352483412316">"Kasalukuyang nagre-record"</string>
+    <string name="trigger_label_name_header" msgid="2262672414778047276">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g>"</string>
+    <string name="description_hint" msgid="673355468672398307">"Paglalarawan"</string>
+    <string name="details_header" msgid="3615607795479940179">"Mga Detalye"</string>
+    <string name="text_label_hint" msgid="1108956064543616019">"Maglagay ng obserbasyon"</string>
+    <string name="first_experiment_title" msgid="4510437516891041608">"Welcome sa Science Journal"</string>
+    <string name="first_experiment_text_note" msgid="1517699072074036189">"Subukang kumuha ng mga tala at data ng recording gamit ang toolbar sa ibaba!"</string>
+    <string name="first_experiment_picture_note_caption" msgid="5429499615012974999">"Welcome sa Science Journal!"</string>
+    <string name="first_experiment_second_text_note" msgid="7840206175805610752">"Maghanap ng mga aktibidad na susubukan sa \ng.co/sciencejournalactivities"</string>
+    <string name="experiment_cover_description" msgid="6319265532135034002">"Pumili ng eksperimentong litrato"</string>
+    <!-- no translation found for btn_take_picture_content_description (3029866757337599621) -->
+    <skip />
+    <string name="tab_description_gallery" msgid="1558619247937893970">"Pumili ng litrato"</string>
+    <!-- no translation found for gallery_image_content_description (474626617793194680) -->
+    <skip />
+    <string name="content_description_selected" msgid="4555792111169052548">"napili"</string>
+    <string name="photo_editor_dialog_title" msgid="2305657514653927089">"Mag-edit ng litrato gamit ang..."</string>
+    <string name="btn_show_tools" msgid="2318999636820360860">"Ipakita ang tool drawer"</string>
+    <string name="btn_expand_tools" msgid="8312223732779598934">"I-expand ang tool drawer"</string>
+    <string name="btn_hide_tools" msgid="1499529350560310547">"I-collapse ang tool drawer"</string>
+    <!-- no translation found for action_edit_photo (8325672235883072547) -->
+    <skip />
+    <!-- no translation found for add_text_note (7399260444850532349) -->
+    <skip />
+    <!-- no translation found for camera_preview_content_description (5571625157168747543) -->
+    <skip />
+    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
+    <skip />
+    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
+    <skip />
+    <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
+    <skip />
 </resources>
