@@ -195,6 +195,10 @@ public class Experiment extends LabelListHolder {
         mLastUsedTimeMs = lastUsedTime;
     }
 
+    public void setImagePath(String imagePath) {
+        mImagePath = imagePath;
+    }
+
     /**
      * Gets the labels which fall during a certain time range.
      * Objects in this list should not be modified and expect that state to be saved, instead

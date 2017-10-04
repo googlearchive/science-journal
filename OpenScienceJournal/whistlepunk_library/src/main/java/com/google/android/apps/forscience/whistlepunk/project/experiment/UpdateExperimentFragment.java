@@ -280,7 +280,7 @@ public class UpdateExperimentFragment extends Fragment {
 
     public void setImagePath(String overviewPath) {
         mExperiment.firstElement().subscribe(e -> {
-            e.getExperimentOverview().imagePath = overviewPath;
+            e.setImagePath(overviewPath);
             saveExperiment();
         });
     }
