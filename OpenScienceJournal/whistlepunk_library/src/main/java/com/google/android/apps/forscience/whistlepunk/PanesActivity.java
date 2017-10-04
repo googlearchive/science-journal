@@ -373,8 +373,15 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putInt(KEY_SELECTED_TAB_INDEX, mSelectedTabIndex);
-        outState.putInt(KEY_DRAWER_STATE, mBottomBehavior.getState());
+        outState.putInt(KEY_DRAWER_STATE, getBottomDrawerState());
         super.onSaveInstanceState(outState);
+    }
+
+    private int getBottomDrawerState() {
+        if (mBottomBehavior == null) {
+            return PanesBottomSheetBehavior.STATE_MIDDLE;
+        }
+        return mBottomBehavior.getState();
     }
 
     @VisibleForTesting
@@ -392,7 +399,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private void updateGrabberContentDescription() {
-        int state = mBottomBehavior.getState();
+        int state = getBottomDrawerState();
         if (state == PanesBottomSheetBehavior.STATE_COLLAPSED) {
             mGrabber.setContentDescription(getResources().getString(R.string.btn_show_tools));
         } else if (state == PanesBottomSheetBehavior.STATE_MIDDLE) {
@@ -447,8 +454,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         @Override
                         public void onStateChanged(@NonNull View bottomSheet, int newState) {
                             mBottomSheetState.onNext(newState);
-                            if (mBottomBehavior.getState() ==
-                                    PanesBottomSheetBehavior.STATE_COLLAPSED) {
+                            if (getBottomDrawerState() ==
+                                PanesBottomSheetBehavior.STATE_COLLAPSED) {
                                 // We no longer need to know what happens when the keyboard closes:
                                 // Stay closed.
                                 closeKeyboard(PanesActivity.this).subscribe();
@@ -593,22 +600,22 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         updateGrabberContentDescription();
         mTabsInitialized = true;
 
-        mBottomSheetState.onNext(mBottomBehavior.getState());
+        mBottomSheetState.onNext(getBottomDrawerState());
     }
 
     private void setupGrabber() {
         if (AccessibilityUtils.isAccessibilityManagerEnabled(this)) {
             mGrabber.setOnClickListener(view -> {
-                if (mBottomBehavior.getState() ==
-                        PanesBottomSheetBehavior.STATE_COLLAPSED) {
+                if (getBottomDrawerState() ==
+                    PanesBottomSheetBehavior.STATE_COLLAPSED) {
                     changeSheetState(PanesBottomSheetBehavior.STATE_COLLAPSED,
                             PanesBottomSheetBehavior.STATE_MIDDLE);
-                } else if (mBottomBehavior.getState() ==
-                        PanesBottomSheetBehavior.STATE_MIDDLE) {
+                } else if (getBottomDrawerState() ==
+                           PanesBottomSheetBehavior.STATE_MIDDLE) {
                     changeSheetState(PanesBottomSheetBehavior.STATE_MIDDLE,
                             PanesBottomSheetBehavior.STATE_EXPANDED);
-                } else if (mBottomBehavior.getState() ==
-                        PanesBottomSheetBehavior.STATE_EXPANDED) {
+                } else if (getBottomDrawerState() ==
+                           PanesBottomSheetBehavior.STATE_EXPANDED) {
                     changeSheetState(PanesBottomSheetBehavior.STATE_EXPANDED,
                             PanesBottomSheetBehavior.STATE_COLLAPSED);
                 }
@@ -853,13 +860,13 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             // Experiment is archived, there's no sheet to change
             return;
         }
-        if (mBottomBehavior.getState() == fromState) {
+        if (getBottomDrawerState() == fromState) {
             mBottomBehavior.setState(toState);
         }
     }
 
     private void expandSheet() {
-        if (mBottomBehavior.getState() != PanesBottomSheetBehavior.STATE_EXPANDED) {
+        if (getBottomDrawerState() != PanesBottomSheetBehavior.STATE_EXPANDED) {
             mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_EXPANDED);
         }
     }
