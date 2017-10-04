@@ -133,6 +133,14 @@ public class PictureUtils {
 
     public static void loadExperimentImage(Context context, ImageView view, String experimentId,
             String relativeFilePath) {
+        if (isDestroyed(context)) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "Trying to load image for destroyed context");
+            }
+            // Nothing we can do, return
+            return;
+        }
+
         File file = FileMetadataManager.getExperimentFile(context, experimentId, relativeFilePath);
         // Use last modified time as part of the signature to force a glide cache refresh.
         GlideApp.with(context)
@@ -142,6 +150,14 @@ public class PictureUtils {
                 // caches only the final image, after reducing the resolution
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(view);
+    }
+
+    private static boolean isDestroyed(Context context) {
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            return activity.isDestroyed();
+        }
+        return false;
     }
 
     public static void clearImage(ImageView image) {

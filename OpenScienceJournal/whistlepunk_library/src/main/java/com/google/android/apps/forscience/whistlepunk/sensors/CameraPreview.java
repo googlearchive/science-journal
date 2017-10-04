@@ -381,15 +381,26 @@ public class CameraPreview extends SurfaceView {
         if (orientation != ORIENTATION_NORMAL && orientation != ORIENTATION_UNDEFINED) {
             // don't try to chop in half if the EXIF is rotated.
             // We need to figure out how to fix this further (see b/67335604)
+            if (Log.isLoggable(TAG, Log.WARN)) {
+                Log.w(TAG, "Not chopping photo in orientation: " + orientation);
+            }
+
             return data;
         }
 
-        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-        Bitmap halfBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
-                bitmap.getHeight() / 2);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        halfBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        return stream.toByteArray();
+        try {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            Bitmap halfBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                    bitmap.getHeight() / 2);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            halfBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            return stream.toByteArray();
+        } catch (Throwable t) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "exception when chopping image, storing in full size", t);
+            }
+            return data;
+        }
     }
 
     private int getOrientation(byte[] data) {
