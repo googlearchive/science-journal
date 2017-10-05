@@ -437,10 +437,8 @@
     <string name="action_edit_photo" msgid="8325672235883072547">"修改照片"</string>
     <string name="add_text_note" msgid="7399260444850532349">"添加文字备注"</string>
     <string name="camera_preview_content_description" msgid="5571625157168747543">"摄像头取景器预览"</string>
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"无法使用相机，因为科学日志没有对它的访问权限。"</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"无法使用照片图库，因为科学日志没有对它的访问权限。"</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>

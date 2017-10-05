@@ -437,10 +437,8 @@
     <string name="action_edit_photo" msgid="8325672235883072547">"Upravit fotku"</string>
     <string name="add_text_note" msgid="7399260444850532349">"Přidat textovou poznámku"</string>
     <string name="camera_preview_content_description" msgid="5571625157168747543">"Živý přenos z kamery"</string>
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"Fotoaparát nelze použít, protože Vědecký žurnál k němu nemá povolen přístup."</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"Vaši knihovnu fotografií nelze použít, protože Vědecký žurnál k ní nemá povolen přístup."</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>

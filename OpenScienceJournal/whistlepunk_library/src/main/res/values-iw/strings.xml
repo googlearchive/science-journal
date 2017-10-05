@@ -437,10 +437,8 @@
     <string name="action_edit_photo" msgid="8325672235883072547">"עריכת תמונה"</string>
     <string name="add_text_note" msgid="7399260444850532349">"הוספת הערת טקסט"</string>
     <string name="camera_preview_content_description" msgid="5571625157168747543">"תצוגה מקדימה של מצלמה"</string>
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"לא ניתן להשתמש במצלמה מפני שליומן המדע אין הרשאה לגשת אליה."</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"לא ניתן להשתמש בספריית התמונות מפני שליומן המדע אין הרשאה לגשת אליה."</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>

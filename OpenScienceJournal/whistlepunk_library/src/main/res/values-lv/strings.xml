@@ -264,10 +264,8 @@
     <string name="no_app_found_learn_more" msgid="4440663710498182380">"Uzzināt vairāk"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Eksperimentējiet ar pasauli."</string>
-    <!-- no translation found for listing_changelog (530900357619095816) -->
-    <skip />
-    <!-- no translation found for listing__description (1193865948828289689) -->
-    <skip />
+    <string name="listing_changelog" msgid="530900357619095816">"Jaunas funkcijas un uzlabojumi. \n• Jauna saskarne piezīmju veikšanai un zinātnisku eksperimentu dokumentēšanai. \n• Jauna momentuzņēmumu funkcija atsevišķu datu punktu tveršanai. \n• Jauni sensori: lineārais akselerometrs, magnetometrs un kompass. \n• Uzlabota galerija eksperimentu pārlūkošanai. \n• Tagad lietotne pieejama iOS ierīcēs."</string>
+    <string name="listing__description" msgid="1193865948828289689">"Lietotne Science Journal ir bezmaksas digitālais zinātnisko darbu bloknots, ko piedāvā Google. \n \nNeatkarīgi no tā, vai esat dabaszinātņu skolotājs vai veicat eksperimentus mājās hobija līmenī, šeit varat vienuviet uzglabāt piezīmes, fotoattēlus un novērojumus. Izmantojiet sava tālruņa sensorus, lai mērītu dažādas parādības, piemēram, gaismu, skaņu un kustību, un veidotu diagrammas, vai pievienojiet ārējos sensorus, izmantojot Bluetooth savienojumu, lai veiktu eksperimentus apkārtējā pasaulē. \n \nAr lietotni Science Journal varat veikt tālāk norādītās darbības. \n• Mērīt gaismu, skaņu, paātrinājumu, gaisa spiedienu un vēl citus lielumus, izmantojot tālrunī iebūvētos sensorus. \n• Veikt piezīmes un uzņemt fotoattēlus, lai dokumentētu savus zinātniskos eksperimentus. Drīzumā būs pieejami jauni piezīmju veidi! \n• Veidot savienojumu ar ārējiem sensoriem, izmantojot atsevišķas Arduino un Vernier ierīces, kurās ir iespējota Bluetooth funkcija. \n• Eksportēt ierakstītos sensoru datus kā CSV failus. \n• Izveidot automatizētus aktivizētājus, lai ierakstītu datus un veiktu piezīmes. \n• Izmantot skaņas signālus, lai dzirdētu, kad diagrammā notiek izmaiņas. \n \nLietotne Science Journal bez maksas ir pieejama šādās ierīcēs: Android, iPhone, iPad, kā arī saderīgās Chromebook ierīcēs. \n \nIzglītojošas aktivitātes no mūsu partneriem: https://makingscience.withgoogle.com/science-journal/activities \nAtbalsts: https://productforums.google.com/forum/#!forum/sciencejournal \nPieejams atvērtais pirmkods: https://github.com/google/science-journal \n\n Paziņojums par atļaujām. \n• Atrašanās vieta: nepieciešama, lai meklētu sensoru ierīces, izmantojot Bluetooth. \n• Kamera: nepieciešama, lai uzņemtu fotoattēlus eksperimentu dokumentēšanai. \n• Mikrofons: nepieciešams skaņas intensitātes sensoram. \n• Krātuve: nepieciešama, lai piekļūtu fotoattēliem, ko pievienot eksperimentiem."</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Atrodiet ārējos sensorus"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Atrodiet lietotnes, kas atbalsta ārējo sensoru API un ļauj pievienot šos sensorus eksperimentiem."</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Iespējot apkārt. vides temp. sens."</string>
@@ -411,11 +409,9 @@
     <string name="snapshot_label_details_title" msgid="876439532036968792">"Informācija par momentuzņēmumu"</string>
     <string name="trigger_label_details_title" msgid="7844261655862849084">"Info par aktivizēto piezīmi"</string>
     <string name="tool_picker_tab_layout_description" msgid="6898249361624127701">"Pieejamie rīki"</string>
-    <!-- no translation found for tab_description_add_note (8259995764315955353) -->
-    <skip />
+    <string name="tab_description_add_note" msgid="8259995764315955353">"Pievienot tekstu"</string>
     <string name="tab_description_observe" msgid="8315777883595993294">"Novērojiet sensorus"</string>
-    <!-- no translation found for tab_description_camera (5608734417285292850) -->
-    <skip />
+    <string name="tab_description_camera" msgid="5608734417285292850">"Uzņemt fotoattēlu"</string>
     <string name="load_more_notes_btn" msgid="317448385027133819">"Skatīt vairāk piezīmju"</string>
     <string name="name_experiment_dialog_title" msgid="4253322993689197542">"Nosaukuma piešķiršana šim eksperimentam"</string>
     <string name="empty_experiment_title_error" msgid="4741357059638017915">"Nosaukums nedrīkst būt tukšs"</string>
@@ -430,26 +426,19 @@
     <string name="first_experiment_picture_note_caption" msgid="5429499615012974999">"Laipni lūdzam lietotnē Science Journal!"</string>
     <string name="first_experiment_second_text_note" msgid="7840206175805610752">"Šeit varat atrast aktivitātes, ko izmēģināt: \ng.co/sciencejournalactivities"</string>
     <string name="experiment_cover_description" msgid="6319265532135034002">"Izvēlieties eksperimenta fotoattēlu"</string>
-    <!-- no translation found for btn_take_picture_content_description (3029866757337599621) -->
-    <skip />
+    <string name="btn_take_picture_content_description" msgid="3029866757337599621">"Fotografēšanas poga"</string>
     <string name="tab_description_gallery" msgid="1558619247937893970">"Izvēlieties fotoattēlu"</string>
-    <!-- no translation found for gallery_image_content_description (474626617793194680) -->
-    <skip />
+    <string name="gallery_image_content_description" msgid="474626617793194680">"Attēla uzņemšanas datums: <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"atlasīts"</string>
     <string name="photo_editor_dialog_title" msgid="2305657514653927089">"Fotoattēla rediģēšana..."</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"Rādīt rīku atvilktni"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"Izvērst rīku atvilktni"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"Sakļaut rīku atvilktni"</string>
-    <!-- no translation found for action_edit_photo (8325672235883072547) -->
-    <skip />
-    <!-- no translation found for add_text_note (7399260444850532349) -->
-    <skip />
-    <!-- no translation found for camera_preview_content_description (5571625157168747543) -->
-    <skip />
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="action_edit_photo" msgid="8325672235883072547">"Rediģēt fotoattēlu"</string>
+    <string name="add_text_note" msgid="7399260444850532349">"Pievienot teksta piezīmi"</string>
+    <string name="camera_preview_content_description" msgid="5571625157168747543">"Kameras priekšskatījums"</string>
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"Nevar izmantot kameru, jo lietotne Science Journal nevar piekļūt tai."</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"Nevar izmantot fotoattēlu bibliotēku, jo lietotnei Science Journal nevar piekļūt tai."</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>

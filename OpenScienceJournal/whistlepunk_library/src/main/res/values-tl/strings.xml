@@ -264,10 +264,8 @@
     <string name="no_app_found_learn_more" msgid="4440663710498182380">"Matuto Pa"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Mag-eksperimento sa iyong mundo."</string>
-    <!-- no translation found for listing_changelog (530900357619095816) -->
-    <skip />
-    <!-- no translation found for listing__description (1193865948828289689) -->
-    <skip />
+    <string name="listing_changelog" msgid="530900357619095816">"Mga bagong feature at pagpapabuti: \n• Brand-new na interface para sa pagkuha ng mga tala at pagdokumento ng mga eksperimento sa science. \n• Bagong feature na snapshot para sa pagkuha ng mga indibidwal na data point. \n• Mga bagong sensor: linear accelerometer, magnetometer, at compass \n• Gallery na binago ang disenyo para sa pag-browse ng mga eksperimento \n• Available na ngayon sa mga iOS device!"</string>
+    <string name="listing__description" msgid="1193865948828289689">"Ang Science Journal ay ang libreng digital na science notebook na hatid sa iyo ng Google. \n \nTagapagturo ka man ng science o hobbyist na nagsasagawa ng science sa bahay, maaari mong itabi ang lahat ng iyong mga tala, litrato, at mga obserbasyon sa isang madaling ma-access na lugar. Gamitin ang mga sensor sa iyong telepono upang masukat at mai-graph ang mga pangyayaring tulad ng liwanag, tunog, at paggalaw, o kumonekta sa mga external sensor sa pamamagitan ng bluetooth upang makapagsagawa ng mga eksperimento sa mundong nakapaligid sa iyo. \n \nGamit ang Science Journal app, maaari kang: \n• Magsukat ng liwanag, tunog, acceleration, air pressure, at marami pang iba gamit ang mga built-in sensor ng iyong telepono. \n• Kumuha ng mga tala at mga litrato upang madokumento ang mga eksperimento mo sa science. Parating na ang mas marami pang uri ng tala! \n• Kumonekta sa mga external sensor gamit ang mga piling Arduino at Vernier device na naka-enable ang Bluetooth. \n• Mag-export ng mga na-record na sensor data bilang mga CSV file. \n• Gumawa ng mga automated na trigger para sa pag-record ng data at pagkuha ng mga tala. \n• Gumamit ng sonification upang madinig ang pagkilos ng iyong mga graph. \n \nAvailable nang libre ang Science Journal sa Android, iPhone, iPad, at mga tugmang Chromebook device. \n \nMga gawaing pang-edukasyon ng ating mga partner: https://makingscience.withgoogle.com/science-journal/activities \nPara sa suporta: https://productforums.google.com/forum/#!forum/sciencejournal \nAvailable ang open-source code: https://github.com/google/science-journal \n\n Paunawa ukol sa mga pahintulot: \n• Lokasyon: kailangan upang makapag-scan ng mga bluetooth sensor device. \n• Camera: kailangan upang makakuha ng mga litrato para makapagdokumento ng mga eksperimento. \n• Mikropono: kailangan para sa sensor ng tindi ng tunog. \n• Storage: kailangan upang ma-access ang mga litrato na ipapasok sa mga eksperimento."</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"I-scan para sa mga third-party sensor"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Tumingin ng mga app na sumusuporta sa third-party sensor API, at i-enable ang pagdaragdag ng mga sensor na iyon sa mga eksperimento."</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"I-enable ang temperatura sa paligid"</string>
@@ -411,11 +409,9 @@
     <string name="snapshot_label_details_title" msgid="876439532036968792">"Mga detalye ng snapshot"</string>
     <string name="trigger_label_details_title" msgid="7844261655862849084">"Mga detalye ng na-trigger na tala"</string>
     <string name="tool_picker_tab_layout_description" msgid="6898249361624127701">"Mga available na tool"</string>
-    <!-- no translation found for tab_description_add_note (8259995764315955353) -->
-    <skip />
+    <string name="tab_description_add_note" msgid="8259995764315955353">"Sumulat ng text"</string>
     <string name="tab_description_observe" msgid="8315777883595993294">"Obserbahan ang mga sensor"</string>
-    <!-- no translation found for tab_description_camera (5608734417285292850) -->
-    <skip />
+    <string name="tab_description_camera" msgid="5608734417285292850">"Kunan ng litrato"</string>
     <string name="load_more_notes_btn" msgid="317448385027133819">"Tumingin pa ng mga tala"</string>
     <string name="name_experiment_dialog_title" msgid="4253322993689197542">"Pangalanan ang eksperimentong ito"</string>
     <string name="empty_experiment_title_error" msgid="4741357059638017915">"Hindi maaaring bakante ang pangalan"</string>
@@ -430,26 +426,19 @@
     <string name="first_experiment_picture_note_caption" msgid="5429499615012974999">"Welcome sa Science Journal!"</string>
     <string name="first_experiment_second_text_note" msgid="7840206175805610752">"Maghanap ng mga aktibidad na susubukan sa \ng.co/sciencejournalactivities"</string>
     <string name="experiment_cover_description" msgid="6319265532135034002">"Pumili ng eksperimentong litrato"</string>
-    <!-- no translation found for btn_take_picture_content_description (3029866757337599621) -->
-    <skip />
+    <string name="btn_take_picture_content_description" msgid="3029866757337599621">"Shutter"</string>
     <string name="tab_description_gallery" msgid="1558619247937893970">"Pumili ng litrato"</string>
-    <!-- no translation found for gallery_image_content_description (474626617793194680) -->
-    <skip />
+    <string name="gallery_image_content_description" msgid="474626617793194680">"Nakunan ang litrato noong <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"napili"</string>
     <string name="photo_editor_dialog_title" msgid="2305657514653927089">"Mag-edit ng litrato gamit ang..."</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"Ipakita ang tool drawer"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"I-expand ang tool drawer"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"I-collapse ang tool drawer"</string>
-    <!-- no translation found for action_edit_photo (8325672235883072547) -->
-    <skip />
-    <!-- no translation found for add_text_note (7399260444850532349) -->
-    <skip />
-    <!-- no translation found for camera_preview_content_description (5571625157168747543) -->
-    <skip />
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="action_edit_photo" msgid="8325672235883072547">"Mag-edit ng litrato"</string>
+    <string name="add_text_note" msgid="7399260444850532349">"Maglagay ng text na tala"</string>
+    <string name="camera_preview_content_description" msgid="5571625157168747543">"Camera live view"</string>
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"Hindi magagamit ang camera dahil walang pahintulot ang Science Journal na ma-access ito."</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"Hindi magagamit ang iyong photo library dahil walang pahintulot ang Science Journal na ma-access ito."</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>

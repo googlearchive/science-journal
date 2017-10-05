@@ -264,10 +264,8 @@
     <string name="no_app_found_learn_more" msgid="4440663710498182380">"Докладніше"</string>
     <string name="listing_title" msgid="1732490922169483408">"Науковий журнал"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Проводьте експерименти."</string>
-    <!-- no translation found for listing_changelog (530900357619095816) -->
-    <skip />
-    <!-- no translation found for listing__description (1193865948828289689) -->
-    <skip />
+    <string name="listing_changelog" msgid="530900357619095816">"Нові функції та покращення \n• Новий інтерфейс для створення нотаток і документування наукових експериментів \n• Функція знімків для фіксування окремих точок даних \n• Нові датчики: лінійний акселерометр, магнітометр і компас \n• Оновлена галерея для перегляду експериментів \n• Тепер додаток доступний на пристроях iOS"</string>
+    <string name="listing__description" msgid="1193865948828289689">"Науковий журнал – це безкоштовний цифровий щоденник від Google для ваших наукових досліджень. \n \nЯкщо ви викладаєте науку або просто займаєтеся нею вдома, зберігайте свої нотатки, фотографії та спостереження в одному додатку. Вимірюйте світло, звук і рух та будуйте графіки за допомогою датчиків свого телефона або зовнішніх датчиків, до яких можна підключитися через Bluetooth. \n \nУ додатку Науковий журнал можна: \n• вимірювати світло, звук, прискорення, атмосферний тиск тощо за допомогою вбудованих датчиків телефона; \n• створювати нотатки та фотографії для документування наукових експериментів (незабаром з’являться додаткові види нотаток); \n• підключатися до зовнішніх датчиків за допомогою пристроїв Arduino та Vernier з підтримкою Bluetooth; \n• експортувати записані дані датчиків як файли CSV; \n• створювати автоматичні активатори для запису даних і нотаток; \n• використовувати соніфікацію для відстеження змін графіків. \n \nНауковий журнал доступний безкоштовно на пристроях Android, iPhone, iPad і сумісних пристроях Chromebook. \n \nНавчальні дослідження від наших партнерів: https://makingscience.withgoogle.com/science-journal/activities \nЩоб отримати підтримку, перейдіть на сторінку https://productforums.google.com/forum/#!forum/sciencejournal \nВідкритий код додатка доступний за посиланням https://github.com/google/science-journal \n\n Примітка про дозволи \n• Місцезнаходження: для пошуку пристроїв із датчиками через Bluetooth. \n• Камера: для документування експериментів. \n• Мікрофон: для роботи датчика інтенсивності звуку. \n• Пам’ять: для доступу до знімків, зроблених під час експериментів."</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Пошук сторонніх датчиків"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Знайдіть додатки, що підтримують API сторонніх датчиків, і дозвольте додавати ці датчики в експерименти."</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Увімкнути датчик температури повітря"</string>
@@ -411,11 +409,9 @@
     <string name="snapshot_label_details_title" msgid="876439532036968792">"Деталі знімка"</string>
     <string name="trigger_label_details_title" msgid="7844261655862849084">"Деталі активованої нотатки"</string>
     <string name="tool_picker_tab_layout_description" msgid="6898249361624127701">"Доступні інструменти"</string>
-    <!-- no translation found for tab_description_add_note (8259995764315955353) -->
-    <skip />
+    <string name="tab_description_add_note" msgid="8259995764315955353">"Додати текст"</string>
     <string name="tab_description_observe" msgid="8315777883595993294">"Спостерігати за датчиками"</string>
-    <!-- no translation found for tab_description_camera (5608734417285292850) -->
-    <skip />
+    <string name="tab_description_camera" msgid="5608734417285292850">"Зробити знімок"</string>
     <string name="load_more_notes_btn" msgid="317448385027133819">"Переглянути більше нотаток"</string>
     <string name="name_experiment_dialog_title" msgid="4253322993689197542">"Назвіть цей експеримент"</string>
     <string name="empty_experiment_title_error" msgid="4741357059638017915">"Укажіть назву"</string>
@@ -430,26 +426,19 @@
     <string name="first_experiment_picture_note_caption" msgid="5429499615012974999">"Вітаємо в Науковому журналі!"</string>
     <string name="first_experiment_second_text_note" msgid="7840206175805610752">"Спробуйте провести дослідження зі сторінки \ng.co/sciencejournalactivities"</string>
     <string name="experiment_cover_description" msgid="6319265532135034002">"Виберіть фото для експерименту"</string>
-    <!-- no translation found for btn_take_picture_content_description (3029866757337599621) -->
-    <skip />
+    <string name="btn_take_picture_content_description" msgid="3029866757337599621">"Затвор"</string>
     <string name="tab_description_gallery" msgid="1558619247937893970">"Вибрати фото"</string>
-    <!-- no translation found for gallery_image_content_description (474626617793194680) -->
-    <skip />
+    <string name="gallery_image_content_description" msgid="474626617793194680">"Зображення зроблено <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"вибрано"</string>
     <string name="photo_editor_dialog_title" msgid="2305657514653927089">"Редагувати фото…"</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"Показати панель інструментів"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"Розгорнути панель інструментів"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"Згорнути панель інструментів"</string>
-    <!-- no translation found for action_edit_photo (8325672235883072547) -->
-    <skip />
-    <!-- no translation found for add_text_note (7399260444850532349) -->
-    <skip />
-    <!-- no translation found for camera_preview_content_description (5571625157168747543) -->
-    <skip />
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="action_edit_photo" msgid="8325672235883072547">"Редагувати фото"</string>
+    <string name="add_text_note" msgid="7399260444850532349">"Додати текстову нотатку"</string>
+    <string name="camera_preview_content_description" msgid="5571625157168747543">"Відеозапис експерименту"</string>
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"Камеру не можна використовувати, оскільки додаток Науковий журнал не має доступу до неї."</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"Бібліотеку фотографій не можна використовувати, оскільки додаток Науковий журнал не має доступу до неї."</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>

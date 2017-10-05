@@ -264,10 +264,8 @@
     <string name="no_app_found_learn_more" msgid="4440663710498182380">"Подробнее"</string>
     <string name="listing_title" msgid="1732490922169483408">"Научный журнал"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Мир вокруг глазами науки"</string>
-    <!-- no translation found for listing_changelog (530900357619095816) -->
-    <skip />
-    <!-- no translation found for listing__description (1193865948828289689) -->
-    <skip />
+    <string name="listing_changelog" msgid="530900357619095816">"Новые функции и исправления: \n• Обновлен интерфейс – теперь оставлять комментарии и записывать эксперименты станет ещё проще. \n• Появилась возможность фиксировать текущие показатели датчиков. \n• Добавлен датчик линейного ускорения, магнитометр и компас. \n• Изменен вид вкладки с экспериментами. \n• Выпущена версия для устройств iOS."</string>
+    <string name="listing__description" msgid="1193865948828289689">"\"Научный журнал\" – это бесплатное приложение от Google. С его помощью преподаватели и просто любители науки могут проводить эксперименты и сохранять данные о них. \n \nПриложение позволяет проводить исследования с помощью датчиков, встроенных в устройство или подключенных через Bluetooth. \n \nС Научным журналом можно: \n• Измерять уровень освещенности, силу звука, ускорение, давление воздуха и многое другое. \n• Делать снимки в ходе экспериментов и оставлять комментарии (скоро мы добавим много новых типов заметок). \n• Подключать через Bluetooth внешние датчики устройств Arduino и Vernier. \n• Экспортировать данные, зарегистрированные датчиками, в виде CSV-файлов. \n• Создавать триггеры для записи данных и комментариев. \n• Включать сонификацию: звуковое представление данных на графиках. \n \nУстановить Научный журнал можно на устройства Android, совместимые ноутбуки Chromebook, а также на смартфоны iPhone и планшеты iPad. \n \nЭксперименты от наших партнеров: https://makingscience.withgoogle.com/science-journal/activities. \nЕсли у вас возникнут вопросы о работе с Научным журналом, посетите форум: https://productforums.google.com/forum/#!forum/sciencejournal. \nКод приложения доступен по адресу https://github.com/google/science-journal. \n\n Управление разрешениями: \n• Доступ к геоданным (нужен, чтобы искать датчики, подключаемые к устройству через Bluetooth). \n• Доступ к камере (нужен, чтобы делать снимки в ходе экспериментов). \n• Доступ к микрофону (нужен, чтобы определять силу звука). \n• Доступ к хранилищу (нужен, чтобы добавлять к экспериментам изображения)."</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Поиск сторонних датчиков"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Искать приложения, которые поддерживают API сторонних датчиков и позволяют использовать их в экспериментах."</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Включить датчик температуры"</string>
@@ -411,11 +409,9 @@
     <string name="snapshot_label_details_title" msgid="876439532036968792">"Информация о сводке"</string>
     <string name="trigger_label_details_title" msgid="7844261655862849084">"Сведения о комментарии"</string>
     <string name="tool_picker_tab_layout_description" msgid="6898249361624127701">"Доступные инструменты"</string>
-    <!-- no translation found for tab_description_add_note (8259995764315955353) -->
-    <skip />
+    <string name="tab_description_add_note" msgid="8259995764315955353">"Добавить текстовый комментарий"</string>
     <string name="tab_description_observe" msgid="8315777883595993294">"Ознакомиться с показаниями датчиков"</string>
-    <!-- no translation found for tab_description_camera (5608734417285292850) -->
-    <skip />
+    <string name="tab_description_camera" msgid="5608734417285292850">"Сделать фото"</string>
     <string name="load_more_notes_btn" msgid="317448385027133819">"Другие комментарии"</string>
     <string name="name_experiment_dialog_title" msgid="4253322993689197542">"Название эксперимента"</string>
     <string name="empty_experiment_title_error" msgid="4741357059638017915">"Укажите название эксперимента."</string>
@@ -430,26 +426,19 @@
     <string name="first_experiment_picture_note_caption" msgid="5429499615012974999">"Добро пожаловать в приложение \"Научный журнал\"!"</string>
     <string name="first_experiment_second_text_note" msgid="7840206175805610752">"Со списком занятий можно ознакомиться \nна странице g.co/sciencejournalactivities."</string>
     <string name="experiment_cover_description" msgid="6319265532135034002">"Выберите изображение для эксперимента"</string>
-    <!-- no translation found for btn_take_picture_content_description (3029866757337599621) -->
-    <skip />
+    <string name="btn_take_picture_content_description" msgid="3029866757337599621">"Затвор камеры"</string>
     <string name="tab_description_gallery" msgid="1558619247937893970">"Выбрать снимок"</string>
-    <!-- no translation found for gallery_image_content_description (474626617793194680) -->
-    <skip />
+    <string name="gallery_image_content_description" msgid="474626617793194680">"Дата создания фото: <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"выбрано"</string>
     <string name="photo_editor_dialog_title" msgid="2305657514653927089">"Выберите приложение для редактирования фото"</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"Показать панель инструментов"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"Развернуть панель инструментов"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"Свернуть панель инструментов"</string>
-    <!-- no translation found for action_edit_photo (8325672235883072547) -->
-    <skip />
-    <!-- no translation found for add_text_note (7399260444850532349) -->
-    <skip />
-    <!-- no translation found for camera_preview_content_description (5571625157168747543) -->
-    <skip />
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="action_edit_photo" msgid="8325672235883072547">"Редактировать фото"</string>
+    <string name="add_text_note" msgid="7399260444850532349">"Добавить комментарий"</string>
+    <string name="camera_preview_content_description" msgid="5571625157168747543">"Видеосъемка"</string>
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"У приложения \"Научный журнал\" нет доступа к камере, поскольку вы не установили нужное разрешение."</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"У приложения \"Научный журнал\" нет доступа к галерее, поскольку вы не установили нужное разрешение."</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>

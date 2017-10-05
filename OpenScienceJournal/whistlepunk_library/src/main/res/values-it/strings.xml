@@ -264,10 +264,8 @@
     <string name="no_app_found_learn_more" msgid="4440663710498182380">"Ulteriori informazioni"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Sperimenta nel tuo ambiente."</string>
-    <!-- no translation found for listing_changelog (530900357619095816) -->
-    <skip />
-    <!-- no translation found for listing__description (1193865948828289689) -->
-    <skip />
+    <string name="listing_changelog" msgid="530900357619095816">"Nuove funzioni e miglioramenti: \n• Nuova interfaccia per prendere appunti e documentare gli esperimenti scientifici. \n• Nuova funzione di istantanea per acquisire singoli punti di dati. \n• Nuovi sensori: accelerometro lineare, magnetometro e bussola. \n• Galleria riprogettata per sfogliare gli esperimenti. \n• Ora disponibile su dispositivi iOS."</string>
+    <string name="listing__description" msgid="1193865948828289689">"Science Journal è il quaderno scientifico digitale gratuito offerto da Google. \n \nChe tu sia un insegnante di scienze o un appassionato che coltiva la sua passione per la scienza a casa, potrai conservare appunti, foto e osservazioni in un unico posto facilmente consultabile. Puoi utilizzare i sensori del tuo telefono per misurare e raffigurare graficamente fenomeni come luce, suono e movimento oppure collegare il dispositivo a sensori esterni tramite Bluetooth per condurre esperimenti nell\'ambiente che ti circonda. \n \nL\'app Science Journal ti permette di: \n• Misurare la luce, il suono, l\'accelerazione, la pressione dell\'aria e molto altro tramite i sensori integrati del telefono. \n• Prendere appunti e scattare foto per documentare i tuoi esperimenti scientifici. A breve saranno disponibili altri tipi di note. \n• Collegare il dispositivo a sensori esterni tramite dispositivi Arduino e Vernier compatibili con Bluetooth. \n• Esportare i dati dei sensori registrati come file CSV. \n• Creare attivatori automatici per registrare i dati e prendere appunti. \n• Utilizzare la sonificazione per percepire il suono del movimento dei grafici. \n \nScience Journal è disponibile gratuitamente su Android, iPhone, iPad e sui dispositivi Chromebook compatibili. \n \nAttività didattiche dei nostri partner: https://makingscience.withgoogle.com/science-journal/activities \nPer assistenza: https://productforums.google.com/forum/#!forum/sciencejournal \nCodice open source disponibile: https://github.com/google/science-journal \n\n Notifica di autorizzazione: \n• Posizione: necessaria per rilevare dispositivi con sensore Bluetooth. \n• Fotocamera: necessaria per scattare foto per documentare gli esperimenti. \n• Microfono: necessaria per i sensori di intensità del suono. \n• Spazio di archiviazione: necessaria per accedere alle foto da inserire negli esperimenti."</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Cerca sensori di terze parti"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Consente di cercare app che supportano l\'API dei sensori di terze parti permettendo di aggiungerli agli esperimenti."</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Attiva la temperatura ambiente"</string>
@@ -411,11 +409,9 @@
     <string name="snapshot_label_details_title" msgid="876439532036968792">"Dettagli snapshot"</string>
     <string name="trigger_label_details_title" msgid="7844261655862849084">"Dettagli nota attivata"</string>
     <string name="tool_picker_tab_layout_description" msgid="6898249361624127701">"Strumenti disponibili"</string>
-    <!-- no translation found for tab_description_add_note (8259995764315955353) -->
-    <skip />
+    <string name="tab_description_add_note" msgid="8259995764315955353">"Scrivi testo"</string>
     <string name="tab_description_observe" msgid="8315777883595993294">"Osserva sensori"</string>
-    <!-- no translation found for tab_description_camera (5608734417285292850) -->
-    <skip />
+    <string name="tab_description_camera" msgid="5608734417285292850">"Scatta una foto"</string>
     <string name="load_more_notes_btn" msgid="317448385027133819">"Visualizza altre note"</string>
     <string name="name_experiment_dialog_title" msgid="4253322993689197542">"Assegna un nome a questo esperimento"</string>
     <string name="empty_experiment_title_error" msgid="4741357059638017915">"Il nome non può essere vuoto"</string>
@@ -430,26 +426,19 @@
     <string name="first_experiment_picture_note_caption" msgid="5429499615012974999">"Benvenuto in Science Journal."</string>
     <string name="first_experiment_second_text_note" msgid="7840206175805610752">"Scopri le attività da provare alla pagina \ng.co/sciencejournalactivities"</string>
     <string name="experiment_cover_description" msgid="6319265532135034002">"Scegli una foto per l\'esperimento"</string>
-    <!-- no translation found for btn_take_picture_content_description (3029866757337599621) -->
-    <skip />
+    <string name="btn_take_picture_content_description" msgid="3029866757337599621">"Otturatore"</string>
     <string name="tab_description_gallery" msgid="1558619247937893970">"Scegli foto"</string>
-    <!-- no translation found for gallery_image_content_description (474626617793194680) -->
-    <skip />
+    <string name="gallery_image_content_description" msgid="474626617793194680">"Immagine scattata il giorno <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"selezionata"</string>
     <string name="photo_editor_dialog_title" msgid="2305657514653927089">"Modifica foto con…"</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"Mostra riquadro a scomparsa degli strumenti"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"Espandi riquadro a scomparsa degli strumenti"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"Comprimi riquadro a scomparsa degli strumenti"</string>
-    <!-- no translation found for action_edit_photo (8325672235883072547) -->
-    <skip />
-    <!-- no translation found for add_text_note (7399260444850532349) -->
-    <skip />
-    <!-- no translation found for camera_preview_content_description (5571625157168747543) -->
-    <skip />
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="action_edit_photo" msgid="8325672235883072547">"Modifica foto"</string>
+    <string name="add_text_note" msgid="7399260444850532349">"Aggiungi nota di testo"</string>
+    <string name="camera_preview_content_description" msgid="5571625157168747543">"In diretta dalla fotocamera"</string>
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"Impossibile utilizzare la fotocamera in quanto Science Journal non dispone dell\'autorizzazione all\'accesso."</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"Impossibile utilizzare la raccolta fotografica in quanto Science Journal non dispone dell\'autorizzazione all\'accesso."</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>

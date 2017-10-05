@@ -437,10 +437,8 @@
     <string name="action_edit_photo" msgid="8325672235883072547">"사진 수정"</string>
     <string name="add_text_note" msgid="7399260444850532349">"텍스트 메모 추가"</string>
     <string name="camera_preview_content_description" msgid="5571625157168747543">"카메라 실시간 보기"</string>
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"카메라에 액세스할 수 있는 권한이 없어 과학 저널에서 카메라를 사용할 수 없습니다."</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"사진 라이브러리에 액세스할 수 있는 권한이 없어 과학 저널에서 사진 라이브러리를 사용할 수 없습니다."</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>

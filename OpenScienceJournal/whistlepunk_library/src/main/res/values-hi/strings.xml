@@ -434,13 +434,11 @@
     <string name="btn_show_tools" msgid="2318999636820360860">"टूल ड्रॉवर दिखाएं"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"टूल ड्रॉवर बड़ा करें"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"टूल ड्रॉवर छोटा करें"</string>
-    <string name="action_edit_photo" msgid="8325672235883072547">"फ़ोटो बदलें"</string>
+    <string name="action_edit_photo" msgid="8325672235883072547">"फ़ोटो में बदलाव करें"</string>
     <string name="add_text_note" msgid="7399260444850532349">"लेख नोट जोड़ें"</string>
     <string name="camera_preview_content_description" msgid="5571625157168747543">"कैमरा लाइव व्यू"</string>
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"कैमरे का उपयोग नहीं किया जा सकता क्योंकि विज्ञान शोध पत्रिका के पास इसके एक्सेस की अनुमति नहीं है."</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"आपकी फ़ोटो लायब्रेरी का उपयोग नहीं किया जा सकता क्योंकि विज्ञान शोध पत्रिका के पास इसके एक्सेस की अनुमति नहीं है."</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>

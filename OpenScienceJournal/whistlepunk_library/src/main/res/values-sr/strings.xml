@@ -264,10 +264,8 @@
     <string name="no_app_found_learn_more" msgid="4440663710498182380">"Сазнајте више"</string>
     <string name="listing_title" msgid="1732490922169483408">"Научни дневник"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Експериментишите са светом."</string>
-    <!-- no translation found for listing_changelog (530900357619095816) -->
-    <skip />
-    <!-- no translation found for listing__description (1193865948828289689) -->
-    <skip />
+    <string name="listing_changelog" msgid="530900357619095816">"Нове функције и побољшања: \n• Нови интерфејс за прављење бележака и документовање научних експеримената. \n• Нова функција снимака, за бележење појединачних чињеница са подацима. \n• Нови сензори: линеарни акцелерометар, магнетометар и компас \n• Прерађен дизајн галерије за листање експеримената \n• Од сада доступно и на iOS уређајима!"</string>
+    <string name="listing__description" msgid="1193865948828289689">"Научни дневник је бесплатна дигитална научна бележница коју обезбеђује Google. \n \nБило да сте наставник или неко ко се бави науком из хобија, можете да чувате белешке, фотографије и запажања на једном практичном месту. Помоћу сензора телефона можете да мерите и графички приказујете појаве као што су светло, звук и покрет и да се повезујете са спољним сензорима преко Bluetooth-а да бисте вршили експерименте са светом који вас окружује. \n \nУз апликацију Научни дневник можете: \n• да мерите светло, звук, убрзање, ваздушни притисак и друге параметре помоћу сензора у телефону. \n• да правите белешке и фотографије ради документовања научних експеримената. Ускоро ће бити доступно још врста бележака! \n• да се повезујете са спољним сензорима преко одабраних Arduino и Vernier уређаја који подржавају Bluetooth. \n• да извозите податке забележене сензором као CSV датотеке. \n• да правите аутоматизоване окидаче за снимање података и унос бележака. \n• да користите сонификацију да бисте могли да чујете тенденције на графиконима. \n \nНаучни дневник је доступан бесплатно на Android, iPhone и iPad уређајима и компатибилним Chromebook уређајима. \n \nОбразовне активности наших партнера: https://makingscience.withgoogle.com/science-journal/activities \nПодршка: https://productforums.google.com/forum/#!forum/sciencejournal \nДоступан је отворени код: https://github.com/google/science-journal \n\n Обавештење о дозволама: \n• Локација: потребна да би се налазили уређаји са Bluetooth сензорима. \n• Камера: потребна за прављење слика ради документовања експеримената. \n• Микрофон: потребна за сензор јачине звука. \n• Складишни простор: потребна за приступ сликама које ће се уметати у експерименте."</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Потражи сензоре треће стране"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Потражите апликације које подржавају API за сензор треће стране и омогућите додавање таквих сензора у експерименте."</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Активирај температуру окружења"</string>
@@ -411,11 +409,9 @@
     <string name="snapshot_label_details_title" msgid="876439532036968792">"Детаљи снимка"</string>
     <string name="trigger_label_details_title" msgid="7844261655862849084">"Детаљи покренуте белешке"</string>
     <string name="tool_picker_tab_layout_description" msgid="6898249361624127701">"Доступне алатке"</string>
-    <!-- no translation found for tab_description_add_note (8259995764315955353) -->
-    <skip />
+    <string name="tab_description_add_note" msgid="8259995764315955353">"Унос текста"</string>
     <string name="tab_description_observe" msgid="8315777883595993294">"Посматрајте сензоре"</string>
-    <!-- no translation found for tab_description_camera (5608734417285292850) -->
-    <skip />
+    <string name="tab_description_camera" msgid="5608734417285292850">"Сликање"</string>
     <string name="load_more_notes_btn" msgid="317448385027133819">"Прикажи још бележака"</string>
     <string name="name_experiment_dialog_title" msgid="4253322993689197542">"Дајте назив овом експерименту"</string>
     <string name="empty_experiment_title_error" msgid="4741357059638017915">"Назив не може да буде празан"</string>
@@ -430,26 +426,19 @@
     <string name="first_experiment_picture_note_caption" msgid="5429499615012974999">"Добро дошли у Научни дневник!"</string>
     <string name="first_experiment_second_text_note" msgid="7840206175805610752">"Пронађите активности које ћете испробати на \ng.co/sciencejournalactivities"</string>
     <string name="experiment_cover_description" msgid="6319265532135034002">"Изаберите слику експеримента"</string>
-    <!-- no translation found for btn_take_picture_content_description (3029866757337599621) -->
-    <skip />
+    <string name="btn_take_picture_content_description" msgid="3029866757337599621">"Окидач"</string>
     <string name="tab_description_gallery" msgid="1558619247937893970">"Изаберите слику"</string>
-    <!-- no translation found for gallery_image_content_description (474626617793194680) -->
-    <skip />
+    <string name="gallery_image_content_description" msgid="474626617793194680">"Сликано <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"изабрано"</string>
     <string name="photo_editor_dialog_title" msgid="2305657514653927089">"Измените слику помоћу..."</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"Прикажи фиоку са алаткама"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"Прошири фиоку са алаткама"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"Скупи фиоку са алаткама"</string>
-    <!-- no translation found for action_edit_photo (8325672235883072547) -->
-    <skip />
-    <!-- no translation found for add_text_note (7399260444850532349) -->
-    <skip />
-    <!-- no translation found for camera_preview_content_description (5571625157168747543) -->
-    <skip />
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="action_edit_photo" msgid="8325672235883072547">"Измени слику"</string>
+    <string name="add_text_note" msgid="7399260444850532349">"Додај текстуалну белешку"</string>
+    <string name="camera_preview_content_description" msgid="5571625157168747543">"Приказ уживо са камере"</string>
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"Камера не може да се користи јер Научни дневник нема дозволу да јој приступи."</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"Фототека не може да се користи јер Научни дневник нема дозволу да јој приступи."</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>

@@ -264,10 +264,8 @@
     <string name="no_app_found_learn_more" msgid="4440663710498182380">"Sužinokite daugiau"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Eksperimentuokite su pasauliu."</string>
-    <!-- no translation found for listing_changelog (530900357619095816) -->
-    <skip />
-    <!-- no translation found for listing__description (1193865948828289689) -->
-    <skip />
+    <string name="listing_changelog" msgid="530900357619095816">"Toliau nurodytos naujos funkcijos ir patobulinimai. \n• Visiškai nauja sąsaja, skirta užrašams išsaugoti ir moksliniams eksperimentams dokumentuoti. \n• Nauja ekrano kopijų išsaugojimo funkcija, skirta atskiriems duomenų taškams fiksuoti. \n• Nauji jutikliai: linijinis akcelerometras, magnetometras ir kompasas. \n• Iš naujo sukurta galerija, skirta eksperimentams naršyti. \n• Dabar pasiekiama „iOS“ įrenginiuose!"</string>
+    <string name="listing__description" msgid="1193865948828289689">"„Science Journal“ yra „Google“ sukurta nemokama skaitmeninė mokslo užrašinė. \n \nNesvarbu, kas esate – mokslo pedagogas ar mėgėjas, užsiimantis moksline veikla namuose, – galite išsaugoti užrašus, nuotraukas ir stebėjimus vienoje patogioje vietoje. Naudodami telefono jutiklius matuokite ir grafiškai atvaizduokite reiškinius, pvz., šviesą, garsą ir judėjimą, arba prisijunkite prie išorinių jutiklių „Bluetooth“ ryšiu, kad atliktumėte eksperimentus jus supančiame pasaulyje. \n \nNaudodamiesi „Science Journal“ programa galite atlikti toliau išvardytus veiksmus. \nNaudodami telefono įtaisytuosius jutiklius išmatuoti šviesą, garsą, pagreitį, oro slėgį ir daugiau. \n• Išsaugoti užrašus ir nuotraukas, kad dokumentuotumėte mokslinius eksperimentus. Greitai bus pristatyta daugiau užrašų tipų! \n• Prisijungti prie išorinių jutiklių, naudodami „Arduino“ ir „Vernier“ įrenginius, kuriuose įgalintas „Bluetooth“ ryšys. \n• Eksportuoti įrašytus jutiklių duomenis kaip CSV failus. \n• Sukurti automatinius duomenų įrašymo ir užrašų išsaugojimo suaktyvinimo veiksmus. \n• Naudodami sonifikaciją įgarsinti diagramų judėjimą. \n \nGalimos nemokamos „Science Journal“ versijos „Android“, „iPhone“, „iPad“ ir suderinamiems „Chromebook“ įrenginiams. \n \nMūsų partnerių šviečiamoji veikla: https://makingscience.withgoogle.com/science-journal/activities \nPalaikymas: https://productforums.google.com/forum/#!forum/sciencejournal \nAtvirojo šaltinio kodas pasiekiamas adresu https://github.com/google/science-journal \n\nToliau pateiktas pranešimas apie leidimus. \n• Vietovė: reikalinga, kad būtų galima nuskaityti „Bluetooth“ jutiklių įrenginius. \n• Fotoaparatas: reikalinga, kad būtų galima fotografuoti, siekiant dokumentuoti eksperimentus. \n• Mikrofonas: reikalinga dėl garso stiprumo jutiklio. \n• Saugykla: reikalinga, kad būtų galima pasiekti į eksperimentus įterpiamas nuotraukas."</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Ieškoti trečiosios šalies jutiklių"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Ieškokite programų, kurios palaiko trečiosios šalies jutiklių API ir leidžia šiuos jutiklius pridėti prie eksperimentų."</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Įgalinti aplinkos temperat. jutiklį"</string>
@@ -411,11 +409,9 @@
     <string name="snapshot_label_details_title" msgid="876439532036968792">"Moment. nuotraukos išsami inf."</string>
     <string name="trigger_label_details_title" msgid="7844261655862849084">"Suaktyv. pastabos išsami inf."</string>
     <string name="tool_picker_tab_layout_description" msgid="6898249361624127701">"Galimi įrankiai"</string>
-    <!-- no translation found for tab_description_add_note (8259995764315955353) -->
-    <skip />
+    <string name="tab_description_add_note" msgid="8259995764315955353">"Rašyti tekstą"</string>
     <string name="tab_description_observe" msgid="8315777883595993294">"Stebėti jutiklius"</string>
-    <!-- no translation found for tab_description_camera (5608734417285292850) -->
-    <skip />
+    <string name="tab_description_camera" msgid="5608734417285292850">"Fotografuoti"</string>
     <string name="load_more_notes_btn" msgid="317448385027133819">"Peržiūrėti daugiau pastabų"</string>
     <string name="name_experiment_dialog_title" msgid="4253322993689197542">"Šiam eksperimentui suteikite pavadinimą"</string>
     <string name="empty_experiment_title_error" msgid="4741357059638017915">"Pavadinimo laukas negali būti tuščias"</string>
@@ -430,26 +426,19 @@
     <string name="first_experiment_picture_note_caption" msgid="5429499615012974999">"Sveiki, tai – „Science Journal“!"</string>
     <string name="first_experiment_second_text_note" msgid="7840206175805610752">"Eksperimentų, kuriuos galėtumėte atlikti, rasite adresu \ng.co/sciencejournalactivities"</string>
     <string name="experiment_cover_description" msgid="6319265532135034002">"Pasirinkite eksperimento nuotrauką"</string>
-    <!-- no translation found for btn_take_picture_content_description (3029866757337599621) -->
-    <skip />
+    <string name="btn_take_picture_content_description" msgid="3029866757337599621">"Užraktas"</string>
     <string name="tab_description_gallery" msgid="1558619247937893970">"Pasirinkti nuotrauką"</string>
-    <!-- no translation found for gallery_image_content_description (474626617793194680) -->
-    <skip />
+    <string name="gallery_image_content_description" msgid="474626617793194680">"Vaizdas nufotografuotas <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"pasirinkta"</string>
     <string name="photo_editor_dialog_title" msgid="2305657514653927089">"Redaguokite nuotrauką naudodami..."</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"Rodyti įrankio skydelį"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"Išskleisti įrankio skydelį"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"Sutraukti įrankio skydelį"</string>
-    <!-- no translation found for action_edit_photo (8325672235883072547) -->
-    <skip />
-    <!-- no translation found for add_text_note (7399260444850532349) -->
-    <skip />
-    <!-- no translation found for camera_preview_content_description (5571625157168747543) -->
-    <skip />
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="action_edit_photo" msgid="8325672235883072547">"Redaguoti nuotrauką"</string>
+    <string name="add_text_note" msgid="7399260444850532349">"Pridėti užrašą"</string>
+    <string name="camera_preview_content_description" msgid="5571625157168747543">"Tiesioginis fotoaparato rodinys"</string>
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"Fotoaparato naudoti negalima, nes „Science Journal“ neturi leidimo pasiekti jį."</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"Nuotraukų galerijos naudoti negalima, nes „Science Journal“ neturi leidimo pasiekti ją."</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>

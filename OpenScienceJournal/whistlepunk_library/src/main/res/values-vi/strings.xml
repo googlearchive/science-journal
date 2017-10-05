@@ -264,10 +264,8 @@
     <string name="no_app_found_learn_more" msgid="4440663710498182380">"Tìm hiểu thêm"</string>
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Thí nghiệm trong thế giới của bạn."</string>
-    <!-- no translation found for listing_changelog (530900357619095816) -->
-    <skip />
-    <!-- no translation found for listing__description (1193865948828289689) -->
-    <skip />
+    <string name="listing_changelog" msgid="530900357619095816">"Các tính năng và cải tiến mới: \n• Giao diện hoàn toàn mới để ghi chép và lưu hồ sơ về thí nghiệm khoa học. \n• Tính năng chụp ảnh nhanh mới để ghi lại từng điểm dữ liệu. \n• Cảm biến mới: gia tốc tuyến tính, từ kế và la bàn \n• Thư viện được thiết kế lại để dễ duyệt qua các thí nghiệm \n• Hiện có sẵn trên các thiết bị iOS!"</string>
+    <string name="listing__description" msgid="1193865948828289689">"Science Journal là sổ tay khoa học kỹ thuật số mà Google mang đến cho bạn. \n \nDù bạn là giáo viên dạy môn khoa học hay là người thích thực hiện thí nghiệm khoa học tại nhà thì bạn có thể giữ tất cả ghi chú, ảnh và kết quả quan sát ở một nơi thuận tiện. Hãy sử dụng cảm biến trong điện thoại để đo và lập biểu đồ cho các hiện tượng, chẳng hạn như ánh sáng, âm thanh và chuyển động hoặc kết nối với cảm biến bên ngoài thông qua bluetooth để tiến hành thí nghiệm về thế giới quanh bạn. \n \nVới ứng dụng Science Journal, bạn có thể: \n• Đo ánh sáng, âm thanh, gia tốc, áp suất không khí và hơn thế nữa bằng cảm biến tích hợp của điện thoại. \n• Ghi chép và chụp ảnh để lưu hồ sơ về các thí nghiệm khoa học. Ngoài ra, các loại ghi chú khác cũng sắp ra mắt! \n• Kết nối với cảm biến bên ngoài bằng một số thiết bị Arduino và Vernier đã bật Bluetooth. \n• Xuất dữ liệu cảm biến đã ghi thành tệp CSV. \n• Tạo trình kích hoạt tự động để ghi dữ liệu và ghi chép. \n• Sử dụng phương thức truyền thông tin qua âm thanh để nghe chuyển động của các biểu đồ. \n \nScience Journal được cung cấp miễn phí trên Android, iPhone, iPad và các thiết bị Chromebook có khả năng tương thích khác. \n \nBạn có thể xem các hoạt động giáo dục do đối tác của chúng tôi thực hiện tại đây: https://makingscience.withgoogle.com/science-journal/activities \nĐể được hỗ trợ, hãy truy cập vào https://productforums.google.com/forum/#!forum/sciencejournal \nMã nguồn mở có sẵn tại: https://github.com/google/science-journal \n\n Thông báo quyền: \n• Vị trí: cần có quyền truy cập vào vị trí để quét tìm thiết bị cảm biến bluetooth. \n• Máy ảnh: cần có quyền truy cập vào máy ảnh để chụp ảnh và lưu hồ sơ về thí nghiệm. \n• Micrô: cần có quyền sử dụng micrô cho cảm biến cường độ âm thanh. \n• Bộ nhớ: cần có quyền truy cập vào bộ nhớ để truy cập vào thư viện ảnh và chèn ảnh vào thí nghiệm."</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Quét tìm các cảm biến của bên thứ ba"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Tìm các ứng dụng hỗ trợ API cảm biến của bên thứ ba và cho phép thêm các cảm biến đó vào thí nghiệm."</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Bật nhiệt độ xung quanh"</string>
@@ -411,11 +409,9 @@
     <string name="snapshot_label_details_title" msgid="876439532036968792">"Chi tiết ảnh chụp nhanh"</string>
     <string name="trigger_label_details_title" msgid="7844261655862849084">"Chi tiết ghi chú đã kích hoạt"</string>
     <string name="tool_picker_tab_layout_description" msgid="6898249361624127701">"Các công cụ có sẵn"</string>
-    <!-- no translation found for tab_description_add_note (8259995764315955353) -->
-    <skip />
+    <string name="tab_description_add_note" msgid="8259995764315955353">"Viết ghi chú văn bản"</string>
     <string name="tab_description_observe" msgid="8315777883595993294">"Quan sát cảm biến"</string>
-    <!-- no translation found for tab_description_camera (5608734417285292850) -->
-    <skip />
+    <string name="tab_description_camera" msgid="5608734417285292850">"Chụp ảnh"</string>
     <string name="load_more_notes_btn" msgid="317448385027133819">"Xem thêm ghi chú"</string>
     <string name="name_experiment_dialog_title" msgid="4253322993689197542">"Hãy đặt tên cho thí nghiệm này"</string>
     <string name="empty_experiment_title_error" msgid="4741357059638017915">"Bạn không được để trống tên"</string>
@@ -430,26 +426,19 @@
     <string name="first_experiment_picture_note_caption" msgid="5429499615012974999">"Chào mừng bạn đến với Science Journal!"</string>
     <string name="first_experiment_second_text_note" msgid="7840206175805610752">"Hãy tìm các hoạt động để thử nghiệm tại \ng.co/sciencejournalactivities"</string>
     <string name="experiment_cover_description" msgid="6319265532135034002">"Hãy chọn một ảnh cho thí nghiệm"</string>
-    <!-- no translation found for btn_take_picture_content_description (3029866757337599621) -->
-    <skip />
+    <string name="btn_take_picture_content_description" msgid="3029866757337599621">"Chụp"</string>
     <string name="tab_description_gallery" msgid="1558619247937893970">"Chọn ảnh"</string>
-    <!-- no translation found for gallery_image_content_description (474626617793194680) -->
-    <skip />
+    <string name="gallery_image_content_description" msgid="474626617793194680">"Ảnh chụp vào <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"đã chọn"</string>
     <string name="photo_editor_dialog_title" msgid="2305657514653927089">"Chỉnh sửa ảnh bằng..."</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"Hiển thị ngăn công cụ"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"Mở rộng ngăn công cụ"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"Thu gọn ngăn công cụ"</string>
-    <!-- no translation found for action_edit_photo (8325672235883072547) -->
-    <skip />
-    <!-- no translation found for add_text_note (7399260444850532349) -->
-    <skip />
-    <!-- no translation found for camera_preview_content_description (5571625157168747543) -->
-    <skip />
-    <!-- no translation found for input_camera_permission_denied (647063985319912627) -->
-    <skip />
-    <!-- no translation found for input_photo_library_permission_denied (5779659490264636585) -->
-    <skip />
+    <string name="action_edit_photo" msgid="8325672235883072547">"Chỉnh sửa ảnh"</string>
+    <string name="add_text_note" msgid="7399260444850532349">"Thêm ghi chú văn bản"</string>
+    <string name="camera_preview_content_description" msgid="5571625157168747543">"Xem trực tiếp trên máy ảnh"</string>
+    <string name="input_camera_permission_denied" msgid="647063985319912627">"Không sử dụng được máy ảnh vì Science Journal không có quyền truy cập vào máy ảnh."</string>
+    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"Không sử dụng được thư viện ảnh vì Science Journal không có quyền truy cập vào thư viện ảnh."</string>
     <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
     <skip />
 </resources>
