@@ -192,7 +192,7 @@ public abstract class ExternalAxisView extends View {
     }
 
     private void drawLabel(long t, float xOffset, float tickPaddingTop, Canvas canvas) {
-        String label = getLabelText(t);
+        String label = mFormat.format(t);
         float labelWidth = getLabelWidth(label);
         canvas.drawText(label, xOffset - labelWidth/2, (tickPaddingTop + mTextHeight +
                 mTickPaddingBottom + mLongTickHeight), mTextPaint);
