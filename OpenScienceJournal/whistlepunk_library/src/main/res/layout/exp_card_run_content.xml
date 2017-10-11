@@ -48,6 +48,7 @@
             android:textColor="@color/text_color_white"
             android:textSize="18sp"
             android:ellipsize="middle"
+            android:textStyle="bold"
             />
 
         <RelativeLayout

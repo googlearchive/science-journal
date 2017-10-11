@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.project.experiment;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -25,14 +24,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,17 +41,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
-import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -65,7 +61,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
 
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -85,9 +80,9 @@ public class UpdateExperimentFragment extends Fragment {
 
     private String mExperimentId;
     private BehaviorSubject<Experiment> mExperiment = BehaviorSubject.create();
-    private boolean mWasEdited;
     private ImageView mPhotoPreview;
     private String mPictureLabelPath = null;
+    private RxEvent mSaved = new RxEvent();
 
     public UpdateExperimentFragment() {
     }
@@ -119,22 +114,41 @@ public class UpdateExperimentFragment extends Fragment {
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_update_experiment, menu);
+
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+        actionBar.setHomeActionContentDescription(android.R.string.cancel);
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_save) {
+            mSaved.onHappened();
+            WhistlePunkApplication.getUsageTracker(getActivity())
+                                  .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
+                                          TrackerConstants.ACTION_EDITED,
+                                          TrackerConstants.LABEL_UPDATE_EXPERIMENT, 0);
+            getActivity().finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onDestroy() {
+        mSaved.onDoneHappening();
+        super.onDestroy();
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         WhistlePunkApplication.getUsageTracker(getActivity()).trackScreenView(
                 TrackerConstants.SCREEN_UPDATE_EXPERIMENT);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (mWasEdited) {
-            WhistlePunkApplication.getUsageTracker(getActivity())
-                    .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
-                            TrackerConstants.ACTION_EDITED,
-                            TrackerConstants.LABEL_UPDATE_EXPERIMENT, 0);
-            mWasEdited = false;
-        }
     }
 
     @Override
@@ -154,24 +168,12 @@ public class UpdateExperimentFragment extends Fragment {
 
         mExperiment.subscribe(experiment -> {
             title.setText(experiment.getTitle());
-            title.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (!s.toString().equals(experiment.getTitle())) {
-                        experiment.setTitle(s.toString().trim());
-                        saveExperiment();
-                        mWasEdited = true;
-                    }
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-
+            mSaved.happens().subscribe(o -> {
+                String newValue = title.getText().toString().trim();
+                if (!newValue.equals(experiment.getTitle())) {
+                    experiment.setTitle(newValue);
+                    saveExperiment();
                 }
             });
 
@@ -255,28 +257,32 @@ public class UpdateExperimentFragment extends Fragment {
                 String overviewPath =
                         PictureUtils.getExperimentOverviewRelativeImagePath(mExperimentId,
                                 relativePathInExperiment);
-                mExperiment.getValue().getExperimentOverview().imagePath = overviewPath;
-                saveExperiment();
+                setImagePath(overviewPath);
                 PictureUtils.loadExperimentOverviewImage(mPhotoPreview, overviewPath);
             }
-            mWasEdited = true;
             return;
         } else if (requestCode == PictureUtils.REQUEST_TAKE_PHOTO) {
             if (resultCode == Activity.RESULT_OK) {
                 String overviewPath =
                         PictureUtils.getExperimentOverviewRelativeImagePath(mExperimentId,
                         mPictureLabelPath);
-                mExperiment.getValue().getExperimentOverview().imagePath = overviewPath;
-                saveExperiment();
+                setImagePath(overviewPath);
                 PictureUtils.loadExperimentImage(getActivity(), mPhotoPreview, mExperimentId,
                         mPictureLabelPath);
             } else {
                 mPictureLabelPath = null;
             }
-            mWasEdited = true;
+            // TODO: cancel doesn't restore old picture path.
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void setImagePath(String overviewPath) {
+        mExperiment.firstElement().subscribe(e -> {
+            e.setImagePath(overviewPath);
+            saveExperiment();
+        });
     }
 
     @Override
@@ -300,7 +306,6 @@ public class UpdateExperimentFragment extends Fragment {
 
     private void attachExperimentDetails(final Experiment experiment) {
         mExperiment.onNext(experiment);
-        mWasEdited = false;
     }
 
     private DataController getDataController() {

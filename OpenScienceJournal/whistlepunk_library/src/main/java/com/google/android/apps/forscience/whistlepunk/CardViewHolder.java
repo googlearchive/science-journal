@@ -22,10 +22,10 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextSwitcher;
@@ -63,6 +63,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public TriggerBackgroundView triggerFiredBackground;
     public TextView triggerFiredText;
     public ImageButton sensorSettingsGear;
+    public int screenOrientation;
 
     public CardViewHolder(CardView itemView) {
         super(itemView);
@@ -92,6 +93,10 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
                 R.id.sensor_trigger_fired_background);
         triggerFiredText = (TextView) itemView.findViewById(R.id.trigger_fired_text);
         infoButton = (ImageButton) itemView.findViewById(R.id.btn_info);
+
+        WindowManager windowManager =
+                (WindowManager) itemView.getContext().getSystemService(Context.WINDOW_SERVICE);
+        screenOrientation = windowManager.getDefaultDisplay().getRotation();
     }
 
     public Context getContext() {

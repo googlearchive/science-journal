@@ -15,18 +15,44 @@
   limitations under the License.
  -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
     >
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/gallery"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/control"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
         />
 
-    <include layout="@layout/gallery_action_bar"/>
+    <LinearLayout
+        android:id="@+id/complaint"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background_color"
+        android:orientation="vertical"
+        android:visibility="gone"
+        >
+
+        <TextView
+            android:id="@+id/preview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal|top"
+            android:padding="40dp"
+            android:text="@string/input_photo_library_permission_denied"
+            android:textColor="@color/text_color_black"
+            />
+
+        <Button
+            android:id="@+id/open_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/action_retry"
+            />
+    </LinearLayout>
+
 </RelativeLayout>

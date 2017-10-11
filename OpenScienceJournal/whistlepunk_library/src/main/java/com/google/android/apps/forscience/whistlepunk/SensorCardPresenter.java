@@ -22,14 +22,11 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.TabLayout;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,7 +47,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.OptionsListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
@@ -199,7 +195,12 @@ public class SensorCardPresenter {
     private long mLastUpdatedIconTimestamp = -1;
     private long mLastUpdatedTextTimestamp = -1;
     private boolean mTextTimeHasElapsed = false;
-    private String mDataFormat;
+
+    private interface ValueFormatter {
+        String format(String valueString, String units);
+    }
+
+    private ValueFormatter mDataFormat;
     private NumberFormat mNumberFormat;
     private LocalSensorOptionsStorage mCardOptions = new LocalSensorOptionsStorage();
 
@@ -245,7 +246,7 @@ public class SensorCardPresenter {
                 }, mParentFragment);
     }
 
-    public void onNewData(long timestamp, Bundle bundle) {
+    public void onNewData(long timestamp, SensorObserver.Data bundle) {
         if (mSensorPresenter == null) {
             return;
         }
@@ -266,16 +267,16 @@ public class SensorCardPresenter {
         if (mCardViewHolder == null) {
             return;
         }
-        if (ScalarSensor.hasValue(bundle)) {
-            double value = ScalarSensor.getValue(bundle);
+        if (bundle.hasValidValue()) {
+            double value = bundle.getValue();
             if (mTextTimeHasElapsed) {
                 String valueString = mNumberFormat.format(value);
-                mCardViewHolder.meterLiveData.setText(String.format(mDataFormat, valueString,
-                        mUnits));
+                mCardViewHolder.meterLiveData.setText(mDataFormat.format(valueString, mUnits));
             }
             if (iconTimeHasElapsed && mSensorPresenter != null) {
                 mSensorAnimationBehavior.updateImageView(mCardViewHolder.meterSensorIcon,
-                        value, mSensorPresenter.getMinY(), mSensorPresenter.getMaxY());
+                        value, mSensorPresenter.getMinY(), mSensorPresenter.getMaxY(),
+                        mCardViewHolder.screenOrientation);
             }
         } else {
             // TODO: Show an error state for no numerical value.
@@ -382,7 +383,7 @@ public class SensorCardPresenter {
         mObserverId = mRecorderController.startObserving(mCurrentSource.getId(), triggers,
                 new SensorObserver() {
                     @Override
-                    public void onNewData(long timestamp, Bundle value) {
+                    public void onNewData(long timestamp, Data value) {
                         SensorCardPresenter.this.onNewData(timestamp, value);
                     }
                 }, getSensorStatusListener(),
@@ -438,7 +439,9 @@ public class SensorCardPresenter {
         mCardViewHolder = cardViewHolder;
         mCloseListener = closeListener;
         mCardTriggerPresenter.setViews(mCardViewHolder);
-        mDataFormat = cardViewHolder.getContext().getResources().getString(R.string.data_with_units);
+        String formatString =
+                cardViewHolder.getContext().getResources().getString(R.string.data_with_units);
+        mDataFormat = getDataFormatter(formatString);
 
         updateRecordingUi();
 
@@ -467,9 +470,11 @@ public class SensorCardPresenter {
 
         mCardViewHolder.graphStatsList.setTextBold(mLayout.showStatsOverlay);
         mCardViewHolder.graphStatsList.setOnClickListener(v -> {
-            mLayout.showStatsOverlay = !mLayout.showStatsOverlay;
-            mSensorPresenter.setShowStatsOverlay(mLayout.showStatsOverlay);
-            mCardViewHolder.graphStatsList.setTextBold(mLayout.showStatsOverlay);
+            if (mSensorPresenter != null) {
+                mLayout.showStatsOverlay = !mLayout.showStatsOverlay;
+                mSensorPresenter.setShowStatsOverlay(mLayout.showStatsOverlay);
+                mCardViewHolder.graphStatsList.setTextBold(mLayout.showStatsOverlay);
+            }
         });
         updateStatusUi();
         updateAudioEnabledUi(mLayout.audioEnabled);
@@ -495,6 +500,25 @@ public class SensorCardPresenter {
         // View.GONE.
         // Note: this must be done after setting up the tablayout.
         setActive(mIsActive, /* force */ true);
+    }
+
+    private ValueFormatter getDataFormatter(String formatString) {
+        if (formatString.equals("%1$s %2$s")) {
+            // This is, I believe, the only format currently used.
+            return new ValueFormatter() {
+                StringBuffer mBuffer = new StringBuffer(20);
+
+                @Override
+                public String format(String valueString, String units) {
+                    mBuffer.setLength(0);
+                    mBuffer.append(valueString).append(" ").append(units);
+                    return mBuffer.toString();
+                }
+            };
+        } else {
+            // Just in case there are other formats, fall back to expensive String.format
+            return (valueString, units) -> String.format(formatString, valueString, units);
+        }
     }
 
     private void updateSensorTriggerUi() {
@@ -741,7 +765,10 @@ public class SensorCardPresenter {
                     if (i < 0) {
                         i = 0;
                     }
-                    mCardViewHolder.sensorTabLayout.getTabAt(i).select();
+                    TabLayout.Tab tab = mCardViewHolder.sensorTabLayout.getTabAt(i);
+                    if (tab != null) {
+                        tab.select();
+                    }
                 }
             }
         });

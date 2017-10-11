@@ -18,11 +18,14 @@
 package com.google.android.apps.forscience.whistlepunk.sensors;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
+import android.support.media.ExifInterface;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Surface;
@@ -32,9 +35,12 @@ import android.view.WindowManager;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
+import com.google.android.apps.forscience.whistlepunk.PanesBottomSheetBehavior;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,12 +48,16 @@ import java.util.List;
 
 import io.reactivex.Maybe;
 
+import static android.support.media.ExifInterface.ORIENTATION_NORMAL;
+import static android.support.media.ExifInterface.ORIENTATION_UNDEFINED;
+
 
 public class CameraPreview extends SurfaceView {
     private static final String TAG = "CameraPreview";
 
     private Camera mCamera;
     private boolean mPreviewStarted = false;
+    private boolean mShouldChopPictures = false;
 
     public CameraPreview(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -259,13 +269,8 @@ public class CameraPreview extends SurfaceView {
             ratio = 1.0 / ratio;
         }
 
-        if (ratio < idealRatio) {
-            // preview is too short, reduce measured height
-            setMeasuredDimension(idealWidth, (int) (idealHeight * ratio / idealRatio));
-        } else {
-            // preview is too skinny (or just right), reduce measured width
-            setMeasuredDimension((int) (idealWidth * idealRatio / ratio), idealHeight);
-        }
+        // always use full-width
+        setMeasuredDimension(idealWidth, (int) (idealHeight * ratio / idealRatio));
     }
 
     private PreviewSize[] getPreviewSizes(List<Camera.Size> sizeOptions) {
@@ -323,27 +328,40 @@ public class CameraPreview extends SurfaceView {
         return rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180;
     }
 
+    public void setCurrentDrawerState(int state) {
+        mShouldChopPictures = (state == PanesBottomSheetBehavior.STATE_MIDDLE);
+    }
+
     public void takePicture(Maybe<String> maybeExperimentId, String uuid,
             final MaybeConsumer<String> onSuccess) {
         // TODO: better strategy (RxJava?) to avoid these null checks
         if (mCamera == null) {
             onSuccess.fail(new IllegalStateException("No camera loaded in CameraPreview"));
         }
-        maybeExperimentId.subscribe(experimentId -> takePicture(experimentId, uuid, onSuccess));
+        maybeExperimentId.subscribe(
+                experimentId -> takePicture(experimentId, uuid, mShouldChopPictures, onSuccess));
     }
 
-    private void takePicture(String experimentId, String uuid, MaybeConsumer<String> onSuccess) {
+    private void takePicture(String experimentId, String uuid, boolean chopInHalf,
+            MaybeConsumer<String> onSuccess) {
         final File photoFile = PictureUtils.createImageFile(getContext(), experimentId, uuid);
 
         try {
             mCamera.takePicture(null, null, null, (data, camera) -> {
+                byte[] bytes = getRightBytes(data, chopInHalf);
+
                 try (FileOutputStream out = new FileOutputStream(photoFile)) {
-                    out.write(data);
+                    out.write(bytes);
                     // Pass back the relative path for saving in the label.
                     onSuccess.success(FileMetadataManager.getRelativePathInExperiment(experimentId,
                             photoFile));
                     startPreview();
-                } catch (IOException e) {
+                    // NPE occurs when data == null (unclear what causes that case)
+                } catch (IOException|NullPointerException e) {
+                    // Delete the file if we failed to write to it
+                    if (photoFile.exists()) {
+                        photoFile.delete();
+                    }
                     onSuccess.fail(e);
                 }
             });
@@ -352,5 +370,50 @@ public class CameraPreview extends SurfaceView {
             //       after taking a picture?
             onSuccess.fail(e);
         }
+    }
+
+    private byte[] getRightBytes(byte[] data, boolean chopInHalf) {
+        if (!chopInHalf) {
+            return data;
+        }
+
+        int orientation = getOrientation(data);
+        if (orientation != ORIENTATION_NORMAL && orientation != ORIENTATION_UNDEFINED) {
+            // don't try to chop in half if the EXIF is rotated.
+            // We need to figure out how to fix this further (see b/67335604)
+            if (Log.isLoggable(TAG, Log.WARN)) {
+                Log.w(TAG, "Not chopping photo in orientation: " + orientation);
+            }
+
+            return data;
+        }
+
+        try {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            Bitmap halfBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                    bitmap.getHeight() / 2);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            halfBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            return stream.toByteArray();
+        } catch (Throwable t) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "exception when chopping image, storing in full size", t);
+            }
+            return data;
+        }
+    }
+
+    private int getOrientation(byte[] data) {
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(new ByteArrayInputStream(data));
+        } catch (IOException e) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "exif parsing", e);
+            }
+            return ExifInterface.ORIENTATION_UNDEFINED;
+        }
+        return exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_UNDEFINED);
     }
 }

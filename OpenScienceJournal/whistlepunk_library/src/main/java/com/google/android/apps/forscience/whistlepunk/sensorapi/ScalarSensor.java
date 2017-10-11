@@ -70,7 +70,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
     private static final String TAG = "ScalarSensor";
     private static final double DENOMINATOR_FOR_RPMS = 60 * 1000.0;
-    private static final String BUNDLE_KEY_SENSOR_VALUE = "key_sensor_value";
+    public static final String BUNDLE_KEY_SENSOR_VALUE = "key_sensor_value";
 
     private final FailureListener mDataFailureListener;
     private final int mZoomLevelBetweenTiers;
@@ -147,8 +147,8 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             }
 
             @Override
-            public void onNewData(long timestamp, Bundle bundle) {
-                double value = getValue(bundle);
+            public void onNewData(long timestamp, Data bundle) {
+                double value = bundle.getValue();
                 chartController.addPoint(new ChartData.DataPoint(timestamp, value));
                 if (mAudioEnabled) {
                     audioGenerator.addData(timestamp, value, chartController.getRenderedYMin(),
@@ -339,12 +339,12 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         return null;
     }
 
-    public static double getValue(Bundle bundle) {
-        return bundle.getDouble(BUNDLE_KEY_SENSOR_VALUE);
+    public static double getValue(SensorObserver.Data bundle) {
+        return bundle.getValue();
     }
 
-    public static boolean hasValue(Bundle bundle) {
-        return bundle.containsKey(BUNDLE_KEY_SENSOR_VALUE);
+    public static boolean hasValue(SensorObserver.Data bundle) {
+        return bundle.hasValidValue();
     }
 
     @Override
@@ -507,7 +507,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
             // ...which is set up with the correct values here...
             message.setTimestamp(timestampMillis);
-            message.getData().putDouble(BUNDLE_KEY_SENSOR_VALUE, value);
+            message.getData().setValue(value);
             mStatsAccumulator.updateRecordingStreamStats(timestampMillis, value);
             mStatsAccumulator.addStatsToBundle(message.getData());
 

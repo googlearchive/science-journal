@@ -17,16 +17,15 @@
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -35,18 +34,21 @@ import android.widget.TextView;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
+import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
-import com.jakewharton.rxbinding2.widget.RxTextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import io.reactivex.Maybe;
+import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
 
 /**
@@ -62,6 +64,7 @@ abstract class LabelDetailsFragment extends Fragment {
 
     private EditText mCaption;
     private Clock mClock;
+    private RxEvent mSaved = new RxEvent();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -92,7 +95,11 @@ abstract class LabelDetailsFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+        actionBar.setHomeActionContentDescription(android.R.string.cancel);
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -108,9 +115,13 @@ abstract class LabelDetailsFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
+            mSaved.onDoneHappening();
             boolean labelDeleted = false;
-            returnToParent(labelDeleted);
+            returnToParent(labelDeleted, null);
             return true;
+        } else if (id == R.id.action_save) {
+            mSaved.onHappened();
+            returnToParent(false, null);
         } else if (id == R.id.action_delete) {
             deleteAndReturnToParent();
             return true;
@@ -141,7 +152,7 @@ abstract class LabelDetailsFragment extends Fragment {
         return AppSingleton.getInstance(getActivity()).getDataController();
     }
 
-    protected void returnToParent(boolean labelDeleted) {
+    protected void returnToParent(boolean labelDeleted, Consumer<Context> assetDeleter) {
         if (getActivity() == null) {
             return;
         }
@@ -150,22 +161,29 @@ abstract class LabelDetailsFragment extends Fragment {
             getActivity().onBackPressed();
         }
         // Need to either fake a back button or send the right args
-        ((LabelDetailsActivity) getActivity()).returnToParent(labelDeleted, mOriginalLabel);
+        ((LabelDetailsActivity) getActivity()).returnToParent(labelDeleted,
+                new DeletedLabel(mOriginalLabel, assetDeleter));
     }
 
     protected void deleteAndReturnToParent() {
         mExperiment.firstElement()
-                   .flatMapCompletable(experiment -> {
-                       if (TextUtils.isEmpty(mTrialId)) {
-                           experiment.deleteLabel(mOriginalLabel, getActivity());
-                       } else {
-                           experiment.getTrial(mTrialId).deleteLabel(mOriginalLabel, getActivity(),
-                                   mExperimentId);
-                       }
-                       return RxDataController.updateExperiment(getDataController(), experiment);
+                   .flatMap(experiment -> {
+                       Consumer<Context> assetDeleter = deleteLabelFromExperiment(experiment);
+                       return RxDataController.updateExperiment(getDataController(), experiment)
+                                              .andThen(Maybe.just(assetDeleter));
                    })
-                   .subscribe(() -> returnToParent(/* label deleted */ true),
+                   .subscribe(
+                           assetDeleter -> returnToParent(/* label deleted */ true, assetDeleter),
                            LoggingConsumer.complain(TAG, "delete label"));
+    }
+
+    private Consumer<Context> deleteLabelFromExperiment(Experiment experiment) {
+        if (TextUtils.isEmpty(mTrialId)) {
+            return experiment.deleteLabelAndReturnAssetDeleter(mOriginalLabel);
+        } else {
+            return experiment.getTrial(mTrialId)
+                             .deleteLabelAndReturnAssetDeleter(mOriginalLabel, mExperimentId);
+        }
     }
 
     // Most types of labels have a caption. This sets up the text watcher / autosave for that.
@@ -193,9 +211,8 @@ abstract class LabelDetailsFragment extends Fragment {
             // Move the cursor to the end
             mCaption.post(() -> mCaption.setSelection(mCaption.getText().toString().length()));
 
-            RxTextView.afterTextChangeEvents(mCaption)
-                      .subscribe(event -> saveCaptionChanges(experiment,
-                              mCaption.getText().toString()));
+            mSaved.happens()
+                  .subscribe(o -> saveCaptionChanges(experiment, mCaption.getText().toString()));
         });
     }
 

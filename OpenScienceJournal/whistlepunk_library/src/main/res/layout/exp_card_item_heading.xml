@@ -69,7 +69,7 @@
         android:layout_height="@dimen/accessibility_touch_target_min_size"
         android:src="@drawable/ic_menu_moreoverflow_mtrl_alpha"
         android:id="@id/note_menu_button"
-        android:contentDescription="@string/edit_note_menu_item"
+        android:contentDescription="@string/menu_btn_content_description"
         android:scaleType="center"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"

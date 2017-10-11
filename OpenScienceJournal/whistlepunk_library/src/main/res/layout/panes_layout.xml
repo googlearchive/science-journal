@@ -41,7 +41,6 @@
         android:id="@+id/bottom"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/text_color_white"
         android:orientation="vertical"
         app:layout_behavior="com.google.android.apps.forscience.whistlepunk.PanesBottomSheetBehavior"
         >
@@ -64,7 +63,6 @@
                     android:layout_height="6dp"
                     android:layout_marginTop="4dp"
                     android:id="@+id/grabber"
-                    android:background="@android:color/transparent"
                     android:src="@drawable/grabber"
                     android:layout_gravity="center_horizontal"
                     />
@@ -106,8 +104,7 @@
         <View
             android:id="@+id/control_bar_spacer"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/observe_control_panel_bottom_height"
-            android:background="@android:color/transparent" />
+            android:layout_height="@dimen/observe_control_panel_bottom_height" />
     </LinearLayout>
 
     <FrameLayout
@@ -115,7 +112,6 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/observe_control_panel_bottom_height"
         android:layout_gravity="bottom"
-        android:background="@color/capture_bottom_panel"
         android:elevation="4dp"/>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -204,6 +204,12 @@ public interface RecorderController {
      */
     void setLayoutSupplier(Supplier<List<GoosciSensorLayout.SensorLayout>> supplier);
 
+    /**
+     *
+     * @return the currently selected experiment
+     */
+    Experiment getSelectedExperiment();
+
     long getNow();
 
 }

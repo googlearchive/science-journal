@@ -44,8 +44,6 @@ import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 
-import io.reactivex.Observable;
-
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -71,6 +69,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WhistlePunkApplication.getPerfTrackerProvider(this).onActivityInit();
         if (showRequiredScreensIfNeeded()) {
             return;
         }
@@ -118,14 +117,6 @@ public class MainActivity extends AppCompatActivity
         onNavigationItemSelected(item);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-    }
-
-    private void exitMetadataIfNeeded() {
-        if (mIsRecording) {
-            if (mSelectedItemId == R.id.navigation_item_experiments) {
-                finish();
-            }
-        }
     }
 
     private int getSavedItemId(Bundle savedInstanceState) {
@@ -214,9 +205,17 @@ public class MainActivity extends AppCompatActivity
         // TODO: extract and test
         rc.watchRecordingStatus().takeUntil(mPause.happens()).subscribe(status -> {
             mIsRecording = status.isRecording();
-            mNavigationView.getMenu().findItem(R.id.navigation_item_experiments).setEnabled(
-                    !mIsRecording);
-            exitMetadataIfNeeded();
+            // TODO: Add experimentId to RecordingStatus
+            if (mIsRecording) {
+                AppSingleton.getInstance(this).getDataController().getLastUsedUnarchivedExperiment(
+                        new LoggingConsumer<Experiment>(TAG, "getting last used experiment") {
+                            @Override
+                            public void success(Experiment experiment) {
+                                PanesActivity.launch(MainActivity.this,
+                                        experiment.getExperimentId());
+                            }
+                        });
+            }
         });
     }
 

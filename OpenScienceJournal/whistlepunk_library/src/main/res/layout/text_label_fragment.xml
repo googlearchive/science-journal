@@ -14,32 +14,41 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="horizontal"
+
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:id="@+id/scroll"
     >
 
-    <EditText
-        android:id="@+id/text"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/control"
-        android:layout_alignParentTop="true"
-        android:background="@android:color/white"
-        android:gravity="top"
-        android:hint="@string/text_label_hint"
-        android:padding="16dp"
-        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-    <ImageButton
-        android:layout_width="@dimen/accessibility_touch_target_min_size"
-        android:layout_height="@dimen/accessibility_touch_target_min_size"
-        android:src="@drawable/btn_add_note_inline"
-        android:contentDescription="@string/add_experiment_note"
-        android:id="@+id/btn_add_inline"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:visibility="gone"
-        />
-</LinearLayout>
+    <EditText
+            android:id="@+id/text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/control"
+            android:layout_alignParentTop="true"
+            android:layout_weight="1"
+            android:gravity="top"
+            android:hint="@string/text_label_hint"
+            android:padding="16dp"
+            android:background="@android:color/transparent"
+            />
+
+        <ImageButton
+            android:id="@+id/btn_add_inline"
+            android:layout_width="@dimen/accessibility_touch_target_min_size"
+            android:layout_height="@dimen/accessibility_touch_target_min_size"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/add_experiment_note"
+            android:src="@drawable/btn_add_note_inline"
+            android:visibility="gone"
+            />
+    </LinearLayout>
+</android.support.v4.widget.NestedScrollView>

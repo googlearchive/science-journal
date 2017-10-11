@@ -28,9 +28,14 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.google.common.base.Optional;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import io.reactivex.Single;
+import io.reactivex.subjects.BehaviorSubject;
 
 /**
  * The BLE client, a thin wrapper around the MyBleService.
@@ -39,6 +44,7 @@ public class BleClientImpl implements BleClient {
     private static String TAG = "BLEClient";
     private static final boolean DEBUG = false;
 
+    private BehaviorSubject<Optional<MyBleService>> mWhenService = BehaviorSubject.create();
     private MyBleService bleService;
     private Handler handler = new Handler();
 
@@ -50,12 +56,14 @@ public class BleClientImpl implements BleClient {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             bleService = ((MyBleService.LocalBinder) service).getService();
+            mWhenService.onNext(Optional.of(bleService));
             if (DEBUG)  Log.d(TAG, "bleService connected");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             bleService = null;
+            mWhenService.onNext(Optional.absent());
             if (DEBUG) Log.d(TAG, "bleService disconnected");
         }
     };
@@ -220,5 +228,13 @@ public class BleClientImpl implements BleClient {
     @Override
     public void setMaxNoDevices(int maxNoDevices) {
         bleService.setMaxNoDevices(maxNoDevices <= 0 ? 1 : maxNoDevices);
+    }
+
+    @Override
+    public Single<BleClient> whenConnected() {
+        return mWhenService.filter(Optional::isPresent)
+                           .firstElement()
+                           .map(o -> (BleClient) this)
+                           .toSingle();
     }
 }

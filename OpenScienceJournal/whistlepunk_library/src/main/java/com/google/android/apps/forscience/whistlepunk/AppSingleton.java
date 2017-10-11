@@ -39,6 +39,7 @@ import java.util.concurrent.Executors;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 
 public class AppSingleton {
@@ -76,10 +77,11 @@ public class AppSingleton {
                 }
 
                 @Override
-                public BleClient getBleClient() {
-                    return AppSingleton.this.getBleClient();
+                public Single<BleClient> getConnectedBleClient() {
+                    return AppSingleton.this.getConnectedBleClient();
                 }
             };
+    private DeletedLabel mDeletedLabel;
 
     @NonNull
     public PrefsSensorHistoryStorage getPrefsSensorHistoryStorage() {
@@ -145,12 +147,12 @@ public class AppSingleton {
         return internalGetDataController();
     }
 
-    public BleClientImpl getBleClient() {
+    public Single<BleClient> getConnectedBleClient() {
         if (mBleClient == null) {
             mBleClient = new BleClientImpl(mApplicationContext);
             mBleClient.create();
         }
-        return mBleClient;
+        return mBleClient.whenConnected();
     }
 
     private Clock getDefaultClock() {
@@ -217,4 +219,16 @@ public class AppSingleton {
         return mLabelsAdded;
     }
 
+    public void pushDeletedLabelForUndo(DeletedLabel deletedLabel) {
+        mDeletedLabel = deletedLabel;
+    }
+
+    public DeletedLabel popDeletedLabelForUndo() {
+        if (mDeletedLabel != null) {
+            DeletedLabel returnThis = mDeletedLabel;
+            mDeletedLabel = null;
+            return returnThis;
+        }
+        return null;
+    }
 }

@@ -38,7 +38,7 @@ public class SecondsAgoFormat extends NumberFormat {
 
     @Override
     public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
-        return buffer.append(mElapsedTimeFormatter.format(value - mClock.getNow()));
+        return buffer.append(mElapsedTimeFormatter.format(value - mClock.getNow(), false));
     }
 
     @Override

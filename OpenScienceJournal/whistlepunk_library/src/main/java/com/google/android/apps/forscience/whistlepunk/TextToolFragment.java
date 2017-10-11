@@ -16,12 +16,16 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.NestedScrollView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -39,7 +43,7 @@ import io.reactivex.subjects.BehaviorSubject;
 /**
  * Fragment controlling adding text notes in the observe pane.
  */
-public class TextToolFragment extends Fragment {
+public class TextToolFragment extends PanesToolFragment {
     private static final String KEY_TEXT = "saved_text";
 
     /**
@@ -54,6 +58,11 @@ public class TextToolFragment extends Fragment {
     private RxEvent mFocusLost = new RxEvent();
     private BehaviorSubject<Boolean> mShowingCollapsed = BehaviorSubject.create();
     private BehaviorSubject<Integer> mTextSize = BehaviorSubject.create();
+    private boolean mUserMovingScroll = false;
+
+    public View getViewToKeepVisible() {
+        return mTextView;
+    }
 
     public interface TextLabelFragmentListener {
         void onTextLabelTaken(Label result);
@@ -70,13 +79,34 @@ public class TextToolFragment extends Fragment {
         return fragment;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreatePanesView(LayoutInflater inflater, @Nullable ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.text_label_fragment, null);
 
         mTextView = (TextView) rootView.findViewById(R.id.text);
+
+        NestedScrollView scroll = (NestedScrollView) rootView.findViewById(R.id.scroll);
+        scroll.setOnTouchListener((v, event) -> {
+            int action = event.getAction();
+            if (action == MotionEvent.ACTION_MOVE) {
+                mUserMovingScroll = true;
+            } else if (action == MotionEvent.ACTION_UP) {
+                mUserMovingScroll = false;
+            }
+            return false;
+        });
+        scroll.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX,
+                    int oldScrollY) {
+                if (mUserMovingScroll) {
+                    mTextView.clearFocus();
+                }
+            }
+        });
         mTextSize.onNext((int)mTextView.getTextSize());
 
         RxTextView.afterTextChangeEvents(mTextView)
@@ -172,12 +202,17 @@ public class TextToolFragment extends Fragment {
     }
 
     public void listenToAvailableHeight(Observable<Integer> height) {
-        Observable.combineLatest(height, mTextSize, (h, s) -> h < collapseThreshold(s))
+        Observable.combineLatest(height, mTextSize, (h, s) -> h < collapseThreshold(s) && canTint())
                   .takeUntil(mFocusLost.happens())
                   .subscribe(collapsed -> mShowingCollapsed.onNext(collapsed));
     }
 
-    public int collapseThreshold(Integer textSize) {
+    private boolean canTint() {
+        // if we can't tint, we can't currently show an inline send button (b/67312778)
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
+    public int collapseThreshold(int textSize) {
         return textSize * COLLAPSE_THRESHHOLD_LINES_OF_TEXT;
     }
 

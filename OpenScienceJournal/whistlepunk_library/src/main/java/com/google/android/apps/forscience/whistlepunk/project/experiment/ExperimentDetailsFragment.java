@@ -39,6 +39,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
@@ -52,6 +53,7 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
@@ -84,6 +86,7 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
+import com.jakewharton.rxbinding2.view.RxView;
 
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
@@ -103,7 +106,6 @@ public class ExperimentDetailsFragment extends Fragment
         NameExperimentDialog.OnExperimentTitleChangeListener {
 
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
-    public static final String ARG_DELETED_LABEL = "deleted_label";
     public static final String ARG_CREATE_TASK = "create_task";
     private static final String TAG = "ExperimentDetails";
 
@@ -120,7 +122,6 @@ public class ExperimentDetailsFragment extends Fragment
     private ScalarDisplayOptions mScalarDisplayOptions;
     private boolean mIncludeArchived;
     private BroadcastReceiver mBroadcastReceiver;
-    private Label mDeletedLabel;
     private String mActiveTrialId;
     private TextView mEmptyView;
 
@@ -133,12 +134,11 @@ public class ExperimentDetailsFragment extends Fragment
      *                          navigation.
      */
     public static ExperimentDetailsFragment newInstance(String experimentId,
-            boolean createTaskStack, Label deletedLabel) {
+            boolean createTaskStack) {
         ExperimentDetailsFragment fragment = new ExperimentDetailsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_EXPERIMENT_ID, experimentId);
         args.putBoolean(ARG_CREATE_TASK, createTaskStack);
-        args.putParcelable(ARG_DELETED_LABEL, deletedLabel);
         fragment.setArguments(args);
         return fragment;
     }
@@ -150,10 +150,6 @@ public class ExperimentDetailsFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
-        if (savedInstanceState == null) {
-            // Only try to restore a deleted label the first time.
-            mDeletedLabel = getArguments().getParcelable(ARG_DELETED_LABEL);
-        }
         setHasOptionsMenu(true);
     }
 
@@ -188,6 +184,11 @@ public class ExperimentDetailsFragment extends Fragment
         };
         CropHelper.registerStatsBroadcastReceiver(getActivity().getApplicationContext(),
                 mBroadcastReceiver);
+
+        DeletedLabel label = AppSingleton.getInstance(getActivity()).popDeletedLabelForUndo();
+        if (label != null) {
+            onLabelDelete(label);
+        }
     }
 
     public void reloadWithoutScroll() {
@@ -250,7 +251,7 @@ public class ExperimentDetailsFragment extends Fragment
 
         mDetails = (RecyclerView) view.findViewById(R.id.details_list);
         mDetails.setLayoutManager(new LinearLayoutManager(view.getContext(),
-                LinearLayoutManager.VERTICAL, true));
+                LinearLayoutManager.VERTICAL, /* don't reverse layout */ false));
         mAdapter = new DetailsAdapter(this, savedInstanceState);
         mDetails.setAdapter(mAdapter);
 
@@ -293,7 +294,6 @@ public class ExperimentDetailsFragment extends Fragment
         if (getActivity() != null) {
             getActivity().invalidateOptionsMenu();
         }
-        setHomeButtonState(true);
 
         // TODO: there has to be a cheaper way to make the feed scroll to the bottom
         reloadAndScrollToBottom();
@@ -304,13 +304,15 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void scrollToBottom() {
-        if (mDetails != null) {
-            mDetails.smoothScrollToPosition(0);
+        if (mDetails != null && mAdapter != null && mAdapter.getItemCount() > 0) {
+            mDetails.smoothScrollToPosition(mAdapter.getItemCount() - 1);
         }
     }
 
     public void onRecordingTrialUpdated(String trialId) {
-        RxDataController.getTrial(getDataController(), mExperimentId, trialId).subscribe(t -> {
+        // getTrialMaybe as workaround to avoid b/67008535; we can't live without a trial forever,
+        // but the consequences of not having that trial are small here.
+        RxDataController.getTrialMaybe(getDataController(), mExperimentId, trialId).subscribe(t -> {
             mAdapter.updateActiveRecording(t);
             scrollToBottom();
         });
@@ -323,7 +325,6 @@ public class ExperimentDetailsFragment extends Fragment
             mActiveTrialId = null;
         }
         getActivity().invalidateOptionsMenu();
-        setHomeButtonState(false);
     }
 
     // Sets the actionBar home button to opaque to indicate it is disabled.
@@ -360,11 +361,6 @@ public class ExperimentDetailsFragment extends Fragment
 
         setExperimentItemsOrder(experiment);
 
-        if (mDeletedLabel != null) {
-            onLabelDelete(mDeletedLabel);
-            mDeletedLabel = null;
-        }
-
         getActivity().setTitle(experiment.getDisplayTitle(getActivity()));
 
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
@@ -397,6 +393,7 @@ public class ExperimentDetailsFragment extends Fragment
         menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
         menu.findItem(R.id.action_edit_experiment).setVisible(mExperiment != null &&
                 !mExperiment.isArchived());
+        setHomeButtonState(isRecording());
     }
 
     @Override
@@ -471,6 +468,10 @@ public class ExperimentDetailsFragment extends Fragment
             // We are handling this.
             return true;
         }
+        if (getActivity().isTaskRoot()) {
+            goToExperimentList();
+            return true;
+        }
         // The activity can handle it normally.
         return false;
     }
@@ -536,8 +537,7 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     private void setExperimentItemsOrder(Experiment experiment) {
-        ((LinearLayoutManager) mDetails.getLayoutManager()).setReverseLayout(
-                !experiment.isArchived());
+        mAdapter.setReverseLayout(!experiment.isArchived());
     }
 
     @Override
@@ -551,52 +551,33 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     void deleteLabel(Label label) {
-        mExperiment.deleteLabel(label, getActivity());
-        RxDataController.updateExperiment(getDataController(), mExperiment)
-                .subscribe(() -> onLabelDelete(label));
+        if (getActivity() != null) {
+            Consumer<Context> assetDeleter = mExperiment.deleteLabelAndReturnAssetDeleter(label);
+            RxDataController.updateExperiment(getDataController(), mExperiment)
+                    .subscribe(() -> onLabelDelete(new DeletedLabel(label, assetDeleter)));
+        }
     }
 
-    private void onLabelDelete(final Label item) {
-        final DataController dc = getDataController();
-        Snackbar bar = AccessibilityUtils.makeSnackbar(getView(), getActivity().getResources()
-                .getString(R.string.snackbar_note_deleted),
-                Snackbar.LENGTH_LONG);
+    private void onLabelDelete(DeletedLabel deletedLabel) {
+        deletedLabel.deleteAndDisplayUndoBar(getView(), mExperiment.getExperimentId(), mExperiment,
+                () -> {
+                    mAdapter.insertNote(deletedLabel.getLabel());
 
-        // On undo, re-add the item to the database and the pinned note list.
-        bar.setAction(R.string.snackbar_undo, new View.OnClickListener() {
-            boolean mUndone = false;
-            @Override
-            public void onClick(View v) {
-                if (mUndone) {
-                    return;
-                }
-                mUndone = true;
-                final Label label = Label.copyOf(item);
-                mExperiment.addLabel(label);
-                dc.updateExperiment(mExperimentId, new LoggingConsumer<Success>(TAG,
-                        "re-add deleted label") {
-                    @Override
-                    public void success(Success value) {
-                        // TODO: Somehow re-add the deleted picture here.
-                        mAdapter.insertNote(label);
-                        WhistlePunkApplication.getUsageTracker(getActivity())
-                                .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                        TrackerConstants.ACTION_DELETE_UNDO,
-                                        TrackerConstants.LABEL_EXPERIMENT_DETAIL,
-                                        TrackerConstants.getLabelValueType(item));
-                    }
+                    WhistlePunkApplication.getUsageTracker(getActivity())
+                                          .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                                  TrackerConstants.ACTION_DELETE_UNDO,
+                                                  TrackerConstants.LABEL_EXPERIMENT_DETAIL,
+                                                  TrackerConstants.getLabelValueType(
+                                                          deletedLabel.getLabel()));
                 });
-            }
-        });
-        bar.show();
 
-        mAdapter.deleteNote(item);
+        mAdapter.deleteNote(deletedLabel.getLabel());
 
         WhistlePunkApplication.getUsageTracker(getActivity())
                 .trackEvent(TrackerConstants.CATEGORY_NOTES,
                         TrackerConstants.ACTION_DELETED,
                         TrackerConstants.LABEL_EXPERIMENT_DETAIL,
-                        TrackerConstants.getLabelValueType(item));
+                        TrackerConstants.getLabelValueType(deletedLabel.getLabel()));
     }
 
     private void setTrialArchived(Trial trial, boolean toArchive) {
@@ -672,6 +653,7 @@ public class ExperimentDetailsFragment extends Fragment
         private List<Integer> mSensorIndices = null;
         private boolean mHasRunsOrLabels;
         private ScalarDisplayOptions mScalarDisplayOptions;
+        private boolean mReverseOrder = true;
 
         DetailsAdapter(ExperimentDetailsFragment parent, Bundle savedInstanceState) {
             mItems = new ArrayList<>();
@@ -900,7 +882,7 @@ public class ExperimentDetailsFragment extends Fragment
                 if (item.getViewType() == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
                     continue;
                 }
-                if (timestamp > item.getTimestamp()) {
+                if (timestamp < item.getTimestamp()) {
                     mItems.add(i, new ExperimentDetailItem(label));
                     notifyItemInserted(i);
                     inserted = true;
@@ -1142,7 +1124,24 @@ public class ExperimentDetailsFragment extends Fragment
             LayoutInflater.from(noteHolder.getContext()).inflate(R.layout.load_more_notes_button,
                     noteHolder);
             // TODO: Jump straight to the notes section.
-            noteHolder.findViewById(R.id.load_more_btn).setOnClickListener(
+            Button button = (Button) noteHolder.findViewById(R.id.load_more_btn);
+            Context context = button.getContext();
+            int activeTextColor = button.getCurrentTextColor();
+            int inactiveColor = context.getResources().getColor(R.color.archived_background_color);
+
+            AppSingleton.getInstance(context)
+                        .getRecorderController()
+                        .watchRecordingStatus()
+                        .takeUntil(RxView.detaches(button))
+                        .subscribe(status -> {
+                            if (status.isRecording()) {
+                                button.setTextColor(inactiveColor);
+                            } else {
+                                button.setTextColor(activeTextColor);
+                            }
+                        });
+
+            button.setOnClickListener(
                     view -> RunReviewActivity.launch(noteHolder.getContext(), runId,
                             mExperiment.getExperimentId(), 0 /* sensor index deprecated */,
                             false /* from record */, false /* create task */, null)
@@ -1243,8 +1242,13 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         void sortItems() {
-            Collections.sort(mItems,
-                    (lhs, rhs) -> Long.compare(rhs.getTimestamp(), lhs.getTimestamp()));
+            if (mReverseOrder) {
+                Collections.sort(mItems,
+                        (lhs, rhs) -> Long.compare(lhs.getTimestamp(), rhs.getTimestamp()));
+            } else {
+                Collections.sort(mItems,
+                        (lhs, rhs) -> Long.compare(rhs.getTimestamp(), lhs.getTimestamp()));
+            }
         }
 
         public void onSaveInstanceState(Bundle outState) {
@@ -1288,8 +1292,9 @@ public class ExperimentDetailsFragment extends Fragment
 
         public void addActiveRecording(Trial trial) {
             if (findTrialIndex(trial.getTrialId()) == -1) {
-                mItems.add(0, new ExperimentDetailItem(trial, mScalarDisplayOptions, true));
-                notifyItemInserted(0);
+                // active recording goes to end of list
+                mItems.add(new ExperimentDetailItem(trial, mScalarDisplayOptions, true));
+                notifyItemInserted(mItems.size() - 1);
                 updateEmptyView();
             }
         }
@@ -1317,6 +1322,14 @@ public class ExperimentDetailsFragment extends Fragment
             } else {
                 mItems.set(position, new ExperimentDetailItem(trial, mScalarDisplayOptions, false));
                 notifyItemChanged(position);
+            }
+        }
+
+        public void setReverseLayout(boolean reverseLayout) {
+            if (mReverseOrder != reverseLayout) {
+                mReverseOrder = reverseLayout;
+                sortItems();
+                notifyDataSetChanged();
             }
         }
 

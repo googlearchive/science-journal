@@ -32,6 +32,7 @@
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
         android:gravity="center_vertical"
+        android:textStyle="bold"
         />
 
     <com.google.android.apps.forscience.whistlepunk.project.experiment.RecordingThrobberView

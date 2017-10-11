@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.performance;
 
+import android.app.Application;
 import android.content.Context;
 
 import java.util.UUID;
@@ -93,4 +94,37 @@ public interface PerfTrackerProvider {
      * @param object
      */
     void watchForMemoryLeak(Object object);
+
+    /**
+     * Record battery snapshot with hint that a foreground service is starting
+     */
+    void recordBatterySnapshotOnForegroundServiceStart();
+
+    /**
+     * Record battery snapshot with hint that a foreground service is stopping
+     */
+    void recordBatterySnapshotOnForegroundServiceStop();
+
+    /**
+     * Record battery snapshot for specific event
+     * @param eventName
+     */
+    void recordBatterySnapshot(String eventName);
+
+    /**
+     * Record time at which application is first started for start-up latency
+     * @param app
+     */
+    void onAppCreate(Application app);
+
+    /**
+     * Record time at which activity inits for start-up latency
+     */
+    void onActivityInit();
+
+    /**
+     * Record time when user should be able to first interact with app for start-up latency
+     */
+    void onAppInteractive();
+
 }

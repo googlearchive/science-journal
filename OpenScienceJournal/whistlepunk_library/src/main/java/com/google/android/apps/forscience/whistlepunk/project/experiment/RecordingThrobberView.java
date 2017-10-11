@@ -25,9 +25,9 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.BounceInterpolator;
 
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.RxEvent;
 
 /**
  * A view containing an animated set of bars to denote a recording in progress
@@ -42,6 +42,7 @@ public class RecordingThrobberView extends View {
     private float mHeight;
     private float mBarAndSpacingWidth;
     private float[] mAnimatedFraction = new float[NUMBER_BARS];
+    private RxEvent mStopped = new RxEvent();
 
     public RecordingThrobberView(Context context) {
         super(context);
@@ -69,6 +70,21 @@ public class RecordingThrobberView extends View {
         int color = getContext().getResources().getColor(R.color.recording_axis_bar_color);
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setColor(color);
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        startAnimation();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        stopAnimation();
+    }
+
+    public void startAnimation() {
         for (int i = 0; i < NUMBER_BARS; i++) {
             final int index = i;
             ValueAnimator animator = ValueAnimator.ofFloat(0, 100);
@@ -78,14 +94,19 @@ public class RecordingThrobberView extends View {
             animator.setInterpolator(new AccelerateDecelerateInterpolator());
             // Get sorta random starts using some prime numbers and modulo math
             animator.setCurrentPlayTime((long) (MS_PER_CYCLE * (i * 3 + 7 * 1.0 % NUMBER_BARS) /
-                    NUMBER_BARS));
+                                                NUMBER_BARS));
             animator.addUpdateListener(valueAnimator -> {
                 mAnimatedFraction[index] = valueAnimator.getAnimatedFraction();
                 // Coordinate the invalidates for performance.
                 postInvalidateOnAnimation();
             });
             animator.start();
+            mStopped.happensNext().subscribe(() -> animator.end());
         }
+    }
+
+    public void stopAnimation() {
+        mStopped.onHappened();
     }
 
     @Override

@@ -30,7 +30,6 @@
 
         <ImageView
             android:id="@+id/note_image"
-            android:scaleType="fitCenter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:contentDescription="@string/picture_note_preview_content_description"

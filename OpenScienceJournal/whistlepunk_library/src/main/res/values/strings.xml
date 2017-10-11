@@ -237,7 +237,7 @@
     <string name="navigation_item_activities">Activities</string>
 
     <!-- URL to go to when navigation to the activities. DO NOT TRANSLATE -->
-    <string name="activities_url" translatable="false">https://makingscience.withgoogle.com/science-journal/activities</string>
+    <string name="activities_url" translatable="false">https://makingscience.withgoogle.com/science-journal/activities?utm_source=android</string>
 
     <!-- Title of the navigation item to show settings [CHAR_LIMIT=25] -->
     <string name="navigation_item_settings">Settings</string>
@@ -823,27 +823,41 @@
     <string name="listing_tagline">Experiment on your world.</string>
 
     <!-- Change log for Science Journal (note: this is multiline, with \n to separate lines) [CHAR LIMIT=500] -->
-    <string name="listing_changelog">New features and improvements:
-        \n\u2022 Official support for ChromeBooks that support the Play Store: https://support.google.com/chromebook/answer/7021273.
-        \n\u2022 Fix support for Nougat multi-window mode.
-        \n\u2022 Can now crop extra data from recorded trials.
+    <string name="listing_changelog">
+New features and improvements:
+\n\u2022 Brand-new interface for taking notes and documenting science experiments.
+\n\u2022 New snapshot feature for capturing individual data points.
+\n\u2022 New sensors: linear accelerometer, magnetometer, and compass
+\n\u2022 Redesigned gallery for browsing experiments
+\n\u2022 Now available on iOS devices!
     </string>
 
     <!-- Description text shown in the Play Store for this app. Ensure a space
          remains before and after urls. [CHAR LIMIT=4000]-->
-    <string name="listing__description">Science Journal is a tool for doing science with your phone, tablet, or Chromebook supporting Android apps.  You can use the sensors in your phone or connect to external sensors to conduct experiments on the world around you.
-        Organize your ideas into projects, make predictions, take notes and collect data in multiple recordings, then annotate and explore your results. It\'s the lab notebook you always have with you.
-\n\n
-\nGet activity ideas to use with the app here: https://makingscience.withgoogle.com/science-journal/activities
-\nLearn more about Making &amp; Science: https://makingscience.withgoogle.com
+    <string name="listing__description">
+Science Journal is the free digital science notebook brought to you by Google.
+\n
+\nWhether you\'re a science educator or a hobbyist doing science at home, you can keep your notes, photos, and observations all in one convenient place. Use the sensors in your phone to measure and graph phenomena such as light, sound, and motion, or connect to external sensors via bluetooth to conduct experiments on the world around you.
+\n
+\nWith the Science Journal app, you can:
+\n\u2022 Measure light, sound, acceleration, air pressure, and more using your phone\'s built-in sensors.
+\n\u2022 Take notes and photos to document your science experiments. More note types coming soon!
+\n\u2022 Connect to external sensors using select Bluetooth-enabled Arduino and Vernier devices.
+\n\u2022 Export recorded sensor data as CSV files.
+\n\u2022 Create automated triggers for recording data and taking notes.
+\n\u2022 Use sonification to hear the movement of your graphs.
+\n
+\nScience Journal is available for free on Android, iPhone, iPad, and compatible Chromebook devices.
+\n
+\nEducational activities by our partners: https://makingscience.withgoogle.com/science-journal/activities
 \nFor support: https://productforums.google.com/forum/#!forum/sciencejournal
-\nCode available: https://github.com/google/science-journal
+\nOpen-source code available: https://github.com/google/science-journal
 \n\n
 Permissions notice:
 \n\u2022 Location: needed to scan for bluetooth sensor devices.
 \n\u2022 Camera: needed to take pictures to document experiments.
 \n\u2022 Microphone: needed for sound intensity sensor.
-\n\u2022 Storage: needed to store pictures taken to document experiments.
+\n\u2022 Storage: needed to access photos to insert into experiments.
     </string>
     <!-- End of Play Store Listing Strings -->
 
@@ -1294,13 +1308,13 @@ Permissions notice:
     <string name="tool_picker_tab_layout_description">Available tools</string>
 
     <!-- Content description for tab icon to add a text note [CHAR_LIMIT=none] -->
-    <string name="tab_description_add_note">Add note</string>
+    <string name="tab_description_add_note">Write text</string>
 
     <!-- Content description for tab icon to observe sensors [CHAR_LIMIT=none] -->
     <string name="tab_description_observe">Observe sensors</string>
 
     <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
-    <string name="tab_description_camera">Take picture</string>
+    <string name="tab_description_camera">Take photo</string>
 
     <!-- Button to view more notes in a trial [CHAR_LIMIT=50] -->
     <string name="load_more_notes_btn">View more notes</string>
@@ -1345,13 +1359,13 @@ Permissions notice:
     <string name="experiment_cover_description">Choose an experiment photo</string>
 
     <!-- Content description for button to take a picture to use as the experiment image [CHAR_LIMIT=NONE] -->
-    <string name="btn_take_picture_content_description">Take picture</string>
+    <string name="btn_take_picture_content_description">Shutter</string>
 
     <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
     <string name="tab_description_gallery">Choose picture</string>
 
     <!-- Content description for an image in the gallery view that could be selected for a photo note [CHAR_LIMIT=NONE] -->
-    <string name="gallery_image_content_description">Image</string>
+    <string name="gallery_image_content_description">Image taken on <xliff:g id="date">%s</xliff:g></string>
 
     <!-- Content description for an icon showing a gallery image is selected [CHAR_LIMIT="none"] -->
     <string name="content_description_selected">selected</string>
@@ -1370,6 +1384,24 @@ Permissions notice:
 
     <!-- Button shown to users with accessibility settings on that allows them to collapse a fully expanded pane [CHAR_LIMIT=NONE] -->
     <string name="btn_hide_tools">Collapse tool drawer</string>
+
+    <!-- Menu option to edit a photo [CHAR_LIMIT=30] -->
+    <string name="action_edit_photo">Edit photo</string>
+
+    <!-- Experiment Details menu option to add a text note [CHAR_LIMIT=25] -->
+    <string name="add_text_note">Add text note</string>
+
+    <!-- Content description for the camera preview [CHAR_LIMIT=NONE] -->
+    <string name="camera_preview_content_description">Camera live view</string>
+
+    <!-- Error message for camera view when permissions are denied [CHAR_LIMIT=NONE] -->
+    <string name="input_camera_permission_denied">The camera cannot be used because Science Journal does not have permission to access it.</string>
+
+    <!-- Error message for gallery view when permissions are denied [CHAR_LIMIT=NONE] -->
+    <string name="input_photo_library_permission_denied">Your photo library cannot be used because Science Journal does not have permission to access it.</string>
+
+    <!-- Button text to open phone settings [CHAR_LIMIT=30] -->
+    <string name="input_blocked_open_settings_button">Open Settings</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

@@ -21,9 +21,7 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,7 +34,6 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
-import com.jakewharton.rxbinding2.widget.RxTextView;
 
 /**
  * Details view controller for TextLabel
@@ -102,7 +99,7 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
                     return;
                 }
                 saveTextChanges(newText, experiment);
-                returnToParent(false);
+                returnToParent(false, null);
             });
             return true;
         }

@@ -17,10 +17,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_save"
+        android:icon="@drawable/ic_check_white_24dp"
+        android:title="@string/action_save"
+        app:showAsAction="always"
+        />
+    <item
         android:id="@+id/action_edit"
-        android:title="@string/action_edit"
+        android:title="@string/action_edit_photo"
         android:icon="@drawable/ic_mode_edit_white_24dp"
-        app:showAsAction="ifRoom"
+        app:showAsAction="never"
         />
     <item
         android:id="@+id/action_delete"

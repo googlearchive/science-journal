@@ -15,7 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import io.reactivex.CompletableSource;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 
@@ -48,7 +48,11 @@ public class RxEvent {
         mHappenings.onNext(true);
     }
 
-    public CompletableSource happensNext() {
+    public void onDoneHappening() {
+        mHappenings.onComplete();
+    }
+
+    public Completable happensNext() {
         return happens().firstOrError().toCompletable();
     }
 }

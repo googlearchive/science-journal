@@ -103,6 +103,13 @@ public final class TrackerConstants {
     private static final long VALUE_TYPE_SENSOR_TRIGGER = 2;
     private static final long VALUE_TYPE_SNAPSHOT = 3;
 
+    // Primes Event Names
+    public static final String PRIMES_OBSERVE = "OBSERVE";
+    public static final String PRIMES_EXPERIMENT_LOADED = "EXPERIMENT_LOADED";
+    public static final String PRIMES_EXPERIMENT_LIST_LOADED = "EXPERIMENT_LIST_LOADED";
+    public static final String PRIMES_RUN_LOADED = "RUN_LOADED";
+    public static final String PRIMES_DEFAULT_EXPERIMENT_CREATED = "DEFAULT_EXPERIMENT_CREATED";
+
     private TrackerConstants() {}
 
     /**

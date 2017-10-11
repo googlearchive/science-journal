@@ -185,7 +185,7 @@ public class SensorCardPresenterUnitTest {
         }
 
         @Override
-        public void onNewData(long timestamp, Bundle data) {
+        public void onNewData(long timestamp, Data data) {
 
         }
     }

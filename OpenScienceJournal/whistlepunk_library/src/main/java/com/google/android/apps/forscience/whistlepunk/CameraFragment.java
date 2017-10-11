@@ -16,7 +16,6 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.hardware.Camera;
@@ -39,26 +38,40 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 import java.util.UUID;
 
 import io.reactivex.Observable;
-import io.reactivex.Observer;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 
 import static android.content.ContentValues.TAG;
 
 
-public class CameraFragment extends Fragment {
-    private static final String KEY_PERMISSION_GRANTED = "key_permission_granted";
-
+public class CameraFragment extends PanesToolFragment {
     private final BehaviorSubject<Optional<ViewGroup>> mPreviewContainer = BehaviorSubject.create();
     private BehaviorSubject<Boolean> mPermissionGranted = BehaviorSubject.create();
-    private RxEvent mFocusLost = new RxEvent();
     private PublishSubject<Object> mWhenUserTakesPhoto = PublishSubject.create();
-    private boolean mFocused = false;
+
+    private RxEvent mVisibilityGained = new RxEvent();
+    private RxEvent mVisibilityLost = new RxEvent();
+    private BehaviorSubject<Boolean> mFocused = BehaviorSubject.create();
+    private BehaviorSubject<Boolean> mResumed = BehaviorSubject.create();
+
+    private BehaviorSubject<Integer> mDrawerState = BehaviorSubject.create();
+
+    private RxEvent mViewDestroyed = new RxEvent();
 
     public static abstract class CameraFragmentListener {
         static CameraFragmentListener NULL = new CameraFragmentListener() {
             @Override
             public Observable<String> getActiveExperimentId() {
+                return Observable.empty();
+            }
+
+            @Override
+            public RxPermissions getPermissions() {
+                return null;
+            }
+
+            @Override
+            public Observable<Integer> watchDrawerState() {
                 return Observable.empty();
             }
 
@@ -72,6 +85,10 @@ public class CameraFragment extends Fragment {
         }
 
         public abstract Observable<String> getActiveExperimentId();
+
+        public abstract RxPermissions getPermissions();
+
+        public abstract Observable<Integer> watchDrawerState();
     }
 
     public interface ListenerProvider {
@@ -80,29 +97,91 @@ public class CameraFragment extends Fragment {
 
     private CameraFragmentListener mListener = CameraFragmentListener.NULL;
 
-    public static CameraFragment newInstance(RxPermissions permissions) {
-        CameraFragment fragment = new CameraFragment();
-        permissions.request(Manifest.permission.CAMERA).subscribe(granted -> {
-            fragment.onPermissionGranted().onNext(granted);
+    public static CameraFragment newInstance() {
+        return new CameraFragment();
+    }
+
+    public CameraFragment() {
+        mVisibilityGained.happens().subscribe(v -> {
+            mPreviewContainer.filter(o -> o.isPresent()).firstElement().subscribe(opt -> {
+                ViewGroup container = opt.get();
+
+                mPermissionGranted.distinctUntilChanged().takeUntil(RxView.detaches(container)).map(
+                        granted -> {
+                            if (granted) {
+                                return Optional.of(openCamera());
+                            } else {
+                                return Optional.<Camera>absent();
+                            }
+                        }).subscribe(optCamera -> {
+                    if (optCamera.isPresent()) {
+                        setUpWorkingCamera(container, optCamera.get());
+                    } else {
+                        complainCameraPermissions(container);
+                    }
+                }, LoggingConsumer.complain(TAG, "camera permission"));
+            });
         });
-        return fragment;
+
+        // Only treat as visible (and therefore connect the camera) when we are both focused and
+        // resumed.
+        Observable.combineLatest(mFocused, mResumed, mDrawerState,
+                (focused, resumed, drawerState) -> focused
+                                                   && resumed
+                                                   && drawerState
+                                                      != PanesBottomSheetBehavior.STATE_COLLAPSED)
+                  .distinctUntilChanged()
+                  .subscribe(hasBecomeVisible -> {
+                      if (hasBecomeVisible) {
+                          mVisibilityGained.onHappened();
+                      } else {
+                          mVisibilityLost.onHappened();
+                      }
+                  });
     }
 
-    Observer<Boolean> onPermissionGranted() {
-        return mPermissionGranted;
+    private void complainCameraPermissions(ViewGroup container) {
+        LayoutInflater inflater = LayoutInflater.from(container.getContext());
+        View view = inflater.inflate(R.layout.camera_complaint, container, false);
+
+        container.removeAllViews();
+        container.addView(view);
+        RxView.clicks(view.findViewById(R.id.open_settings))
+              .subscribe(click -> requestPermission());
     }
 
-    // TODO: extract this pattern of fragment listeners
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        internalOnAttach(context);
-    }
+    public void setUpWorkingCamera(ViewGroup container, Camera camera) {
+        LayoutInflater inflater = LayoutInflater.from(container.getContext());
+        View view = inflater.inflate(R.layout.camera_tool_preview, container, false);
+        CameraPreview preview = (CameraPreview) view;
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        internalOnAttach(activity);
+        container.removeAllViews();
+        container.addView(preview);
+        preview.setCamera(camera);
+
+        mDrawerState.takeUntil(RxView.detaches(preview)).subscribe(preview::setCurrentDrawerState);
+
+        mWhenUserTakesPhoto.takeUntil(mVisibilityLost.happens()).subscribe(o -> {
+            final long timestamp = getTimestamp(preview.getContext());
+            final String uuid = UUID.randomUUID().toString();
+            preview.takePicture(mListener.getActiveExperimentId().firstElement(), uuid,
+                    new LoggingConsumer<String>(TAG, "taking picture") {
+                        @Override
+                        public void success(String relativePicturePath) {
+                            GoosciPictureLabelValue.PictureLabelValue labelValue =
+                                    new GoosciPictureLabelValue.PictureLabelValue();
+                            labelValue.filePath = relativePicturePath;
+                            Label label = Label.fromUuidAndValue(timestamp, uuid,
+                                    GoosciLabel.Label.PICTURE, labelValue);
+                            mListener.onPictureLabelTaken(label);
+                        }
+                    });
+        });
+
+        mVisibilityLost.happensNext().subscribe(() -> {
+            preview.removeCamera();
+            container.removeAllViews();
+        });
     }
 
     @Override
@@ -111,7 +190,7 @@ public class CameraFragment extends Fragment {
         super.onDetach();
     }
 
-    private void internalOnAttach(Context context) {
+    protected void panesOnAttach(Context context) {
         if (context instanceof ListenerProvider) {
             mListener = ((ListenerProvider) context).getCameraFragmentListener();
         }
@@ -121,20 +200,34 @@ public class CameraFragment extends Fragment {
         }
     }
 
+    private void requestPermission() {
+        RxPermissions permissions = mListener.getPermissions();
+        if (permissions == null) {
+            return;
+        }
+        permissions.request(Manifest.permission.CAMERA).subscribe(granted -> {
+            mPermissionGranted.onNext(granted);
+        });
+    }
+
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreatePanesView(LayoutInflater inflater, @Nullable ViewGroup container,
             Bundle savedInstanceState) {
         View inflated = inflater.inflate(R.layout.fragment_camera_tool, null);
         mPreviewContainer.onNext(
                 Optional.of((ViewGroup) inflated.findViewById(R.id.preview_container)));
+        requestPermission();
+        mListener.watchDrawerState()
+                 .takeUntil(mViewDestroyed.happens())
+                 .subscribe(mDrawerState::onNext);
         return inflated;
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroyPanesView() {
         mPreviewContainer.onNext(Optional.absent());
-        super.onDestroyView();
+        mViewDestroyed.onHappened();
     }
 
     public void attachButtons(FrameLayout controlBar) {
@@ -155,73 +248,18 @@ public class CameraFragment extends Fragment {
 
     @Override
     public void onPause() {
-        onLosingFocus();
+        mResumed.onNext(false);
         super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        onGainedFocus();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (mPermissionGranted.hasValue()) {
-            outState.putBoolean(KEY_PERMISSION_GRANTED, mPermissionGranted.getValue());
-        }
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_PERMISSION_GRANTED)) {
-            mPermissionGranted.onNext(savedInstanceState.getBoolean(KEY_PERMISSION_GRANTED));
-        }
+        mResumed.onNext(true);
     }
 
     public void onGainedFocus() {
-        if (mFocused) {
-            return;
-        }
-
-        mFocused = true;
-        mPreviewContainer.filter(o -> o.isPresent()).firstElement().subscribe(opt -> {
-            ViewGroup container = opt.get();
-            LayoutInflater inflater = LayoutInflater.from(container.getContext());
-            View view = inflater.inflate(R.layout.camera_tool_preview, container, false);
-            CameraPreview preview = (CameraPreview) view;
-            container.addView(preview);
-
-            mPermissionGranted.firstElement().subscribe(granted -> {
-                if (granted) {
-                    preview.setCamera(openCamera());
-                }
-            }, LoggingConsumer.complain(TAG, "camera permission"));
-
-            mWhenUserTakesPhoto.takeUntil(mFocusLost.happens()).subscribe(o -> {
-                final long timestamp = getTimestamp(preview.getContext());
-                final String uuid = UUID.randomUUID().toString();
-                preview.takePicture(mListener.getActiveExperimentId().firstElement(), uuid,
-                        new LoggingConsumer<String>(TAG, "taking picture") {
-                            @Override
-                            public void success(String relativePicturePath) {
-                                GoosciPictureLabelValue.PictureLabelValue labelValue =
-                                        new GoosciPictureLabelValue.PictureLabelValue();
-                                labelValue.filePath = relativePicturePath;
-                                Label label = Label.fromUuidAndValue(timestamp, uuid,
-                                        GoosciLabel.Label.PICTURE, labelValue);
-                                mListener.onPictureLabelTaken(label);
-                            }
-                        });
-            });
-
-            mFocusLost.happens().firstElement().subscribe(o -> {
-                preview.removeCamera();
-                container.removeAllViews();
-            });
-        });
+        mFocused.onNext(true);
     }
 
     public Camera openCamera() {
@@ -229,10 +267,6 @@ public class CameraFragment extends Fragment {
     }
 
     public void onLosingFocus() {
-        if (!mFocused) {
-            return;
-        }
-        mFocused = false;
-        mFocusLost.onHappened();
+        mFocused.onNext(false);
     }
 }

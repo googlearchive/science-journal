@@ -28,6 +28,8 @@ import android.widget.DatePicker;
 
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 
 import java.util.Calendar;
 
@@ -94,6 +96,7 @@ public class AgeVerifier extends AppCompatActivity {
                 AgeVerifier.this.startActivity(intent);
             }
         });
+        WhistlePunkApplication.getPerfTrackerProvider(this).onAppInteractive();
     }
 
     public static boolean shouldShowUserAge(Context context) {

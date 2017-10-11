@@ -28,9 +28,19 @@ import java.util.List;
  * Asynchronous photo loader tool to get photos from the gallery.
  * Inspired by https://github.com/rexstjohn/UltimateAndroidCameraGuide/
  */
-class PhotoAsyncLoader extends AsyncTaskLoader<List<String>> {
+class PhotoAsyncLoader extends AsyncTaskLoader<List<PhotoAsyncLoader.Image>> {
 
-    private List<String> mItems;
+    public class Image {
+        public String path;
+        public long timestampTaken;
+
+        public Image(String path, long timestampTaken) {
+            this.path = path;
+            this.timestampTaken = timestampTaken;
+        }
+    }
+
+    private List<Image> mItems;
 
     public PhotoAsyncLoader(Context context) {
         super(context);
@@ -47,10 +57,10 @@ class PhotoAsyncLoader extends AsyncTaskLoader<List<String>> {
     }
 
     @Override
-    public List<String> loadInBackground() {
+    public List<Image> loadInBackground() {
         // TODO: Maybe add date taken to results for content description
         final String[] projection = {MediaStore.Images.Media.DATA,
-                MediaStore.Images.Media._ID};
+                MediaStore.Images.Media._ID, MediaStore.Images.ImageColumns.DATE_TAKEN};
         String sortOrder = MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC";
 
         Cursor cursor = getContext().getContentResolver().query(
@@ -64,7 +74,7 @@ class PhotoAsyncLoader extends AsyncTaskLoader<List<String>> {
 
         if (cursor.moveToFirst()) {
             do {
-                mItems.add(uriToFullImage(cursor));
+                mItems.add(new Image(uriToFullImage(cursor), timestampCreated(cursor)));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -74,8 +84,15 @@ class PhotoAsyncLoader extends AsyncTaskLoader<List<String>> {
     /**
      * Get the path to the full image for a given thumbnail.
      */
-    private static String uriToFullImage(Cursor mediaCursor){
+    private static String uriToFullImage(Cursor mediaCursor) {
         String filePath = "file://" + mediaCursor.getString(0);
         return filePath;
+    }
+
+    /**
+     * Gets the timestamp created for a given thumbnail.
+     */
+    private static long timestampCreated(Cursor mediaCursor) {
+        return mediaCursor.getLong(2);
     }
 }

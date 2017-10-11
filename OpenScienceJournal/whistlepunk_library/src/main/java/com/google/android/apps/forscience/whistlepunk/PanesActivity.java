@@ -21,6 +21,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -43,6 +44,7 @@ import android.widget.ProgressBar;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -53,15 +55,12 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
-        CameraFragment.ListenerProvider, TextToolFragment.ListenerProvider {
-    /**
-     * Just for development, will be removed once shared control bar works
-     */
-    private static final boolean SHARED_CONTROL_BAR = true;
-
+        CameraFragment.ListenerProvider, TextToolFragment.ListenerProvider, GalleryFragment
+                .ListenerProvider {
     private static final String TAG = "PanesActivity";
-    private static final String EXTRA_EXPERIMENT_ID = "experimentId";
+    public static final String EXTRA_EXPERIMENT_ID = "experimentId";
     private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
+    private static final String KEY_DRAWER_STATE = "drawerState";
     private final SnackbarManager mSnackbarManager;
 
     private ProgressBar mRecordingBar;
@@ -71,9 +70,47 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private BehaviorSubject<Integer> mActivityHeight = BehaviorSubject.create();
     private BehaviorSubject<Integer> mBottomSheetState = BehaviorSubject.create();
     private ImageButton mGrabber;
+    private ToolTab[] mToolTabs = ToolTab.values();
+    private RxPermissions mPermissions;
+    private int mInitialDrawerState = -1;
 
     public PanesActivity() {
         mSnackbarManager = new SnackbarManager();
+    }
+
+    public static class DrawerLayoutState {
+        private final int mActivityHeight;
+        private final int mDrawerState;
+        private Experiment mExperiment;
+
+        private DrawerLayoutState(int activityHeight, int drawerState, Experiment experiment) {
+            mActivityHeight = activityHeight;
+            mDrawerState = drawerState;
+            mExperiment = experiment;
+        }
+
+        public int getAvailableHeight() {
+            if (mExperiment.isArchived()) {
+                // No matter the state, the control bar is hidden when archived.
+                return 0;
+            }
+
+            switch (mDrawerState) {
+                case PanesBottomSheetBehavior.STATE_COLLAPSED:
+                    return 0;
+                case PanesBottomSheetBehavior.STATE_EXPANDED:
+                    return mActivityHeight;
+                case PanesBottomSheetBehavior.STATE_MIDDLE:
+                    return mActivityHeight / 2;
+            }
+
+            // Filter out other states
+            return -1;
+        }
+
+        public int getDrawerState() {
+            return mDrawerState;
+        }
     }
 
     private static enum ToolTab {
@@ -84,22 +121,23 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void connectControls(Fragment fragment, FrameLayout controlBar,
+            public View connectControls(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController,
-                    Observable<Integer> availableHeight) {
+                    Observable<DrawerLayoutState> layoutState) {
                 TextToolFragment ttf = (TextToolFragment) fragment;
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.text_action_bar, controlBar, true);
                 ttf.attachButtons(controlBar);
-                ttf.listenToAvailableHeight(availableHeight);
+                ttf.listenToAvailableHeight(layoutState.map(state -> state.getAvailableHeight()));
+                return ttf.getViewToKeepVisible();
             }
 
             @Override
-            public Runnable onGainedFocus(Object object, Activity activity) {
-                TextToolFragment ttf = (TextToolFragment) object;
+            public Runnable onGainedFocus(Fragment fragment, Activity activity) {
+                TextToolFragment ttf = (TextToolFragment) fragment;
                 return () -> {
                     // when losing focus, close keyboard
-                    closeKeyboard(activity);
+                    closeKeyboard(activity).subscribe();
                     ttf.onLosingFocus();
                 };
             }
@@ -110,53 +148,63 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
 
             @Override
-            public void connectControls(Fragment fragment, FrameLayout controlBar,
+            public View connectControls(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController,
-                    Observable<Integer> availableHeight) {
+                    Observable<DrawerLayoutState> availableHeight) {
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.observe_action_bar, controlBar, true);
-                controlBarController.attachRecordButtons(controlBar);
+                controlBarController.attachRecordButtons(controlBar,
+                        fragment.getChildFragmentManager());
                 controlBarController.attachElapsedTime(controlBar, (RecordFragment) fragment);
+                return null;
+            }
+
+            @Override
+            public Runnable onGainedFocus(Fragment fragment, Activity activity) {
+                final PerfTrackerProvider perfTracker = WhistlePunkApplication
+                        .getPerfTrackerProvider(activity);
+                perfTracker.startJankRecorder(TrackerConstants.PRIMES_OBSERVE);
+                return () -> perfTracker.stopJankRecorder(TrackerConstants.PRIMES_OBSERVE);
             }
         }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp, "CAMERA") {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
-                // TODO: b/62022245
-                return CameraFragment.newInstance(new RxPermissions(activity));
+                return CameraFragment.newInstance();
             }
 
             @Override
-            public Runnable onGainedFocus(Object object, Activity activity) {
-                CameraFragment fragment = (CameraFragment) object;
-                fragment.onGainedFocus();
-                return () -> fragment.onLosingFocus();
+            public Runnable onGainedFocus(Fragment fragment, Activity activity) {
+                CameraFragment cf = (CameraFragment) fragment;
+                cf.onGainedFocus();
+                return () -> cf.onLosingFocus();
             }
 
             @Override
-            public void connectControls(Fragment fragment, FrameLayout controlBar,
+            public View connectControls(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController,
-                    Observable<Integer> availableHeight) {
+                    Observable<DrawerLayoutState> layoutState) {
                 CameraFragment cf = (CameraFragment) fragment;
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.camera_action_bar, controlBar, true);
                 cf.attachButtons(controlBar);
+                return null;
             }
         }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp, "GALLERY") {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
-                return GalleryFragment.newInstance(new RxPermissions(activity),
-                        !SHARED_CONTROL_BAR);
+                return GalleryFragment.newInstance();
             }
 
             @Override
-            public void connectControls(Fragment fragment, FrameLayout controlBar,
+            public View connectControls(Fragment fragment, FrameLayout controlBar,
                     ControlBarController controlBarController,
-                    Observable<Integer> availableHeight) {
+                    Observable<DrawerLayoutState> availableHeight) {
                 // TODO: is this duplicated code?
                 GalleryFragment gf = (GalleryFragment) fragment;
                 LayoutInflater.from(controlBar.getContext())
                               .inflate(R.layout.gallery_action_bar, controlBar, true);
                 gf.attachAddButton(controlBar);
+                return null;
             }
         };
         private final int mContentDescriptionId;
@@ -188,22 +236,39 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
          *
          * @return a Runnable that should be called when focus is lost, or null to do nothing.
          */
-        public Runnable onGainedFocus(Object object, Activity activity) {
+        public Runnable onGainedFocus(Fragment fragment, Activity activity) {
             // by default, do nothing
             return null;
         }
 
-        public abstract void connectControls(Fragment fragment, FrameLayout controlBar,
+        /**
+         * @return a View to attempt to keep visible by resizing the drawer if possible
+         */
+        public abstract View connectControls(Fragment fragment, FrameLayout controlBar,
                 ControlBarController controlBarController,
-                Observable<Integer> availableHeight);
+                Observable<DrawerLayoutState> layoutState);
     }
 
-    private static void closeKeyboard(Activity activity) {
+    /**
+     * Returns Observable that will receive true if the keyboard is closed
+     */
+    private static Single<Boolean> closeKeyboard(Activity activity) {
         View view = activity.getCurrentFocus();
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(
                     Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+            return Single.create(s -> {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0, new ResultReceiver(null) {
+                    @Override
+                    protected void onReceiveResult(int resultCode, Bundle resultData) {
+                        s.onSuccess(resultCode == InputMethodManager.RESULT_HIDDEN);
+                        super.onReceiveResult(resultCode, resultData);
+                    }
+                });
+            });
+        } else {
+            return Single.just(false);
         }
     }
 
@@ -233,6 +298,9 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPermissions = new RxPermissions(this);
+        PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(this);
+        PerfTrackerProvider.TimerToken experimentLoad = perfTracker.startTimer();
         setContentView(R.layout.panes_layout);
         RxView.layoutChangeEvents(findViewById(R.id.container)).subscribe(event -> {
             int bottom = event.bottom();
@@ -249,6 +317,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         mSelectedTabIndex = 0;
         if (savedInstanceState != null) {
             mSelectedTabIndex = savedInstanceState.getInt(KEY_SELECTED_TAB_INDEX);
+            mInitialDrawerState = savedInstanceState.getInt(KEY_DRAWER_STATE);
         }
 
         // By adding the subscription to mUntilDestroyed, we make sure that we can disconnect from
@@ -266,6 +335,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 } else {
                     hideRecordingBar();
                 }
+                perfTracker.stopTimer(experimentLoad, TrackerConstants.PRIMES_EXPERIMENT_LOADED);
+                perfTracker.onAppInteractive();
             });
         });
 
@@ -302,7 +373,15 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putInt(KEY_SELECTED_TAB_INDEX, mSelectedTabIndex);
+        outState.putInt(KEY_DRAWER_STATE, getBottomDrawerState());
         super.onSaveInstanceState(outState);
+    }
+
+    private int getBottomDrawerState() {
+        if (mBottomBehavior == null) {
+            return PanesBottomSheetBehavior.STATE_MIDDLE;
+        }
+        return mBottomBehavior.getState();
     }
 
     @VisibleForTesting
@@ -319,10 +398,22 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         findViewById(R.id.container).requestLayout();
     }
 
+    private void updateGrabberContentDescription() {
+        int state = getBottomDrawerState();
+        if (state == PanesBottomSheetBehavior.STATE_COLLAPSED) {
+            mGrabber.setContentDescription(getResources().getString(R.string.btn_show_tools));
+        } else if (state == PanesBottomSheetBehavior.STATE_MIDDLE) {
+            mGrabber.setContentDescription(getResources().getString(R.string.btn_expand_tools));
+        } else if (state == PanesBottomSheetBehavior.STATE_EXPANDED) {
+            mGrabber.setContentDescription(getResources().getString(R.string.btn_hide_tools));
+        }
+
+        // Leave unchanged when in interstitial states
+    }
+
     private void setupViews(Experiment experiment) {
         ControlBarController controlBarController =
-                new ControlBarController(getFragmentManager(), experiment.getExperimentId(),
-                        mSnackbarManager);
+                new ControlBarController(experiment.getExperimentId(), mSnackbarManager);
 
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
         View bottomSheet = findViewById(R.id.bottom);
@@ -363,19 +454,13 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         @Override
                         public void onStateChanged(@NonNull View bottomSheet, int newState) {
                             mBottomSheetState.onNext(newState);
-                            if (mBottomBehavior.getState() ==
-                                    PanesBottomSheetBehavior.STATE_COLLAPSED) {
-                                mGrabber.setContentDescription(getResources().getString(
-                                        R.string.btn_show_tools));
-                            } else if (mBottomBehavior.getState() ==
-                                    PanesBottomSheetBehavior.STATE_MIDDLE) {
-                                mGrabber.setContentDescription(getResources().getString(
-                                        R.string.btn_expand_tools));
-                            } else if (mBottomBehavior.getState() ==
-                                    PanesBottomSheetBehavior.STATE_EXPANDED) {
-                                mGrabber.setContentDescription(getResources().getString(
-                                        R.string.btn_hide_tools));
+                            if (getBottomDrawerState() ==
+                                PanesBottomSheetBehavior.STATE_COLLAPSED) {
+                                // We no longer need to know what happens when the keyboard closes:
+                                // Stay closed.
+                                closeKeyboard(PanesActivity.this).subscribe();
                             }
+                            updateGrabberContentDescription();
                         }
 
                         @Override
@@ -392,7 +477,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
                 @Override
                 public Fragment getItem(int position) {
-                    if (position >= ToolTab.values().length) {
+                    if (position >= mToolTabs.length) {
                         return null;
                     }
                     return getToolTab(position).createFragment(experiment.getExperimentId(),
@@ -400,12 +485,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 }
 
                 private ToolTab getToolTab(int position) {
-                    return ToolTab.values()[position];
+                    return mToolTabs[position];
                 }
 
                 @Override
                 public int getCount() {
-                    return ToolTab.values().length;
+                    return mToolTabs.length;
                 }
 
                 @Override
@@ -420,13 +505,21 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         FrameLayout controlBar =
                                 (FrameLayout) findViewById(R.id.bottom_control_bar);
                         controlBar.removeAllViews();
-                        toolTab.connectControls((Fragment) object, controlBar,
-                                controlBarController, availableTabHeight());
-                        mOnLosingFocus = toolTab.onGainedFocus(object, PanesActivity.this);
+                        PanesToolFragment fragment = (PanesToolFragment) object;
+                        fragment.whenNextView()
+                                .subscribe(v -> {
+                                    mBottomBehavior.setScrollingChild(v);
+
+                                    View viewToKeepVisible =
+                                            toolTab.connectControls(fragment, controlBar,
+                                                    controlBarController, drawerLayoutState());
+                                    mBottomBehavior.setViewToKeepVisibleIfPossible(
+                                            viewToKeepVisible);
+                                });
+                        mOnLosingFocus = toolTab.onGainedFocus(fragment, PanesActivity.this);
                         mPreviousPrimary = position;
                     }
                 }
-
             };
             pager.setAdapter(adapter);
 
@@ -459,7 +552,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         mBottomBehavior.setPeekHeight(getResources().getDimensionPixelSize(
                 R.dimen.panes_toolbar_height));
 
-        for (ToolTab tab : ToolTab.values()) {
+        for (ToolTab tab : mToolTabs) {
             TabLayout.Tab layoutTab = toolPicker.newTab();
             layoutTab.setContentDescription(tab.getContentDescriptionId());
             layoutTab.setIcon(tab.getIconId());
@@ -496,31 +589,33 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         });
         mTabsInitialized = false;
         toolPicker.getTabAt(mSelectedTabIndex).select();
-        if (experiment.getLabelCount() > 0 || experiment.getTrialCount() > 0) {
+
+        if (mInitialDrawerState >= 0) {
+            mBottomBehavior.setState(mInitialDrawerState);
+        } else if (experiment.getLabelCount() > 0 || experiment.getTrialCount() > 0) {
             mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_COLLAPSED);
-            mGrabber.setContentDescription(getResources().getString(
-                    R.string.btn_show_tools));
         } else {
             mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_MIDDLE);
-            mGrabber.setContentDescription(getResources().getString(
-                    R.string.btn_expand_tools));
         }
+        updateGrabberContentDescription();
         mTabsInitialized = true;
+
+        mBottomSheetState.onNext(getBottomDrawerState());
     }
 
     private void setupGrabber() {
         if (AccessibilityUtils.isAccessibilityManagerEnabled(this)) {
             mGrabber.setOnClickListener(view -> {
-                if (mBottomBehavior.getState() ==
-                        PanesBottomSheetBehavior.STATE_COLLAPSED) {
+                if (getBottomDrawerState() ==
+                    PanesBottomSheetBehavior.STATE_COLLAPSED) {
                     changeSheetState(PanesBottomSheetBehavior.STATE_COLLAPSED,
                             PanesBottomSheetBehavior.STATE_MIDDLE);
-                } else if (mBottomBehavior.getState() ==
-                        PanesBottomSheetBehavior.STATE_MIDDLE) {
+                } else if (getBottomDrawerState() ==
+                           PanesBottomSheetBehavior.STATE_MIDDLE) {
                     changeSheetState(PanesBottomSheetBehavior.STATE_MIDDLE,
                             PanesBottomSheetBehavior.STATE_EXPANDED);
-                } else if (mBottomBehavior.getState() ==
-                        PanesBottomSheetBehavior.STATE_EXPANDED) {
+                } else if (getBottomDrawerState() ==
+                           PanesBottomSheetBehavior.STATE_EXPANDED) {
                     changeSheetState(PanesBottomSheetBehavior.STATE_EXPANDED,
                             PanesBottomSheetBehavior.STATE_COLLAPSED);
                 }
@@ -528,23 +623,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         }
     }
 
-    private Observable<Integer> availableTabHeight() {
-        return Observable.combineLatest(mActivityHeight, mBottomSheetState,
-                (activityHeight, sheetState) -> {
-                    if (mActiveExperiment.getValue().isArchived()) {
-                        // No matter the state, the control bar is hidden when archived.
-                        return 0;
-                    }
-                    switch (sheetState) {
-                        case PanesBottomSheetBehavior.STATE_COLLAPSED:
-                            return 0;
-                        case PanesBottomSheetBehavior.STATE_EXPANDED:
-                            return activityHeight;
-                        case PanesBottomSheetBehavior.STATE_MIDDLE:
-                            return activityHeight / 2;
-                    }
-                    return activityHeight;
-                });
+    private Observable<DrawerLayoutState> drawerLayoutState() {
+        // keep an eye on activity height, bottom sheet state, and experiment loading.
+        return Observable.combineLatest(mActivityHeight.distinctUntilChanged(),
+                mBottomSheetState.distinctUntilChanged(), mActiveExperiment.toObservable(),
+                DrawerLayoutState::new).filter(state -> state.getAvailableHeight() >= 0);
     }
 
     private void setCoordinatorBehavior(View view, BottomDependentBehavior behavior) {
@@ -555,28 +638,30 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private void setExperimentFragmentId(Experiment experiment) {
+        FragmentManager fragmentManager = getFragmentManager();
+
         if (mExperimentFragment == null) {
-            boolean createTaskStack = false;
-            Label deletedLabel = getDeletedLabel();
+            // If we haven't cached the fragment, go looking for it.
+            ExperimentDetailsFragment oldFragment =
+                    (ExperimentDetailsFragment) fragmentManager.findFragmentById(R.id.experiment_pane);
+            if (oldFragment != null && oldFragment.getExperimentId()
+                                                  .equals(experiment.getExperimentId())) {
+                mExperimentFragment = oldFragment;
+                return;
+            }
+        }
+
+        if (mExperimentFragment == null) {
+            boolean createTaskStack = true;
             mExperimentFragment =
                     ExperimentDetailsFragment.newInstance(experiment.getExperimentId(),
-                            createTaskStack, deletedLabel);
+                            createTaskStack);
 
-            FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                            .replace(R.id.experiment_pane, mExperimentFragment)
                            .commit();
         } else {
             mExperimentFragment.setExperimentId(experiment.getExperimentId());
-        }
-    }
-
-    private Label getDeletedLabel() {
-        Bundle extras = getIntent().getExtras();
-        if (extras == null) {
-            return null;
-        } else {
-            return extras.getParcelable(ExperimentDetailsFragment.ARG_DELETED_LABEL);
         }
     }
 
@@ -588,6 +673,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     @Override
     public void onResume() {
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
         super.onResume();
         if (!isMultiWindowEnabled()) {
             updateRecorderControllerForResume();
@@ -627,7 +714,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             dimensions.append(TrackerConstants.PANES_DRAWER_STATE,
                     mBottomBehavior.getDrawerStateForLogging());
             dimensions.append(TrackerConstants.PANES_TOOL_NAME,
-                    ToolTab.values()[mSelectedTabIndex].getLoggingName());
+                    mToolTabs[mSelectedTabIndex].getLoggingName());
         }
         WhistlePunkApplication.getUsageTracker(this).trackDimensionEvent(
                 TrackerConstants.CATEGORY_PANES, action, dimensions);
@@ -702,6 +789,16 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     public CameraFragment.CameraFragmentListener getCameraFragmentListener() {
         return new CameraFragment.CameraFragmentListener() {
             @Override
+            public RxPermissions getPermissions() {
+                return mPermissions;
+            }
+
+            @Override
+            public Observable<Integer> watchDrawerState() {
+                return drawerLayoutState().map(state -> state.getDrawerState());
+            }
+
+            @Override
             public void onPictureLabelTaken(final Label label) {
                 addNewLabel(label);
             }
@@ -709,6 +806,26 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             @Override
             public Observable<String> getActiveExperimentId() {
                 return PanesActivity.this.getActiveExperimentId();
+            }
+        };
+    }
+
+    @Override
+    public GalleryFragment.Listener getGalleryListener() {
+        return new GalleryFragment.Listener() {
+            @Override
+            public Observable<String> getActiveExperimentId() {
+                return PanesActivity.this.getActiveExperimentId();
+            }
+
+            @Override
+            public void onPictureLabelTaken(Label label) {
+                addNewLabel(label);
+            }
+
+            @Override
+            public RxPermissions getPermissions() {
+                return mPermissions;
             }
         };
     }
@@ -740,17 +857,16 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     private void changeSheetState(int fromState, int toState) {
         if (mBottomBehavior == null) {
-            // TODO: wire up bottom behavior at creation
             // Experiment is archived, there's no sheet to change
             return;
         }
-        if (mBottomBehavior.getState() == fromState) {
+        if (getBottomDrawerState() == fromState) {
             mBottomBehavior.setState(toState);
         }
     }
 
     private void expandSheet() {
-        if (mBottomBehavior.getState() != PanesBottomSheetBehavior.STATE_EXPANDED) {
+        if (getBottomDrawerState() != PanesBottomSheetBehavior.STATE_EXPANDED) {
             mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_EXPANDED);
         }
     }
@@ -780,11 +896,13 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private void showRecordingBar() {
         if (mRecordingBar != null) {
             mRecordingBar.setVisibility(View.VISIBLE);
-            mBottomBehavior.setPeekHeight(
-                    mRecordingBar.getResources().getDimensionPixelSize(
-                            R.dimen.panes_toolbar_height) +
-                    mRecordingBar.getResources().getDimensionPixelSize(
-                            R.dimen.recording_indicator_height));
+            if (mBottomBehavior != null) {
+                mBottomBehavior.setPeekHeight(
+                        mRecordingBar.getResources().getDimensionPixelSize(
+                                R.dimen.panes_toolbar_height) +
+                        mRecordingBar.getResources().getDimensionPixelSize(
+                                R.dimen.recording_indicator_height));
+            }
         }
     }
 

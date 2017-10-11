@@ -18,6 +18,10 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
+import android.util.LruCache;
+
+import java.util.HashMap;
 
 /**
  * Formats elapsed time (in ms) to a short m:ss or h:mm:ss format.
@@ -31,10 +35,8 @@ public class ElapsedTimeAxisFormatter {
     private final String mLargeFormat;
     private final String mSmallFormatTenths;
     private final String mLargeFormatTenths;
-    private long mTempHours;
-    private long mTempMins;
-    private long mTempSecs;
-    private long mTempTenthsOfSecs;
+    private LruCache<Long, String> mCacheWithTenths;
+    private LruCache<Long, String> mCacheWithoutTenths;
 
     private final ReusableFormatter mFormatter;
 
@@ -53,48 +55,70 @@ public class ElapsedTimeAxisFormatter {
         mLargeFormatTenths = res.getString(R.string.elapsed_time_axis_format_large_tenths);
 
         mFormatter = new ReusableFormatter();
-    }
 
-    public String format(long elapsedTimeMs) {
-        updateElapsedTimeValues(elapsedTimeMs);
-        String result;
-        if (mTempHours > 0) {
-            result = mFormatter.format(mLargeFormat, mTempHours, mTempMins, mTempSecs).toString();
-        } else {
-            result = mFormatter.format(mSmallFormat, mTempMins, mTempSecs).toString();
-        }
-        boolean isNegative = elapsedTimeMs < 0;
-        if (!isNegative) {
-            return result;
-        }
-        return mFormatter.format("-%s", result).toString();
-    }
-
-    public String formatToTenths(long elapsedTimeMs) {
-        updateElapsedTimeValues(elapsedTimeMs);
-        String result;
-        if (mTempHours > 0) {
-            result = mFormatter.format(mLargeFormatTenths, mTempHours, mTempMins, mTempSecs,
-                    mTempTenthsOfSecs).toString();
-        } else {
-            result = mFormatter.format(mSmallFormatTenths, mTempMins, mTempSecs, mTempTenthsOfSecs)
-                    .toString();
-        }
-        boolean isNegative = elapsedTimeMs < 0;
-        return (isNegative ? "-" : "") + result;
+        mCacheWithTenths = new LruCache<>(128 /* entries */);
+        mCacheWithoutTenths = new LruCache<>(128 /* entries */);
     }
 
     /**
-     * Gets the values of the elapsed time.
-     * @param elapsedTimeMs
-     * @return An array of {hours, minutes, seconds, tenths of seconds}
+     * Returns a formatted string for elapsedTimeMs using a cache, if a miss occurs, then compute
+     * the formatted string and add it to the cache
+     * @param elapsedTimeMs Timestamp to be formatted
+     * @param includeTenths Whether to include the tenths place in the formatted string
+     * @return The formatted string in HH:MM:SS or HH:MM:SS.T
      */
-    private void updateElapsedTimeValues(long elapsedTimeMs) {
-        elapsedTimeMs = Math.abs(elapsedTimeMs);
-        mTempHours = ElapsedTimeUtils.getHours(elapsedTimeMs);
-        mTempMins = ElapsedTimeUtils.getMins(elapsedTimeMs, mTempHours);
-        mTempSecs = ElapsedTimeUtils.getSecs(elapsedTimeMs, mTempHours, mTempMins);
-        mTempTenthsOfSecs = ElapsedTimeUtils.getTenthsOfSecs(elapsedTimeMs, mTempHours, mTempMins,
-                mTempSecs);
+    public String format(long elapsedTimeMs, boolean includeTenths) {
+        long absoluteElapsedTimeMs = Math.abs(elapsedTimeMs);
+        // Key into the cache based on timestamp with
+        // reduced precision to increase hit likelihood
+        long timeIndex;
+        String formattedString;
+        if (includeTenths) {
+            timeIndex = elapsedTimeMs/100;
+            formattedString = mCacheWithTenths.get(timeIndex);
+        } else {
+            timeIndex = elapsedTimeMs/1000;
+            formattedString = mCacheWithoutTenths.get(timeIndex);
+        }
+
+        // Cache hit
+        if (formattedString != null) {
+            return formattedString;
+        }
+
+        long hours = ElapsedTimeUtils.getHours(absoluteElapsedTimeMs);
+        long minutes = ElapsedTimeUtils.getMins(absoluteElapsedTimeMs, hours);
+        long seconds = ElapsedTimeUtils.getSecs(absoluteElapsedTimeMs, hours, minutes);
+        if (includeTenths) {
+            long tenths = ElapsedTimeUtils.getTenthsOfSecs(absoluteElapsedTimeMs, hours, minutes,
+                    seconds);
+            if (hours > 0) {
+                formattedString = mFormatter.format(mLargeFormatTenths, hours, minutes, seconds,
+                        tenths).toString();
+            } else {
+                formattedString = mFormatter.format(mSmallFormatTenths, minutes, seconds, tenths)
+                        .toString();
+            }
+        } else {
+            if (hours > 0) {
+                formattedString = mFormatter.format(mLargeFormat, hours, minutes, seconds)
+                        .toString();
+            } else {
+                formattedString = mFormatter.format(mSmallFormat, minutes, seconds).toString();
+            }
+        }
+
+        boolean isNegative = elapsedTimeMs < 0;
+        if (isNegative) {
+            formattedString = mFormatter.format("-%s", formattedString).toString();
+        }
+
+        if (includeTenths) {
+            mCacheWithTenths.put(timeIndex, formattedString);
+        } else {
+            mCacheWithoutTenths.put(timeIndex, formattedString);
+        }
+
+        return formattedString;
     }
 }

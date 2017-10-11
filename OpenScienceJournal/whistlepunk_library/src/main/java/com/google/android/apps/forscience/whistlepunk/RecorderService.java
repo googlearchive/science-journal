@@ -58,6 +58,8 @@ public class RecorderService extends Service implements IRecorderService {
                         .setSmallIcon(R.drawable.ic_notification_24dp)
                         .setContentIntent(pi)
                         .build());
+        WhistlePunkApplication.getPerfTrackerProvider(getApplicationContext())
+                .recordBatterySnapshotOnForegroundServiceStart();
     }
 
     /**
@@ -76,6 +78,8 @@ public class RecorderService extends Service implements IRecorderService {
             notifyRecordingEnded(runId, experimentId, experimentTitle);
         }
         stopForeground(true);
+        WhistlePunkApplication.getPerfTrackerProvider(getApplicationContext())
+                .recordBatterySnapshotOnForegroundServiceStop();
         stopSelf();
     }
 

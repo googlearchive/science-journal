@@ -353,7 +353,7 @@ public class RecorderControllerImpl implements RecorderController {
         return sensorRegistry.getSpecForId(sensorId, mAppearanceProvider, mContext);
     }
 
-    private Experiment getSelectedExperiment() {
+    public Experiment getSelectedExperiment() {
         // TODO: consider using as subject more places
         return mSelectedExperiment.getValue();
     }

@@ -76,7 +76,7 @@ import java.util.Objects;
 
 import io.reactivex.subjects.BehaviorSubject;
 
-public class RecordFragment extends Fragment implements Handler.Callback,
+public class RecordFragment extends PanesToolFragment implements Handler.Callback,
         StopRecordingNoDataDialog.StopRecordingDialogListener, AudioSettingsDialog
                 .AudioSettingsDialogListener {
     private static final String TAG = "RecordFragment";
@@ -222,27 +222,22 @@ public class RecordFragment extends Fragment implements Handler.Callback,
                 getActivity());
 
         setHasOptionsMenu(true);
-
-        // TODO: this is necessary because of a race condition: the BluetoothSensor assumes
-        // that the BleService has already been connected before it tries to start observing.
-        AppSingleton.getInstance(getActivity()).getBleClient();
     }
 
     private void onAudioPermissionChanged(@PermissionUtils.PermissionState int newState) {
-        if (mDecibelSensorCardPresenter == null) {
+        if (mDecibelSensorCardPresenter == null || getActivity() == null) {
             return;
         }
         if (newState == PermissionUtils.GRANTED) {
-            startSensorCardObserving(mDecibelSensorCardPresenter, DecibelSensor.ID,
-                    mRecordingStatus.getValue());
+            mDecibelSensorCardPresenter.retryConnection(getActivity());
         } else if (newState == PermissionUtils.DENIED) {
             // If the sensor can't be loaded, still show it as selected on the card
             // so the user understands that they wanted this sensor but can't use it.
             mDecibelSensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
-                    getActivity().getApplicationContext(), true);
+                    getActivity(), true);
         } else {
             mDecibelSensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
-                    getActivity().getApplicationContext(), false);
+                    getActivity(), false);
         }
         // in either case, we have our answer.  Stop waiting for it.
         mDecibelSensorCardPresenter = null;
@@ -433,7 +428,7 @@ public class RecordFragment extends Fragment implements Handler.Callback,
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroyPanesView() {
         // TODO: extract presenter with lifespan identical to the views.
         if (mSensorCardAdapter != null) {
             mSensorCardAdapter.onDestroy();
@@ -443,7 +438,6 @@ public class RecordFragment extends Fragment implements Handler.Callback,
         if (mExternalAxis != null) {
             mExternalAxis.destroy();
         }
-        super.onDestroyView();
     }
 
     private List<GoosciSensorLayout.SensorLayout> safeSaveCurrentLayouts() {
@@ -495,7 +489,7 @@ public class RecordFragment extends Fragment implements Handler.Callback,
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreatePanesView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         final ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_record, container,
                 false);
@@ -758,7 +752,6 @@ public class RecordFragment extends Fragment implements Handler.Callback,
             }
         });
         mSensorCardRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 adjustSensorCardAddAlpha();
@@ -925,7 +918,6 @@ public class RecordFragment extends Fragment implements Handler.Callback,
                             onAudioPermissionChanged(PermissionUtils.PERMANENTLY_DENIED);
                         }
                     });
-            return;
         }
         startSensorCardObserving(sensorCardPresenter, sensorId, status);
     }

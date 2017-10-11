@@ -26,6 +26,8 @@ import com.google.android.apps.forscience.ble.BleFlow;
 
 import java.util.UUID;
 
+import io.reactivex.Single;
+
 public class FakeBleClient implements BleClient {
     public String expectedAddress = null;
     public String mostRecentAddress = null;
@@ -124,5 +126,10 @@ public class FakeBleClient implements BleClient {
     @Override
     public void setMaxNoDevices(int maxNoDevices) {
 
+    }
+
+    @Override
+    public Single<BleClient> whenConnected() {
+        return Single.just(this);
     }
 }
