@@ -67,8 +67,7 @@ public class DeletedLabel {
                 }
                 undone.onHappened();
                 mUndone = true;
-                final Label label = Label.copyOf(mLabel);
-                labelHolder.addLabel(label);
+                labelHolder.addLabel(mLabel);
                 dc.updateExperiment(experimentId, new LoggingConsumer<Success>(TAG,
                         "re-add deleted label") {
                     @Override
