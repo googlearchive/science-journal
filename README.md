@@ -24,6 +24,10 @@ The [OpenScienceJournal README](https://github.com/google/science-journal/tree/m
 contains details about the organization of the source code, and the relationship of this published source
 to the [published app][play-store].
 
+## Release names
+
+We have fun choosing names for our releases.  Read the [stories][releasenames].
+
 ## Contributing
 
 Please read our [guidelines for contributors][contributing].
@@ -39,5 +43,6 @@ Science Journal is brought to you by [Making & Science][making-science], an init
 [play-store]: https://play.google.com/store/apps/details?id=com.google.android.apps.forscience.whistlepunk
 [firmware-github]:https://github.com/google/science-journal-arduino
 [contributing]: https://github.com/google/science-journal/blob/master/CONTRIBUTING
+[releasenames]: https://github.com/google/science-journal/blob/master/RELEASES.md
 [license]: https://github.com/google/science-journal/blob/master/LICENSE
 [making-science]: https://makingscience.withgoogle.com
