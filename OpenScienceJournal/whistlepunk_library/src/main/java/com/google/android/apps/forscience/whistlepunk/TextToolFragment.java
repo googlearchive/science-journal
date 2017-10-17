@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Build;
@@ -216,7 +217,15 @@ public class TextToolFragment extends PanesToolFragment {
         return textSize * COLLAPSE_THRESHHOLD_LINES_OF_TEXT;
     }
 
+    @Override
+    public void onGainedFocus(Activity activity) {
+        super.onGainedFocus(activity);
+        // when losing focus, close keyboard
+        mFocusLost.happensNext().subscribe(() -> KeyboardUtil.closeKeyboard(activity).subscribe());
+    }
+
     public void onLosingFocus() {
         mFocusLost.onHappened();
+        super.onLosingFocus();
     }
 }

@@ -21,7 +21,6 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -36,7 +35,6 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -56,7 +54,7 @@ import io.reactivex.subjects.SingleSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
         CameraFragment.ListenerProvider, TextToolFragment.ListenerProvider, GalleryFragment
-                .ListenerProvider {
+                .ListenerProvider, PanesToolFragment.EnvProvider {
     private static final String TAG = "PanesActivity";
     public static final String EXTRA_EXPERIMENT_ID = "experimentId";
     private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
@@ -131,16 +129,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 ttf.listenToAvailableHeight(layoutState.map(state -> state.getAvailableHeight()));
                 return ttf.getViewToKeepVisible();
             }
-
-            @Override
-            public Runnable onGainedFocus(Fragment fragment, Activity activity) {
-                TextToolFragment ttf = (TextToolFragment) fragment;
-                return () -> {
-                    // when losing focus, close keyboard
-                    closeKeyboard(activity).subscribe();
-                    ttf.onLosingFocus();
-                };
-            }
         }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp, "OBSERVE") {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
@@ -158,25 +146,10 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 controlBarController.attachElapsedTime(controlBar, (RecordFragment) fragment);
                 return null;
             }
-
-            @Override
-            public Runnable onGainedFocus(Fragment fragment, Activity activity) {
-                final PerfTrackerProvider perfTracker = WhistlePunkApplication
-                        .getPerfTrackerProvider(activity);
-                perfTracker.startJankRecorder(TrackerConstants.PRIMES_OBSERVE);
-                return () -> perfTracker.stopJankRecorder(TrackerConstants.PRIMES_OBSERVE);
-            }
         }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp, "CAMERA") {
             @Override
             public Fragment createFragment(String experimentId, Activity activity) {
                 return CameraFragment.newInstance();
-            }
-
-            @Override
-            public Runnable onGainedFocus(Fragment fragment, Activity activity) {
-                CameraFragment cf = (CameraFragment) fragment;
-                cf.onGainedFocus();
-                return () -> cf.onLosingFocus();
             }
 
             @Override
@@ -232,44 +205,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         }
 
         /**
-         * Called when focus is gained by this tab.
-         *
-         * @return a Runnable that should be called when focus is lost, or null to do nothing.
-         */
-        public Runnable onGainedFocus(Fragment fragment, Activity activity) {
-            // by default, do nothing
-            return null;
-        }
-
-        /**
          * @return a View to attempt to keep visible by resizing the drawer if possible
          */
         public abstract View connectControls(Fragment fragment, FrameLayout controlBar,
                 ControlBarController controlBarController,
                 Observable<DrawerLayoutState> layoutState);
-    }
-
-    /**
-     * Returns Observable that will receive true if the keyboard is closed
-     */
-    private static Single<Boolean> closeKeyboard(Activity activity) {
-        View view = activity.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) activity.getSystemService(
-                    Context.INPUT_METHOD_SERVICE);
-
-            return Single.create(s -> {
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0, new ResultReceiver(null) {
-                    @Override
-                    protected void onReceiveResult(int resultCode, Bundle resultData) {
-                        s.onSuccess(resultCode == InputMethodManager.RESULT_HIDDEN);
-                        super.onReceiveResult(resultCode, resultData);
-                    }
-                });
-            });
-        } else {
-            return Single.just(false);
-        }
     }
 
     public static void launch(Context context, String experimentId) {
@@ -458,7 +398,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                                 PanesBottomSheetBehavior.STATE_COLLAPSED) {
                                 // We no longer need to know what happens when the keyboard closes:
                                 // Stay closed.
-                                closeKeyboard(PanesActivity.this).subscribe();
+                                KeyboardUtil.closeKeyboard(PanesActivity.this).subscribe();
                             }
                             updateGrabberContentDescription();
                         }
@@ -516,7 +456,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                                     mBottomBehavior.setViewToKeepVisibleIfPossible(
                                             viewToKeepVisible);
                                 });
-                        mOnLosingFocus = toolTab.onGainedFocus(fragment, PanesActivity.this);
+                        fragment.onGainedFocus(PanesActivity.this);
+                        mOnLosingFocus = () -> fragment.onLosingFocus();
                         mPreviousPrimary = position;
                     }
                 }
@@ -674,7 +615,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     @Override
     public void onResume() {
         Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
         super.onResume();
         if (!isMultiWindowEnabled()) {
             updateRecorderControllerForResume();
@@ -786,16 +726,21 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     @Override
+    public PanesToolFragment.Env getPanesToolEnv() {
+        return new PanesToolFragment.Env() {
+            @Override
+            public Observable<Integer> watchDrawerState() {
+                return drawerLayoutState().map(state -> state.getDrawerState());
+            }
+        };
+    }
+
+    @Override
     public CameraFragment.CameraFragmentListener getCameraFragmentListener() {
         return new CameraFragment.CameraFragmentListener() {
             @Override
             public RxPermissions getPermissions() {
                 return mPermissions;
-            }
-
-            @Override
-            public Observable<Integer> watchDrawerState() {
-                return drawerLayoutState().map(state -> state.getDrawerState());
             }
 
             @Override
