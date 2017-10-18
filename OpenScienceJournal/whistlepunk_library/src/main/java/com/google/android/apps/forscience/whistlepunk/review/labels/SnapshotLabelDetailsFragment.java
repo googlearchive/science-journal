@@ -16,16 +16,12 @@
 
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -78,12 +74,5 @@ public class SnapshotLabelDetailsFragment extends LabelDetailsFragment {
                 R.string.snapshot_label_details_title));
 
         super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_delete);
-        item.getIcon().mutate().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-        super.onPrepareOptionsMenu(menu);
     }
 }

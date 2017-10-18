@@ -27,15 +27,54 @@ import android.view.ViewGroup;
 import com.google.common.base.Optional;
 
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 
 public abstract class PanesToolFragment extends Fragment {
+    private RxEvent mVisibilityGained = new RxEvent();
+    private RxEvent mVisibilityLost = new RxEvent();
+    private BehaviorSubject<Boolean> mFocused = BehaviorSubject.create();
+    private BehaviorSubject<Boolean> mUiStarted = BehaviorSubject.create();
+    protected BehaviorSubject<Integer> mDrawerState = BehaviorSubject.create();
     private BehaviorSubject<Optional<View>> mView = BehaviorSubject.create();
+    private RxEvent mViewDestroyed = new RxEvent();
+
+    public static interface Env {
+        Observable<Integer> watchDrawerState();
+    }
+
+    public static interface EnvProvider {
+        Env getPanesToolEnv();
+    }
+
+    protected PanesToolFragment() {
+        // Only treat as visible (and therefore connect the camera) when we are both focused and
+        // resumed.
+        Observable.combineLatest(mFocused, mUiStarted, mDrawerState,
+                (focused, resumed, drawerState) -> focused
+                                                   && resumed
+                                                   && drawerState
+                                                      != PanesBottomSheetBehavior.STATE_COLLAPSED)
+                  .distinctUntilChanged()
+                  .subscribe(hasBecomeVisible -> {
+                      if (hasBecomeVisible) {
+                          mVisibilityGained.onHappened();
+                      } else {
+                          mVisibilityLost.onHappened();
+                      }
+                  });
+    }
 
     @Nullable
     @Override
     public final View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             Bundle savedInstanceState) {
+        EnvProvider provider = (EnvProvider) container.getContext();
+        provider.getPanesToolEnv()
+                .watchDrawerState()
+                .takeUntil(mViewDestroyed.happens())
+                .subscribe(mDrawerState::onNext);
+
         View view = onCreatePanesView(inflater, container, savedInstanceState);
         mView.onNext(Optional.of(view));
         return view;
@@ -47,6 +86,7 @@ public abstract class PanesToolFragment extends Fragment {
     @Override
     public final void onDestroyView() {
         mView.onNext(Optional.absent());
+        mViewDestroyed.onHappened();
         onDestroyPanesView();
         super.onDestroyView();
     }
@@ -77,5 +117,65 @@ public abstract class PanesToolFragment extends Fragment {
     }
 
     protected void panesOnAttach(Context context) {
+    }
+
+    protected Observable<Object> whenVisibilityGained() {
+        return mVisibilityGained.happens();
+    }
+
+    protected Observable<Object> whenVisibilityLost() {
+        return mVisibilityLost.happens();
+    }
+
+    protected Observable<Integer> watchDrawerState() {
+        return mDrawerState;
+    }
+
+    public void onGainedFocus(Activity activity) {
+        mFocused.onNext(true);
+    }
+
+    public void onLosingFocus() {
+        mFocused.onNext(false);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (isMultiWindowEnabled()) {
+            mUiStarted.onNext(true);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (!isMultiWindowEnabled()) {
+            mUiStarted.onNext(true);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        // TODO: can we safely use onStop to shut down observing on pre-Nougat?
+        //       See discussion at b/34368790
+        if (!isMultiWindowEnabled()) {
+           mUiStarted.onNext(false);
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        if (isMultiWindowEnabled()) {
+            mUiStarted.onNext(false);
+        }
+        super.onStop();
+    }
+
+    private boolean isMultiWindowEnabled() {
+        return MultiWindowUtils.isMultiWindowEnabled(getActivity());
     }
 }

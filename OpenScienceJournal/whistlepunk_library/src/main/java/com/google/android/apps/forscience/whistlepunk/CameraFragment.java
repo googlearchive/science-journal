@@ -49,15 +49,6 @@ public class CameraFragment extends PanesToolFragment {
     private BehaviorSubject<Boolean> mPermissionGranted = BehaviorSubject.create();
     private PublishSubject<Object> mWhenUserTakesPhoto = PublishSubject.create();
 
-    private RxEvent mVisibilityGained = new RxEvent();
-    private RxEvent mVisibilityLost = new RxEvent();
-    private BehaviorSubject<Boolean> mFocused = BehaviorSubject.create();
-    private BehaviorSubject<Boolean> mResumed = BehaviorSubject.create();
-
-    private BehaviorSubject<Integer> mDrawerState = BehaviorSubject.create();
-
-    private RxEvent mViewDestroyed = new RxEvent();
-
     public static abstract class CameraFragmentListener {
         static CameraFragmentListener NULL = new CameraFragmentListener() {
             @Override
@@ -68,11 +59,6 @@ public class CameraFragment extends PanesToolFragment {
             @Override
             public RxPermissions getPermissions() {
                 return null;
-            }
-
-            @Override
-            public Observable<Integer> watchDrawerState() {
-                return Observable.empty();
             }
 
             @Override
@@ -87,8 +73,6 @@ public class CameraFragment extends PanesToolFragment {
         public abstract Observable<String> getActiveExperimentId();
 
         public abstract RxPermissions getPermissions();
-
-        public abstract Observable<Integer> watchDrawerState();
     }
 
     public interface ListenerProvider {
@@ -102,7 +86,7 @@ public class CameraFragment extends PanesToolFragment {
     }
 
     public CameraFragment() {
-        mVisibilityGained.happens().subscribe(v -> {
+        whenVisibilityGained().subscribe(v -> {
             mPreviewContainer.filter(o -> o.isPresent()).firstElement().subscribe(opt -> {
                 ViewGroup container = opt.get();
 
@@ -122,22 +106,6 @@ public class CameraFragment extends PanesToolFragment {
                 }, LoggingConsumer.complain(TAG, "camera permission"));
             });
         });
-
-        // Only treat as visible (and therefore connect the camera) when we are both focused and
-        // resumed.
-        Observable.combineLatest(mFocused, mResumed, mDrawerState,
-                (focused, resumed, drawerState) -> focused
-                                                   && resumed
-                                                   && drawerState
-                                                      != PanesBottomSheetBehavior.STATE_COLLAPSED)
-                  .distinctUntilChanged()
-                  .subscribe(hasBecomeVisible -> {
-                      if (hasBecomeVisible) {
-                          mVisibilityGained.onHappened();
-                      } else {
-                          mVisibilityLost.onHappened();
-                      }
-                  });
     }
 
     private void complainCameraPermissions(ViewGroup container) {
@@ -159,9 +127,13 @@ public class CameraFragment extends PanesToolFragment {
         container.addView(preview);
         preview.setCamera(camera);
 
-        mDrawerState.takeUntil(RxView.detaches(preview)).subscribe(preview::setCurrentDrawerState);
+        watchDrawerState().takeUntil(RxView.detaches(preview))
+                          .subscribe(preview::setCurrentDrawerState);
 
-        mWhenUserTakesPhoto.takeUntil(mVisibilityLost.happens()).subscribe(o -> {
+        mWhenUserTakesPhoto.takeUntil(whenVisibilityLost()).doOnComplete(() -> {
+            preview.removeCamera();
+            container.removeAllViews();
+        }).subscribe(o -> {
             final long timestamp = getTimestamp(preview.getContext());
             final String uuid = UUID.randomUUID().toString();
             preview.takePicture(mListener.getActiveExperimentId().firstElement(), uuid,
@@ -176,11 +148,6 @@ public class CameraFragment extends PanesToolFragment {
                             mListener.onPictureLabelTaken(label);
                         }
                     });
-        });
-
-        mVisibilityLost.happensNext().subscribe(() -> {
-            preview.removeCamera();
-            container.removeAllViews();
         });
     }
 
@@ -218,16 +185,12 @@ public class CameraFragment extends PanesToolFragment {
         mPreviewContainer.onNext(
                 Optional.of((ViewGroup) inflated.findViewById(R.id.preview_container)));
         requestPermission();
-        mListener.watchDrawerState()
-                 .takeUntil(mViewDestroyed.happens())
-                 .subscribe(mDrawerState::onNext);
         return inflated;
     }
 
     @Override
     public void onDestroyPanesView() {
         mPreviewContainer.onNext(Optional.absent());
-        mViewDestroyed.onHappened();
     }
 
     public void attachButtons(FrameLayout controlBar) {
@@ -246,27 +209,7 @@ public class CameraFragment extends PanesToolFragment {
                            .getDefaultClock();
     }
 
-    @Override
-    public void onPause() {
-        mResumed.onNext(false);
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mResumed.onNext(true);
-    }
-
-    public void onGainedFocus() {
-        mFocused.onNext(true);
-    }
-
     public Camera openCamera() {
         return Camera.open(0);
-    }
-
-    public void onLosingFocus() {
-        mFocused.onNext(false);
     }
 }

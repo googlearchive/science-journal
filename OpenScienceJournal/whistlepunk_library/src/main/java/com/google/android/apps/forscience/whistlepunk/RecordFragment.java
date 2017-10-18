@@ -53,6 +53,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
         .TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
@@ -197,6 +198,11 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
         return fragment;
     }
 
+    public RecordFragment() {
+        whenVisibilityGained().subscribe(o -> startUI());
+        whenVisibilityLost().subscribe(o -> stopUI());
+    }
+
     @Override
     public void onDetach() {
         mUICallbacks = UICallbacks.NULL;
@@ -271,20 +277,7 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
     @Override
     public void onPause() {
         saveCurrentExperiment();
-        // TODO: can we safely use onStop to shut down observing on pre-Nougat?
-        //       See discussion at b/34368790
-        if (!isMultiWindowEnabled()) {
-            stopUI();
-        }
         super.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        if (isMultiWindowEnabled()) {
-            stopUI();
-        }
-        super.onStop();
     }
 
     private void stopUI() {
@@ -306,29 +299,18 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
     @Override
     public void onResume() {
         super.onResume();
-        if (!isMultiWindowEnabled()) {
-            startUI();
-        }
 
         // Reload sensor appearances in case they have changed while away from this fragment,
         getSensorAppearanceProvider().loadAppearances(
                 LoggingConsumer.<Success>expectSuccess(TAG, "Load appearances"));
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        if (isMultiWindowEnabled()) {
-            startUI();
-        }
-    }
-
-    private boolean isMultiWindowEnabled() {
-        return MultiWindowUtils.isMultiWindowEnabled(getActivity());
-    }
-
     private void startUI() {
+        final PerfTrackerProvider perfTracker =
+                WhistlePunkApplication.getPerfTrackerProvider(getActivity());
+        perfTracker.startJankRecorder(TrackerConstants.PRIMES_OBSERVE);
+        mUiStop.happensNext()
+               .subscribe(() -> perfTracker.stopJankRecorder(TrackerConstants.PRIMES_OBSERVE));
         mExternalAxis.onResumeLiveAxis();
 
         mRecordingStatus.onNext(RecordingStatus.UNCONNECTED);
@@ -1436,5 +1418,4 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
         }
         return null;
     }
-
 }
