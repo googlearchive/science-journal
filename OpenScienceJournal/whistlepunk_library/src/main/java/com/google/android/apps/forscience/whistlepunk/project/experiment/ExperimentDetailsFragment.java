@@ -33,6 +33,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -1202,10 +1203,7 @@ public class ExperimentDetailsFragment extends Fragment
                         appContext);
             }
 
-            final TrialStats stats = trial.getStatsForSensor(sensorId);
-            if (stats == null) {
-                throw new IllegalArgumentException("Invalid trial: " + trial);
-            }
+            TrialStats stats = getStatsOrDefault(trial, sensorId);
             holder.statsList.updateColor(color);
             if (!stats.statsAreValid()) {
                 holder.statsList.clearStats();
@@ -1239,6 +1237,20 @@ public class ExperimentDetailsFragment extends Fragment
 
                         }
                     }, holder.itemView.getContext());
+        }
+
+        @NonNull
+        private TrialStats getStatsOrDefault(Trial trial, String sensorId) {
+            TrialStats stats = trial.getStatsForSensor(sensorId);
+            if (stats == null) {
+                if (Log.isLoggable(TAG, Log.ERROR)) {
+                    Log.e(TAG, "No stats for sensor " + sensorId + " in trial " + trial);
+                }
+                // At least allow generating default values
+                stats = new TrialStats(sensorId);
+                stats.setStatStatus(GoosciTrial.SensorTrialStats.NEEDS_UPDATE);
+            }
+            return stats;
         }
 
         void sortItems() {
