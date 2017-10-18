@@ -82,3 +82,36 @@ wisdom that stars and planets had similar chemical compositions.
 * Chromebook support
 * Crop data in recordings
 * Nougat multiwindow support
+
+## Dresselhaus release (2.0.312, 2017.10.12)
+
+* Brand-new interface for taking notes and documenting science experiments.
+* New snapshot feature for capturing individual data points.
+* New sensors: linear accelerometer, magnetometer, and compass
+* Redesigned gallery for browsing experiments
+* (matches UI now available on iOS devices)
+
+As a graduate student at the University of Chicago, Mildred Dresselhaus (1930-2017)
+worked in the department headed by Enrico Fermi, the creator of the first
+nuclear reactor.  Fermi would walk to the office at exactly the same time every
+morning, and Dresselhaus timed leaving her house so she could join him as he
+walked and thought out loud.  She gathered much of the materials for her PhD
+project, on how superconductors worked in a magnetic field, under the
+university's football stands, where the surplus equipment for that reactor
+was still available.
+
+In order to make time to raise four children, Dresselhaus moved into studying
+the properties of carbon compounds like graphite (the material in pencil leads),
+because there wasn't as much competition in that field at the time.  At one
+point, she tried to bring her one-day-old baby to the office with her, but
+was turned away, because the infant didn't have security clearance.
+
+Carbon turned out to be much more versatile than anyone expected.  Dresselhaus
+and her lab laid the foundations for creating nanotubes (strong, thin structures
+that may someday be used to build elevators to space) and graphene (which
+may someday lead to leaps in battery storage capacity and circuit
+minaturization).  She earned her nickname, "The Queen of Carbon", and
+was awarded a Presidential Medal of Freedom from President Obama, and
+the Medal of Honor from the Institute of Electrical and Electronics Engineers.
+
+<p><a href="https://commons.wikimedia.org/wiki/File:Barack_Obama_greets_Burton_Richter_and_Mildred_Dresselhaus_(cropped).jpg#/media/File:Barack_Obama_greets_Burton_Richter_and_Mildred_Dresselhaus_(cropped).jpg"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f5/Barack_Obama_greets_Burton_Richter_and_Mildred_Dresselhaus_%28cropped%29.jpg" alt="Barack Obama greets Burton Richter and Mildred Dresselhaus (cropped).jpg"></a><br>By Official White House Photo by Pete Souza - <a rel="nofollow" class="external free" href="http://www.flickr.com/photos/whitehouse/7365530528/in/photostream">http://www.flickr.com/photos/whitehouse/7365530528/in/photostream</a>, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=38819247">Link</a></p>

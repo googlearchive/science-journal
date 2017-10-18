@@ -259,7 +259,17 @@ public class CameraPreview extends SurfaceView {
                 return;
             }
         } finally {
-            startPreview();
+            // TODO(b/67042632) Why does this fail sometimes? Are we rotating while a camera capture
+            // is in progress maybe?
+            try {
+                startPreview();
+            } catch (RuntimeException e) {
+                if (Log.isLoggable(TAG, Log.ERROR)) {
+                    Log.e(TAG, "Failure to start camera preview", e);
+                    //noinspection ReturnInsideFinallyBlock
+                    return;
+                }
+            }
         }
 
         // Remeasure to match ideal
