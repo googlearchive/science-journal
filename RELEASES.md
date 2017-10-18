@@ -100,9 +100,10 @@ project, on how superconductors worked in a magnetic field, under the
 university's football stands, where the surplus equipment for that reactor
 was still available.
 
-In order to make time to raise four children, Dresselhaus moved into studying
-the properties of carbon compounds like graphite (the material in pencil leads),
-because there wasn't as much competition in that field at the time.  At one
+In 1960, Dresselhaus moved to MIT's Lincoln Laboratory.  Superconductors
+had become a popular and crowded field; she decided to seek out a neglected
+topic, and found a fascination with carbon compounds like graphite
+(the material in pencil leads).  Lincoln Lab had its own challenges; at one
 point, she tried to bring her one-day-old baby to the office with her, but
 was turned away, because the infant didn't have security clearance.
 
