@@ -16,6 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -100,4 +102,12 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_edit);
+        item.getIcon().mutate().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
+        super.onPrepareOptionsMenu(menu);
+    }
+
 }

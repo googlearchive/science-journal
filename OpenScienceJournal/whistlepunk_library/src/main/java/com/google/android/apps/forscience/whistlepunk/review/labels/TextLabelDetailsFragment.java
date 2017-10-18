@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -80,13 +78,6 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
         actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
         actionBar.setHomeActionContentDescription(android.R.string.cancel);
         super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_delete);
-        item.getIcon().mutate().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-        super.onPrepareOptionsMenu(menu);
     }
 
     @Override
