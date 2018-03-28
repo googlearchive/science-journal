@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:minHeight="@dimen/accessibility_touch_target_min_size"
             android:singleLine="true"
-            android:inputType="textCapSentences"
+            android:inputType="textCapSentences|textAutoCorrect"
             android:contentDescription="@string/edit_trial_title_hint"
             android:imeOptions="actionDone"
             >

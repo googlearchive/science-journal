@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
-
 import java.util.Collection;
 import java.util.Collections;
 

@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.Activity;
-import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -26,6 +25,7 @@ import android.os.Handler;
 import android.os.Message;
 import androidx.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -64,7 +64,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.SoundFrequencySensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.ExperimentalPitchSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
@@ -784,7 +784,7 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
         List<String> sources = mSensorRegistry.getIncludedSources();
         sources.removeAll(Lists.newArrayList(selected));
         if (!hasGoodSensorId(selected)) {
-            // If nothing is selected, at least one must be avaiable (see notes on
+            // If nothing is selected, at least one must be available (see notes on
             // #nonEmptySensorList)
             List<String> nonEmpty = nonEmptySensorList(sources);
             return nonEmpty;
@@ -878,8 +878,10 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
     private void tryStartObserving(SensorCardPresenter sensorCardPresenter, String sensorId,
             RecordingStatus status) {
         if ((TextUtils.equals(sensorId, DecibelSensor.ID) ||
-                        TextUtils.equals(sensorId, SoundFrequencySensor.ID)) &&
+                        TextUtils.equals(sensorId, ExperimentalPitchSensor.ID)) &&
                 mSensorCardPresenterForAudio == null &&
+                !PermissionUtils.isPermissionPermanentlyDenied(
+                        PermissionUtils.REQUEST_RECORD_AUDIO) &&
                 !PermissionUtils.hasPermission(getActivity(),
                         PermissionUtils.REQUEST_RECORD_AUDIO)) {
             mSensorCardPresenterForAudio = sensorCardPresenter;
@@ -926,13 +928,13 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
         // TODO: Extend this to work for any sensor that doesn't have the permission granted.
         // See b/27439593
         if (availableSensors.contains(DecibelSensor.ID) ||
-                availableSensors.contains(SoundFrequencySensor.ID)) {
+                availableSensors.contains(ExperimentalPitchSensor.ID)) {
             for (SensorCardPresenter presenter : sensorCardPresenters) {
                 if (TextUtils.equals(presenter.getSelectedSensorId(), DecibelSensor.ID)) {
                     availableSensors.remove(DecibelSensor.ID);
                 }
-                if (TextUtils.equals(presenter.getSelectedSensorId(), SoundFrequencySensor.ID)) {
-                  availableSensors.remove(SoundFrequencySensor.ID);
+                if (TextUtils.equals(presenter.getSelectedSensorId(), ExperimentalPitchSensor.ID)) {
+                    availableSensors.remove(ExperimentalPitchSensor.ID);
                 }
             }
         }

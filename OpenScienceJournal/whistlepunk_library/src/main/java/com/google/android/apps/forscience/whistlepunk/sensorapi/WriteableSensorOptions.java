@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import android.os.Bundle;
-
 /**
  * Writeable interface for sensor options.
  */

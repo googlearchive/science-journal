@@ -33,14 +33,14 @@
                 android:id="@+id/action_include_archived"
                 android:orderInCategory="101"
                 android:title="@string/include_archived_trials"
-                android:icon="@drawable/ic_check_box_outline_blank_black_24dp"
+                android:icon="@drawable/ic_visibility_black_24dp"
                 app:showAsAction="never"
                 />
             <item
                 android:id="@+id/action_exclude_archived"
                 android:orderInCategory="101"
-                android:title="@string/include_archived_trials"
-                android:icon="@drawable/ic_check_box_black_24dp"
+                android:title="@string/action_hide_archived_trials"
+                android:icon="@drawable/ic_visibility_off_black_24dp"
                 app:showAsAction="never"
                 />
             <item

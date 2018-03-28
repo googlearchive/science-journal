@@ -18,9 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import androidx.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.javalib.Delay;
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Scheduler;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;

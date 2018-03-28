@@ -16,20 +16,16 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
-import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
-import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderService;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.MetadataActivity;
-import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 
 public class RunReviewActivity extends MetadataActivity {
     public static final String EXTRA_FROM_RECORD = "from_record_activity";

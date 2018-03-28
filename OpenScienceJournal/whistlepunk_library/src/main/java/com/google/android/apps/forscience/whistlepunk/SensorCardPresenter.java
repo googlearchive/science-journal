@@ -25,14 +25,15 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import android.support.design.widget.TabLayout;
+import androidx.appcompat.widget.PopupMenu;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.PopupMenu;
 
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
@@ -57,9 +58,9 @@ import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor
 import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.CompassSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.ExperimentalPitchSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.LinearAccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.SoundFrequencySensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.collect.Lists;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -147,7 +148,7 @@ public class SensorCardPresenter {
 
     // The sensor ID ordering.
     private static final String[] SENSOR_ID_ORDER = {AmbientLightSensor.ID, DecibelSensor.ID,
-            SoundFrequencySensor.ID, LinearAccelerometerSensor.ID,
+            ExperimentalPitchSensor.ID, LinearAccelerometerSensor.ID,
             AccelerometerSensor.Axis.X.getSensorId(), AccelerometerSensor.Axis.Y.getSensorId(),
             AccelerometerSensor.Axis.Z.getSensorId(), BarometerSensor.ID, CompassSensor.ID,
             MagneticStrengthSensor.ID};
@@ -459,7 +460,7 @@ public class SensorCardPresenter {
         mCardViewHolder.sensorSelectionArea.setBackgroundColor(slightlyLighter);
         mCardViewHolder.sensorSettingsGear.setBackground(ColorUtils.colorDrawableWithActual(
                 mCardViewHolder.sensorSettingsGear.getBackground(), color));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
             mCardViewHolder.statusProgressBar.setIndeterminateTintList(
                     ColorStateList.valueOf(color));
         }
@@ -593,7 +594,8 @@ public class SensorCardPresenter {
         final Context context = mCardViewHolder.getContext();
         Resources res = context.getResources();
         boolean showDevTools = DevOptionsFragment.isDevToolsEnabled(context);
-        mPopupMenu = new PopupMenu(context, mCardViewHolder.menuButton);
+        mPopupMenu = new PopupMenu(context, mCardViewHolder.menuButton, Gravity.NO_GRAVITY,
+                R.attr.actionOverflowMenuStyle, 0);
         mPopupMenu.getMenuInflater().inflate(R.menu.menu_sensor_card, mPopupMenu.getMenu());
         final Menu menu = mPopupMenu.getMenu();
         menu.findItem(R.id.btn_sensor_card_close).setVisible(

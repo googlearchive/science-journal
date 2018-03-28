@@ -17,9 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.javalib.Success;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 
 /**
  * Data interface for sensor recorders

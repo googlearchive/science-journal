@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.analytics;
 
-import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 

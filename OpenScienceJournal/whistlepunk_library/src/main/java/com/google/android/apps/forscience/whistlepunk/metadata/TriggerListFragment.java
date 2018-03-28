@@ -25,9 +25,11 @@ import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.SwitchCompat;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,7 +38,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.Success;
@@ -385,7 +386,8 @@ public class TriggerListFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     Context context = holder.menuButton.getContext();
-                    PopupMenu popup = new PopupMenu(context, holder.menuButton);
+                    PopupMenu popup = new PopupMenu(context, holder.menuButton, Gravity.NO_GRAVITY,
+                            R.attr.actionOverflowMenuStyle, 0);
                     popup.getMenuInflater().inflate(R.menu.menu_sensor_trigger, popup.getMenu());
                     popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         public boolean onMenuItemClick(MenuItem item) {

@@ -15,12 +15,14 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
-import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.hardware.Camera;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,8 +42,6 @@ import java.util.UUID;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
-
-import static android.content.ContentValues.TAG;
 
 
 public class CameraFragment extends PanesToolFragment {

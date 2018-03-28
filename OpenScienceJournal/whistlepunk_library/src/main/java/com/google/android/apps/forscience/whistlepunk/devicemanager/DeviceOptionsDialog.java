@@ -17,10 +17,10 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.Dialog;
-import androidx.fragment.app.DialogFragment;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;

@@ -16,7 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -46,8 +49,6 @@ import android.view.ViewParent;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 /**
  * An interaction behavior plugin for a child view of {@link CoordinatorLayout} to make it work as
  * a bottom sheet that has a mid-height stop, STATE_MIDDLE.
@@ -209,7 +210,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
         }
         mMinOffset = Math.max(0, mParentHeight - child.getHeight());
         mMaxOffset = Math.max(mParentHeight - peekHeight, mMinOffset);
-        if (mState == STATE_EXPANDED) {
+        if (mState == STATE_EXPANDED || (mState == STATE_MIDDLE && isLandscape(child))) {
             ViewCompat.offsetTopAndBottom(child, mMinOffset);
         } else if (mState == STATE_COLLAPSED) {
             ViewCompat.offsetTopAndBottom(child, mMaxOffset);
@@ -304,7 +305,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
 
     @Override
     public boolean onTouchEvent(CoordinatorLayout parent, V child, MotionEvent event) {
-        if (!child.isShown()) {
+        if (!child.isShown() || mViewDragHelper == null) {
             return false;
         }
         int action = MotionEventCompat.getActionMasked(event);
@@ -579,7 +580,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
         int top;
         if (state == STATE_COLLAPSED) {
             top = mMaxOffset;
-        } else if (state == STATE_EXPANDED) {
+        } else if (state == STATE_EXPANDED || (state == STATE_MIDDLE && isLandscape(child))) {
             top = mMinOffset;
         } else if (state == STATE_MIDDLE) {
             // Added for PanesBottomSheetBehavior.
@@ -627,10 +628,11 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
             int top;
             @State int targetState;
             int currentTop = releasedChild.getTop();
+            boolean isLandscape = isLandscape(releasedChild);
             if (yvel < 0) { // Moving up
                 // Adjusted for PanesBottomSheetBehavior to have 1/3 or less of the distance stop at
                 // the middle, and >1/3 of the distance go up to expanded.
-                if (currentTop < halfOffset() * 4/3) {
+                if (isLandscape || (currentTop < halfOffset() * 4/3)) {
                     top = mMinOffset;
                     targetState = STATE_EXPANDED;
                 } else {
@@ -640,7 +642,11 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
             } else if (yvel == 0.f) { // Not moving
                 // Adjusted for PanesBottomSheetBehavior to go to middle if we are closest to that,
                 // instead of just expanded and collapsed.
-                if (Math.abs(currentTop - mMinOffset) < Math.abs(currentTop - halfOffset())) {
+                if (!isLandscape &&
+                        Math.abs(currentTop - mMinOffset) < Math.abs(currentTop - halfOffset())) {
+                    top = mMinOffset;
+                    targetState = STATE_EXPANDED;
+                } else if (isLandscape && Math.abs(currentTop - mMinOffset) < mMaxOffset) {
                     top = mMinOffset;
                     targetState = STATE_EXPANDED;
                 } else if (Math.abs(currentTop - halfOffset()) < Math.abs(currentTop - mMaxOffset)) {
@@ -653,7 +659,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
             } else { // Moving down
                 // Adjusted for PanesBottomSheetBehavior to have 1/3 or less of the distance stop at
                 // the middle, and >1/3 of the distance go up to expanded.
-                if (currentTop > halfOffset() / 2) {
+                if (isLandscape || (currentTop > halfOffset() / 2)) {
                     top = mMaxOffset;
                     targetState = STATE_COLLAPSED;
                 } else {
@@ -758,6 +764,12 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
     private int halfOffset() {
         return (mMaxOffset - mMinOffset) / 2;
     }
+
+    private boolean isLandscape(View view) {
+        return view.getContext().getResources().getConfiguration().orientation ==
+                Configuration.ORIENTATION_LANDSCAPE;
+    }
+
     /**
      * A utility function to get the {@link PanesBottomSheetBehavior} associated with the {@code view}.
      *

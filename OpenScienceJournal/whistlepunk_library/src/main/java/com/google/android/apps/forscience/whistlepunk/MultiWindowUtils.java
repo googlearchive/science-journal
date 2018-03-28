@@ -24,8 +24,8 @@ import android.os.Build;
 public class MultiWindowUtils {
 
     public static boolean isMultiWindowEnabled(Context context) {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ||
-                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isARC(context));
+        return AndroidVersionUtils.isApiLevelAtLeastNougat() ||
+                (AndroidVersionUtils.isApiLevelAtLeastMarshmallow() && isARC(context));
     }
 
     private static boolean isARC(Context context) {

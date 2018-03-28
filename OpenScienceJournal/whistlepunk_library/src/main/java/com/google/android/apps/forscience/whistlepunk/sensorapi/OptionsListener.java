@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import android.os.Bundle;
-
 /**
  * Interface for an object that can receive new options
  */

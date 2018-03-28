@@ -29,10 +29,10 @@ import com.google.android.apps.forscience.whistlepunk.sensors.AmbientTemperature
 import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.CompassSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.ExperimentalPitchSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.LinearAccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.SoundFrequencySensor;
 import com.google.common.base.Preconditions;
 
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
     }
 
     private static String getLanguageTag(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
             return getCurrentLocale(context).toLanguageTag();
         } else {
             // TODO: implement getLanguageTag pre-lollipop!  (b/63933068)
@@ -75,7 +75,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
     }
 
     private static Locale getCurrentLocale(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+        if (AndroidVersionUtils.isApiLevelAtLeastNougat()){
             return context.getResources().getConfiguration().getLocales().get(0);
         } else {
             //noinspection deprecation
@@ -173,15 +173,15 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                         SensorAnimationBehavior.TYPE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL, DecibelSensor.ID));
 
-        putAppearance(SoundFrequencySensor.ID, BuiltInSensorAppearance.create(
-                R.string.sound_frequency, R.drawable.ic_sensor_sound_frequency_white_24dp,
-                R.string.hertz_units, R.string.sensor_desc_short_sound_frequency,
-                R.string.sensor_desc_first_paragraph_sound_frequency,
-                R.string.sensor_desc_second_paragraph_sound_frequency,
+        putAppearance(ExperimentalPitchSensor.ID, BuiltInSensorAppearance.create(
+                R.string.pitch, R.drawable.ic_sensor_sound_frequency_white_24dp,
+                R.string.hertz_units, R.string.sensor_desc_short_pitch,
+                R.string.sensor_desc_first_paragraph_pitch,
+                R.string.sensor_desc_second_paragraph_pitch,
                 R.drawable.learnmore_sound,
                 new SensorAnimationBehavior(R.drawable.sound_frequency_drawable,
-                        SensorAnimationBehavior.TYPE_SOUND_FREQUENCY),
-                BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL, SoundFrequencySensor.ID));
+                        SensorAnimationBehavior.TYPE_PITCH),
+                1 /* pointsAfterDecimalInNumberFormat */, ExperimentalPitchSensor.ID));
 
         putAppearance(BarometerSensor.ID, BuiltInSensorAppearance.create(R.string.barometer,
                 R.drawable.ic_sensor_barometer_white_24dp, R.string.barometer_units,

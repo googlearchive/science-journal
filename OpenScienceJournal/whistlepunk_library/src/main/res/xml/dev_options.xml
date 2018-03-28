@@ -31,10 +31,10 @@
     />
 
     <CheckBoxPreference
-        android:key="enable_sound_frequency_sensor"
+        android:key="enable_pitch_sensor"
         android:defaultValue="false"
-        android:title="@string/enable_sound_frequency_sensor_title"
-        android:summary="@string/enable_sound_frequency_sensor_summary"
+        android:title="@string/enable_pitch_sensor_title"
+        android:summary="@string/enable_pitch_sensor_summary"
         />
 
     <CheckBoxPreference
@@ -77,6 +77,13 @@
         android:title="@string/use_new_manage_devices_ux_option_title"
         android:summary="@string/use_new_manage_devices_ux_option_summary"
     />
+
+    <CheckBoxPreference
+        android:key="enable_smooth_scrolling_to_bottom"
+        android:defaultValue="true"
+        android:title="@string/enable_smooth_scrolling_on_refresh"
+        android:summary="@string/enable_smooth_scrolling_on_refresh_summary"
+        />
 
     <Preference
         android:key="show_perf_tracker_debug"

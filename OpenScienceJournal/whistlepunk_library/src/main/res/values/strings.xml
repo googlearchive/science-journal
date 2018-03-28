@@ -92,8 +92,8 @@
     <!-- Displayed units for a sound intensity sensor, decibels [CHAR_LIMIT=10] -->
     <string name="decibel_units">dB</string>
 
-    <!-- Displayed units for a sound frequency sensor, hertz [CHAR_LIMIT=10] -->
-    <string name="hertz_units">Hz</string>
+    <!-- Displayed units for a pitch sensor, hertz [CHAR_LIMIT=10] DO NOT TRANSLATE -->
+    <string name="hertz_units" translatable="false">Hz</string>
 
     <!-- Displayed units for an RPM sensor [CHAR_LIMIT=10] -->
     <string name="rpm_units">RPM</string>
@@ -129,8 +129,8 @@
     <!-- Sound intensity sensor name [CHAR_LIMIT=25] -->
     <string name="decibel">Sound intensity</string>
 
-    <!-- Sound frequency sensor name [CHAR_LIMIT=25] -->
-    <string name="sound_frequency">Sound frequency</string>
+    <!-- Pitch sensor name [CHAR_LIMIT=25] DO NOT TRANSLATE -->
+    <string name="pitch" translatable="false">Pitch</string>
 
     <!-- Window title label for the experiment details activity [CHAR_LIMIT=25] -->
     <string name="title_activity_age_verifier">Birthday</string>
@@ -477,6 +477,12 @@
     <!-- Summary of developer option to enable memory leak detection [CHAR_LIMIT=none] -->
     <string name="dev_tools_leak_detection_summary">Changes to this setting only take effect after closing the application.</string>
 
+    <!-- Title of developer option to enable smooth scroll on experiment refresh [CHAR_LIMIT=35] -->
+    <string name="enable_smooth_scrolling_on_refresh" translatable="false">Enable smooth scroll on refresh</string>
+
+    <!-- Summary of developer option to enable memory leak detection [CHAR_LIMIT=none] -->
+    <string name="enable_smooth_scrolling_on_refresh_summary" translatable="false">Disable to reduce likelihood of crash with large experiment</string>
+
     <!-- Default sonification type name [CHAR_LIMIT=30] -->
     <string name="default_sonification">Default</string>
 
@@ -559,8 +565,8 @@
     <!-- One-sentence description of the Decibel sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_decibel">The intensity of the sound, measured in decibels (dB), reaching the sound sensor or microphone.</string>
 
-    <!-- One-sentence description of the sound frequency sensor [CHAR_LIMIT=100] -->
-    <string name="sensor_desc_short_sound_frequency">The frequency of the sound, measured in hertz (Hz), reaching the sound sensor or microphone.</string>
+    <!-- One-sentence description of the pitch sensor [CHAR_LIMIT=100] DO NOT TRANSLATE -->
+    <string name="sensor_desc_short_pitch" translatable="false">The pitch of the sound, measured in hertz (Hz), reaching the sound sensor or microphone.</string>
 
     <!-- One-sentence description of the light sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_light">The amount of light, measured in lux, reaching the ambient light sensor.</string>
@@ -611,7 +617,7 @@
     <string name="sensor_desc_first_paragraph_decibel">Sounds are made by vibration. Your voice, for example, comes from vibrations in your throat\'s vocal cords. These vibrations create alternating zones of high and low air pressure that travel outward—much like the expanding circular ripple made by a pebble thrown into a pond.</string>
 
     <!-- Long description of a decibel sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
-    <!-- TODO(lizlooney): Update this description if/when we add the sound frequency sensor. -->
+    <!-- TODO(lizlooney): Update this description if/when we add the pitch sensor. -->
     <string name="sensor_desc_second_paragraph_decibel">All sounds can be described in terms of their frequency and intensity.
         \n\nIntensity is what you measure here with the Science Journal, in units of decibels (dB). Intensity, or loudness, depends on the distance that a vibrating object moves each time it vibrates; we hear greater intensity as increased loudness.
         \n\nThe frequency (also, pitch or tone) of a sound wave is equivalent to its rate of vibration. The faster an object vibrates, the higher the pitch of the resulting sound. The Science Journal does not measure frequency—only loudness.
@@ -632,11 +638,11 @@
         \n140 dB airplane taking off
     </string>
 
-    <!-- Long description of a sound frequency sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
-    <string name="sensor_desc_first_paragraph_sound_frequency">Sounds are made by vibration. Your voice, for example, comes from vibrations in your throat\'s vocal cords. These vibrations create alternating zones of high and low air pressure that travel outward—much like the expanding circular ripple made by a pebble thrown into a pond.</string>
+    <!-- Long description of a pitch sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] DO NOT TRANSLATE -->
+    <string name="sensor_desc_first_paragraph_pitch" translatable="false">Sounds are made by vibration. Your voice, for example, comes from vibrations in your throat\'s vocal cords. These vibrations create alternating zones of high and low air pressure that travel outward—much like the expanding circular ripple made by a pebble thrown into a pond.</string>
 
-    <!-- Long description of a sound frequency sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
-    <string name="sensor_desc_second_paragraph_sound_frequency">All sounds can be described in terms of their frequency and intensity.
+    <!-- Long description of a pitch sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] DO NOT TRANSLATE -->
+    <string name="sensor_desc_second_paragraph_pitch" translatable="false">All sounds can be described in terms of their frequency and intensity.
         \n\nThe frequency (also, pitch or tone) of a sound wave is equivalent to its rate of vibration. The faster an object vibrates, the higher the pitch of the resulting sound.
         \n\nHumans can hear sounds in the range of 20 to 20,000 Hz. The lowest key on a piano produces a sound with a frequency of 27.5 Hz and the highest key produces a sound with a frequency of 4186.01 Hz.
     </string>
@@ -849,11 +855,8 @@
     <!-- Change log for Science Journal (note: this is multiline, with \n to separate lines) [CHAR LIMIT=500] -->
     <string name="listing_changelog">
 New features and improvements:
-\n\u2022 Brand-new interface for taking notes and documenting science experiments.
-\n\u2022 New snapshot feature for capturing individual data points.
-\n\u2022 New sensors: linear accelerometer, magnetometer, and compass
-\n\u2022 Redesigned gallery for browsing experiments
-\n\u2022 Now available on iOS devices!
+\n\u2022 Easier deletion of experiments and notes.
+\n\u2022 Bug fixes
     </string>
 
     <!-- Description text shown in the Play Store for this app. Ensure a space
@@ -910,11 +913,11 @@ Permissions notice:
     <!-- Summary of developer option to display an ambient temperature sensor [CHAR_LIMIT=none] -->
     <string name="enable_temperature_sensor_summary">Enable experimental ambient temperature sensor</string>
 
-    <!-- Title of developer option to enable a sound frequency sensor [CHAR_LIMIT=35] -->
-    <string name="enable_sound_frequency_sensor_title" translatable="false">Enable sound frequency</string>
+    <!-- Title of developer option to enable a pitch sensor [CHAR_LIMIT=35] DO NOT TRANSLATE -->
+    <string name="enable_pitch_sensor_title" translatable="false">Enable pitch</string>
 
-    <!-- Summary of developer option to display a sound frequency sensor [CHAR_LIMIT=none] -->
-    <string name="enable_sound_frequency_sensor_summary" translatable="false">Enable experimental sound frequency sensor</string>
+    <!-- Summary of developer option to display a pitch sensor [CHAR_LIMIT=none] DO NOT TRANSLATE -->
+    <string name="enable_pitch_sensor_summary" translatable="false">Enable experimental pitch sensor</string>
 
     <!-- Title of developer option to display a synthetic sine wave [CHAR_LIMIT=35]-->
     <string name="enable_sine_wave_sensor_title">Enable sine wave</string>
@@ -1444,6 +1447,12 @@ Permissions notice:
 
     <!-- Description of a button that records the current value of one or more sensors [CHAR_LIMIT=50] -->
     <string name="snapshot_button_description">Sensor snapshot</string>
+
+    <!-- Title for the notification channel in Oreo [CHAR_LIMIT=25] -->
+    <string name="notification_channel_name">Recordings</string>
+
+    <!-- Description for the notification channel in Oreo [CHAR_LIMIT=50] -->
+    <string name="notification_channel_description">Recording status</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

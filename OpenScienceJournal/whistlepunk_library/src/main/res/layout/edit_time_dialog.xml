@@ -57,7 +57,6 @@
             android:id="@+id/submit_button"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_check_white_24dp"
             android:scaleType="center"
             android:elevation="2dp"
             android:contentDescription="@android:string/ok"

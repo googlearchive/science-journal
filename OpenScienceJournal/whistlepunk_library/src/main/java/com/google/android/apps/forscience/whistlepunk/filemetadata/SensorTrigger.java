@@ -17,17 +17,17 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 
-import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
-
-import com.google.common.primitives.Ints;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-
 import android.os.Bundle;
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation
+        .TriggerInformation;
+import com.google.common.primitives.Ints;
+import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.util.Objects;
 

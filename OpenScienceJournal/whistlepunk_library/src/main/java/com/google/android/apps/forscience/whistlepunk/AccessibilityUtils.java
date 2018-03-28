@@ -26,7 +26,6 @@ import android.view.TouchDelegate;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -144,7 +143,7 @@ public final class AccessibilityUtils {
     public static boolean canSetAccessibilityDelegateAction() {
         // AccessibilityNodeInfo.addAction(AccessibilityNodeInfo.AccessibilityAction) was added
         // in Lollipop.
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        return AndroidVersionUtils.isApiLevelAtLeastLollipop();
 
     }
 }

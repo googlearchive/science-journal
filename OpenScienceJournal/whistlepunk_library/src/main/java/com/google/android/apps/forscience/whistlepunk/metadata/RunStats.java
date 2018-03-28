@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import android.text.TextUtils;
-
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ZoomRecorder;

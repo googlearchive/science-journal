@@ -39,6 +39,7 @@
         android:id="@+id/caption"
         android:hint="@string/note_caption_hint"
         android:layout_margin="8dp"
+        android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
         />
 
 </RelativeLayout>

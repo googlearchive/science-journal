@@ -15,8 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,6 +23,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
@@ -67,7 +67,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private BehaviorSubject<Integer> mActivityHeight = BehaviorSubject.create();
     private BehaviorSubject<Integer> mBottomSheetState = BehaviorSubject.create();
     private ImageButton mGrabber;
-    private ToolTab[] mToolTabs = ToolTab.values();
+    private ToolTab[] mToolTabs =
+            new ToolTab[]{ToolTab.NOTES, ToolTab.OBSERVE, ToolTab.CAMERA, ToolTab.GALLERY};
     private RxPermissions mPermissions;
     private int mInitialDrawerState = -1;
 
@@ -110,75 +111,95 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         }
     }
 
-    private static enum ToolTab {
-        NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp, "NOTES") {
-            @Override
-            public Fragment createFragment(String experimentId, AppCompatActivity activity) {
-                return TextToolFragment.newInstance();
-            }
+    private static abstract class ToolTab {
+        private static ToolTab NOTES =
+                new ToolTab(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp,
+                        "NOTES") {
+                    @Override
+                    public Fragment createFragment(String experimentId,
+                            AppCompatActivity activity) {
+                        return TextToolFragment.newInstance();
+                    }
 
-            @Override
-            public View connectControls(Fragment fragment, FrameLayout controlBar,
-                    ControlBarController controlBarController,
-                    Observable<DrawerLayoutState> layoutState) {
-                TextToolFragment ttf = (TextToolFragment) fragment;
-                LayoutInflater.from(controlBar.getContext())
-                              .inflate(R.layout.text_action_bar, controlBar, true);
-                ttf.attachButtons(controlBar);
-                ttf.listenToAvailableHeight(layoutState.map(state -> state.getAvailableHeight()));
-                return ttf.getViewToKeepVisible();
-            }
-        }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp, "OBSERVE") {
-            @Override
-            public Fragment createFragment(String experimentId, AppCompatActivity activity) {
-                return RecordFragment.newInstance(experimentId, false);
-            }
+                    @Override
+                    public View connectControls(Fragment fragment, FrameLayout controlBar,
+                            ControlBarController controlBarController,
+                            Observable<DrawerLayoutState> layoutState) {
+                        TextToolFragment ttf = (TextToolFragment) fragment;
+                        LayoutInflater.from(controlBar.getContext())
+                                      .inflate(R.layout.text_action_bar, controlBar, true);
+                        ttf.attachButtons(controlBar);
+                        ttf.listenToAvailableHeight(
+                                layoutState.map(state -> state.getAvailableHeight()));
+                        return ttf.getViewToKeepVisible();
+                    }
+                };
 
-            @Override
-            public View connectControls(Fragment fragment, FrameLayout controlBar,
-                    ControlBarController controlBarController,
-                    Observable<DrawerLayoutState> availableHeight) {
-                LayoutInflater.from(controlBar.getContext())
-                              .inflate(R.layout.observe_action_bar, controlBar, true);
-                controlBarController.attachRecordButtons(controlBar,
-                        fragment.getChildFragmentManager());
-                controlBarController.attachElapsedTime(controlBar, (RecordFragment) fragment);
-                return null;
-            }
-        }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp, "CAMERA") {
-            @Override
-            public Fragment createFragment(String experimentId, AppCompatActivity activity) {
-                return CameraFragment.newInstance();
-            }
+        private static ToolTab OBSERVE =
+                new ToolTab(R.string.tab_description_observe, R.drawable.sensortab_white_24dp,
+                        "OBSERVE") {
+                    @Override
+                    public Fragment createFragment(String experimentId,
+                            AppCompatActivity activity) {
+                        return RecordFragment.newInstance(experimentId, false);
+                    }
 
-            @Override
-            public View connectControls(Fragment fragment, FrameLayout controlBar,
-                    ControlBarController controlBarController,
-                    Observable<DrawerLayoutState> layoutState) {
-                CameraFragment cf = (CameraFragment) fragment;
-                LayoutInflater.from(controlBar.getContext())
-                              .inflate(R.layout.camera_action_bar, controlBar, true);
-                cf.attachButtons(controlBar);
-                return null;
-            }
-        }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp, "GALLERY") {
-            @Override
-            public Fragment createFragment(String experimentId, AppCompatActivity activity) {
-                return GalleryFragment.newInstance();
-            }
+                    @Override
+                    public View connectControls(Fragment fragment, FrameLayout controlBar,
+                            ControlBarController controlBarController,
+                            Observable<DrawerLayoutState> availableHeight) {
+                        LayoutInflater.from(controlBar.getContext())
+                                      .inflate(R.layout.observe_action_bar, controlBar, true);
+                        controlBarController.attachRecordButtons(controlBar,
+                                fragment.getChildFragmentManager());
+                        controlBarController.attachElapsedTime(controlBar,
+                                (RecordFragment) fragment);
+                        return null;
+                    }
+                };
 
-            @Override
-            public View connectControls(Fragment fragment, FrameLayout controlBar,
-                    ControlBarController controlBarController,
-                    Observable<DrawerLayoutState> availableHeight) {
-                // TODO: is this duplicated code?
-                GalleryFragment gf = (GalleryFragment) fragment;
-                LayoutInflater.from(controlBar.getContext())
-                              .inflate(R.layout.gallery_action_bar, controlBar, true);
-                gf.attachAddButton(controlBar);
-                return null;
-            }
-        };
+        private static ToolTab CAMERA =
+                new ToolTab(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp,
+                        "CAMERA") {
+                    @Override
+                    public Fragment createFragment(String experimentId,
+                            AppCompatActivity activity) {
+                        return CameraFragment.newInstance();
+                    }
+
+                    @Override
+                    public View connectControls(Fragment fragment, FrameLayout controlBar,
+                            ControlBarController controlBarController,
+                            Observable<DrawerLayoutState> layoutState) {
+                        CameraFragment cf = (CameraFragment) fragment;
+                        LayoutInflater.from(controlBar.getContext())
+                                      .inflate(R.layout.camera_action_bar, controlBar, true);
+                        cf.attachButtons(controlBar);
+                        return null;
+                    }
+                };
+
+        private static ToolTab GALLERY =
+                new ToolTab(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp,
+                        "GALLERY") {
+                    @Override
+                    public Fragment createFragment(String experimentId,
+                            AppCompatActivity activity) {
+                        return GalleryFragment.newInstance();
+                    }
+
+                    @Override
+                    public View connectControls(Fragment fragment, FrameLayout controlBar,
+                            ControlBarController controlBarController,
+                            Observable<DrawerLayoutState> availableHeight) {
+                        // TODO: is this duplicated code?
+                        GalleryFragment gf = (GalleryFragment) fragment;
+                        LayoutInflater.from(controlBar.getContext())
+                                      .inflate(R.layout.gallery_action_bar, controlBar, true);
+                        gf.attachAddButton(controlBar);
+                        return null;
+                    }
+                };
         private final int mContentDescriptionId;
         private final int mIconId;
         private final String mLoggingName;
@@ -248,8 +269,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             mActivityHeight.onNext(height);
         });
 
-        mRecordingBar = (ProgressBar) findViewById(R.id.recording_progress_bar);
-        mGrabber = (ImageButton) findViewById(R.id.grabber);
+        mRecordingBar = findViewById(R.id.recording_progress_bar);
+        mGrabber = findViewById(R.id.grabber);
 
         String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
 
@@ -354,12 +375,12 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         ControlBarController controlBarController =
                 new ControlBarController(experiment.getExperimentId(), mSnackbarManager);
 
-        ViewPager pager = (ViewPager) findViewById(R.id.pager);
+        ViewPager pager = findViewById(R.id.pager);
         View bottomSheet = findViewById(R.id.bottom);
-        TabLayout toolPicker = (TabLayout) findViewById(R.id.tool_picker);
+        TabLayout toolPicker = findViewById(R.id.tool_picker);
         View experimentPane = findViewById(R.id.experiment_pane);
         View controlBarSpacer = findViewById(R.id.control_bar_spacer);
-        FrameLayout controlBar = (FrameLayout) findViewById(R.id.bottom_control_bar);
+        FrameLayout controlBar = findViewById(R.id.bottom_control_bar);
 
         if (!experiment.isArchived()) {
             setCoordinatorBehavior(experimentPane, new BottomDependentBehavior() {
@@ -442,8 +463,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     super.setPrimaryItem(container, position, object);
                     if (position != mPreviousPrimary) {
                         ToolTab toolTab = getToolTab(position);
-                        FrameLayout controlBar =
-                                (FrameLayout) findViewById(R.id.bottom_control_bar);
+                        FrameLayout controlBar = findViewById(R.id.bottom_control_bar);
                         controlBar.removeAllViews();
                         PanesToolFragment fragment = (PanesToolFragment) object;
                         fragment.whenNextView()
@@ -504,8 +524,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         toolPicker.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                ToolTab toolTab = (ToolTab) tab.getTag();
-                mSelectedTabIndex = toolTab.ordinal();
+                mSelectedTabIndex = tab.getPosition();
                 pager.setCurrentItem(mSelectedTabIndex, true);
                 openPaneIfNeeded();
             }
@@ -614,7 +633,6 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     @Override
     public void onResume() {
-        Intent intent = getIntent();
         super.onResume();
         if (!isMultiWindowEnabled()) {
             updateRecorderControllerForResume();
@@ -727,12 +745,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
     @Override
     public PanesToolFragment.Env getPanesToolEnv() {
-        return new PanesToolFragment.Env() {
-            @Override
-            public Observable<Integer> watchDrawerState() {
-                return drawerLayoutState().map(state -> state.getDrawerState());
-            }
-        };
+        return () -> drawerLayoutState().map(state -> state.getDrawerState());
     }
 
     @Override

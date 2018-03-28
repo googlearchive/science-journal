@@ -17,6 +17,8 @@
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -32,12 +34,14 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
+import com.jakewharton.rxbinding2.widget.RxTextView;
 
 /**
  * Details view controller for TextLabel
  */
 public class TextLabelDetailsFragment extends LabelDetailsFragment {
-    private EditText mNoteText;
+    private TextInputLayout mNoteTextLayout;
+    private TextInputEditText mNoteText;
 
     public static TextLabelDetailsFragment newInstance(String experimentId,
             String trialId, Label originalLabel) {
@@ -58,14 +62,19 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             final Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        mNoteText = (EditText) inflater.inflate(R.layout.text_label_details_fragment,
+        mNoteTextLayout = (TextInputLayout) inflater.inflate(R.layout.text_label_details_fragment,
                 container, false);
+        mNoteText = mNoteTextLayout.findViewById(R.id.note_text);
         mNoteText.setText(mOriginalLabel.getTextLabelValue().text);
         mNoteText.post(() -> mNoteText.setSelection(mNoteText.getText().toString().length()));
 
+        RxTextView.afterTextChangeEvents(mNoteText).subscribe(events -> {
+            verifyInput(mNoteText.getText().toString());
+        });
+
         // TODO: Transition
 
-        return mNoteText;
+        return mNoteTextLayout;
     }
 
     @Override
@@ -84,12 +93,11 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_save) {
             mExperiment.firstElement().subscribe(experiment -> {
-                String newText = mNoteText.getText().toString();
-                if (!verifyInput(newText)) {
+                if (mNoteTextLayout.isErrorEnabled()) {
                     // No-op. Shows an error, doesn't exit.
                     return;
                 }
-                saveTextChanges(newText, experiment);
+                saveTextChanges(mNoteText.getText().toString(), experiment);
                 returnToParent(false, null);
             });
             return true;
@@ -106,10 +114,12 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
 
     private boolean verifyInput(String text) {
         if (TextUtils.isEmpty(text)) {
-            mNoteText.setError(getActivity().getResources().getString(
+            mNoteTextLayout.setError(getActivity().getResources().getString(
                     R.string.empty_text_note_error));
+            mNoteTextLayout.setErrorEnabled(true);
             return false;
         }
+        mNoteTextLayout.setErrorEnabled(false);
         return true;
     }
 }

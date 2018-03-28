@@ -16,9 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.audiogen.voices;
 
-import android.util.Log;
-
 import com.google.common.primitives.Ints;
+
 import java.util.ArrayList;
 
 /**

@@ -26,14 +26,12 @@ package com.google.android.apps.forscience.whistlepunk.audiogen.voices;
 ** Syntona is available from: http://www.softsynth.com/syntona/
 */
 
-import com.jsyn.ports.UnitOutputPort;
-import com.jsyn.unitgen.UnitVoice;
 import com.jsyn.ports.UnitInputPort;
+import com.jsyn.ports.UnitOutputPort;
+import com.jsyn.unitgen.EnvelopeDAHDSR;
+import com.jsyn.unitgen.PassThrough;
 import com.jsyn.unitgen.SineOscillator;
 import com.softsynth.shared.time.TimeStamp;
-import com.jsyn.unitgen.PassThrough;
-import com.jsyn.unitgen.EnvelopeDAHDSR;
-import com.jsyn.unitgen.Circuit;
 
 public class SineEnvelope extends SimpleJsynUnitVoiceBase {
     // Declare units and ports.

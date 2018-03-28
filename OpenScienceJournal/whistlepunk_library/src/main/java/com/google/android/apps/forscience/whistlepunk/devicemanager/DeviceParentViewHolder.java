@@ -19,12 +19,13 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import androidx.appcompat.widget.PopupMenu;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
@@ -113,7 +114,8 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
             return;
         }
         final Context context = mMenuButton.getContext();
-        mPopupMenu = new PopupMenu(context, mMenuButton);
+        mPopupMenu = new PopupMenu(context, mMenuButton, Gravity.NO_GRAVITY,
+                R.attr.actionOverflowMenuStyle, 0);
         mPopupMenu.getMenuInflater().inflate(R.menu.menu_device_recycler_item,
                 mPopupMenu.getMenu());
 

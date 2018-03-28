@@ -16,13 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk.audiogen;
 
-import com.google.android.apps.forscience.whistlepunk.audiogen.voices
-        .DefaultVoice;
+import com.google.android.apps.forscience.whistlepunk.audiogen.voices.AmplitudeVoice;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices.ConductorVoice;
-import com.google.android.apps.forscience.whistlepunk.audiogen.voices
-        .NotesVoice;
-import com.google.android.apps.forscience.whistlepunk.audiogen.voices
-        .AmplitudeVoice;
+import com.google.android.apps.forscience.whistlepunk.audiogen.voices.DefaultVoice;
+import com.google.android.apps.forscience.whistlepunk.audiogen.voices.NotesVoice;
 import com.google.android.apps.forscience.whistlepunk.audiogen.voices.ScaleVoice;
 import com.jsyn.Synthesizer;
 

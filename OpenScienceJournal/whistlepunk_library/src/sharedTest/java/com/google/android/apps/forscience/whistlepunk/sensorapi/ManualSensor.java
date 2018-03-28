@@ -16,6 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
+import static org.junit.Assert.fail;
+
 import android.content.Context;
 import androidx.annotation.NonNull;
 
@@ -35,8 +37,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-
-import static org.junit.Assert.fail;
 
 public class ManualSensor extends ScalarSensor {
     private final boolean mAutomaticallyConnectWhenObserving;

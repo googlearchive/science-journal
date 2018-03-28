@@ -15,11 +15,11 @@
  */
 package com.google.android.apps.forscience.whistlepunk.sensors;
 
+import static org.junit.Assert.assertEquals;
+
 import androidx.annotation.NonNull;
 
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class CameraPreviewTest {
     @Test

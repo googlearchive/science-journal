@@ -16,9 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
-import androidx.fragment.app.DialogFragment;
 import android.os.Bundle;
-import android.util.Log;
+import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,12 +25,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
-import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RunReviewOverlay;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 /**
  * A dialogfragment for editing a note's timestamp.

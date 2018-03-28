@@ -17,8 +17,6 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.Scheduler;
-import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
-import com.google.common.collect.ComparisonChain;
 
 import java.util.Iterator;
 import java.util.TreeSet;

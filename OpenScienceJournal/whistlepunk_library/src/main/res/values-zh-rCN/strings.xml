@@ -265,7 +265,7 @@
     <string name="no_app_found_learn_more" msgid="4440663710498182380">"了解详情"</string>
     <string name="listing_title" msgid="1732490922169483408">"科学日志"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"探索您周围世界的科学奥秘。"</string>
-    <string name="listing_changelog" msgid="530900357619095816">"新功能及改进之处：\n• 用于做笔记和记录科学实验的全新界面。\n• 用于捕获各个数据点的新快照功能。\n• 新的传感器：线性加速度计、磁力计和罗盘\n• 经过重新设计的用于浏览实验的图库\n• 现在支持 iOS 设备！"</string>
+    <string name="listing_changelog" msgid="5369749928069010879">"新功能及改进之处：\n• 轻松删除实验和备注。\n• 修复了多项错误"</string>
     <string name="listing__description" msgid="1193865948828289689">"科学日志是 Google 提供的免费数字科学笔记本。\n \n无论你是科学教育工作者还是自己在家进行科学实验的爱好者，你都可以将笔记、照片和观察结果全部保存在一个方便的地方。你可以使用手机中的传感器来测量诸如光、声音和运动之类的现象并生成相关图表，也可以通过蓝牙连接外部传感器，开始尽情探索周围的世界。\n \n借助科学日志应用，你可以：\n• 使用手机的内置传感器测量光、声音、加速度、气压等。\n• 记笔记和拍照片，以记录你的科学实验。我们将很快推出更多笔记类型！\n• 使用支持蓝牙功能的部分 Arduino 和 Vernier 设备连接外部传感器。\n• 将所记录的传感器数据导出为 CSV 文件。\n• 创建可自动记录数据和做笔记的触发器。\n• 使用可听化功能来倾听你的图表的变动。\n \n科学日志可在 Android、iPhone、iPad 及兼容的 Chromebook 设备上免费使用。\n \n我们的合作伙伴提供的教育活动：https://makingscience.withgoogle.com/science-journal/activities \n技术支持：https://productforums.google.com/forum/#!forum/sciencejournal \n可供使用的开源代码：https://github.com/google/science-journal \n\n 权限声明：\n• 位置信息：需要位置信息以便扫描寻找蓝牙传感器设备。\n• 摄像头：需要利用摄像头进行拍照，以记录实验。\n• 麦克风：需要开启麦克风以使用声强传感器。\n• 存储空间：需要使用存储空间以便存取照片并插入实验中。"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"扫描第三方传感器"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"查找支持第三方传感器 API 并且能够将这些传感器添加到实验中的应用。"</string>

@@ -411,8 +411,22 @@ class StubContext extends Context {
 
     @Nullable
     @Override
+    public Intent registerReceiver(@Nullable BroadcastReceiver broadcastReceiver,
+            IntentFilter intentFilter, int i) {
+        return null;
+    }
+
+    @Nullable
+    @Override
     public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter,
             @Nullable String broadcastPermission, @Nullable Handler scheduler) {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public Intent registerReceiver(BroadcastReceiver broadcastReceiver, IntentFilter intentFilter,
+            @Nullable String s, @Nullable Handler handler, int i) {
         return null;
     }
 
@@ -424,6 +438,12 @@ class StubContext extends Context {
     @Nullable
     @Override
     public ComponentName startService(Intent service) {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public ComponentName startForegroundService(Intent intent) {
         return null;
     }
 
@@ -507,6 +527,11 @@ class StubContext extends Context {
     }
 
     @Override
+    public void revokeUriPermission(String s, Uri uri, int i) {
+
+    }
+
+    @Override
     public int checkUriPermission(Uri uri, int pid, int uid, int modeFlags) {
         return 0;
     }
@@ -553,6 +578,11 @@ class StubContext extends Context {
     @Override
     public Context createPackageContext(String packageName,
             int flags) throws PackageManager.NameNotFoundException {
+        return null;
+    }
+
+    @Override
+    public Context createContextForSplit(String s) throws PackageManager.NameNotFoundException {
         return null;
     }
 

@@ -17,14 +17,14 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.Manifest;
-import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
 import android.content.Context;
-import androidx.loader.content.Loader;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Color;
-import android.os.Bundle;
 import android.view.View;
 
 import com.google.android.apps.forscience.javalib.FailureListener;

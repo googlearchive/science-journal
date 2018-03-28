@@ -16,12 +16,16 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import static com.google.android.apps.forscience.whistlepunk.audio.SoundUtils.HALF_STEP_FREQUENCY_RATIO;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import androidx.annotation.IntDef;
 import android.view.Surface;
 import android.widget.ImageView;
+
+import com.google.android.apps.forscience.whistlepunk.audio.SoundUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,7 +41,7 @@ public class SensorAnimationBehavior {
     // The different types of behavior for the sensor animation.
     @IntDef({TYPE_STATIC_ICON, TYPE_ACCELEROMETER_SCALE, TYPE_RELATIVE_SCALE,
             TYPE_POSITIVE_RELATIVE_SCALE, TYPE_ROTATION, TYPE_ACCELEROMETER_SCALE_ROTATES,
-            TYPE_SOUND_FREQUENCY})
+            TYPE_PITCH})
     @Retention(RetentionPolicy.SOURCE)
     public @interface BehaviorType {
     }
@@ -48,10 +52,13 @@ public class SensorAnimationBehavior {
     public static final int TYPE_POSITIVE_RELATIVE_SCALE = 4;
     public static final int TYPE_ROTATION = 5;
     public static final int TYPE_ACCELEROMETER_SCALE_ROTATES = 6;
-    public static final int TYPE_SOUND_FREQUENCY = 7;
+    public static final int TYPE_PITCH = 7;
 
-    private static final double HALF_STEP_FREQUENCY_RATIO = 1.0595;
-
+    /**
+     * noteFrequencies contains the frequencies of notes of a piano at indices 1-88.
+     * The value at index 0 is a half step less than the value at index 1.
+     * The value at index 89 is a half step more than the value at index 88.
+     */
     private static final List<Double> noteFrequencies = new ArrayList<Double>();
 
     private final int mBehaviorType;
@@ -109,8 +116,8 @@ public class SensorAnimationBehavior {
             } else {
                 index = 0;
             }
-        } else if (mBehaviorType == TYPE_SOUND_FREQUENCY) {
-            index = soundFrequencyToLevel(newValue);
+        } else if (mBehaviorType == TYPE_PITCH) {
+            index = pitchToLevel(newValue);
         } else {
             double scaled;
             if (mBehaviorType == TYPE_POSITIVE_RELATIVE_SCALE) {
@@ -173,32 +180,7 @@ public class SensorAnimationBehavior {
     }
 
     private static void fillNoteFrequencies() {
-        // Fill the noteFrequencies list with the notes for an 88 key piano.
-        double[] highNotes = {
-            4186.01, // c
-            3951.07, // b
-            3729.31, // a#
-            3520,    // a
-            3322.44, // g#
-            3135.96, // g
-            2959.96, // f#
-            2793.83, // f
-            2637.02, // e
-            2489.02, // d#
-            2349.32, // d
-            2217.46, // c#
-        };
-        double multiplier = 1;
-        while (noteFrequencies.size() < 88) {
-            for (double note : highNotes) {
-                if (noteFrequencies.size() == 88) {
-                    break;
-                }
-                noteFrequencies.add(note * multiplier);
-            }
-            multiplier /= 2;
-        }
-        Collections.reverse(noteFrequencies);
+        noteFrequencies.addAll(SoundUtils.getPianoNoteFrequencies());
         // Add first and last items to make lookup easier. Use the approximate half-step ratio to
         // determine the first and last items.
         noteFrequencies.add(0, noteFrequencies.get(0) / HALF_STEP_FREQUENCY_RATIO);
@@ -210,7 +192,7 @@ public class SensorAnimationBehavior {
      * Returns the index corresponding to the given sound frequency, where indices 1-88 represent
      * the notes of keys on a piano.
      */
-    private static int soundFrequencyToLevel(double frequency) {
+    private static int pitchToLevel(double frequency) {
         if (noteFrequencies.isEmpty()) {
             fillNoteFrequencies();
         }

@@ -61,14 +61,14 @@
                 android:minHeight="@dimen/accessibility_touch_target_min_size"
                 android:singleLine="true"
                 android:imeOptions="actionDone"
-                android:inputType="textCapSentences"
+                android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
                 android:contentDescription="@string/experiment_title_hint"
                 android:maxLines="5"
                 >
             </EditText>
 
         </android.support.design.widget.TextInputLayout>
-        
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

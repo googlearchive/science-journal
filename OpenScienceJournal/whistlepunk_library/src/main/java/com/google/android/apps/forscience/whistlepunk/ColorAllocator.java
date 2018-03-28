@@ -16,14 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.util.SparseIntArray;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Ordering;
-
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Stores a list of master colors and provides a way to get the next color that should be picked
  * from the master list given a list of already taken colors.

@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.project.experiment;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;

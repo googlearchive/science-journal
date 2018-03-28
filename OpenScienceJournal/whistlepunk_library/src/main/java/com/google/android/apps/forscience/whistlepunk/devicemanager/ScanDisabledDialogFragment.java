@@ -16,15 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.Manifest;
-import androidx.fragment.app.DialogFragment;
 import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

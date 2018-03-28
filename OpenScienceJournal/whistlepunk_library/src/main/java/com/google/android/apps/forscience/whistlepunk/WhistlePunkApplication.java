@@ -17,6 +17,8 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
@@ -114,9 +116,9 @@ public abstract class WhistlePunkApplication extends Application {
         }
         mRefWatcher = installLeakCanary();
         onCreateInjector();
-        ExportService.cleanOldFiles(this);
         enableStrictMode();
         setupBackupAgent();
+        setupNotificationChannel();
     }
 
     protected void setupBackupAgent() {
@@ -131,4 +133,25 @@ public abstract class WhistlePunkApplication extends Application {
     protected abstract void onCreateInjector();
 
     protected void enableStrictMode() {}
+
+    private void setupNotificationChannel() {
+        if (AndroidVersionUtils.isApiLevelAtLeastOreo()) {
+            NotificationManager notificationManager =
+                    (NotificationManager) getApplicationContext().getSystemService(
+                            Context.NOTIFICATION_SERVICE);
+            // The id of the channel.
+            String id = NotificationChannels.NOTIFICATION_CHANNEL;
+            // The user-visible name of the channel.
+            CharSequence name =
+                    getApplicationContext().getString(R.string.notification_channel_name);
+            // The user-visible description of the channel.
+            String description =
+                    getApplicationContext().getString(R.string.notification_channel_description);
+            NotificationChannel mChannel =
+                    new NotificationChannel(id, name, NotificationManager.IMPORTANCE_DEFAULT);
+            // Configure the notification channel.
+            mChannel.setDescription(description);
+            notificationManager.createNotificationChannel(mChannel);
+        }
+    }
 }

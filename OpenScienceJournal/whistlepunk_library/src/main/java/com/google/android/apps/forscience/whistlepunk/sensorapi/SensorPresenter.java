@@ -17,13 +17,10 @@
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 

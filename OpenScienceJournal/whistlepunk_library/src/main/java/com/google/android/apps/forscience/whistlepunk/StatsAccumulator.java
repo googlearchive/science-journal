@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.os.Bundle;
 import androidx.annotation.IntDef;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;

@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import com.google.android.apps.forscience.ble.BleClient;
+import com.google.android.apps.forscience.whistlepunk.AudioSource;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
@@ -28,6 +29,7 @@ import io.reactivex.Single;
 public class MemorySensorEnvironment implements SensorEnvironment {
     private final RecordingDataController mDataController;
     private final Clock mClock;
+    private final AudioSource mAudioSource = new AudioSource();
     private FakeBleClient mBleClient;
     private SensorHistoryStorage mHistoryStorage;
 
@@ -53,6 +55,11 @@ public class MemorySensorEnvironment implements SensorEnvironment {
     @Override
     public Clock getDefaultClock() {
         return mClock;
+    }
+
+    @Override
+    public AudioSource getAudioSource() {
+        return mAudioSource;
     }
 
     @Override

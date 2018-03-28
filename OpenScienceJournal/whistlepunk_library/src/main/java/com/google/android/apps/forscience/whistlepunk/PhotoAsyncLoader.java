@@ -16,10 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import androidx.loader.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
+import androidx.loader.content.AsyncTaskLoader;
 
 import java.util.ArrayList;
 import java.util.List;

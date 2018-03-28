@@ -19,9 +19,6 @@ package com.google.android.apps.forscience.ble;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
-import android.os.Parcel;
-
-import java.util.List;
 
 /**
  * BLE related events.

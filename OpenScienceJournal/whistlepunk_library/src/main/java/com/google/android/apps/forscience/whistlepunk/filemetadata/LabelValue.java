@@ -17,9 +17,6 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Interprets a label
  */

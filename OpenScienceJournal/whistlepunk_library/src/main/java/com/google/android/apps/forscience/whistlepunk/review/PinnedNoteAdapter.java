@@ -17,17 +17,17 @@
 package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.PopupMenu;
 
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
@@ -171,7 +171,8 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if (mEditListener != null) {
             noteHolder.menuButton.setOnClickListener(v -> {
                 Context context = noteHolder.menuButton.getContext();
-                mPopupMenu = new PopupMenu(context, noteHolder.menuButton);
+                mPopupMenu = new PopupMenu(context, noteHolder.menuButton, Gravity.NO_GRAVITY,
+                        R.attr.actionOverflowMenuStyle, 0);
                 mPopupMenu.getMenuInflater().inflate(R.menu.menu_note, mPopupMenu.getMenu());
                 if (!label.canEditTimestamp()) {
                     mPopupMenu.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);

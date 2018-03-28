@@ -20,7 +20,6 @@ import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
-import com.google.common.base.Preconditions;
 
 /**
  * Subclass of {@link BuiltInSensorAppearance} which includes the external device name.

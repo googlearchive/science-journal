@@ -16,10 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import android.content.Context;
 import android.text.TextUtils;
 
-import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.common.annotations.VisibleForTesting;
 
 /**

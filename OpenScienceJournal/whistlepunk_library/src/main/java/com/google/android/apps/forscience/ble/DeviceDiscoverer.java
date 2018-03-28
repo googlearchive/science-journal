@@ -23,12 +23,8 @@ import android.os.Build;
 import android.os.SystemClock;
 import androidx.collection.ArrayMap;
 
+import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.WhistlepunkBleDevice;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Discovers BLE devices and tracks when they come and go.
@@ -78,7 +74,7 @@ public abstract class DeviceDiscoverer {
 
     public static DeviceDiscoverer getNewInstance(Context context) {
         DeviceDiscoverer discoverer;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
             discoverer = new DeviceDiscovererV21(context);
         } else {
             discoverer = new DeviceDiscovererLegacy(context);

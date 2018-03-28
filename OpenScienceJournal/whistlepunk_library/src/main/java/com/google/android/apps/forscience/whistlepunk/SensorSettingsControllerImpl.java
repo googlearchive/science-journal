@@ -22,8 +22,8 @@ import android.view.View;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ActiveBundle;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.OptionsListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.OptionsListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;

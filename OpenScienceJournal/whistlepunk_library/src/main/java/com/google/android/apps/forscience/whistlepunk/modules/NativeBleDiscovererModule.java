@@ -18,8 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.modules;
 
 import android.content.Context;
 
-import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 
 import dagger.Module;

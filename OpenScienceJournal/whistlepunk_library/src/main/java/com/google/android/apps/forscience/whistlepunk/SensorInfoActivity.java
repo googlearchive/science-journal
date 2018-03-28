@@ -16,16 +16,13 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 
 /**

@@ -18,11 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
-import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 
 import java.util.ArrayList;
 

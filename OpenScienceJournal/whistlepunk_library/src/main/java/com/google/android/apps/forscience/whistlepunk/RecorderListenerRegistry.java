@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.os.Bundle;
-
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.common.collect.HashMultimap;

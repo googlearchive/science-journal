@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
 import com.google.android.apps.forscience.whistlepunk.BuiltInSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.R;

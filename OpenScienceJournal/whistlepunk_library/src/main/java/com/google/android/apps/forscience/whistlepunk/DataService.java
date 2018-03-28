@@ -15,7 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.app.Activity;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -25,11 +24,8 @@ import android.os.Binder;
 import android.os.IBinder;
 import androidx.annotation.Nullable;
 
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.BehaviorSubject;
 
 /**
  * This is deprecated; we will be using an application-global AppState class instead.

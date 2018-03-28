@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import android.os.Bundle;
-
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 
 import java.util.ArrayList;

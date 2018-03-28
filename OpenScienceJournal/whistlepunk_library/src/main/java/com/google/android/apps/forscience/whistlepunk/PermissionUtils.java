@@ -27,6 +27,8 @@ import android.util.SparseArray;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Static permission functions shared across many parts of the app.
@@ -69,10 +71,15 @@ public class PermissionUtils {
         void onPermissionPermanentlyDenied();
     }
 
+    private static List<Integer> mPermanentlyDeniedRequests = new ArrayList<>();
     private static SparseArray<PermissionListener> mPermissionListeners = new SparseArray<>();
 
     public static void tryRequestingPermission(Activity activity, @Requests int permission,
             PermissionListener listener) {
+        if (isPermissionPermanentlyDenied(permission)) {
+            listener.onPermissionPermanentlyDenied();
+            return;
+        }
         if (hasPermission(activity, permission)) {
             listener.onPermissionGranted();
             return;
@@ -80,6 +87,10 @@ public class PermissionUtils {
         mPermissionListeners.put(permission, listener);
         ActivityCompat.requestPermissions(activity, new String[]{PERMISSIONS[permission]},
                 permission);
+    }
+
+    public static boolean isPermissionPermanentlyDenied(@Requests int permission) {
+        return mPermanentlyDeniedRequests.contains(permission);
     }
 
     public static boolean hasPermission(Context context, @Requests int permission) {
@@ -106,6 +117,7 @@ public class PermissionUtils {
         } else {
             // If the permission was denied AND we shouldn't show the user more information about
             // why we want the permission, then they have permanently denied it.
+            mPermanentlyDeniedRequests.add(requestCode);
             permissionListener.onPermissionPermanentlyDenied();
         }
         mPermissionListeners.remove(requestCode);

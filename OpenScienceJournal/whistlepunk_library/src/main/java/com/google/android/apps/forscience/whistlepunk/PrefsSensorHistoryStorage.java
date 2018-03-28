@@ -19,7 +19,6 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;

@@ -19,8 +19,6 @@ import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 
-import javax.inject.Singleton;
-
 import dagger.Module;
 import dagger.Provides;
 

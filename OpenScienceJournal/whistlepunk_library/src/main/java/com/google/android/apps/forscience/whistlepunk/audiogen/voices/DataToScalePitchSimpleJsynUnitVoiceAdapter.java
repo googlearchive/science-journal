@@ -16,17 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk.audiogen.voices;
 
-import android.util.Log;
-
 import com.google.android.apps.forscience.whistlepunk.audiogen.JsynUnitVoiceAdapter;
-import com.google.android.apps.forscience.whistlepunk.audiogen.JsynUnitVoiceAdapterInterface;
-import com.google.common.primitives.Doubles;
 import com.jsyn.Synthesizer;
 import com.softsynth.math.AudioMath;
 import com.softsynth.shared.time.TimeStamp;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Base class to adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator using a scale.

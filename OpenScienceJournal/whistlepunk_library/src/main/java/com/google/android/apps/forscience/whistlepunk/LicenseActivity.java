@@ -16,12 +16,12 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.fragment.app.ListFragment;
 import androidx.core.app.NavUtils;
 import androidx.appcompat.app.ActionBar;

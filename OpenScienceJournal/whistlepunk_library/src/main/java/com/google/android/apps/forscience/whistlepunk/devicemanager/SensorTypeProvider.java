@@ -26,7 +26,6 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Arrays;
 
 public class SensorTypeProvider {
 

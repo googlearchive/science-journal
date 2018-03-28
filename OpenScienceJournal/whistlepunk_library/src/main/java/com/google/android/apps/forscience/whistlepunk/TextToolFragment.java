@@ -18,11 +18,11 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.core.widget.NestedScrollView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -210,7 +210,7 @@ public class TextToolFragment extends PanesToolFragment {
 
     private boolean canTint() {
         // if we can't tint, we can't currently show an inline send button (b/67312778)
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        return AndroidVersionUtils.isApiLevelAtLeastLollipop();
     }
 
     public int collapseThreshold(int textSize) {

@@ -37,10 +37,10 @@ import com.google.android.apps.forscience.whistlepunk.sensors.AmbientTemperature
 import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.CompassSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.ExperimentalPitchSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.LinearAccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.SoundFrequencySensor;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -208,8 +208,8 @@ public class SensorRegistry {
         }
         addBuiltInSensor(new DecibelSensor());
 
-        if (DevOptionsFragment.isSoundFrequencySensorEnabled(context)) {
-          addBuiltInSensor(new SoundFrequencySensor());
+        if (DevOptionsFragment.isExperimentalPitchSensorEnabled(context)) {
+          addBuiltInSensor(new ExperimentalPitchSensor());
         }
 
         if (AccelerometerSensor.isAccelerometerAvailable(available)) {

@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.project.experiment;
 
-import androidx.fragment.app.Fragment;
 import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,15 +24,18 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import androidx.fragment.app.Fragment;
 import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,7 +45,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -55,6 +56,7 @@ import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
+import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
@@ -313,8 +315,15 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void scrollToBottom() {
+        // Doing this here lets the initial layout NOT stack from end, and keeps the view
+        // at the top of the list.
+        ((LinearLayoutManager) mDetails.getLayoutManager()).setStackFromEnd(true);
         if (mDetails != null && mAdapter != null && mAdapter.getItemCount() > 0) {
-            mDetails.smoothScrollToPosition(mAdapter.getItemCount() - 1);
+            if (DevOptionsFragment.isSmoothScrollingToBottomEnabled(getContext())) {
+                mDetails.smoothScrollToPosition(mAdapter.getItemCount() - 1);
+            } else {
+                mDetails.scrollToPosition(mAdapter.getItemCount() - 1);
+            }
         }
     }
 
@@ -723,7 +732,8 @@ public class ExperimentDetailsFragment extends Fragment
 
                 noteViewHolder.menuButton.setOnClickListener(view -> {
                     Context context = noteViewHolder.menuButton.getContext();
-                    PopupMenu popup = new PopupMenu(context, noteViewHolder.menuButton);
+                    PopupMenu popup = new PopupMenu(context, noteViewHolder.menuButton, Gravity.NO_GRAVITY,
+                            R.attr.actionOverflowMenuStyle, 0);
                     setupNoteMenu(item, popup);
                     popup.show();
                 });
@@ -758,7 +768,8 @@ public class ExperimentDetailsFragment extends Fragment
 
             holder.menuButton.setOnClickListener(view -> {
                 Context context = holder.menuButton.getContext();
-                PopupMenu popup = new PopupMenu(context, holder.menuButton);
+                PopupMenu popup = new PopupMenu(context, holder.menuButton, Gravity.NO_GRAVITY,
+                        R.attr.actionOverflowMenuStyle, 0);
                 setupTrialMenu(item, popup);
                 popup.show();
             });

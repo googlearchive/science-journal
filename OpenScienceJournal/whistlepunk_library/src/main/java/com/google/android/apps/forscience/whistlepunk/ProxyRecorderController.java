@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.ArrayMap;
 

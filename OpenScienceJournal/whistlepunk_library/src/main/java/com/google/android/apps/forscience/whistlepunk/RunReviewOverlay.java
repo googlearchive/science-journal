@@ -41,8 +41,6 @@ import com.google.android.apps.forscience.whistlepunk.review.GraphExploringSeekB
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 
-import java.util.List;
-
 /**
  * Draws the value over a RunReview chart.
  */

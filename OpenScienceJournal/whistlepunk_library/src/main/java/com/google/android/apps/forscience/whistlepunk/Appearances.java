@@ -16,7 +16,6 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;

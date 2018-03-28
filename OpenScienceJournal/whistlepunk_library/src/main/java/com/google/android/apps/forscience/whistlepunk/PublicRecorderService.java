@@ -19,14 +19,11 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.RemoteException;
 import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.wireapi.IRecorderController;
-import com.google.android.apps.forscience.whistlepunk.wireapi.ISensorStatusListener;
 
 /**
  * Exports the current main-thread RecorderController as a service that other applications can bind

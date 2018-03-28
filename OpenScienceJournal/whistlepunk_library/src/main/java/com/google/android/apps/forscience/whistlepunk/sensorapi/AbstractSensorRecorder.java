@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 
 /**

@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import androidx.annotation.NonNull;
-import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;

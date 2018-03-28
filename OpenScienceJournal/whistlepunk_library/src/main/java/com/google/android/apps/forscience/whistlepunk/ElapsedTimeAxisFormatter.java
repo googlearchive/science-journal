@@ -18,10 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.util.Log;
 import android.util.LruCache;
-
-import java.util.HashMap;
 
 /**
  * Formats elapsed time (in ms) to a short m:ss or h:mm:ss format.

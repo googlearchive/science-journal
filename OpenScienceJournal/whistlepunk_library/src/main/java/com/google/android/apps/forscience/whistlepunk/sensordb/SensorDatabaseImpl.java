@@ -29,7 +29,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.common.base.Joiner;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.DiscreteDomain;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
 import java.util.ArrayList;

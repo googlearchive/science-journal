@@ -52,6 +52,7 @@ public class AppSingleton {
     private static Executor sUiThreadExecutor = null;
     private SensorAppearanceProviderImpl mSensorAppearanceProvider;
     private final Clock mCurrentTimeClock = new CurrentTimeClock();
+    private final AudioSource mAudioSource = new AudioSource();
     private BleClientImpl mBleClient;
     private RecorderController mRecorderController;
     private SensorRegistry mSensorRegistry;
@@ -61,26 +62,31 @@ public class AppSingleton {
     private PublishSubject<Label> mLabelsAdded = PublishSubject.create();
 
     private SensorEnvironment mSensorEnvironment = new SensorEnvironment() {
-                @Override
-                public RecordingDataController getDataController() {
-                    return AppSingleton.this.getRecordingDataController();
-                }
+        @Override
+        public RecordingDataController getDataController() {
+            return AppSingleton.this.getRecordingDataController();
+        }
 
-                @Override
-                public Clock getDefaultClock() {
-                    return AppSingleton.this.getDefaultClock();
-                }
+        @Override
+        public Clock getDefaultClock() {
+            return AppSingleton.this.getDefaultClock();
+        }
 
-                @Override
-                public SensorHistoryStorage getSensorHistoryStorage() {
-                    return AppSingleton.this.getPrefsSensorHistoryStorage();
-                }
+        @Override
+        public AudioSource getAudioSource() {
+            return AppSingleton.this.getAudioSource();
+        }
 
-                @Override
-                public Single<BleClient> getConnectedBleClient() {
-                    return AppSingleton.this.getConnectedBleClient();
-                }
-            };
+        @Override
+        public SensorHistoryStorage getSensorHistoryStorage() {
+            return AppSingleton.this.getPrefsSensorHistoryStorage();
+        }
+
+        @Override
+        public Single<BleClient> getConnectedBleClient() {
+            return AppSingleton.this.getConnectedBleClient();
+        }
+    };
     private DeletedLabel mDeletedLabel;
 
     @NonNull
@@ -157,6 +163,10 @@ public class AppSingleton {
 
     private Clock getDefaultClock() {
         return mCurrentTimeClock;
+    }
+
+    public AudioSource getAudioSource() {
+        return mAudioSource;
     }
 
     public void destroyBleClient() {

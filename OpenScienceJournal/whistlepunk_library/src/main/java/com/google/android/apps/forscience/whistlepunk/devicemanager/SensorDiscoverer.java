@@ -16,9 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import androidx.fragment.app.FragmentManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;

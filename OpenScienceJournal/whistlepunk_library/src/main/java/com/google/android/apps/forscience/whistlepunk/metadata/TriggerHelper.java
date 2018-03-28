@@ -18,22 +18,20 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.TextUtils;
-import android.widget.TextView;
 
+import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation
+        .TriggerInformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +70,7 @@ public class TriggerHelper {
 
     private SoundPool getSoundPool(Context context) {
         if (sSoundPool == null) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
                 sSoundPool = new SoundPool.Builder().build();
             } else {
                 sSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);

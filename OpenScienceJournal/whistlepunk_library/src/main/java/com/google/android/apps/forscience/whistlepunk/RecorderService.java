@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
@@ -51,7 +52,7 @@ public class RecorderService extends Service implements IRecorderService {
         clearRecordingCompletedNotification(getApplicationContext());
         final PendingIntent pi = PendingIntent.getActivity(this, 1, launchIntent, 0);
         startForeground(NotificationIds.RECORDER_SERVICE,
-                new Notification.Builder(this)
+                new NotificationCompat.Builder(this, NotificationChannels.NOTIFICATION_CHANNEL)
                         .setContentTitle(getString(R.string.service_notification_content_title))
                         .setContentText(getString(R.string.service_notification_content_text))
                         .setSubText(experimentName)
@@ -97,16 +98,17 @@ public class RecorderService extends Service implements IRecorderService {
         ((NotificationManager) getApplicationContext()
                 .getSystemService(Context.NOTIFICATION_SERVICE)).notify(
                 NotificationIds.RECORDING_COMPLETED,
-                new Notification.Builder(getApplicationContext())
-                        .setContentTitle(getApplicationContext().getString(
-                                R.string.service_notification_content_title))
-                        .setContentText(getApplicationContext().getString(
-                                R.string.recording_stopped_notification_text))
-                        .setSubText(experimentTitle)
-                        .setSmallIcon(R.drawable.ic_notification_24dp)
-                        .setContentIntent(notificationIntent)
-                        .setAutoCancel(true)
-                        .build());
+                new NotificationCompat.Builder(getApplicationContext(),
+                        NotificationChannels.NOTIFICATION_CHANNEL)
+                            .setContentTitle(getApplicationContext().getString(
+                                    R.string.service_notification_content_title))
+                            .setContentText(getApplicationContext().getString(
+                                    R.string.recording_stopped_notification_text))
+                            .setSubText(experimentTitle)
+                            .setSmallIcon(R.drawable.ic_notification_24dp)
+                            .setContentIntent(notificationIntent)
+                            .setAutoCancel(true)
+                            .build());
     }
 
     public static void clearRecordingCompletedNotification(Context context) {

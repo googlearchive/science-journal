@@ -17,10 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.audiogen.voices;
 
 import com.google.android.apps.forscience.whistlepunk.audiogen.JsynUnitVoiceAdapter;
-import com.google.android.apps.forscience.whistlepunk.audiogen.JsynUnitVoiceAdapterInterface;
-import com.google.android.apps.forscience.whistlepunk.audiogen.voices.SimpleJsynUnitVoice;
 import com.jsyn.Synthesizer;
-import com.jsyn.ports.UnitOutputPort;
 import com.softsynth.shared.time.TimeStamp;
 
 /**

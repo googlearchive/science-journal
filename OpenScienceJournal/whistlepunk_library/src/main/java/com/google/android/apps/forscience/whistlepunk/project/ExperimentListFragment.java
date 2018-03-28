@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.project;
 
-import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -25,6 +24,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,6 +43,7 @@ import android.widget.TextView;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
+import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
@@ -570,12 +571,13 @@ public class ExperimentListFragment extends Fragment implements
         }
 
         private void setCardColor(ViewHolder holder, int color) {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
                 //holder.cardView.setBackgroundColor(color);
             } else {
                 // Setting the color of the CardView in KitKat has a side-effect of making the
                 // drop shadow disappear around the card. Instead, we set the background color
                 // of the content of the card, which looks almost as good. And has UX approval.
+                // See b/70328251
                 holder.cardView.findViewById(R.id.content).setBackgroundColor(color);
             }
         }

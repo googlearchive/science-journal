@@ -85,9 +85,9 @@ public class PictureUtils {
             File photoFile = PictureUtils.createImageFile(context, experimentId, uuid);
             if (photoFile != null) {
                 Uri contentUri = FileProvider.getUriForFile(context,
-                        "com.google.android.apps.forscience.whistlepunk", photoFile);
+                        context.getPackageName(), photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri);
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                if (!AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
                     // Needed to avoid security exception on KitKat.
                     takePictureIntent.setClipData(ClipData.newRawUri(null, contentUri));
                 }
@@ -113,7 +113,7 @@ public class PictureUtils {
             Uri photoUri = FileProvider.getUriForFile(activity, activity.getPackageName(), file);
             intent.setDataAndType(photoUri, type);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            if (!AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
                 // Needed to avoid security exception on KitKat.
                 intent.setClipData(ClipData.newRawUri(null, photoUri));
             }

@@ -18,8 +18,6 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.backup.BackupAgentHelper;
 import android.app.backup.BackupDataInput;
-import android.app.backup.BackupDataInputStream;
-import android.app.backup.BackupDataOutput;
 import android.app.backup.BackupManager;
 import android.app.backup.SharedPreferencesBackupHelper;
 import android.content.Context;
@@ -27,8 +25,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -54,7 +50,7 @@ public class SimpleBackupAgent extends BackupAgentHelper {
     }
 
     private String getDefaultStoredPreferencesName(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (AndroidVersionUtils.isApiLevelAtLeastNougat()) {
             return PreferenceManager.getDefaultSharedPreferencesName(context);
         } else {
             // The function getDefaultSharedPreferencesName was private until API N, but implemented

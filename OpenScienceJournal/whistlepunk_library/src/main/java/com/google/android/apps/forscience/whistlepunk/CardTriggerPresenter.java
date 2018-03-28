@@ -17,8 +17,8 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.Activity;
-import androidx.fragment.app.Fragment;
 import android.os.Handler;
+import androidx.fragment.app.Fragment;
 import android.view.View;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;

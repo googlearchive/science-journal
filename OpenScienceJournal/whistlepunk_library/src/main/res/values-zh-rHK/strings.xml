@@ -265,7 +265,7 @@
     <string name="no_app_found_learn_more" msgid="4440663710498182380">"瞭解詳情"</string>
     <string name="listing_title" msgid="1732490922169483408">"科學日誌"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"盡情探索周圍的世界。"</string>
-    <string name="listing_changelog" msgid="530900357619095816">"新功能與改善項目：\n• 在嶄新介面中做筆記和記錄科學實驗。\n• 全新的數據匯報功能，讓你輕鬆擷取個別數據點。\n• 全新感測器：線性加速計、磁力儀和指南針。\n• 新版圖片庫登場，方便你瀏覽實驗。\n• 現在起，iOS 裝置也可使用「科學日誌」！"</string>
+    <string name="listing_changelog" msgid="5369749928069010879">"新功能與改善項目：\n• 改善實驗和附註的刪除功能，想刪除資料再簡單不過！\n• 修正多項錯誤"</string>
     <string name="listing__description" msgid="1193865948828289689">"「科學日誌」是一款 Google 推出的免費應用程式，也是專為你設計的數位科學筆記本。\n\n無論你是從事科學教育的人員，或是熱衷於在家中動手玩科學的人士，都可以將你所有的筆記、相片和觀察結果集中存於此處。你可以利用手機內建的感測器來測量生活中的各種自然現象，例如光線、聲音和物體的運動，並將收集到的數據繪製成圖表。此外，你也可以透過藍牙功能與外部感測器建立連線，並在周遭環境進行實驗。\n\n「科學日誌」應用程式可以讓你：\n• 使用手機內建的感測器來測量光線、聲音、加速度及氣壓等自然現象。\n• 以文字筆記和相片的形式，將科學實驗的過程和結果記錄下來。我們日後還會提供更多種筆記類型，請拭目以待！\n• 讓手機連線至部分具備藍牙功能的 Arduino 和 Vernier 外部感測器裝置。\n• 將收集到的感測器資料匯出為 CSV 檔案。\n• 建立自動化的觸發條件，讓「科學日誌」自動幫你記錄資料和做筆記。\n• 透過超音波處理機制聽見圖表的變化趨勢。\n\n現在起，你可以在各種 Android、iPhone、iPad，以及相容的 Chromebook 裝置上免費下載「科學日誌」。\n\n歡迎瀏覽我們合作夥伴提供的教育活動：https://makingscience.withgoogle.com/science-journal/activities\n歡迎造訪支援論壇：https://productforums.google.com/forum/#!forum/sciencejournal\n如需取得開放原始碼，請造訪：https://github.com/google/science-journal\n\n權限聲明：\n• 位置：你必須提供這項權限，才能掃描藍牙感測器裝置。\n• 相機：你必須提供這項權限，才能拍攝相片來記錄實驗。\n• 麥克風：你必須提供這項權限，才能使用聲音強度感測器。\n• 儲存空間：你必須提供這項權限，才能將相片插入實驗中。"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"掃描是否有第三方感測器"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"尋找支援第三方感測器 API 的應用程式，並啟用將這類感應器加入實驗的功能。"</string>

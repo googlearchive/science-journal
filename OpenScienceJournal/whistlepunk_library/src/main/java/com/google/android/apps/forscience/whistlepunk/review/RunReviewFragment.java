@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +25,8 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.core.app.NavUtils;
 import androidx.core.util.Pair;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,6 +52,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
+import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
@@ -1416,7 +1417,7 @@ public class RunReviewFragment extends Fragment implements
             // by clicking in the grey overlay to simulate a normal dialog.
             View notesOverlay = rootView.findViewById(R.id.pinned_note_overlay);
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            if (!AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
                 // On Kitkat devices, the pinned note list is shown over the AppBarLayout
                 // instead of under it. We can manually adjust the layout params to show it
                 // in the right location and at the right size to cover just the pinned note

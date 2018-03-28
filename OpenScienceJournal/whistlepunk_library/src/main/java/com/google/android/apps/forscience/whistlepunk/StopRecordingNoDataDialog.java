@@ -16,10 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.fragment.app.DialogFragment;
+import androidx.appcompat.app.AlertDialog;
 
 /**
  * DialogFragment for when recording fails to stop.

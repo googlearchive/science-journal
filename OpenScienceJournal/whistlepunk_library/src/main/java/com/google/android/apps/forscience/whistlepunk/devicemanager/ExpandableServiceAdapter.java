@@ -15,9 +15,9 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import androidx.fragment.app.FragmentManager;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;

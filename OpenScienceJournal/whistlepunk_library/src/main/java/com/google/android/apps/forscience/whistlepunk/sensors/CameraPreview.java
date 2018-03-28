@@ -17,6 +17,10 @@
 /* Custom SurfaceView that receives Camera preview frames and displays them. */
 package com.google.android.apps.forscience.whistlepunk.sensors;
 
+import static android.support.media.ExifInterface.ORIENTATION_NORMAL;
+import static android.support.media.ExifInterface.ORIENTATION_ROTATE_90;
+import static android.support.media.ExifInterface.ORIENTATION_UNDEFINED;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -47,9 +51,6 @@ import java.io.IOException;
 import java.util.List;
 
 import io.reactivex.Maybe;
-
-import static android.support.media.ExifInterface.ORIENTATION_NORMAL;
-import static android.support.media.ExifInterface.ORIENTATION_UNDEFINED;
 
 
 public class CameraPreview extends SurfaceView {
@@ -366,6 +367,17 @@ public class CameraPreview extends SurfaceView {
                     onSuccess.success(FileMetadataManager.getRelativePathInExperiment(experimentId,
                             photoFile));
                     startPreview();
+                    // If the original, uncropped photo was rotated in EXIF, we have to re-rotate it
+                    // by getting an ExifInterface to the new JPEG and writing the rotation
+                    // EXIF tag. We can't write this to the uncompressed bytes earlier on,
+                    // unfortunately.
+                    if (getOrientation(data) == ExifInterface.ORIENTATION_ROTATE_90) {
+                        String path = photoFile.getPath();
+                        ExifInterface exif = new ExifInterface(path);
+                        exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                                Integer.toString(ExifInterface.ORIENTATION_ROTATE_90));
+                        exif.saveAttributes();
+                    }
                     // NPE occurs when data == null (unclear what causes that case)
                 } catch (IOException|NullPointerException e) {
                     // Delete the file if we failed to write to it
@@ -388,28 +400,43 @@ public class CameraPreview extends SurfaceView {
         }
 
         int orientation = getOrientation(data);
-        if (orientation != ORIENTATION_NORMAL && orientation != ORIENTATION_UNDEFINED) {
-            // don't try to chop in half if the EXIF is rotated.
-            // We need to figure out how to fix this further (see b/67335604)
-            if (Log.isLoggable(TAG, Log.WARN)) {
-                Log.w(TAG, "Not chopping photo in orientation: " + orientation);
-            }
+        switch (orientation) {
+            case (ORIENTATION_ROTATE_90):
+                // Chop off the right half.
+                try {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    Bitmap halfBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth() / 2,
+                            bitmap.getHeight());
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    halfBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    return stream.toByteArray();
+                } catch (Throwable t) {
+                    if (Log.isLoggable(TAG, Log.ERROR)) {
+                        Log.e(TAG, "exception when chopping image, storing in full size", t);
+                    }
+                    return data;
+                }
 
-            return data;
-        }
+            case (ORIENTATION_NORMAL):      // Intentional Fallthrough.
+            case (ORIENTATION_UNDEFINED):
+                // Chop off the bottom half.
+                try {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    Bitmap halfBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                            bitmap.getHeight() / 2);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    halfBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    return stream.toByteArray();
+                } catch (Throwable t) {
+                    if (Log.isLoggable(TAG, Log.ERROR)) {
+                        Log.e(TAG, "exception when chopping image, storing in full size", t);
+                    }
+                    return data;
+                }
 
-        try {
-            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-            Bitmap halfBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
-                    bitmap.getHeight() / 2);
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            halfBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            return stream.toByteArray();
-        } catch (Throwable t) {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "exception when chopping image, storing in full size", t);
-            }
-            return data;
+            default:
+                // If rotated in EXIF, but not 90 degrees, don't crop.
+                return data;
         }
     }
 

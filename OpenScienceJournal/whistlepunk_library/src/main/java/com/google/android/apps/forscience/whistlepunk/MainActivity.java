@@ -16,9 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -28,6 +25,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -117,6 +117,8 @@ public class MainActivity extends AppCompatActivity
         onNavigationItemSelected(item);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        ExportService.cleanOldFiles(this);
     }
 
     private int getSavedItemId(Bundle savedInstanceState) {
@@ -437,7 +439,7 @@ public class MainActivity extends AppCompatActivity
 
                 // Update the toolbar and status bar colors.
                 toolbar.setBackgroundResource(toolbarColorResource);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
                     Window window = getWindow();
                     if (statusBarColorResource == R.color.color_primary_dark) {
                         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);

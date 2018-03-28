@@ -26,6 +26,7 @@ import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
@@ -38,7 +39,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
-import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentRun;
 import com.google.android.apps.forscience.whistlepunk.review.ZoomPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
@@ -473,7 +473,7 @@ public class ChartController {
             mChartView.setVisibility(showProgress ? View.GONE: View.VISIBLE);
         }
         if (mProgressView != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
                 mProgressView.setIndeterminateTintList(ColorStateList.valueOf(
                         mChartOptions.getLineColor()));
             }

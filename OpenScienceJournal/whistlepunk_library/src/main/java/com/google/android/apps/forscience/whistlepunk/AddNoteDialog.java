@@ -18,8 +18,6 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.Activity;
 import android.app.Dialog;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,6 +26,10 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -51,11 +53,11 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaptio
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
+import com.jakewharton.rxbinding2.widget.RxTextView;
 
 import java.io.File;
 import java.util.UUID;
 
-import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -123,7 +125,8 @@ public class AddNoteDialog extends DialogFragment {
     private String mTrialId;
     private int mHintTextId = R.string.add_run_note_placeholder_text;
     private String mPictureLabelPath;
-    private EditText mInput;
+    private TextInputEditText mInput;
+    private TextInputLayout mInputLayout;
     private String mExperimentId;
 
     CompositeDisposable mUntilDestroyed = new CompositeDisposable();
@@ -311,9 +314,20 @@ public class AddNoteDialog extends DialogFragment {
         ImageView imageView = (ImageView) rootView.findViewById(R.id.picture_note_preview_image);
 
         // Note: Any layout used for this must have the text field edit_note_text.
-        mInput = (EditText) rootView.findViewById(R.id.edit_note_text);
+        mInput = rootView.findViewById(R.id.edit_note_text);
         mInput.setHint(mInput.getResources().getText(mHintTextId));
         mInput.setText(text);
+
+        mInputLayout = rootView.findViewById(R.id.edit_note_text_input_layout);
+
+        RxTextView.afterTextChangeEvents(mInput).subscribe(events -> {
+           if(TextUtils.isEmpty(mInput.getText().toString())) {
+               mInputLayout.setError(getResources().getString(R.string.empty_text_note_error));
+               mInputLayout.setErrorEnabled(true);
+           } else {
+               mInputLayout.setErrorEnabled(false);
+           }
+        });
 
         rootView.findViewById(R.id.label_dialog_timestamp_section).setVisibility(View.VISIBLE);
         TextView timestampSection = (TextView) rootView.findViewById(R.id.edit_note_time);
@@ -410,8 +424,7 @@ public class AddNoteDialog extends DialogFragment {
 
     private boolean addTextLabel(Experiment experiment) {
         String text = mInput.getText().toString();
-        if (TextUtils.isEmpty(text)) {
-            mInput.setError(getResources().getString(R.string.empty_text_note_error));
+        if (mInputLayout.isErrorEnabled()) {
             return false;
         }
         GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();

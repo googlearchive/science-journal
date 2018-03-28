@@ -110,8 +110,11 @@ public class Label implements Parcelable {
 
     protected Label(Parcel in) {
         int serializedSize = in.readInt();
-        byte[] serialized = new byte[serializedSize];
-        in.readByteArray(serialized);
+        // readByteArray(byte[]) appears to be broken in robolectric currently
+        // createByteArray() is an alternative
+        // byte[] serialized = new byte[serializedSize];
+        // in.readByteArray(serialized);
+        byte[] serialized = in.createByteArray();
         try {
             mLabel = GoosciLabel.Label.parseFrom(serialized);
         } catch (InvalidProtocolBufferNanoException ex) {
