@@ -30,6 +30,7 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -470,7 +471,8 @@ public class ExperimentListFragment extends Fragment implements
             holder.menuButton.setOnClickListener(v -> {
                 int position = mItems.indexOf(item);
                 Context context = holder.menuButton.getContext();
-                PopupMenu popup = new PopupMenu(context, holder.menuButton);
+                PopupMenu popup = new PopupMenu(context, holder.menuButton, Gravity.NO_GRAVITY,
+                        R.attr.actionOverflowMenuStyle, 0);
                 popup.getMenuInflater().inflate(R.menu.menu_experiment_overview, popup.getMenu());
                 popup.getMenu().findItem(R.id.menu_item_archive).setVisible(
                         !overview.isArchived);
