@@ -252,6 +252,11 @@ public class ExperimentDetailsFragment extends Fragment
             actionBar.setHomeButtonEnabled(true);
         }
 
+        mEmptyView = (TextView) view.findViewById(R.id.empty_list);
+        mEmptyView.setText(R.string.empty_experiment);
+        mEmptyView.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, null,
+                view.getResources().getDrawable(R.drawable.empty_run));
+
         mDetails = (RecyclerView) view.findViewById(R.id.details_list);
         mDetails.setLayoutManager(new LinearLayoutManager(view.getContext(),
                 LinearLayoutManager.VERTICAL, /* don't reverse layout */ false));
@@ -268,11 +273,6 @@ public class ExperimentDetailsFragment extends Fragment
         mAdapter = adapter;
 
         mDetails.setAdapter(mAdapter);
-
-        mEmptyView = (TextView) view.findViewById(R.id.empty_list);
-        mEmptyView.setText(R.string.empty_experiment);
-        mEmptyView.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, null,
-                view.getResources().getDrawable(R.drawable.empty_run));
 
         // TODO: Because mScalarDisplayOptions are static, if the options are changed during the
         // time we are on this page it probably won't have an effect. Since graph options are
