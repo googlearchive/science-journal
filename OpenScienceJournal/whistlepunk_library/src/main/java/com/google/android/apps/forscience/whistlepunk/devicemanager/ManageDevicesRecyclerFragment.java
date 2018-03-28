@@ -150,7 +150,7 @@ public class ManageDevicesRecyclerFragment extends Fragment implements DevicesPr
         super.onDestroy();
 
         // Make sure we don't leak this fragment.
-        RefWatcher watcher = WhistlePunkApplication.getRefWatcher(getActivity());
+        RefWatcher watcher = WhistlePunkApplication.getAppServices(getActivity()).getRefWatcher();
         watcher.watch(this);
     }
 

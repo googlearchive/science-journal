@@ -23,6 +23,17 @@ import androidx.fragment.app.FragmentActivity;
  * An object which can show feature discovery to the user.
  */
 public interface FeatureDiscoveryProvider {
+    public static FeatureDiscoveryProvider STUB = new FeatureDiscoveryProvider() {
+        @Override
+        public boolean isEnabled(Context context, String feature) {
+            return false;
+        }
+
+        @Override
+        public void show(FragmentActivity activity, String feature, String tag) {
+            // do nothing
+        }
+    };
 
     public static final String FEATURE_NEW_EXTERNAL_SENSOR = "fd_new_external_sensor";
 

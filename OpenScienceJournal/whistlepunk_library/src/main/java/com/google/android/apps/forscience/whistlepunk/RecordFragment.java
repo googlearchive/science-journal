@@ -224,8 +224,8 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
         mScalarDisplayOptions = new ScalarDisplayOptions();
 
         mHandler = new Handler(this);
-        mFeatureDiscoveryProvider = WhistlePunkApplication.getFeatureDiscoveryProvider(
-                getActivity());
+        mFeatureDiscoveryProvider =
+                WhistlePunkApplication.getAppServices(getActivity()).getFeatureDiscoveryProvider();
 
         setHasOptionsMenu(true);
     }

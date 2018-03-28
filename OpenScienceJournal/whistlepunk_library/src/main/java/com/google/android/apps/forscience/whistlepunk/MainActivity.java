@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity
             mNavigationView.getMenu().removeItem(R.id.dev_testing_options);
         }
 
-        mFeedbackProvider = WhistlePunkApplication.getFeedbackProvider(this);
+        mFeedbackProvider = WhistlePunkApplication.getAppServices(this).getFeedbackProvider();
 
         Bundle extras = getIntent().getExtras();
         int selectedNavItemId = R.id.navigation_item_experiments;

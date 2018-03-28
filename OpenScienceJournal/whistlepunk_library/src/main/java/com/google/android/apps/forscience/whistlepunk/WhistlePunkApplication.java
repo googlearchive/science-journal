@@ -35,8 +35,9 @@ import javax.inject.Inject;
  * Application subclass holding shared objects.
  */
 public abstract class WhistlePunkApplication extends Application {
-
     private RefWatcher mRefWatcher;
+
+    // TODO: create directly in subclasses, rather than dagger injection
 
     @Inject
     UsageTracker mUsageTracker;
@@ -53,33 +54,43 @@ public abstract class WhistlePunkApplication extends Application {
     @Inject
     PerfTrackerProvider mPerfTrackerProvider;
 
-    public static RefWatcher getRefWatcher(Context context) {
-        WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
-        return app.mRefWatcher;
+    private AppServices mAppServices = new AppServices() {
+        @Override
+        public RefWatcher getRefWatcher() {
+            return mRefWatcher;
+        }
+
+        public UsageTracker getUsageTracker() {
+            return mUsageTracker;
+        }
+
+        @Override
+        public FeatureDiscoveryProvider getFeatureDiscoveryProvider() {
+            return mFeatureDiscoveryProvider;
+        }
+
+        @Override
+        public FeedbackProvider getFeedbackProvider() {
+            return mFeedbackProvider;
+        }
+    };
+
+    public static AppServices getAppServices(Context context) {
+        if (hasAppServices(context)) {
+            WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
+            return app.mAppServices;
+        } else {
+            return AppServices.STUB;
+        }
     }
 
     public static UsageTracker getUsageTracker(Context context) {
-        if (canGetUsageTracker(context)) {
-            // Don't try to track usage when testing
-            return UsageTracker.STUB;
-        }
-        WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
-        return app.mUsageTracker;
+        // TODO: use directly in callers?  (There's a lot of them)
+        return getAppServices(context).getUsageTracker();
     }
 
-    private static boolean canGetUsageTracker(Context context) {
-        return context == null
-               || !(context.getApplicationContext() instanceof WhistlePunkApplication);
-    }
-
-    public static FeatureDiscoveryProvider getFeatureDiscoveryProvider(Context context) {
-        WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
-        return app.mFeatureDiscoveryProvider;
-    }
-
-    public static FeedbackProvider getFeedbackProvider(Context context) {
-        WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
-        return app.mFeedbackProvider;
+    private static boolean hasAppServices(Context context) {
+        return context != null && context.getApplicationContext() instanceof WhistlePunkApplication;
     }
 
     public static Map<String, SensorDiscoverer> getExternalSensorDiscoverers(

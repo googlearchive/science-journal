@@ -22,6 +22,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
  * An object which can build up feedback to be sent for collection.
  */
 public interface FeedbackProvider {
+    FeedbackProvider STUB = onSuccess -> onSuccess.success(true);
 
     /**
      * Called when user is requesting a feedback report get created.
